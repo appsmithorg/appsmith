@@ -17,6 +17,8 @@ import {
 jest.mock("ce/api/JSActionAPI");
 jest.mock("api/ActionAPI");
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const successResponse = <T = any>(data: T) => {
   return {
     responseMeta: {
@@ -34,6 +36,8 @@ describe("updateActionAPICall", () => {
   });
 
   it("should call ActionAPI.updateAction and return the response", async () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dispatchedActions: any[] = [];
     const action = PostgresFactory.build();
 
@@ -54,6 +58,8 @@ describe("updateActionAPICall", () => {
   });
 
   it("should throw an error when ActionAPI.updateAction fails", async () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dispatchedActions: any[] = [];
     const action = PostgresFactory.build();
     const error = new Error("Some error");
@@ -82,6 +88,8 @@ describe("updateJSCollectionAPICall", () => {
   });
 
   it("should call JSActionAPI.updateJSCollection and return the response", async () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dispatchedActions: any[] = [];
     const jsCollection = JSObjectFactory.build();
     const response = successResponse(jsCollection);
@@ -101,6 +109,8 @@ describe("updateJSCollectionAPICall", () => {
   });
 
   it("should throw an error when JSActionAPI.updateJSCollection fails", async () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dispatchedActions: any[] = [];
     const jsCollection = JSObjectFactory.build();
     const error = new Error("Some error");

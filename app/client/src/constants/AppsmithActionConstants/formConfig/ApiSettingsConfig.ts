@@ -1,7 +1,7 @@
 import {
   HTTP_PROTOCOL_INPUT_PLACEHOLDER,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   HTTP_PROTOCOL,
   HTTP_PROTOCOL_VERSIONS,

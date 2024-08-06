@@ -6,14 +6,14 @@ import type {
   FormConfigEvalObject,
   DynamicValuesConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ActionConfig } from "entities/Action";
 import type { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isTrueObject } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
 
 export enum ConditionType {
@@ -47,7 +47,11 @@ export function matchExact(r: RegExp, str: string) {
 
 // Recursive function to generate the evaluation state for form config
 const generateInitialEvalState = (formConfig: FormConfigType) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionals: Record<string, any> = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionTypes: Record<string, any> = {};
   let dependencyPaths: string[] = [];
 
@@ -260,8 +264,12 @@ function generateEvalFormConfigPaths(
 
 function evaluateDynamicValuesConfig(
   actionConfiguration: ActionConfig,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: Record<string, any>,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evaluatedConfig: Record<string, any> = { ...config };
   const configArray = Object.entries(config);
   if (configArray.length > 0) {

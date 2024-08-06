@@ -12,7 +12,6 @@ import org.springframework.http.HttpHeaders;
 @Builder(toBuilder = true)
 public class ExecuteActionMetaDTO {
     String environmentId;
-    String branchName;
     HttpHeaders headers;
     boolean operateWithoutPermission = false;
 }

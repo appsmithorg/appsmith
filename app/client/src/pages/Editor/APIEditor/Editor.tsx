@@ -2,23 +2,21 @@ import React from "react";
 import { connect } from "react-redux";
 import { submit } from "redux-form";
 import RestApiEditorForm from "./RestAPIForm";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { RouteComponentProps } from "react-router";
 import type {
   ActionData,
   ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
+} from "ee/reducers/entityReducers/actionsReducer";
 import _ from "lodash";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import {
-  getActionById,
   getCurrentApplicationId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
 import type { Plugin } from "api/PluginApi";
 import type { Action, PaginationType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
-import { getApiName } from "selectors/formSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import type { CSSProperties } from "styled-components";
 import styled from "styled-components";
@@ -29,10 +27,14 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { getPageList, getPlugins } from "@appsmith/selectors/entitiesSelector";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import {
+  getActionByBaseId,
+  getPageList,
+  getPlugins,
+} from "ee/selectors/entitiesSelector";
 import history from "utils/history";
-import { saasEditorApiIdURL } from "@appsmith/RouteBuilder";
+import { saasEditorApiIdURL } from "ee/RouteBuilder";
 import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
 import type { APIEditorRouteParams } from "constants/routes";
 import { ApiEditorContext } from "./ApiEditorContext";
@@ -46,11 +48,16 @@ interface ReduxStateProps {
   isRunning: boolean;
   isDeleting: boolean;
   isCreating: boolean;
+  apiId: string;
   apiName: string;
   currentApplication?: ApplicationPayload;
   currentPageName: string | undefined;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pages: any;
   plugins: Plugin[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pluginId: any;
   apiAction: Action | ActionData | undefined;
   paginationType: PaginationType;
@@ -85,8 +92,8 @@ class ApiEditor extends React.Component<Props> {
       actionType: "API",
     });
     const type = this.getFormName();
-    if (this.props.match.params.apiId) {
-      this.props.changeAPIPage(this.props.match.params.apiId, type === "SAAS");
+    if (this.props.apiId) {
+      this.props.changeAPIPage(this.props.apiId, type === "SAAS");
     }
   }
 
@@ -105,12 +112,9 @@ class ApiEditor extends React.Component<Props> {
     if (prevProps.isRunning && !this.props.isRunning) {
       PerformanceTracker.stopTracking(PerformanceTransactionName.RUN_API_CLICK);
     }
-    if (prevProps.match.params.apiId !== this.props.match.params.apiId) {
+    if (prevProps.apiId !== this.props.apiId) {
       const type = this.getFormName();
-      this.props.changeAPIPage(
-        this.props.match.params.apiId || "",
-        type === "SAAS",
-      );
+      this.props.changeAPIPage(this.props.apiId || "", type === "SAAS");
     }
   }
 
@@ -138,13 +142,13 @@ class ApiEditor extends React.Component<Props> {
       isEditorInitialized,
       isRunning,
       match: {
-        params: { apiId },
+        params: { baseApiId },
       },
       paginationType,
       pluginId,
       plugins,
     } = this.props;
-    if (!pluginId && apiId) {
+    if (!pluginId && baseApiId) {
       return <EntityNotFoundPane />;
     }
     if (isCreating || !isEditorInitialized) {
@@ -156,7 +160,7 @@ class ApiEditor extends React.Component<Props> {
     }
 
     let formUiComponent: string | undefined;
-    if (apiId) {
+    if (baseApiId) {
       if (pluginId) {
         formUiComponent = this.getPluginUiComponentOfId(pluginId, plugins);
       } else {
@@ -204,13 +208,13 @@ class ApiEditor extends React.Component<Props> {
         {formUiComponent === "SaaSEditorForm" &&
           history.push(
             saasEditorApiIdURL({
-              pageId: this.props.match.params.pageId,
+              basePageId: this.props.match.params.basePageId,
               pluginPackageName:
                 getPackageNameFromPluginId(
                   this.props.pluginId,
                   this.props.plugins,
                 ) ?? "",
-              apiId: this.props.match.params.apiId || "",
+              baseApiId: this.props.match.params.baseApiId || "",
             }),
           )}
       </div>
@@ -225,9 +229,12 @@ const formStyles: CSSProperties = {
   flexDirection: "column",
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
-  const apiAction = getActionById(state, props);
-  const apiName = getApiName(state, props.match.params.apiId);
+  const apiAction = getActionByBaseId(state, props?.match?.params?.baseApiId);
+  const apiName = apiAction?.name ?? "";
+  const apiId = apiAction?.id ?? "";
   const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
   const pluginId = _.get(apiAction, "pluginId", "");
   return {
@@ -235,18 +242,21 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     currentApplication: getCurrentApplication(state),
     currentPageName: getCurrentPageName(state),
     pages: getPageList(state),
-    apiName: apiName || "",
+    apiId,
+    apiName,
     plugins: getPlugins(state),
     pluginId,
     paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
     apiAction,
-    isRunning: isRunning[props.match.params.apiId],
-    isDeleting: isDeleting[props.match.params.apiId],
+    isRunning: isRunning[apiId],
+    isDeleting: isDeleting[apiId],
     isCreating: isCreating,
     applicationId: getCurrentApplicationId(state),
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   changeAPIPage: (actionId: string, isSaas: boolean) =>

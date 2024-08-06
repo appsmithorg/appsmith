@@ -17,6 +17,8 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 export function totalRecordsCountValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) {
   const ERROR_MESSAGE = "This value must be a number";
@@ -58,6 +60,8 @@ export function totalRecordsCountValidation(
 export function uniqueColumnNameValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) {
   const tableColumnLabels = _.map(value, "label");
@@ -83,6 +87,8 @@ export function uniqueColumnNameValidation(
 export function uniqueColumnAliasValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) {
   const aliases = _.map(Object.values(props.primaryColumns), "alias");
@@ -117,11 +123,17 @@ export function uniqueColumnAliasValidation(
 export const updateColumnStyles = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   const { primaryColumns = {} } = props;
   const propertiesToUpdate: Array<{
     propertyPath: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any;
   }> = [];
   const styleName = propertyPath.split(".").shift();
@@ -180,10 +192,16 @@ export function updateIconAlignment(
 export const updateColumnOrderHook = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   const propertiesToUpdate: Array<{
     propertyPath: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any;
   }> = [];
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
@@ -237,6 +255,8 @@ function isMatchingEditablePath(propertyPath: string) {
 export const updateInlineEditingOptionDropdownVisibilityHook = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ): Array<PropertyUpdates> | undefined => {
   let propertiesToUpdate = [];
@@ -343,7 +363,11 @@ export const updateColumnOrderWhenFrozen = (
 export const updateColumnLevelEditability = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   if (
     props &&
@@ -431,7 +455,11 @@ export const showByColumnType = (
 
 export const SelectColumnOptionsValidations = (
   value: unknown,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) => {
   let isValid = true;
@@ -491,6 +519,8 @@ export const SelectColumnOptionsValidations = (
 export const updateInlineEditingSaveOptionHook = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ): Array<PropertyUpdates> | undefined => {
   if (propertyValue !== InlineEditingSaveOptions.ROW_LEVEL) {
@@ -531,7 +561,11 @@ export const updateInlineEditingSaveOptionHook = (
 export const updateNumberColumnTypeTextAlignment = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   const baseProperty = getBasePropertyPath(propertyPath);
 
@@ -750,6 +784,8 @@ export const updateCurrencyDefaultValues = (
 export function selectColumnOptionsValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) {
   let _isValid = true,
@@ -780,6 +816,8 @@ export function selectColumnOptionsValidation(
     )} ${invalidArrayValueMessage}`;
 
   const validateOption = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     option: any,
     rowIndex: number | null,
     optionIndex: number,
@@ -949,6 +987,8 @@ export const getColumnPath = (propPath: string) =>
 export const tableDataValidation = (
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) => {
   const invalidResponse = {
@@ -1028,6 +1068,8 @@ export const tableDataValidation = (
 export function textForEachRowValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   const generateResponseAndReturn = (
@@ -1135,7 +1177,11 @@ export function booleanForEachRowValidation(
 export function iconNamesForEachRowValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   moment: any,
   propertyPath: string,
   config: ValidationConfig,
@@ -1194,7 +1240,11 @@ export function iconNamesForEachRowValidation(
 export function iconPositionForEachRowValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   moment: any,
   propertyPath: string,
   config: ValidationConfig,
@@ -1251,10 +1301,16 @@ export function iconPositionForEachRowValidation(
   return generateResponseAndReturn(false, DEFAULT_MESSAGE);
 }
 
-export function colorForEachRowValidation(
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function colorForEachRowValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   moment: any,
   propertyPath: string,
   config: ValidationConfig,

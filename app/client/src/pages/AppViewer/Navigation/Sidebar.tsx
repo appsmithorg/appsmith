@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import type {
   ApplicationPayload,
   Page,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,18 +13,18 @@ import MenuItem from "./components/MenuItem";
 import ShareButton from "./components/ShareButton";
 import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import {
   combinedPreviewModeSelector,
-  getCurrentPageId,
+  getCurrentBasePageId,
 } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
 import { useMouse } from "@mantine/hooks";
-import { getAppSidebarPinned } from "@appsmith/selectors/applicationSelectors";
-import { setIsAppSidebarPinned } from "@appsmith/actions/applicationActions";
+import { getAppSidebarPinned } from "ee/selectors/applicationSelectors";
+import { setIsAppSidebarPinned } from "ee/actions/applicationActions";
 import {
   StyledCtaContainer,
   StyledFooter,
@@ -34,7 +34,7 @@ import {
 } from "./Sidebar.styled";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
+import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
 
@@ -76,8 +76,8 @@ export function Sidebar(props: SidebarProps) {
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");
-  const pageId = useSelector(getCurrentPageId);
-  const editorURL = useHref(builderURL, { pageId });
+  const basePageId = useSelector(getCurrentBasePageId);
+  const editorURL = useHref(builderURL, { basePageId });
   const dispatch = useDispatch();
   const isPinned = useSelector(getAppSidebarPinned);
   const [isOpen, setIsOpen] = useState(true);

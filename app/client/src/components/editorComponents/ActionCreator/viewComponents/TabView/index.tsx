@@ -36,6 +36,7 @@ export function TabView(props: TabViewProps) {
             label: option.text,
             value: option.id,
           }))}
+          // @ts-expect-error fix this the next time the file is edited
           value={props.activeObj.id}
         />
       </ControlWrapper>

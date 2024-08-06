@@ -11,14 +11,14 @@ import {
 import type { TooltipPlacement } from "design-system";
 import { Tooltip, Button } from "design-system";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import type { WidgetType } from "constants/WidgetConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
 
 interface PropertyPaneTitleProps {
@@ -29,6 +29,8 @@ interface PropertyPaneTitleProps {
   onBackClick?: () => void;
   isPanelTitle?: boolean;
   actions: Array<{
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tooltipContent: any;
     icon: ReactElement;
     tooltipPosition?: TooltipPlacement;

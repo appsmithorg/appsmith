@@ -153,6 +153,8 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       model: {},
@@ -187,6 +189,8 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
         height={this.props.componentHeight}
         model={this.props.model}
         srcDoc={this.props.srcDoc}
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         update={(data: any) => this.update(data)}
         width={this.props.componentWidth}
       />

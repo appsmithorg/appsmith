@@ -3,7 +3,7 @@ import { generateReactKey } from "utils/generators";
 import {
   createMessage,
   BUTTON_WIDGET_DEFAULT_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import ButtonListControl from "./ButtonListControl";
 
 class ToolbarButtonListControl extends ButtonListControl {

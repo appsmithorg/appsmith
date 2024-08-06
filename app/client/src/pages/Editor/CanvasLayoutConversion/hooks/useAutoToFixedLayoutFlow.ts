@@ -15,7 +15,7 @@ import {
   SNAPSHOT_TIME_FROM_MESSAGE,
   SNAPSHOT_WARNING_MESSAGE,
   USE_SNAPSHOT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ConversionProps } from "../ConversionForm";
 
 import type { Dispatch } from "redux";
@@ -24,13 +24,15 @@ import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { useSelector } from "react-redux";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { snapShotFlow } from "./useSnapShotForm";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 
 //returns props for Auto to fixed layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: Dispatch<any>,
 ): {
   [key: string]: ConversionProps;

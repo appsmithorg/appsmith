@@ -9,7 +9,7 @@ import {
 import { useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
 import { getParentWidget } from "selectors/widgetSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { PropertyPaneSpaceDistributionHandle } from "./PropertyPaneSpaceDistributionHandle";
 

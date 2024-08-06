@@ -99,6 +99,8 @@ const FormInputSwitchToJsonButton = styled.button`
 //Styled form label tag, intended to be used with Form Fields
 const StyledFormLabel = styled.label<{
   config?: ControlProps;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraStyles?: any;
 }>`
   display: inline-block;
@@ -148,6 +150,8 @@ const FormEncrytedSection = styled.div`
 interface FormLabelProps {
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraStyles?: any;
 }
 

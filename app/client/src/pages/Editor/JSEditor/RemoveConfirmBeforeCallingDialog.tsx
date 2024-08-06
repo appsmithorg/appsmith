@@ -11,7 +11,7 @@ import {
 import {
   REMOVE_CONFIRM_BEFORE_CALLING_HEADING,
   REMOVE_CONFIRM_BEFORE_CALLING_DESCRIPTION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface RemoveConfirmationProps {
   isOpen: boolean;

@@ -7,10 +7,10 @@ import { useSelector } from "react-redux";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 

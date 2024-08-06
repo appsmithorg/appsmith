@@ -1,10 +1,10 @@
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { templateIdUrl } from "ee/RouteBuilder";
 import {
   FORK_THIS_TEMPLATE,
   FORK_THIS_TEMPLATE_BUILDING_BLOCK,
   GO_BACK,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Button, Link, Text } from "design-system";
 import { useQuery } from "pages/Editor/utils";
 import React from "react";

@@ -6,6 +6,4 @@ import reactor.core.publisher.Mono;
 public interface LayoutServiceCE {
 
     Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode);
-
-    Mono<Layout> getLayout(String defaultPageId, String layoutId, Boolean viewMode, String branchName);
 }

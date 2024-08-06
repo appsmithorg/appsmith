@@ -25,7 +25,7 @@ import type {
   PrivateWidgets,
   ActionEntityConfig,
   DataTreeEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   DataTree,
   DataTreeEntity,
@@ -33,9 +33,12 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
+import {
+  convertMicroDiffToDeepDiff,
+  getAllPathsBasedOnDiffPaths,
+} from "ee/workers/Evaluation/evaluationUtils";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -60,7 +63,7 @@ import {
   isAPathDynamicBindingPath,
   isAnyJSAction,
   isNotEntity,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import {
   difference,
   flatten,
@@ -99,7 +102,7 @@ import type {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { klona as klonaJSON } from "klona/json";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
   createDependencyMap,
@@ -128,7 +131,7 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 import microDiff from "microdiff";
@@ -138,7 +141,7 @@ import {
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
-import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
+import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -177,6 +180,8 @@ export default class DataTreeEvaluator {
   undefinedEvalValuesMap: Record<string, boolean> = {};
 
   prevState = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPrevState(state: any) {
     this.prevState = state;
   }
@@ -231,6 +236,8 @@ export default class DataTreeEvaluator {
    * evaluation of the first tree
    */
   setupFirstTree(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
@@ -658,7 +665,11 @@ export default class DataTreeEvaluator {
     // TODO => Optimize using dataTree diff
 
     this.allKeys = profileFn("getAllPaths", undefined, webworkerTelemetry, () =>
-      getAllPaths(unEvalTreeWithStringifiedJSFunctions),
+      getAllPathsBasedOnDiffPaths(
+        unEvalTreeWithStringifiedJSFunctions,
+        translatedDiffs,
+        this.allKeys,
+      ),
     );
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
@@ -1034,6 +1045,8 @@ export default class DataTreeEvaluator {
         const entityConfig = oldConfigTree[entityName];
         if (!isWidgetActionOrJsObject(entity)) continue;
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let unEvalPropertyValue = get(contextTree as any, fullPropertyPath);
 
         const isADynamicBindingPath = isAPathDynamicBindingPath(
@@ -1338,6 +1351,8 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree,
     evaluationSubstitutionType: EvaluationSubstitutionType,
     contextData?: EvaluateContext,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callBackData?: Array<any>,
     fullPropertyPath?: string,
   ) {
@@ -1474,6 +1489,8 @@ export default class DataTreeEvaluator {
     data: DataTree,
     isJSObject: boolean,
     contextData?: EvaluateContext,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callbackData?: Array<any>,
   ): EvalResult {
     let evalResponse: EvalResult;
@@ -1557,6 +1574,8 @@ export default class DataTreeEvaluator {
     fullPropertyPath: string,
     action: ActionEntity,
     currentTree: DataTree,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     configTree: ConfigTree,
@@ -1599,6 +1618,8 @@ export default class DataTreeEvaluator {
   updateEvalTreeWithChanges({
     differences,
   }: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     differences: Diff<any, any>[];
   }) {
     for (const d of differences) {
@@ -1694,6 +1715,8 @@ export default class DataTreeEvaluator {
     // If the user has added a proper object (valid case) it will be an object
     // If they have not added any execution params or not an object
     // it would be a string (invalid case)
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let evaluatedExecutionParams: Record<string, any> = {};
     let overrideContext: Record<string, unknown>;
     if (executionParams && isObject(executionParams)) {

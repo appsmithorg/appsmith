@@ -1,0 +1,33 @@
+:root {
+  /* z-indexes */
+  --ads-v2-z-index-0: 0;
+  --ads-v2-z-index-1: 1;
+  --ads-v2-z-index-2: 2;
+  --ads-v2-z-index-3: 3;
+  --ads-v2-z-index-4: 4;
+  --ads-v2-z-index-5: 5;
+  --ads-v2-z-index-6: 6;
+  --ads-v2-z-index-7: 7;
+  --ads-v2-z-index-8: 8;
+  --ads-v2-z-index-9: 9;
+  --ads-v2-z-index-10: 10;
+  --ads-v2-z-index-21: 21;
+  --ads-v2-z-index-max: 99999;
+
+  /* Spaces */
+  --ads-v2-spaces-0: 0;
+  --ads-v2-spaces-1: 2px;
+  --ads-v2-spaces-2: 4px;
+  --ads-v2-spaces-3: 8px;
+  --ads-v2-spaces-4: 12px;
+  --ads-v2-spaces-5: 16px;
+  --ads-v2-spaces-6: 20px;
+  --ads-v2-spaces-7: 24px;
+  --ads-v2-spaces-8: 28px;
+  --ads-v2-spaces-9: 32px;
+  --ads-v2-spaces-10: 36px;
+  --ads-v2-spaces-11: 40px;
+  --ads-v2-spaces-12: 44px;
+  --ads-v2-spaces-13: 48px;
+  --ads-v2-spaces-14: 52px;
+}

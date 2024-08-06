@@ -68,6 +68,8 @@ interface TableProps {
     pageData: Row<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -87,10 +89,14 @@ const defaultColumn = {
   width: 150,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ScrollbarVerticalThumb(props: any) {
   return <div {...props} className="thumb-vertical" />;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ScrollbarHorizontalThumb(props: any) {
   return <div {...props} className="thumb-horizontal" />;
 }
@@ -302,6 +308,8 @@ export function Table(props: TableProps) {
               onMouseLeave={props.enableDrag}
               onMouseOver={props.disableDrag}
             >
+              {/* TODO: Fix this the next time the file is edited */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {headerGroups.map((headerGroup: any, index: number) => {
                 const headerRowProps = {
                   ...headerGroup.getHeaderGroupProps(),
@@ -317,6 +325,8 @@ export function Table(props: TableProps) {
                         props.borderRadius,
                       )}
                     {headerGroup.headers.map(
+                      // TODO: Fix this the next time the file is edited
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       (column: any, columnIndex: number) => {
                         return (
                           <TableHeaderCell

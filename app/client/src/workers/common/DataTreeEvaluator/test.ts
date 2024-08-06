@@ -2,7 +2,7 @@ import DataTreeEvaluator from ".";
 import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   arrayAccessorCyclicDependency,
   arrayAccessorCyclicDependencyConfig,
@@ -19,12 +19,12 @@ import type { WidgetConfiguration } from "WidgetProvider/constants";
 import {
   EvaluationSubstitutionType,
   type WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
+import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
 
 const widgetConfigMap: Record<
@@ -45,7 +45,7 @@ widgets.map((widget) => {
   }
 });
 
-jest.mock("@appsmith/workers/Evaluation/generateOverrideContext"); // mock the generateOverrideContext function
+jest.mock("ee/workers/Evaluation/generateOverrideContext"); // mock the generateOverrideContext function
 
 const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
@@ -193,6 +193,8 @@ describe("DataTreeEvaluator", () => {
 
       const originalGetDynamicValue =
         dataTreeEvaluator.getDynamicValue.bind(dataTreeEvaluator);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const getDynamicValueCapturedParams: any[] = [];
       jest.spyOn(dataTreeEvaluator, "getDynamicValue");
       (dataTreeEvaluator.getDynamicValue as jest.Mock).mockImplementation(

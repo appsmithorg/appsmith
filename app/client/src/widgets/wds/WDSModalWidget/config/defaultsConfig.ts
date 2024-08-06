@@ -34,7 +34,6 @@ export const defaultsConfig = {
           layoutSystemType: LayoutSystemTypes,
         ) => {
           if (layoutSystemType !== LayoutSystemTypes.ANVIL) return [];
-
           const layout: LayoutProps[] = modalPreset();
           return getWidgetBluePrintUpdates({
             [widget.widgetId]: {

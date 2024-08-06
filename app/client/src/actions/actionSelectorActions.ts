@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const evaluateActionSelectorField = (payload: {
   id: string;
@@ -13,6 +13,8 @@ export const setEvaluatedActionSelectorField = (payload: {
   id: string;
   evaluatedValue: {
     value: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     errors: any[];
   };
 }) => ({

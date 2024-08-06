@@ -1,4 +1,4 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import { Text } from "design-system";
 import React from "react";
 import { SearchListItem } from "./WorkspaceSearchItems";
@@ -41,6 +41,7 @@ const ApplicationSearchItem = (props: Props) => {
           <CircleAppIcon
             className="!mr-1"
             color="var(--ads-v2-color-fg)"
+            // @ts-expect-error Fix this the next time the file is edited
             name={
               application?.icon ||
               (getApplicationIcon(application.id) as AppIconName)

@@ -8,7 +8,7 @@ import {
   SEMRESATTRS_SERVICE_VERSION,
   SEMRESATTRS_SERVICE_INSTANCE_ID,
 } from "@opentelemetry/semantic-conventions";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import {
   MeterProvider,
@@ -20,14 +20,21 @@ import {
 } from "@opentelemetry/exporter-metrics-otlp-http";
 import type { Context, TextMapSetter } from "@opentelemetry/api";
 import { metrics } from "@opentelemetry/api";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { PageLoadInstrumentation } from "./PageLoadInstrumentation";
 
 enum CompressionAlgorithm {
   NONE = "none",
   GZIP = "gzip",
 }
 const { newRelic } = getAppsmithConfigs();
-const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
-  newRelic;
+const {
+  applicationId,
+  browserAgentEndpoint,
+  otlpEndpoint,
+  otlpLicenseKey,
+  otlpServiceName,
+} = newRelic;
 
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
@@ -112,3 +119,13 @@ const meterProvider = new MeterProvider({
 
 // Register the MeterProvider globally
 metrics.setGlobalMeterProvider(meterProvider);
+
+registerInstrumentations({
+  tracerProvider,
+  meterProvider,
+  instrumentations: [
+    new PageLoadInstrumentation({
+      ignoreResourceUrls: [browserAgentEndpoint, otlpEndpoint],
+    }),
+  ],
+});

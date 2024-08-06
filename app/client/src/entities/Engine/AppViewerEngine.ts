@@ -9,7 +9,7 @@ import {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
 import { call, put, spawn } from "redux-saga/effects";
 import type { DeployConsolidatedApi } from "sagas/InitSagas";
@@ -27,8 +27,8 @@ import { fetchJSLibraries } from "actions/JSLibraryActions";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "@appsmith/sagas/userSagas";
-import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
+} from "ee/sagas/userSagas";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
@@ -94,6 +94,8 @@ export default class AppViewerEngine extends AppEngine {
     applicationId: string,
     allResponses: DeployConsolidatedApi,
     rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     const loadAppEntitiesSpan = startNestedSpan(
       "AppViewerEngine.loadAppEntities",
@@ -108,6 +110,8 @@ export default class AppViewerEngine extends AppEngine {
       publishedActions,
       themes,
     } = allResponses;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const initActionsCalls: any = [
       fetchActionsForView({ applicationId, publishedActions }),
       fetchJSCollectionsForView({

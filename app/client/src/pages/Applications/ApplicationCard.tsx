@@ -6,12 +6,12 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
   isPermitted,
   PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+} from "ee/utils/permissionHelpers";
 import {
   getInitialsAndColorCode,
   getApplicationIcon,
@@ -38,16 +38,16 @@ import { useDispatch, useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import history from "utils/history";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
@@ -262,6 +262,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   // should show correct branch of application when edit mode
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = {};
   if (showGitBadge) {
     params.branch = showGitBadge;
@@ -403,31 +405,27 @@ export function ApplicationCard(props: ApplicationCardProps) {
       {
         applicationSlug: props.application.slug,
         applicationVersion: props.application.applicationVersion,
-        applicationId: props.application.id,
+        baseApplicationId: props.application.baseId,
       },
       props.application.pages.map((page) => ({
         pageSlug: page.slug,
         customSlug: page.customSlug,
-        pageId: page.id,
+        basePageId: page.baseId,
       })),
     );
   }
 
   const editModeURL = useMemo(() => {
-    if (!props.application.defaultPageId) return "";
-    return builderURL({
-      pageId: props.application.defaultPageId,
-      params,
-    });
-  }, [props.application.defaultPageId, params]);
+    const basePageId = props.application.defaultBasePageId;
+    if (!basePageId) return "";
+    return builderURL({ basePageId, params });
+  }, [props.application.defaultBasePageId, params]);
 
   const viewModeURL = useMemo(() => {
-    if (!props.application.defaultPageId) return "";
-    return viewerURL({
-      pageId: props.application.defaultPageId,
-      params,
-    });
-  }, [props.application.defaultPageId, params]);
+    const basePageId = props.application.defaultBasePageId;
+    if (!basePageId) return "";
+    return viewerURL({ basePageId, params });
+  }, [props.application.defaultBasePageId, params]);
 
   const launchApp = useCallback(() => {
     setURLParams();
@@ -443,7 +441,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
     setURLParams();
     history.push(
       viewerURL({
-        pageId: props.application.defaultPageId,
+        basePageId: props.application.defaultBasePageId,
         params,
       }),
     );

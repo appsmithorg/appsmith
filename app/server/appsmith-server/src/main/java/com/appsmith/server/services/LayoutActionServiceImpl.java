@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -23,7 +22,6 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             RefactoringService refactoringService,
             CollectionService collectionService,
             UpdateLayoutService updateLayoutService,
-            ResponseUtils responseUtils,
             DatasourceService datasourceService,
             PagePermission pagePermission,
             ActionPermission actionPermission) {
@@ -34,7 +32,6 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                 refactoringService,
                 collectionService,
                 updateLayoutService,
-                responseUtils,
                 datasourceService,
                 pagePermission,
                 actionPermission);

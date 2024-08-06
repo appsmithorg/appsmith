@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -16,7 +16,7 @@ import {
 } from "./ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { get } from "lodash";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";

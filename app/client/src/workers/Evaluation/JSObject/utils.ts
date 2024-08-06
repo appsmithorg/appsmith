@@ -1,7 +1,7 @@
 import type {
   JSActionEntityConfig,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
@@ -16,24 +16,24 @@ import type {
   JSCollectionData,
   JSExecutionData,
   JSExecutionError,
-} from "@appsmith/reducers/entityReducers/jsActionsReducer";
+} from "ee/reducers/entityReducers/jsActionsReducer";
 import { select } from "redux-saga/effects";
 import type { JSAction } from "entities/JSCollection";
-import { getAllJSCollections } from "@appsmith/selectors/entitiesSelector";
+import { getAllJSCollections } from "ee/selectors/entitiesSelector";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import JSObjectCollection from "./Collection";
 
 /**
  * here we add/remove the properties (variables and actions) which got added/removed from the JSObject parsedBody.
   NOTE: For other entity below logic is maintained in DataTreeFactory, for JSObject we handle it inside evaluations
- * 
- * @param parsedBody 
- * @param jsCollection 
- * @param unEvalTree 
- * @returns 
+ *
+ * @param parsedBody
+ * @param jsCollection
+ * @param unEvalTree
+ * @returns
  */
 export const updateJSCollectionInUnEvalTree = (
   parsedBody: ParsedBody,
@@ -116,6 +116,8 @@ export const updateJSCollectionInUnEvalTree = (
 
         oldConfig.dynamicBindingPathList =
           oldConfig.dynamicBindingPathList.filter(
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (path: any) => path["key"] !== oldActionName,
           );
 
@@ -123,6 +125,8 @@ export const updateJSCollectionInUnEvalTree = (
         const removeIndex = dependencyMap.indexOf(oldActionName);
         if (removeIndex > -1) {
           oldConfig.dependencyMap["body"] = dependencyMap.filter(
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (item: any) => item !== oldActionName,
           );
         }
@@ -176,6 +180,8 @@ export const updateJSCollectionInUnEvalTree = (
 
         oldConfig.dynamicBindingPathList =
           oldConfig.dynamicBindingPathList.filter(
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (path: any) => path["key"] !== varListItem,
           );
 
@@ -232,10 +238,14 @@ export const removeFunctionsAndVariableJSCollection = (
     unset(modifiedDataTree[entityName], actionName);
 
     oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (path: any) => path["key"] !== actionName,
     );
 
     oldConfig.dependencyMap["body"] = entity.dependencyMap["body"].filter(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (item: any) => item !== actionName,
     );
   }
@@ -271,6 +281,8 @@ export function isJSObjectVariable(
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
 }

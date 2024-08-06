@@ -1,8 +1,7 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetAddChild } from "actions/pageActions";
-import { WidgetReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { GridDefaults } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { WidgetReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put } from "redux-saga/effects";
 import {
@@ -64,30 +63,4 @@ export function* addNewWidgetToDsl(
   );
 
   return updatedWidgets;
-}
-
-/**
- *
- * Create default props for a new widget.
- * Default values can be used here as some of these props are vestigial and are not required by Anvil.
- */
-export function getCreateWidgetPayload(
-  widgetId: string,
-  type: string,
-  parentId: string,
-  data: Partial<WidgetAddChild> = {},
-): WidgetAddChild {
-  return {
-    columns: GridDefaults.DEFAULT_GRID_COLUMNS,
-    leftColumn: 0,
-    newWidgetId: widgetId,
-    parentColumnSpace: 1,
-    parentRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-    rows: 10,
-    tabId: "",
-    topRow: 0,
-    type: type,
-    widgetId: parentId,
-    ...data,
-  };
 }
