@@ -35,8 +35,6 @@ describe(
 
       assertHelper.AssertNetworkStatus("@postExecute");
 
-      agHelper.Sleep(2000);
-
       [
         "id",
         "configName",
@@ -56,8 +54,6 @@ describe(
       table.UpdateTableCell(0, 3, 36);
       table.UpdateTableCell(0, 4, "2023-07-03 15:30:00", false, true);
 
-      agHelper.Sleep(2000);
-
       agHelper.GetNClick(table._saveNewRow, 0, true);
 
       assertHelper.AssertNetworkStatus("@postExecute");
@@ -68,12 +64,8 @@ describe(
 
       agHelper.AssertElementExist(table._bodyCell("One Click Config"));
 
-      agHelper.Sleep(1000);
-
       table.EditTableCell(0, 1, "Bindings", false);
       table.EditTableCell(0, 4, "2023-07-03 15:30:00", false);
-
-      agHelper.Sleep(1000);
 
       (cy as any).AssertTableRowSavable(6, 0);
 
@@ -83,20 +75,15 @@ describe(
 
       assertHelper.AssertNetworkStatus("@postExecute");
 
-      agHelper.Sleep(500);
       agHelper.ClearNType(table._searchInput, "Bindings");
 
       assertHelper.AssertNetworkStatus("@postExecute");
-
-      agHelper.Sleep(2000);
 
       agHelper.AssertElementExist(table._bodyCell("Bindings"));
 
       agHelper.ClearNType(table._searchInput, "One Click Config");
 
       assertHelper.AssertNetworkStatus("@postExecute");
-
-      agHelper.Sleep(2000);
 
       agHelper.AssertElementAbsence(table._bodyCell("One Click Config"));
     });
