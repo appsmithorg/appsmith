@@ -1,37 +1,41 @@
-{"editor": [{
-    "sectionName": "",
-    "children": [
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
         {
-            "controlType": "QUERY_DYNAMIC_TEXT",
-            "hidden": {
-                "path": "actionConfiguration.formData.preparedStatement.data",
-                "comparison": "EQUALS",
-                "value": false
-            },
-            "evaluationSubstitutionType": "PARAMETER",
-            "label": "",
-            "internalLabel": "Query",
-            "configProperty": "actionConfiguration.formData.body.data"
+          "label": "",
+          "internalLabel": "Query",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "PARAMETER",
+          "hidden": {
+            "path": "actionConfiguration.formData.preparedStatement.data",
+            "comparison": "EQUALS",
+            "value": false
+          }
         },
         {
-            "controlType": "QUERY_DYNAMIC_TEXT",
-            "hidden": {
-                "path": "actionConfiguration.formData.preparedStatement.data",
-                "comparison": "EQUALS",
-                "value": true
-            },
-            "evaluationSubstitutionType": "TEMPLATE",
-            "label": "",
-            "internalLabel": "Query",
-            "configProperty": "actionConfiguration.formData.body.data"
+          "label": "",
+          "internalLabel": "Query",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "hidden": {
+            "path": "actionConfiguration.formData.preparedStatement.data",
+            "comparison": "EQUALS",
+            "value": true
+          }
         },
         {
-            "controlType": "SWITCH",
-            "label": "Use Prepared Statement",
-            "initialValue": true,
-            "configProperty": "actionConfiguration.formData.preparedStatement.data",
-            "info": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL"
+          "label": "Use Prepared Statement",
+          "info": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
+          "configProperty": "actionConfiguration.formData.preparedStatement.data",
+          "controlType": "SWITCH",
+          "initialValue": true
         }
-    ],
-    "id": 1
-}]}
+      ]
+    }
+  ]
+}

@@ -1,94 +1,101 @@
-{"form": [
+{
+  "form": [
     {
-        "sectionName": "Connection",
-        "children": [
+      "sectionName": "Connection",
+      "id": 1,
+      "children": [
+        {
+          "label": "Connection mode",
+          "configProperty": "datasourceConfiguration.connection.mode",
+          "controlType": "SEGMENTED_CONTROL",
+          "initialValue": "READ_WRITE",
+          "options": [
+
             {
-                "controlType": "SEGMENTED_CONTROL",
-                "options": [
-                    {
-                        "label": "Read / Write",
-                        "value": "READ_WRITE"
-                    },
-                    {
-                        "label": "Read only",
-                        "value": "READ_ONLY"
-                    }
-                ],
-                "label": "Connection mode",
-                "initialValue": "READ_WRITE",
-                "configProperty": "datasourceConfiguration.connection.mode"
+              "label": "Read / Write",
+              "value": "READ_WRITE"
             },
             {
-                "sectionName": null,
-                "children": [
-                    {
-                        "controlType": "KEYVALUE_ARRAY",
-                        "validationMessage": "Please enter a valid host",
-                        "placeholderText": "myapp.abcde.mssql.net",
-                        "label": "Host address",
-                        "validationRegex": "^((?![/:]).)*$",
-                        "configProperty": "datasourceConfiguration.endpoints[*].host"
-                    },
-                    {
-                        "controlType": "KEYVALUE_ARRAY",
-                        "dataType": "NUMBER",
-                        "placeholderText": "1433",
-                        "label": "Port",
-                        "initialValue": ["1433"],
-                        "configProperty": "datasourceConfiguration.endpoints[*].port"
-                    }
-                ]
-            },
-            {
-                "controlType": "INPUT_TEXT",
-                "placeholderText": "Database name",
-                "label": "Database name",
-                "initialValue": "admin",
-                "configProperty": "datasourceConfiguration.authentication.databaseName"
+              "label": "Read only",
+              "value": "READ_ONLY"
             }
-        ],
-        "id": 1
+          ]
+        },
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Host address",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "controlType": "KEYVALUE_ARRAY",
+              "validationMessage": "Please enter a valid host",
+              "validationRegex": "^((?![/:]).)*$",
+              "placeholderText": "myapp.abcde.mssql.net"
+            },
+            {
+              "label": "Port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "dataType": "NUMBER",
+              "initialValue": ["1433"],
+              "controlType": "KEYVALUE_ARRAY",
+              "placeholderText": "1433"
+            }
+          ]
+        },
+        {
+          "label": "Database name",
+          "configProperty": "datasourceConfiguration.authentication.databaseName",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Database name",
+          "initialValue": "admin"
+        }
+      ]
     },
     {
-        "sectionName": "Authentication",
-        "children": [{
-            "sectionName": null,
-            "children": [
-                {
-                    "controlType": "INPUT_TEXT",
-                    "placeholderText": "Username",
-                    "label": "Username",
-                    "configProperty": "datasourceConfiguration.authentication.username"
-                },
-                {
-                    "controlType": "INPUT_TEXT",
-                    "dataType": "PASSWORD",
-                    "placeholderText": "Password",
-                    "label": "Password",
-                    "configProperty": "datasourceConfiguration.authentication.password"
-                }
-            ]
-        }],
-        "id": 2
+      "sectionName": "Authentication",
+      "id": 2,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Username",
+              "configProperty": "datasourceConfiguration.authentication.username",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username"
+            },
+            {
+              "label": "Password",
+              "configProperty": "datasourceConfiguration.authentication.password",
+              "dataType": "PASSWORD",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Password"
+            }
+          ]
+        }
+      ]
     },
     {
-        "sectionName": "SSL",
-        "children": [{
-            "controlType": "DROP_DOWN",
-            "options": [
-                {
-                    "label": "Disable",
-                    "value": "DISABLE"
-                },
-                {
-                    "label": "Enabled with no verify",
-                    "value": "NO_VERIFY"
-                }
-            ],
-            "label": "SSL mode",
-            "initialValue": "NO_VERIFY",
-            "configProperty": "datasourceConfiguration.connection.ssl.authType"
-        }],
-        "id": 3
+      "id": 3,
+      "sectionName": "SSL",
+      "children": [
+        {
+          "label": "SSL mode",
+          "configProperty": "datasourceConfiguration.connection.ssl.authType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "NO_VERIFY",
+          "options": [
+            {
+              "label": "Disable",
+              "value": "DISABLE"
+            },
+            {
+              "label": "Enabled with no verify",
+              "value": "NO_VERIFY"
+            }
+          ]
+        }
+      ]
     }
-]}
+  ]
+}

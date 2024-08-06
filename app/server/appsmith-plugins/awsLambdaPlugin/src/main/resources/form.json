@@ -1,56 +1,60 @@
-{"form": [{
-    "sectionName": "Details",
-    "children": [
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
         {
-            "controlType": "DROP_DOWN",
-            "options": [
-                {
-                    "label": "AWS access key",
-                    "value": "accessKey"
-                },
-                {
-                    "label": "Instance role",
-                    "value": "instanceRole"
-                }
-            ],
-            "label": "Authentication type",
-            "setFirstOptionAsDefault": true,
-            "initialValue": "accessKey",
-            "configProperty": "datasourceConfiguration.authentication.authenticationType"
-        },
-        {
-            "isRequired": true,
-            "controlType": "INPUT_TEXT",
-            "hidden": {
-                "path": "datasourceConfiguration.authentication.authenticationType",
-                "comparison": "NOT_EQUALS",
-                "value": "accessKey"
+          "label": "Authentication type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "accessKey",
+          "setFirstOptionAsDefault": true,
+          "options": [
+            {
+              "label": "AWS access key",
+              "value": "accessKey"
             },
-            "label": "Access key",
-            "initialValue": "",
-            "configProperty": "datasourceConfiguration.authentication.username"
+            {
+              "label": "Instance role",
+              "value": "instanceRole"
+            }
+          ]
         },
         {
-            "isRequired": true,
-            "controlType": "INPUT_TEXT",
-            "encrypted": true,
-            "hidden": {
-                "path": "datasourceConfiguration.authentication.authenticationType",
-                "comparison": "NOT_EQUALS",
-                "value": "accessKey"
-            },
-            "dataType": "PASSWORD",
-            "label": "Secret key",
-            "initialValue": "",
-            "configProperty": "datasourceConfiguration.authentication.password"
+          "label": "Access key",
+          "configProperty": "datasourceConfiguration.authentication.username",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": "",
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "accessKey"
+          }
         },
         {
-            "controlType": "INPUT_TEXT",
-            "placeholderText": "us-east-1",
-            "label": "Region",
-            "initialValue": "",
-            "configProperty": "datasourceConfiguration.properties[1].value"
+          "label": "Secret key",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "initialValue": "",
+          "isRequired": true,
+          "encrypted": true,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "accessKey"
+          }
+        },
+        {
+          "label": "Region",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "us-east-1"
         }
-    ],
-    "id": 1
-}]}
+      ]
+    }
+  ]
+}
