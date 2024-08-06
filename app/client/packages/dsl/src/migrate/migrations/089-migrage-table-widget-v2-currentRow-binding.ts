@@ -98,11 +98,11 @@ export const migrateTableWidgetV2CurrentRowInValidationsBinding = (
 
     const primaryColumns: Record<string, ColumnProperties> =
       widget.primaryColumns as Record<string, ColumnProperties>;
-    Object.values(primaryColumns).forEach((colProperties) => {
+    Object.entries(primaryColumns).forEach(([colName, colProperties]) => {
       if (!colProperties.validation) return;
 
       handleInlineEditValidationControl(colProperties, widget);
-      handleInlineEditValidValidationControl(colProperties, widget);
+      handleInlineEditValidValidationControl(colName, colProperties, widget);
     });
   });
 };
@@ -124,20 +124,15 @@ function handleInlineEditValidationControl(
 }
 
 function handleInlineEditValidValidationControl(
+  colName: string,
   colProperties: ColumnProperties,
   widget: WidgetProps,
 ) {
   updateColProperty(
     colProperties,
     "isColumnEditableCellValid",
-    oldBindingSuffixForInlineEditValidProperty(
-      widget.widgetName,
-      colProperties,
-    ),
-    newBindingSuffixForInlineEditValidProperty(
-      widget.widgetName,
-      colProperties,
-    ),
+    oldBindingSuffixForInlineEditValidProperty(widget.widgetName, colName),
+    newBindingSuffixForInlineEditValidProperty(widget.widgetName, colName),
   );
 }
 
