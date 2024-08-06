@@ -101,55 +101,91 @@ export const migrateTableWidgetV2CurrentRowInValidationsBinding = (
     Object.entries(primaryColumns).forEach(([colName, colProperties]) => {
       if (!colProperties.validation) return;
 
-      handleInlineEditValidationControl(colProperties, widget);
-      handleInlineEditValidValidationControl(colName, colProperties, widget);
+      handleInlineEditValidationControl(
+        widget.widgetName,
+        colName,
+        colProperties,
+      );
+      handleInlineEditValidValidationControl(
+        widget.widgetName,
+        colName,
+        colProperties,
+      );
     });
   });
 };
 
 function handleInlineEditValidationControl(
+  tableName: string,
+  colName: string,
   colProperties: ColumnProperties,
-  widget: WidgetProps,
 ) {
   TABLE_INLINE_EDIT_VALIDATION_CONTROL_PROPERTIES_TO_UPDATE.forEach(
     (property) => {
-      updateColProperty(
-        colProperties,
-        property,
-        oldBindingSuffixForInlineEditValidationControl(widget.widgetName),
-        newBindingSuffixForInlineEditValidationControl(widget.widgetName),
-      );
+      updateColProperty(tableName, colName, colProperties, property);
     },
   );
 }
 
 function handleInlineEditValidValidationControl(
+  tableName: string,
   colName: string,
   colProperties: ColumnProperties,
-  widget: WidgetProps,
 ) {
   updateColProperty(
+    tableName,
+    colName,
     colProperties,
     "isColumnEditableCellValid",
-    oldBindingSuffixForInlineEditValidProperty(widget.widgetName, colName),
-    newBindingSuffixForInlineEditValidProperty(widget.widgetName, colName),
   );
 }
 
-function updateColProperty(
-  colProperties: ColumnProperties,
+function getBindingPrefixSuffix(
+  tableName: string,
+  colName: string,
   property: string,
-  oldBindingSuffix: string,
-  newBindingSuffix: string,
+  getOldBinding: boolean,
 ) {
+  if (getOldBinding) {
+    if (property === "isColumnEditableCellValid") {
+      return oldBindingSuffixForInlineEditValidProperty(tableName, colName);
+    }
+    return oldBindingSuffixForInlineEditValidationControl(tableName);
+  } else {
+    if (property === "isColumnEditableCellValid") {
+      return newBindingSuffixForInlineEditValidProperty(tableName, colName);
+    }
+    return newBindingSuffixForInlineEditValidationControl(tableName);
+  }
+}
+
+function updateColProperty(
+  tableName: string,
+  colName: string,
+  colProperties: ColumnProperties,
+  propertyToUpdate: string,
+) {
+  const oldBindingSuffix = getBindingPrefixSuffix(
+    tableName,
+    colName,
+    propertyToUpdate,
+    true,
+  );
+  const newBindingSuffix = getBindingPrefixSuffix(
+    tableName,
+    colName,
+    propertyToUpdate,
+    false,
+  );
+
   const isValidationValueDynamic =
-    property in colProperties.validation &&
-    colProperties.validation[property] &&
-    isDynamicValue(colProperties.validation[property]);
+    propertyToUpdate in colProperties.validation &&
+    colProperties.validation[propertyToUpdate] &&
+    isDynamicValue(colProperties.validation[propertyToUpdate]);
   if (!isValidationValueDynamic) return;
 
-  const propertyValue = colProperties.validation[property];
-  colProperties.validation[property] = propertyValue.replace(
+  const propertyValue = colProperties.validation[propertyToUpdate];
+  colProperties.validation[propertyToUpdate] = propertyValue.replace(
     oldBindingSuffix,
     newBindingSuffix,
   );
