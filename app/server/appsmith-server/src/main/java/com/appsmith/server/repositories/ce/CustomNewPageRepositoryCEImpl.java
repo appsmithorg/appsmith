@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -35,6 +37,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         implements CustomNewPageRepositoryCE {
 
     private final MongoTemplate mongoTemplate;
+    private final ObservationRegistry observationRegistry;
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
@@ -160,7 +163,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.branchName);
         }
 
-        return queryBuilder().criteria(q).permission(permission).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .one()
+                .name("appsmith.consolidated-api.view.actions.appid_db_call")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {

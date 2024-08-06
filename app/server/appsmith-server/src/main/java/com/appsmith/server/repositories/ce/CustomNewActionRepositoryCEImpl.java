@@ -52,7 +52,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
                 .all()
-                .name("appsmith.consolidated-api.actions.db_call")
+                .name("appsmith.consolidated-api.actions.db")
                 .tap(Micrometer.observation(observationRegistry));
     }
 
