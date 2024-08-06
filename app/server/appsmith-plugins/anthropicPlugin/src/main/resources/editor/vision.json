@@ -1,123 +1,127 @@
 {
-    "identifier": "VISION",
-    "controlType": "SECTION",
-    "children": [
-        {
-            "fetchOptionsConditionally": true,
-            "isRequired": true,
-            "tooltipText": "Select the model for response generation",
-            "label": "Models",
-            "setFirstOptionAsDefault": true,
-            "configProperty": "actionConfiguration.formData.visionModel.data",
-            "alternateViewTypes": ["json"],
-            "controlType": "DROP_DOWN",
-            "propertyName": "vision_model_id",
-            "subtitle": "ID of the model to use.",
-            "options": [],
-            "placeholderText": "All models will be fetched.",
-            "conditionals": {
-                "enable": "{{true}}",
-                "fetchDynamicValues": {
-                    "condition": "{{actionConfiguration.formData.command.data === 'VISION'}}",
-                    "config": {"params": {
-                        "displayType": "DROP_DOWN",
-                        "requestType": "VISION_MODELS"
-                    }}
-                }
-            },
-            "initialValue": ""
-        },
-        {
-            "isRequired": true,
-            "Description": "Put a positive integer value",
-            "controlType": "INPUT_TEXT",
-            "tooltipText": "The maximum number of tokens to generate in the chat completion.",
-            "subtitle": "The maximum number of tokens to generate in the chat completion.",
-            "dataType": "NUMBER",
-            "label": "Max Tokens",
-            "customStyles": {
-                "width": "270px",
-                "minWidth": "270px"
-            },
-            "initialValue": "256",
-            "configProperty": "actionConfiguration.formData.maxTokens"
-        },
-        {
-            "isRequired": false,
-            "Description": "Provide additional instructions for the AI model as system prompt",
-            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-            "subtitle": "Provide additional instructions for the AI model as system prompt",
-            "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-            "label": "System Prompt",
-            "initialValue": "",
-            "configProperty": "actionConfiguration.formData.systemPrompt.data"
-        },
-        {
-            "schema": [
-                {
-                    "controlType": "DROP_DOWN",
-                    "options": [
-                        {
-                            "label": "Human",
-                            "value": "Human"
-                        },
-                        {
-                            "label": "Assistant",
-                            "value": "Assistant"
-                        }
-                    ],
-                    "label": "Role",
-                    "initialValue": "Human",
-                    "key": "role"
-                },
-                {
-                    "controlType": "DROP_DOWN",
-                    "options": [
-                        {
-                            "label": "Text",
-                            "value": "text"
-                        },
-                        {
-                            "label": "Image",
-                            "value": "image"
-                        }
-                    ],
-                    "label": "Type",
-                    "initialValue": "text",
-                    "key": "type"
-                },
-                {
-                    "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-                    "placeholderText": "{{Img1.image}} or {{Input1.text}}",
-                    "label": "Content",
-                    "key": "content"
-                }
-            ],
-            "isRequired": true,
-            "alternateViewTypes": ["json"],
-            "controlType": "ARRAY_FIELD",
-            "tooltipText": "Ask a question",
-            "propertyName": "messages",
-            "subtitle": "A list of messages comprising the conversation so far. You can pass base64 encoded image directly in the request.",
-            "addMoreButtonLabel": "Add message",
-            "label": "Messages",
-            "configProperty": "actionConfiguration.formData.messages.data"
-        },
-        {
-            "isRequired": false,
-            "Description": "Put a value between 0 and 1",
-            "controlType": "INPUT_TEXT",
-            "tooltipText": "Put a value between 0 and 1",
-            "subtitle": "Defaults to 1. Ranges from 0 to 1. Use temp closer to 0 for analytical / multiple choice, and closer to 1 for creative and generative tasks.",
-            "dataType": "NUMBER",
-            "label": "Temperature",
-            "customStyles": {
-                "width": "270px",
-                "minWidth": "270px"
-            },
-            "initialValue": "1",
-            "configProperty": "actionConfiguration.formData.temperature"
+  "identifier": "VISION",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
+  },
+  "children": [
+    {
+      "label": "Models",
+      "tooltipText": "Select the model for response generation",
+      "subtitle": "ID of the model to use.",
+      "isRequired": true,
+      "propertyName": "vision_model_id",
+      "configProperty": "actionConfiguration.formData.visionModel.data",
+      "controlType": "DROP_DOWN",
+      "initialValue": "",
+      "options": [],
+      "placeholderText": "All models will be fetched.",
+      "fetchOptionsConditionally": true,
+      "setFirstOptionAsDefault": true,
+      "alternateViewTypes": ["json"],
+      "conditionals": {
+        "enable": "{{true}}",
+        "fetchDynamicValues": {
+          "condition": "{{actionConfiguration.formData.command.data === 'VISION'}}",
+          "config": {
+            "params": {
+              "requestType": "VISION_MODELS",
+              "displayType": "DROP_DOWN"
+            }
+          }
         }
-    ],
-    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'VISION'}}"}
+      }
+    },
+    {
+      "label": "Max Tokens",
+      "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+      "subtitle": "The maximum number of tokens to generate in the chat completion.",
+      "Description": "Put a positive integer value",
+      "configProperty": "actionConfiguration.formData.maxTokens",
+      "controlType": "INPUT_TEXT",
+      "initialValue": "256",
+      "isRequired": true,
+      "dataType": "NUMBER",
+      "customStyles": {
+        "width": "270px",
+        "minWidth": "270px"
+      }
+    },
+    {
+      "label": "System Prompt",
+      "Description": "Provide additional instructions for the AI model as system prompt",
+      "subtitle": "Provide additional instructions for the AI model as system prompt",
+      "configProperty": "actionConfiguration.formData.systemPrompt.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+      "initialValue": "",
+      "isRequired": false
+    },
+    {
+      "label": "Messages",
+      "tooltipText": "Ask a question",
+      "subtitle": "A list of messages comprising the conversation so far. You can pass base64 encoded image directly in the request.",
+      "propertyName": "messages",
+      "isRequired": true,
+      "configProperty": "actionConfiguration.formData.messages.data",
+      "controlType": "ARRAY_FIELD",
+      "addMoreButtonLabel": "Add message",
+      "alternateViewTypes": ["json"],
+      "schema": [
+        {
+          "label": "Role",
+          "key": "role",
+          "controlType": "DROP_DOWN", 
+          "initialValue": "Human",
+          "options": [
+            {
+              "label": "Human",
+              "value": "Human"
+            },
+            {
+              "label": "Assistant",
+              "value": "Assistant"
+            }
+          ]
+        },
+        {
+          "label": "Type",
+          "key": "type",
+          "controlType": "DROP_DOWN",
+          "initialValue": "text",
+          "options": [
+            {
+              "label": "Text",
+              "value": "text"
+            },
+            {
+              "label": "Image",
+              "value": "image"
+            }
+          ]
+        },
+        {
+          "label": "Content",
+          "key": "content",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "{{Img1.image}} or {{Input1.text}}"
+        }
+      ]
+    },
+    {
+      "label": "Temperature",
+      "tooltipText": "Put a value between 0 and 1",
+      "Description": "Put a value between 0 and 1",
+      "subtitle": "Defaults to 1. Ranges from 0 to 1. Use temp closer to 0 for analytical / multiple choice, and closer to 1 for creative and generative tasks.",
+      "configProperty": "actionConfiguration.formData.temperature",
+      "controlType": "INPUT_TEXT",
+      "dataType": "NUMBER",
+      "initialValue": "1",
+      "isRequired": false,
+      "customStyles": {
+        "width": "270px",
+        "minWidth": "270px"
+      }
+    }
+  ]
 }
