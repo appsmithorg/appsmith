@@ -785,7 +785,7 @@ export class AggregateHelper {
     selector: string,
     index = 0,
     force = false,
-    waitTimeInterval = 0,
+    waitTimeInterval = 200,
     ctrlKey = false,
     metaKey = false,
     position: Cypress.PositionType = "center",
