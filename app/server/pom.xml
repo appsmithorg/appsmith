@@ -158,12 +158,6 @@
                         <removeUnusedImports/>
                         <formatAnnotations/>
                     </java>
-                    <json>
-                        <includes>
-                            <include>**/*.json</include>
-                        </includes>
-                        <simple/>
-                    </json>
                     <pom>
                         <includes>
                             <include>pom.xml</include>
