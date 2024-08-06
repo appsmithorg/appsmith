@@ -38,9 +38,12 @@ describe(
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");
-      cy.openPropertyPane("richtexteditorwidget");
-      cy.CheckWidgetProperties(commonlocators.hideToolbarCheckbox);
-      cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
+      cy.waitUntil(() =>
+        cy.validateToolbarVisible(
+          formWidgetsPage.richTextEditorWidget,
+          commonlocators.rteToolbar,
+        ),
+      );
     });
 
     beforeEach(() => {

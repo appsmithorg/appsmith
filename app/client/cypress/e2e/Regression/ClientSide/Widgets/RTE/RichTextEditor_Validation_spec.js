@@ -8,6 +8,12 @@ describe(
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");
+      cy.waitUntil(() =>
+        cy.validateToolbarVisible(
+          formWidgetsPage.richTextEditorWidget,
+          commonlocators.rteToolbar,
+        ),
+      );
     });
 
     beforeEach(() => {
