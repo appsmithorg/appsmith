@@ -58,7 +58,7 @@ function ReconnectSSHError() {
 
   if (
     errorData &&
-    errorData.response.responseMeta.error.code === "AE-GIT-4044"
+    errorData?.response?.responseMeta?.error?.code === "AE-GIT-4044"
   ) {
     return (
       <StyledCallout
