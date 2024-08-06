@@ -23,6 +23,7 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     dataSources.ValidateNSelectDropdown("Choose page", "Select page", "Page1");
+    agHelper.GetNClick(propPane._actionCollapsibleHeader("Query params"));
     propPane.UpdatePropertyFieldValue(
       "Query params",
       `{{

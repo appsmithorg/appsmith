@@ -1,32 +1,28 @@
-{
-  "form": [
-    {
-      "sectionName": "Details",
-      "id": 1,
-      "children": [
+{"form": [{
+    "sectionName": "Details",
+    "children": [
         {
-          "label": "Database URL",
-          "configProperty": "datasourceConfiguration.url",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "placeholderText": "https://your-project-id.firebaseio.com"
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "placeholderText": "https://your-project-id.firebaseio.com",
+            "label": "Database URL",
+            "configProperty": "datasourceConfiguration.url"
         },
         {
-          "label": "Project Id",
-          "configProperty": "datasourceConfiguration.authentication.username",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "initialValue": ""
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "label": "Project Id",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.authentication.username"
         },
         {
-          "label": "Service account credentials",
-          "configProperty": "datasourceConfiguration.authentication.password",
-          "controlType": "INPUT_TEXT",
-          "dataType": "PASSWORD",
-          "isRequired": true,
-          "initialValue": ""
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "dataType": "PASSWORD",
+            "label": "Service account credentials",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.authentication.password"
         }
-      ]
-    }
-  ]
-}
+    ],
+    "id": 1
+}]}

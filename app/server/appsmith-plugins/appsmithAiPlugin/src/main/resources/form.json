@@ -1,54 +1,53 @@
 {
-  "form": [
-    {
-      "sectionName": "Details",
-      "id": 1,
-      "children": [
-        {
-          "label": "Description",
-          "configProperty": "datasourceConfiguration.description",
-          "controlType": "INPUT_TEXT",
-          "isRequired": false,
-          "hidden": true
-        },
-        {
-          "label": "Endpoint URL (with or without protocol and port no)",
-          "configProperty": "datasourceConfiguration.url",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "https://ai.appsmith.com",
-          "isRequired": true,
-          "hidden": true
-        },
-        {
-          "label": "Files",
-          "configProperty": "datasourceConfiguration.properties[0].key",
-          "initialValue": "Files",
-          "hidden": true,
-          "controlType": "INPUT_TEXT"
-        },
-        {
-          "label": "Files",
-          "subtitle": "Upload files and use them as context for generating text",
-          "buttonLabel": "Upload Files",
-          "configProperty": "datasourceConfiguration.properties[0].value",
-          "controlType": "MULTIPLE_FILE_PICKER",
-          "labelVisibleWithFiles":  "To use files, create a new AI query with \"Generate text\" action and select files under \"Use file context\" section. Using file context on AI queries will generate accurate responses that are grounded in file contents.",
-          "allowedFileTypes": [
-            "application/pdf",
-            "text/plain",
-            "text/markdown"
-          ],
-          "maxFileSizeInBytes": 20971520,
-          "config": {
-            "uploadToTrigger": true,
-            "params": {
-              "requestType": "UPLOAD_FILES"
+    "form": [{
+        "sectionName": "Details",
+        "children": [
+            {
+                "isRequired": false,
+                "controlType": "INPUT_TEXT",
+                "hidden": true,
+                "label": "Description",
+                "configProperty": "datasourceConfiguration.description"
+            },
+            {
+                "isRequired": true,
+                "controlType": "INPUT_TEXT",
+                "hidden": true,
+                "label": "Endpoint URL (with or without protocol and port no)",
+                "initialValue": "https://ai.appsmith.com",
+                "configProperty": "datasourceConfiguration.url"
+            },
+            {
+                "hidden": true,
+                "controlType": "INPUT_TEXT",
+                "label": "Files",
+                "initialValue": "Files",
+                "configProperty": "datasourceConfiguration.properties[0].key"
+            },
+            {
+                "labelVisibleWithFiles": "To use files, create a new AI query with \"Generate text\" action and select files under \"Use file context\" section. Using file context on AI queries will generate accurate responses that are grounded in file contents.",
+                "isRequired": false,
+                "controlType": "MULTIPLE_FILE_PICKER",
+                "subtitle": "Upload files and use them as context for generating text",
+                "maxFileSizeInBytes": 20971520,
+                "label": "Files",
+                "allowedFileTypes": [
+                    "application/pdf",
+                    "text/plain",
+                    "text/markdown"
+                ],
+                "config": {
+                    "uploadToTrigger": true,
+                    "params": {"requestType": "UPLOAD_FILES"}
+                },
+                "configProperty": "datasourceConfiguration.properties[0].value",
+                "buttonLabel": "Upload Files"
             }
-          },
-          "isRequired": false
-        }
-      ]
-    }
-  ],
-  "formButton": ["CANCEL", "SAVE"]
+        ],
+        "id": 1
+    }],
+    "formButton": [
+        "CANCEL",
+        "SAVE"
+    ]
 }

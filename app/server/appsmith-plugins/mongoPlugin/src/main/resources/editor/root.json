@@ -1,61 +1,57 @@
 {
-  "editor": [
-    {
-      "controlType": "SECTION",
-      "identifier": "SELECTOR",
-      "children": [
-        {
-          "label": "Command",
-          "description": "Choose method you would like to use to query the database",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "FIND",
-          "options": [
-            {
-              "label": "Find document(s)",
-              "value": "FIND"
-            },
-            {
-              "label": "Insert document(s)",
-              "value": "INSERT"
-            },
-            {
-              "label": "Update document(s)",
-              "value": "UPDATE"
-            },
-            {
-              "label": "Delete document(s)",
-              "value": "DELETE"
-            },
-            {
-              "label": "Count",
-              "value": "COUNT"
-            },
-            {
-              "label": "Distinct",
-              "value": "DISTINCT"
-            },
-            {
-              "label": "Aggregate",
-              "value": "AGGREGATE"
-            },
-            {
-              "label": "Raw",
-              "value": "RAW"
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "files": [
-    "aggregate.json",
-    "count.json",
-    "delete.json",
-    "distinct.json",
-    "find.json",
-    "insert.json",
-    "update.json",
-    "raw.json"
-  ]
+    "editor": [{
+        "identifier": "SELECTOR",
+        "controlType": "SECTION",
+        "children": [{
+            "controlType": "DROP_DOWN",
+            "options": [
+                {
+                    "label": "Find document(s)",
+                    "value": "FIND"
+                },
+                {
+                    "label": "Insert document(s)",
+                    "value": "INSERT"
+                },
+                {
+                    "label": "Update document(s)",
+                    "value": "UPDATE"
+                },
+                {
+                    "label": "Delete document(s)",
+                    "value": "DELETE"
+                },
+                {
+                    "label": "Count",
+                    "value": "COUNT"
+                },
+                {
+                    "label": "Distinct",
+                    "value": "DISTINCT"
+                },
+                {
+                    "label": "Aggregate",
+                    "value": "AGGREGATE"
+                },
+                {
+                    "label": "Raw",
+                    "value": "RAW"
+                }
+            ],
+            "description": "Choose method you would like to use to query the database",
+            "label": "Command",
+            "initialValue": "FIND",
+            "configProperty": "actionConfiguration.formData.command.data"
+        }]
+    }],
+    "files": [
+        "aggregate.json",
+        "count.json",
+        "delete.json",
+        "distinct.json",
+        "find.json",
+        "insert.json",
+        "update.json",
+        "raw.json"
+    ]
 }
