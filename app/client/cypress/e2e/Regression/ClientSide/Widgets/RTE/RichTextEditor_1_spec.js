@@ -62,6 +62,7 @@ describe(
         "h1",
         "This is a Heading",
       );
+
       _.deployMode.DeployApp();
       cy.validateHTMLText(
         publishPage.richTextEditorWidget,
