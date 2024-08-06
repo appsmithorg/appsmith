@@ -220,7 +220,7 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                     || !featuresWithPendingMigration.containsKey(featureFlagEnum)) {
                 return Mono.just(TRUE);
             }
-            log.debug(
+            log.error(
                     "Running the migration for flag {} with migration type {}",
                     featureFlagEnum.name(),
                     featuresWithPendingMigration.get(featureFlagEnum));

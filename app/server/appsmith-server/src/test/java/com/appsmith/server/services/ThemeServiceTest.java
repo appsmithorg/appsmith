@@ -120,7 +120,7 @@ public class ThemeServiceTest {
         User currentUser = sessionUserService.getCurrentUser().block();
         Set<String> beforeCreatingApplication =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingApplication);
+        log.error("Permission Groups for User before creating workspace: {}", beforeCreatingApplication);
         Application application = new Application();
         application.setName("ThemeTest_" + UUID.randomUUID());
         application.setWorkspaceId(this.workspace.getId());
@@ -130,14 +130,14 @@ public class ThemeServiceTest {
 
         Set<String> afterCreatingApplication =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating Application: {}", afterCreatingApplication);
+        log.error("Permission Groups for User after creating Application: {}", afterCreatingApplication);
 
-        log.info("Workspace ID: {}", this.workspace.getId());
-        log.info("Workspace Role Ids: {}", this.workspace.getDefaultPermissionGroups());
-        log.info("Policy for created Workspace: {}", this.workspace.getPolicies());
-        log.info("Application ID: {}", createdApplication.getId());
-        log.info("Policies for created Application: {}", createdApplication.getPolicies());
-        log.info("Current User ID: {}", currentUser.getId());
+        log.error("Workspace ID: {}", this.workspace.getId());
+        log.error("Workspace Role Ids: {}", this.workspace.getDefaultPermissionGroups());
+        log.error("Policy for created Workspace: {}", this.workspace.getPolicies());
+        log.error("Application ID: {}", createdApplication.getId());
+        log.error("Policies for created Application: {}", createdApplication.getPolicies());
+        log.error("Current User ID: {}", currentUser.getId());
 
         return createdApplication;
     }

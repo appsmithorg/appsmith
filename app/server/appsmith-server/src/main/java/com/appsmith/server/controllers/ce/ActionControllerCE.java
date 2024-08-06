@@ -55,7 +55,7 @@ public class ActionControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> createAction(
             @Valid @RequestBody @JsonView(FromRequest.class) ActionDTO resource) {
-        log.debug("Going to create resource {}", resource.getClass().getName());
+        log.error("Going to create resource {}", resource.getClass().getName());
         return layoutActionService
                 .createSingleAction(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -66,7 +66,7 @@ public class ActionControllerCE {
     public Mono<ResponseDTO<ActionDTO>> updateAction(
             @PathVariable String branchedActionId,
             @Valid @RequestBody @JsonView(FromRequest.class) ActionDTO resource) {
-        log.debug("Going to update resource with branchedActionId: {}", branchedActionId);
+        log.error("Going to update resource with branchedActionId: {}", branchedActionId);
         return layoutActionService
                 .updateNewActionByBranchedId(branchedActionId, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -88,7 +88,7 @@ public class ActionControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/move")
     public Mono<ResponseDTO<ActionDTO>> moveAction(@RequestBody @Valid ActionMoveDTO actionMoveDTO) {
-        log.debug(
+        log.error(
                 "Going to move action {} from page {} to page {}",
                 actionMoveDTO.getAction().getName(),
                 actionMoveDTO.getAction().getPageId(),
@@ -121,7 +121,7 @@ public class ActionControllerCE {
     @PutMapping("/executeOnLoad/{branchedActionId}")
     public Mono<ResponseDTO<ActionDTO>> setExecuteOnLoad(
             @PathVariable String branchedActionId, @RequestParam Boolean flag) {
-        log.debug("Going to set execute on load for action id {} to {}", branchedActionId, flag);
+        log.error("Going to set execute on load for action id {} to {}", branchedActionId, flag);
         return layoutActionService
                 .setExecuteOnLoad(branchedActionId, flag)
                 .map(action -> new ResponseDTO<>(HttpStatus.OK.value(), action, null));
@@ -131,7 +131,7 @@ public class ActionControllerCE {
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionDTO>> deleteAction(
             @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to delete unpublished action with id: {}, branchName: {}", id, branchName);
+        log.error("Going to delete unpublished action with id: {}, branchName: {}", id, branchName);
         return layoutActionService
                 .deleteUnpublishedAction(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
@@ -148,7 +148,7 @@ public class ActionControllerCE {
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionDTO>>> getAllUnpublishedActions(
             @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all actions with params: {}", params);
+        log.error("Going to get all actions with params: {}", params);
         // We handle JS actions as part of the collections request,
         // so that all the contextual variables are also picked up
         return newActionService

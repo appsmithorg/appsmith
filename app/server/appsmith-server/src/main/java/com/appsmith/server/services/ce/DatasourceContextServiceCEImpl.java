@@ -107,7 +107,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                     // Basically remove entry from both cache maps
                                     pluginExecutor.datasourceDestroy(connection);
                                 } catch (Exception e) {
-                                    log.info(
+                                    log.error(
                                             Thread.currentThread().getName()
                                                     + ": Error destroying stale datasource connection",
                                             e);
@@ -124,7 +124,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                          */
                         if (datasourceContextIdentifier.getDatasourceId() != null
                                 && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
-                            log.debug(
+                            log.error(
                                     Thread.currentThread().getName()
                                             + ": Cached resource context mono exists for datasource id {}, environment id {}. Returning the same.",
                                     datasourceContextIdentifier.getDatasourceId(),
@@ -162,7 +162,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
                             datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
                         }
-                        log.debug(
+                        log.error(
                                 Thread.currentThread().getName()
                                         + ": Cached new datasource context for datasource id {}, environment id {}",
                                 datasourceContextIdentifier.getDatasourceId(),
@@ -202,7 +202,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     protected Mono<DatasourceContext<Object>> createNewDatasourceContext(
             DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
-        log.debug("Datasource context doesn't exist. Creating connection.");
+        log.error("Datasource context doesn't exist. Creating connection.");
         Mono<Plugin> pluginMono =
                 pluginService.findById(datasourceStorage.getPluginId()).cache();
 
@@ -237,7 +237,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     if (datasourceContextIdentifier.isKeyValid()) {
                         if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
                             synchronized (this) {
-                                log.debug(
+                                log.error(
                                         Thread.currentThread().getName()
                                                 + ": Creating monitor for datasource id {}, environment id {}",
                                         datasourceContextIdentifier.getDatasourceId(),
@@ -302,12 +302,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         DatasourceContextIdentifier datasourceContextIdentifier =
                 this.initializeDatasourceContextIdentifier(datasourceStorage);
         if (datasourceId == null) {
-            log.debug(
+            log.error(
                     "This is a dry run or an embedded datasourceStorage. The datasourceStorage context would not exist in this "
                             + "scenario");
         } else {
             if (isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier)) {
-                log.debug("Resource context exists. Returning the same.");
+                log.error("Resource context exists. Returning the same.");
                 return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
             }
         }
@@ -329,7 +329,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 .isEndpointBlockedForConnectionRequest(datasourceStorage)
                 .flatMap(isBlocked -> {
                     if (isBlocked) {
-                        log.debug("Datasource is blocked for connection request");
+                        log.error("Datasource is blocked for connection request");
                         return Mono.error(TOO_MANY_REQUESTS_EXCEPTION);
                     } else {
                         return createNewDatasourceContext(datasourceStorage, datasourceContextIdentifier)
@@ -369,7 +369,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 .flatMap(task);
 
         return taskRunnerMono.onErrorResume(StaleConnectionException.class, error -> {
-            log.info("Looks like the connection is stale. Retrying with a fresh context.");
+            log.error("Looks like the connection is stale. Retrying with a fresh context.");
             return deleteDatasourceContext(datasourceStorage).then(taskRunnerMono);
         });
     }
@@ -396,12 +396,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .flatMap(pluginExecutor -> {
-                    log.info("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
+                    log.error("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     datasourceContextMonoMap.remove(datasourceContextIdentifier);
 
                     if (!datasourceContextMap.containsKey(datasourceContextIdentifier)) {
-                        log.info(
+                        log.error(
                                 "datasourceContextMap does not contain any entry for datasource storage with id: {} ",
                                 datasourceStorage.getId());
                         return Mono.empty();

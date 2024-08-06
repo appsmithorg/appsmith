@@ -146,7 +146,7 @@ public class VisionCommand implements OpenAICommand {
             }
             return List.of(visionMessage);
         } catch (Exception exception) {
-            log.debug("An exception occurred while converting types for user messages: {}", messages);
+            log.error("An exception occurred while converting types for user messages: {}", messages);
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_USER_MESSAGE_FORMAT));
@@ -175,7 +175,7 @@ public class VisionCommand implements OpenAICommand {
             }
             return visionMessages;
         } catch (Exception exception) {
-            log.debug("An exception occurred while converting types for system messages: {}", messages);
+            log.error("An exception occurred while converting types for system messages: {}", messages);
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_SYSTEM_MESSAGE_FORMAT));

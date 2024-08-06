@@ -45,7 +45,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                 })
                 .map(isSuccessful -> {
                     if (FALSE.equals(isSuccessful)) {
-                        log.debug(
+                        log.error(
                                 "{} - Rate Limit exceeded for apiIdentifier = {}, userIdentifier = {}",
                                 Thread.currentThread().getName(),
                                 apiIdentifier,
@@ -99,7 +99,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                 })
                 .map(isSuccessful -> {
                     if (TRUE.equals(isSuccessful)) {
-                        log.debug(
+                        log.error(
                                 "{} - Rate Limit Exceeded, Blocked endpoint for apiIdentifier = {}, endpointIdentifier = {}",
                                 Thread.currentThread().getName(),
                                 apiIdentifier,
@@ -126,7 +126,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                 })
                 .map(isSuccessful -> {
                     if (TRUE.equals(isSuccessful)) {
-                        log.debug(
+                        log.error(
                                 "{} - Endpoint is blocked for apiIdentifier = {}, endpointIdentifier = {}",
                                 Thread.currentThread().getName(),
                                 apiIdentifier,

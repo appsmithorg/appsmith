@@ -422,7 +422,7 @@ public class FileUtilsCEImpl implements FileInterface {
             return fileOperations.writeToFile(sourceEntity, path);
         } catch (IOException e) {
             log.error("Error while writing resource to file {} with {}", path, e.getMessage());
-            log.debug(e.getMessage());
+            log.error(e.getMessage());
         }
         return false;
     }
@@ -455,7 +455,7 @@ public class FileUtilsCEImpl implements FileInterface {
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
             return fileOperations.writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
-            log.debug(e.getMessage());
+            log.error(e.getMessage());
         } finally {
             observationHelper.endSpan(span, true);
         }

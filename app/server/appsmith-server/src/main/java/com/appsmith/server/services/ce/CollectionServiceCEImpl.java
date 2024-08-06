@@ -68,7 +68,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
                     return repository.save(collection1);
                 })
                 .map(collection -> {
-                    log.debug("Action {} added to Collection {}", action.getId(), collection.getId());
+                    log.error("Action {} added to Collection {}", action.getId(), collection.getId());
                     return action;
                 });
     }
@@ -105,7 +105,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
                             break;
                         }
                     }
-                    log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
+                    log.error("Action {} removed from Collection {}", action.getId(), collection.getId());
                     return repository.save(collection);
                 })
                 .then(actionMono);

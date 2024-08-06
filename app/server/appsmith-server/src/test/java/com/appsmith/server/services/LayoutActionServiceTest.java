@@ -498,7 +498,7 @@ class LayoutActionServiceTest {
 
         StepVerifier.create(updateLayoutMono)
                 .assertNext(updatedLayout -> {
-                    log.debug("{}", updatedLayout.getMessages());
+                    log.error("{}", updatedLayout.getMessages());
                     DslExecutableDTO actionDTO = updatedLayout
                             .getLayoutOnLoadActions()
                             .get(0)

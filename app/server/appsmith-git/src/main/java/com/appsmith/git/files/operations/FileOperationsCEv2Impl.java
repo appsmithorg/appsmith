@@ -95,7 +95,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
                     objectReader.readTree(sourceEntity.toString()),
                     path.resolve(resourceName + CommonConstants.JSON_EXTENSION));
         } catch (IOException e) {
-            log.debug("Error while writings widgets data to file, {}", e.getMessage());
+            log.error("Error while writings widgets data to file, {}", e.getMessage());
         } finally {
             observationHelper.endSpan(span, true);
         }

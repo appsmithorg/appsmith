@@ -99,7 +99,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                             .thenReturn(isSuccess);
                 })
                 .onErrorResume(e -> {
-                    log.warn("Error sending action execution data point", e);
+                    log.error("Error sending action execution data point", e);
                     return Mono.just(isSuccess);
                 });
     }
@@ -156,7 +156,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         executablesUsedInDSL,
                         creatorType)
                 .onErrorResume(AppsmithException.class, error -> {
-                    log.info(error.getMessage());
+                    log.error(error.getMessage());
                     validOnLoadExecutables.set(FALSE);
                     layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
                             error.getAppErrorCode(),
@@ -338,7 +338,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         executablesUsedInDSL,
                         creatorType)
                 .onErrorResume(AppsmithException.class, error -> {
-                    log.info(error.getMessage());
+                    log.error(error.getMessage());
                     validOnLoadExecutables.set(FALSE);
                     layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
                             error.getAppErrorCode(),

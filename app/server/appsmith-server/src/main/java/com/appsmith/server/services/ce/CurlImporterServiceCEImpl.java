@@ -495,7 +495,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         String path = url.getPath();
         String base = url.getProtocol() + "://" + url.getHost() + getPort(url);
 
-        log.debug("cURL import URL: '{}', path: '{}' baseUrl: '{}'", url, path, base);
+        log.error("cURL import URL: '{}', path: '{}' baseUrl: '{}'", url, path, base);
 
         // Extract query params.
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();

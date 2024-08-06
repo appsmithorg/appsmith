@@ -806,7 +806,7 @@ public class AmazonS3Plugin extends BasePlugin {
                         ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
                         actionExecutionResult.setBody(result);
                         actionExecutionResult.setIsExecutionSuccess(true);
-                        log.debug("In the S3 Plugin, got action execution result");
+                        log.error("In the S3 Plugin, got action execution result");
                         return Mono.just(actionExecutionResult);
                     })
                     .onErrorResume(e -> {
@@ -907,7 +907,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             return connection;
                         })
                         .onErrorResume(exception -> {
-                            log.debug("Error closing S3 connection.", exception);
+                            log.error("Error closing S3 connection.", exception);
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)

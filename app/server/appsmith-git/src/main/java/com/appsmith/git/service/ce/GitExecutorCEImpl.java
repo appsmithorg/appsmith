@@ -120,7 +120,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug("Trying to commit to local repo path, {}", path);
+                                    log.error("Trying to commit to local repo path, {}", path);
 
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                                             repoPath, AnalyticsEvents.GIT_COMMIT.getEventName());
@@ -160,7 +160,7 @@ public class GitExecutorCEImpl implements GitExecutor {
     @Override
     public boolean createNewRepository(Path repoPath) throws GitAPIException {
         // create new repo to the mentioned path
-        log.debug("Trying to create new repository: {}", repoPath);
+        log.error("Trying to create new repository: {}", repoPath);
         try (Git ignored = Git.init().setDirectory(repoPath.toFile()).call()) {
             return true;
         }
@@ -177,7 +177,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": get commit history for  "
+                                    log.error(Thread.currentThread().getName() + ": get commit history for  "
                                             + repoSuffix);
                                     List<GitLogDTO> commitLogs = new ArrayList<>();
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
@@ -230,7 +230,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return Mono.using(
                             () -> Git.open(baseRepoPath.toFile()),
                             git -> Mono.fromCallable(() -> {
-                                        log.debug(Thread.currentThread().getName() + ": pushing changes to remote "
+                                        log.error(Thread.currentThread().getName() + ": pushing changes to remote "
                                                 + remoteUrl);
                                         // open the repo
                                         Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
@@ -285,7 +285,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());
         return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
+                    log.error(Thread.currentThread().getName() + ": Cloning the repo from the remote " + remoteUrl);
                     final TransportConfigCallback transportConfigCallback =
                             new SshTransportConfigCallback(privateKey, publicKey);
                     File file = Paths.get(gitServiceConfig.getGitRootPath())
@@ -322,7 +322,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName
+                                    log.error(Thread.currentThread().getName() + ": Creating branch  " + branchName
                                             + "for the repo " + repoSuffix);
                                     // open the repo
                                     // Create and checkout to new branch
@@ -352,7 +352,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName
+                                    log.error(Thread.currentThread().getName() + ": Deleting branch  " + branchName
                                             + "for the repo " + repoSuffix);
                                     // open the repo
                                     // Create and checkout to new branch
@@ -381,7 +381,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Switching to the branch "
+                                    log.error(Thread.currentThread().getName() + ": Switching to the branch "
                                             + branchName);
                                     // We can safely assume that repo has been already initialised either in commit or
                                     // clone flow and
@@ -421,7 +421,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Pull changes from remote  "
+                                    log.error(Thread.currentThread().getName() + ": Pull changes from remote  "
                                             + remoteUrl + " for the branch " + branchName);
                                     // checkout the branch on which the merge command is run
                                     MergeResult mergeResult;
@@ -465,7 +465,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                             throw new org.eclipse.jgit.errors.CheckoutConflictException(
                                                     mergeConflictFiles.toString());
                                         } catch (IOException e) {
-                                            log.debug("Encountered error while aborting merge", e);
+                                            log.error("Encountered error while aborting merge", e);
                                             throw new org.eclipse.jgit.errors.CheckoutConflictException(
                                                     mergeConflictFiles.toString());
                                         } finally {
@@ -488,7 +488,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(baseRepoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Get branches for the application "
+                                    log.error(Thread.currentThread().getName() + ": Get branches for the application "
                                             + repoSuffix);
 
                                     List<Ref> refList = git.branchList()
@@ -556,7 +556,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath
+                                    log.error(Thread.currentThread().getName() + ": Get status for repo  " + repoPath
                                             + ", branch " + branchName);
                                     Status status = git.status().call();
                                     GitStatusDTO response = new GitStatusDTO();
@@ -590,7 +590,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                         response.setBehindCount(trackingStatus.getBehindCount());
                                         response.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
                                     } else {
-                                        log.debug(
+                                        log.error(
                                                 "Remote tracking details not present for branch: {}, repo: {}",
                                                 branchName,
                                                 repoPath);
@@ -797,7 +797,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                         git -> Mono.fromCallable(() -> {
                                     Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                                             repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
-                                    log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch
+                                    log.error(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch
                                             + " on " + destinationBranch);
                                     try {
                                         // checkout the branch on which the merge command is run
@@ -931,7 +931,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(
+                                    log.error(
                                             Thread.currentThread().getName()
                                                     + ": Check mergeability for repo {} with src: {}, dest: {}",
                                             repoSuffix,
@@ -1016,7 +1016,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.using(
                         () -> Git.open(createRepoPath(repoSuffix).toFile()),
                         git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/"
+                                    log.error(Thread.currentThread().getName() + ": Checking out remote branch origin/"
                                             + branchName + " for the repo " + repoSuffix);
                                     // open the repo
                                     Path baseRepoPath = createRepoPath(repoSuffix);

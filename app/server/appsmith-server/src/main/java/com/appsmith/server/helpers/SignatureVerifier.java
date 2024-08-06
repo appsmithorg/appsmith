@@ -55,7 +55,7 @@ public class SignatureVerifier {
             }
             return isSignatureValid(signature, date);
         } catch (Exception exception) {
-            log.debug("Error occurred while verifying CS signature.", exception);
+            log.error("Error occurred while verifying CS signature.", exception);
             return false;
         }
     }

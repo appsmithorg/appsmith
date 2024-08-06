@@ -203,7 +203,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         List<Map<String, Object>> rowsList = new ArrayList<>(50);
 
         String selectQuery = sb.toString();
-        log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
+        log.error("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
 
         try (PreparedStatement preparedStatement = conn.prepareStatement(selectQuery)) {
             Iterator<PreparedStatementValueDTO> iterator = values.iterator();
@@ -462,7 +462,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     private void executeDbQuery(String query) {
 
         Connection conn = checkAndGetConnection();
-        log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), query);
+        log.error("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), query);
 
         try (Statement statement = conn.createStatement()) {
             statement.execute(query);

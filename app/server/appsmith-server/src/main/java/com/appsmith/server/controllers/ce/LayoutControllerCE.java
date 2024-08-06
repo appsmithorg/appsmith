@@ -54,7 +54,7 @@ public class LayoutControllerCE {
     @PutMapping("/application/{applicationId}")
     public Mono<ResponseDTO<Integer>> updateMultipleLayouts(
             @PathVariable String applicationId, @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
-        log.debug("update multiple layout received for applicationId {}", applicationId);
+        log.error("update multiple layout received for applicationId {}", applicationId);
         return updateLayoutService
                 .updateMultipleLayouts(applicationId, request)
                 .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK.value(), updatedCount, null));
@@ -67,7 +67,7 @@ public class LayoutControllerCE {
             @RequestParam String applicationId,
             @PathVariable String layoutId,
             @RequestBody LayoutUpdateDTO dto) {
-        log.debug("update layout received for page {}", branchedPageId);
+        log.error("update layout received for page {}", branchedPageId);
         return updateLayoutService
                 .updateLayout(branchedPageId, applicationId, layoutId, dto.toLayout())
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));

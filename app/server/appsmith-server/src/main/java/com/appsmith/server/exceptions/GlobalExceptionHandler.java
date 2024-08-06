@@ -168,7 +168,7 @@ public class GlobalExceptionHandler {
             builder.append(t.getMessage());
             t = t.getCause();
         }
-        log.warn(builder.toString());
+        log.error(builder.toString());
 
         String errorMessage = e.getReason();
         if (e.getMethodParameter() != null) {

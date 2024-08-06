@@ -40,7 +40,7 @@ public class SaasControllerCE {
             @RequestParam(required = false) String importForGit,
             ServerWebExchange serverWebExchange) {
 
-        log.debug("Going to retrieve token request URL for datasource with id: {}", datasourceId);
+        log.error("Going to retrieve token request URL for datasource with id: {}", datasourceId);
         return authenticationService
                 .getAppsmithToken(
                         datasourceId,
@@ -58,7 +58,7 @@ public class SaasControllerCE {
             @RequestParam String appsmithToken,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
 
-        log.debug("Received callback for an OAuth2 authorization request");
+        log.error("Received callback for an OAuth2 authorization request");
         return authenticationService
                 .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));

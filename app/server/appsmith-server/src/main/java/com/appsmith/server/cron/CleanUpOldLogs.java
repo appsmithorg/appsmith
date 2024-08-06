@@ -20,7 +20,7 @@ public class CleanUpOldLogs {
     @Scheduled(cron = "0 0 0 * * SAT")
     @Observed(name = "cleanUpOldLogs")
     public void cleanUpOldLogs() throws IOException {
-        log.info("Cleaning up old logs");
+        log.error("Cleaning up old logs");
 
         final long cutoffTime = System.currentTimeMillis() - CUTOFF_AGE;
 

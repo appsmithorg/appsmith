@@ -58,7 +58,7 @@ public class DatasourceControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<List<Datasource>>> getAll(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all resources from datasource controller {}", params);
+        log.error("Going to get all resources from datasource controller {}", params);
         return datasourceService
                 .getAllWithStorages(params)
                 .collectList()
@@ -69,7 +69,7 @@ public class DatasourceControllerCE {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Datasource>> create(@Valid @RequestBody @JsonView(FromRequest.class) Datasource resource) {
-        log.debug("Going to create resource from datasource controller");
+        log.error("Going to create resource from datasource controller");
         return datasourceService
                 .create(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -81,7 +81,7 @@ public class DatasourceControllerCE {
             @PathVariable String id,
             @RequestBody @JsonView(FromRequest.class) Datasource datasource,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to update resource from datasource controller with id: {}", id);
+        log.error("Going to update resource from datasource controller with id: {}", id);
         return datasourceService
                 .updateDatasource(id, datasource, environmentId, Boolean.TRUE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -92,7 +92,7 @@ public class DatasourceControllerCE {
     public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(
             @RequestBody DatasourceStorageDTO datasourceStorageDTO,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
-        log.debug(
+        log.error(
                 "Going to update datasource from datasource controller with id: {} and environmentId: {}",
                 datasourceStorageDTO.getDatasourceId(),
                 datasourceStorageDTO.getEnvironmentId());
@@ -105,7 +105,7 @@ public class DatasourceControllerCE {
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Datasource>> delete(@PathVariable String id) {
-        log.debug("Going to delete resource from datasource controller with id: {}", id);
+        log.error("Going to delete resource from datasource controller with id: {}", id);
         return datasourceService
                 .archiveById(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
@@ -117,7 +117,7 @@ public class DatasourceControllerCE {
             @RequestBody DatasourceStorageDTO datasourceStorageDTO,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
 
-        log.debug("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
+        log.error("Going to test the datasource with id: {}", datasourceStorageDTO.getDatasourceId());
         return datasourceService
                 .testDatasource(datasourceStorageDTO, activeEnvironmentId)
                 .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
@@ -129,7 +129,7 @@ public class DatasourceControllerCE {
             @PathVariable String datasourceId,
             @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
+        log.error("Going to get structure for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentId)
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
@@ -143,7 +143,7 @@ public class DatasourceControllerCE {
             @RequestParam String environmentId,
             @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName,
             ServerWebExchange serverWebExchange) {
-        log.debug(
+        log.error(
                 "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAuthorizationCodeURLForGenericOAuth2(
@@ -158,7 +158,7 @@ public class DatasourceControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/authorize")
     public Mono<Void> getAccessToken(AuthorizationCodeCallbackDTO callbackDTO, ServerWebExchange serverWebExchange) {
-        log.debug("Received callback for an OAuth2 authorization request");
+        log.error("Received callback for an OAuth2 authorization request");
         return authenticationService.getAccessTokenForGenericOAuth2(callbackDTO).flatMap(url -> {
             serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
             serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));
@@ -190,7 +190,7 @@ public class DatasourceControllerCE {
             @PathVariable String datasourceId,
             @RequestBody TriggerRequestDTO triggerRequestDTO,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Trigger received for datasource {}", datasourceId);
+        log.error("Trigger received for datasource {}", datasourceId);
         return datasourceTriggerSolution
                 .trigger(datasourceId, environmentId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
@@ -202,7 +202,7 @@ public class DatasourceControllerCE {
             @PathVariable String datasourceId,
             @RequestBody Template template,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to get schema preview data for datasource with id: '{}'.", datasourceId);
+        log.error("Going to get schema preview data for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution
                 .getSchemaPreviewData(datasourceId, environmentId, template)
                 .map(actionExecutionResult -> new ResponseDTO<>(HttpStatus.OK.value(), actionExecutionResult, null));

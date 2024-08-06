@@ -90,7 +90,7 @@ public class SegmentConfig {
             if (level == Level.VERBOSE) {
                 log.trace(String.format(message, args), error);
             } else if (level == Level.DEBUG) {
-                log.debug(String.format(message, args), error);
+                log.error(String.format(message, args), error);
             } else if (level == Level.ERROR) {
                 if (errorHandler != null) {
                     errorHandler.accept(new LogData(error, format, args));

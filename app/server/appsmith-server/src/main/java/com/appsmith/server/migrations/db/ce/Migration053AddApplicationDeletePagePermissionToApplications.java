@@ -86,7 +86,7 @@ public class Migration053AddApplicationDeletePagePermissionToApplications {
                     Aggregation.newUpdate(aggregationOperation),
                     Application.class);
         } catch (Exception exception) {
-            log.debug(
+            log.error(
                     "Migration with change-id : add-app-delete-pages-permission-to-application failed due to reason {}."
                             + "skipping addition of policy to applications ",
                     exception.getMessage());

@@ -41,7 +41,7 @@ public class Migration033AddOpenAIPlugin {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());

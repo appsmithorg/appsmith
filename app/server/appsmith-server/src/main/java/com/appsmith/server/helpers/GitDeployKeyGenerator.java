@@ -69,7 +69,7 @@ public class GitDeployKeyGenerator {
                 publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), ECDSA_TYPE_PREFIX);
             }
         } catch (NoSuchAlgorithmException | IOException e) {
-            log.debug("Error while creating key pair", e);
+            log.error("Error while creating key pair", e);
             throw new AppsmithException(AppsmithError.SSH_KEY_GENERATION_ERROR, e);
         }
 

@@ -290,7 +290,7 @@ public class ApplicationServiceCETest {
     private AssetRepository assetRepository;
 
     private <I> Mono<I> runAs(Mono<I> input, User user) {
-        log.info("Running as user: {}", user.getEmail());
+        log.error("Running as user: {}", user.getEmail());
         return input.contextWrite((ctx) -> {
             SecurityContext securityContext = new SecurityContextImpl(
                     new UsernamePasswordAuthenticationToken(user, tempUserPassword, user.getAuthorities()));
@@ -316,7 +316,7 @@ public class ApplicationServiceCETest {
 
         Set<String> beforeCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
+        log.error("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -388,12 +388,12 @@ public class ApplicationServiceCETest {
         testDatasource1 = datasourceService.create(datasource1).block();
         Set<String> afterCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+        log.error("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
-        log.info("Workspace ID: {}", workspaceId);
-        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
-        log.info("Policy for created Workspace: {}", workspace.getPolicies());
-        log.info("Current User ID: {}", currentUser.getId());
+        log.error("Workspace ID: {}", workspaceId);
+        log.error("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.error("Policy for created Workspace: {}", workspace.getPolicies());
+        log.error("Current User ID: {}", currentUser.getId());
     }
 
     @AfterEach
@@ -1942,7 +1942,7 @@ public class ApplicationServiceCETest {
                         parentDsl = new JSONObject(objectMapper.readValue(
                                 DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
                     } catch (JsonProcessingException e) {
-                        log.debug("Error while creating JSONObj from defaultPageLayout: ", e);
+                        log.error("Error while creating JSONObj from defaultPageLayout: ", e);
                     }
 
                     ArrayList children = (ArrayList) parentDsl.get("children");
@@ -2280,7 +2280,7 @@ public class ApplicationServiceCETest {
                         parentDsl = new JSONObject(objectMapper.readValue(
                                 DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
                     } catch (JsonProcessingException e) {
-                        log.debug("Error while creating JSONObj from defaultPageLayout: ", e);
+                        log.error("Error while creating JSONObj from defaultPageLayout: ", e);
                     }
 
                     ArrayList children = (ArrayList) parentDsl.get("children");

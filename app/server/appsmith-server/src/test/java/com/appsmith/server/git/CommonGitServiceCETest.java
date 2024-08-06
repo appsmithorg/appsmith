@@ -243,7 +243,7 @@ public class CommonGitServiceCETest {
 
         Set<String> beforeCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
+        log.error("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -1231,7 +1231,7 @@ public class CommonGitServiceCETest {
                         parentDsl = new JSONObject(objectMapper.readValue(
                                 DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
                     } catch (JsonProcessingException e) {
-                        log.debug(String.valueOf(e));
+                        log.error(String.valueOf(e));
                     }
 
                     ArrayList children = (ArrayList) parentDsl.get("children");
@@ -2552,7 +2552,7 @@ public class CommonGitServiceCETest {
                         parentDsl = new JSONObject(objectMapper.readValue(
                                 DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {}));
                     } catch (JsonProcessingException e) {
-                        log.debug(String.valueOf(e));
+                        log.error(String.valueOf(e));
                     }
 
                     ArrayList children = (ArrayList) parentDsl.get("children");

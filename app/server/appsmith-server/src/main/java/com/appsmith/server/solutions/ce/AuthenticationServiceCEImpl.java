@@ -298,7 +298,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     oAuth2.setIsAuthorized(true);
                                     return response.bodyToMono(Map.class);
                                 } else {
-                                    log.debug(
+                                    log.error(
                                             "Unable to retrieve access token for datasource {} with error {}",
                                             datasourceStorage.getId(),
                                             response.statusCode());
@@ -341,7 +341,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         e -> !(e instanceof AppsmithException
                                 && AppsmithError.UNAUTHORIZED_ACCESS.equals(((AppsmithException) e).getError())),
                         e -> {
-                            log.debug("Error while retrieving access token: ", e);
+                            log.error("Error while retrieving access token: ", e);
                             return this.getPageRedirectUrl(state, "appsmith_error");
                         });
     }
@@ -467,7 +467,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                                     } else {
                                                         // After re-registering the instance, the appsmith token request
                                                         // has failed
-                                                        log.debug(
+                                                        log.error(
                                                                 "Unable to retrieve appsmith token with error {}",
                                                                 res.statusCode());
                                                         return Mono.error(new AppsmithException(
@@ -484,7 +484,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                                                     + response.statusCode()));
                                                 });
                                     } else {
-                                        log.debug(
+                                        log.error(
                                                 "Unable to retrieve appsmith token with error {}",
                                                 response.statusCode());
                                         return Mono.error(new AppsmithException(
@@ -608,7 +608,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 .uri(new URI(cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/token"))
                                 .queryParam("appsmithToken", appsmithToken);
                     } catch (URISyntaxException e) {
-                        log.debug("Error while parsing access token URL.", e);
+                        log.error("Error while parsing access token URL.", e);
                     }
                     return WebClientUtils.create()
                             .method(HttpMethod.POST)
@@ -620,7 +620,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
-                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
+                                    log.error("Unable to retrieve appsmith token with error {}", response.statusCode());
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.AUTHENTICATION_FAILURE,
                                             "Unable to retrieve appsmith token with error " + response.statusCode()));
@@ -751,7 +751,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(AuthenticationResponse.class);
                                 } else {
-                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
+                                    log.error("Unable to retrieve appsmith token with error {}", response.statusCode());
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.AUTHENTICATION_FAILURE, response.statusCode()));
                                 }

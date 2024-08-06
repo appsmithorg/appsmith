@@ -43,7 +43,7 @@ public class ThemeExportableServiceCEImpl implements ExportableServiceCE<Theme> 
         Mono<Theme> defaultThemeMono = themeService
                 .getSystemTheme(Theme.DEFAULT_THEME_NAME)
                 .map(theme -> {
-                    log.debug("Default theme found: {}", theme.getName());
+                    log.error("Default theme found: {}", theme.getName());
                     return theme;
                 })
                 .cache();

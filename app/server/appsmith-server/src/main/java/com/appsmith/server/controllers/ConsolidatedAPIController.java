@@ -48,7 +48,7 @@ public class ConsolidatedAPIController {
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String baseApplicationId,
             @RequestParam(name = "defaultPageId", required = false) String basePageId,
             @RequestHeader(required = false) String branchName) {
-        log.debug(
+        log.error(
                 "Going to fetch consolidatedAPI response for baseApplicationId: {}, basePageId: {}, branchName: {}, "
                         + "mode: {}",
                 baseApplicationId,
@@ -73,7 +73,7 @@ public class ConsolidatedAPIController {
             @RequestParam(required = false) String applicationId,
             @RequestParam(required = false) String defaultPageId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug(
+        log.error(
                 "Going to fetch consolidatedAPI response for applicationId: {}, defaultPageId: {}, branchName: {}, "
                         + "mode: {}",
                 applicationId,

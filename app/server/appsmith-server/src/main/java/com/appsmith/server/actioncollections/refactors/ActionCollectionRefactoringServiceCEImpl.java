@@ -118,7 +118,7 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
                                 return newActionService
                                         .updateUnpublishedAction(actionDTO.getId(), actionDTO)
                                         .onErrorResume(throwable -> {
-                                            log.debug(
+                                            log.error(
                                                     "Failed to update collection name for action {} for collection with id: {}",
                                                     actionDTO.getName(),
                                                     actionDTO.getCollectionId());

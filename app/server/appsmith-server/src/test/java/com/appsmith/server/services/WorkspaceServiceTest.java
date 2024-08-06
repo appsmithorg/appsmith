@@ -1517,7 +1517,7 @@ public class WorkspaceServiceTest {
         StepVerifier.create(deleteLogo)
                 .assertNext(x -> {
                     assertThat(x.getLogoAssetId()).isNull();
-                    log.debug("Deleted logo for workspace: {}", x.getId());
+                    log.error("Deleted logo for workspace: {}", x.getId());
                 })
                 .verifyComplete();
     }

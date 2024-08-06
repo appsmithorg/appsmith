@@ -131,7 +131,7 @@ public class RedshiftPlugin extends BasePlugin {
 
         private void checkResultSetValidity(ResultSet resultSet) throws AppsmithPluginException {
             if (resultSet == null) {
-                log.debug("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
+                log.error("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
                 throw new AppsmithPluginException(
                         RedshiftPluginError.QUERY_EXECUTION_FAILED, RedshiftErrorMessages.NULL_RESULTSET_ERROR_MSG);
             }
@@ -147,7 +147,7 @@ public class RedshiftPlugin extends BasePlugin {
              *    ResultSetMetaData.
              */
             if (metaData == null) {
-                log.debug("Redshift plugin: getRow: metaData is null. Ideally this is never supposed to "
+                log.error("Redshift plugin: getRow: metaData is null. Ideally this is never supposed to "
                         + "happen as the Redshift JDBC driver does a null check before passing this object. This means "
                         + "that something has gone wrong while processing the query result.");
                 throw new AppsmithPluginException(
@@ -294,7 +294,7 @@ public class RedshiftPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug("In RedshiftPlugin, got action execution result");
+                        log.error("In RedshiftPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -332,7 +332,7 @@ public class RedshiftPlugin extends BasePlugin {
             int activeConnections = poolProxy.getActiveConnections();
             int totalConnections = poolProxy.getTotalConnections();
             int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-            log.debug(Thread.currentThread().getName()
+            log.error(Thread.currentThread().getName()
                     + (isFetchingStructure
                             ? "Before fetching Redshift db" + " structure."
                             : "Before executing Redshift query.")
@@ -370,7 +370,7 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to Redshift db");
+                        log.error(Thread.currentThread().getName() + ": Connecting to Redshift db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -640,7 +640,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                         // Ref:
                         // <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-                        log.debug(Thread.currentThread().getName() + ": Getting Redshift Db structure");
+                        log.error(Thread.currentThread().getName() + ": Getting Redshift Db structure");
                         try (Statement statement = connection.createStatement()) {
 
                             // Get tables' schema and fill up their columns.

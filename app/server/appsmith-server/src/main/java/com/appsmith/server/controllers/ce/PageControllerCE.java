@@ -48,7 +48,7 @@ public class PageControllerCE {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<PageDTO>> createPage(@Valid @RequestBody PageCreationDTO page) {
-        log.debug("Going to create page {}", page.name());
+        log.error("Going to create page {}", page.name());
         return applicationPageService
                 .createPage(page.toPageDTO())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -60,7 +60,7 @@ public class PageControllerCE {
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(
             @RequestBody @NonNull CRUDPageResourceDTO resource,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to create crud-page in application {}", resource.getApplicationId());
+        log.error("Going to create crud-page in application {}", resource.getApplicationId());
         return createDBTablePageSolution
                 .createPageFromDBTable(null, resource, environmentId, null, Boolean.TRUE)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -73,7 +73,7 @@ public class PageControllerCE {
             @PathVariable String branchedPageId,
             @NonNull @RequestBody CRUDPageResourceDTO resource,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to create CRUD page {}", branchedPageId);
+        log.error("Going to create CRUD page {}", branchedPageId);
         return createDBTablePageSolution
                 .createPageFromDBTable(branchedPageId, resource, environmentId, null, Boolean.TRUE)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -131,7 +131,7 @@ public class PageControllerCE {
     @JsonView(Views.Public.class)
     @DeleteMapping("/{branchedPageId}")
     public Mono<ResponseDTO<PageDTO>> deletePage(@PathVariable String branchedPageId) {
-        log.debug("Going to delete page with id: {}", branchedPageId);
+        log.error("Going to delete page with id: {}", branchedPageId);
         return applicationPageService
                 .deleteUnpublishedPage(branchedPageId)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
@@ -149,7 +149,7 @@ public class PageControllerCE {
     @PutMapping("/{branchedPageId}")
     public Mono<ResponseDTO<PageDTO>> updatePage(
             @PathVariable String branchedPageId, @RequestBody @Valid PageUpdateDTO resource) {
-        log.debug("Going to update page with id: {}", branchedPageId);
+        log.error("Going to update page with id: {}", branchedPageId);
         return newPageService
                 .updatePage(branchedPageId, resource.toPageDTO())
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -172,7 +172,7 @@ public class PageControllerCE {
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String branchedApplicationId,
             @RequestParam(name = FieldName.PAGE_ID, required = false) String branchedPageId,
             @RequestParam(defaultValue = "EDIT") ApplicationMode mode) {
-        log.debug(
+        log.error(
                 "Going to fetch applicationPageDTO for branchedApplicationId: {}, branchedPageId: {}, mode: {}",
                 branchedApplicationId,
                 branchedPageId,

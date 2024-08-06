@@ -26,7 +26,7 @@ public class GitRedisUtils {
     public Mono<Boolean> addFileLock(String defaultApplicationId, String commandName, Boolean isRetryAllowed) {
         long numberOfRetries = Boolean.TRUE.equals(isRetryAllowed) ? MAX_RETRIES : 0L;
 
-        log.info(
+        log.error(
                 "Git command {} is trying to acquire the lock for application id {}",
                 commandName,
                 defaultApplicationId);

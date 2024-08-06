@@ -45,7 +45,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
         Mono<Boolean> isServerMigrationRequiredMonoCached = commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(workspaceId, gitMetadata, FALSE, APPLICATION)
                 .map(serverSchemaVersion -> {
-                    log.info(
+                    log.error(
                             "server schema for application id : {}  and branch name : {} is : {}",
                             defaultApplicationId,
                             branchName,
@@ -56,7 +56,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 .cache();
 
         return Mono.defer(() -> isServerMigrationRequiredMonoCached).onErrorResume(error -> {
-            log.debug(
+            log.error(
                     "error while retrieving the metadata for defaultApplicationId : {}, branchName : {} error : {}",
                     defaultApplicationId,
                     branchName,
@@ -89,7 +89,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 })
                 .defaultIfEmpty(FALSE)
                 .onErrorResume(error -> {
-                    log.debug("Error fetching latest DSL version");
+                    log.error("Error fetching latest DSL version");
                     return Mono.just(Boolean.FALSE);
                 });
     }
@@ -109,14 +109,14 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 .map(tuple2 -> {
                     Integer latestDslVersion = tuple2.getT1();
                     org.json.JSONObject pageDSL = tuple2.getT2();
-                    log.info("page dsl retrieved from file system");
+                    log.error("page dsl retrieved from file system");
                     return GitUtils.isMigrationRequired(pageDSL, latestDslVersion);
                 })
                 .defaultIfEmpty(FALSE)
                 .cache();
 
         return Mono.defer(() -> isClientMigrationRequired).onErrorResume(error -> {
-            log.debug(
+            log.error(
                     "error while fetching the dsl version for page : {}, defaultApplicationId : {}, branchName : {} error : {}",
                     pageDTO.getName(),
                     defaultApplicationId,

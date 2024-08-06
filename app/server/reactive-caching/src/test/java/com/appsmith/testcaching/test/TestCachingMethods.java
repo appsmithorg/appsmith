@@ -113,7 +113,7 @@ public class TestCachingMethods {
         }
         long finalTime = System.nanoTime();
         long timeTaken = finalTime - initialTime;
-        log.info("Time taken for cache operation " + (timeTaken / count) + " nanos");
+        log.error("Time taken for cache operation " + (timeTaken / count) + " nanos");
     }
 
     /**

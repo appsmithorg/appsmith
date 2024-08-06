@@ -99,7 +99,7 @@ public class OracleDatasourceUtils {
 
     public static void datasourceDestroy(HikariDataSource connectionPool) {
         if (connectionPool != null) {
-            log.debug(Thread.currentThread().getName() + ": Closing Oracle DB Connection Pool");
+            log.error(Thread.currentThread().getName() + ": Closing Oracle DB Connection Pool");
             connectionPool.close();
         }
     }
@@ -464,7 +464,7 @@ public class OracleDatasourceUtils {
         int activeConnections = poolProxy.getActiveConnections();
         int totalConnections = poolProxy.getTotalConnections();
         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-        log.debug(MessageFormat.format(
+        log.error(MessageFormat.format(
                 "{0}: Hikari Pool stats : active - {1} , idle - {2}, awaiting - {3} , total - {4}",
                 logPrefix, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
     }

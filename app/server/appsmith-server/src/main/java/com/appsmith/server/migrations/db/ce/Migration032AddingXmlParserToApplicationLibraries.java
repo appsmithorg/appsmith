@@ -51,7 +51,7 @@ public class Migration032AddingXmlParserToApplicationLibraries {
         try {
             mongoTemplate.save(customJSLib);
         } catch (DuplicateKeyException duplicateKeyException) {
-            log.debug(
+            log.error(
                     "Addition of xmlParser object in customJSLib failed, because object with similar UID already exists");
         } catch (Exception exception) {
             throw new AppsmithException(
@@ -66,7 +66,7 @@ public class Migration032AddingXmlParserToApplicationLibraries {
                 .addToSet(PUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO())
                 .addToSet(UNPUBLISHED_CUSTOM_JS_LIBS, getXmlParserCustomJSLibApplicationDTO());
 
-        log.debug("Going to add Xml Parser uid in all application DTOs");
+        log.error("Going to add Xml Parser uid in all application DTOs");
         mongoTemplate.updateMulti(
                 new Query().addCriteria(getMigrationCriteria()), pushXmlParserUpdate, Application.class);
     }

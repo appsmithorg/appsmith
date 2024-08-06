@@ -198,7 +198,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 })
                 .elapsed()
                 .map(objects -> {
-                    log.debug("time to import {} pages: {}", objects.getT2().size(), objects.getT1());
+                    log.error("time to import {} pages: {}", objects.getT2().size(), objects.getT1());
                     return objects.getT2();
                 });
     }
@@ -255,7 +255,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
                     mappedImportableResourcesDTO.setContextMap(pageNameMap);
 
-                    log.debug("New pages imported for application: {}", savedApp.getId());
+                    log.error("New pages imported for application: {}", savedApp.getId());
                     Map<ResourceModes, List<ApplicationPage>> applicationPages = new HashMap<>();
                     applicationPages.put(EDIT, unpublishedPages);
                     applicationPages.put(VIEW, publishedPages);
@@ -270,7 +270,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                 // to the existing application
                                 continue;
                             }
-                            log.debug(
+                            log.error(
                                     "Unable to find the page during import for appId {}, with name {}",
                                     applicationId,
                                     applicationPage.getId());
@@ -303,7 +303,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         ApplicationPage applicationPage = publishedPagesItr.next();
                         NewPage newPage = pageNameMap.get(applicationPage.getId());
                         if (newPage == null) {
-                            log.debug(
+                            log.error(
                                     "Unable to find the page during import for appId {}, with name {}",
                                     applicationId,
                                     applicationPage.getId());
@@ -352,7 +352,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                 .flatMap(page -> newPageService
                                         .archiveByIdWithoutPermission(page.getId())
                                         .onErrorResume(e -> {
-                                            log.debug(
+                                            log.error(
                                                     "Unable to archive page {} with error {}",
                                                     page.getId(),
                                                     e.getMessage());
@@ -435,7 +435,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             .forEach(newPage -> savedPagesGitIdToPageMap.put(newPage.getGitSyncId(), newPage));
 
                     return Flux.fromIterable(pages).flatMap(newPage -> {
-                        log.debug(
+                        log.error(
                                 "Importing page: {}",
                                 newPage.getUnpublishedPage().getName());
                         // Check if the page has gitSyncId and if it's already in DB

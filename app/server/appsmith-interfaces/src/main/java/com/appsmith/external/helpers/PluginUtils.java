@@ -467,7 +467,7 @@ public class PluginUtils {
                 // Return the connection back to the pool
                 connection.close();
             } catch (SQLException e) {
-                log.debug(logOnError, e);
+                log.error(logOnError, e);
             }
         }
     }

@@ -39,7 +39,7 @@ public class DeploymentPropertiesCE {
                 deployedAt = deploymentInfo.getCurrentTime();
             }
         } catch (IOException e) {
-            log.debug("Error reading deployment properties from {} {}", INFO_JSON_PATH, e.getMessage());
+            log.error("Error reading deployment properties from {} {}", INFO_JSON_PATH, e.getMessage());
         }
     }
 }

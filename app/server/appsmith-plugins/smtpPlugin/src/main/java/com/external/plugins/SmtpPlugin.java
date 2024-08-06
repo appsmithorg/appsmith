@@ -164,7 +164,7 @@ public class SmtpPlugin extends BasePlugin {
                 }
 
                 // Send the email now
-                log.debug("Going to send the email");
+                log.error("Going to send the email");
                 Transport.send(message);
 
                 result.setIsExecutionSuccess(true);
@@ -172,7 +172,7 @@ public class SmtpPlugin extends BasePlugin {
                 responseBody.put("message", "Sent the email successfully");
                 result.setBody(objectMapper.valueToTree(responseBody));
 
-                log.debug("Sent the email successfully");
+                log.error("Sent the email successfully");
             } catch (MessagingException e) {
                 return Mono.error(new AppsmithPluginException(
                         SMTPPluginError.MAIL_SENDING_FAILED,
@@ -225,7 +225,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session session) {
-            log.debug("Going to destroy email datasource");
+            log.error("Going to destroy email datasource");
             try {
                 if (session != null && session.getTransport() != null) {
                     session.getTransport().close();
@@ -237,7 +237,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            log.debug("Going to validate email datasource");
+            log.error("Going to validate email datasource");
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
@@ -260,7 +260,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(Session connection) {
-            log.debug("Going to test email datasource");
+            log.error("Going to test email datasource");
             return Mono.fromCallable(() -> {
                         Set<String> invalids = new HashSet<>();
                         try {
@@ -274,7 +274,7 @@ public class SmtpPlugin extends BasePlugin {
                         } catch (AuthenticationFailedException e) {
                             invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
                         } catch (MessagingException e) {
-                            log.debug(e.getMessage());
+                            log.error(e.getMessage());
                             invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);
                         }
                         return invalids;

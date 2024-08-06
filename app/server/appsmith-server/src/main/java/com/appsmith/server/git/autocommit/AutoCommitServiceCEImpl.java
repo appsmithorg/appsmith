@@ -96,7 +96,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
 
             return autoCommitProgressDTOMono.flatMap(autoCommitProgressDTO -> {
                 if (Set.of(LOCKED, IN_PROGRESS).contains(autoCommitProgressDTO.getAutoCommitResponse())) {
-                    log.info(
+                    log.error(
                             "application with id: {}, has requested auto-commit for branch name: {}, however an event for branch name: {} is already in progress",
                             baseApplicationId,
                             branchName,
@@ -109,7 +109,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
 
                 return isAutoCommitRequiredMono.flatMap(autoCommitTriggerDTO -> {
                     if (!Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
-                        log.info(
+                        log.error(
                                 "application with id: {}, and branch name: {} is not eligible for autocommit",
                                 baseApplicationId,
                                 branchName);
@@ -118,7 +118,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                     }
 
                     // Autocommit can be started
-                    log.info(
+                    log.error(
                             "application with id: {}, and branch name: {} is eligible for autocommit",
                             baseApplicationId,
                             branchName);
@@ -126,7 +126,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                             .publishAutoCommitEvent(autoCommitTriggerDTO, baseApplicationId, branchName)
                             .map(isEventPublished -> {
                                 if (TRUE.equals(isEventPublished)) {
-                                    log.info(
+                                    log.error(
                                             "autocommit event for application with id: {}, and branch name: {} is published",
                                             baseApplicationId,
                                             branchName);
@@ -134,7 +134,7 @@ public class AutoCommitServiceCEImpl implements AutoCommitServiceCE {
                                     return autoCommitResponseDTO;
                                 }
 
-                                log.info(
+                                log.error(
                                         "application with id: {}, and branch name: {} does not fulfil the prerequisite for autocommit",
                                         baseApplicationId,
                                         branchName);

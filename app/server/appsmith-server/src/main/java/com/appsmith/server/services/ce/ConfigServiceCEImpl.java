@@ -40,7 +40,7 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
                 .flatMap(dbConfig -> {
-                    log.debug("Found config with name: {} and id: {}", name, dbConfig.getId());
+                    log.error("Found config with name: {} and id: {}", name, dbConfig.getId());
                     dbConfig.setConfig(config.getConfig());
                     return repository.save(dbConfig);
                 });

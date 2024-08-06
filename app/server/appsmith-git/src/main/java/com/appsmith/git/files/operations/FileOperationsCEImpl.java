@@ -122,7 +122,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
             return writeToFile(sourceEntity, path);
         } catch (IOException e) {
             log.error("Error while writing resource to file {} with {}", path, e.getMessage());
-            log.debug(e.getMessage());
+            log.error(e.getMessage());
         }
         return false;
     }
@@ -138,7 +138,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
 
             writeStringToFile(sourceEntity.toString(4), path.resolve(resourceName + CommonConstants.JSON_EXTENSION));
         } catch (IOException e) {
-            log.debug("Error while writings widgets data to file, {}", e.getMessage());
+            log.error("Error while writings widgets data to file, {}", e.getMessage());
         } finally {
             observationHelper.endSpan(span, true);
         }

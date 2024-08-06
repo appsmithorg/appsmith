@@ -309,7 +309,7 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
             attributes.put(OidcParameterNames.NONCE, nonce);
             additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
         } catch (NoSuchAlgorithmException e) {
-            log.warn("Error adding NONCE parameter.", e);
+            log.error("Error adding NONCE parameter.", e);
         }
     }
 

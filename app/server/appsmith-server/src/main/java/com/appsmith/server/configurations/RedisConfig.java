@@ -244,7 +244,7 @@ public class RedisConfig {
                     }
                     dataMap.put(key, dto);
                 } else {
-                    log.warn(
+                    log.error(
                             "Unknown data type found in session data. Key: {}, Value: {}",
                             entry.getKey(),
                             entry.getValue());

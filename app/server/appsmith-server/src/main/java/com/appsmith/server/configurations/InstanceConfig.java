@@ -49,7 +49,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 .filter(config -> TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
                 .onErrorResume(errorSignal -> {
-                    log.debug("Instance registration failed with error: \n{}", errorSignal.getMessage());
+                    log.error("Instance registration failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
                 })
                 .then(instanceConfigHelper.performRtsHealthCheck());
@@ -68,7 +68,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                         // the
                         // license verification process.
                         .flatMap(isValid -> {
-                            log.debug(
+                            log.error(
                                     "License verification completed with status: {}",
                                     TRUE.equals(isValid) ? "valid" : "invalid");
                             return instanceConfigHelper.updateCacheForTenantFeatureFlags();
@@ -77,7 +77,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
         try {
             startupProcess.block();
         } catch (Exception e) {
-            log.debug("Application start up encountered an error: {}", e.getMessage());
+            log.error("Application start up encountered an error: {}", e.getMessage());
             Sentry.captureException(e);
         }
     }

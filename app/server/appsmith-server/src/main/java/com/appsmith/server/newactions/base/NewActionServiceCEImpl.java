@@ -555,7 +555,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action) {
-        log.debug(
+        log.error(
                 "Updating unpublished action with action id: {} and id: {} ",
                 action != null ? action.getId() : null,
                 id);
@@ -608,7 +608,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
             String id, ActionDTO action, AclPermission permission) {
-        log.debug(
+        log.error(
                 "Updating unpublished action without analytics with action id: {} ",
                 action != null ? action.getId() : null);
         if (id == null) {
@@ -1057,7 +1057,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<NewAction> sanitizeAction(NewAction action) {
         Mono<NewAction> actionMono = Mono.just(action);
         if (isPluginTypeOrPluginIdMissing(action)) {
-            log.debug(
+            log.error(
                     "Sanitizing the action for missing plugin type or plugin Id with action id: {} ",
                     action != null ? action.getId() : null);
             actionMono = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action);
@@ -1486,7 +1486,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     public Mono<NewAction> findByBranchNameAndBaseActionId(
             String branchName, String baseActionId, Boolean viewMode, AclPermission permission) {
-        log.debug("Going to find action based on branchName and defaultActionId with id: {} ", baseActionId);
+        log.error("Going to find action based on branchName and defaultActionId with id: {} ", baseActionId);
         if (!StringUtils.hasLength(branchName)) {
             return repository
                     .findById(baseActionId, permission)

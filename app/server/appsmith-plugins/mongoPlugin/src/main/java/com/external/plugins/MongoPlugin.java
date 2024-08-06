@@ -305,7 +305,7 @@ public class MongoPlugin extends BasePlugin {
                 List<Map.Entry<String, String>> parameters) {
 
             if (mongoClient == null) {
-                log.info("Encountered null connection in MongoDB plugin. Reporting back.");
+                log.error("Encountered null connection in MongoDB plugin. Reporting back.");
                 throw new StaleConnectionException(MONGO_CLIENT_NULL_ERROR_MSG);
             }
             Mono<Document> mongoOutputMono;
@@ -452,7 +452,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
-                            log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
+                            log.error("The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
                         } else if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(

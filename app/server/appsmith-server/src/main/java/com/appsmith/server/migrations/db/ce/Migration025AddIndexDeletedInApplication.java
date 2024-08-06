@@ -41,12 +41,12 @@ public class Migration025AddIndexDeletedInApplication {
         try {
             ensureIndexes(mongoTemplate, Application.class, deletedAtDeletedIndex);
         } catch (UncategorizedMongoDbException mongockException) {
-            log.debug(
+            log.error(
                     "An error occurred while creating the index : {}, skipping the addition of index because of {}.",
                     APPLICATION_COMPOUND_INDEX_DELETED,
                     mongockException.getMessage());
         } catch (Exception exception) {
-            log.debug("An error occurred while creating the index : {}", APPLICATION_COMPOUND_INDEX_DELETED);
+            log.error("An error occurred while creating the index : {}", APPLICATION_COMPOUND_INDEX_DELETED);
             exception.printStackTrace();
         }
     }

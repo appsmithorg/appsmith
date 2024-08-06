@@ -388,7 +388,7 @@ public class MySqlPlugin extends BasePlugin {
                                             result.setBody(objectMapper.valueToTree(rowsList));
                                             result.setMessages(populateHintMessages(columnsList));
                                             result.setIsExecutionSuccess(true);
-                                            log.debug("In the MySqlPlugin, got action execution result");
+                                            log.error("In the MySqlPlugin, got action execution result");
                                             return result;
                                         })
                                         .onErrorResume(error -> {
@@ -470,7 +470,7 @@ public class MySqlPlugin extends BasePlugin {
                 return Flux.from(connectionStatement.execute());
             }
 
-            log.debug("Query : {}", query);
+            log.error("Query : {}", query);
 
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
             try {
@@ -677,7 +677,7 @@ public class MySqlPlugin extends BasePlugin {
                                 sshTunnelContext.getSshClient().disconnect();
                                 sshTunnelContext.getThread().stop();
                             } catch (IOException e) {
-                                log.debug("Failed to destroy SSH tunnel context: {}", e.getMessage());
+                                log.error("Failed to destroy SSH tunnel context: {}", e.getMessage());
                             }
                         }
 
@@ -695,7 +695,7 @@ public class MySqlPlugin extends BasePlugin {
                 connectionPool
                         .disposeLater()
                         .onErrorResume(exception -> {
-                            log.debug("Could not destroy MySQL connection pool", exception);
+                            log.error("Could not destroy MySQL connection pool", exception);
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)

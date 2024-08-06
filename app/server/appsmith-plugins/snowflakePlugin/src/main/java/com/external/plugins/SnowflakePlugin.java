@@ -104,7 +104,7 @@ public class SnowflakePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
+                        log.error(
                                 "Before executing snowflake query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
                                 query,
                                 activeConnections,
@@ -123,7 +123,7 @@ public class SnowflakePlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
+                            log.error(
                                     "After executing snowflake query, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
                                     activeConnections,
                                     idleConnections,
@@ -135,7 +135,7 @@ public class SnowflakePlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error returning Snowflake connection to pool", e);
+                                    log.error("Execute Error returning Snowflake connection to pool", e);
                                 }
                             }
                         }
@@ -374,7 +374,7 @@ public class SnowflakePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
+                        log.error(
                                 "Before getting snowflake structure Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
                                 activeConnections,
                                 idleConnections,
@@ -431,7 +431,7 @@ public class SnowflakePlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
+                            log.error(
                                     "After snowflake structure, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
                                     activeConnections,
                                     idleConnections,
@@ -443,7 +443,7 @@ public class SnowflakePlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Error returning snowflake connection to pool during get structure", e);
+                                    log.error("Error returning snowflake connection to pool during get structure", e);
                                 }
                             }
                         }

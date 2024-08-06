@@ -178,12 +178,12 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         // If plugin is already present for the workspace, just return the workspace, else install and return workspace
         return pluginInWorkspaceMono.switchIfEmpty(Mono.defer(() -> {
-            log.debug("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
+            log.error("Plugin {} not already installed. Installing now", pluginDTO.getPluginId());
             // If the plugin is not found in the workspace, its not installed already. Install now.
             return repository
                     .findById(pluginDTO.getPluginId())
                     .map(plugin -> {
-                        log.debug("Before publishing to the redis queue");
+                        log.error("Before publishing to the redis queue");
                         // Publish the event to the pub/sub queue
                         InstallPluginRedisDTO installPluginRedisDTO = new InstallPluginRedisDTO();
                         installPluginRedisDTO.setWorkspaceId(pluginDTO.getWorkspaceId());
@@ -214,7 +214,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                         workspacePluginList.add(workspacePlugin);
                         workspace.setPlugins(workspacePluginList);
 
-                        log.debug(
+                        log.error(
                                 "Going to save the workspace with install plugin. This means that installation has been successful");
 
                         return workspaceService.save(workspace);
@@ -248,7 +248,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return pluginMono
                 .flatMap(plugin -> downloadAndStartPlugin(installPluginRedisDTO.getWorkspaceId(), plugin))
                 .switchIfEmpty(Mono.defer(() -> {
-                    log.debug(
+                    log.error(
                             "During redisInstallPlugin, no plugin with plugin id {} found. Returning without download and install",
                             installPluginRedisDTO.getPluginWorkspaceDTO().getPluginId());
                     return Mono.just(new Plugin());
@@ -262,13 +262,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             /** TODO
              * In future throw an error if jar location is not set
              */
-            log.debug("plugin jarLocation is null. Not downloading and starting. Returning now");
+            log.error("plugin jarLocation is null. Not downloading and starting. Returning now");
             return Mono.just(plugin);
         }
 
         String baseUrl = "../dist/plugins/";
         String pluginJar = plugin.getName() + "-" + workspaceId + ".jar";
-        log.debug("Going to download plugin jar with name : {}", baseUrl + pluginJar);
+        log.error("Going to download plugin jar with name : {}", baseUrl + pluginJar);
 
         try {
             FileUtils.copyURLToFile(
@@ -431,7 +431,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         }
 
         if (pluginTemplatesMeta.getTemplates() == null) {
-            log.warn("Missing templates key in plugin templates meta.");
+            log.error("Missing templates key in plugin templates meta.");
             return Collections.emptyMap();
         }
 
@@ -441,7 +441,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             final String filename = template.getFile();
 
             if (filename == null) {
-                log.warn("Empty or missing file for a template in plugin {}.", plugin.getPackageName());
+                log.error("Empty or missing file for a template in plugin {}.", plugin.getPackageName());
                 continue;
             }
 
@@ -642,7 +642,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
         return workspaceMono.flatMapMany(workspace -> {
             if (workspace.getPlugins() == null) {
-                log.debug("Null installed plugins found for workspace: {}. Return empty plugins", workspace.getName());
+                log.error("Null installed plugins found for workspace: {}. Return empty plugins", workspace.getName());
                 return Flux.empty();
             }
 

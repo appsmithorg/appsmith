@@ -89,7 +89,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
         String defaultApplicationId = defaultApplication.getId();
 
         if (!GitUtils.isAutoCommitEnabled(defaultApplication.getGitApplicationMetadata())) {
-            log.debug("auto commit is disabled for application: {}", defaultApplicationId);
+            log.error("auto commit is disabled for application: {}", defaultApplicationId);
             return Mono.just(Boolean.FALSE);
         }
 
@@ -107,7 +107,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                     Boolean isAutoCommitRunning = tuple.getT2();
 
                     if (isBranchProtected || isAutoCommitRunning) {
-                        log.debug(
+                        log.error(
                                 "auto commit is not applicable for application: {} branch: {}, isAutoCommitDisabledForBranch: {}",
                                 defaultApplicationId,
                                 branchName,
@@ -169,7 +169,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                             .fetchRemoteChanges(defaultApplication, branchedApplication, true)
                             .flatMap(branchTrackingStatus -> {
                                 if (branchTrackingStatus.getBehindCount() > 0) {
-                                    log.debug(
+                                    log.error(
                                             "the remote is ahead of the local, aborting autocommit for application {} and branch {}",
                                             defaultApplicationId,
                                             branchName);

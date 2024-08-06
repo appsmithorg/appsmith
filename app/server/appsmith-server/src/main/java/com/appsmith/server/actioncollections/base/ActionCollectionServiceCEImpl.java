@@ -321,7 +321,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                         .deleteGivenNewAction(newAction)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
-                                            log.debug(
+                                            log.error(
                                                     "Failed to delete action with id {} for collection: {}",
                                                     newAction.getId(),
                                                     toDelete.getUnpublishedCollection()
@@ -437,7 +437,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                         .archiveGivenNewAction(toArchive)
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
-                            log.debug(
+                            log.error(
                                     "Failed to delete action with id {} for collection with id: {}",
                                     toArchive.getId(),
                                     actionCollection.getId());

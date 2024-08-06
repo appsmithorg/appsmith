@@ -43,7 +43,7 @@ public class JacksonModelViewTests {
             objectMapper.writerWithView(Views.Public.class).writeValueAsString(testModelJsonView);
         }
         long end = System.currentTimeMillis();
-        log.info("test_withJsonView_measureSerializingPerformance: {} ms for 1000000 iterations", end - start);
+        log.error("test_withJsonView_measureSerializingPerformance: {} ms for 1000000 iterations", end - start);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class JacksonModelViewTests {
                     .readValue(JSON_OUT);
         }
         long end = System.currentTimeMillis();
-        log.info("test_withJsonView_measureDeserializingPerformance: {} ms for 1000000 iterations", end - start);
+        log.error("test_withJsonView_measureDeserializingPerformance: {} ms for 1000000 iterations", end - start);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class JacksonModelViewTests {
             objectMapper.writeValueAsString(testModelJsonIgnore);
         }
         long end = System.currentTimeMillis();
-        log.info("test_withJsonIgnore_measureSerializingPerformance: {} ms for 1000000 iterations", end - start);
+        log.error("test_withJsonIgnore_measureSerializingPerformance: {} ms for 1000000 iterations", end - start);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class JacksonModelViewTests {
             objectMapper.readValue(JSON_OUT, TestModelJsonIgnore.class);
         }
         long end = System.currentTimeMillis();
-        log.info("test_withJsonIgnore_measureDeserializingPerformance: {} ms for 1000000 iterations", end - start);
+        log.error("test_withJsonIgnore_measureDeserializingPerformance: {} ms for 1000000 iterations", end - start);
     }
 
     interface Views {

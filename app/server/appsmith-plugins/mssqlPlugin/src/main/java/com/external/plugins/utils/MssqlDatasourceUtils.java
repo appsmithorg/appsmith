@@ -134,7 +134,7 @@ public class MssqlDatasourceUtils {
                     setSQLQueryTemplates(tableNameToTableMap);
 
                     structure.setTables(new ArrayList<>(tableNameToTableMap.values()));
-                    log.debug("Got the structure of postgres db");
+                    log.error("Got the structure of postgres db");
                     return structure;
                 })
                 .map(resultStructure -> (DatasourceStructure) resultStructure)
@@ -154,7 +154,7 @@ public class MssqlDatasourceUtils {
         int activeConnections = poolProxy.getActiveConnections();
         int totalConnections = poolProxy.getTotalConnections();
         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-        log.debug(MessageFormat.format(
+        log.error(MessageFormat.format(
                 "{0}: Hikari Pool stats : active - {1} , idle - {2}, awaiting - {3} , total - {4}",
                 logPrefix, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
     }

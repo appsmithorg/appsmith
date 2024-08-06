@@ -232,7 +232,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     return Mono.just(application);
                 })
                 .flatMap(application -> {
-                    log.debug("Fetched application data for id: {}", branchedApplicationId);
+                    log.error("Fetched application data for id: {}", branchedApplicationId);
                     if (markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
                         return userDataService
@@ -256,7 +256,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .collectList()
                 .zipWith(applicationMono)
                 .map(tuple -> {
-                    log.debug("Retrieved Page DTOs from DB ...");
+                    log.error("Retrieved Page DTOs from DB ...");
                     List<NewPage> pagesFromDb = tuple.getT1();
                     Application application = tuple.getT2();
                     return getApplicationPagesDTO(application, pagesFromDb, view);

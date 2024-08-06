@@ -76,7 +76,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 .flatMap(importedNewActionList -> createImportNewActionsMono(
                         importedNewActionList, importableArtifactMono, importingMetaDTO, mappedImportableResourcesDTO))
                 .flatMap(importActionResultDTO -> {
-                    log.info("Actions imported. result: {}", importActionResultDTO.getGist());
+                    log.error("Actions imported. result: {}", importActionResultDTO.getGist());
                     // Updating the existing artifact for git-sync
                     // During partial import/appending to the existing artifact keep the resources
                     // attached to the artifact:
@@ -94,13 +94,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                 }
                             }
                         }
-                        log.info("Deleting {} actions which are no more used", invalidActionIds.size());
+                        log.error("Deleting {} actions which are no more used", invalidActionIds.size());
                         return Flux.fromIterable(invalidActionIds)
                                 .flatMap(actionId -> newActionService
                                         .deleteUnpublishedAction(actionId, null)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
-                                            log.debug("Failed to delete action with id {} during import", actionId);
+                                            log.error("Failed to delete action with id {} during import", actionId);
                                             log.error(throwable.getMessage());
                                             return Mono.empty();
                                         }))
@@ -159,14 +159,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 mappedImportableResourcesDTO.getActionCollectionResultDTO();
 
         List<String> savedCollectionIds = importActionCollectionResultDTO.getSavedActionCollectionIds();
-        log.info(
+        log.error(
                 "Action collections imported. artifactId {}, result: {}",
                 importableArtifact.getId(),
                 importActionCollectionResultDTO.getGist());
         return newActionService
                 .updateActionsWithImportedCollectionIds(importActionCollectionResultDTO, importActionResultDTO)
                 .flatMap(actionAndCollectionMapsDTO -> {
-                    log.info("Updated actions with imported collection ids. artifactId {}", importableArtifact.getId());
+                    log.error("Updated actions with imported collection ids. artifactId {}", importableArtifact.getId());
                     // Updating the existing importableArtifact for git-sync
                     // During partial import/appending to the existing importableArtifact keep the resources
                     // attached to the importableArtifact:
@@ -183,14 +183,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                 invalidCollectionIds.add(collection.getId());
                             }
                         }
-                        log.info("Deleting {} action collections which are no more used", invalidCollectionIds.size());
+                        log.error("Deleting {} action collections which are no more used", invalidCollectionIds.size());
                         return Flux.fromIterable(invalidCollectionIds)
                                 .flatMap(collectionId -> actionCollectionService
                                         .deleteWithoutPermissionUnpublishedActionCollection(collectionId)
                                         // return an empty collection so that the filter can remove it from
                                         // the list
                                         .onErrorResume(throwable -> {
-                                            log.debug(
+                                            log.error(
                                                     "Failed to delete collection with id {} during import",
                                                     collectionId);
                                             log.error(throwable.getMessage());
@@ -257,7 +257,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 })
                 .elapsed()
                 .map(tuple -> {
-                    log.debug(
+                    log.error(
                             "time to import {} actions: {} ms",
                             tuple.getT2().getImportedActionIds().size(),
                             tuple.getT1());
@@ -385,7 +385,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             }
                         }
 
-                        log.info(
+                        log.error(
                                 "Saving actions in bulk. New: {}, Updated: {}",
                                 newNewActionList.size(),
                                 existingNewActionList.size());

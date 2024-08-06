@@ -100,7 +100,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
         return Mono.zip(importableArtifactMono, importedActionCollectionMono)
                 .flatMap(objects -> {
-                    log.info("Importing action collections");
+                    log.error("Importing action collections");
                     return this.importActionCollections(
                             objects.getT1(), objects.getT2(), importingMetaDTO, mappedImportableResourcesDTO);
                 })
@@ -238,7 +238,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         resultDTO.getSavedActionCollectionMap().put(idFromJsonFile, actionCollection);
                                     }
                                 }
-                                log.info(
+                                log.error(
                                         "Saving action collections in bulk. New: {}, Updated: {}",
                                         newActionCollections.size(),
                                         existingActionCollections.size());

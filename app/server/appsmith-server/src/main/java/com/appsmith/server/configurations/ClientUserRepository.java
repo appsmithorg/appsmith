@@ -79,7 +79,7 @@ public class ClientUserRepository implements ServerOAuth2AuthorizedClientReposit
         // relevant accounts only
         if (!commonConfig.getOauthAllowedDomains().isEmpty()) {
             String domain = null;
-            log.debug(
+            log.error(
                     "Got the principal class as: {}",
                     principal.getPrincipal().getClass().getName());
             if (principal.getPrincipal() instanceof DefaultOidcUser) {

@@ -164,7 +164,7 @@ public class OpenAiPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         errorResult.setIsExecutionSuccess(false);
-                        log.debug(
+                        log.error(
                                 "An error has occurred while trying to run the open API query command with error {}",
                                 error.getStackTrace());
                         if (!(error instanceof AppsmithPluginException)) {

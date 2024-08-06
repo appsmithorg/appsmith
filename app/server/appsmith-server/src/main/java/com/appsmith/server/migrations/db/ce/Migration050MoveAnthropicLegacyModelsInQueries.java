@@ -47,7 +47,7 @@ public class Migration050MoveAnthropicLegacyModelsInQueries {
      */
     @Execution
     public void moveAnthropicLegacyModelsInQueries() {
-        log.info("Migrating Anthropic legacy models in queries to next version models");
+        log.error("Migrating Anthropic legacy models in queries to next version models");
         Query anthropicPluginQuery = new Query();
         anthropicPluginQuery.addCriteria(Criteria.where(PACKAGE_NAME).is(PluginConstants.PackageName.ANTHROPIC_PLUGIN));
         Plugin plugin = mongoTemplate.findOne(anthropicPluginQuery, Plugin.class);

@@ -404,7 +404,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                             .flatMap(pluginExecutor -> pluginExecutor.sanitizeGenerateCRUDPageTemplateInfo(
                                     templateUnpublishedActionConfigList, mappedColumnsAndTableName, tableName));
 
-                    log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
+                    log.error("Going to update layout for page {} and layout {}", savedPageId, layoutId);
                     return sanitizeTemplateInfoMono
                             .then(updateLayoutService.updateLayout(
                                     savedPageId, page.getApplicationId(), layoutId, layout))
@@ -423,7 +423,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     Plugin plugin = tuple.getT4();
                     String tableNameInAction = tuple.getT5();
                     String savedPageId = tuple.getT6();
-                    log.debug("Going to clone actions from template application for page {}", savedPageId);
+                    log.error("Going to clone actions from template application for page {}", savedPageId);
                     return cloneActionsFromTemplateApplication(
                                     datasourceStorage,
                                     tableNameInAction,
@@ -464,7 +464,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             3. If page is not present create new page and return
         */
 
-        log.debug(
+        log.error(
                 "Fetching page from branchedApplicationId {}, branchedPageId {}",
                 branchedApplicationId,
                 branchedPageId);
@@ -554,7 +554,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
            2. De-Serialise data from the file
            3. Store the data in the application resource format
         */
-        log.debug("Going to fetch template application");
+        log.error("Going to fetch template application");
         final String jsonContent = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource(filePath).getInputStream(), Charset.defaultCharset());
 
@@ -589,7 +589,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
            stored in mapped columns
            3. Create new action
         */
-        log.debug("Cloning actions from template application for pageId {}", pageId);
+        log.error("Cloning actions from template application for pageId {}", pageId);
         return Flux.fromIterable(templateActionList).flatMap(templateAction -> {
             ActionDTO actionDTO = new ActionDTO();
             ActionConfiguration templateActionConfiguration =
@@ -627,7 +627,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 }
             }
 
-            log.debug("Cloning plugin specified templates for action ");
+            log.error("Cloning plugin specified templates for action ");
             if (!CollectionUtils.isEmpty(pluginSpecifiedTemplates)) {
                 pluginSpecifiedTemplates.forEach(property -> {
                     if (property != null && property.getValue() instanceof String) {
@@ -652,7 +652,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 });
             }
 
-            log.debug("Cloning form data for action ");
+            log.error("Cloning form data for action ");
             Map<String, Object> formData = actionConfiguration.getFormData();
             return pluginExecutorHelper
                     .getPluginExecutorFromPackageName(templateAction.getPluginId())
@@ -689,7 +689,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
            1. Fetch and map primary keys for source and destination columns if available
            2. Map remaining column names between the sourceTable(key) and destinationTable(value)
         */
-        log.debug("Mapping column names with template application for table {}", destTable.getName());
+        log.error("Mapping column names with template application for table {}", destTable.getName());
         Map<String, String> mappedTableColumns = new HashMap<>();
 
         // Assign string type column as default search column. We are only supporting String matching for filter clause
@@ -1143,7 +1143,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                         .sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data)
                         .thenReturn(crudPage);
             } catch (Exception e) {
-                log.warn("Error sending generate CRUD DB table page data point", e);
+                log.error("Error sending generate CRUD DB table page data point", e);
             }
             return Mono.just(crudPage);
         });

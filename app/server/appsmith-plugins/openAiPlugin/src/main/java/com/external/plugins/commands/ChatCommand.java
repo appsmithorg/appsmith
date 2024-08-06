@@ -112,7 +112,7 @@ public class ChatCommand implements OpenAICommand {
         try {
             return gson.fromJson(gson.toJson(messages), chatListType);
         } catch (Exception exception) {
-            log.debug("An exception occurred while converting types for messages: {}", messages);
+            log.error("An exception occurred while converting types for messages: {}", messages);
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, INCORRECT_MESSAGE_FORMAT));

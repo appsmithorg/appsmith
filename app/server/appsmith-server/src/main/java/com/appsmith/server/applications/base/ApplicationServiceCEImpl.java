@@ -714,7 +714,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
                             .onErrorResume(e -> {
-                                log.warn("Error sending ssh key generation data point", e);
+                                log.error("Error sending ssh key generation data point", e);
                                 return Mono.just(application);
                             });
                 })

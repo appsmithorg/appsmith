@@ -31,7 +31,7 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
 
     @Override
     public Mono<Void> onLogoutSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
-        log.debug("In the logout success handler");
+        log.error("In the logout success handler");
 
         ServerWebExchange exchange = webFilterExchange.getExchange();
         ServerHttpResponse response = exchange.getResponse();
