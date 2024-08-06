@@ -51,6 +51,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { WidgetProfiler } from "./BaseWidgetHOC/WidgetProfiler";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 const { newRelic } = getAppsmithConfigs();
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
@@ -69,6 +70,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetId,
     } = props;
 
+    const span = startRootSpan("withWidgetProps", { widgetType: type });
     const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
     const canvasWidget = useSelector((state: AppState) =>
@@ -253,7 +255,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;
-
+    endSpan(span);
     // isVisible prop defines whether to render a detached widget
     if (
       widgetProps.detachFromLayout &&
