@@ -303,6 +303,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             },
             evaluationSubstitutionType:
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
+            showAutocompleteMenuByDefault: true,
           },
           {
             helpText:

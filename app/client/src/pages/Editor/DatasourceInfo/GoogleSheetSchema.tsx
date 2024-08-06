@@ -386,7 +386,8 @@ function GoogleSheetSchema(props: Props) {
     sheetData?.length &&
     canCreateDatasourceActions &&
     canCreatePages &&
-    !isAnvilEnabled;
+    !isAnvilEnabled &&
+    false;
 
   const filteredSpreadsheets = spreadsheetOptions.filter((option) =>
     (option.label || "").toLowerCase()?.includes(searchString),
