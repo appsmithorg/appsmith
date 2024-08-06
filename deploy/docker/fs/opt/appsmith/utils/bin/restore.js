@@ -75,6 +75,7 @@ async function restoreDatabase(restoreContentsPath, dbUrl) {
 async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEncryptionKeys) {
   console.log('Restoring docker environment file');
   const dockerEnvFile = '/appsmith-stacks/configuration/docker.env';
+  const updatedbUrl = utils.getDburl();
   let encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
   let encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
   await utils.execCommand(['mv', dockerEnvFile, dockerEnvFile + '.' + backupName]);
@@ -108,7 +109,7 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEn
     await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd + '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_DB_URL=' + utils.getDburl() +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
     } else {
-    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_DB_URL=' + utils.getDburl() +
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_DB_URL=' + updatedbUrl +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
     }
     console.log('Restoring docker environment file completed');
