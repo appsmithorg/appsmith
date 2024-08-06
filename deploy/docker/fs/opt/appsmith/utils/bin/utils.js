@@ -46,6 +46,7 @@ function getDburl() {
     console.error("Error reading the environment file:", err);
   }
   let dbEnvUrl = process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGO_DB_URI;
+  // Make sure dbEnvUrl takes precedence over dbUrl
   if (dbEnvUrl && dbEnvUrl !== "undefined") {
     dbUrl = dbEnvUrl;
   }
