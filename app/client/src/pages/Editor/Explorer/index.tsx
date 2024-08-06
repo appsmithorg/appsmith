@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import type { AppState } from "@appsmith/reducers";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { trimQueryString } from "utils/helpers";
@@ -36,7 +36,7 @@ function ExplorerContent() {
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const location = useLocation();
   const activeSwitchIndex = useSelector(getExplorerSwitchIndex);
 
@@ -56,12 +56,14 @@ function ExplorerContent() {
     if (value === options[0].value) {
       dispatch(forceOpenWidgetPanel(false));
     } else if (value === options[1].value) {
-      if (!(trimQueryString(builderURL({ pageId })) === location.pathname)) {
-        history.push(builderURL({ pageId }));
+      if (
+        !(trimQueryString(builderURL({ basePageId })) === location.pathname)
+      ) {
+        history.push(builderURL({ basePageId }));
         AnalyticsUtil.logEvent("WIDGET_TAB_CLICK", {
           type: "WIDGET_TAB",
           fromUrl: location.pathname,
-          toUrl: builderURL({ pageId }),
+          toUrl: builderURL({ basePageId }),
         });
       }
 

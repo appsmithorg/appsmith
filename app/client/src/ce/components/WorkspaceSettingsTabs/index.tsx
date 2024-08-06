@@ -104,6 +104,8 @@ export const WorkspaceSettingsTabs = ({
   const MemberSettingsComponent = (
     <SentryRoute
       component={useCallback(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (props: any) => (
           <MemberSettings {...props} searchValue={searchValue} />
         ),

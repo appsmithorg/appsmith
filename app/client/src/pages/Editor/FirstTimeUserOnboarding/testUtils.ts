@@ -2,14 +2,19 @@ import _ from "lodash";
 import configureStore from "redux-mock-store";
 
 const PAGE_ID = "0123456789abcdef00000000";
+const BASE_PAGE_ID = "0123456789abcdef00000022";
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const initialState: any = {
   entities: {
     pageList: {
       applicationId: "1",
       currentPageId: PAGE_ID,
+      currentBasePageId: BASE_PAGE_ID,
       pages: [
         {
           pageId: PAGE_ID,
+          basePageId: BASE_PAGE_ID,
           slug: "pageSlug",
         },
       ],

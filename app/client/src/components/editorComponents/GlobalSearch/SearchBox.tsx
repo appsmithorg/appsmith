@@ -87,6 +87,8 @@ interface SearchBoxProps {
   query: string;
   setQuery: (query: string) => void;
   category: SearchCategory;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setCategory: (category: any) => void;
 }
 

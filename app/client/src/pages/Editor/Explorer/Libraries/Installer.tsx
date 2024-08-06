@@ -171,6 +171,8 @@ function isValidJSFileURL(url: string) {
 function StatusIcon(props: {
   status: InstallState;
   isInstalled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action?: any;
 }) {
   const { action, isInstalled = false, status } = props;

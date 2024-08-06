@@ -33,6 +33,8 @@ type ReactivePaths = Record<string, EvaluationSubstitutionType>;
  * @returns {Paths} Paths
  */
 const checkPathsInConfig = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any,
   path: string,
 ): {
@@ -43,6 +45,8 @@ const checkPathsInConfig = (
 } => {
   const configBindingPaths: BindingPaths = {};
   const configTriggerPaths: Record<string, true> = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const configValidationPaths: Record<any, ValidationConfig> = {};
   // Purely a Binding Path
   if (config.isBindProperty && !config.isTriggerProperty) {
@@ -65,6 +69,8 @@ const checkPathsInConfig = (
 // "originalWidget" param here always contains the complete widget props
 // as this function's widget parameter tends to change in each iteration
 const childHasPanelConfig = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any,
   widget: WidgetProps,
   basePath: string,
@@ -72,6 +78,8 @@ const childHasPanelConfig = (
   bindingPaths: BindingPaths,
   reactivePaths: ReactivePaths,
   triggerPaths: Record<string, true>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   validationPaths: Record<any, ValidationConfig>,
 ) => {
   const panelPropertyPath = config.propertyName;
@@ -79,6 +87,8 @@ const childHasPanelConfig = (
 
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (widgetPanelPropertyValue: any) => {
         const { panelIdPropertyName } = config.panelConfig;
         const propertyPath = `${basePath}.${widgetPanelPropertyValue[panelIdPropertyName]}`;
@@ -91,6 +101,8 @@ const childHasPanelConfig = (
         if (panelConfigChildren.length === 0)
           panelConfigChildren = config.panelConfig.children;
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         panelConfigChildren.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
           if ("hidden" in panelColumnConfig) {
@@ -101,11 +113,15 @@ const childHasPanelConfig = (
           }
           if (!isSectionHidden) {
             panelColumnConfig.children.forEach(
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (panelColumnControlOrSectionConfig: any) => {
                 if (
                   panelColumnControlOrSectionConfig.sectionName !== undefined
                 ) {
                   panelColumnControlOrSectionConfig.children.forEach(
+                    // TODO: Fix this the next time the file is edited
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (panelColumnControlConfig: any) => {
                       const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
                       let isControlHidden = false;
@@ -227,6 +243,8 @@ const memoizedChildHasPanelConfig = memoize(childHasPanelConfig);
 const getAllPathsFromPropertyConfigWithoutMemo = (
   widget: WidgetProps,
   widgetConfig: readonly PropertyPaneConfig[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultProperties: Record<string, any>,
 ): {
   bindingPaths: BindingPaths;
@@ -240,10 +258,14 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
     reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
   });
   const triggerPaths: Record<string, true> = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validationPaths: Record<any, ValidationConfig> = {};
 
   widgetConfig.forEach((config) => {
     if (config.children) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       config.children.forEach((controlConfig: any) => {
         const basePath = controlConfig.propertyName;
         let isHidden = false;
@@ -290,6 +312,8 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
           ) {
             Object.keys(widgetPropertyValue).forEach((key: string) => {
               const objectIndexPropertyPath = `${basePropertyPath}.${key}`;
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               controlConfig.children.forEach((childPropertyConfig: any) => {
                 const childArrayPropertyPath = `${objectIndexPropertyPath}.${childPropertyConfig.propertyName}`;
                 const {
@@ -345,6 +369,8 @@ export const nextAvailableRowInContainer = (
 
   return (
     Object.values(filteredCanvasWidgets).reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (prev: number, next: any) =>
         next?.parentId === parentContainerId && next.bottomRow > prev
           ? next.bottomRow

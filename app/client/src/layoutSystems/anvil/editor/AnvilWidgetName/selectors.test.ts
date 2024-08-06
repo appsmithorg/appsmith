@@ -10,6 +10,8 @@ const extraWidgetEntityProperties = {
   renderMode: RenderModes.CANVAS,
 };
 // Mock state
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockAppState: any = {
   evaluations: {
     tree: {
@@ -63,6 +65,8 @@ describe("Anvil Selectors", () => {
 
   it("should handle empty state", () => {
     const widgetId = "widget1";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const emptyState: any = { evaluations: { tree: {} } }; // Empty state
     const errorCount = getWidgetErrorCount(emptyState, widgetId);
     expect(errorCount).toBe(0);

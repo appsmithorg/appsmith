@@ -14,6 +14,7 @@ import transformCurlImport from "transformers/CurlImportTransformer";
 import history from "utils/history";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { apiEditorIdURL } from "@appsmith/RouteBuilder";
+import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { contextId, contextType, name, type } = action.payload;
@@ -30,7 +31,8 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
       contextType,
     };
 
-    const response: ApiResponse = yield CurlImportApi.curlImport(request);
+    const response: ApiResponse<{ id: string; baseId: string }> =
+      yield CurlImportApi.curlImport(request);
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
@@ -42,10 +44,15 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         type: ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
         payload: response.data,
       });
-
+      const baseParentEntityId: string = yield select(
+        convertToBaseParentEntityIdSelector,
+        contextId,
+      );
       history.push(
-        // @ts-expect-error: response.data is of type unknown
-        apiEditorIdURL({ parentEntityId: contextId, apiId: response.data.id }),
+        apiEditorIdURL({
+          baseParentEntityId: baseParentEntityId,
+          baseApiId: response.data.baseId,
+        }),
       );
     }
   } catch (error) {

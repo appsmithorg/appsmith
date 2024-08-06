@@ -10,6 +10,8 @@ export const fetchWidgetCards = () => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const errorFetchingWidgetCards = (error: any) => {
   return {
     type: ReduxActionErrorTypes.FETCH_WIDGET_CARDS_ERROR,

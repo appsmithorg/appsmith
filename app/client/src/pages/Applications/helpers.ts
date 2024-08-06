@@ -21,7 +21,11 @@ export const CREATE_APPLICATION_FORM_NAME_FIELD = "applicationName";
 
 export const createApplicationFormSubmitHandler = async (
   values: CreateApplicationFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { applicationName, workspaceId } = values;
   return new Promise((resolve, reject) => {

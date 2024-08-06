@@ -4,7 +4,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { builderURL, generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { Link } from "design-system";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
@@ -18,12 +18,12 @@ const Back = styled(Link)`
 
 function BackButton() {
   const history = useHistory<AppsmithLocationState>();
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
-      ? generateTemplateFormURL({ pageId })
-      : builderURL({ pageId });
+      ? generateTemplateFormURL({ basePageId })
+      : builderURL({ basePageId });
 
     AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
       type: "BACK_BUTTON",

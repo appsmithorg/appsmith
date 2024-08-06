@@ -266,6 +266,8 @@ interface CascadeFieldProps {
   columns: DropdownOption[];
   column: string;
   condition: Condition;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   operator: Operator;
   index: number;
@@ -279,6 +281,8 @@ interface CascadeFieldProps {
 interface CascadeFieldState {
   column: string;
   condition: Condition;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   operator: Operator;
   conditions: DropdownOption[];
@@ -370,6 +374,8 @@ function CaseCaseFieldReducer(
   state: CascadeFieldState,
   action: {
     type: CascadeFieldAction;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload?: any;
   },
 ) {

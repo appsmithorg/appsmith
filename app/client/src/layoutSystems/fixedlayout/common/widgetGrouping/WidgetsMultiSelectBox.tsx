@@ -179,6 +179,8 @@ function WidgetsMultiSelectBox(props: {
   noContainerOffset: boolean;
   snapColumnSpace: number;
   snapRowSpace: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): any {
   const dispatch = useDispatch();
   const canvasWidgets = useSelector(getCanvasWidgets);
@@ -219,6 +221,8 @@ function WidgetsMultiSelectBox(props: {
   const menuRef = useRef<HTMLDivElement>(null);
   const { setDraggingState } = useWidgetDragResize();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();

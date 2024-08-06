@@ -219,6 +219,8 @@ export default connect(
       validatingToken: getIsValidatingToken(state),
     };
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (dispatch: any) => ({
     verifyToken: (token: string) =>
       dispatch({

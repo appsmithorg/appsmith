@@ -153,6 +153,8 @@ export interface CheckboxComponentProps extends ComponentProps {
   isValid?: boolean;
   label: string;
   onCheckChange: (isChecked: boolean) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputRef?: (el: HTMLInputElement | null) => any;
   accentColor: string;
   borderRadius: string;

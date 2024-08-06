@@ -42,7 +42,7 @@ const EmptyActiveDatasource = styled.div`
 
 interface ActiveDataSourcesProps {
   dataSources: Datasource[];
-  pageId: string;
+  basePageId: string;
   location: {
     search: string;
   };

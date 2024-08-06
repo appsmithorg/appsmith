@@ -600,8 +600,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                                     }
 
                                     // Remove modified changes from current branch so that checkout to other branches
-                                    // will be
-                                    // possible
+                                    // will be possible
                                     if (!status.isClean()) {
                                         return resetToLastCommit(git).map(ref -> {
                                             processStopwatch.stopAndLogTimeInMillis();
@@ -870,6 +869,47 @@ public class GitExecutorCEImpl implements GitExecutor {
                                                 .call()
                                                 .getMessages();
                                     }
+                                    processStopwatch.stopAndLogTimeInMillis();
+                                    return fetchMessages;
+                                })
+                                .onErrorResume(error -> {
+                                    log.error(error.getMessage());
+                                    return Mono.error(error);
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_FETCH_REMOTE)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
+                .subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<String> fetchRemote(
+            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... branchNames) {
+        Stopwatch processStopwatch =
+                StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
+        Path repoPath = TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
+        return Mono.using(
+                        () -> Git.open(repoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    TransportConfigCallback config =
+                                            new SshTransportConfigCallback(privateKey, publicKey);
+                                    String fetchMessages;
+
+                                    List<RefSpec> refSpecs = new ArrayList<>();
+                                    for (String branchName : branchNames) {
+                                        RefSpec ref = new RefSpec(
+                                                "refs/heads/" + branchName + ":refs/remotes/origin/" + branchName);
+                                        refSpecs.add(ref);
+                                    }
+
+                                    fetchMessages = git.fetch()
+                                            .setRefSpecs(refSpecs.toArray(new RefSpec[0]))
+                                            .setRemoveDeletedRefs(true)
+                                            .setTransportConfigCallback(config)
+                                            .call()
+                                            .getMessages();
+
                                     processStopwatch.stopAndLogTimeInMillis();
                                     return fetchMessages;
                                 })

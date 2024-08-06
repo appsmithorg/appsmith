@@ -773,6 +773,8 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOptions: undefined,
@@ -787,6 +789,8 @@ class MultiSelectWidget extends BaseWidget<
     if (
       this.props.defaultOptionValue &&
       this.props.defaultOptionValue.some(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => isString(value) || isFinite(value),
       )
     ) {

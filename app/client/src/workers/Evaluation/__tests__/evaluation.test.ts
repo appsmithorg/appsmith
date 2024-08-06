@@ -21,6 +21,8 @@ import klona from "klona";
 
 const klonaFullSpy = jest.fn();
 jest.mock("klona/full", () => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   klona: (arg: any) => {
     klonaFullSpy(arg);
     return klona.klona(arg);

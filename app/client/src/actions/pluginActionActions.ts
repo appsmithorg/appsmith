@@ -250,6 +250,7 @@ export const executePluginActionRequest = (payload: { id: string }) => ({
 
 export interface ExecutePluginActionSuccessPayload {
   id: string;
+  baseId: string;
   response: ActionResponse;
   isPageLoad?: boolean;
   isActionCreatedInApp: boolean;
@@ -286,6 +287,8 @@ export const saveActionName = (payload: { id: string; name: string }) => ({
 export interface SetActionPropertyPayload {
   actionId: string;
   propertyName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   skipSave?: boolean;
 }
@@ -302,6 +305,8 @@ export const setActionProperty = (
 export interface UpdateActionPropertyActionPayload {
   id: string;
   field: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 
@@ -364,7 +369,7 @@ export const setJSActionsToExecuteOnPageLoad = (
 export const bindDataOnCanvas = (payload: {
   queryId: string;
   applicationId: string;
-  pageId: string;
+  basePageId: string;
 }) => {
   return {
     type: ReduxActionTypes.BIND_DATA_ON_CANVAS,

@@ -123,9 +123,15 @@ interface ApiHomeScreenProps {
   };
   pageId: string;
   plugins: Plugin[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
   createNewApiActionBasedOnEditorType: (
@@ -197,6 +203,8 @@ function NewApiScreen(props: Props) {
 
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOnClick = (actionType: string, params?: any) => {
     const queryParams = getQueryParams();
     const isGeneratePageInitiator = getIsGeneratePageInitiator(

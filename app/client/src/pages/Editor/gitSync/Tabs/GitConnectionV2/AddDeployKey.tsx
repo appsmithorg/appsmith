@@ -141,6 +141,8 @@ interface AddDeployKeyProps {
   onChange: (args: Partial<AddDeployKeyState>) => void;
   value: Partial<AddDeployKeyState>;
   isImport?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errorData?: any;
   connectLoading?: boolean;
 }

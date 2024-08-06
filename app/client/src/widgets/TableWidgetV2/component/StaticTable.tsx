@@ -37,6 +37,8 @@ type StaticTableProps = TableColumnHeaderProps & {
   isAddRowInProgress: boolean;
   headerProps?: TableColumnHeaderProps | Record<string, never>;
   totalColumnsWidth?: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scrollContainerStyles: any;
   useVirtual: boolean;
   tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;

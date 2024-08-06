@@ -76,6 +76,8 @@ const StyledFieldCheckboxGroup = styled.div`
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
 export function CheckboxComponent({ setting }: SettingComponentProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settings: Record<string, any> = useSelector(formValuesSelector);
 
   return (

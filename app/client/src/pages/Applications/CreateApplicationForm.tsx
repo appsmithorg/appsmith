@@ -76,6 +76,8 @@ function CreateApplicationForm(props: Props) {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: Props): any => {
   const workspaceId = props.workspaceId;
   return {

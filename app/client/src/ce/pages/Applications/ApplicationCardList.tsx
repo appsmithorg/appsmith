@@ -59,7 +59,7 @@ function ApplicationCardList({
       title={title}
       titleTag={titleTag}
     >
-      {applications.map((application: any) => {
+      {applications.map((application) => {
         return (
           <PaddingWrapper isMobile={isMobile} key={application.id}>
             <ApplicationCard

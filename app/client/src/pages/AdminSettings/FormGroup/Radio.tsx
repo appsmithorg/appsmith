@@ -29,7 +29,7 @@ export interface RadioOptionProps {
 }
 
 const StyledTag = styled(Tag)<{ selected?: boolean }>`
-  /* 
+  /*
   TODO: handle the colors on the Tag with the new component which will get introduced
   background-color: ${(props) =>
     props.selected ? "var(--ads-v2-color-bg-warning)" : "inital"}; */
@@ -114,6 +114,8 @@ function RadioFieldWrapper(
       });
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onInputNodeChangeHandler(value?: any) {
     componentProps.input.onChange &&
       componentProps.input.onChange({
@@ -134,6 +136,8 @@ function RadioFieldWrapper(
   }, [componentProps.input.value]);
 
   return (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <RadioGroup onChange={onChangeHandler as any} value={value}>
       <PopoverStyles />
       {componentProps.options.map((item) => {

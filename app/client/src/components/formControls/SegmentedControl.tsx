@@ -109,6 +109,8 @@ interface ReduxDispatchProps {
   updateConfigPropertyValue: (
     formName: string,
     field: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => void;
 }
@@ -140,7 +142,11 @@ const mapStateToProps = (
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateConfigPropertyValue: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
   },

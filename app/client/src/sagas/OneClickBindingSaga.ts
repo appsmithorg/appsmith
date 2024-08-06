@@ -374,6 +374,8 @@ function* BindWidgetToDatasource(
       isMock: datasource.isMock,
       formType: otherFields?.formType,
     });
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     toast.show(e.message, {
       hideProgressBar: false,

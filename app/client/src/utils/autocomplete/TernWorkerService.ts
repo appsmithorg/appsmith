@@ -12,6 +12,8 @@ const ternWorker = new Worker(
   },
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getFile(ts: any, name: string, c: CallbackFn) {
   const buf = ts.docs[name];
   if (buf) c(ts.docValue(ts, buf));
@@ -20,10 +22,16 @@ function getFile(ts: any, name: string, c: CallbackFn) {
 }
 
 interface TernWorkerServerConstructor {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (ts: any): void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   new (ts: any): Server;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TernWorkerServer(this: any, ts: any) {
   const worker = (ts.worker = ternWorker);
   worker.postMessage({
@@ -34,6 +42,8 @@ function TernWorkerServer(this: any, ts: any) {
   let msgId = 0;
   let pending: { [x: number]: CallbackFn } = {};
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function send(data: any, c?: CallbackFn) {
     if (c) {
       data.id = ++msgId;
@@ -72,6 +82,8 @@ function TernWorkerServer(this: any, ts: any) {
   this.delFile = function (name: string) {
     send({ type: TernWorkerAction.DELETE_FILE, name: name });
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   this.request = function (body: any, c: CallbackFn) {
     send({ type: TernWorkerAction.REQUEST, body: body }, c);
   };
