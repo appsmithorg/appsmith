@@ -32,10 +32,10 @@ export enum EditorState {
 
 export const SidebarTopButtonTitles = {
   EDITOR: "Editor",
+  DATA: "Data",
 };
 
 export const SidebarBottomButtonTitles = {
-  DATA: "Data",
   SETTINGS: "Settings",
   LIBRARIES: "Libraries",
 };
@@ -64,15 +64,15 @@ export const TopButtons: IDESidebarButton[] = [
     title: SidebarTopButtonTitles.EDITOR,
     urlSuffix: "",
   },
-];
-
-export const BottomButtons: IDESidebarButton[] = [
   {
     state: EditorState.DATA,
     icon: "datasource-v3",
-    tooltip: SidebarBottomButtonTitles.DATA,
+    title: SidebarTopButtonTitles.DATA,
     urlSuffix: "datasource",
   },
+];
+
+export const BottomButtons: IDESidebarButton[] = [
   {
     state: EditorState.LIBRARIES,
     icon: "packages-v3",

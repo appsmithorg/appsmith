@@ -15,6 +15,9 @@ import classNames from "classnames";
 import { tailwindLayers } from "constants/Layers";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import ProtectedCallout from "./ProtectedCallout";
+import { useCurrentAppState } from "./hooks";
+import { EditorState } from "@appsmith/entities/IDE/constants";
+import { SegmentControlIntroModal } from "./SegmentControlIntroModal";
 
 /**
  * OldName: MainContainer
@@ -23,6 +26,8 @@ function IDE() {
   const isPreviewMode = useSelector(previewModeSelector);
   const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
   const isProtectedMode = useSelector(protectedModeSelector);
+
+  const appState = useCurrentAppState();
 
   return (
     <>
@@ -52,6 +57,7 @@ function IDE() {
         </div>
       </EditorWrapperContainer>
       <BottomBar viewMode={isPreviewMode} />
+      {appState === EditorState.EDITOR && <SegmentControlIntroModal />}
     </>
   );
 }
