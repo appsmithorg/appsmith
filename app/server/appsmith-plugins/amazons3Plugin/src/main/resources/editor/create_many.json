@@ -1,64 +1,60 @@
 {
-  "identifier": "UPLOAD_MULTIPLE_FILES_FROM_BODY",
-  "controlType": "SECTION",
-  "conditionals": {
-    "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"
-  },
-  "children": [
-    {
-      "controlType": "SECTION",
-      "label": "Select bucket to query",
-      "children": [
+    "identifier": "UPLOAD_MULTIPLE_FILES_FROM_BODY",
+    "controlType": "SECTION",
+    "children": [
         {
-          "label": "Bucket name",
-          "configProperty": "actionConfiguration.formData.bucket.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE",
-          "isRequired": true,
-          "initialValue": ""
+            "controlType": "SECTION",
+            "children": [{
+                "isRequired": true,
+                "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                "evaluationSubstitutionType": "TEMPLATE",
+                "label": "Bucket name",
+                "initialValue": "",
+                "configProperty": "actionConfiguration.formData.bucket.data"
+            }],
+            "label": "Select bucket to query"
+        },
+        {
+            "controlType": "SECTION",
+            "children": [
+                {
+                    "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                    "label": "Common file path",
+                    "initialValue": "",
+                    "configProperty": "actionConfiguration.formData.path.data"
+                },
+                {
+                    "controlType": "DROP_DOWN",
+                    "options": [
+                        {
+                            "label": "Base64",
+                            "value": "YES"
+                        },
+                        {
+                            "label": "Text / Binary",
+                            "value": "NO"
+                        }
+                    ],
+                    "label": "File data type",
+                    "initialValue": "YES",
+                    "configProperty": "actionConfiguration.formData.create.dataType.data"
+                },
+                {
+                    "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                    "label": "Expiry duration of signed URL (minutes)",
+                    "initialValue": "5",
+                    "configProperty": "actionConfiguration.formData.create.expiry.data"
+                },
+                {
+                    "controlType": "QUERY_DYNAMIC_TEXT",
+                    "label": "Content",
+                    "initialValue": "",
+                    "configProperty": "actionConfiguration.formData.body.data"
+                }
+            ],
+            "description": "Optional",
+            "label": "Query"
         }
-      ]
-    },
-    {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
-      "children": [
-        {
-          "label": "Common file path",
-          "configProperty": "actionConfiguration.formData.path.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "initialValue": ""
-        },
-        {
-          "label": "File data type",
-          "configProperty": "actionConfiguration.formData.create.dataType.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "YES",
-          "options": [
-            {
-              "label": "Base64",
-              "value": "YES"
-            },
-            {
-              "label": "Text / Binary",
-              "value": "NO"
-            }
-          ]
-        },
-        {
-          "label": "Expiry duration of signed URL (minutes)",
-          "configProperty": "actionConfiguration.formData.create.expiry.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "initialValue": "5"
-        },
-        {
-          "label": "Content",
-          "configProperty": "actionConfiguration.formData.body.data",
-          "controlType": "QUERY_DYNAMIC_TEXT",
-          "initialValue": ""
-        }
-      ]
-    }
-  ]
+    ],
+    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"}
 }

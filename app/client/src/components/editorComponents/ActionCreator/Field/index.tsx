@@ -206,6 +206,8 @@ export function Field(props: FieldProps) {
         additionalAutoComplete: props.additionalAutoComplete,
         dataTreePath: props.dataTreePath,
         isValueChanged: (value: string) => {
+          // This function checks whether the param value is changed from the default value.
+          // getterFunction("") -> passing empty string will return the default value
           return value !== getterFunction("");
         },
       });

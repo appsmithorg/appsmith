@@ -1,37 +1,33 @@
-{
-  "setting": [
-    {
-      "sectionName": "",
-      "id": 1,
-      "children": [
+{"setting": [{
+    "sectionName": "",
+    "children": [
         {
-          "label": "Run query on page load",
-          "configProperty": "executeOnLoad",
-          "controlType": "SWITCH",
-          "subtitle": "Will refresh data each time the page is loaded"
+            "controlType": "SWITCH",
+            "subtitle": "Will refresh data each time the page is loaded",
+            "label": "Run query on page load",
+            "configProperty": "executeOnLoad"
         },
         {
-          "label": "Request confirmation before running query",
-          "configProperty": "confirmBeforeExecute",
-          "controlType": "SWITCH",
-          "subtitle": "Ask confirmation from the user each time before refreshing data"
+            "controlType": "SWITCH",
+            "subtitle": "Ask confirmation from the user each time before refreshing data",
+            "label": "Request confirmation before running query",
+            "configProperty": "confirmBeforeExecute"
         },
         {
-          "label": "Smart BSON substitution",
-          "subtitle": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
-          "configProperty": "actionConfiguration.formData.smartSubstitution.data",
-          "controlType": "SWITCH",
-          "initialValue": true
+            "controlType": "SWITCH",
+            "subtitle": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
+            "label": "Smart BSON substitution",
+            "initialValue": true,
+            "configProperty": "actionConfiguration.formData.smartSubstitution.data"
         },
         {
-          "label": "Query timeout (in milliseconds)",
-          "subtitle": "Maximum time after which the query will return",
-          "configProperty": "actionConfiguration.timeoutInMillisecond",
-          "controlType": "INPUT_TEXT",
-          "dataType": "NUMBER",
-          "width": "270px"
+            "controlType": "INPUT_TEXT",
+            "subtitle": "Maximum time after which the query will return",
+            "dataType": "NUMBER",
+            "width": "270px",
+            "label": "Query timeout (in milliseconds)",
+            "configProperty": "actionConfiguration.timeoutInMillisecond"
         }
-      ]
-    }
-  ]
-}
+    ],
+    "id": 1
+}]}

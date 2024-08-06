@@ -1,32 +1,30 @@
 {
-  "identifier": "CREATE_DOCUMENT",
-  "controlType": "SECTION",
-  "conditionals": {
-    "show": "{{actionConfiguration.formData.command.data === 'CREATE_DOCUMENT'}}"
-  },
-  "children": [
-    {
-      "label": "Collection Name",
-      "configProperty": "actionConfiguration.formData.path.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
-      "initialValue": ""
-    },
-    {
-      "label": "Body",
-      "configProperty": "actionConfiguration.formData.body.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": "",
-      "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
-    },
-    {
-      "label": "Timestamp Path",
-      "configProperty": "actionConfiguration.formData.timestampValuePath.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "initialValue": "",
-      "placeholderText": "[ \"checkinLog.timestampKey\" ]"
-    }
-  ]
+    "identifier": "CREATE_DOCUMENT",
+    "controlType": "SECTION",
+    "children": [
+        {
+            "isRequired": true,
+            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+            "evaluationSubstitutionType": "TEMPLATE",
+            "label": "Collection Name",
+            "initialValue": "",
+            "configProperty": "actionConfiguration.formData.path.data"
+        },
+        {
+            "controlType": "QUERY_DYNAMIC_TEXT",
+            "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}",
+            "label": "Body",
+            "initialValue": "",
+            "configProperty": "actionConfiguration.formData.body.data"
+        },
+        {
+            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+            "evaluationSubstitutionType": "TEMPLATE",
+            "placeholderText": "[ \"checkinLog.timestampKey\" ]",
+            "label": "Timestamp Path",
+            "initialValue": "",
+            "configProperty": "actionConfiguration.formData.timestampValuePath.data"
+        }
+    ],
+    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'CREATE_DOCUMENT'}}"}
 }
