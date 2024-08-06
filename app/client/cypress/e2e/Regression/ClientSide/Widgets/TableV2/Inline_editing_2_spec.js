@@ -135,7 +135,6 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
 
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
-      cy.wait(1000);
 
       // case 2: check if updatedRowIndex is 0, when cell at row 0 is updated.
       cy.editTableCell(0, 0);
@@ -153,7 +152,6 @@ describe(
       cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
       // case 5: check if the updatedRowIndex changes to -1 when the table data changes.
-      cy.wait(1000);
       cy.editTableCell(0, 2);
       cy.enterTableCellValue(0, 2, "#14").type("{enter}");
       cy.openPropertyPane("tablewidgetv2");
@@ -194,7 +192,6 @@ describe(
       cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
       // case 3: check if the updatedRowIndex changes to -1 when the table data changes.
-      cy.wait(1000);
       table.EditTableCell(2, 0, "#14");
       cy.get(commonlocators.textWidgetContainer).should("contain.text", 2);
       cy.openPropertyPane("tablewidgetv2");
