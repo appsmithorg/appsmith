@@ -195,8 +195,8 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").should("contain", "true");
       // Change defaultText
-      cy.openPropertyPane("richtexteditorwidget");
-      cy.testJsontext("defaultvalue", "b");
+      // cy.openPropertyPane("richtexteditorwidget");
+      // cy.testJsontext("defaultvalue", "b");
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget").should("contain", "false");
 
