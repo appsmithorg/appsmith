@@ -1,7 +1,11 @@
 {
-    "deletes": [{
-        "q": {"id": "{{ usersTable.selectedRow.id }}"},
-        "limit": 1
-    }],
-    "delete": "users"
+  "delete": "users",
+  "deletes": [
+    {
+      "q": {
+        "id": "{{ usersTable.selectedRow.id }}"
+      },
+      "limit": 1
+    }
+  ]
 }

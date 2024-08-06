@@ -1,51 +1,55 @@
 {
-    "identifier": "READ_FILE",
-    "controlType": "SECTION",
-    "children": [
+  "identifier": "READ_FILE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'READ_FILE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select bucket to query",
+      "children": [
         {
-            "controlType": "SECTION",
-            "children": [{
-                "isRequired": true,
-                "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-                "evaluationSubstitutionType": "TEMPLATE",
-                "label": "Bucket name",
-                "initialValue": "",
-                "configProperty": "actionConfiguration.formData.bucket.data"
-            }],
-            "label": "Select bucket to query"
+          "label": "Bucket name",
+          "configProperty": "actionConfiguration.formData.bucket.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Optional",
+      "children": [
+        {
+          "label": "File path",
+          "configProperty": "actionConfiguration.formData.path.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": ""
         },
         {
-            "controlType": "SECTION",
-            "children": [
-                {
-                    "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-                    "label": "File path",
-                    "initialValue": "",
-                    "configProperty": "actionConfiguration.formData.path.data"
-                },
-                {
-                    "-subtitle": "Allowed values: YES, NO",
-                    "controlType": "DROP_DOWN",
-                    "-alternateViewTypes": ["json"],
-                    "options": [
-                        {
-                            "label": "Yes",
-                            "value": "YES"
-                        },
-                        {
-                            "label": "No",
-                            "value": "NO"
-                        }
-                    ],
-                    "label": "Base64 encode file - yes/no",
-                    "-tooltipText": "Allowed values: YES, NO",
-                    "initialValue": "YES",
-                    "configProperty": "actionConfiguration.formData.read.dataType.data"
-                }
-            ],
-            "description": "Optional",
-            "label": "Query"
+          "label": "Base64 encode file - yes/no",
+          "configProperty": "actionConfiguration.formData.read.dataType.data",
+          "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: YES, NO",
+          "-tooltipText": "Allowed values: YES, NO",
+          "-alternateViewTypes": ["json"],
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
         }
-    ],
-    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'READ_FILE'}}"}
+      ]
+    }
+  ]
 }
