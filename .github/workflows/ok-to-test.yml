@@ -31,4 +31,5 @@ jobs:
             ok-to-test
             ci-test-limit
             build-deploy-preview
+            ci-test-limit-count
           permission: write
