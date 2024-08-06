@@ -68,18 +68,19 @@ jobs:
 
       - name: Get changed files in the client folder
         id: changed-files-specific
-        uses: tj-actions/changed-files@v41
+        uses: tj-actions/changed-files@v44
         with:
           files: "app/client/**"
+          write_output_files: true
 
       - name: Run step if any file(s) in the client folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         run: |
-          echo "One or more files in the server folder has changed."
-          echo "List all the files that have changed: "
-          echo "$ALL_CHANGED_FILES | xargs -n 1 echo"
+          echo "One or more files in the client folder has changed."
+          echo "List all the files that have changed:"
+          cat "${{ github.workspace }}/.github/outputs/all_changed_files.txt"
 
       - name: Check compliance
         if: inputs.pr != 0 && steps.changed-files-specific.outputs.any_changed == 'true'
