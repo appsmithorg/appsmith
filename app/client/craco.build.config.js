@@ -32,7 +32,8 @@ plugins.push(
       // one by one (as the service worker does it) keeps the network busy for a long time
       // and delays the service worker installation
       /\/*\.svg$/,
-      /\/static\/*$/, // Exclude JS, CSS, HTML, and image files
+      // Exclude all routes starting with /static/
+      /\/static\/.*$/,
     ],
   }),
 );
