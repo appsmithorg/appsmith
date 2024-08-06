@@ -92,7 +92,7 @@ parts.push(`
   }
 
   header /static/* {
-    Cache-Control "public, max-age=30000000, immutable"
+    Cache-Control "public, max-age=31536000, immutable"
   }
 
   request_body {
