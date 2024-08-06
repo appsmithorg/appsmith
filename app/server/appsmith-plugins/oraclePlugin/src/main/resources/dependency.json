@@ -1,1 +1,5 @@
-{"dependencies": {"actionConfiguration.body": ["actionConfiguration.formData.preparedStatement.data"]}}
+{
+  "dependencies" : {
+    "actionConfiguration.body" : ["actionConfiguration.formData.preparedStatement.data"]
+  }
+}

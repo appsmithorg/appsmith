@@ -1,61 +1,69 @@
 {
-    "identifier": "DELETE",
-    "controlType": "SECTION",
-    "children": [
+  "identifier": "DELETE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select collection to query",
+      "children": [
         {
-            "controlType": "SECTION",
-            "children": [{
-                "fetchOptionsConditionally": true,
-                "alternateViewTypes": ["json"],
-                "controlType": "DROP_DOWN",
-                "propertyName": "get_collections",
-                "evaluationSubstitutionType": "TEMPLATE",
-                "label": "Collection",
-                "conditionals": {"fetchDynamicValues": {
-                    "condition": "{{true}}",
-                    "config": {"params": {
-                        "displayType": "DROP_DOWN",
-                        "requestType": "_GET_STRUCTURE"
-                    }}
-                }},
-                "configProperty": "actionConfiguration.formData.collection.data"
-            }],
-            "label": "Select collection to query"
+          "label": "Collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
+          "controlType": "DROP_DOWN",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "propertyName": "get_collections",
+          "fetchOptionsConditionally": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "fetchDynamicValues": {
+              "condition": "{{true}}",
+              "config": {
+                "params": {
+                  "requestType": "_GET_STRUCTURE",
+                  "displayType": "DROP_DOWN"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Optional",
+      "children": [
+        {
+          "label": "Query",
+          "configProperty": "actionConfiguration.formData.delete.query.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{rating : {$gte : 9}}"
         },
         {
-            "controlType": "SECTION",
-            "children": [
-                {
-                    "controlType": "QUERY_DYNAMIC_TEXT",
-                    "evaluationSubstitutionType": "TEMPLATE",
-                    "inputType": "JSON",
-                    "placeholderText": "{rating : {$gte : 9}}",
-                    "label": "Query",
-                    "configProperty": "actionConfiguration.formData.delete.query.data"
-                },
-                {
-                    "-subtitle": "Allowed values: SINGLE, ALL",
-                    "controlType": "DROP_DOWN",
-                    "-alternateViewTypes": ["json"],
-                    "options": [
-                        {
-                            "label": "Single document",
-                            "value": "SINGLE"
-                        },
-                        {
-                            "label": "All matching documents",
-                            "value": "ALL"
-                        }
-                    ],
-                    "label": "Limit",
-                    "-tooltipText": "Allowed values: SINGLE, ALL",
-                    "initialValue": "SINGLE",
-                    "configProperty": "actionConfiguration.formData.delete.limit.data"
-                }
-            ],
-            "description": "Optional",
-            "label": "Query"
+          "label": "Limit",
+          "configProperty": "actionConfiguration.formData.delete.limit.data",
+          "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: SINGLE, ALL",
+          "-tooltipText": "Allowed values: SINGLE, ALL",
+          "-alternateViewTypes": ["json"],
+          "initialValue": "SINGLE",
+          "options": [
+            {
+              "label": "Single document",
+              "value": "SINGLE"
+            },
+            {
+              "label": "All matching documents",
+              "value": "ALL"
+            }
+          ]
         }
-    ],
-    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"}
+      ]
+    }
+  ]
 }
