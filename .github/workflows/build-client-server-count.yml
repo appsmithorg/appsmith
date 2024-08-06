@@ -1,4 +1,4 @@
-name: Build Client, Server & Run only Cypress
+name: Build Client, Server & Run only Cypress with count
 
 on:
   repository_dispatch:
