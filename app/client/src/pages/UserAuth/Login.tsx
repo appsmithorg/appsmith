@@ -54,6 +54,7 @@ import Helmet from "react-helmet";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
+import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
@@ -172,6 +173,7 @@ export function Login(props: LoginFormProps) {
       {isFormLoginEnabled && (
         <EmailFormWrapper>
           <SpacedSubmitForm action={loginURL} method="POST">
+            <CsrfTokenInput />
             <FormGroup
               intent={error ? "danger" : "none"}
               label={createMessage(LOGIN_PAGE_EMAIL_INPUT_LABEL)}
