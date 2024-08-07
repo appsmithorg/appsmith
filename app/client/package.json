@@ -405,9 +405,7 @@
     "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/icons": "3.22.0",
     "@types/react": "^17.0.2",
-    "postcss": "8.4.31"
-  },
-  "overrides": {
-    "tinymce": "7.2.0"
+    "postcss": "8.4.31",
+    "tinymce": "7.2.1"
   }
 }

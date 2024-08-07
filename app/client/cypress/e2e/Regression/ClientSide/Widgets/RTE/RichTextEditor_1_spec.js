@@ -6,34 +6,6 @@ const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-/**
- * A function to set the content inside an RTE widget
- * @param textValue
- */
-const setRTEContent = (textValue) => {
-  // Set the content inside RTE widget
-  cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
-    const $body = $iframe.contents().find("body");
-    cy.wrap($body).type(textValue, { force: true });
-  });
-};
-
-/**
- * A function to test if the cursor position is at the end of the string.
- * @param textValueLen
- */
-const testCursorPoistion = (textValueLen, tinyMceId) => {
-  cy.window().then((win) => {
-    const editor = win.tinymce.EditorManager.get(tinyMceId);
-
-    // Get the current cursor location
-    const getCurrentCursorLocation = editor.selection.getSel().anchorOffset;
-
-    // Check if the cursor is at the end.
-    expect(getCurrentCursorLocation).to.be.equal(textValueLen);
-  });
-};
-
 describe(
   "RichTextEditor Widget Functionality",
   { tags: ["@tag.Widget", "@tag.TextEditor"] },
