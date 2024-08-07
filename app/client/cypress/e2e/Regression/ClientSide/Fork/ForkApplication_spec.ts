@@ -14,7 +14,7 @@ import {
   fakerHelper,
   homePage,
   inviteModal,
-  dataSources
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   AppSidebar,
