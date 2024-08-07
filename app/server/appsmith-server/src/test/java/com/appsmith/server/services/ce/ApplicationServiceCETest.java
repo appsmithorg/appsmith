@@ -4397,6 +4397,20 @@ public class ApplicationServiceCETest {
                 .verify();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test() {
+        Application application = new Application();
+        application.setName("Application " + UUID.randomUUID());
+        application.setWorkspaceId(workspaceId);
+        application = applicationPageService.createApplication(application).block();
+        StepVerifier.create(applicationService.findSaveUpdateApp(application.getId()))
+                .assertNext(app -> {
+                    assertThat(app.getName()).isNotEmpty();
+                })
+                .verifyComplete();
+    }
+
     private List<String> createDummyApplications(String workspaceId) {
         List<String> applicationIds = new ArrayList<>();
         for (int count = 0; count < 4; count++) {

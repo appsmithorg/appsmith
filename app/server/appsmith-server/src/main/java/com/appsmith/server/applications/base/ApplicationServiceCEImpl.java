@@ -52,6 +52,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -90,6 +91,8 @@ public class ApplicationServiceCEImpl
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
 
+    private final TransactionTemplate template;
+
     private static final Integer MAX_RETRIES = 5;
 
     @Autowired
@@ -107,7 +110,8 @@ public class ApplicationServiceCEImpl
             SessionUserService sessionUserService,
             UserDataService userDataService,
             WorkspaceService workspaceService,
-            WorkspacePermission workspacePermission) {
+            WorkspacePermission workspacePermission,
+            TransactionTemplate template) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
@@ -120,6 +124,7 @@ public class ApplicationServiceCEImpl
         this.userDataService = userDataService;
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
+        this.template = template;
     }
 
     @Override
@@ -1056,5 +1061,29 @@ public class ApplicationServiceCEImpl
         return findById(branchedApplicationId, permissionForApplication)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
+    }
+
+    @Override
+    public Mono<Application> findSaveUpdateApp(String id) {
+        Mono<Application> applicationMono = repository
+                .findById(id, applicationPermission.getEditPermission())
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .flatMap(obj -> {
+                    obj.setName("saved_name");
+                    return repository.save(obj);
+                })
+                .flatMap(obj -> {
+                    Application update = new Application();
+                    update.setName("updated_name");
+                    return repository.updateById(id, update, null);
+                });
+
+        return Mono.justOrEmpty(Optional.ofNullable(template.execute(ts -> {
+            Application app = applicationMono
+                    .contextWrite(context -> context.put("transactionContext", new HashMap<>()))
+                    .block();
+            return app;
+        })));
     }
 }
