@@ -16,7 +16,7 @@ import { JSToString, stringToJS } from "./utils";
 import {
   createMessage,
   TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const bindingPrefix = `{{
   (

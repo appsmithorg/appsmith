@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 
 export const getLayoutElementPositions = (state: AppState) =>

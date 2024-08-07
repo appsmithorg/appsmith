@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { get } from "lodash";
 import * as log from "loglevel";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
@@ -14,7 +14,7 @@ import Popper from "pages/Editor/Popper";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

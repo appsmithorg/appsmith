@@ -1,4 +1,4 @@
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import {
   createNewApiAction,
   createNewQueryAction,
@@ -7,7 +7,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import {
   ActionParentEntityType,
   type ActionParentEntityTypeInterface,
-} from "@appsmith/entities/Engine/actionHelpers";
+} from "ee/entities/Engine/actionHelpers";
 import { saveActionName } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
 

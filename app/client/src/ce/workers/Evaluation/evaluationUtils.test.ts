@@ -9,7 +9,7 @@ import type {
   WidgetEntityConfig,
   PrivateWidgets,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -19,8 +19,8 @@ import type {
   DataTreeEntity,
   DataTree,
 } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
+import { convertMicroDiffToDeepDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
   convertJSFunctionsToString,
@@ -31,15 +31,15 @@ import {
   isPrivateEntityPath,
   makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import type { Diff } from "deep-diff";
 import _, { flatten, set } from "lodash";
 import {
   overrideWidgetProperties,
   findDatatype,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget from "widgets/TableWidget";
 import InputWidget from "widgets/InputWidgetV2";

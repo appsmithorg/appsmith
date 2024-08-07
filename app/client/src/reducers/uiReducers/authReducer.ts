@@ -2,7 +2,7 @@ import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 
 const initialState: AuthState = {
   isValidatingToken: true,

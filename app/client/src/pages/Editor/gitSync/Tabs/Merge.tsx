@@ -11,11 +11,11 @@ import {
   MERGE_CHANGES,
   MERGED_SUCCESSFULLY,
   SELECT_BRANCH_TO_MERGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
@@ -52,7 +52,7 @@ import {
   ModalFooter,
   ModalBody,
 } from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`

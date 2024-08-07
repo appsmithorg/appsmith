@@ -1,7 +1,7 @@
 import type { ActionPattern } from "redux-saga/effects";
 import { call, take, select, put, actionChannel } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
@@ -11,12 +11,12 @@ import type {
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActionsList";
+import { FORM_EVALUATION_REDUX_ACTIONS } from "ee/actions/evaluationActionsList";
 import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
@@ -30,7 +30,7 @@ import {
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 
 export interface FormEvalActionPayload {
   formId: string;

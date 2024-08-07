@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",

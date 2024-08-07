@@ -9,15 +9,15 @@ import { useParams } from "react-router";
 import {
   getCurrentActions,
   getPluginImages,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import history from "utils/history";
 
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { saasEditorDatasourceIdURL } from "ee/RouteBuilder";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Button } from "design-system";
 
 const Wrapper = styled.div`

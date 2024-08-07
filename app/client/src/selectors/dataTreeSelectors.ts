@@ -10,8 +10,8 @@ import {
   getModuleInstanceEntities,
   getCurrentModuleActions,
   getCurrentModuleJSCollections,
-} from "@appsmith/selectors/entitiesSelector";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+} from "ee/selectors/entitiesSelector";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
@@ -22,7 +22,7 @@ import {
 } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import _, { get } from "lodash";
@@ -34,7 +34,7 @@ import { getLayoutSystemType } from "./layoutSystemSelectors";
 import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
-} from "@appsmith/selectors/workflowSelectors";
+} from "ee/selectors/workflowSelectors";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;

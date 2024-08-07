@@ -2,11 +2,11 @@ import type {
   ClonePageSuccessPayload,
   Page,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   DeletePageActionPayload,
   GenerateCRUDSuccess,

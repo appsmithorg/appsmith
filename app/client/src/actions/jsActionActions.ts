@@ -3,10 +3,10 @@ import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
-import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { ApiResponse } from "api/ApiResponses";
 
 export interface FetchJSCollectionsPayload {

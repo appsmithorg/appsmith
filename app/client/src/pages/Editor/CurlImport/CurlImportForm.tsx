@@ -2,7 +2,7 @@ import React from "react";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, Form, Field } from "redux-form";
 import styled from "styled-components";
-import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
+import { CURL_IMPORT_FORM } from "ee/constants/forms";
 import { type CurlImportFormValues, curlImportSubmitHandler } from "./helpers";
 
 const StyledForm = styled(Form)`

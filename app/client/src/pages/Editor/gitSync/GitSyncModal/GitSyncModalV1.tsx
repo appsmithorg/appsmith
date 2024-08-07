@@ -7,7 +7,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import Menu from "../Menu";
 import Deploy from "../Tabs/Deploy";
 import Merge from "../Tabs/Merge";
@@ -15,7 +15,7 @@ import GitConnection from "../Tabs/GitConnection";
 
 import GitErrorPopup from "../components/GitErrorPopup";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import {
   createMessage,
@@ -27,7 +27,7 @@ import {
   MERGE_CHANGES,
   GIT_IMPORT,
   IMPORT_FROM_GIT_REPOSITORY,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 

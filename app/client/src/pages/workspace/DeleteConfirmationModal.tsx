@@ -11,7 +11,7 @@ import {
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface DeleteConfirmationProps {
   userToBeDeleted: {

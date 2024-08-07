@@ -46,7 +46,7 @@ import PerformanceTracker, {
 import WidgetFactory from "WidgetProvider/factory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 /**
  * AutoLayoutResizable

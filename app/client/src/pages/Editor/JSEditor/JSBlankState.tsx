@@ -2,7 +2,7 @@ import React from "react";
 import { Flex, Text } from "design-system";
 import { importSvg } from "design-system-old";
 
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 
 const JSBlankState = () => {
   const BlankStateIllustration = importSvg(

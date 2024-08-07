@@ -2,16 +2,13 @@ import React from "react";
 import { fireEvent, render } from "test/testUtils";
 import EditorTabs from ".";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { Route } from "react-router-dom";
-import { BUILDER_PATH } from "@appsmith/constants/routes/appRoutes";
+import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import "@testing-library/jest-dom";
 import { PageFactory } from "test/factories/PageFactory";
 import { APIFactory } from "test/factories/Actions/API";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,

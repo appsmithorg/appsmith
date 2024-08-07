@@ -2,8 +2,8 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type {
   UpdateCanvasPayload,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { uniq, get, set } from "lodash";
 import type { Diff } from "deep-diff";
@@ -15,8 +15,8 @@ import {
 import { klona } from "klona";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
-and property values 
-For example: 
+and property values
+For example:
 { "xyz123": [{ propertyPath: "bottomRow", propertyValue: 20 }] }
 */
 export type UpdateWidgetsPayload = Record<

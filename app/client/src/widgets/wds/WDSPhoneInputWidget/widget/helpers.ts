@@ -1,7 +1,4 @@
-import {
-  createMessage,
-  FIELD_REQUIRED_ERROR,
-} from "@appsmith/constants/messages";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
 

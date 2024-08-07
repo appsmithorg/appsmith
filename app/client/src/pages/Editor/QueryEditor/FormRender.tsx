@@ -4,7 +4,7 @@ import {
   createMessage,
   INVALID_FORM_CONFIGURATION,
   UNEXPECTED_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
 import { UIComponentTypes } from "api/PluginApi";

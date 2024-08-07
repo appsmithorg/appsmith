@@ -5,10 +5,10 @@ import {
   getIsImportingCurl,
 } from "selectors/curlImportSelectors";
 import { submit } from "redux-form";
-import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
+import { CURL_IMPORT_FORM } from "ee/constants/forms";
 import { closeCurlImportModal, openCurlImportModal } from "./helpers";
 import CurlLogo from "assets/images/Curl-logo.svg";
-import { createMessage, IMPORT_BTN_LABEL } from "@appsmith/constants/messages";
+import { createMessage, IMPORT_BTN_LABEL } from "ee/constants/messages";
 import {
   Button,
   Flex,

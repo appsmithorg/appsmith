@@ -5,7 +5,7 @@ import {
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
   OPEN_REPO,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Button, Callout } from "design-system";
 import { Space } from "./StyledComponents";
 

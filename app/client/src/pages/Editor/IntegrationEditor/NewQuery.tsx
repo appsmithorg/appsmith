@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import DataSourceHome from "./DatasourceHome";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 const QueryHomePage = styled.div`
   display: flex;

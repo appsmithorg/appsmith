@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { saveSettings } from "@appsmith/actions/settingsAction";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { saveSettings } from "ee/actions/settingsAction";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { useParams, withRouter } from "react-router";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { InjectedFormProps } from "redux-form";
 import { formValueSelector, reduxForm } from "redux-form";
 import {
@@ -19,21 +19,18 @@ import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import SaveAdminSettings from "./SaveSettings";
 import { DisconnectService } from "./DisconnectService";
-import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import AdminConfig from "ee/pages/AdminSettings/config";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
-} from "@appsmith/constants/messages";
-import {
-  isTenantConfig,
-  saveAllowed,
-} from "@appsmith/utils/adminSettingsHelpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import { isTenantConfig, saveAllowed } from "ee/utils/adminSettingsHelpers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   Wrapper,
   BottomSpace,
@@ -47,9 +44,9 @@ import { toast } from "design-system";
 import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
-} from "@appsmith/selectors/tenantSelectors";
-import { updateTenantConfig } from "@appsmith/actions/tenantActions";
-import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
+} from "ee/selectors/tenantSelectors";
+import { updateTenantConfig } from "ee/actions/tenantActions";
+import { tenantConfigConnection } from "ee/constants/tenantConstants";
 
 interface FormProps {
   settings: Record<string, string>;

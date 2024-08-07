@@ -5,7 +5,7 @@ import {
   createMessage,
   DISCONNECT_AUTH_METHOD,
   DISCONNECT_CONFIRMATION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

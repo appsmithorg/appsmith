@@ -1,14 +1,14 @@
 import { formValueSelector, reduxForm } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getPluginResponseTypes,
   getPluginDocumentationLinks,
   getPlugin,
   getActionData,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { EditorJSONtoFormProps } from "./EditorJSONtoForm";
 import { EditorJSONtoForm } from "./EditorJSONtoForm";
 import { getFormEvaluationState } from "selectors/formSelectors";

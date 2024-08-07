@@ -23,7 +23,7 @@ import {
 import {
   createMessage,
   TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 

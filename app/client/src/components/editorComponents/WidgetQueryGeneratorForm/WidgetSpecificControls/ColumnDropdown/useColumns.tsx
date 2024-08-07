@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { PluginPackageName } from "entities/Action";
 import { isArray } from "lodash";
 import { useContext, useMemo } from "react";
@@ -11,7 +11,7 @@ import {
   getDatasourceTableColumns,
   getDatasourceTablePrimaryColumn,
   getPluginPackageFromDatasourceId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import { getWidget } from "sagas/selectors";

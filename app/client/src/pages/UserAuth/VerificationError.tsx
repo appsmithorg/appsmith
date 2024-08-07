@@ -9,11 +9,11 @@ import {
   VERIFY_ERROR_ALREADY_VERIFIED_TITLE,
   VERIFY_ERROR_EXPIRED_TITLE,
   VERIFY_ERROR_MISMATCH_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useResendEmailVerification } from "./helpers";
 import type { RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const Body = styled.div`
   display: flex;

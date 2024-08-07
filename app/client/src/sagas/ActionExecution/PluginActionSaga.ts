@@ -27,11 +27,11 @@ import {
 import type {
   ApplicationPayload,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   ActionExecutionResponse,
   ActionResponse,
@@ -48,12 +48,12 @@ import {
   getPlugin,
   isActionDirty,
   isActionSaving,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import {
   find,
   flatten,
@@ -67,16 +67,13 @@ import {
   unset,
 } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  ENTITY_TYPE,
-  PLATFORM_ERROR,
-} from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import {
   extractClientDefinedErrorMetadata,
   validateResponse,
 } from "sagas/ErrorSagas";
-import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { EventName } from "ee/utils/analyticsUtilTypes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -89,7 +86,7 @@ import {
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_PLUGIN_ACTION_EXECUTE,
   SWITCH_ENVIRONMENT_SUCCESS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,
@@ -111,8 +108,8 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
-import type { AppState } from "@appsmith/reducers";
-import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
+import type { AppState } from "ee/reducers";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { evaluateActionBindings, evalWorker } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
 import { getType, Types } from "utils/TypeHelpers";
@@ -140,11 +137,11 @@ import {
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
+import { matchBasePath } from "ee/pages/Editor/Explorer/helpers";
 import {
   findDatatype,
   isTrueObject,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
@@ -152,7 +149,7 @@ import { toast } from "design-system";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPageAction } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
@@ -164,9 +161,9 @@ import {
 import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
-} from "@appsmith/selectors/environmentSelectors";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { getIsActionCreatedInApp } from "@appsmith/utils/getIsActionCreatedInApp";
+} from "ee/selectors/environmentSelectors";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
+import { getIsActionCreatedInApp } from "ee/utils/getIsActionCreatedInApp";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import {
   endSpan,
@@ -178,7 +175,7 @@ import {
   getActionProperties,
   getJSActionPathNameToDisplay,
   getPluginActionNameToDisplay,
-} from "@appsmith/utils/actionExecutionUtils";
+} from "ee/utils/actionExecutionUtils";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";

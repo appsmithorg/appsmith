@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -14,7 +14,7 @@ import {
 } from "widgets/WidgetUtils";
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getLayoutTree } from "./layoutTree";
 import { getWidgetsForBreakpoint } from "selectors/editorSelectors";

@@ -9,7 +9,7 @@ import type {
 import {
   ReduxActionErrorTypes,
   type ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";

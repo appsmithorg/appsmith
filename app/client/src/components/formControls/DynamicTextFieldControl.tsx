@@ -10,17 +10,17 @@ import {
   EditorModes,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
-import type { AppState } from "@appsmith/reducers";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
+import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import {
   getPluginResponseTypes,
   getPluginNameFromId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 const Wrapper = styled.div<{ fullWidth: boolean }>`
   min-width: 380px;
