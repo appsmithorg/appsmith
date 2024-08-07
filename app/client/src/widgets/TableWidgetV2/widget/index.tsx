@@ -139,7 +139,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

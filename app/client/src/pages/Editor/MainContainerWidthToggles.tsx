@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
+import { updateApplicationLayout } from "ee/actions/applicationActions";
 import type {
   AppLayoutConfig,
   SupportedLayouts,

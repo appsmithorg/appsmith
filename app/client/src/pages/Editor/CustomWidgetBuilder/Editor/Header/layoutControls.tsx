@@ -3,11 +3,8 @@ import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
 import styles from "./styles.module.css";
 import styled from "styled-components";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   & .ads-v2-icon {

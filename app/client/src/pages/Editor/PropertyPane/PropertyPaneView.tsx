@@ -15,9 +15,9 @@ import {
   BINDING_WIDGET_WALKTHROUGH_DESC,
   BINDING_WIDGET_WALKTHROUGH_TITLE,
   createMessage,
-} from "@appsmith/constants/messages";
-import { AB_TESTING_EVENT_KEYS } from "@appsmith/entities/FeatureFlag";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import { AB_TESTING_EVENT_KEYS } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import WidgetFactory from "WidgetProvider/factory";
 import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";

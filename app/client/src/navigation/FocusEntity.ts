@@ -2,14 +2,11 @@ import type { match } from "react-router";
 import { matchPath } from "react-router";
 import { ADD_PATH } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { IDEType } from "@appsmith/entities/IDE/constants";
-import { EditorState, EntityPaths } from "@appsmith/entities/IDE/constants";
-import {
-  getBaseUrlsForIDEType,
-  getIDETypeByUrl,
-} from "@appsmith/entities/IDE/utils";
+import type { IDEType } from "ee/entities/IDE/constants";
+import { EditorState, EntityPaths } from "ee/entities/IDE/constants";
+import { getBaseUrlsForIDEType, getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { memoize } from "lodash";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 
 export enum FocusEntity {
   API = "API",

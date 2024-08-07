@@ -3,7 +3,7 @@ import type { IconProps } from "constants/IconConstants";
 import {
   createMessage,
   LIGHTNING_MENU_DATA_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import styled from "styled-components";

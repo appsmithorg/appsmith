@@ -1,41 +1,45 @@
-{"editor": [{
-    "sectionName": "",
-    "children": [
+{
+  "editor": [
+    {
+      "sectionName": "",
+      "id": 1,
+      "children": [
         {
-            "isRequired": true,
-            "controlType": "DROP_DOWN",
-            "options": [
-                {
-                    "label": "GET",
-                    "value": "GET"
-                },
-                {
-                    "label": "POST",
-                    "value": "POST"
-                },
-                {
-                    "label": "PUT",
-                    "value": "PUT"
-                },
-                {
-                    "label": "DELETE",
-                    "value": "DELETE"
-                }
-            ],
-            "label": "Method",
-            "initialValue": "GET",
-            "configProperty": "actionConfiguration.httpMethod"
+          "label": "Method",
+          "configProperty": "actionConfiguration.httpMethod",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "GET",
+          "options": [
+            {
+              "label": "GET",
+              "value": "GET"
+            },
+            {
+              "label": "POST",
+              "value": "POST"
+            },
+            {
+              "label": "PUT",
+              "value": "PUT"
+            },
+            {
+              "label": "DELETE",
+              "value": "DELETE"
+            }
+          ]
         },
         {
-            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-            "label": "Path",
-            "configProperty": "actionConfiguration.path"
+          "label": "Path",
+          "configProperty": "actionConfiguration.path",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT"
         },
         {
-            "controlType": "QUERY_DYNAMIC_TEXT",
-            "label": "Body",
-            "configProperty": "actionConfiguration.body"
+          "label": "Body",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT"
         }
-    ],
-    "id": 1
-}]}
+      ]
+    }
+  ]
+}

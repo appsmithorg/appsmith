@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j

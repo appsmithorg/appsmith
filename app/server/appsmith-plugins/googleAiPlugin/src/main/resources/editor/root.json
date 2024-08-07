@@ -1,19 +1,27 @@
 {
-    "editor": [{
-        "identifier": "SELECTOR",
-        "controlType": "SECTION",
-        "children": [{
-            "isRequired": true,
-            "controlType": "DROP_DOWN",
-            "options": [{
-                "label": "Generate Content",
-                "value": "GENERATE_CONTENT"
-            }],
-            "description": "Choose the method you would like to use",
-            "label": "Command",
-            "initialValue": "GENERATE_CONTENT",
-            "configProperty": "actionConfiguration.formData.command.data"
-        }]
-    }],
-    "files": ["generate.json"]
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Command",
+          "description": "Choose the method you would like to use",
+          "configProperty": "actionConfiguration.formData.command.data",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "GENERATE_CONTENT",
+          "options": [
+            {
+              "label": "Generate Content",
+              "value": "GENERATE_CONTENT"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    "generate.json"
+  ]
 }

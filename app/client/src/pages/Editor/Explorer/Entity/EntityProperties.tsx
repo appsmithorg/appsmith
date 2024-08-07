@@ -6,14 +6,14 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import classNames from "classnames";
 import styled from "styled-components";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
-import { getEntityProperties } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
+import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import store from "store";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 

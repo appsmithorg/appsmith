@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
-import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j

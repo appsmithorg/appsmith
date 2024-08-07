@@ -1,4 +1,4 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { PaginationField } from "api/ActionAPI";
 import React, { createContext, useMemo } from "react";
 

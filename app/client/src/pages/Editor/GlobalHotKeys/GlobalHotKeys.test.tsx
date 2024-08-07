@@ -3,7 +3,7 @@ import React from "react";
 import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
 import { Toast } from "design-system";
@@ -74,8 +74,8 @@ describe("Canvas Hot Keys", () => {
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
-    jest.mock("@appsmith/sagas/PageSagas", () => ({
-      ...jest.requireActual("@appsmith/sagas/PageSagas"),
+    jest.mock("ee/sagas/PageSagas", () => ({
+      ...jest.requireActual("ee/sagas/PageSagas"),
       default: mockGenerator,
     }));
   });

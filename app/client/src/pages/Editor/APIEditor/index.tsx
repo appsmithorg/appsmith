@@ -7,9 +7,9 @@ import {
   getPageList,
   getPluginSettingConfigs,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { deleteAction, runAction } from "actions/pluginActionActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
@@ -17,14 +17,14 @@ import {
   getIsEditorInitialized,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { getActionByBaseId } from "@appsmith/selectors/entitiesSelector";
+import { getActionByBaseId } from "ee/selectors/entitiesSelector";
 import type { APIEditorRouteParams } from "constants/routes";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { ApiEditorContextProvider } from "./ApiEditorContext";
 import type { PaginationField } from "api/ActionAPI";
@@ -32,15 +32,15 @@ import { get, keyBy } from "lodash";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
-import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
+import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 

@@ -1,7 +1,7 @@
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneContentConfig = [

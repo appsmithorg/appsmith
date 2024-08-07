@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
-import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j

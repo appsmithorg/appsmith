@@ -9,14 +9,14 @@ import {
   FocusStoreHierarchy,
   identifyEntityFromPath,
 } from "navigation/FocusEntity";
-import { EditorState } from "@appsmith/entities/IDE/constants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { EditorState } from "ee/entities/IDE/constants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   datasourcesEditorURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import AppIDEFocusElements from "../FocusElements/AppIDE";
 
 function shouldSetState(

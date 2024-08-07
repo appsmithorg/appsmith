@@ -15,7 +15,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
 
-import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.migrations.utils.CompatibilityUtils.optimizeQueryForNoCursorTimeout;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;

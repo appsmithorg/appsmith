@@ -1,6 +1,6 @@
 import { PluginType } from "entities/Action";
 import { generateDataTreeJSAction } from "./dataTreeJSAction";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 describe("generateDataTreeJSAction", () => {
   it("generate js collection in data tree", () => {

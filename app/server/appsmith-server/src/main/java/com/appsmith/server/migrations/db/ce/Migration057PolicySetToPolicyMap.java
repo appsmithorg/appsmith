@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
-import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 
 /**

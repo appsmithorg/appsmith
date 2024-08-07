@@ -1,5 +1,5 @@
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type {

@@ -1,9 +1,6 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { TDataStore } from ".";
-import {
-  isAction,
-  isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isAction, isJSAction } from "ee/workers/Evaluation/evaluationUtils";
 import { get, isEmpty, set } from "lodash";
 
 export function updateTreeWithData(tree: DataTree, dataStore: TDataStore) {

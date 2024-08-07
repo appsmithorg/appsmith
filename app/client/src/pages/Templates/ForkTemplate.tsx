@@ -21,7 +21,7 @@ import {
   createMessage,
   FORK_TEMPLATE,
   SELECT_WORKSPACE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface ForkTemplateProps {
   children?: ReactNode;

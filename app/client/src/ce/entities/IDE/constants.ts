@@ -13,7 +13,7 @@ import {
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,

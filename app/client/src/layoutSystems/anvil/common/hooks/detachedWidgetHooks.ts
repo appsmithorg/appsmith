@@ -7,7 +7,7 @@ import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
-import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 /**
  * This hook is used to select and focus on a detached widget

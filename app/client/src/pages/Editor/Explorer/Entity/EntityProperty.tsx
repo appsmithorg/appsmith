@@ -11,10 +11,10 @@ import useClipboard from "utils/hooks/useClipboard";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
 import { Tooltip, Icon } from "design-system";
-import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
+import { COPY_ELEMENT, createMessage } from "ee/constants/messages";
 import CollapseToggle from "./CollapseToggle";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import type { EntityProperty as EntityPropertyType } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { EntityProperty as EntityPropertyType } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 
 const Wrapper = styled.div`
   &&&& {

@@ -1,16 +1,16 @@
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   getAllPaths,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import type {
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
   DataTreeEntityObject,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { convertArrayToObject, extractInfoFromBindings } from "./utils";
@@ -26,8 +26,8 @@ import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionC
 import {
   getAllSetterFunctions,
   getEntitySetterFunctions,
-} from "@appsmith/workers/Evaluation/Actions";
-import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+} from "ee/workers/Evaluation/Actions";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
 
 export function createDependencyMap(

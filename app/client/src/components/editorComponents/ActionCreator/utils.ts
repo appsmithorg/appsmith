@@ -25,7 +25,7 @@ import type { TActionBlock } from "./types";
 import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
-import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import { FIELD_CONFIG } from "./Field/FieldConfig";
 import { setGenericArgAtPostition } from "@shared/ast/src/actionCreator";
 

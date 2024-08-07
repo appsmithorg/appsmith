@@ -6,8 +6,8 @@ import { FormGroup, type SettingComponentProps } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { Checkbox } from "design-system";
 import { useSelector } from "react-redux";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
+import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
 
 const CheckboxWrapper = styled.div`
   display: grid;

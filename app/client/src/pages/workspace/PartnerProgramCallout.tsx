@@ -5,7 +5,7 @@ import {
   PARTNER_PROGRAM_CALLOUT,
   PARTNER_PROGRAM_CALLOUT_LINK,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface PartnerProgramCalloutProps {
   email: string;

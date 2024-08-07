@@ -8,7 +8,7 @@ import {
   USER_PROFILE_SETTINGS_TITLE,
   USE_DEFAULT_CONFIGURATION,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled from "styled-components";
 import { emailValidator } from "design-system-old";
 import { useSelector } from "react-redux";

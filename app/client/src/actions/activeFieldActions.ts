@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const setActiveEditorField = (field: string) => ({
   type: ReduxActionTypes.SET_ACTIVE_EDITOR_FIELD,
