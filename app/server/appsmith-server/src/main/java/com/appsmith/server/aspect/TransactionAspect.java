@@ -26,13 +26,12 @@ public class TransactionAspect {
 
         if (Mono.class.isAssignableFrom(returnType)) {
             return Mono.deferContextual(context -> {
-                Map<String, DBOps> transactionContext = context.get("transactionContext");
-
                 try {
                     // transaction context is not maintained
-                    if (transactionContext == null) {
+                    if (context.isEmpty() || !context.hasKey("transactionContext")) {
                         return (Mono<?>) joinPoint.proceed(joinPoint.getArgs());
                     }
+                    Map<String, DBOps> transactionContext = context.get("transactionContext");
                     // Check if it's a write operation
                     MethodSignature signature = (MethodSignature) joinPoint.getSignature();
                     String methodName = signature.getMethod().getName();

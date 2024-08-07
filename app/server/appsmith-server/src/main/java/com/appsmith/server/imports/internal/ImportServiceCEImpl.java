@@ -513,6 +513,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         .flatMap(importableArtifact -> dryOperationRepository
                                 .executeAllDbOps(mappedImportableResourcesDTO)
                                 .thenReturn(importableArtifact))
+                        .contextWrite(context -> context.put("transactionContext", new HashMap<>()))
                 /*.as(transactionalOperator::transactional)*/ ;
 
         final Mono<? extends Artifact> resultMono = importMono

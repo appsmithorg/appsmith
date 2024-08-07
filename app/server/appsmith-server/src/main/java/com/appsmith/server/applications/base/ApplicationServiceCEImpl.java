@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.aspect.TransactionAspect;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -1065,7 +1066,9 @@ public class ApplicationServiceCEImpl
 
     @Override
     public Mono<Application> findSaveUpdateApp(String id) {
-        Mono<Application> applicationMono = repository
+        Map<String, TransactionAspect.DBOps> contextMap = new ConcurrentHashMap<>();
+
+        return repository
                 .findById(id, applicationPermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
@@ -1077,13 +1080,13 @@ public class ApplicationServiceCEImpl
                     Application update = new Application();
                     update.setName("updated_name");
                     return repository.updateById(id, update, null);
+                })
+                .contextWrite(ctx -> ctx.put("transactionContext", contextMap))
+                .onErrorResume(e -> {
+                    if (!contextMap.isEmpty()) {
+                        // Add the cleanup stage here
+                    }
+                    return Mono.error(e);
                 });
-
-        return Mono.justOrEmpty(Optional.ofNullable(template.execute(ts -> {
-            Application app = applicationMono
-                    .contextWrite(context -> context.put("transactionContext", new HashMap<>()))
-                    .block();
-            return app;
-        })));
     }
 }
