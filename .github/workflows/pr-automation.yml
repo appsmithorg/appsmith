@@ -8,7 +8,7 @@ on:
     types: [ labeled, synchronize ]
 
 jobs:
-  check-label:
+  checkTestLabel:
     runs-on: ubuntu-latest
     outputs:
       ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}
@@ -33,8 +33,28 @@ jobs:
               console.log("Label 'ok-to-test' is not present");
               core.setOutput("ok_to_test", "false");
             }
+
+  mark-stale:
+    needs: [ check-label ]
+    if: needs.checkTestLabel.outputs.ok_to_test == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      # In case of a no label present, mark the Cypress status to be stale
+      - name: Mark the Cypress response to be stale
+        uses: actions/github-script@v7
+        env:
+          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
+          BODY: |
+            Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
+        with:
+          script: |
+            if(${{ steps.checkLabel.outputs.ok_to_test == 'false' }}) {
+              require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
+            }
+
   parse-tags:
     needs: [ check-label ]
+    if: needs.checkTestLabel.outputs.ok_to_test == 'true'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -53,19 +73,6 @@ jobs:
         with:
           repository: appsmithorg/appsmith
 
-      # In case of a no label present, mark the Cypress status to be stale
-      - name: Mark the Cypress response to be stale
-        uses: actions/github-script@v7
-        env:
-          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
-          BODY: |
-            Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
-        with:
-          script: |
-            if(${{ steps.checkLabel.outputs.ok_to_test == 'false' }}) {
-              require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
-            }
-
       # Reads the PR description to retrieve the /ok-to-test or, if that's absent, the /test command
       - name: Read tags from PR description
         uses: actions/github-script@v7
@@ -74,9 +81,7 @@ jobs:
           NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
         with:
           script: |
-            if(${{ steps.checkLabel.outputs.ok_to_test == 'true' }}) {
-              require("test-tag-parser.js")({core, context, github})
-            }
+            require("test-tag-parser.js")({core, context, github})
 
       # In case of a run with all test cases, allocate a larger matrix
       - name: Check if @tag.All is present in tags
