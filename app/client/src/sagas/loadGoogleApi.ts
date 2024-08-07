@@ -1,4 +1,4 @@
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 async function loadScript(src: string) {
   return new Promise(function (resolve, reject) {

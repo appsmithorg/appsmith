@@ -11,7 +11,7 @@ import {
   getApplicationParamsFromUrl,
   getPrefetchRequests,
   PrefetchApiService,
-} from "@appsmith/utils/serviceWorkerUtils";
+} from "ee/utils/serviceWorkerUtils";
 import type { RouteHandlerCallback } from "workbox-core/types";
 
 setCacheNameDetails({

@@ -1,7 +1,7 @@
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { reconnectWebsocketEvent } from "constants/WebsocketConstants";
 
 export const setIsAppLevelWebsocketConnected = (payload: boolean) => ({

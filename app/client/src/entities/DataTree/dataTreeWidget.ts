@@ -7,15 +7,15 @@ import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import type {
   WidgetEntityConfig,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "./dataTreeFactory";
 import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
-} from "@appsmith/entities/DataTree/types";
-import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
+import { OverridingPropertyType } from "ee/entities/DataTree/types";
 
-import { setOverridingProperty } from "@appsmith/entities/DataTree/utils";
+import { setOverridingProperty } from "ee/entities/DataTree/utils";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";

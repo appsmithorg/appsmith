@@ -1,6 +1,6 @@
 import type { AppIconName } from "design-system-old";
 import type { AppColorCode } from "constants/DefaultTheme";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";

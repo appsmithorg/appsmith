@@ -1,6 +1,6 @@
 import { submitCurlImportForm } from "../../../actions/importActions";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export interface CurlImportFormValues {
   curl: string;

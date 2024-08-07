@@ -1,13 +1,13 @@
 import type {
   ApplicationPayload,
   Page,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
 import React from "react";
 import { useSelector } from "react-redux";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import MobileNavToggle from "./MobileNavToggle";
@@ -21,7 +21,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
 import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
-import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
+import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
 import BackToAppsButton from "./BackToAppsButton";
 
 interface TopHeaderProps {

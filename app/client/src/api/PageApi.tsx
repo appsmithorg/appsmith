@@ -7,7 +7,7 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DSLWidget } from "WidgetProvider/constants";
-import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
+import type { FetchApplicationResponse } from "ee/api/ApplicationApi";
 import type { APP_MODE } from "entities/App";
 
 export interface FetchPageRequest {

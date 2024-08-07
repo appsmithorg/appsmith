@@ -1,10 +1,7 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  getActions,
-  getJSCollections,
-} from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import type { Datasource } from "entities/Datasource";
 import { get } from "lodash";

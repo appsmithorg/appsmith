@@ -1,7 +1,4 @@
-import {
-  createMessage,
-  FIELD_REQUIRED_ERROR,
-} from "@appsmith/constants/messages";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import { CurrencyTypeOptions } from "constants/Currency";
 import { isNil } from "lodash";
 import type { CurrencyInputWidgetProps } from "./types";

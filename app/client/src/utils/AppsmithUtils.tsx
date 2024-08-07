@@ -1,6 +1,6 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "ee/configs";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
+import { createMessage, ERROR_500 } from "ee/constants/messages";
 import * as Sentry from "@sentry/react";
 import type { Property } from "api/ActionAPI";
 import type { AppIconName } from "design-system-old";
@@ -8,11 +8,11 @@ import { AppIconCollection } from "design-system-old";
 import _, { isPlainObject } from "lodash";
 import * as log from "loglevel";
 import { osName } from "react-device-detect";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
+import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 
 export const initializeAnalyticsAndTrackers = async () => {
   const appsmithConfigs = getAppsmithConfigs();

@@ -8,7 +8,7 @@ import type { ButtonProps } from "design-system";
 import { change, getFormValues } from "redux-form";
 import { connect } from "react-redux";
 import { get, omit } from "lodash";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
 
 const StyledButton = styled((props: ButtonProps & { isActive: boolean }) => (

@@ -4,9 +4,9 @@ import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
 import classNames from "classnames";
 import styled from "styled-components";
-import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
@@ -14,7 +14,7 @@ import type { Datasource } from "entities/Datasource";
 import {
   getActionByBaseId,
   getActionData,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";

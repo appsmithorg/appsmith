@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 
 export const APPSMITH_AI = "Appsmith AI";
 

@@ -1,10 +1,7 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { klona } from "klona";
 import { get, remove, set } from "lodash";
 

@@ -3,11 +3,11 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import classNames from "classnames";
 import { Button, Spinner } from "design-system";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { ContentBox } from "pages/AdminSettings/components";
 
 interface ImageInputProps {

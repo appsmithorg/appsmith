@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { intersection } from "lodash";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { QueryActionConfig } from "entities/Action";
@@ -10,7 +10,7 @@ import {
   EVAL_AND_LINT_REDUX_ACTIONS,
   LINT_REDUX_ACTIONS,
   LOG_REDUX_ACTIONS,
-} from "@appsmith/actions/evaluationActionsList";
+} from "ee/actions/evaluationActionsList";
 
 export const shouldTriggerEvaluation = (action: ReduxAction<unknown>) => {
   return (

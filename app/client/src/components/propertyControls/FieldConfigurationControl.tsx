@@ -18,7 +18,7 @@ import { InputText } from "./InputTextControl";
 import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import styled from "styled-components";
-import { NO_FIELDS_ADDED, createMessage } from "@appsmith/constants/messages";
+import { NO_FIELDS_ADDED, createMessage } from "ee/constants/messages";
 
 import {
   itemHeight,

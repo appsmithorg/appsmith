@@ -14,7 +14,7 @@ import {
 import {
   createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { AddButtonWrapper, EntityClassNames } from "./Entity";
 import styled from "styled-components";
 

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { Text } from "design-system";
 import { IconWrapper } from "constants/IconConstants";
 import { getWidgetCards } from "selectors/editorSelectors";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   display: inline-flex;

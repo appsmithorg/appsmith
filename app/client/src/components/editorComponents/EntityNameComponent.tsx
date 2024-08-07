@@ -8,7 +8,7 @@ import {
   VALID_FUNCTION_NAME_ERROR,
   UNIQUE_NAME_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
   align-items: center;

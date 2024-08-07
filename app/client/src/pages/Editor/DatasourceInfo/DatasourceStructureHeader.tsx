@@ -7,10 +7,10 @@ import {
   GSHEET_SPREADSHEET_LABEL,
   SCHEMA_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { getPluginPackageNameFromId } from "@appsmith/selectors/entitiesSelector";
+import { getPluginPackageNameFromId } from "ee/selectors/entitiesSelector";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 
 interface Props {

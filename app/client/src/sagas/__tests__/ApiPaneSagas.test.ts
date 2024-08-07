@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { CreateApiActionDefaultsParams } from "entities/Action";
 import type { Saga } from "redux-saga";
 import { runSaga, stdChannel } from "redux-saga";

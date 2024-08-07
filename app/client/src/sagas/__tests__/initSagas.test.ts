@@ -1,7 +1,7 @@
 import {
   type ReduxAction,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import AppEngineFactory from "entities/Engine/factory";
 import { getInitResponses } from "sagas/InitSagas";

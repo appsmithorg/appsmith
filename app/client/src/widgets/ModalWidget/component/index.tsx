@@ -2,7 +2,7 @@ import type { ReactNode, RefObject } from "react";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { closeTableFilterPane } from "actions/widgetActions";
 import { Colors } from "constants/Colors";
 import { getCanvasClassName } from "utils/generators";

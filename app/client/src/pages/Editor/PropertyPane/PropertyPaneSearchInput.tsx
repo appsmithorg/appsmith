@@ -7,7 +7,7 @@ import {
   getShouldFocusPropertySearch,
 } from "selectors/propertyPaneSelectors";
 import { isCurrentFocusOnInput } from "utils/editorContextUtils";
-import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "@appsmith/constants/messages";
+import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "ee/constants/messages";
 
 const Container = styled.div`
   position: sticky;

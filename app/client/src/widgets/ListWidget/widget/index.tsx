@@ -1,5 +1,5 @@
-import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { PrivateWidgets } from "ee/entities/DataTree/types";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,

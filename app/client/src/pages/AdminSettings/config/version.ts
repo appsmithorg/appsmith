@@ -1,16 +1,16 @@
 import type { Dispatch } from "react";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   AdminConfigType,
   Setting,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 import {
   CategoryType,
   SettingCategories,
   SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+} from "ee/pages/AdminSettings/config/types";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const isAirgappedInstance = isAirgapped();
 

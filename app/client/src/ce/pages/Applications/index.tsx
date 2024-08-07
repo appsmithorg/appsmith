@@ -1,12 +1,12 @@
-import { updateApplication } from "@appsmith/actions/applicationActions";
+import { updateApplication } from "ee/actions/applicationActions";
 import {
   deleteWorkspace,
   fetchAllWorkspaces,
   fetchEntitiesOfWorkspace,
   resetCurrentWorkspace,
   saveWorkspace,
-} from "@appsmith/actions/workspaceActions";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
+} from "ee/actions/workspaceActions";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   ANVIL_APPLICATIONS,
   APPLICATIONS,
@@ -19,12 +19,12 @@ import {
   NO_APPS_FOUND,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
-} from "@appsmith/constants/messages";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
-import type { AppState } from "@appsmith/reducers";
-import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
+} from "ee/constants/messages";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
+import type { AppState } from "ee/reducers";
+import type { creatingApplicationMap } from "ee/reducers/uiReducers/applicationsReducer";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -32,7 +32,7 @@ import {
   getCurrentApplicationIdForCreateNewApp,
   getIsCreatingApplication,
   getIsDeletingApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { leaveWorkspace } from "actions/userActions";
@@ -79,45 +79,45 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 
-import { getAppsmithConfigs } from "@appsmith/configs";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
-import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
-import { usePackage } from "@appsmith/pages/Applications/helpers";
-import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
-import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
-import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
-import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
-import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
-import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
-import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
-import { getPackagesList } from "@appsmith/selectors/packageSelectors";
+import { getAppsmithConfigs } from "ee/configs";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import ApplicationCardList from "ee/pages/Applications/ApplicationCardList";
+import CreateNewAppsOption from "ee/pages/Applications/CreateNewAppsOption";
+import { usePackage } from "ee/pages/Applications/helpers";
+import PackageCardList from "ee/pages/Applications/PackageCardList";
+import ResourceListLoader from "ee/pages/Applications/ResourceListLoader";
+import WorkflowCardList from "ee/pages/Applications/WorkflowCardList";
+import WorkspaceAction from "ee/pages/Applications/WorkspaceAction";
+import WorkspaceMenu from "ee/pages/Applications/WorkspaceMenu";
+import { getIsReconnectingDatasourcesModalOpen } from "ee/selectors/entitiesSelector";
+import { allowManageEnvironmentAccessForUser } from "ee/selectors/environmentSelectors";
+import { getPackagesList } from "ee/selectors/packageSelectors";
 import {
   getApplicationsOfWorkspace,
   getCurrentWorkspaceId,
   getIsFetchingApplications,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/selectors/selectedWorkspaceSelectors";
 import {
   getTenantPermissions,
   shouldShowLicenseBanner,
-} from "@appsmith/selectors/tenantSelectors";
-import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
+} from "ee/selectors/tenantSelectors";
+import { getWorkflowsList } from "ee/selectors/workflowSelectors";
 import {
   getFetchedWorkspaces,
   getIsDeletingWorkspace,
   getIsFetchingWorkspaces,
   getIsSavingWorkspaceInfo,
-} from "@appsmith/selectors/workspaceSelectors";
-import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/selectors/workspaceSelectors";
+import { getHasCreateWorkspacePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
   hasCreateNewAppPermission,
   hasDeleteWorkspacePermission,
   hasManageWorkspaceEnvironmentPermission,
   isPermitted,
   PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+} from "ee/utils/permissionHelpers";
 import { resetEditorRequest } from "actions/initActions";
 import { setHeaderMeta } from "actions/themeActions";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
@@ -128,11 +128,11 @@ import SharedUserList from "pages/common/SharedUserList";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";

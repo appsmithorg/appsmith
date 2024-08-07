@@ -5,7 +5,7 @@ import MenuItem from "./components/MenuItem";
 import type {
   ApplicationPayload,
   Page,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";

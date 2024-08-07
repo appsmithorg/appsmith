@@ -5,7 +5,7 @@ import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE,
   ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import {
   SettingsHeader,
