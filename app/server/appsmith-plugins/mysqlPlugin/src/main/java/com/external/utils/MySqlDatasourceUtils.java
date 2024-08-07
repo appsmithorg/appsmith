@@ -9,6 +9,8 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MySQLErrorMessages;
+import com.external.plugins.exceptions.MySQLPluginError;
+import com.external.plugins.utils.MutualTLSCertValidatingFactory;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.pool.ConnectionPoolConfiguration;
 import io.r2dbc.spi.ConnectionFactoryOptions;
@@ -17,6 +19,7 @@ import org.mariadb.r2dbc.MariadbConnectionConfiguration;
 import org.mariadb.r2dbc.MariadbConnectionFactory;
 import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -140,24 +143,61 @@ public class MySqlDatasourceUtils {
         SSLDetails.AuthType sslAuthType =
                 datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
-            case REQUIRED:
+            case REQUIRE:
+                ob = ob.option(SSL, true).option(Option.valueOf("sslMode"), "require");
+                break;
+
+            case DISABLE:
+                ob = ob.option(SSL, false);
+                break;
+
+            case ALLOW:
+                ob = ob.option(SSL, true).option(Option.valueOf("sslMode"), "allow");
+                break;
+
+            case VERIFY_CA:
+            case VERIFY_FULL:
                 ob = ob.option(SSL, true)
                         .option(
                                 Option.valueOf("sslMode"),
-                                sslAuthType.toString().toLowerCase());
-
+                                sslAuthType == SSLDetails.AuthType.VERIFY_FULL ? "verify-full" : "verify-ca")
+                        .option(Option.valueOf("sslFactory"), MutualTLSCertValidatingFactory.class.getName())
+                        .option(
+                                Option.valueOf("clientCertString"),
+                                new String(
+                                        datasourceConfiguration
+                                                .getConnection()
+                                                .getSsl()
+                                                .getClientCACertificateFile()
+                                                .getDecodedContent(),
+                                        StandardCharsets.UTF_8))
+                        .option(
+                                Option.valueOf("clientKeyString"),
+                                new String(
+                                        datasourceConfiguration
+                                                .getConnection()
+                                                .getSsl()
+                                                .getClientKeyCertificateFile()
+                                                .getDecodedContent(),
+                                        StandardCharsets.UTF_8))
+                        .option(
+                                Option.valueOf("serverCACertString"),
+                                new String(
+                                        datasourceConfiguration
+                                                .getConnection()
+                                                .getSsl()
+                                                .getServerCACertificateFile()
+                                                .getDecodedContent(),
+                                        StandardCharsets.UTF_8));
                 break;
-            case DISABLED:
-                ob = ob.option(SSL, false);
 
+            case PREFER:
+                ob = ob.option(SSL, true).option(Option.valueOf("sslMode"), "prefer");
                 break;
-            case DEFAULT:
-                /* do nothing - accept default driver setting*/
 
-                break;
             default:
                 throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        MySQLPluginError.MYSQL_PLUGIN_ERROR,
                         String.format(MySQLErrorMessages.UNEXPECTED_SSL_OPTION_ERROR_MSG, sslAuthType));
         }
 
