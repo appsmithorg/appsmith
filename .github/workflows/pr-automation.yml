@@ -61,7 +61,9 @@ jobs:
           NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
         with:
           script: |
-            require("test-tag-parser.js")({core, context, github})
+            if(${{ steps.checkLabel.outputs.ok_to_test == 'true' }}) {
+              require("test-tag-parser.js")({core, context, github})
+            }
 
       # In case of a run with all test cases, allocate a larger matrix
       - name: Check if @tag.All is present in tags
