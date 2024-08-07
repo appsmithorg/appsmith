@@ -10,11 +10,14 @@ on:
 jobs:
   check-label:
     runs-on: ubuntu-latest
+    outputs:
+      ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Check PR Label
+        id: checkLabel
         uses: actions/github-script@v7
         with:
           # This script will check if the PR has ok-to-test label.
