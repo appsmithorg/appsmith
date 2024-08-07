@@ -48,9 +48,7 @@ jobs:
             Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
         with:
           script: |
-            if(${{ steps.checkLabel.outputs.ok_to_test == 'false' }}) {
-              require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
-            }
+            require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
 
   parse-tags:
     needs: [ checkTestLabel ]
