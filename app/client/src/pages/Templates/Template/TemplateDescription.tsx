@@ -12,7 +12,7 @@ import {
   NOTE_MESSAGE,
   OVERVIEW,
   WIDGET_USED,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import WidgetInfo from "../WidgetInfo";
 
 export const DescriptionWrapper = styled.div`

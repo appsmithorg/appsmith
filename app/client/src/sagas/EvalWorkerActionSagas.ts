@@ -1,13 +1,13 @@
 import { all, call, put, select, spawn, take } from "redux-saga/effects";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import type { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
-} from "@appsmith/reducers/entityReducers/jsActionsReducer";
+} from "ee/reducers/entityReducers/jsActionsReducer";
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";

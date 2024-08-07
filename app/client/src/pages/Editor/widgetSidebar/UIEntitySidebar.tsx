@@ -2,8 +2,8 @@ import {
   UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
   WidgetCardsGroupedByTags,

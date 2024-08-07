@@ -11,8 +11,8 @@ import {
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
 import { get, set, isNil, has, uniq } from "lodash";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import type { ApiResponse } from "api/ApiResponses";

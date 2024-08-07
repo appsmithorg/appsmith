@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import history from "utils/history";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
@@ -20,27 +20,27 @@ import {
   getIsActionConverting,
   getPluginImages,
   getPluginSettingConfigs,
-} from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+} from "ee/selectors/entitiesSelector";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import { QueryEditorContextProvider } from "./QueryEditorContext";
 import type { QueryEditorRouteParams } from "constants/routes";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import Disabler from "pages/common/Disabler";
-import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
-import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
+import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 

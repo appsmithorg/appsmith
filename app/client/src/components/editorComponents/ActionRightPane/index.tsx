@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "design-system-old";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
   CollapsibleGroup,

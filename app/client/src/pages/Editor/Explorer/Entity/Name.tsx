@@ -12,7 +12,7 @@ import NameEditorComponent from "components/utils/NameEditorComponent";
 import {
   ACTION_ID_NOT_FOUND_IN_URL,
   ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Tooltip } from "design-system";
 import { useSelector } from "react-redux";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";

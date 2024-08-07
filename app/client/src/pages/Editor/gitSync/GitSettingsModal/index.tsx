@@ -16,10 +16,10 @@ import {
   GENERAL,
   SETTINGS_GIT,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import TabGeneral from "./TabGeneral";
 import TabBranch from "./TabBranch";
-import GitSettingsCDTab from "@appsmith/components/gitComponents/GitSettingsCDTab";
+import GitSettingsCDTab from "ee/components/gitComponents/GitSettingsCDTab";
 import {
   useHasManageDefaultBranchPermission,
   useHasManageProtectedBranchesPermission,

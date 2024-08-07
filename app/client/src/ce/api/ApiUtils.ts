@@ -5,14 +5,14 @@ import {
   ERROR_500,
   GENERIC_API_EXECUTION_ERROR,
   SERVER_API_TIMEOUT_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 import {
   API_STATUS_CODES,
   ERROR_CODES,
   SERVER_ERROR_CODES,
-} from "@appsmith/constants/ApiConstants";
+} from "ee/constants/ApiConstants";
 import log from "loglevel";
 import type { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";
@@ -21,14 +21,14 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "ee/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
-import { ID_EXTRACTION_REGEX } from "@appsmith/constants/routes/appRoutes";
+import { ID_EXTRACTION_REGEX } from "ee/constants/routes/appRoutes";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;

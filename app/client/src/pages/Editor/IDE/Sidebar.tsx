@@ -1,22 +1,22 @@
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "./hooks";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { fetchWorkspace } from "ee/actions/workspaceActions";
 import { IDESidebar, Condition } from "IDE";
 import {
   BottomButtons,
   EditorState,
   TopButtons,
-} from "@appsmith/entities/IDE/constants";
-import { getDatasources } from "@appsmith/selectors/entitiesSelector";
+} from "ee/entities/IDE/constants";
+import { getDatasources } from "ee/selectors/entitiesSelector";
 import {
   createMessage,
   EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 function Sidebar() {
   const dispatch = useDispatch();

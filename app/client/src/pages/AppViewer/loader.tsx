@@ -8,7 +8,7 @@ import { APP_MODE } from "entities/App";
 import { connect } from "react-redux";
 import { getSearchQuery } from "utils/helpers";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 type Props = {
   initAppViewer: (payload: InitAppViewerPayload) => void;

@@ -2,8 +2,8 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   UpdateCanvasPayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,

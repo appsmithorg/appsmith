@@ -1,10 +1,10 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+} from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
 import {
   BlueprintOperationTypes,

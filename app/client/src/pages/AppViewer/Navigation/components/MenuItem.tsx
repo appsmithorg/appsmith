@@ -1,13 +1,13 @@
 import React from "react";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "ee/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { APP_MODE } from "entities/App";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
 import { useSelector } from "react-redux";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { trimQueryString } from "utils/helpers";
 import { Icon } from "design-system-old";

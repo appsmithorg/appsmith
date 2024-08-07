@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { AutoHeightLayoutTreePayload } from "./autoHeightLayoutTreeReducer";
 
 export type CanvasLevelsPayload = Record<string, number>;

@@ -7,10 +7,7 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import { Button, Spinner, toast, Tooltip } from "design-system";
-import {
-  INVALID_NAME_ERROR,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { INVALID_NAME_ERROR, createMessage } from "ee/constants/messages";
 
 export enum EditInteractionKind {
   SINGLE,

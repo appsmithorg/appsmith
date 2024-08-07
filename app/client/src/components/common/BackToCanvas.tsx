@@ -4,8 +4,8 @@ import { Link } from "design-system";
 
 import history from "utils/history";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { BACK_TO_CANVAS, createMessage } from "@appsmith/constants/messages";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { BACK_TO_CANVAS, createMessage } from "ee/constants/messages";
+import { builderURL } from "ee/RouteBuilder";
 
 const BackToCanvasLink = styled(Link)`
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;

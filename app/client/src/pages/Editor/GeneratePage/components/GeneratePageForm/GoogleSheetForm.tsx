@@ -1,8 +1,8 @@
 import type { ReactElement } from "react";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEditorConfig } from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import { getEditorConfig } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
@@ -22,7 +22,7 @@ import {
   GEN_CRUD_COLUMN_HEADER_TITLE,
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Icon, Option, Select, Input, Tooltip } from "design-system";
 
 interface Props {

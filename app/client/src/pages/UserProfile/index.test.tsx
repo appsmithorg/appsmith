@@ -11,7 +11,7 @@ import UserProfile from ".";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 import Login from "pages/UserAuth/Login";
 

@@ -1,4 +1,4 @@
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import {
   Collapsible,
   CollapsibleContent,

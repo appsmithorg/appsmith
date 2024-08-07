@@ -5,7 +5,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { select } from "redux-saga/effects";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import type { CopiedWidgetData } from "./types";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";

@@ -15,20 +15,17 @@ import Collapse from "./Collapse";
 import {
   useEntityUpdateState,
   useEntityEditState,
-} from "@appsmith/pages/Editor/Explorer/hooks";
+} from "ee/pages/Editor/Explorer/hooks";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 import { Tooltip, Tag, Spinner } from "design-system";
-import {
-  createMessage,
-  EXPLORER_BETA_ENTITY,
-} from "@appsmith/constants/messages";
+import { createMessage, EXPLORER_BETA_ENTITY } from "ee/constants/messages";
 import classNames from "classnames";
 
 export enum EntityClassNames {

@@ -1,9 +1,9 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";

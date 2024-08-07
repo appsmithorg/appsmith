@@ -4,7 +4,7 @@ import {
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_NON_SUPER_FORM_NAME,
   WELCOME_FORM_PROFICIENCY_LEVEL,
-} from "@appsmith/constants/forms";
+} from "ee/constants/forms";
 import {
   createMessage,
   WELCOME_ACTION,
@@ -12,9 +12,9 @@ import {
   WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
   WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
   WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { InjectedFormProps } from "redux-form";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";

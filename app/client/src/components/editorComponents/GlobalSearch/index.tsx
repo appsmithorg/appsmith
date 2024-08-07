@@ -9,7 +9,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import SearchModal from "./SearchModal";
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
@@ -40,9 +40,9 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
 import { noop } from "lodash";
 import {
@@ -62,14 +62,14 @@ import {
   builderURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
-} from "@appsmith/RouteBuilder";
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+} from "ee/RouteBuilder";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import {
   DatasourceCreateEntryPoints,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   getBasePageIdToPageIdMap,

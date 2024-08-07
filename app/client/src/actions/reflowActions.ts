@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReflowReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReflowReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ReflowedSpaceMap } from "reflow/reflowTypes";
 
 export const reflowMoveAction = (

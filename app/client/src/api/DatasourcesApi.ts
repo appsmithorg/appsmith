@@ -1,4 +1,4 @@
-import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";

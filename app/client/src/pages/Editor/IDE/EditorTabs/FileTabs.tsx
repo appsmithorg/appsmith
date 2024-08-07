@@ -3,7 +3,7 @@ import React from "react";
 import {
   EditorEntityTabState,
   type EntityItem,
-} from "@appsmith/entities/IDE/constants";
+} from "ee/entities/IDE/constants";
 import { useCurrentEditorState } from "../hooks";
 import { FileTab } from "IDE/Components/FileTab";
 import type { FocusEntityInfo } from "navigation/FocusEntity";

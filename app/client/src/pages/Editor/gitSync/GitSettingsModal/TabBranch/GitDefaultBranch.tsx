@@ -4,7 +4,7 @@ import {
   DEFAULT_BRANCH_DESC,
   UPDATE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { updateGitDefaultBranch } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
 import React, { useEffect, useMemo, useState } from "react";
@@ -12,9 +12,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getGitBranches } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const Container = styled.div`
   padding-top: 8px;

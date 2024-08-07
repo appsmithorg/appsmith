@@ -12,7 +12,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;

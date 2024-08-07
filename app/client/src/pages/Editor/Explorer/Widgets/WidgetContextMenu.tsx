@@ -1,11 +1,11 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import WidgetFactory from "WidgetProvider/factory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
