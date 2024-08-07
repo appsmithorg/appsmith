@@ -5,7 +5,7 @@ import {
   GSHEET_SHEET_LOADING,
   GSHEET_SPREADSHEET_LOADING,
   LOADING_SCHEMA,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Spinner, Text } from "design-system";
 import { MessageWrapper } from "./SchemaViewModeCSS";
 

@@ -1,4 +1,4 @@
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export enum DocsLink {
   CAPTURE_DATA = "CAPTURE_DATA",

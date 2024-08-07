@@ -1,11 +1,11 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
-import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
+import type { TenantReduxState } from "ee/reducers/tenantReducer";
+import { tenantConfigConnection } from "ee/constants/tenantConstants";
 
 export const initialState: SettingsReduxState = {
   isLoading: true,

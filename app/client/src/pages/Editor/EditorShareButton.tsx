@@ -5,10 +5,10 @@ import {
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
-import { getAllUsersOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getAllUsersOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
 export const EditorShareButton = ({
   setShowModal,

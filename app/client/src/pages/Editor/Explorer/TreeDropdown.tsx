@@ -18,7 +18,7 @@ import {
   EntityClassNames,
   entityTooltipCSS,
 } from "pages/Editor/Explorer/Entity";
-import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 
 export type TreeDropdownOption = DropdownOption & {

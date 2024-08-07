@@ -3,14 +3,14 @@ import {
   ACTION_OPERATION_DESCRIPTION,
   createMessage,
   NAV_DESCRIPTION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
-import { getPluginByPackageName } from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import { getPluginByPackageName } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import WidgetFactory from "WidgetProvider/factory";
 import {
   CurlIconV2,
@@ -18,16 +18,16 @@ import {
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Icon } from "design-system";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import {
   createNewAPIBasedOnParentEntity,
   createNewJSCollectionBasedOnParentEntity,
-} from "@appsmith/actions/helpers";
+} from "ee/actions/helpers";
 import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
 
 export type SelectEvent =

@@ -1,8 +1,5 @@
-import {
-  EMPTY_CANVAS_HINTS,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { EditorEntityTab, EditorState } from "@appsmith/entities/IDE/constants";
+import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
+import { EditorEntityTab, EditorState } from "ee/entities/IDE/constants";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import "jest-styled-components";
@@ -28,13 +25,13 @@ const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
   }));
 };
 
-jest.mock("@appsmith/utils/airgapHelpers", () => ({
+jest.mock("ee/utils/airgapHelpers", () => ({
   isAirgapped: jest.fn(),
 }));
 
 const mockIsAirGapped = (val: boolean) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
-  const { isAirgapped } = require("@appsmith/utils/airgapHelpers");
+  const { isAirgapped } = require("ee/utils/airgapHelpers");
   isAirgapped.mockImplementation(() => val);
 };
 

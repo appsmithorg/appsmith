@@ -9,10 +9,7 @@ import {
 } from "design-system";
 import styles from "./styles.module.css";
 import type { DebuggerLog } from "../../types";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import { CUSTOM_WIDGET_DOC_URL } from "../../constants";
 
 export default function HelpDropdown(props: DebuggerLog) {

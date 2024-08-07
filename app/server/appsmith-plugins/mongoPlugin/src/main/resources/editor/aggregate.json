@@ -1,47 +1,57 @@
 {
-    "identifier": "AGGREGATE",
-    "controlType": "SECTION",
-    "children": [
+  "identifier": "AGGREGATE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Select collection to query",
+      "children": [
         {
-            "controlType": "SECTION",
-            "children": [{
-                "fetchOptionsConditionally": true,
-                "alternateViewTypes": ["json"],
-                "controlType": "DROP_DOWN",
-                "propertyName": "get_collections",
-                "evaluationSubstitutionType": "TEMPLATE",
-                "label": "Collection",
-                "conditionals": {"fetchDynamicValues": {
-                    "condition": "{{true}}",
-                    "config": {"params": {
-                        "displayType": "DROP_DOWN",
-                        "requestType": "_GET_STRUCTURE"
-                    }}
-                }},
-                "configProperty": "actionConfiguration.formData.collection.data"
-            }],
-            "label": "Select collection to query"
-        },
-        {
-            "controlType": "SECTION",
-            "children": [{
-                "controlType": "QUERY_DYNAMIC_TEXT",
-                "evaluationSubstitutionType": "TEMPLATE",
-                "inputType": "JSON",
-                "placeholderText": "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]",
-                "label": "Array of pipelines",
-                "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines.data"
-            }],
-            "description": "Optional",
-            "label": "Query"
-        },
-        {
-            "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-            "evaluationSubstitutionType": "TEMPLATE",
-            "label": "Limit",
-            "initialValue": "10",
-            "configProperty": "actionConfiguration.formData.aggregate.limit.data"
+          "label": "Collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
+          "controlType": "DROP_DOWN",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "propertyName": "get_collections",
+          "fetchOptionsConditionally": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "fetchDynamicValues": {
+              "condition": "{{true}}",
+              "config": {
+                "params": {
+                  "requestType": "_GET_STRUCTURE",
+                  "displayType": "DROP_DOWN"
+                }
+              }
+            }
+          }
         }
-    ],
-    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}"}
+      ]
+    },
+    {
+      "controlType": "SECTION",
+      "label": "Query",
+      "description": "Optional",
+      "children": [
+        {
+          "label": "Array of pipelines",
+          "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "inputType": "JSON",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]"
+        }
+      ]
+    },
+    {
+      "label": "Limit",
+      "configProperty": "actionConfiguration.formData.aggregate.limit.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "initialValue": "10"
+    }
+  ]
 }

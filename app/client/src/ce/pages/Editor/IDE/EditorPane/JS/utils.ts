@@ -1,9 +1,9 @@
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   jsCollectionAddURL,
   jsCollectionIdURL,
   jsCollectionListURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import { FocusEntity, type FocusEntityInfo } from "navigation/FocusEntity";
 
 export const getJSEntityItemUrl = (

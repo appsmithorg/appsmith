@@ -9,7 +9,7 @@ import {
   VIEWER_CUSTOM_PATH,
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 
 interface TMatchResult {
   basePageId?: string;

@@ -14,14 +14,14 @@ import WidgetFactory from "WidgetProvider/factory";
 import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,
-} from "@appsmith/constants/messages";
-import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
+} from "ee/constants/messages";
+import type { URLBuilderParams } from "ee/entities/URLRedirect/URLAssembly";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import type { ActionResponse } from "api/ActionAPI";
-import type { Module } from "@appsmith/constants/ModuleConstants";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import {
   ENTITY_ICON_SIZE,
   EntityIcon,
@@ -29,7 +29,7 @@ import {
   dbQueryIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { PluginType } from "entities/Action";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { Icon } from "design-system";
@@ -38,7 +38,7 @@ import {
   EditorEntityTabState,
   EditorState,
   EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+} from "ee/entities/IDE/constants";
 import { FocusEntity } from "navigation/FocusEntity";
 
 export const draggableElement = (

@@ -10,10 +10,7 @@ import styles from "./styles.module.css";
 import { Button, Icon, Text } from "design-system";
 import clsx from "clsx";
 import { CustomWidgetBuilderContext } from ".";
-import {
-  createMessage,
-  CUSTOM_WIDGET_FEATURE,
-} from "@appsmith/constants/messages";
+import { createMessage, CUSTOM_WIDGET_FEATURE } from "ee/constants/messages";
 
 const theme = getTheme(ThemeMode.LIGHT);
 

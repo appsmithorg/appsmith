@@ -8,7 +8,7 @@ import { getSearchQuery } from "../../utils/helpers";
 import { GIT_BRANCH_QUERY_KEY } from "../../constants/routes";
 import { APP_MODE } from "../../entities/App";
 import type { RouteComponentProps } from "react-router";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 type Props = {
   initEditor: (payload: InitEditorActionPayload) => void;

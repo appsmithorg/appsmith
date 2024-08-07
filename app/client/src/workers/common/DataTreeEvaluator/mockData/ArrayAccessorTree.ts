@@ -4,7 +4,7 @@ import type {
   WidgetEntityConfig,
   ActionEntityConfig,
   ActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   EvaluationSubstitutionType,
