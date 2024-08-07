@@ -46,6 +46,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FROM_DB;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITHOUT_BRANCH;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITH_BRANCH;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 
@@ -114,7 +118,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
         return repository
                 .findById(pageId, aclPermission)
-                .name("appsmith.consolidated-api.view.actions.fetch-appid")
+                .name(FETCH_PAGE_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -520,14 +524,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (!StringUtils.hasText(branchName)) {
             return this.findById(basePageId, permission)
-                    .name("appsmith.consolidated-api.view.actions.wo_branch")
+                    .name(GET_PAGE_WITHOUT_BRANCH)
                     .tap(Micrometer.observation(observationRegistry))
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId)));
         }
         return repository
                 .findPageByBranchNameAndBasePageId(branchName, basePageId, permission)
-                .name("appsmith.consolidated-api.view.actions.w_branch")
+                .name(GET_PAGE_WITH_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId + ", " + branchName)));
@@ -545,7 +549,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
 
         return this.findByBranchNameAndBasePageId(branchName, basePageId, permission)
-                .name("appsmith.consolidated-api.view.actions.get_appid")
+                .name(GET_PAGE)
                 .tap(Micrometer.observation(observationRegistry));
     }
 

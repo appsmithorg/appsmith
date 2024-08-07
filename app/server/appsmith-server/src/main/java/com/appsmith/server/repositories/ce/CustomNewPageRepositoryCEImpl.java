@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FROM_DB;
 import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -167,7 +168,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .criteria(q)
                 .permission(permission)
                 .one()
-                .name("appsmith.consolidated-api.view.actions.appid_db_call")
+                .name(FETCH_PAGE_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry));
     }
 

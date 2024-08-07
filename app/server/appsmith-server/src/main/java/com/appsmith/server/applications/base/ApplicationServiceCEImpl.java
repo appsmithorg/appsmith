@@ -65,6 +65,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_FETCH_FROM_DB;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
@@ -1047,7 +1048,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 : applicationPermission.getEditPermission();
 
         return findById(branchedApplicationId, permissionForApplication)
-                .name("appsmith.consolidated-api.view.fetch_app")
+                .name(APPLICATION_FETCH_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));

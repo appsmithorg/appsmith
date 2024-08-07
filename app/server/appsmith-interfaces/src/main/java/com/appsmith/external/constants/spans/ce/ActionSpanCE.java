@@ -1,6 +1,7 @@
 package com.appsmith.external.constants.spans.ce;
 
 import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_PREFIX;
 
 /**
  * Please make sure that all span names start with `appsmith.` because span with any other naming format would get
@@ -19,4 +20,13 @@ public class ActionSpanCE {
     public static final String GET_UNPUBLISHED_ACTION = APPSMITH_SPAN_PREFIX + "get.action.unpublished";
     public static final String GET_VIEW_MODE_ACTION = APPSMITH_SPAN_PREFIX + "get.action.viewmode";
     public static final String GET_ACTION_REPOSITORY_CALL = APPSMITH_SPAN_PREFIX + "get.action.repository.call";
+    public static final String VIEW_MODE_FILTER_ACTION = CONSOLIDATED_API_PREFIX + "actions.filter";
+    public static final String VIEW_MODE_SANITISE_ACTION = CONSOLIDATED_API_PREFIX + "actions.sanitise";
+    public static final String VIEW_MODE_INITIAL_ACTION = CONSOLIDATED_API_PREFIX + "actions.initial";
+    public static final String VIEW_MODE_FINAL_ACTION = CONSOLIDATED_API_PREFIX + "actions.final";
+    public static final String VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS = CONSOLIDATED_API_PREFIX + "actions.set_js";
+    public static final String VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION = CONSOLIDATED_API_PREFIX + "actions.set_action";
+    public static final String VIEW_MODE_FETCH_PLUGIN_FROM_DB = CONSOLIDATED_API_PREFIX + "actions.plugindb";
+    public static final String VIEW_MODE_FETCH_ACTIONS_FROM_DB = CONSOLIDATED_API_PREFIX + "actions.fetchactions";
+    public static final String VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY = CONSOLIDATED_API_PREFIX + "actions.actionsdb";
 }

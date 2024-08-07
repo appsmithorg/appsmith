@@ -79,6 +79,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_PLUGIN_FROM_DB;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FILTER_ACTION;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FINAL_ACTION;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_INITIAL_ACTION;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SANITISE_ACTION;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
@@ -97,7 +105,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
-
     protected final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
@@ -731,7 +738,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
                 .findByApplicationId(applicationId, permission, sort)
-                .name("appsmith.consolidated-api.actions.actions_db")
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry))
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {
@@ -747,10 +754,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return Mono.just(action);
                 })
-                .name("appsmith.consolidated-api.actions.filter")
+                .name(VIEW_MODE_FILTER_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(this::sanitizeAction)
-                .name("appsmith.consolidated-api.actions.sanitise")
+                .name(VIEW_MODE_SANITISE_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -788,11 +795,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // fetch the published actions by applicationId
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
-                .name("appsmith.consolidated-api.actions.initial")
+                .name(VIEW_MODE_INITIAL_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true))
-                .name("appsmith.consolidated-api.actions.final")
+                .name(VIEW_MODE_FINAL_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -1170,14 +1177,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
             return setPluginIdAndTypeForJSAction(action)
-                    .name("appsmith.consolidated-api.actions.set_js")
+                    .name(VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS)
                     .tap(Micrometer.observation(observationRegistry));
         } else if (datasource != null && datasource.getPluginId() != null) {
             String pluginId = datasource.getPluginId();
             action.setPluginId(pluginId);
 
             return setPluginTypeFromId(action, pluginId)
-                    .name("appsmith.consolidated-api.actions.set_plu_type")
+                    .name(VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION)
                     .tap(Micrometer.observation(observationRegistry));
         }
 
@@ -1187,7 +1194,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private Mono<NewAction> setPluginTypeFromId(NewAction action, String pluginId) {
         return pluginService
                 .findById(pluginId)
-                .name("appsmith.consolidated-api.actions.plugindb")
+                .name(VIEW_MODE_FETCH_PLUGIN_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(plugin -> {
                     action.setPluginType(plugin.getType());
@@ -1200,7 +1207,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return pluginService
                 .findByPackageName(JS_PLUGIN_PACKAGE_NAME)
-                .name("appsmith.consolidated-api.actions.plugindb")
+                .name(VIEW_MODE_FETCH_PLUGIN_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(plugin -> {
                     action.setPluginId(plugin.getId());

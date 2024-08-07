@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -52,7 +53,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
                 .all()
-                .name("appsmith.consolidated-api.actions.db")
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY)
                 .tap(Micrometer.observation(observationRegistry));
     }
 

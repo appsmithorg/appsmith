@@ -277,7 +277,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         if (isViewMode) {
             /* Get list of all actions in view mode */
             fetches.add(branchedApplicationMonoCached
-                    .name(getQualifiedSpanName("actions." + APPLICATION_ID, mode))
+                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry))
                     .flatMap(branchedApplication -> newActionService
                             .getActionsForViewMode(branchedApplication.getId())
