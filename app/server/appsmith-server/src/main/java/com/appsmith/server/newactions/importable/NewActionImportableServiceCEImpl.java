@@ -166,7 +166,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         return newActionService
                 .updateActionsWithImportedCollectionIds(importActionCollectionResultDTO, importActionResultDTO)
                 .flatMap(actionAndCollectionMapsDTO -> {
-                    log.error("Updated actions with imported collection ids. artifactId {}", importableArtifact.getId());
+                    log.error(
+                            "Updated actions with imported collection ids. artifactId {}", importableArtifact.getId());
                     // Updating the existing importableArtifact for git-sync
                     // During partial import/appending to the existing importableArtifact keep the resources
                     // attached to the importableArtifact:
