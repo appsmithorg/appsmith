@@ -851,7 +851,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number", "currency"];
+    const validatableColumns = ["text", "number", "currency", "date"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)
@@ -902,6 +902,15 @@ export default {
         /* Column type related validations */
         switch (editedColumn.columnType) {
           case "number":
+          case "date":
+            if (
+              validation.isColumnEditableCell &&
+              (value === "" || _.isNil(value))
+            ) {
+              validationMap[editedColumn.alias] = false;
+              return;
+            }
+            break;
           case "currency":
             if (
               !_.isNil(validation.min) &&
