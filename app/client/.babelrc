@@ -13,8 +13,7 @@
         "actions":"./src/actions/",
         "api": "./src/api/",
         "assets": "./src/assets/",
-        "sagas": "./src/sagas/",
-        "@appsmith": "./src/ee"
+        "sagas": "./src/sagas/"
       }
     }, "babel-plugin-styled-components"]
   ]

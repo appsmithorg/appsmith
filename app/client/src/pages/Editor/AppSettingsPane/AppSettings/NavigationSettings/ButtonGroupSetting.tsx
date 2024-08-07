@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { TextType, Text } from "design-system-old";
+import { TextType, Text } from "@appsmith/ads-old";
 import type { SegmentedControlOption } from "design-system";
 import { SegmentedControl } from "design-system";
 import type {

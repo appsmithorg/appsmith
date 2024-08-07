@@ -26,7 +26,7 @@ import {
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
 import EditorName from "./EditorName";
-import { EditInteractionKind, SavingState } from "design-system-old";
+import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
 import {
   Button,
   Tooltip,

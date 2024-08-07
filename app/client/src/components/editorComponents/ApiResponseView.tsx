@@ -22,7 +22,7 @@ import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Classes, Text, TextType } from "design-system-old";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
 import { Button, Callout, Flex, SegmentedControl } from "design-system";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";

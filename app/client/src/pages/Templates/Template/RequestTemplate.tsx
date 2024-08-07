@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import { Button } from "design-system";
 import RequestTemplateSvg from "assets/images/request-template.svg";
 import {

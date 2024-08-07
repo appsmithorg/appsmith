@@ -4,7 +4,7 @@ import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";

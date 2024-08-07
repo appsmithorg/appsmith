@@ -17,14 +17,14 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import type { AppIconName } from "design-system-old";
+import type { AppIconName } from "@appsmith/ads-old";
 import {
   ColorSelector,
   EditableText,
   EditInteractionKind,
   IconSelector,
   SavingState,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import type { MenuItemProps } from "design-system";
 import {
   Button,

@@ -12,7 +12,7 @@ import {
   getEntityNameAndPropertyPath,
   isEntityAction,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { Icon } from "design-system";
 import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";

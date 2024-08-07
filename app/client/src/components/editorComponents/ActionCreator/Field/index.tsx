@@ -4,7 +4,7 @@ import {
   ViewTypes,
   DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { getFunctionName } from "@shared/ast";
 import type {
   FieldProps,

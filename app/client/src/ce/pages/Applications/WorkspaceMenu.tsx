@@ -6,7 +6,7 @@ import {
   EditableText,
   SavingState,
   notEmptyValidator,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import {
   DropdownOnSelectActions,

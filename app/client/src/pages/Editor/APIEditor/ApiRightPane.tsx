@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Classes, FontWeight, Text, TextType } from "design-system-old";
+import { Classes, FontWeight, Text, TextType } from "@appsmith/ads-old";
 import history from "utils/history";
 import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";

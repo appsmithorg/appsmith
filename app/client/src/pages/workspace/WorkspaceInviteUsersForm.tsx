@@ -8,7 +8,7 @@ import { Avatar, Icon, Spinner, Text, Tooltip } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import type { WorkspaceUserRoles } from "ee/constants/workspaceConstants";
 import InviteUsersForm from "ee/pages/workspace/InviteUsersForm";
 import { ENTITY_TYPE } from "ee/constants/workspaceConstants";

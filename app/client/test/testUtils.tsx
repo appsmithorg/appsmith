@@ -7,17 +7,17 @@ import { ThemeProvider } from "styled-components";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import * as customQueries from "./customQueries";
 import { BrowserRouter } from "react-router-dom";
-import type { AppState } from "@appsmith/reducers";
-import appReducer from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
+import appReducer from "ee/reducers";
 import { applyMiddleware, compose, createStore } from "redux";
 import { reduxBatch } from "@manaflair/redux-batch";
 import createSagaMiddleware from "redux-saga";
 import store, { testStore } from "store";
 import { sagasToRunForTests } from "./sagas";
 import { all, call, spawn } from "redux-saga/effects";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { fetchFeatureFlagsSuccess } from "../src/actions/userActions";
-import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 
 const testSagaMiddleware = createSagaMiddleware();
 

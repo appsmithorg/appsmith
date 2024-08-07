@@ -56,7 +56,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
 import styled from "styled-components";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";

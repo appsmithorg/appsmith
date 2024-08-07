@@ -1,5 +1,5 @@
 export * from "ce/sagas/tenantSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   fetchCurrentTenantConfigSaga,
   updateTenantConfigSaga,

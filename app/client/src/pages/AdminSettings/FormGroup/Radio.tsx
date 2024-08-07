@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
-import { FieldError } from "design-system-old";
+import { FieldError } from "@appsmith/ads-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import { FormGroup, type SettingComponentProps } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";

@@ -1,5 +1,5 @@
 import React from "react";
-import { FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup as StyledFormGroup } from "@appsmith/ads-old";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";
