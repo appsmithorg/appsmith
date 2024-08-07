@@ -44,6 +44,8 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       # In case of a no label present, mark the Cypress status to be stale
       - name: Mark the Cypress response to be stale
         uses: actions/github-script@v7
