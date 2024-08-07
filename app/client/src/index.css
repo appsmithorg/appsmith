@@ -5,7 +5,6 @@
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
 @import "assets/fonts/custom/index.css";
-@import "assets/fonts/google/index.css";
 
 :root {
   /* TODO: This needs to be fixed! This override is to maintain branding changes. */
