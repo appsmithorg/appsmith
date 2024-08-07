@@ -363,12 +363,7 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      cy.get(".t--property-control-filterable input").then(($checkbox) => {
-        // Check if the checkbox is checked
-        if (!$checkbox.is(":checked")) {
-          cy.wrap($checkbox).click();
-        }
-      });
+      _.agHelper.CheckUncheck(".t--property-control-filterable input", true);
       cy.get(".t--property-control-serversidefiltering input").click();
       cy.updateCodeInput(
         ".t--property-pane-section-selectproperties",
