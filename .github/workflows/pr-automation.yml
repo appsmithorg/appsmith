@@ -35,7 +35,6 @@ jobs:
   parse-tags:
     needs: [ check-label ]
     runs-on: ubuntu-latest
-    if: ${{ steps.check-label.outputs.ok_to_test == 'true' }}
     permissions:
       pull-requests: write
     defaults:
