@@ -115,6 +115,16 @@ To setup the configurations for running integration tests via Cypress, use these
   yarn run setup
 ```
 
+##### Setup Cypress configurations with Local server setup
+
+To setup the configurations for running integration tests via Cypress and also use local server as backend, use these commands below,
+
+```bash
+  cd app/client/cypress/scripts
+  yarn install
+  yarn run setupWithServer
+```
+
 ##### Running Cypress tests locally
 
 To run a specific test file in headless fashion, use the following command:
