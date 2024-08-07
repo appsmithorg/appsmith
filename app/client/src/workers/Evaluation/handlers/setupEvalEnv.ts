@@ -1,7 +1,7 @@
 import { unsafeFunctionForEval } from "utils/DynamicBindingUtils";
 import setupDOM from "../SetupDOM";
 import type { EvalWorkerSyncRequest } from "../types";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";
 import { WorkerEnv } from "./workerEnv";
 

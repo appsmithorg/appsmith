@@ -18,7 +18,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { LayoutSystemTypes } from "layoutSystems/types";
 

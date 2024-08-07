@@ -10,7 +10,7 @@ import {
   USER_DISPLAY_PICTURE_PLACEHOLDER,
   USER_EMAIL_PLACEHOLDER,
   USER_RESET_PASSWORD,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
@@ -18,7 +18,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
 import { createMessage } from "design-system-old";
 import { notEmptyValidator } from "design-system-old";
-import { getIsFormLoginEnabled } from "@appsmith/selectors/tenantSelectors";
+import { getIsFormLoginEnabled } from "ee/selectors/tenantSelectors";
 
 const nameValidator = (
   value: string,

@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
 import { useCallback } from "react";
@@ -11,10 +11,10 @@ import PerformanceTracker, {
 import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
 import { Spinner } from "design-system";
-import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
-import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
+import { isValidLicense } from "ee/selectors/tenantSelectors";
+import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();

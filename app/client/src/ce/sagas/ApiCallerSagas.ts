@@ -1,4 +1,4 @@
-import JSActionAPI from "@appsmith/api/JSActionAPI";
+import JSActionAPI from "ee/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";

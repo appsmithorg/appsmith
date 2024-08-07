@@ -2,7 +2,7 @@ import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { GitConfig } from "entities/GitSync";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
+import ApplicationApi from "ee/api/ApplicationApi";
 
 export interface CommitPayload {
   applicationId: string;

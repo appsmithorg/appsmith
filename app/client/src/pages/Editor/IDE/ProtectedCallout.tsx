@@ -17,7 +17,7 @@ import {
   BRANCH_PROTECTION_CALLOUT_UNPROTECT,
   BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const StyledCallout = styled(Callout)`
   height: 70px;

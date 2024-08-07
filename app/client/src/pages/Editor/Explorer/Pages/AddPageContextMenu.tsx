@@ -3,10 +3,10 @@ import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import EntityAddButton from "../Entity/AddButton";
 import styled from "styled-components";
 import history from "utils/history";
-import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
+import { generateTemplateFormURL } from "ee/RouteBuilder";
 import { useParams } from "react-router";
 import { useDispatch } from "react-redux";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import { showTemplatesModal } from "actions/templateActions";
 import {
   ADD_PAGE_FROM_TEMPLATE,
@@ -15,8 +15,8 @@ import {
   createMessage,
   CREATE_PAGE,
   GENERATE_PAGE_ACTION_TITLE,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { ButtonSizes } from "design-system";
 import {
   Menu,
@@ -26,7 +26,7 @@ import {
   Tooltip,
   Text,
 } from "design-system";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import {
   LayoutSystemFeatures,

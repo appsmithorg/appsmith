@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Flex } from "design-system";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {

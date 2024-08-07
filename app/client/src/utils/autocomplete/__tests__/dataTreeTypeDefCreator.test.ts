@@ -2,7 +2,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,

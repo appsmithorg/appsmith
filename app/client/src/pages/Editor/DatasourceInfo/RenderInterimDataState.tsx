@@ -9,9 +9,9 @@ import {
   FAILED_RECORDS_MESSAGE_TEXT,
   FAILED_RECORDS_TITLE_TEXT,
   NO_COLUMNS_MESSAGE_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 type InterimState = "LOADING" | "NODATA" | "FAILED" | "NOCOLUMNS";

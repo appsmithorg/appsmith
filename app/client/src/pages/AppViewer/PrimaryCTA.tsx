@@ -2,10 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import {
-  PERMISSION_TYPE,
-  isPermitted,
-} from "@appsmith/utils/permissionHelpers";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
 import {
   getCurrentBasePageId,
   previewModeSelector,
@@ -16,11 +13,11 @@ import {
   EDIT_APP,
   FORK_APP,
   SIGN_IN,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import { viewerURL } from "@appsmith/RouteBuilder";
+import { viewerURL } from "ee/RouteBuilder";
 import { useHistory, useLocation } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -29,7 +26,7 @@ import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 import { setPreviewModeInitAction } from "actions/editorActions";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 /**
  * ---------------------------------------------------------------------------------------------------

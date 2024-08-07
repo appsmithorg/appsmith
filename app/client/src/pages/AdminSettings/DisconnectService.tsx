@@ -6,7 +6,7 @@ import {
   DANGER_ZONE,
   DISCONNECT_AUTH_METHOD,
   DISCONNECT_CONFIRMATION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 export const Container = styled.div`
   width: 100%;

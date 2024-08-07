@@ -5,29 +5,29 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { getQueryUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
+import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 import {
   ADD_PATH,
   API_EDITOR_ID_PATH,
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
-import type { UseRoutes } from "@appsmith/entities/IDE/constants";
+import type { UseRoutes } from "ee/entities/IDE/constants";
 import QueryEditor from "pages/Editor/QueryEditor";
 import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";

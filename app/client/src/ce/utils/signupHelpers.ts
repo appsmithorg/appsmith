@@ -17,8 +17,8 @@ import history from "utils/history";
 import type {
   SocialLoginButtonProps,
   SocialLoginType,
-} from "@appsmith/constants/SocialLogin";
-import { SocialLoginButtonPropsList } from "@appsmith/constants/SocialLogin";
+} from "ee/constants/SocialLogin";
+import { SocialLoginButtonPropsList } from "ee/constants/SocialLogin";
 
 export const redirectUserAfterSignup = (
   redirectUrl: string,

@@ -1,9 +1,9 @@
 import {
   ReduxActionTypes,
   type ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/constants/ReduxActionConstants";
+import { getAction } from "ee/selectors/entitiesSelector";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";
 import type { Action } from "entities/Action";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";

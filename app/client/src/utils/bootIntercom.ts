@@ -1,7 +1,7 @@
 import type { User } from "constants/userConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { sha256 } from "js-sha256";
-import { getLicenseKey } from "@appsmith/utils/licenseHelpers";
+import { getLicenseKey } from "ee/utils/licenseHelpers";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 

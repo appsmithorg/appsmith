@@ -7,23 +7,23 @@ import CollapseComponent from "components/utils/CollapseComponent";
 import {
   getPluginImages,
   getCurrentActions,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import history from "utils/history";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
 import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
-import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   saasEditorDatasourceIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -31,31 +31,31 @@ import {
   CONFIRM_CONTEXT_DELETING,
   GENERATE_NEW_PAGE_BUTTON_TEXT,
   RECONNECT_BUTTON_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import {
   getCurrentBasePageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   isEnvironmentConfigured,
   doesAnyDsConfigExist,
   DB_NOT_SUPPORTED,
-} from "@appsmith/utils/Environments";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+} from "ee/utils/Environments";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasCreatePagePermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
   hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "@appsmith/hooks";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useEditorType } from "ee/hooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 const Wrapper = styled.div`

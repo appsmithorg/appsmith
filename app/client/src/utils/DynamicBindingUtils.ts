@@ -9,8 +9,8 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";

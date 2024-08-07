@@ -15,7 +15,7 @@ import {
   JSON_FORM_CONNECT_BUTTON_TEXT,
   SUCCESSFULL_BINDING_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 

@@ -5,11 +5,11 @@ import {
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { WidgetEditorContainer } from "./WidgetEditorContainer";
 import { WidgetEditorHeader } from "./WidgetEditorHeader";
 import { WidgetEditorContent } from "./WidgetEditorContent";

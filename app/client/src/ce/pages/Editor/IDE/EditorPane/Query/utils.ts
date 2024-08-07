@@ -1,4 +1,4 @@
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
@@ -7,7 +7,7 @@ import {
   queryEditorIdURL,
   queryListURL,
   saasEditorApiIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 
 export const getQueryEntityItemUrl = (
   item: EntityItem,

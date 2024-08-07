@@ -22,7 +22,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";

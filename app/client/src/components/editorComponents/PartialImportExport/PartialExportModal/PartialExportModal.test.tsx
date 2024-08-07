@@ -7,11 +7,8 @@ import { ThemeProvider } from "styled-components";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { defaultAppState } from "./unitTestUtils";
-import {
-  PARTIAL_IMPORT_EXPORT,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 interface TestEntityResetProps {
   entityTitle: string;

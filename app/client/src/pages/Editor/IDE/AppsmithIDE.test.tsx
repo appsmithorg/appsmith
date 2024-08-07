@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { all } from "@redux-saga/core/effects";
 import lodash from "lodash";
 import React from "react";
@@ -146,8 +146,8 @@ describe("Drag and Drop widgets into Main container", () => {
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
-    jest.mock("@appsmith/sagas/PageSagas", () => ({
-      ...jest.requireActual("@appsmith/sagas/PageSagas"),
+    jest.mock("ee/sagas/PageSagas", () => ({
+      ...jest.requireActual("ee/sagas/PageSagas"),
       default: mockGenerator,
     }));
   });
@@ -863,8 +863,8 @@ describe("Drag in a nested container", () => {
       ...jest.requireActual("sagas/EvaluationsSaga"),
       default: mockGenerator,
     }));
-    jest.mock("@appsmith/sagas/PageSagas", () => ({
-      ...jest.requireActual("@appsmith/sagas/PageSagas"),
+    jest.mock("ee/sagas/PageSagas", () => ({
+      ...jest.requireActual("ee/sagas/PageSagas"),
       default: mockGenerator,
     }));
   });

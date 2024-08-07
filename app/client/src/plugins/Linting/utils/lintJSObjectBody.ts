@@ -1,4 +1,4 @@
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";

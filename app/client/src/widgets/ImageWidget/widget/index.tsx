@@ -16,7 +16,7 @@ import type {
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
