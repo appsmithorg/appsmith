@@ -25,6 +25,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -159,6 +160,7 @@ public class ThemeImportableServiceCETest {
 
     @WithUserDetails("api_user")
     @Test
+    @Order(1)
     public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
         Application application = createApplication();
 
@@ -201,6 +203,7 @@ public class ThemeImportableServiceCETest {
 
     @WithUserDetails("api_user")
     @Test
+    @Order(2)
     public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
         Theme defaultTheme = themeRepository
                 .getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES)
