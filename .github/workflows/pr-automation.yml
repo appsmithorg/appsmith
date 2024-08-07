@@ -32,6 +32,7 @@ jobs:
             } else {
               console.log("Label 'ok-to-test' is not present");
               core.setOutput("ok_to_test", "false");
+            }
   parse-tags:
     needs: [ check-label ]
     runs-on: ubuntu-latest
