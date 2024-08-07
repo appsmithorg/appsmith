@@ -13,8 +13,6 @@ jobs:
     outputs:
       ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Check PR Label
         id: checkLabel
