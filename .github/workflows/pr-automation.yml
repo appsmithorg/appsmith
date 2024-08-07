@@ -36,7 +36,7 @@ jobs:
 
   mark-stale:
     needs: [ checkTestLabel ]
-    if: needs.checkTestLabel.outputs.ok_to_test == 'true'
+    if: needs.checkTestLabel.outputs.ok_to_test == 'false'
     runs-on: ubuntu-latest
     steps:
       # In case of a no label present, mark the Cypress status to be stale
