@@ -127,6 +127,7 @@ describe(
 
     it("5. Reset RichTextEditor", function () {
       // Enable the widget
+
       cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
 
       cy.setTinyMceContent("rte-component-vw4zehojqt", "<h1>content</h1>");
