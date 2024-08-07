@@ -1,14 +1,18 @@
 {
-    "identifier": "DELETE_DOCUMENT",
-    "controlType": "SECTION",
-    "children": [{
-        "isRequired": true,
-        "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-        "evaluationSubstitutionType": "TEMPLATE",
-        "placeholderText": "collection/{{Table1.selectedRow._ref}}",
-        "label": "Collection/Document path",
-        "initialValue": "",
-        "configProperty": "actionConfiguration.formData.path.data"
-    }],
-    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'DELETE_DOCUMENT'}}"}
+  "identifier": "DELETE_DOCUMENT",
+  "controlType" : "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'DELETE_DOCUMENT'}}"
+  },
+  "children" : [
+    {
+      "label": "Collection/Document path",
+      "configProperty": "actionConfiguration.formData.path.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "evaluationSubstitutionType": "TEMPLATE",
+      "isRequired": true,
+      "placeholderText": "collection/{{Table1.selectedRow._ref}}",
+      "initialValue": ""
+    }
+  ]
 }
