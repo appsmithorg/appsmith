@@ -191,6 +191,15 @@ public class PostgresPluginTest {
                         + "    texts VARCHAR[2] ,\n"
                         + "    rating FLOAT4 \n"
                         + ")");
+
+                statement.execute("CREATE TABLE \"test-table-with-hyphen\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    postal_code INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    created_at DATE,\n"
+                        + "    rating FLOAT4\n"
+                        + ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -234,6 +243,12 @@ public class PostgresPluginTest {
                 statement.execute("INSERT INTO dataTypeTest VALUES ("
                         + "1, '{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}',"
                         + "'{\"country\":\"japan\", \"city\":\"kyoto\"}', 'A Lincoln'"
+                        + ")");
+            }
+
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO \"test-table-with-hyphen\" VALUES ("
+                        + " 1, 'Test User', 822525, 'test@gmail.com', '2024-07-31', 4.3"
                         + ")");
             }
 
@@ -692,6 +707,75 @@ public class PostgresPluginTest {
                                         false),
                             },
                             sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void test_structure_containing_hyphen_in_table_name() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    assertEquals(6, structure.getTables().size());
+
+                    DatasourceStructure.Table sampleTableWithHyphen =
+                            findTableByName(structure.getTables(), "public.test-table-with-hyphen");
+
+                    assertNotNull(sampleTableWithHyphen);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTableWithHyphen.getType());
+                    assertNotNull(sampleTableWithHyphen);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTableWithHyphen.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"test-table-with-hyphen_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("postal_code", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("created_at", "date", null, false),
+                                new DatasourceStructure.Column("rating", "float4", null, false),
+                            },
+                            sampleTableWithHyphen.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("test-table-with-hyphen_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTableWithHyphen.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"test-table-with-hyphen\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"test-table-with-hyphen\" "
+                                                + "(\"name\", \"postal_code\", \"email\", \"created_at\", \"rating\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"test-table-with-hyphen\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"postal_code\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"created_at\" = '2019-07-01',\n"
+                                                + "    \"rating\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"test-table-with-hyphen\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTableWithHyphen.getTemplates().toArray());
                 })
                 .verifyComplete();
     }
