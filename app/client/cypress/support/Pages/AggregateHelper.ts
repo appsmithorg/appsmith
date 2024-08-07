@@ -1011,7 +1011,6 @@ export class AggregateHelper {
         .uncheck({ force: true })
         .should("not.be.checked");
     }
-    this.Sleep();
   }
 
   public AssertExistingToggleState(
