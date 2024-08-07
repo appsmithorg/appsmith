@@ -62,7 +62,9 @@ jobs:
             Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
         with:
           script: |
-            require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
+            if(${{ steps.checkLabel.outputs.ok_to_test == 'false' }}) {
+              require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
+            }
 
       # Reads the PR description to retrieve the /ok-to-test or, if that's absent, the /test command
       - name: Read tags from PR description
