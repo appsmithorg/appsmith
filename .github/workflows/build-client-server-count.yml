@@ -131,7 +131,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      run_count: ${{ github.event.inputs.run_count }}
+      run_count: ${{ github.event.client_payload.slash_command.args.named.run_count }}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
