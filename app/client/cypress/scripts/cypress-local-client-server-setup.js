@@ -1,5 +1,5 @@
 const { execSync, exec } = require("child_process");
-const { existsSync, readFileSync, writeFileSync } = require("fs");
+const { existsSync, readFileSync, writeFileSync, unlinkSync } = require("fs");
 const path = require("path");
 const prompt = require("prompt-sync")();
 
@@ -11,6 +11,8 @@ function isContainerRunning(containerName) {
     return false;
   }
 }
+
+
 
 // Helper function to execute commands and return a Promise
 function execCommand(command, options) {
@@ -110,13 +112,39 @@ function ensureTEDIsRunning() {
 }
 
 async function checkIfAppsmithIsRunning(baseUrl) {
+  let isDevAppsmithAccessible;
+
   try {
     const response = await fetch(baseUrl);
-    if (!response.ok) throw new Error('Response not OK');
+    isDevAppsmithAccessible = response.ok;
   } catch (error) {
-    let user_input = prompt(`https://dev.appsmith.com is not accessible. Do you wish to continue without setting it up? (yes/no): `).trim().toLowerCase();
-    if (user_input !== "yes" && user_input !== "y") process.exit(1);
-    console.log("INFO", "Continuing without setting up dev.appsmith.com");
+    console.error(
+      "ERROR",
+      `Error checking availability of ${baseUrl}: ${error.message}`
+    );
+    isDevAppsmithAccessible = false;
+  }
+
+  if (!isDevAppsmithAccessible) {
+    let user_input = prompt(
+      `${baseUrl} is not accessible. Do you wish to continue without setting it up? (y/n): `
+    );
+    user_input = user_input.trim().toLowerCase();
+    switch (user_input) {
+      case "yes":
+      case "y":
+        console.log("INFO", "Continuing without setting up dev.appsmith.com");
+        break;
+      case "no":
+      case "n":
+        console.log("INFO", "Exiting setup.");
+        process.exit(1);
+      default:
+        console.log("ERROR", "Invalid input. Please enter yes or no.");
+        process.exit(1);
+    }
+  } else {
+    console.log("INFO", `${baseUrl} is accessible.`);
   }
 }
 
@@ -137,16 +165,18 @@ function getBaseUrl(repoRoot) {
 }
 
 function ensureCypressEnvFileExists(repoRoot) {
+  // Check if cypress.env.json file exists. If not, create it.
   const filePath = `${repoRoot}/cypress.env.json`;
   if (!existsSync(filePath)) {
-    writeFileSync(filePath, JSON.stringify({
+    const testEnvData = {
       USERNAME: "testUser@test.com",
       PASSWORD: "testPass",
       TESTUSERNAME1: "viewerappsmith@test.com",
       TESTPASSWORD1: "viewerPass",
       TESTUSERNAME2: "developerappsmith@test.com",
-      TESTPASSWORD2: "developerPass"
-    }, null, 2));
+      TESTPASSWORD2: "developerPass",
+    };
+    writeFileSync(filePath, JSON.stringify(testEnvData, null, 2));
     console.log("INFO", `${repoRoot}/cypress.env.json file created`);
   } else {
     console.log("INFO", `${repoRoot}/cypress.env.json file already exists`);
