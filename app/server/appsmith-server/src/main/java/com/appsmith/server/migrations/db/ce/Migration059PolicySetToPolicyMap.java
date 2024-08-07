@@ -30,8 +30,8 @@ import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
  */
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "057", id = "policy-set-to-policy-map")
-public class Migration057PolicySetToPolicyMap {
+@ChangeUnit(order = "059", id = "policy-set-to-policy-map")
+public class Migration059PolicySetToPolicyMap {
 
     private final ReactiveMongoTemplate mongoTemplate;
 
