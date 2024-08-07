@@ -15,8 +15,6 @@ describe(
   { tags: ["@tag.Widget", "@tag.TextEditor"] },
   function () {
     before(() => {
-      // agHelper.AddDsl("richTextEditorDsl");
-      // EditorNavigation.SelectEntityByName("RichTextEditor1", EntityType.Widget);
       entityExplorer.DragDropWidgetNVerify("richtexteditorwidget", 500, 200);
       cy.waitUntil(() =>
         cy.get(locators._richText_TitleBlock).should("be.visible"),
