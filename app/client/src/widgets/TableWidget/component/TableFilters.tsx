@@ -14,7 +14,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import TableAction from "./TableAction";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const FilterIcon = importSvg(
   async () => import("assets/icons/control/filter-icon.svg"),

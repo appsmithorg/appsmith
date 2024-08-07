@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import type { TextInputProps } from "design-system-old";
+import type { TextInputProps } from "@appsmith/ads-old";
 import type { ContainerOrientation } from "constants/WidgetConstants";
 import { Input, Icon } from "design-system";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";

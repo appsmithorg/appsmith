@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";

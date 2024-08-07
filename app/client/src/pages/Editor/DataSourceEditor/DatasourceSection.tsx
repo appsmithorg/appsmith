@@ -20,7 +20,7 @@ import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { isMultipleEnvEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { Text } from "design-system";
-import { Table } from "design-system-old";
+import { Table } from "@appsmith/ads-old";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);

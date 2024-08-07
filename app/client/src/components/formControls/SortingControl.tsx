@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import FormControl from "pages/Editor/FormControl";
-import { Classes } from "design-system-old";
+import { Classes } from "@appsmith/ads-old";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import type { ControlProps } from "./BaseControl";

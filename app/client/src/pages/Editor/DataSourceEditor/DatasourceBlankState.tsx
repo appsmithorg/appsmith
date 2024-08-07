@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { Text } from "design-system";
 import {
   createMessage,

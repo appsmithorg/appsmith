@@ -2,7 +2,7 @@ import { setPageOrder } from "actions/pageActions";
 import styled from "styled-components";
 import type { Page } from "ee/constants/ReduxActionConstants";
 // import classNames from "classnames";
-import { DraggableList } from "design-system-old";
+import { DraggableList } from "@appsmith/ads-old";
 import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";

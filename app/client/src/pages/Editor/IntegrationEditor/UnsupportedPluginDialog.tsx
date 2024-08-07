@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import {
   Button,
   Modal,

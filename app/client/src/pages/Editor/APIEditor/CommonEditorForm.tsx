@@ -23,7 +23,7 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes } from "design-system-old";
+import { Classes } from "@appsmith/ads-old";
 import {
   Button,
   Callout,

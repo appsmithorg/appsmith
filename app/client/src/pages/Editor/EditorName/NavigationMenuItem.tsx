@@ -10,7 +10,7 @@ import {
 } from "design-system";
 import type { noop } from "lodash";
 
-import type { CommonComponentProps } from "design-system-old";
+import type { CommonComponentProps } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { MenuTypes } from "./types";
 

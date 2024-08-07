@@ -19,7 +19,7 @@ import type { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import { Classes as CsClasses } from "design-system-old";
+import { Classes as CsClasses } from "@appsmith/ads-old";
 import {
   Button,
   Menu,

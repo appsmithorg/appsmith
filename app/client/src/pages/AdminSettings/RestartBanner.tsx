@@ -1,5 +1,5 @@
 import React from "react";
-import { hexToRgba } from "design-system-old";
+import { hexToRgba } from "@appsmith/ads-old";
 import { Button, Icon, Spinner, Text } from "design-system";
 import {
   getIsRestartFailed,

@@ -1,6 +1,6 @@
 import { Popover2 } from "@blueprintjs/popover2";
 import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { Text, Button } from "design-system";
 import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";

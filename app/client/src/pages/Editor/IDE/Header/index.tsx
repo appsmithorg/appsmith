@@ -15,7 +15,7 @@ import {
   Link,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
-import { EditInteractionKind, SavingState } from "design-system-old";
+import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
 import styled from "styled-components";
 
 import {

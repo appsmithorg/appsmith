@@ -4,7 +4,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { Input, Text } from "design-system";
-import { emailValidator } from "design-system-old";
+import { emailValidator } from "@appsmith/ads-old";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 

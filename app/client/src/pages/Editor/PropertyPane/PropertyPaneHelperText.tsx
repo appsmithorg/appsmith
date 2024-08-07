@@ -1,4 +1,4 @@
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import React from "react";
 import styled from "styled-components";
 

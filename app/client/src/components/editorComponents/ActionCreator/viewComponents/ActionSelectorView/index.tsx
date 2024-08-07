@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
-import type { TreeDropdownOption } from "design-system-old";
-import { TreeDropdown } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+import { TreeDropdown } from "@appsmith/ads-old";
 import { Input } from "design-system";
 import { debounce } from "lodash";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
