@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
 import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -124,7 +125,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
      */
     private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(String datasourceId) {
         Query newActionsQuery = new Query().addCriteria(newActionCriteria(datasourceId));
-        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, POLICIES, "policyMap");
+        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, POLICIES, POLICY_MAP);
 
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);

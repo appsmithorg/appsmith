@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
@@ -36,7 +37,6 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
     private static final String migrationId = "populate-default-domain-id-in-user-management-roles";
     private static final String migrationNote = "This will not have any adverse effects on the Data. Restarting the "
             + "server will begin the migration from where it left.";
-    private static final String POLICY_MAP = "policyMap";
 
     @RollbackExecution
     public void rollbackExecution() {}

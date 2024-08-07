@@ -19,8 +19,9 @@ import java.util.HashMap;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
-import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 
 /**
  * Migration to convert the policies field to a policyMap field in all the collections. The key defines the permission
@@ -33,8 +34,6 @@ import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 public class Migration057PolicySetToPolicyMap {
 
     private final ReactiveMongoTemplate mongoTemplate;
-
-    private static final String POLICY_MAP = "policyMap";
 
     private static final Set<String> CE_COLLECTION_NAMES = Set.of(
             "actionCollection",

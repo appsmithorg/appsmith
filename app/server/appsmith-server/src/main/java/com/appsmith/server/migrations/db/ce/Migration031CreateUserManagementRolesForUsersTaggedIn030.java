@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -51,7 +52,7 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
 
         Query queryUsersTaggedInMigration030 = new Query(criteriaUsersTaggedInMigration030);
         queryUsersTaggedInMigration030.fields().include(User.Fields.id);
-        queryUsersTaggedInMigration030.fields().include(POLICIES, "policyMap");
+        queryUsersTaggedInMigration030.fields().include(POLICIES, POLICY_MAP);
         queryUsersTaggedInMigration030.fields().include(User.Fields.email);
 
         Query optimisedQueryUsersTaggedInMigration030 = CompatibilityUtils.optimizeQueryForNoCursorTimeout(

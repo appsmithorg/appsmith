@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
@@ -28,8 +29,6 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 @ChangeUnit(order = "028", id = "tag-user-management-roles-without-default-domain-type-and-id")
 public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
     private final MongoTemplate mongoTemplate;
-
-    private static final String POLICY_MAP = "policyMap";
     public static final String MIGRATION_FLAG_028_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID =
             "tagUserManagementRoleWithoutDefaultDomainTypeAndId";
 
