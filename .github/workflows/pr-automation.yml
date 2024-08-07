@@ -5,13 +5,34 @@ on:
     branches:
       - release
       - pg
-    types:
-      - labeled
+    types: [ labeled, synchronize ]
 
 jobs:
-  parse-tags:
+  check-label:
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'ok-to-test'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check PR Label
+        uses: actions/github-script@v7
+        with:
+          # This script will check if the PR has ok-to-test label.
+          # To avoid being dependent on the event which triggered this workflow,
+          # we will always get the pull request labels directly from the context
+          # It will later set the output to be "true" or "false".
+          script: |
+            const labels = context.payload.pull_request.labels.map(label => label.name);
+            if (labels.includes("ok-to-test")) {
+              console.log("Label 'ok-to-test' is present");
+              core.setOutput("ok_to_test", "true");
+            } else {
+              console.log("Label 'ok-to-test' is not present");
+              core.setOutput("ok_to_test", "false");
+  parse-tags:
+    needs: [ check-label ]
+    runs-on: ubuntu-latest
+    if: ${{ steps.check-label.outputs.ok_to_test == 'true' }}
     permissions:
       pull-requests: write
     defaults:
@@ -27,7 +48,7 @@ jobs:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
         with:
-            repository: appsmithorg/appsmith
+          repository: appsmithorg/appsmith
 
       # Reads the PR description to retrieve the /ok-to-test or, if that's absent, the /test command
       - name: Read tags from PR description
@@ -72,7 +93,7 @@ jobs:
 
   # Call the workflow to run Cypress tests
   perform-test:
-    needs: [parse-tags]
+    needs: [ parse-tags ]
     if: success()
     uses: ./.github/workflows/pr-cypress.yml
     secrets: inherit
