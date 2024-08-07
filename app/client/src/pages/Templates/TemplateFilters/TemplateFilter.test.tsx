@@ -7,7 +7,7 @@ import { ThemeProvider } from "styled-components";
 
 import TemplateFilters from "./index";
 import { lightTheme } from "selectors/themeSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   unitTestMockTemplate,
   unitTestMockTemplateAllFilters,

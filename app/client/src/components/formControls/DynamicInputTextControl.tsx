@@ -3,9 +3,9 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { formValueSelector } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import { connect } from "react-redux";
 import { actionPathFromName } from "components/formControls/utils";
 import {

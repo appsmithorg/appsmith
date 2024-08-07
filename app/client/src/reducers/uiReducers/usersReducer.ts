@@ -1,15 +1,15 @@
 import _ from "lodash";
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 
 import type { User } from "constants/userConstants";
 import { DefaultCurrentUserDetails } from "constants/userConstants";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
 
 const initialState: UsersReduxState = {

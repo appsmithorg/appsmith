@@ -1,21 +1,21 @@
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import {
   fetchApplication,
   showReconnectDatasourceModal,
-} from "@appsmith/actions/applicationActions";
+} from "ee/actions/applicationActions";
 import type {
   ApplicationPayload,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { findDefaultPage } from "@appsmith/sagas/ApplicationSagas";
-import { fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+} from "ee/constants/ReduxActionConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { findDefaultPage } from "ee/sagas/ApplicationSagas";
+import { fetchPageDSLSaga } from "ee/sagas/PageSagas";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchJSCollections } from "actions/jsActionActions";

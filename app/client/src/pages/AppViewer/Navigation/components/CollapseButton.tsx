@@ -2,7 +2,7 @@ import {
   CLOSE_SIDEBAR_MESSAGE,
   createMessage,
   LOCK_SIDEBAR_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import classNames from "classnames";
 import { TooltipComponent } from "design-system-old";
 import React from "react";

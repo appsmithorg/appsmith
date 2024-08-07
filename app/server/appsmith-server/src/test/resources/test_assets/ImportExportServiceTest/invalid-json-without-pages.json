@@ -1,8 +1,12 @@
 {
-    "datasourceList": [],
-    "actionList": [{"id": "randomId"}],
-    "pageList": [],
-    "decryptedFields": {},
     "exportedApplication": {},
+    "datasourceList": [],
+    "pageList": [],
+    "actionList": [
+      {
+        "id": "randomId"
+      }
+    ],
+    "decryptedFields": {},
     "mongoEscapedWidgets": {}
 }

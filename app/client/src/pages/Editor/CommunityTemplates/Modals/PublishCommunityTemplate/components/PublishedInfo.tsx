@@ -1,7 +1,4 @@
-import {
-  COMMUNITY_TEMPLATES,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import { Icon, Text } from "design-system";
 import React, { useCallback } from "react";
 import styled from "styled-components";

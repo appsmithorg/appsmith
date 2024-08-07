@@ -1,5 +1,5 @@
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type { AppsmithEntity } from "@appsmith/entities/DataTree/types";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
+import type { AppsmithEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createObjectPeekData } from "./Common";
 

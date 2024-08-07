@@ -11,7 +11,7 @@ import {
   DEBUGGER_LOGS,
   DEBUGGER_RESPONSE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Schema from "components/editorComponents/Debugger/Schema";
@@ -23,7 +23,7 @@ import QueryResponseTab from "./QueryResponseTab";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
@@ -31,7 +31,7 @@ import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
 import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { IDEBottomView, ViewHideBehaviour } from "../../../IDE";
 
 const ResultsCount = styled.div`

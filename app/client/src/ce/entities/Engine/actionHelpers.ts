@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
+} from "ee/constants/ReduxActionConstants";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
+import type { DependentFeatureFlags } from "ee/selectors/engineSelectors";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";

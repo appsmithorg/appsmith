@@ -1,57 +1,63 @@
-{"form": [{
-    "sectionName": "General",
-    "children": [
+{
+  "form": [
+    {
+      "sectionName": "General",
+      "children": [
         {
-            "isRequired": false,
-            "controlType": "INPUT_TEXT",
-            "hidden": true,
-            "label": "Authentication type",
-            "initialValue": "oAuth2",
-            "configProperty": "datasourceConfiguration.authentication.authenticationType"
+          "label": "Authentication type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "oAuth2"
         },
         {
-            "isRequired": false,
-            "controlType": "INPUT_TEXT",
-            "hidden": true,
-            "label": "Grant type",
-            "initialValue": "authorization_code",
-            "configProperty": "datasourceConfiguration.authentication.grantType"
+          "label": "Grant type",
+          "configProperty": "datasourceConfiguration.authentication.grantType",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": true,
+          "initialValue": "authorization_code"
         },
         {
-            "isRequired": false,
-            "controlType": "INPUT_TEXT",
-            "hidden": {
-                "comparison": "VIEW_MODE",
-                "value": false
+          "label": "Account",
+          "configProperty": "datasourceConfiguration.properties[0].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "comparison": "VIEW_MODE",
+            "value": false
+          },
+          "initialValue": "Authorize datasource to fetch account name"
+        },
+        {
+          "label": "Permissions | Scope",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "DROP_DOWN",
+          "options": [
+            {
+              "label": "Read / Write / Delete | Selected google sheets",
+              "value": "https://www.googleapis.com/auth/drive.file"
             },
-            "label": "Account",
-            "initialValue": "Authorize datasource to fetch account name",
-            "configProperty": "datasourceConfiguration.properties[0].value"
-        },
-        {
-            "controlType": "DROP_DOWN",
-            "options": [
-                {
-                    "label": "Read / Write / Delete | Selected google sheets",
-                    "value": "https://www.googleapis.com/auth/drive.file"
-                },
-                {
-                    "label": "Read / Write / Delete | All google sheets",
-                    "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
-                },
-                {
-                    "label": "Read / Write | All google sheets",
-                    "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
-                },
-                {
-                    "label": "Read | All google sheets",
-                    "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
-                }
-            ],
-            "label": "Permissions | Scope",
-            "customStyles": {"width": "340px"},
-            "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive",
-            "configProperty": "datasourceConfiguration.authentication.scopeString"
+            {
+              "label": "Read / Write / Delete | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+            },
+            {
+              "label": "Read / Write | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
+            }
+          ],
+          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive",
+          "customStyles": {
+            "width": "340px"
+          }
         }
-    ]
-}]}
+      ]
+    }
+  ]
+}

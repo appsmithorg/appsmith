@@ -5,10 +5,10 @@ import {
   useLocation,
   useHistory,
 } from "react-router-dom";
-import MemberSettings from "@appsmith/pages/workspace/Members";
+import MemberSettings from "ee/pages/workspace/Members";
 import { GeneralSettings } from "pages/workspace/General";
 import { Tabs, Tab, TabsList, TabPanel } from "design-system";
-import { navigateToTab } from "@appsmith/pages/workspace/helpers";
+import { navigateToTab } from "ee/pages/workspace/helpers";
 import styled from "styled-components";
 
 import * as Sentry from "@sentry/react";

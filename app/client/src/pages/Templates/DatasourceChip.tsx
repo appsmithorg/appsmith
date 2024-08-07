@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getDefaultPlugin } from "@appsmith/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
+import { getDefaultPlugin } from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
 import { Tag } from "design-system";
 

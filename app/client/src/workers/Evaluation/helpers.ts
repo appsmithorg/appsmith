@@ -1,5 +1,5 @@
-import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { WidgetEntity } from "@appsmith//entities/DataTree/types";
+import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
+import type { WidgetEntity } from "ee//entities/DataTree/types";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";

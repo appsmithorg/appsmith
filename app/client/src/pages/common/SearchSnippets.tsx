@@ -1,5 +1,5 @@
 import React from "react";
-import { createMessage, SNIPPET_TOOLTIP } from "@appsmith/constants/messages";
+import { createMessage, SNIPPET_TOOLTIP } from "ee/constants/messages";
 import { Button, Tooltip } from "design-system";
 
 export enum ENTITY_TYPE {

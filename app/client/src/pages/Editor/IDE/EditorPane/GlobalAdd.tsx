@@ -5,7 +5,7 @@ import { Button, Flex, Icon, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history from "utils/history";
-import { queryAddURL } from "@appsmith/RouteBuilder";
+import { queryAddURL } from "ee/RouteBuilder";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import PaneHeader from "../LeftPane/PaneHeader";
 

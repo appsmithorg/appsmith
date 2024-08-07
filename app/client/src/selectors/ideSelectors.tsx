@@ -1,11 +1,8 @@
 import { createSelector } from "reselect";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import type { AppState } from "@appsmith/reducers";
-import { getPageActions } from "@appsmith/selectors/entitiesSelector";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import type { AppState } from "ee/reducers";
+import { getPageActions } from "ee/selectors/entitiesSelector";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { getCurrentBasePageId } from "./editorSelectors";
 import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
 import { get } from "lodash";

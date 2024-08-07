@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { WorkerErrorTypes } from "@appsmith/workers/common/types";
+import { WorkerErrorTypes } from "ee/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { getErrorMessage } from "workers/Evaluation/errorModifier";

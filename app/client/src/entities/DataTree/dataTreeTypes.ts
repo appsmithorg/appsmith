@@ -3,7 +3,7 @@ import type {
   DataTreeEntityObject,
   UnEvalTreeEntityObject,
   AppsmithEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 
 export interface unEvalAndConfigTree {
   unEvalTree: UnEvalTree;

@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
+import { getPluginImages } from "ee/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { DropdownOptionType } from "../../../types";
 import useDatasourceOptions from "./useDatasourceOptions";
 import useConnectToOptions from "./useConnectToOptions";

@@ -1,13 +1,13 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { GitConfig, MergeStatus } from "entities/GitSync";
 import { GitSyncModalTab } from "entities/GitSync";
 import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
-import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
+import type { PageDefaultMeta } from "ee/api/ApplicationApi";
 
 export enum GitSettingsTab {
   GENERAL = "GENERAL",

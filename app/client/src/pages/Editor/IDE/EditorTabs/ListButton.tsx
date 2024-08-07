@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   Button,
   Flex,

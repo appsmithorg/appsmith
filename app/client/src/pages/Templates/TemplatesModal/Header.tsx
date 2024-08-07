@@ -1,7 +1,7 @@
 import {
   ADD_PAGE_FROM_TEMPLATE_MODAL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import React from "react";
 import styled from "styled-components";
 

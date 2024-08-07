@@ -1,8 +1,8 @@
 import {
   UPDATE_VIA_IMPORT_SETTING,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/constants/messages";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { Text, Button } from "design-system";
 import ImportModal from "pages/common/ImportModal";
 import React from "react";

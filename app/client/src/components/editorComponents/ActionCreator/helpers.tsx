@@ -7,11 +7,11 @@ import {
   setCatchBlockInQuery,
 } from "@shared/ast";
 import { createModalAction } from "actions/widgetActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getEntityNameAndPropertyPath,
   isEntityAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "design-system-old";
 import { Icon } from "design-system";
 import { PluginType } from "entities/Action";
@@ -23,8 +23,8 @@ import { useDispatch, useSelector } from "react-redux";
 import type {
   ActionData,
   ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+} from "ee/reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getCurrentActions,
@@ -32,7 +32,7 @@ import {
   getCurrentJSCollections,
   getQueryModuleInstances,
   getJSModuleInstancesData,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   getModalDropdownList,
   getNextModalName,
@@ -60,13 +60,13 @@ import {
   getEvaluationVersion,
 } from "./utils";
 import store from "store";
-import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
-import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
+import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
+import type { ModuleInstanceDataState } from "ee/constants/ModuleInstanceConstants";
 import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
-import { getAllModules } from "@appsmith/selectors/modulesSelector";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import { getAllModules } from "ee/selectors/modulesSelector";
+import type { Module } from "ee/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
 import {
   createNewJSCollectionFromActionCreator,

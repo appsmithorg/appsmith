@@ -1,4 +1,4 @@
-import useMissingModuleNotification from "@appsmith/pages/Editor/IDE/MainPane/useMissingModuleNotification";
+import useMissingModuleNotification from "ee/pages/Editor/IDE/MainPane/useMissingModuleNotification";
 import AnonymousDataPopup from "pages/Editor/FirstTimeUserOnboarding/AnonymousDataPopup";
 import React from "react";
 

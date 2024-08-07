@@ -30,8 +30,8 @@ import {
   GO_BACK,
   NONE_REVERSIBLE_MESSAGE,
   REVOKE,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
