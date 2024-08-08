@@ -1,3 +1,4 @@
+import { LabelPosition } from "components/constants";
 import type { FieldThemeStylesheet, Schema } from "../constants";
 import {
   ARRAY_ITEM_KEY,
@@ -405,6 +406,7 @@ describe(".dynamicPropertyPathListFromSchema", () => {
             children: {
               agree: {
                 fieldType: FieldType.SWITCH,
+                labelPosition: LabelPosition.Left,
                 identifier: "agree",
                 defaultValue: "{{sourceData.agree}}",
               },
@@ -423,6 +425,7 @@ describe(".dynamicPropertyPathListFromSchema", () => {
                   field1: {
                     fieldType: FieldType.SWITCH,
                     identifier: "field1",
+                    labelPosition: LabelPosition.Left,
                     defaultValue: "{{sourceData.field1}}",
                   },
                   field2: {
