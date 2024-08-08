@@ -128,9 +128,7 @@
   "updatedResources": {
     "customJSLibList": [],
     "actionList": [],
-    "pageList": [
-      "Page1"
-    ],
+    "pageList": ["Page1"],
     "actionCollectionList": []
   },
   "editModeTheme": {

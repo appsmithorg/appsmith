@@ -71,7 +71,7 @@
         {
           "label": "Role",
           "key": "role",
-          "controlType": "DROP_DOWN", 
+          "controlType": "DROP_DOWN",
           "initialValue": "Human",
           "options": [
             {
