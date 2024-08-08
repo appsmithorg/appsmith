@@ -1,5 +1,5 @@
-import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
+import type { ApplicationVersion } from "ee/actions/applicationActions";
+import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosProgressEvent, AxiosPromise } from "axios";

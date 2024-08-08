@@ -7,7 +7,7 @@ import { get, isEmpty, isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import {

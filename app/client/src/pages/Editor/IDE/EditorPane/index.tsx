@@ -5,7 +5,7 @@ import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const EditorPane = () => {
   const width = useEditorPaneWidth();

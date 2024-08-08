@@ -3,7 +3,7 @@ import type {
   WidgetEntityConfig,
   ActionEntityConfig,
   ActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   ENTITY_TYPE,

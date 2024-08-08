@@ -5,19 +5,19 @@ import {
   evalWorker,
 } from "./EvaluationsSaga";
 import { expectSaga } from "redux-saga-test-plan";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { select } from "redux-saga/effects";
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "./selectors";
-import { getAllActionValidationConfig } from "@appsmith//selectors/entitiesSelector";
+import { getAllActionValidationConfig } from "ee//selectors/entitiesSelector";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import * as log from "loglevel";
 
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
 import { createJSCollectionSuccess } from "actions/jsActionActions";
 jest.mock("loglevel");

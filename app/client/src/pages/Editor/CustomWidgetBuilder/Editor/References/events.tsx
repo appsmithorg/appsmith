@@ -10,11 +10,8 @@ import {
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const StyledLazyCodeEditorWrapper = styled.div`
   .CodeMirror-line.CodeMirror-line {

@@ -5,7 +5,7 @@ import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
   SUBMIT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Classes } from "@blueprintjs/core";
 import { Button, Input, toast } from "design-system";
 import { useDispatch, useSelector } from "react-redux";

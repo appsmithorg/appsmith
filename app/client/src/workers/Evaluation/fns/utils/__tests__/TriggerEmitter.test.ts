@@ -12,7 +12,7 @@ jest.mock("../Messenger.ts", () => ({
   },
 }));
 
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import TriggerEmitter, { BatchKey } from "../TriggerEmitter";
 
 describe("Tests all trigger events", () => {

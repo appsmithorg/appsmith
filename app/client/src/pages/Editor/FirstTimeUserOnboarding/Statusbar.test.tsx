@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { render } from "test/testUtils";
 import OnboardingStatusbar from "./Statusbar";
 import { getStore } from "./testUtils";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
 import * as onboardingSelectors from "selectors/onboardingSelectors";

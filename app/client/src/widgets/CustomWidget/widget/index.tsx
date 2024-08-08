@@ -30,11 +30,11 @@ import {
 } from "pages/Editor/CustomWidgetBuilder/constants";
 import { Link } from "design-system";
 import styled from "styled-components";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const StyledLink = styled(Link)`
   display: inline-block;

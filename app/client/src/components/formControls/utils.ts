@@ -11,14 +11,11 @@ import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import _ from "lodash";
 import { getType, Types } from "utils/TypeHelpers";
-import {
-  FIELD_REQUIRED_ERROR,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
 
 // This function checks if the form is dirty

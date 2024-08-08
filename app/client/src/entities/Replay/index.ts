@@ -4,7 +4,7 @@ import type { Diff } from "deep-diff";
 import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import { getPathsFromDiff } from "./replayUtils";
-import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 const _DIFF_ = "diff";
 type ReplayType = "UNDO" | "REDO";

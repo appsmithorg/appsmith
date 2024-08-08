@@ -16,10 +16,7 @@ import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constant
 // import { Severity } from "entities/AppsmithConsole";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { Spinner } from "design-system";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import { DebuggerLogType } from "../../types";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";

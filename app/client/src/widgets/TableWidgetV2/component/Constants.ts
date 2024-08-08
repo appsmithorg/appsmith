@@ -185,6 +185,7 @@ export interface SelectCellProperties {
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[];
+  sortBy?: string;
 }
 
 export interface ImageCellProperties {
@@ -347,6 +348,7 @@ export interface EditActionColumnProperties {
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[] | DropdownOption[][];
+  sortBy?: string;
 }
 
 export interface CurrencyColumnProperties {

@@ -1,4 +1,4 @@
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import { Icon, Text } from "design-system";
 import React from "react";
 import { useHistory } from "react-router";

@@ -1,15 +1,12 @@
 import localStorage from "utils/localStorage";
 import { render } from "test/testUtils";
 import { Route } from "react-router-dom";
-import { BUILDER_PATH } from "@appsmith/constants/routes/appRoutes";
+import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import IDE from "pages/Editor/IDE/index";
 import React from "react";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 

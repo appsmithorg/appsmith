@@ -4,7 +4,7 @@ import styled from "styled-components";
 import {
   AUTOCOMMIT_IN_PROGRESS_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface AutocommitStatusbarProps {
   completed: boolean;

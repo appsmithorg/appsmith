@@ -1,6 +1,6 @@
 import { RemoteBranchListItem } from "./RemoteBranchListItem";
 import React from "react";
-import { createMessage, REMOTE_BRANCHES } from "@appsmith/constants/messages";
+import { createMessage, REMOTE_BRANCHES } from "ee/constants/messages";
 import { Text } from "design-system";
 
 /**

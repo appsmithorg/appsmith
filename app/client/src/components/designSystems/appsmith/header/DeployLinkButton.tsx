@@ -5,13 +5,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Button } from "design-system";
-import { KBEditorMenuItem } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorMenuItem";
+import { KBEditorMenuItem } from "ee/pages/Editor/KnowledgeBase/KBEditorMenuItem";
 import { useHasConnectToGitPermission } from "pages/Editor/gitSync/hooks/gitPermissionHooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 

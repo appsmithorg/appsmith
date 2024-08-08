@@ -374,14 +374,12 @@ public class MySqlPlugin extends BasePlugin {
                                 Optional<PoolMetrics> poolMetricsOptional = connectionPool.getMetrics();
                                 if (poolMetricsOptional.isPresent()) {
                                     PoolMetrics poolMetrics = poolMetricsOptional.get();
-                                    log.info(
-                                            "Execute query: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}, Max allocations: {}, Max pending acquire: {}",
-                                            poolMetrics.acquiredSize(),
-                                            poolMetrics.pendingAcquireSize(),
-                                            poolMetrics.allocatedSize(),
-                                            poolMetrics.idleSize(),
-                                            poolMetrics.getMaxAllocatedSize(),
-                                            poolMetrics.getMaxPendingAcquireSize());
+                                    System.out.println("Execute query: connection Pool Metrics: Acquired: "
+                                            + poolMetrics.acquiredSize() + ", Pending: "
+                                            + poolMetrics.pendingAcquireSize() + ", Allocated: "
+                                            + poolMetrics.allocatedSize() + ", idle: " + poolMetrics.idleSize()
+                                            + ", Max allocations: " + poolMetrics.getMaxAllocatedSize()
+                                            + ", Max pending acquire: " + poolMetrics.getMaxPendingAcquireSize());
                                 }
 
                                 return resultMono
@@ -734,14 +732,13 @@ public class MySqlPlugin extends BasePlugin {
                                         Optional<PoolMetrics> poolMetricsOptional = connectionPool.getMetrics();
                                         if (poolMetricsOptional.isPresent()) {
                                             PoolMetrics poolMetrics = poolMetricsOptional.get();
-                                            log.info(
-                                                    "Get structure: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}, Max allocations: {}, Max pending acquire: {}",
-                                                    poolMetrics.acquiredSize(),
-                                                    poolMetrics.pendingAcquireSize(),
-                                                    poolMetrics.allocatedSize(),
-                                                    poolMetrics.idleSize(),
-                                                    poolMetrics.getMaxAllocatedSize(),
-                                                    poolMetrics.getMaxPendingAcquireSize());
+                                            System.out.println("Get structure: connection Pool Metrics: Acquired: "
+                                                    + poolMetrics.acquiredSize() + ", Pending: "
+                                                    + poolMetrics.pendingAcquireSize() + ", Allocated: "
+                                                    + poolMetrics.allocatedSize() + ", idle: " + poolMetrics.idleSize()
+                                                    + ", Max allocations: " + poolMetrics.getMaxAllocatedSize()
+                                                    + ", Max pending acquire: "
+                                                    + poolMetrics.getMaxPendingAcquireSize());
                                         }
                                         if (isValid) {
                                             return connection

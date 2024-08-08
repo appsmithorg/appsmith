@@ -1,7 +1,7 @@
 import { INTEGRATION_TABS } from "constants/routes";
 import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
-import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useAppWideAndOtherDatasource } from "ee/pages/Editor/Explorer/hooks";
 import { useMemo } from "react";
 import { getPageList } from "selectors/editorSelectors";
 import {
@@ -10,9 +10,9 @@ import {
   getJSCollections,
   getPlugins,
   getRecentDatasourceIds,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import history from "utils/history";
 import type { ActionOperation } from "./utils";
 import {
@@ -25,20 +25,20 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { PluginType } from "entities/Action";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasCreateDatasourceActionPermission,
   getHasCreateDatasourcePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { Plugin } from "api/PluginApi";
-import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { createNewQueryBasedOnParentEntity } from "@appsmith/actions/helpers";
-import { useWorkflowOptions } from "@appsmith/utils/workflowHelpers";
+import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { createNewQueryBasedOnParentEntity } from "ee/actions/helpers";
+import { useWorkflowOptions } from "ee/utils/workflowHelpers";
 
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;

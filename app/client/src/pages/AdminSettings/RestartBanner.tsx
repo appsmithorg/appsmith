@@ -14,9 +14,9 @@ import {
   RESTART_BANNER_HEADER,
   RESTART_ERROR_BODY,
   RESTART_ERROR_HEADER,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Colors } from "constants/Colors";
-import { retryServerRestart } from "@appsmith/actions/settingsAction";
+import { retryServerRestart } from "ee/actions/settingsAction";
 import { useDispatch } from "react-redux";
 
 const RestartBannerWrapper = styled.div`

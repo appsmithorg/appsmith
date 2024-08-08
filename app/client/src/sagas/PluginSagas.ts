@@ -1,20 +1,20 @@
 import { all, takeEvery, call, put, select } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   getActions,
   getDatasources,
   getPlugin,
   getPluginForm,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
 import {
@@ -42,7 +42,7 @@ import type {
   FormDependencyConfigs,
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchPluginsSaga(

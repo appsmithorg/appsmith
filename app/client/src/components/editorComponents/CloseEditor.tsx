@@ -9,10 +9,10 @@ import {
   generateTemplateFormURL,
   integrationEditorURL,
   widgetListURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Link } from "design-system";
 import styled from "styled-components";
 import type { AppsmithLocationState } from "../../utils/history";

@@ -6,7 +6,7 @@ import {
   createMessage,
   APP_THEME_BETA_CARD_HEADING,
   APP_THEME_BETA_CARD_CONTENT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Button } from "design-system";
 
 export function ThemeBetaCard() {

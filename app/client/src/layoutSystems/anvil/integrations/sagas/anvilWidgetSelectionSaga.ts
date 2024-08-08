@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -20,7 +20,7 @@ import { AnvilReduxActionTypes } from "../actions/actionTypes";
 import { setActiveEditorField } from "actions/activeFieldActions";
 import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import { setEvalPopupState } from "actions/editorContextActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 /**
  * This saga selects widgets in the Anvil Layout system

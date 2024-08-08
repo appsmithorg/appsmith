@@ -9,7 +9,7 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { getFormValues, change } from "redux-form";
 import FormControlFactory from "utils/formControl/FormControlFactory";
 
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
@@ -17,20 +17,20 @@ import ToggleComponentToJson from "components/editorComponents/form/ToggleCompon
 import FormConfig from "./FormConfig";
 import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import history from "utils/history";
 import {
   getAction,
   getDatasourceStructureById,
   getPluginNameFromId,
   getPluginTemplates,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { get } from "lodash";
 import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
 import type { Datasource, DatasourceStructure } from "entities/Datasource";
-import { getCurrentEditingEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEditingEnvironmentId } from "ee/selectors/environmentSelectors";
 
 export interface FormControlProps {
   config: ControlProps;

@@ -21,7 +21,7 @@ import {
   REMOTE_URL_INFO,
   REMOTE_URL_INPUT_PLACEHOLDER,
   UPDATE_CONFIG,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled from "styled-components";
 import { emailValidator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
@@ -31,7 +31,7 @@ import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -68,7 +68,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 

@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";

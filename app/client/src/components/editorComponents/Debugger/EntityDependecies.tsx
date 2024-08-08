@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import { Classes, getTypographyByKey, Text, TextType } from "design-system-old";
 import InspectElement from "assets/images/InspectElement.svg";
@@ -12,12 +12,12 @@ import {
   NO_INCOMING_ENTITIES,
   NO_OUTGOING_ENTITIES,
   OUTGOING_ENTITIES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 import { Button, Icon, Tooltip } from "design-system";
 import { importSvg } from "design-system-old";

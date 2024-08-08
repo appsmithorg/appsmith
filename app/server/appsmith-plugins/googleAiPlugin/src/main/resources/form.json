@@ -9,7 +9,7 @@
           "description": "Select the authentication type to use",
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "DROP_DOWN",
-          "initialValue" : "apiKey",
+          "initialValue": "apiKey",
           "setFirstOptionAsDefault": true,
           "options": [
             {
@@ -39,5 +39,5 @@
       ]
     }
   ],
-  "formButton" : ["TEST", "CANCEL", "SAVE"]
+  "formButton": ["TEST", "CANCEL", "SAVE"]
 }

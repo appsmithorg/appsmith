@@ -1,6 +1,6 @@
 import toposort from "toposort";
 import type DependencyMap from ".";
-import { IMMEDIATE_PARENT_REGEX } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { IMMEDIATE_PARENT_REGEX } from "ee/workers/Evaluation/evaluationUtils";
 
 type SortDependencies =
   | {

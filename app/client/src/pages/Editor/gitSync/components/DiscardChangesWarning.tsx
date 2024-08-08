@@ -3,7 +3,7 @@ import {
   createMessage,
   DISCARD_CHANGES_WARNING,
   DISCARD_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Callout, Text } from "design-system";
 import styled from "styled-components";
 
