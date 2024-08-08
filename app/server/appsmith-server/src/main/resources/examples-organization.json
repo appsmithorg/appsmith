@@ -1191,9 +1191,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "ordersTable.selectedRow.id"
-              ],
+              "jsonPathKeys": ["ordersTable.selectedRow.id"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -1238,9 +1236,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "usersTable.selectedRow.id"
-              ],
+              "jsonPathKeys": ["usersTable.selectedRow.id"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -1334,9 +1330,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "ordersTable.selectedRow.id"
-              ],
+              "jsonPathKeys": ["ordersTable.selectedRow.id"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -2240,10 +2234,7 @@
                     ]
                   },
                   {
-                    "hiddenColumns": [
-                      "userId",
-                      "orderDate"
-                    ],
+                    "hiddenColumns": ["userId", "orderDate"],
                     "widgetName": "ordersTable",
                     "rightColumn": 8,
                     "columnOrder": [
@@ -2321,10 +2312,7 @@
                           "type": "CANVAS_WIDGET",
                           "props": {
                             "detachFromLayout": true,
-                            "children": [
-                              "v8531ch9d8",
-                              "0cz98i5vmt"
-                            ],
+                            "children": ["v8531ch9d8", "0cz98i5vmt"],
                             "containerStyle": "none",
                             "canExtend": false
                           }
@@ -3661,10 +3649,7 @@
                     ]
                   },
                   {
-                    "hiddenColumns": [
-                      "userId",
-                      "orderDate"
-                    ],
+                    "hiddenColumns": ["userId", "orderDate"],
                     "widgetName": "ordersTable",
                     "rightColumn": 8,
                     "columnOrder": [
@@ -3742,10 +3727,7 @@
                           "type": "CANVAS_WIDGET",
                           "props": {
                             "detachFromLayout": true,
-                            "children": [
-                              "v8531ch9d8",
-                              "0cz98i5vmt"
-                            ],
+                            "children": ["v8531ch9d8", "0cz98i5vmt"],
                             "containerStyle": "none",
                             "canExtend": false
                           }
@@ -4479,9 +4461,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "6af2mwjii8"
-                            ],
+                            "children": ["6af2mwjii8"],
                             "tabId": "tab1"
                           }
                         },
@@ -4499,10 +4479,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "bv27fj7bs5",
-                              "6af2mwjii8"
-                            ],
+                            "children": ["bv27fj7bs5", "6af2mwjii8"],
                             "tabId": "tab2"
                           }
                         }
@@ -4669,10 +4646,7 @@
                         "detachFromLayout": true,
                         "children": [
                           {
-                            "hiddenColumns": [
-                              "description",
-                              "actions"
-                            ],
+                            "hiddenColumns": ["description", "actions"],
                             "widgetName": "ticketsTable",
                             "rightColumn": 16,
                             "widgetId": "472a29heor",
@@ -4747,10 +4721,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "472a29heor",
-                              "dqzd7flg31"
-                            ]
+                            "children": ["472a29heor", "dqzd7flg31"]
                           }
                         }
                       ]
@@ -4811,9 +4782,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "6af2mwjii8"
-                            ],
+                            "children": ["6af2mwjii8"],
                             "tabId": "tab1"
                           }
                         },
@@ -4831,10 +4800,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "bv27fj7bs5",
-                              "6af2mwjii8"
-                            ],
+                            "children": ["bv27fj7bs5", "6af2mwjii8"],
                             "tabId": "tab2"
                           }
                         }
@@ -5001,10 +4967,7 @@
                         "detachFromLayout": true,
                         "children": [
                           {
-                            "hiddenColumns": [
-                              "description",
-                              "actions"
-                            ],
+                            "hiddenColumns": ["description", "actions"],
                             "widgetName": "ticketsTable",
                             "rightColumn": 16,
                             "widgetId": "472a29heor",
@@ -5079,10 +5042,7 @@
                             "containerStyle": "none",
                             "canExtend": false,
                             "detachFromLayout": true,
-                            "children": [
-                              "472a29heor",
-                              "dqzd7flg31"
-                            ]
+                            "children": ["472a29heor", "dqzd7flg31"]
                           }
                         }
                       ]
@@ -8363,9 +8323,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "appsmith.URL.queryParams.email"
-              ],
+              "jsonPathKeys": ["appsmith.URL.queryParams.email"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -9548,9 +9506,7 @@
                   {
                     "name": "fetchUserByUrlParam",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "appsmith.URL.queryParams.email"
-                    ],
+                    "jsonPathKeys": ["appsmith.URL.queryParams.email"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -9560,9 +9516,7 @@
                   {
                     "name": "fetchUserByUrlParam",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "appsmith.URL.queryParams.email"
-                    ],
+                    "jsonPathKeys": ["appsmith.URL.queryParams.email"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -9651,9 +9605,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "(usersTable.pageNo - 1) * 5"
-              ],
+              "jsonPathKeys": ["(usersTable.pageNo - 1) * 5"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -10389,9 +10341,7 @@
                   {
                     "name": "getUsers",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 5"],
                     "timeoutInMillisecond": 10000
                   },
                   {
@@ -10410,9 +10360,7 @@
                   {
                     "name": "getUsers",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 5"],
                     "timeoutInMillisecond": 10000
                   },
                   {
@@ -11049,9 +10997,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "(usersTable.pageNo - 1) * 10"
-              ],
+              "jsonPathKeys": ["(usersTable.pageNo - 1) * 10"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -11887,9 +11833,7 @@
                   {
                     "name": "getUsersDrilldown",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 10"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 10"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -11899,9 +11843,7 @@
                   {
                     "name": "getUsersDrilldown",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1) * 10"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1) * 10"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -11978,9 +11920,7 @@
               ],
               "isValid": true,
               "invalids": [],
-              "jsonPathKeys": [
-                "(usersTable.pageNo - 1)  * 5"
-              ],
+              "jsonPathKeys": ["(usersTable.pageNo - 1)  * 5"],
               "deleted": false,
               "policies": [],
               "_class": "com.appsmith.server.domains.Action"
@@ -13483,9 +13423,7 @@
                   {
                     "name": "getUsersToEdit",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1)  * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1)  * 5"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
@@ -13495,9 +13433,7 @@
                   {
                     "name": "getUsersToEdit",
                     "pluginType": "DB",
-                    "jsonPathKeys": [
-                      "(usersTable.pageNo - 1)  * 5"
-                    ],
+                    "jsonPathKeys": ["(usersTable.pageNo - 1)  * 5"],
                     "timeoutInMillisecond": 10000
                   }
                 ]
