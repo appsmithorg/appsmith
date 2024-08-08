@@ -145,4 +145,27 @@ export class AnvilDnDHelper {
         this.agHelper.Sleep(200); //waiting a bit for widget properties to open
       });
   }
+
+  /* If __only one__ widget is selected on the canvas, this function will move the widget to the specified x and y coordinates */
+  // This function uses the widget name on canvas UI to drag and drop the widget
+  public MoveSelectedAnvilWidget(
+    x = 300,
+    y = 100,
+    options = {} as DragDropWidgetOptions,
+  ) {
+    this.agHelper
+      .AssertElementExist(anvilLocators.mainCanvasSelector)
+      .then((mainCanvas) => {
+        const mainCanvasX = mainCanvas.position().left;
+        const mainCanvasY = mainCanvas.position().top;
+        const widgetSelector = anvilLocators.anvilOnCanvasWidgetNameSelector;
+        // perform mouseover to focus the widget before drag to allow dragging
+        cy.get(widgetSelector).first().trigger("mouseover", { force: true });
+        cy.get(widgetSelector).first().trigger("dragstart", { force: true });
+        this.performDnDInAnvil(x + mainCanvasX, y + mainCanvasY, options);
+        this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
+        this.agHelper.AssertElementExist(widgetSelector);
+        this.agHelper.Sleep(200); //waiting a bit for widget properties to open
+      });
+  }
 }
