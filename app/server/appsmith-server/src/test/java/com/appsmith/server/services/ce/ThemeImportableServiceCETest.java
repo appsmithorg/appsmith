@@ -146,7 +146,7 @@ public class ThemeImportableServiceCETest {
                 .verifyComplete();
     }
 
-    @Disabled(" Flaky test to unblock TVP for the time")
+    @Disabled(" Flaky test to unblock TBP for the time")
     public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
         Theme defaultTheme = themeRepository
                 .getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES)
