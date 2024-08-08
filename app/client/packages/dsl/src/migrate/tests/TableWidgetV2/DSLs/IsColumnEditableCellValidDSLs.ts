@@ -1,13 +1,15 @@
 import type { DSLWidget } from "../../../types";
 
 const oldBindingPrefix = `{{
-    (
-      (editedValue, currentRow, currentIndex) => (
-  `;
+  (
+    (editedValue, currentRow, currentIndex) => (
+`;
+
 const newBindingPrefix = `{{
-    (
-      (editedValue, currentRow, currentIndex, isNewRow) => (
-  `;
+  (
+    (editedValue, currentRow, currentIndex, isNewRow) => (
+`;
+
 const oldBindingSuffix = (tableId: string, columnName: string) => `
   ))
   (
@@ -22,6 +24,7 @@ const oldBindingSuffix = (tableId: string, columnName: string) => `
     ${tableId}.editableCell.index)
 }}
 `;
+
 const newBindingSuffix = (tableId: string, columnName: string) => {
   return `
     ))
