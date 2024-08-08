@@ -130,7 +130,9 @@ describe(
       ]}}
     `,
       );
-      cy.get(".t--property-control-filterable input").click({ force: true });
+      cy.get(_.locators._propertyControlInput("filterable")).click({
+        force: true,
+      });
       cy.editTableSelectCell(0, 0);
       cy.get(".select-popover-wrapper .bp3-input-group input").should("exist");
       cy.get(".select-popover-wrapper .bp3-input-group input").type("1", {
@@ -363,7 +365,10 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      _.agHelper.CheckUncheck(".t--property-control-filterable input", true);
+      _.agHelper.CheckUncheck(
+        _.locators._propertyControlInput("filterable"),
+        true,
+      );
       cy.get(".t--property-control-serversidefiltering input").click();
       cy.updateCodeInput(
         ".t--property-pane-section-selectproperties",
