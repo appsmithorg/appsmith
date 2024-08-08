@@ -44,6 +44,7 @@ function Field<TValue>({
   inlineLabel = false,
   isRequiredField,
   label,
+  labelPosition,
   labelStyle,
   labelTextColor,
   labelTextSize,
@@ -81,6 +82,7 @@ function Field<TValue>({
           direction={direction}
           isRequiredField={isRequiredField}
           label={label}
+          labelPosition={labelPosition}
           labelStyle={labelStyle}
           labelTextColor={labelTextColor}
           labelTextSize={labelTextSize}

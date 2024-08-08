@@ -2,6 +2,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import type { HiddenFnParams } from "../helper";
 import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
 
 const PROPERTIES = {
   content: {
@@ -23,24 +25,43 @@ const PROPERTIES = {
     ],
     label: [
       {
-        propertyName: "alignWidget",
-        helpText: "Sets the position of the field",
+        helpText: "Sets the label position of the widget",
+        propertyName: "labelPosition",
         label: "Position",
         controlType: "ICON_TABS",
-        defaultValue: "LEFT",
         fullWidth: true,
+        options: [
+          { label: "Left", value: LabelPosition.Left },
+          { label: "Right", value: LabelPosition.Right },
+        ],
+        defaultValue: LabelPosition.Left,
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
+        dependencies: ["schema"],
+      },
+      {
+        propertyName: "alignWidget",
+        helpText: "Sets alignment of the widget",
+        label: "Alignment",
+        controlType: "LABEL_ALIGNMENT_OPTIONS",
         isBindProperty: true,
         isTriggerProperty: false,
+        fullWidth: false,
+        defaultValue: AlignWidgetTypes.LEFT,
         options: [
           {
-            label: "Left",
-            value: "LEFT",
+            startIcon: "align-left",
+            value: AlignWidgetTypes.LEFT,
           },
           {
-            label: "Right",
-            value: "RIGHT",
+            startIcon: "align-right",
+            value: AlignWidgetTypes.RIGHT,
           },
         ],
+        validation: { type: ValidationTypes.TEXT },
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotMatches(FieldType.SWITCH),
         dependencies: ["schema"],
