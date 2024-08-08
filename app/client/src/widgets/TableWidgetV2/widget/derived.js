@@ -902,15 +902,6 @@ export default {
         /* Column type related validations */
         switch (editedColumn.columnType) {
           case "number":
-          case "date":
-            if (
-              validation.isColumnEditableCell &&
-              (value === "" || _.isNil(value))
-            ) {
-              validationMap[editedColumn.alias] = false;
-              return;
-            }
-            break;
           case "currency":
             if (
               !_.isNil(validation.min) &&
