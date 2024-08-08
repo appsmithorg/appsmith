@@ -82,7 +82,7 @@ describe(
       });
 
       // Move the widget and check that the widget has moved into a new zone
-      anvilLayout.dnd.MoveSelectedAnvilWidget(0, 80);
+      anvilLayout.dnd.MoveAnvilWidget(undefined, 0, 80);
       agHelper.AssertAutoSave();
       anvilLayout.verifyParentChildRelationship("Zone2", "Button1");
     });
