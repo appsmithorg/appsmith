@@ -2,12 +2,11 @@ package com.appsmith.server.helpers.ce.bridge;
 
 import com.appsmith.external.models.BaseDomain;
 import lombok.NonNull;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Collection;
+import java.util.List;
 
-public final class Bridge {
+public class Bridge {
     private Bridge() {}
 
     public static BridgeUpdate update() {
@@ -18,29 +17,25 @@ public final class Bridge {
         return new BridgeQuery<>();
     }
 
-    @Deprecated
-    public static <T extends BaseDomain> BridgeQuery<T> bridge() {
-        return new BridgeQuery<>();
-    }
-
     @SafeVarargs
     public static <T extends BaseDomain> BridgeQuery<T> or(BridgeQuery<T>... items) {
-        final BridgeQuery<T> q = new BridgeQuery<>();
-        q.checks.add(new Criteria().orOperator(items));
-        return q;
+        return or(List.of(items));
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> or(Collection<BridgeQuery<T>> items) {
         final BridgeQuery<T> q = new BridgeQuery<>();
-        q.checks.add(
-                new Criteria().orOperator(items.stream().map(c -> (Criteria) c).toList()));
+        q.checks.add(new Check.Or<>(items));
         return q;
     }
 
     @SafeVarargs
     public static <T extends BaseDomain> BridgeQuery<T> and(BridgeQuery<T>... items) {
+        return and(List.of(items));
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> and(Collection<BridgeQuery<T>> items) {
         final BridgeQuery<T> q = new BridgeQuery<>();
-        q.checks.add(new Criteria().andOperator(items));
+        q.checks.add(new Check.And<>(items));
         return q;
     }
 
@@ -48,7 +43,7 @@ public final class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
-    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull Integer value) {
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
         return Bridge.<T>query().equal(key, value);
     }
 
@@ -68,23 +63,13 @@ public final class Bridge {
         return Bridge.<T>query().equalIgnoreCase(key, value);
     }
 
-    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
-        return Bridge.<T>query().equal(key, value);
-    }
-
-    /**
-     * Prefer using `.isTrue()` or `.isFalse()` instead of this method **if possible**.
-     */
-    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, boolean value) {
-        return Bridge.<T>query().equal(key, value);
-    }
-
     public static <T extends BaseDomain> BridgeQuery<T> searchIgnoreCase(@NonNull String key, @NonNull String needle) {
         return Bridge.<T>query().searchIgnoreCase(key, needle);
     }
 
-    public static <T extends BaseDomain> BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
-        return Bridge.<T>query().in(key, value);
+    public static <T extends BaseDomain> BridgeQuery<T> in(
+            @NonNull String needle, @NonNull Collection<String> haystack) {
+        return Bridge.<T>query().in(needle, haystack);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> notIn(
@@ -96,12 +81,12 @@ public final class Bridge {
         return Bridge.<T>query().exists(key);
     }
 
-    public static <T extends BaseDomain> BridgeQuery<T> isNull(@NonNull String key) {
-        return Bridge.<T>query().isNull(key);
+    public static <T extends BaseDomain> BridgeQuery<T> notExists(@NonNull String key) {
+        return Bridge.<T>query().notExists(key);
     }
 
-    public static <T extends BaseDomain> BridgeQuery<T> isNotNull(@NonNull String key) {
-        return Bridge.<T>query().isNotNull(key);
+    public static <T extends BaseDomain> BridgeQuery<T> isNull(@NonNull String key) {
+        return Bridge.<T>query().isNull(key);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> isTrue(@NonNull String key) {
@@ -112,7 +97,10 @@ public final class Bridge {
         return Bridge.<T>query().isFalse(key);
     }
 
-    public static <T extends BaseDomain> BridgeQuery<T> notExists(@NonNull String key) {
-        return Bridge.<T>query().notExists(key);
+    /**
+     * Check that the string `needle` is present in the JSON array at `key`.
+     */
+    public static <T extends BaseDomain> BridgeQuery<T> jsonIn(@NonNull String needle, @NonNull String key) {
+        return Bridge.<T>query().jsonIn(needle, key);
     }
 }

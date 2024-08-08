@@ -355,7 +355,6 @@ public class ApplicationImportServiceCEImpl
                     application.setForkWithConfiguration(null);
                     application.setExportWithConfiguration(null);
                     application.setWorkspaceId(importingMetaDTO.getWorkspaceId());
-                    application.setIsPublic(null);
                     application.setPolicies(null);
                     Map<String, List<ApplicationPage>> mapOfApplicationPageList = Map.of(
                             FieldName.PUBLISHED,
@@ -448,8 +447,9 @@ public class ApplicationImportServiceCEImpl
                                     .save(application)
                                     .onErrorResume(DuplicateKeyException.class, error -> {
                                         if (error.getMessage() != null) {
-                                            return applicationPageService.createOrUpdateSuffixedApplication(
-                                                    application, application.getName(), 0);
+                                            throw new ex.Marker("DuplicateKeyException");
+                                            // return applicationPageService.createOrUpdateSuffixedApplication(
+                                            //         application, application.getName(), 0);
                                         }
                                         throw error;
                                     });

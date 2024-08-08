@@ -1,17 +1,21 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
@@ -23,7 +27,8 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Datasource extends GitSyncedDomain {
 
@@ -42,11 +47,6 @@ public class Datasource extends GitSyncedDomain {
     @JsonView(Views.Public.class)
     String pluginName;
 
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
-
     @JsonView({Views.Public.class, FromRequest.class})
     String workspaceId;
 
@@ -54,6 +54,8 @@ public class Datasource extends GitSyncedDomain {
     String templateName;
 
     // This is only kept public for embedded datasource
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView({Views.Public.class, FromRequest.class})
     DatasourceConfiguration datasourceConfiguration;
 
@@ -61,6 +63,8 @@ public class Datasource extends GitSyncedDomain {
     @JsonView({Views.Public.class, FromRequest.class})
     Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Set<String> invalids;
 

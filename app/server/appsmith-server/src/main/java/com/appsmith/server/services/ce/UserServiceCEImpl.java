@@ -26,9 +26,10 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.repositories.EmailVerificationTokenRepository;
-import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.PasswordResetTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.EmailService;
@@ -87,11 +88,12 @@ import static java.lang.Boolean.TRUE;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
-public class UserServiceCEImpl extends BaseService<UserRepository, User, String> implements UserServiceCE {
+public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositoryCake, User, String>
+        implements UserServiceCE {
 
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final PasswordResetTokenRepositoryCake passwordResetTokenRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -113,30 +115,31 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             "%s/user/verify?token=%s&email=%s&redirectUrl=%s";
 
     private static final String EMAIL_VERIFICATION_ERROR_URL_FORMAT = "/user/verify-error?code=%s&message=%s&email=%s";
-    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final EmailVerificationTokenRepositoryCake emailVerificationTokenRepository;
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     @Autowired
     public UserServiceCEImpl(
             Validator validator,
-            UserRepository repository,
+            UserRepository repositoryDirect,
+            UserRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            PasswordResetTokenRepository passwordResetTokenRepository,
+            PasswordResetTokenRepositoryCake passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
             UserDataService userDataService,
             TenantService tenantService,
             UserUtils userUtils,
-            EmailVerificationTokenRepository emailVerificationTokenRepository,
+            EmailVerificationTokenRepositoryCake emailVerificationTokenRepository,
             EmailService emailService,
             RateLimitService rateLimitService,
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
 
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;

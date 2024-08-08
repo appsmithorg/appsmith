@@ -1,8 +1,10 @@
 package com.appsmith.server.notifications;
 
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,8 +20,9 @@ import java.util.List;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @Slf4j
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestPropertySource(properties = {"management.health.mail.enabled=false"})
 public class EmailSenderTest {
     @MockBean

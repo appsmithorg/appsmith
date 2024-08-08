@@ -13,14 +13,15 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,16 +54,16 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class MockDataServiceTest {
-
     @SpyBean
     PluginService pluginService;
 
     @Autowired
-    WorkspaceRepository workspaceRepository;
+    WorkspaceRepositoryCake workspaceRepository;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -85,10 +87,10 @@ public class MockDataServiceTest {
     NewActionService newActionService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;

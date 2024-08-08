@@ -19,12 +19,13 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -34,6 +35,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
 @ToString
 @FieldNameConstants
 public class ActionCE_DTO implements Identifiable, Executable {

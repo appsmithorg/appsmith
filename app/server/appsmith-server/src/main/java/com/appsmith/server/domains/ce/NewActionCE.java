@@ -1,5 +1,6 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BranchAwareDomain;
@@ -9,16 +10,22 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Type;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
 
 @Getter
 @Setter
 @ToString
+@MappedSuperclass
 @FieldNameConstants
 public class NewActionCE extends BranchAwareDomain {
 
@@ -30,19 +37,26 @@ public class NewActionCE extends BranchAwareDomain {
     String workspaceId;
 
     @JsonView({Views.Public.class, Git.class})
+    @Enumerated(EnumType.STRING)
     PluginType pluginType;
 
     @JsonView({Views.Public.class, Git.class})
     String pluginId;
 
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView({Views.Public.class, Git.class})
     ActionDTO unpublishedAction;
 
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     ActionDTO publishedAction;
 
     @Override

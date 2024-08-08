@@ -12,7 +12,7 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -47,7 +47,7 @@ import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrde
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
@@ -58,7 +58,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     public UserWorkspaceServiceCEImpl(
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             UserDataService userDataService,
             PermissionGroupService permissionGroupService,
             TenantService tenantService,

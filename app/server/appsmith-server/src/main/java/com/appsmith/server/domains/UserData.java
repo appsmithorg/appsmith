@@ -1,16 +1,21 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Cacheable;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
@@ -25,9 +30,11 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @Getter
 @Setter
 @ToString
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 @NoArgsConstructor
+@Cacheable(false)
 public class UserData extends BaseDomain {
 
     @JsonView(Views.Internal.class)
@@ -57,23 +64,33 @@ public class UserData extends BaseDomain {
     // list of workspace ids that were recently accessed by the user
     @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
     @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private List<String> recentlyUsedAppIds;
 
     // Map of workspaceId to list of recently used applicationIds. This field should be used to add entities
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private List<RecentlyUsedEntityDTO> recentlyUsedEntityIds;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
     @JsonView(Views.Internal.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     Map<String, GitProfile> gitProfiles;
 
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     Map<String, Object> userClaims;
 
     // Status of user's consent on sharing email for Intercom communications

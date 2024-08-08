@@ -1,10 +1,11 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ce.WorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
@@ -20,13 +21,14 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
     public WorkspaceServiceImpl(
             Validator validator,
-            WorkspaceRepository repository,
+            WorkspaceRepository repositoryDirect,
+            WorkspaceRepositoryCake repository,
             AnalyticsService analyticsService,
-            PluginRepository pluginRepository,
+            PluginRepositoryCake pluginRepository,
             SessionUserService sessionUserService,
-            AssetRepository assetRepository,
+            AssetRepositoryCake assetRepository,
             AssetService assetService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             PermissionGroupService permissionGroupService,
             PolicySolution policySolution,
             ModelMapper modelMapper,
@@ -36,6 +38,7 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
 
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 pluginRepository,

@@ -2,8 +2,9 @@ package com.appsmith.server.themes.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
@@ -15,14 +16,16 @@ import org.springframework.stereotype.Service;
 public class ThemeServiceImpl extends ThemeServiceCEImpl implements ThemeService {
     public ThemeServiceImpl(
             Validator validator,
-            ThemeRepository repository,
+            ThemeRepository repositoryDirect,
+            ThemeRepositoryCake repository,
             AnalyticsService analyticsService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 applicationRepository,

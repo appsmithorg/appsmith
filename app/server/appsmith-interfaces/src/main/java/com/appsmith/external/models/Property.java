@@ -1,10 +1,13 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.CustomJsonType;
+import jakarta.persistence.Column;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter
@@ -23,6 +26,8 @@ public class Property {
 
     String key;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     Object value;
 
     Boolean editable;

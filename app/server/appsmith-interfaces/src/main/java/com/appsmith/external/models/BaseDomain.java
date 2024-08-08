@@ -1,30 +1,34 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import lombok.AccessLevel;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.bson.types.ObjectId;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * TODO :
@@ -34,21 +38,23 @@ import java.util.Set;
 @Setter
 @ToString
 @FieldNameConstants
+@MappedSuperclass
+// @EntityListeners(EncryptionEntityListener.class) // May be not needed, but keeping as we may need to revisit _very_
+// soon.
 public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
-    private String id;
+    protected String id;
 
     @JsonView(Views.Internal.class)
-    @Indexed
-    @CreatedDate
+    @CreationTimestamp
     protected Instant createdAt;
 
     @JsonView(Views.Internal.class)
-    @LastModifiedDate
+    @UpdateTimestamp
     protected Instant updatedAt;
 
     @CreatedBy
@@ -59,21 +65,11 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     protected String modifiedBy;
 
-    /** @deprecated to rely only on `deletedAt` for all domain models.
-     * This field only exists here because its removal will cause a huge diff on all entities in git-connected
-     * applications. So, instead, we keep it, deprecated, query-transient (no corresponding field in Q* class),
-     * no getter/setter methods and only use it for reflection-powered services, like the git sync
-     * implementation. For all other practical purposes, this field doesn't exist.
-     */
-    @Deprecated(forRemoval = true)
-    @JsonView(Views.Internal.class)
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
-    protected Boolean deleted = false;
-
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
@@ -118,12 +114,21 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
      */
     public void updateForBulkWriteOperation() {
         if (this.getId() == null) {
-            this.setId(new ObjectId().toString());
+            this.setId(UUID.randomUUID().toString());
         }
         if (this.getCreatedAt() == null) {
             this.setCreatedAt(Instant.now());
         }
         this.setUpdatedAt(Instant.now());
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void preSave() {
+        if (id == null) {
+            // TODO: Use custom generation strategy instead of this.
+            setId(UUID.randomUUID().toString());
+        }
     }
 
     public static class Fields {}

@@ -1,8 +1,9 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.ce.UserDataServiceCEImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import jakarta.validation.Validator;
@@ -13,18 +14,20 @@ public class UserDataServiceImpl extends UserDataServiceCEImpl implements UserDa
 
     public UserDataServiceImpl(
             Validator validator,
-            UserDataRepository repository,
+            UserDataRepository repositoryDirect,
+            UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             SessionUserService sessionUserService,
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
 
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 userRepository,

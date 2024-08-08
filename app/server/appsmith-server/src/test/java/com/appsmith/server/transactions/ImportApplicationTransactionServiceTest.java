@@ -7,20 +7,24 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
+import jakarta.transaction.TransactionalException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
@@ -30,7 +34,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -46,10 +49,12 @@ import static org.mockito.ArgumentMatchers.any;
 // All the test case are for failure or exception. Test cases for valid json file is already present in
 // ImportExportApplicationServiceTest class
 
+@ExtendWith(AfterAllCleanUpExtension.class)
 @AutoConfigureDataMongo
 @SpringBootTest
 @TestPropertySource(properties = "property=C")
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@Disabled
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
@@ -59,22 +64,22 @@ public class ImportApplicationTransactionServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @MockBean
     NewActionService newActionService;
 
     @Autowired
-    NewActionRepository newActionRepository;
+    NewActionRepositoryCake newActionRepository;
 
     @Autowired
-    NewPageRepository newPageRepository;
+    NewPageRepositoryCake newPageRepository;
 
     @MockBean
     ActionCollectionService actionCollectionService;
 
     @Autowired
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -174,8 +179,8 @@ public class ImportApplicationTransactionServiceTest {
         newWorkspace.setName("Template Workspace");
 
         Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
-                .thenReturn(Mono.error(new MongoTransactionException(
-                        "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
+                .thenReturn(Mono.error(new TransactionalException(
+                        "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'", null)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 

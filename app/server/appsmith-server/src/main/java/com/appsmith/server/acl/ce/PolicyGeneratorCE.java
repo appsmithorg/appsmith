@@ -3,7 +3,6 @@ package com.appsmith.server.acl.ce;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.google.common.collect.Sets;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
@@ -262,10 +261,12 @@ public class PolicyGeneratorCE {
                     }
                     return false;
                 })
-                .map(lateralPermission -> Policy.builder()
-                        .permission(lateralPermission.getValue())
-                        .permissionGroups(permissionGroups)
-                        .build())
+                .map(lateralPermission -> {
+                    final Policy p = new Policy();
+                    p.setPermission(lateralPermission.getValue());
+                    p.setPermissionGroups(permissionGroups);
+                    return p;
+                })
                 .collect(Collectors.toSet());
     }
 
@@ -300,10 +301,10 @@ public class PolicyGeneratorCE {
             AclPermission childPermission = hierarchyGraph.getEdgeTarget(edge);
 
             if (childPermission.getEntity().equals(destinationEntity)) {
-                childPolicySet.add(Policy.builder()
-                        .permission(childPermission.getValue())
-                        .permissionGroups(policy.getPermissionGroups())
-                        .build());
+                final Policy p = new Policy();
+                p.setPermission(childPermission.getValue());
+                p.setPermissionGroups(policy.getPermissionGroups());
+                childPolicySet.add(p);
             }
 
             // Check the lateral graph to derive the child permissions that must be given to this document
@@ -333,8 +334,8 @@ public class PolicyGeneratorCE {
             if (policyMap.containsKey(policy.getPermission())) {
                 Policy mergedPolicy = policyMap.get(policy.getPermission());
 
-                mergedPolicy.setPermissionGroups(
-                        Sets.union(mergedPolicy.getPermissionGroups(), policy.getPermissionGroups()));
+                mergedPolicy.setPermissionGroups(new HashSet<>(mergedPolicy.getPermissionGroups()));
+                mergedPolicy.getPermissionGroups().addAll(policy.getPermissionGroups());
 
                 policyMap.put(policy.getPermission(), mergedPolicy);
             } else {

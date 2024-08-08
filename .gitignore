@@ -4,6 +4,7 @@
 
 stacks
 /deploy/docker/fs/opt/appsmith/info.json
+/deploy/docker/fs/opt/appsmith/server
 
 # to ignore the node_modeules folder
 node_modules

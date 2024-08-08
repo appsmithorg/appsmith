@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
@@ -7,6 +8,9 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,8 +19,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -36,7 +40,8 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Application extends BaseDomain implements Artifact {
 
@@ -50,11 +55,15 @@ public class Application extends BaseDomain implements Artifact {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
-    Boolean isPublic = false;
+    Boolean isPublic;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView({Views.Public.class, Git.class})
     List<ApplicationPage> pages;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     List<ApplicationPage> publishedPages;
 
@@ -73,9 +82,13 @@ public class Application extends BaseDomain implements Artifact {
     @JsonView(Views.Internal.class)
     String clonedFromApplicationId;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView({Views.Internal.class, Git.class})
     ApplicationDetail unpublishedApplicationDetail;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     ApplicationDetail publishedApplicationDetail;
 
@@ -88,18 +101,28 @@ public class Application extends BaseDomain implements Artifact {
     @JsonView(Views.Public.class)
     private String slug;
 
+    @Type(CustomJsonType.class)
     @JsonView({Views.Internal.class, Git.class})
+    @Column(columnDefinition = "jsonb")
     AppLayout unpublishedAppLayout;
 
+    @Type(CustomJsonType.class)
     @JsonView(Views.Internal.class)
+    @Column(columnDefinition = "jsonb")
     AppLayout publishedAppLayout;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Set<CustomJSLibContextDTO> unpublishedCustomJSLibs;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     GitArtifactMetadata gitApplicationMetadata;
 
@@ -129,6 +152,8 @@ public class Application extends BaseDomain implements Artifact {
     @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView({Views.Public.class, Git.class})
     EmbedSetting embedSetting;
 

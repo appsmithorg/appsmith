@@ -1,12 +1,13 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.server.domains.ce.ActionCollectionCE;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Where;
 
 /**
  * This class represents a collection of actions that may or may not belong to the same plugin.
@@ -16,7 +17,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @ToString(callSuper = true)
 @NoArgsConstructor
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class ActionCollection extends ActionCollectionCE {
     public static class Fields extends ActionCollectionCE.Fields {}

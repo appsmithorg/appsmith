@@ -16,12 +16,14 @@ import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.WorkspaceServiceHelper;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -66,14 +68,14 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Service
-public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
+public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, WorkspaceRepositoryCake, Workspace, String>
         implements WorkspaceServiceCE {
 
-    private final PluginRepository pluginRepository;
+    private final PluginRepositoryCake pluginRepository;
     private final SessionUserService sessionUserService;
-    private final AssetRepository assetRepository;
+    private final AssetRepositoryCake assetRepository;
     private final AssetService assetService;
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     protected final PermissionGroupService permissionGroupService;
     private final PolicySolution policySolution;
     private final ModelMapper modelMapper;
@@ -84,13 +86,14 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Autowired
     public WorkspaceServiceCEImpl(
             Validator validator,
-            WorkspaceRepository repository,
+            WorkspaceRepository repositoryDirect,
+            WorkspaceRepositoryCake repository,
             AnalyticsService analyticsService,
-            PluginRepository pluginRepository,
+            PluginRepositoryCake pluginRepository,
             SessionUserService sessionUserService,
-            AssetRepository assetRepository,
+            AssetRepositoryCake assetRepository,
             AssetService assetService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             PermissionGroupService permissionGroupService,
             PolicySolution policySolution,
             ModelMapper modelMapper,
@@ -98,7 +101,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             PermissionGroupPermission permissionGroupPermission,
             WorkspaceServiceHelper workspaceServiceHelper) {
 
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.assetRepository = assetRepository;
@@ -181,10 +184,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(tuple -> {
                     Workspace createdWorkspace = tuple.getT1();
                     Set<PermissionGroup> permissionGroups = tuple.getT2();
-                    return addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace);
+                    return addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace)
+                            .thenReturn(createdWorkspace);
                 })
                 .flatMap(this::createWorkspaceDependents)
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(analyticsService::sendCreateEvent)
+                .map(x -> x);
     }
 
     protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
@@ -401,7 +406,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
+        if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
             resource.setPolicies(null);
         }
 
@@ -583,11 +588,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
                         .flatMap(workspace -> {
 
-                            // Delete permission groups associated with this workspace before deleting the workspace
-                            // Since we have already asserted that the user has the delete permission on the workspace,
-                            // lets go ahead with the cleanup without permissions for the default permission groups
+                            // Delete permission groups associated with this workspace before deleting the
+                            // workspace
+                            // Since we have already asserted that the user has the delete permission on the
+                            // workspace,
+                            // lets go ahead with the cleanup without permissions for the default permission
+                            // groups
                             // (roles)
-                            // since we can't leave the permission groups in a state where they are not associated with
+                            // since we can't leave the permission groups in a state where they are not
+                            // associated with
                             // any workspace
 
                             Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();

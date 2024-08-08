@@ -4,10 +4,12 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.TemplateDTO;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -21,8 +23,9 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ApplicationTemplateServiceTest {
     private static MockWebServer mockCloudServices;

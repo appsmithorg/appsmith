@@ -2,18 +2,23 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
-    Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission);
+    List<Theme> getApplicationThemes(String applicationId, AclPermission permission, User currentUser);
 
-    Flux<Theme> getSystemThemes(AclPermission permission);
+    List<Theme> getSystemThemes(AclPermission permission, User currentUser);
 
-    Mono<Theme> getSystemThemeByName(String themeName, AclPermission permission);
+    Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser);
 
-    Mono<Boolean> archiveByApplicationId(String applicationId, AclPermission permission);
+    Optional<Theme> getSystemThemeByName(String themeName);
 
-    Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId, AclPermission permission);
+    Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission, User currentUser);
+
+    Optional<Boolean> archiveDraftThemesById(
+            String editModeThemeId, String publishedModeThemeId, AclPermission permission, User currentUser);
 }

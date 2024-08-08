@@ -1047,8 +1047,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed",
                             timeElapsed,
-                            "actionCreated",
-                            DateUtils.ISO_FORMATTER.format(actionDTO.getCreatedAt()),
                             "actionId",
                             ObjectUtils.defaultIfNull(actionDTO.getId(), "")));
                     data.putAll(Map.of(

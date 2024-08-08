@@ -69,8 +69,6 @@ public class CommonConfig {
 
     private List<String> allowedDomains;
 
-    private String mongoDBVersion;
-
     private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
 
     private static String adminEmailDomainHash;

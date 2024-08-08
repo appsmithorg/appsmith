@@ -2,11 +2,13 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.helpers.DateUtils;
+import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Where;
 
 /**
  * This stores a snapshot of an application. If a snapshot is more than 15 MB, we'll break it into smaller chunks.
@@ -16,7 +18,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @NoArgsConstructor
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class ApplicationSnapshot extends BaseDomain {
     private String applicationId;

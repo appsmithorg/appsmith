@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.PluginConstants;
-import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnectionFactory;
 import com.appsmith.external.helpers.restApiUtils.connections.BearerTokenAuthentication;
@@ -28,12 +27,13 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
@@ -41,12 +41,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -66,12 +68,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 @Slf4j
 public class DatasourceContextServiceTest {
 
     @Autowired
-    WorkspaceRepository workspaceRepository;
+    WorkspaceRepositoryCake workspaceRepository;
 
     @SpyBean
     PluginService pluginService;
@@ -86,10 +90,10 @@ public class DatasourceContextServiceTest {
     DatasourceStorageService datasourceStorageService;
 
     @SpyBean
-    DatasourceRepository datasourceRepository;
+    DatasourceRepositoryCake datasourceRepository;
 
     @SpyBean
-    NewActionRepository newActionRepository;
+    NewActionRepositoryCake newActionRepository;
 
     @Autowired
     UserService userService;
@@ -276,12 +280,18 @@ public class DatasourceContextServiceTest {
                             savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, authentication.getPassword());
 
+                    /* We don't assert this with Postgres.
+                    // Why? Encryption and decryption with Postgres happens in Jackson serialization/deserialization
+                    // phases. So when we save an object to the database, that has data that has to be encrypted,
+                    // Jackson will encrypt the string, just before generating the JSON. The value in the original
+                    // object, is left intact.
                     DatasourceStorageDTO savedDatasourceStorageDTO =
                             createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     DBAuth encryptedAuthentication = (DBAuth) savedDatasourceStorageDTO
                             .getDatasourceConfiguration()
                             .getAuthentication();
                     assertEquals(password, EncryptionHelper.decrypt(encryptedAuthentication.getPassword()));
+                     */
                 })
                 .verifyComplete();
     }
@@ -442,7 +452,7 @@ public class DatasourceContextServiceTest {
                 .flatMap(datasourceService::create)
                 .block();
 
-        assert createdDatasource != null;
+        assert createdDatasource != null; // `createdDatasource` has encrypted data, should be plain text, no?
 
         DatasourceStorageDTO datasourceStorageDTO =
                 createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);

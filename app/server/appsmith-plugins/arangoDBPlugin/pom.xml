@@ -33,6 +33,11 @@
             <version>4.5.13</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+        </dependency>
+
         <!-- Test Dependencies -->
 
         <dependency>

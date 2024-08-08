@@ -14,7 +14,7 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,7 +36,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 public class ActionCollectionImportableServiceCEImpl implements ImportableServiceCE<ActionCollection> {
 
     private final ActionCollectionService actionCollectionService;
-    private final ActionCollectionRepository repository;
+    private final ActionCollectionRepositoryCake repository;
     protected final ArtifactBasedImportableService<ActionCollection, Application> applicationImportableService;
 
     @Override

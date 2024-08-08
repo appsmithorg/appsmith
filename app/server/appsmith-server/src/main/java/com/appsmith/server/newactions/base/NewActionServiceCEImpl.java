@@ -35,10 +35,12 @@ import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
@@ -66,6 +68,7 @@ import reactor.util.function.Tuple2;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -86,7 +89,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class NewActionServiceCEImpl extends BaseService<NewActionRepository, NewAction, String>
+public class NewActionServiceCEImpl extends BaseService<NewActionRepository, NewActionRepositoryCake, NewAction, String>
         implements NewActionServiceCE {
 
     public static final String DATA = "data";
@@ -98,7 +101,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
 
-    protected final NewActionRepository repository;
+    protected final NewActionRepositoryCake repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
@@ -120,7 +123,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     public NewActionServiceCEImpl(
             Validator validator,
-            NewActionRepository repository,
+            NewActionRepository repositoryDirect,
+            NewActionRepositoryCake repository,
             AnalyticsService analyticsService,
             DatasourceService datasourceService,
             PluginService pluginService,
@@ -139,7 +143,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry) {
 
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
@@ -257,12 +261,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     // If the default action is not set then current action will be the default one
                     if (!StringUtils.hasLength(createdAction.getBaseId())) {
                         createdAction.setBaseId(createdAction.getId());
-                        return repository.save(createdAction);
+                        return repository.save(createdAction).thenReturn(createdAction);
                     }
                     return Mono.just(createdAction);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
-                .flatMap(this::setTransientFieldsInUnpublishedAction);
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
+                .flatMap(newAction1 -> setTransientFieldsInUnpublishedAction(newAction1));
     }
 
     @Override
@@ -337,15 +342,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             Mono<Datasource> datasourceMono = Mono.just(action.getDatasource());
             if (action.getPluginType() != PluginType.JS) {
                 if (action.getDatasource().getId() == null) {
-
-                    // This is a nested datasource. If the action is in bad state (aka without workspace id, add the
-                    // same)
-                    if (action.getDatasource().getWorkspaceId() == null
-                            && action.getDatasource().getOrganizationId() != null) {
-                        action.getDatasource()
-                                .setWorkspaceId(action.getDatasource().getOrganizationId());
-                    }
-
                     datasourceMono = Mono.just(action.getDatasource()).flatMap(datasourceService::validateDatasource);
                 } else {
                     // TODO: check if datasource should be fetched with edit during action create or update.
@@ -431,7 +427,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return Flux.fromIterable(newActionList)
                 .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
-                .flatMap(repository::bulkInsert);
+                .flatMap(entities -> repository.bulkInsert(repository, entities));
     }
 
     @Override
@@ -439,7 +435,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return Flux.fromIterable(newActionList)
                 .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
-                .flatMap(repository::bulkUpdate);
+                .flatMap(entities -> repository.bulkUpdate(repository, entities));
     }
 
     protected boolean isValidActionName(ActionDTO action) {
@@ -630,7 +626,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(newAction -> this.extractAndSetNativeQueryFromFormData(newAction));
 
         return updatedActionMono.flatMap(savedNewAction ->
-                this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)));
+                this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction))); // */
     }
 
     private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
@@ -702,7 +698,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findAllById(Iterable<String> id) {
+    public Flux<NewAction> findAllById(Collection<String> id) {
         return repository.findAllByIdIn(id).flatMap(this::sanitizeAction);
     }
 
@@ -1031,7 +1027,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .findByPageIdAndViewMode(pageId, false, permission)
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
-                .flatMap(this::setTransientFieldsInUnpublishedAction);
+                .flatMap(newAction -> setTransientFieldsInUnpublishedAction(newAction));
     }
 
     @Override
@@ -1610,7 +1606,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return newAction;
                 })
                 .collectList()
-                .flatMap(actions -> repository.bulkUpdate(actions))
+                .flatMap(actions -> repository.bulkUpdate(repository, actions))
                 .thenReturn(mapsDTO);
     }
 

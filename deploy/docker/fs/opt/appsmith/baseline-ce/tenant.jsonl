@@ -1,0 +1,1 @@
+{"_class":"com.appsmith.server.domains.Tenant","deleted":false,"displayName":"Default","id":"668cfff5f509675ada458899","policies":[{"permission":"manage:tenants","permissionGroups":["668cfff5f509675ada45889c"]}],"pricingPlan":"FREE","slug":"default","tenantConfiguration":{"instanceName":"Appsmith","isAtomicPushAllowed":false,"migrationStatus":"COMPLETED"}}

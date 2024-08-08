@@ -12,13 +12,14 @@ import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ContextTypeUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -52,7 +53,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     protected final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final AnalyticsService analyticsService;
-    private final ActionCollectionRepository actionCollectionRepository;
+    private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
 
@@ -373,7 +374,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(savedActionCollection ->
                         updateLayoutBasedOnContext(savedActionCollection).thenReturn(savedActionCollection))
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(

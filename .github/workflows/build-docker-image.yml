@@ -80,6 +80,10 @@ jobs:
             scripts/generate_info_json.sh
           fi
 
+      - name: Place server artifacts-es
+        run: |
+          scripts/prepare_server_artifacts.sh
+
       - name: Set base image tag
         id: set_base_tag
         run: |

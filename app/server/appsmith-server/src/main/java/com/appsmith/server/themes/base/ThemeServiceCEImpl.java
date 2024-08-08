@@ -10,8 +10,9 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -26,9 +27,10 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
-public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, String> implements ThemeServiceCE {
+public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeRepositoryCake, Theme, String>
+        implements ThemeServiceCE {
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final ApplicationService applicationService;
     private final PolicyGenerator policyGenerator;
     private final ApplicationPermission applicationPermission;
@@ -36,13 +38,14 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
 
     public ThemeServiceCEImpl(
             Validator validator,
-            ThemeRepository repository,
+            ThemeRepository repositoryDirect,
+            ThemeRepositoryCake repository,
             AnalyticsService analyticsService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.applicationRepository = applicationRepository;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;

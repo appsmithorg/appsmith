@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Theme;
@@ -11,13 +10,16 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
+import org.springframework.transaction.support.TransactionTemplate;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +34,8 @@ public class DryOperationRepository {
     private final ThemeRepository themeRepository;
 
     private final ApplicationRepository applicationRepository;
+
+    private final TransactionTemplate transactionTemplate;
 
     private Map<Class<?>, AppsmithRepository<?>> repoByEntityClass;
 
@@ -49,100 +53,90 @@ public class DryOperationRepository {
         return (AppsmithRepository<?>) repoByEntityClass.get(entityClass);
     }
 
-    public Flux<Datasource> saveDatasourceToDb(List<Datasource> datasources) {
-        return datasourceRepository.saveAll(datasources);
+    public List<Datasource> saveDatasourceToDb(List<Datasource> datasources) {
+        return (List<Datasource>) datasourceRepository.saveAll(datasources);
     }
 
-    public Flux<DatasourceStorage> saveDatasourceStorageToDb(List<DatasourceStorage> datasourceStorage) {
-        return datasourceStorageRepository.saveAll(datasourceStorage);
+    public List<DatasourceStorage> saveDatasourceStorageToDb(List<DatasourceStorage> datasourceStorage) {
+        return (List<DatasourceStorage>) datasourceStorageRepository.saveAll(datasourceStorage);
     }
 
-    private Flux<CustomJSLib> saveCustomJSLibToDb(List<CustomJSLib> customJSLibs) {
-        return customJSLibRepository.saveAll(customJSLibs);
+    private List<CustomJSLib> saveCustomJSLibToDb(List<CustomJSLib> customJSLibs) {
+        return (List<CustomJSLib>) customJSLibRepository.saveAll(customJSLibs);
     }
 
-    private Flux<Theme> saveThemeToDb(List<Theme> theme) {
-        return themeRepository.saveAll(theme);
+    private List<Theme> saveThemeToDb(List<Theme> theme) {
+        return (List<Theme>) themeRepository.saveAll(theme);
     }
 
-    private Mono<Boolean> archiveTheme(List<String> themeIds) {
+    private Integer archiveTheme(List<String> themeIds) {
         return themeRepository.archiveAllById(themeIds);
     }
 
-    private Mono<List<Theme>> updateTheme(List<Theme> themes) {
-        return themeRepository.bulkUpdate(themes).thenReturn(themes);
+    private Optional<List<Theme>> updateTheme(List<Theme> themes) {
+        themeRepository.bulkUpdate(themeRepository, themes);
+        return Optional.of(themes);
     }
 
-    private Mono<Application> updateApplication(Application application) {
+    private Optional<Application> updateApplication(Application application) {
         String id = application.getId();
         application.setId(null);
-        return applicationRepository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS);
+        return applicationRepository.updateById(id, application, null, null);
     }
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-
-        Flux<List<Datasource>> datasourceFLux = Flux.fromIterable(mappedImportableResourcesDTO
+        MappedImportableResourcesDTO result = transactionTemplate.execute(ts -> {
+            // Save all datasources
+            mappedImportableResourcesDTO.getDatasourceDryRunQueries().keySet().forEach(key -> {
+                List<Datasource> datasourceList = mappedImportableResourcesDTO
                         .getDatasourceDryRunQueries()
-                        .keySet())
-                .flatMap(key -> {
-                    List<Datasource> datasourceList = mappedImportableResourcesDTO
-                            .getDatasourceDryRunQueries()
-                            .get(key);
-                    return saveDatasourceToDb(datasourceList).collectList();
-                });
+                        .get(key);
+                saveDatasourceToDb(datasourceList);
+            });
 
-        Flux<List<DatasourceStorage>> datasourceStorageFLux = Flux.fromIterable(mappedImportableResourcesDTO
-                        .getDatasourceStorageDryRunQueries()
-                        .keySet())
-                .flatMap(key -> {
-                    List<DatasourceStorage> datasourceStorageList = mappedImportableResourcesDTO
-                            .getDatasourceStorageDryRunQueries()
-                            .get(key);
-                    return saveDatasourceStorageToDb(datasourceStorageList).collectList();
-                });
+            // Save all datasource storage
+            mappedImportableResourcesDTO
+                    .getDatasourceStorageDryRunQueries()
+                    .keySet()
+                    .forEach(key -> {
+                        List<DatasourceStorage> datasourceStorageList = mappedImportableResourcesDTO
+                                .getDatasourceStorageDryRunQueries()
+                                .get(key);
+                        saveDatasourceStorageToDb(datasourceStorageList);
+                    });
 
-        Flux<List<CustomJSLib>> customJSLibFlux = Flux.fromIterable(
-                        mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet())
-                .flatMap(key -> {
-                    List<CustomJSLib> customJSLibList =
-                            mappedImportableResourcesDTO.getCustomJSLibsDryOps().get(key);
-                    return saveCustomJSLibToDb(customJSLibList).collectList();
-                });
+            // Save all custom js libs
+            mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet().forEach(key -> {
+                List<CustomJSLib> customJSLibList =
+                        mappedImportableResourcesDTO.getCustomJSLibsDryOps().get(key);
+                saveCustomJSLibToDb(customJSLibList);
+            });
 
-        Flux<List<Theme>> themeFlux = Flux.fromIterable(
-                        mappedImportableResourcesDTO.getThemeDryRunQueries().keySet())
-                .flatMap(key -> {
-                    List<Theme> themeList =
-                            mappedImportableResourcesDTO.getThemeDryRunQueries().get(key);
-                    if (key.equals(DBOpsType.SAVE.name())) {
-                        return saveThemeToDb(themeList).collectList();
-                    } else if (key.equals(DBOpsType.DELETE.name())) {
-                        return archiveTheme(themeList.stream().map(Theme::getId).toList())
-                                .then(Mono.just(themeList));
-                    } else {
-                        return updateTheme(themeList);
-                    }
-                });
+            mappedImportableResourcesDTO.getThemeDryRunQueries().keySet().forEach(key -> {
+                List<Theme> themeList =
+                        mappedImportableResourcesDTO.getThemeDryRunQueries().get(key);
+                if (key.equals(DBOpsType.SAVE.name())) {
+                    saveThemeToDb(themeList);
+                } else if (key.equals(DBOpsType.DELETE.name())) {
+                    archiveTheme(themeList.stream().map(Theme::getId).toList());
+                } else {
+                    updateTheme(themeList);
+                }
+            });
 
-        Flux<List<Application>> applicationFlux = Flux.fromIterable(mappedImportableResourcesDTO
+            mappedImportableResourcesDTO.getApplicationDryRunQueries().keySet().forEach(key -> {
+                List<Application> applicationList = mappedImportableResourcesDTO
                         .getApplicationDryRunQueries()
-                        .keySet())
-                .flatMap(key -> {
-                    List<Application> applicationList = mappedImportableResourcesDTO
-                            .getApplicationDryRunQueries()
-                            .get(key);
-                    if (key.equals(DBOpsType.SAVE.name())) {
-                        return Flux.fromIterable(applicationList)
-                                .flatMap(this::updateApplication)
-                                .collectList();
-                    } else {
-                        return Flux.fromIterable(applicationList)
-                                .flatMap(this::updateApplication)
-                                .collectList();
-                    }
-                });
+                        .get(key);
+                if (key.equals(DBOpsType.SAVE.name())) {
+                    applicationList.forEach(this::updateApplication);
+                } else {
+                    applicationList.forEach(this::updateApplication);
+                }
+            });
+            return mappedImportableResourcesDTO;
+        });
 
-        return Flux.merge(datasourceFLux, datasourceStorageFLux, customJSLibFlux, themeFlux, applicationFlux)
-                .then();
+        return asMonoDirect(() -> result).then();
     }
 }

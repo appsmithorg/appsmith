@@ -35,6 +35,6 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                             .get();
                     matchedLayout.setViewMode(viewMode);
                     return matchedLayout;
-                });
+                }); // */
     }
 }

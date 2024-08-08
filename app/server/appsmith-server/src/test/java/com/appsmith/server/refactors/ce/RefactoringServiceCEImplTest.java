@@ -15,12 +15,13 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringServiceCEImpl;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -30,11 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -46,6 +49,8 @@ import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Slf4j
 @SpringBootTest
 class RefactoringServiceCEImplTest {
@@ -76,7 +81,7 @@ class RefactoringServiceCEImplTest {
     private SessionUserService sessionUserService;
 
     @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @SpyBean
     private EntityRefactoringService<Void> jsActionEntityRefactoringService;

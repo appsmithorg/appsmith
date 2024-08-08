@@ -13,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.WorkspaceService;
@@ -57,7 +58,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
+public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRepositoryCake, Plugin, String>
+        implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
     protected final WorkspaceService workspaceService;
@@ -89,14 +91,15 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     @Autowired
     public PluginServiceCEImpl(
             Validator validator,
-            PluginRepository repository,
+            PluginRepository repositoryDirect,
+            PluginRepositoryCake repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper) {
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;

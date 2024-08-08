@@ -26,14 +26,16 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -62,7 +64,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@ExtendWith(AfterAllCleanUpExtension.class)
 public class ConsolidatedAPIServiceImplTest {
 
     @Autowired
@@ -114,10 +117,10 @@ public class ConsolidatedAPIServiceImplTest {
     MockDataService mockMockDataService;
 
     @SpyBean
-    ApplicationRepository spyApplicationRepository;
+    ApplicationRepositoryCake spyApplicationRepository;
 
     @SpyBean
-    NewPageRepository mockNewPageRepository;
+    NewPageRepositoryCake mockNewPageRepository;
 
     @Test
     public void testErrorWhenModeIsNullAndPageIdAvailable() {

@@ -28,6 +28,16 @@ public class SerializationUtils {
         HTTP_METHOD_MODULE = new HttpMethodConverter.HttpMethodModule();
     }
 
+    public static ObjectMapper configureObjectMapper(ObjectMapper objectMapper) {
+        return objectMapper
+                .findAndRegisterModules()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
+                .registerModules(JAVA_TIME_MODULE, HTTP_METHOD_MODULE)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
     public static ObjectMapper getBasicObjectMapper(PrettyPrinter prettyPrinter) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper

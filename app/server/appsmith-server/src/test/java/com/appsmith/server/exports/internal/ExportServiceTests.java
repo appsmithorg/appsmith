@@ -43,6 +43,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
@@ -51,10 +52,10 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -73,6 +74,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -107,8 +109,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ExportServiceTests {
 
@@ -133,10 +136,10 @@ public class ExportServiceTests {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     DatasourceService datasourceService;
@@ -169,7 +172,7 @@ public class ExportServiceTests {
     ApplicationService applicationService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -2033,6 +2036,7 @@ public class ExportServiceTests {
                     ds1.setName("DS_FOR_RENAME_TEST");
                     ds1.setWorkspaceId(workspaceId);
                     ds1.setPluginId(installedPlugin.getId());
+                    ds1.setCreatedAt(Instant.now());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(new Property("X-Answer", "42")));

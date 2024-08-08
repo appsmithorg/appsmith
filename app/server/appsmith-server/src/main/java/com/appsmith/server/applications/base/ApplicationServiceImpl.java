@@ -1,7 +1,8 @@
 package com.appsmith.server.applications.base;
 
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -23,11 +24,12 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
 
     public ApplicationServiceImpl(
             Validator validator,
-            ApplicationRepository repository,
+            ApplicationRepository repositoryDirect,
+            ApplicationRepositoryCake repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
             PermissionGroupService permissionGroupService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
@@ -37,6 +39,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             WorkspacePermission workspacePermission) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 policySolution,

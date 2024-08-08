@@ -4,12 +4,15 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 
 @Getter
@@ -19,6 +22,8 @@ import org.springframework.util.StringUtils;
 @EqualsAndHashCode
 public class ApplicationPage {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String id;
 

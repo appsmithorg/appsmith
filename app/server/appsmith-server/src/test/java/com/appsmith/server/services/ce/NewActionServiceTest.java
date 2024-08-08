@@ -6,14 +6,17 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.solutions.ActionPermission;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -25,6 +28,8 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class NewActionServiceTest {
 
     @Autowired
@@ -34,10 +39,10 @@ public class NewActionServiceTest {
     PolicyGenerator policyGenerator;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
-    NewActionRepository newActionRepository;
+    NewActionRepositoryCake newActionRepository;
 
     @Autowired
     ActionPermission actionPermission;

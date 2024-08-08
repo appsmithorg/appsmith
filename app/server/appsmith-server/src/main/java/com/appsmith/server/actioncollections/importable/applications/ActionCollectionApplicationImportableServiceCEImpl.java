@@ -13,7 +13,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableServiceCE;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.UUID;
 public class ActionCollectionApplicationImportableServiceCEImpl
         implements ArtifactBasedImportableServiceCE<ActionCollection, Application> {
 
-    private final ActionCollectionRepository repository;
+    private final ActionCollectionRepositoryCake repository;
     private final ActionCollectionService actionCollectionService;
 
     @Override

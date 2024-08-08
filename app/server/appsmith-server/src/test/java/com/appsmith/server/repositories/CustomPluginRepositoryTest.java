@@ -1,9 +1,13 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -14,10 +18,12 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class CustomPluginRepositoryTest {
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Test
     public void findDefaultPluginIcons_WhenResultFound_OnlyDefaultInstallPluginsReturned() {

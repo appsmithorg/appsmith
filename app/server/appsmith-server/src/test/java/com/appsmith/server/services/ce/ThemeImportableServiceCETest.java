@@ -7,11 +7,12 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.imports.importable.ImportableService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.UserService;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -37,11 +39,12 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@DirtiesContext
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ThemeImportableServiceCETest {
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     ApplicationService applicationService;
@@ -61,13 +64,13 @@ public class ThemeImportableServiceCETest {
     private ImportableService<Theme> themeImportableService;
 
     @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
+    private PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    private ThemeRepository themeRepository;
+    private ThemeRepositoryCake themeRepository;
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
@@ -76,7 +79,7 @@ public class ThemeImportableServiceCETest {
     ApplicationPermission applicationPermission;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;

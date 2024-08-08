@@ -16,6 +16,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -27,10 +28,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -46,7 +49,7 @@ import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -66,16 +69,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
 @Slf4j
 @Service
-public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository, Application, String>
+public class ApplicationServiceCEImpl
+        extends BaseService<ApplicationRepository, ApplicationRepositoryCake, Application, String>
         implements ApplicationServiceCE {
 
     private final PolicySolution policySolution;
     private final PermissionGroupService permissionGroupService;
-    private final NewActionRepository newActionRepository;
+    private final NewActionRepositoryCake newActionRepository;
     private final AssetService assetService;
 
     private final DatasourcePermission datasourcePermission;
@@ -90,11 +95,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Autowired
     public ApplicationServiceCEImpl(
             Validator validator,
-            ApplicationRepository repository,
+            ApplicationRepository repositoryDirect,
+            ApplicationRepositoryCake repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
             PermissionGroupService permissionGroupService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
@@ -103,7 +109,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission) {
 
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
         this.permissionGroupService = permissionGroupService;
         this.newActionRepository = newActionRepository;
@@ -122,8 +128,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repository
-                .findById(id, applicationPermission.getReadPermission())
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user ->
+                        asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission(), user)))
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
@@ -131,11 +138,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Override
     public Mono<Application> findByBranchedId(String id, List<String> projectionFieldNames) {
-        return repository
-                .queryBuilder()
-                .byId(id)
-                .fields(projectionFieldNames)
-                .one()
+        return asMono(() -> repository
+                        .queryBuilder()
+                        .byId(id)
+                        .fields(projectionFieldNames)
+                        .one())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
     }
@@ -244,10 +251,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
-        return super.create(application).onErrorResume(DuplicateKeyException.class, error -> {
+        return super.create(application).onErrorResume(DataIntegrityViolationException.class, error -> {
             if (error.getMessage() != null
-                    // Catch only if error message contains workspace_app_deleted_gitApplicationMetadata mongo error
-                    && error.getMessage().contains("workspace_app_deleted_gitApplicationMetadata")) {
+                    // Catch only if error message contains workspace_app_deleted_git_application_metadata mongo error
+                    && (error.getMessage().contains("application_workspace_name_key")
+                            || error.getMessage()
+                                    .contains("application_workspace_name_git_application_metadata_key"))) {
                 if (suffix > MAX_RETRIES) {
                     return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
                 } else {
@@ -307,13 +316,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     .updateById(appId, application, applicationPermission.getEditPermission())
                     .onErrorResume(error -> {
                         log.error("failed to update application {}", appId, error);
-                        if (error instanceof DuplicateKeyException) {
+                        if (error instanceof DataIntegrityViolationException) {
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
-                            // workspace_app_deleted_gitApplicationMetadata dup key:
+                            // workspace_app_deleted_git_application_metadata dup key:
                             // { organizationId: "******", name: "AppName", deletedAt: null }
                             if (error.getCause()
                                     .getMessage()
-                                    .contains("workspace_app_deleted_gitApplicationMetadata")) {
+                                    .contains("workspace_app_deleted_git_application_metadata")) {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME));
                             }
@@ -786,12 +795,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return repository
-                    .queryBuilder()
-                    .byId(baseApplicationId)
-                    .fields(projectionFieldNames)
-                    .permission(aclPermission)
-                    .one()
+            Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+            return currentUserMono
+                    .flatMap(user -> asMono(() -> repository
+                            .queryBuilder()
+                            .byId(baseApplicationId)
+                            .fields(projectionFieldNames)
+                            .permission(aclPermission, user)
+                            .one()))
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, baseApplicationId)));
         }
@@ -856,7 +867,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             return Mono.just(baseApplicationId);
         }
         return repository
-                .getApplicationByGitBranchAndBaseApplicationId(baseApplicationId, branchName.get(), permission)
+                .getApplicationByGitBranchAndBaseApplicationId(
+                        baseApplicationId, branchName.get(), permission.orElse(null))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, baseApplicationId + ", " + branchName)))
                 .map(Application::getId);

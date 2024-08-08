@@ -6,6 +6,7 @@ import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.AppsmithOAuth2AuthenticationException;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +25,12 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserService {
 
-    private UserRepository repository;
+    private UserRepositoryCake repository;
     private UserService userService;
 
     @Autowired
-    public CustomOAuth2UserServiceCEImpl(UserRepository repository, UserService userService) {
+    public CustomOAuth2UserServiceCEImpl(
+            UserRepository repositoryDirect, UserRepositoryCake repository, UserService userService) {
         this.repository = repository;
         this.userService = userService;
     }
@@ -74,6 +76,6 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
                         // Throwing an AppsmithOAuth2AuthenticationException in case of an AppsmithException
                         // This is to differentiate between Appsmith exceptions and OAuth2 exceptions
                         error -> new AppsmithOAuth2AuthenticationException(
-                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));
+                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), ""))); // */
     }
 }

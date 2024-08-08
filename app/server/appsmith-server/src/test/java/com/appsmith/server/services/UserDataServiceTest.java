@@ -8,12 +8,14 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.git.common.CommonGitService;
-import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,8 +41,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class UserDataServiceTest {
 
     private static final String DEFAULT_GIT_PROFILE = "default";
@@ -52,10 +55,10 @@ public class UserDataServiceTest {
     private UserDataService userDataService;
 
     @Autowired
-    private UserDataRepository userDataRepository;
+    private UserDataRepositoryCake userDataRepository;
 
     @Autowired
-    private AssetRepository assetRepository;
+    private AssetRepositoryCake assetRepository;
 
     @Autowired
     private CommonGitService commonGitService;

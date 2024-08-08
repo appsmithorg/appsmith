@@ -101,7 +101,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
         Mono<DatasourceStorageStructure> configurationStructureMono =
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(
-                        datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
+                        String.valueOf(datasourceStorage.getDatasourceId()), datasourceStorage.getEnvironmentId());
 
         Mono<DatasourceStructure> fetchAndStoreNewStructureMono = pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
@@ -149,7 +149,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                         datasourceStorage, false, error, environmentName)))
                         .then(Mono.error(error)))
                 .flatMap(structure -> {
-                    String datasourceId = datasourceStorage.getDatasourceId();
+                    String datasourceId = String.valueOf(datasourceStorage.getDatasourceId());
                     String environmentId = datasourceStorage.getEnvironmentId();
 
                     return environmentNameMonoCached

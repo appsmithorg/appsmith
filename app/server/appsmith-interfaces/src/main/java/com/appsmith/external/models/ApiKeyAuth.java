@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.views.FromRequest;
@@ -22,7 +21,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@DocumentType(Authentication.API_KEY)
 public class ApiKeyAuth extends AuthenticationDTO {
 
     public enum Type {

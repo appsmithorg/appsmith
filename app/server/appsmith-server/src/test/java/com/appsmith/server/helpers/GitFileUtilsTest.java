@@ -7,12 +7,14 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,10 +41,10 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class GitFileUtilsTest {
-
     private static final Path localRepoPath = Path.of("localRepoPath");
     private static final String filePath = "test_assets/ImportExportServiceTest/valid-application.json";
 

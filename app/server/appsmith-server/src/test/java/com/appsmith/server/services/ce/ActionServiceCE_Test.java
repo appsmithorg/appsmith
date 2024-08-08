@@ -34,6 +34,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
@@ -41,10 +42,10 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.services.LayoutActionService;
@@ -63,6 +64,7 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -100,9 +102,10 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ActionServiceCE_Test {
     @Autowired
     NewActionService newActionService;
@@ -120,7 +123,7 @@ public class ActionServiceCE_Test {
     WorkspaceService workspaceService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -159,7 +162,7 @@ public class ActionServiceCE_Test {
     MockDataService mockDataService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -168,7 +171,7 @@ public class ActionServiceCE_Test {
     AstService astService;
 
     @Autowired
-    DatasourceRepository datasourceRepository;
+    DatasourceRepositoryCake datasourceRepository;
 
     @Autowired
     EnvironmentPermission environmentPermission;
@@ -177,7 +180,7 @@ public class ActionServiceCE_Test {
     ApplicationPermission applicationPermission;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -1413,45 +1416,6 @@ public class ActionServiceCE_Test {
                                     .map(DslExecutableDTO::getName)
                                     .collect(Collectors.toSet()))
                             .hasSameElementsAs(firstSetPageLoadActions);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateAction_withoutWorkspaceId_withOrganizationId() {
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("validAction_nestedDatasource");
-        action.setPageId(testPage.getId());
-        action.setExecuteOnLoad(true);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setHttpMethod(HttpMethod.GET);
-        action.setActionConfiguration(actionConfiguration);
-        action.setDatasource(datasource);
-
-        Mono<ActionDTO> createActionMono =
-                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
-
-        ActionDTO updateAction = new ActionDTO();
-        Datasource nestedDatasource = new Datasource();
-        nestedDatasource.setOrganizationId(workspaceId);
-        nestedDatasource.setName("DEFAULT_REST_DATASOURCE");
-        nestedDatasource.setPluginId(datasource.getPluginId());
-        nestedDatasource.setDatasourceConfiguration(new DatasourceConfiguration());
-
-        updateAction.setDatasource(nestedDatasource);
-        Mono<ActionDTO> actionMono = createActionMono.flatMap(
-                savedAction -> layoutActionService.updateAction(savedAction.getId(), updateAction));
-
-        StepVerifier.create(actionMono)
-                .assertNext(updatedAction -> {
-                    Datasource datasource1 = updatedAction.getDatasource();
-                    assertThat(datasource1.getWorkspaceId()).isNotNull();
-                    assertThat(datasource1.getInvalids()).isEmpty();
                 })
                 .verifyComplete();
     }

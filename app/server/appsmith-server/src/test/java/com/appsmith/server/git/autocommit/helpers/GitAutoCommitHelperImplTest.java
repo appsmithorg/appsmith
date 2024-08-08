@@ -10,6 +10,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.events.AutoCommitEvent;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
 import com.appsmith.server.git.common.CommonGitService;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,9 +40,10 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class GitAutoCommitHelperImplTest {
 
     @MockBean

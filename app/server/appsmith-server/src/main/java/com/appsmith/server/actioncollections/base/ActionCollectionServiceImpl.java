@@ -4,6 +4,7 @@ import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -16,7 +17,8 @@ import org.springframework.stereotype.Service;
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
     public ActionCollectionServiceImpl(
             Validator validator,
-            ActionCollectionRepository repository,
+            ActionCollectionRepository repositoryDirect,
+            ActionCollectionRepositoryCake repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
             PolicyGenerator policyGenerator,
@@ -25,6 +27,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ActionPermission actionPermission) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 newActionService,

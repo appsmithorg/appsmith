@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -9,8 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -21,29 +23,31 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     private final SessionUserService sessionUserService;
 
     @Override
-    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
+    public Optional<Workspace> findByName(String name, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.name, name))
-                .permission(aclPermission)
+                .permission(permission, currentUser)
                 .one();
     }
 
     @Override
-    public Flux<Workspace> findByIdsIn(
-            Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
+    public List<Workspace> findByIdsIn(
+            Set<String> workspaceIds, String tenantId, AclPermission permission, User currentUser, Sort sort) {
         return queryBuilder()
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
                         .equal(Workspace.Fields.tenantId, tenantId))
-                .permission(aclPermission)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
 
     @Override
-    public Flux<Workspace> findAll(AclPermission permission) {
-        return sessionUserService.getCurrentUser().flatMapMany(user -> queryBuilder()
-                .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
-                .permission(permission)
-                .all());
+    public List<Workspace> findAll(AclPermission permission, User currentUser) {
+        return Flux.fromIterable(queryBuilder()
+                        .criteria(Bridge.equal(Workspace.Fields.tenantId, currentUser.getTenantId()))
+                        .permission(permission, currentUser)
+                        .all())
+                .collectList()
+                .block();
     }
 }
