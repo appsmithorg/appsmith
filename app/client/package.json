@@ -86,7 +86,7 @@
     "@shared/ast": "workspace:^",
     "@shared/dsl": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
-    "@tinymce/tinymce-react": "^5.0.0",
+    "@tinymce/tinymce-react": "^5.1.1",
     "@types/babel__standalone": "^7.1.7",
     "@types/cypress-image-snapshot": "^3.1.9",
     "@types/d3-geo": "^3.1.0",
