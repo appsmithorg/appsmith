@@ -47,12 +47,10 @@ public class PageControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<PageDTO>> createPage(
-            @Valid @RequestBody PageCreationDTO page,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to create page {}", page.getClass().getName());
+    public Mono<ResponseDTO<PageDTO>> createPage(@Valid @RequestBody PageCreationDTO page) {
+        log.debug("Going to create page {}", page.name());
         return applicationPageService
-                .createPageWithBranchName(page.toPageDTO(), branchName)
+                .createPage(page.toPageDTO())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -61,69 +59,63 @@ public class PageControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(
             @RequestBody @NonNull CRUDPageResourceDTO resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug(
-                "Going to create crud-page in application {}, branchName {}", resource.getApplicationId(), branchName);
+        log.debug("Going to create crud-page in application {}", resource.getApplicationId());
         return createDBTablePageSolution
-                .createPageFromDBTable(null, resource, environmentId, branchName, Boolean.TRUE)
+                .createPageFromDBTable(null, resource, environmentId, null, Boolean.TRUE)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/crud-page/{defaultPageId}")
+    @PutMapping("/crud-page/{branchedPageId}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(
-            @PathVariable String defaultPageId,
+            @PathVariable String branchedPageId,
             @NonNull @RequestBody CRUDPageResourceDTO resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to create CRUD page {}, branchName {}", defaultPageId, branchName);
+        log.debug("Going to create CRUD page {}", branchedPageId);
         return createDBTablePageSolution
-                .createPageFromDBTable(defaultPageId, resource, environmentId, branchName, Boolean.TRUE)
+                .createPageFromDBTable(branchedPageId, resource, environmentId, null, Boolean.TRUE)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @Deprecated
     @JsonView(Views.Public.class)
-    @GetMapping("/application/{applicationId}")
+    @GetMapping("/application/{branchedApplicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationId(
-            @PathVariable String applicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedApplicationId) {
         return newPageService
-                .findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, false, true)
+                .findApplicationPagesByBranchedApplicationIdAndViewMode(branchedApplicationId, false, true)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/view/application/{applicationId}")
+    @GetMapping("/view/application/{branchedApplicationId}")
     public Mono<ResponseDTO<ApplicationPagesDTO>> getPageNamesByApplicationIdInViewMode(
-            @PathVariable String applicationId,
+            @PathVariable String branchedApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return newPageService
-                .findApplicationPagesByApplicationIdViewModeAndBranch(applicationId, branchName, true, true)
+                .findApplicationPagesByBranchedApplicationIdAndViewMode(branchedApplicationId, true, true)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{defaultPageId}")
+    @GetMapping("/{branchedPageId}")
     public Mono<ResponseDTO<PageDTO>> getPageById(
-            @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @PathVariable String branchedPageId,
             @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, false, migrateDsl)
+                .getPageAndMigrateDslByBranchedPageId(branchedPageId, false, migrateDsl)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{defaultPageId}/view")
+    @GetMapping("/{branchedPageId}/view")
     public Mono<ResponseDTO<PageDTO>> getPageView(
-            @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @PathVariable String branchedPageId,
             @RequestParam(required = false, defaultValue = "false") Boolean migrateDsl) {
         return applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, true, migrateDsl)
+                .getPageAndMigrateDslByBranchedPageId(branchedPageId, true, migrateDsl)
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
@@ -133,40 +125,33 @@ public class PageControllerCE {
      * In case the page has been published, this page would eventually get deleted whenever the application is published
      * next.
      *
-     * @param defaultPageId defaultPageId which will be needed to find the actual page that needs to be deleted
-     * @param branchName    git branch to find the exact page which needs to be deleted
+     * @param branchedPageId branchedPageId which will be needed to find the actual page that needs to be deleted
      * @return deleted page DTO
      */
     @JsonView(Views.Public.class)
-    @DeleteMapping("/{defaultPageId}")
-    public Mono<ResponseDTO<PageDTO>> deletePage(
-            @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to delete page with id: {}, branchName: {}", defaultPageId, branchName);
+    @DeleteMapping("/{branchedPageId}")
+    public Mono<ResponseDTO<PageDTO>> deletePage(@PathVariable String branchedPageId) {
+        log.debug("Going to delete page with id: {}", branchedPageId);
         return applicationPageService
-                .deleteUnpublishedPageByBranchAndDefaultPageId(defaultPageId, branchName)
+                .deleteUnpublishedPage(branchedPageId)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/clone/{defaultPageId}")
-    public Mono<ResponseDTO<PageDTO>> clonePage(
-            @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    @PostMapping("/clone/{branchedPageId}")
+    public Mono<ResponseDTO<PageDTO>> clonePage(@PathVariable String branchedPageId) {
         return applicationPageService
-                .clonePageByDefaultPageIdAndBranch(defaultPageId, branchName)
+                .clonePage(branchedPageId)
                 .map(page -> new ResponseDTO<>(HttpStatus.CREATED.value(), page, null));
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{defaultPageId}")
+    @PutMapping("/{branchedPageId}")
     public Mono<ResponseDTO<PageDTO>> updatePage(
-            @PathVariable String defaultPageId,
-            @RequestBody @Valid PageUpdateDTO resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to update page with id: {}, branchName: {}", defaultPageId, branchName);
+            @PathVariable String branchedPageId, @RequestBody @Valid PageUpdateDTO resource) {
+        log.debug("Going to update page with id: {}", branchedPageId);
         return newPageService
-                .updatePageByDefaultPageIdAndBranch(defaultPageId, resource, branchName)
+                .updatePage(branchedPageId, resource.toPageDTO())
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
@@ -176,27 +161,24 @@ public class PageControllerCE {
      * if Page ID is present, it'll fetch all pages of the corresponding Application.
      * If both IDs are present, it'll use the Application ID only and ignore the Page ID
      *
-     * @param applicationId Id of the application
-     * @param pageId        id of a page
+     * @param branchedApplicationId Id of the application
+     * @param branchedPageId        id of a page
      * @param mode          In which mode it's in
-     * @param branchName    name of the current branch
      * @return List of ApplicationPagesDTO along with other meta data
      */
     @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<ApplicationPagesDTO>> getAllPages(
-            @RequestParam(required = false) String applicationId,
-            @RequestParam(required = false) String pageId,
-            @RequestParam(required = true, defaultValue = "EDIT") ApplicationMode mode,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @RequestParam(name = FieldName.APPLICATION_ID, required = false) String branchedApplicationId,
+            @RequestParam(name = FieldName.PAGE_ID, required = false) String branchedPageId,
+            @RequestParam(defaultValue = "EDIT") ApplicationMode mode) {
         log.debug(
-                "Going to fetch applicationPageDTO for applicationId: {}, pageId: {}, branchName: {}, mode: {}",
-                applicationId,
-                pageId,
-                branchName,
+                "Going to fetch applicationPageDTO for branchedApplicationId: {}, branchedPageId: {}, mode: {}",
+                branchedApplicationId,
+                branchedPageId,
                 mode);
         return newPageService
-                .findApplicationPages(applicationId, pageId, branchName, mode)
+                .findApplicationPages(branchedApplicationId, branchedPageId, mode)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 

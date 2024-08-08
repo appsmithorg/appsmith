@@ -1,14 +1,14 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { isNameValid } from "utils/helpers";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import log from "loglevel";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import {
   ACTION_INVALID_NAME_ERROR,
   ACTION_NAME_CONFLICT_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 
@@ -66,10 +66,16 @@ export const IconBox = styled.div`
 `;
 
 interface NameEditorProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: (params: any) => JSX.Element;
   id?: string;
   name?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatchAction: (a: any) => any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   suffixErrorMessage?: (params?: any) => string;
   idUndefinedErrorMessage: string;
   saveStatus: { isSaving: boolean; error: boolean };

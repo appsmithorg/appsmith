@@ -1,0 +1,77 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as SelectStories from "./Select.stories";
+
+<Meta of={SelectStories} />
+
+# Select
+
+Select allows users to make single or multiple selections from a list of options, usually found in forms or inline editing.
+
+<Canvas of={SelectStories.SelectStory} />
+
+## Anatomy
+
+1. **Label:** Labels should indicate what information the field requires.
+2. **Select field:** The field people click in to receive the options they can choose from. Once selected, the option will be shown in the field.
+3. **Dropdown:** Contains the list of all selectable items.
+4. **Placeholder:** Includes information that supports the field label and other contextual cues, for example, _“Start typing to see names”_.
+5. **Selected item:** Displays what options have been selected. Users can remove selections by selecting the option again.
+6. **Clear all:** When the `allowClear` flag is set, the **x** button clears all selections and anything else in the selection field. It only appears when at least one option has been selected.
+
+![Select anatomy](./docs/select-anatomy.png)
+
+## Spacing
+
+![Select spacing](./docs/select-spacing.png)
+
+## Variations
+
+### Multiselect
+
+<Canvas of={SelectStories.SelectMultiselectStory} />
+
+**With checkboxes**
+
+<Canvas of={SelectStories.SelectWithCheckbox} />
+
+### Searchable
+
+<Canvas of={SelectStories.SelectSearchStory} />
+
+### Disabled
+
+<Canvas of={SelectStories.SelectDisabledStory} />
+
+### Loading
+
+<Canvas of={SelectStories.SelectLoadingStory} />
+
+### Validity
+
+<Canvas of={SelectStories.SelectInvalidStory} />
+
+## Best practices
+
+The select component should:
+
+- Be used to select from four or more pre-defined options.
+- Whenever possible, have a default option selected.
+- Use "Select" as a placeholder option only if there is no logical default option.
+
+## Usage
+
+**When to use**
+
+- Use the select component within a form when users need to select from a list of options and submit data.
+- Use the select component when the user experience is primarily form-based.
+
+**When not to use**
+
+- Avoid using a select component if there are fewer than three options for selection. Instead, use a radio button group.
+
+---
+
+## Resources
+
+1. Internally, our select component is a wrapper around [rc-select](https://select-react-component.vercel.app/)

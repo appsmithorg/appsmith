@@ -164,6 +164,8 @@ class IconSelectControl extends BaseControl<
   // debouncedSetState is used to fix the following bug:
   // https://github.com/appsmithorg/appsmith/pull/10460#issuecomment-1022895174
   private debouncedSetState = _.debounce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (obj: any, callback?: () => void) => {
       this.setState((prevState: IconSelectControlState) => {
         return {
@@ -461,6 +463,8 @@ class IconSelectControl extends BaseControl<
 
   static canDisplayValueInUI(
     config: IconSelectControlProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     if (icons.has(value)) return true;

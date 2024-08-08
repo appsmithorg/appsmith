@@ -13,6 +13,5 @@ public interface ApplicationForkingServiceCE {
     Mono<Application> forkApplicationToWorkspaceWithEnvironment(
             String srcApplicationId, String targetWorkspaceId, String sourceEnvironmentId);
 
-    Mono<ApplicationImportDTO> forkApplicationToWorkspace(
-            String srcApplicationId, String targetWorkspaceId, String branchName);
+    Mono<ApplicationImportDTO> forkApplicationToWorkspace(String branchedSourceApplicationId, String targetWorkspaceId);
 }

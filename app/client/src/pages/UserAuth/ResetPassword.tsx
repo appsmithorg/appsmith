@@ -1,12 +1,12 @@
 import React, { useLayoutEffect } from "react";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, Field } from "redux-form";
-import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { RESET_PASSWORD_FORM_NAME } from "ee/constants/forms";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import FormTextField from "components/utils/ReduxFormTextField";
 import { Button, Callout, Icon, Link } from "design-system";
@@ -30,9 +30,9 @@ import {
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import Container from "./Container";
-import type { CalloutProps } from "design-system/build/Callout/Callout.types";
+import type { CalloutProps } from "design-system";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -219,6 +219,8 @@ export default connect(
       validatingToken: getIsValidatingToken(state),
     };
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (dispatch: any) => ({
     verifyToken: (token: string) =>
       dispatch({

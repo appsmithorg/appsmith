@@ -3,6 +3,7 @@ package com.appsmith.server.jslibs.base;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.services.CrudService;
 import jakarta.validation.constraints.NotNull;
 import reactor.core.publisher.Flux;
@@ -14,21 +15,19 @@ import java.util.Set;
 
 public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
     Mono<Boolean> addJSLibsToContext(
-            @NotNull String contextId,
+            @NotNull String branchedContextId,
             CreatorContextType contextType,
             Set<CustomJSLib> jsLibs,
-            String branchName,
             Boolean isForceInstall);
 
     Mono<Boolean> removeJSLibFromContext(
-            @NotNull String contextId,
+            @NotNull String branchedContextId,
             CreatorContextType contextType,
             @NotNull CustomJSLib jsLib,
-            String branchName,
             Boolean isForceRemove);
 
     Mono<List<CustomJSLib>> getAllJSLibsInContext(
-            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode);
+            @NotNull String branchedContextId, CreatorContextType contextType, Boolean isViewMode);
 
     Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall);
@@ -36,9 +35,9 @@ public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
     Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib,
             Boolean isForceInstall,
-            Map<String, List<CustomJSLib>> customJSLibsDryOps,
+            Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps,
             boolean isDryOps);
 
     Flux<CustomJSLib> getAllVisibleJSLibsInContext(
-            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode);
+            @NotNull String branchedContextId, CreatorContextType contextType, String branchName, Boolean isViewMode);
 }

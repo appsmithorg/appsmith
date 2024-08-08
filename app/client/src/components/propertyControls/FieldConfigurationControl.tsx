@@ -18,7 +18,7 @@ import { InputText } from "./InputTextControl";
 import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import styled from "styled-components";
-import { NO_FIELDS_ADDED, createMessage } from "@appsmith/constants/messages";
+import { NO_FIELDS_ADDED, createMessage } from "ee/constants/messages";
 
 import {
   itemHeight,
@@ -278,6 +278,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
           items={draggableComponentColumns}
           onEdit={this.onEdit}
           propertyPath={this.props.dataTreePath}
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           renderComponent={(props: any) => {
             const { id, isCustomField } = props.item;
 

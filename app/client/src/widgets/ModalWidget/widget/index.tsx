@@ -180,6 +180,11 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                             propertyName: "onClick",
                             propertyValue: `{{closeModal(${parent.widgetName}.name);}}`,
                           },
+                          {
+                            widgetId: iconChild.widgetId,
+                            propertyName: "dynamicTriggerPathList",
+                            propertyValue: [{ key: "onClick" }],
+                          },
                         ];
                       }
                     },
@@ -205,6 +210,11 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                             widgetId: cancelBtnChild.widgetId,
                             propertyName: "onClick",
                             propertyValue: `{{closeModal(${parent.widgetName}.name);}}`,
+                          },
+                          {
+                            widgetId: cancelBtnChild.widgetId,
+                            propertyName: "dynamicTriggerPathList",
+                            propertyValue: [{ key: "onClick" }],
                           },
                         ];
                       }
@@ -501,6 +511,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   closeModal = (e: any) => {
     this.props.updateWidgetMetaProperty("isVisible", false);
     this.selectWidgetRequest(SelectionRequestType.Empty);

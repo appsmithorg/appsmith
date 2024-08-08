@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Theme } from "constants/DefaultTheme";
 import { dark, light, theme } from "constants/DefaultTheme";
 

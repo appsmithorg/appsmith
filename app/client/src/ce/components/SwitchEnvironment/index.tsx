@@ -7,11 +7,8 @@ import {
   BUSINESS_EDITION_TEXT,
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import {
-  getRampLink,
-  showProductRamps,
-} from "@appsmith/selectors/rampSelectors";
+} from "ee/constants/messages";
+import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import {
@@ -53,6 +50,8 @@ export interface Props {
   viewMode?: boolean;
   editorId: string;
   onChangeEnv?: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   startSwitchEnvMessage: (...strArgs: any[]) => string;
 }
 

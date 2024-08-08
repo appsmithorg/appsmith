@@ -5,5 +5,5 @@ import reactor.core.publisher.Mono;
 
 public interface AutoCommitServiceCE {
 
-    Mono<AutoCommitResponseDTO> autoCommitApplication(String defaultApplicationId, String branchName);
+    Mono<AutoCommitResponseDTO> autoCommitApplication(String defaultApplicationId);
 }

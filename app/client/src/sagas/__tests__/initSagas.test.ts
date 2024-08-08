@@ -1,7 +1,7 @@
 import {
   type ReduxAction,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import AppEngineFactory from "entities/Engine/factory";
 import { getInitResponses } from "sagas/InitSagas";
@@ -10,6 +10,7 @@ import type { AppEnginePayload } from "entities/Engine";
 import { testSaga } from "redux-saga-test-plan";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import mockResponse from "./mockConsolidatedApiResponse.json";
+import { startRootSpan } from "UITelemetry/generateTraces";
 
 jest.mock("../../api/Api", () => ({
   __esModule: true,
@@ -26,11 +27,13 @@ jest.mock("entities/Engine/factory", () => ({
 }));
 
 describe("tests the sagas in initSagas", () => {
+  const pageId = "pageId";
+  const basePageId = "basePageId";
   const action: ReduxAction<AppEnginePayload> = {
     type: ReduxActionTypes.INITIALIZE_EDITOR,
     payload: {
       mode: APP_MODE.EDIT,
-      pageId: "pageId",
+      basePageId: basePageId,
       applicationId: "applicationId",
     },
   };
@@ -41,7 +44,8 @@ describe("tests the sagas in initSagas", () => {
       setupEngine: jest.fn(),
       loadAppData: jest.fn().mockResolvedValue({
         applicationId: action.payload.applicationId,
-        toLoadPageId: action.payload.pageId,
+        toLoadPageId: pageId,
+        toLoadBasePageId: action.payload.basePageId,
       }),
       loadAppURL: jest.fn(),
       loadAppEntities: jest.fn(),
@@ -50,33 +54,41 @@ describe("tests the sagas in initSagas", () => {
       stopPerformanceTracking: jest.fn(),
     };
 
+    const mockRootSpan = startRootSpan("startAppEngine");
+
     (AppEngineFactory.create as jest.Mock).mockReturnValue(engine);
 
     testSaga(startAppEngine, action)
       .next()
-      .call(engine.setupEngine, action.payload)
+      .call(engine.setupEngine, action.payload, mockRootSpan)
       .next()
       .call(getInitResponses, { ...action.payload })
       .next(mockResponse.data)
       .put({ type: ReduxActionTypes.LINT_SETUP })
       .next()
-      .call(engine.loadAppData, action.payload, mockResponse.data)
+      .call(engine.loadAppData, action.payload, mockResponse.data, mockRootSpan)
       .next({
         applicationId: action.payload.applicationId,
-        toLoadPageId: action.payload.pageId,
+        toLoadPageId: pageId,
+        toLoadBasePageId: basePageId,
       })
-      .call(engine.loadAppURL, action.payload.pageId, action.payload.pageId)
+      .call(engine.loadAppURL, {
+        basePageId: action.payload.basePageId,
+        basePageIdInUrl: action.payload.basePageId,
+        rootSpan: mockRootSpan,
+      })
       .next()
       .call(
         engine.loadAppEntities,
-        action.payload.pageId,
+        pageId,
         action.payload.applicationId,
         mockResponse.data,
+        mockRootSpan,
       )
       .next()
-      .call(engine.loadGit, action.payload.applicationId)
+      .call(engine.loadGit, action.payload.applicationId, mockRootSpan)
       .next()
-      .call(engine.completeChore)
+      .call(engine.completeChore, mockRootSpan)
       .next()
       .put(generateAutoHeightLayoutTreeAction(true, false))
       .next()

@@ -26,6 +26,7 @@ export const StyledTab = styled(Flex)`
   align-items: center;
   justify-content: center;
   padding: var(--ads-v2-spaces-3);
+  padding-top: 6px; // to accomodate border and make icons align correctly
   border-left: 1px solid transparent;
   border-right: 1px solid transparent;
   border-top: 2px solid transparent;

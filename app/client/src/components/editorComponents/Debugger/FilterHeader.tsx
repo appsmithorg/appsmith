@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
-import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
+import { CLEAR_LOG_TOOLTIP, createMessage } from "ee/constants/messages";
 import {
   Button,
   Icon,

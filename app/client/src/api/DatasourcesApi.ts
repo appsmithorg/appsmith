@@ -1,4 +1,4 @@
-import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";
@@ -15,6 +15,8 @@ export interface CreateDatasourceConfig {
 }
 
 // type executeQueryData = Array<{ key?: string; value?: string }>;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type executeQueryData = Record<string, any>;
 
 interface executeDatasourceQueryRequest {
@@ -33,6 +35,8 @@ class DatasourcesApi extends API {
 
   static async createDatasource(
     datasourceConfig: Partial<Datasource>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     // This here abomination is to remove several fields that are not accepted by the server.
     for (const [name, storage] of Object.entries(
@@ -61,6 +65,8 @@ class DatasourcesApi extends API {
             },
           },
         },
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any;
     }
 
@@ -68,11 +74,15 @@ class DatasourcesApi extends API {
   }
 
   // Need for when we add strict type checking back on server
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static cleanAuthenticationObject(authentication: any): any {
     if (!authentication) {
       return undefined;
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const clean: any = {
       authenticationType: authentication.authenticationType ?? "dbAuth",
     };
@@ -133,6 +143,8 @@ class DatasourcesApi extends API {
     datasourceConfig: Partial<DatasourceStorage>,
     pluginId: string,
     workspaceId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     const payload = {
       ...datasourceConfig,
@@ -160,6 +172,8 @@ class DatasourcesApi extends API {
   static async updateDatasource(
     datasourceConfig: Partial<Datasource>,
     id: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
   }
@@ -167,6 +181,8 @@ class DatasourcesApi extends API {
   // Api to update specific datasource storage/environment configuration
   static async updateDatasourceStorage(
     datasourceStorage: Partial<DatasourceStorage>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     const payload = {
       ...datasourceStorage,
@@ -187,6 +203,8 @@ class DatasourcesApi extends API {
     return API.put(DatasourcesApi.url + `/datasource-storages`, payload);
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async deleteDatasource(id: string): Promise<any> {
     return API.delete(DatasourcesApi.url + `/${id}`);
   }
@@ -194,6 +212,8 @@ class DatasourcesApi extends API {
   static async fetchDatasourceStructure(
     id: string,
     ignoreCache = false,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return API.get(
       DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
@@ -211,6 +231,8 @@ class DatasourcesApi extends API {
     workspaceId: string,
     pluginId: string,
     packageName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return API.post(DatasourcesApi.url + `/mocks`, {
       name,

@@ -426,6 +426,8 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedFiles: [],
@@ -563,6 +565,8 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uppy.on("file-removed", (file: UppyFile, reason: any) => {
       /**
        * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
@@ -651,6 +655,8 @@ class FilePickerWidget extends BaseWidget<
         }
 
         if (selectedFiles.length !== 0) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           files.forEach((fileItem: any) => {
             if (!fileItem?.meta?.isInitializing) {
               selectedFiles.push(fileItem);
@@ -711,8 +717,12 @@ class FilePickerWidget extends BaseWidget<
   }
 
   // Reclaim the memory used by blobs.
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clearFilesFromMemory(previousFiles: any[] = []) {
     const { selectedFiles: newFiles = [] } = this.props;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     previousFiles.forEach((file: any) => {
       let { data: blobUrl } = file;
       if (isBlobUrl(blobUrl)) {
@@ -729,6 +739,8 @@ class FilePickerWidget extends BaseWidget<
      * Since on unMount the uppy instance closes and it's internal state is lost along with the files present in it.
      * Below we add the files again to the uppy instance so that the files are retained.
      */
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.props.selectedFiles?.forEach((fileItem: any) => {
       uppy.addFile({
         name: fileItem.name,
@@ -833,6 +845,8 @@ interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;

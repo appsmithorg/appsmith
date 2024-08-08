@@ -28,6 +28,8 @@ const initialFieldState = {
 describe("useRegisterFieldInvalid", () => {
   it("updates fieldState and error state with the updated isValid value", () => {
     const mocksetMetaInternalFieldState = jest.fn();
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function Wrapper({ children }: any) {
       const methods = useForm();
 
@@ -98,6 +100,8 @@ describe("useRegisterFieldInvalid", () => {
 
   it("does not trigger meta update if field validity is same", () => {
     const mocksetMetaInternalFieldState = jest.fn();
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function Wrapper({ children }: any) {
       const methods = useForm();
 

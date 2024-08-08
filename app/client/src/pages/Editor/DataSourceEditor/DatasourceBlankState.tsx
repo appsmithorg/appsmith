@@ -5,7 +5,7 @@ import { Text } from "design-system";
 import {
   createMessage,
   DATASOURCE_BLANK_STATE_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const Container = styled.div`
   height: 100%;

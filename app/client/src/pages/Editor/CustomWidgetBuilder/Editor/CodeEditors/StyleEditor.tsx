@@ -11,10 +11,7 @@ import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { Icon, Tooltip, Spinner } from "design-system";
 import styles from "./styles.module.css";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
 
 const StyledWrapper = styled.div`

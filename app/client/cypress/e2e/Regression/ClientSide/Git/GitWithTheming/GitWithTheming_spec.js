@@ -109,7 +109,6 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
       "background-color",
       backgroudColorMaster,
     );
-    cy.pause();
     // delete tempBranch
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchListItem)

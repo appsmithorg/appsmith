@@ -6,7 +6,7 @@ import {
   AUTOCOMMIT_CONFIRM_DISABLE_MESSAGE,
   AUTOCOMMIT_DISABLE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Button,
   Callout,
@@ -23,7 +23,7 @@ import {
   getIsAutocommitModalOpen,
   getIsAutocommitToggling,
 } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 function DisableAutocommitModal() {
   const isAutocommitModalOpen = useSelector(getIsAutocommitModalOpen);

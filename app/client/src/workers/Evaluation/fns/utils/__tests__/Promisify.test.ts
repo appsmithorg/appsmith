@@ -1,9 +1,11 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 const requestMock = jest.fn(async (...args: any) => Promise.resolve("success"));
 
 jest.mock("../Messenger.ts", () => ({
   ...jest.requireActual("../Messenger.ts"),
   WorkerMessenger: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     request: async (...args: any) => requestMock(...args),
   },
 }));
@@ -16,7 +18,7 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   },
 }));
 
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ExecutionMetaData from "../ExecutionMetaData";
 import { promisify } from "../Promisify";

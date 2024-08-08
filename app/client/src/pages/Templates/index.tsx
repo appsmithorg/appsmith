@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import * as Sentry from "@sentry/react";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { getAllTemplates, getTemplateFilters } from "actions/templateActions";
@@ -16,11 +16,11 @@ import {
 import styled from "styled-components";
 import { editorInitializer } from "utils/editor/EditorUtils";
 
-import { fetchAllWorkspaces } from "@appsmith/actions/workspaceActions";
+import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 import TemplateFilters from "./TemplateFilters";
 import { TemplateContent } from "./TemplateContent";
 import TemplateView from "./TemplateView";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

@@ -3,7 +3,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   AppViewerRouteParams,
   BuilderRouteParams,
@@ -32,15 +32,15 @@ import { setupPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
-import { initAppViewer } from "actions/initActions";
+import { initAppViewerAction } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import {
   getAppThemeSettings,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import type { FontFamily } from "@design-system/theming";
@@ -48,9 +48,9 @@ import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
-import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
+import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { getHideWatermark } from "ee/selectors/tenantSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const AppViewerBody = styled.section<{
@@ -86,7 +86,7 @@ const DEFAULT_FONT_NAME = "System Default";
 function AppViewer(props: Props) {
   const dispatch = useDispatch();
   const { pathname, search } = props.location;
-  const { applicationId, pageId } = props.match.params;
+  const { baseApplicationId, basePageId } = props.match.params;
   const isInitialized = useSelector(getIsInitialized);
   const pages = useSelector(getViewModePageList);
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -95,7 +95,11 @@ function AppViewer(props: Props) {
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-  const prevValues = usePrevious({ branch, location: props.location, pageId });
+  const prevValues = usePrevious({
+    branch,
+    location: props.location,
+    basePageId,
+  });
   const hideWatermark = useSelector(getHideWatermark);
   const pageDescription = useSelector(getCurrentPageDescription);
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
@@ -135,20 +139,20 @@ function AppViewer(props: Props) {
   useEffect(() => {
     const prevBranch = prevValues?.branch;
     const prevLocation = prevValues?.location;
-    const prevPageId = prevValues?.pageId;
+    const prevPageBaseId = prevValues?.basePageId;
     let isBranchUpdated = false;
     if (prevBranch && prevLocation) {
       isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
 
-    const isPageIdUpdated = pageId !== prevPageId;
+    const isPageIdUpdated = basePageId !== prevPageBaseId;
 
-    if (prevBranch && isBranchUpdated && (applicationId || pageId)) {
+    if (prevBranch && isBranchUpdated && (baseApplicationId || basePageId)) {
       dispatch(
-        initAppViewer({
-          applicationId,
+        initAppViewerAction({
+          baseApplicationId,
           branch,
-          pageId,
+          basePageId,
           mode: APP_MODE.PUBLISHED,
         }),
       );
@@ -158,19 +162,24 @@ function AppViewer(props: Props) {
        * If we don't check for `prevPageId`: fetch page is retriggered
        * when redirected to the default page
        */
-      if (prevPageId && pageId && isPageIdUpdated) {
-        dispatch(setupPublishedPage(pageId, true));
+      if (prevPageBaseId && basePageId && isPageIdUpdated) {
+        const pageId = pages.find(
+          (page) => page.basePageId === basePageId,
+        )?.pageId;
+        if (pageId) {
+          dispatch(setupPublishedPage(pageId, true));
+        }
       }
     }
-  }, [branch, pageId, applicationId, pathname]);
+  }, [branch, basePageId, baseApplicationId, pathname]);
 
   useEffect(() => {
-    urlBuilder.setCurrentPageId(pageId);
+    urlBuilder.setCurrentBasePageId(basePageId);
 
     return () => {
-      urlBuilder.setCurrentPageId(null);
+      urlBuilder.setCurrentBasePageId(null);
     };
-  }, [pageId]);
+  }, [basePageId]);
 
   useEffect(() => {
     const header = document.querySelector(".js-appviewer-header");

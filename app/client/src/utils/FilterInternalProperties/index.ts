@@ -1,10 +1,10 @@
-import { getEntityPeekData } from "@appsmith/utils/FilterInternalProperties/getEntityPeekData";
+import { getEntityPeekData } from "ee/utils/FilterInternalProperties/getEntityPeekData";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export const filterInternalProperties = (
   objectName: string,

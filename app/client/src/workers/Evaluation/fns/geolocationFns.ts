@@ -5,6 +5,8 @@ import ExecutionMetaData from "./utils/ExecutionMetaData";
 import { promisify } from "./utils/Promisify";
 import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let geoLocationListener: ((e: MessageEvent<any>) => void) | null = null;
 
 function getGeoLocationFnDescriptor(
@@ -59,8 +61,14 @@ export async function getGeoLocation(
 }
 
 function watchGeoLocationFnDescriptor(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   this: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccessCallback?: (...args: any) => any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onErrorCallback?: (...args: any) => any,
   options?: {
     maximumAge?: number;
@@ -93,6 +101,8 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
     trigger: watchGeoLocationFnDescriptor.apply({ listenerId }, args),
     ...metaData,
   });
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const messageHandler = (event: MessageEvent<TDefaultMessage<any>>) => {
     const message = event.data;
     if (message.messageId !== listenerId) return;
@@ -113,6 +123,8 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   geoLocationListener = messageHandler;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function stopWatchGeoLocationFnDescriptor(this: any) {
   return {
     type: "STOP_WATCHING_CURRENT_LOCATION" as const,

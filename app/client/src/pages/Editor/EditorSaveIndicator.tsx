@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { TextType, Text } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
+import { createMessage, EDITOR_HEADER } from "ee/constants/messages";
 import { Icon, Spinner } from "design-system";
 
 const SaveStatusContainer = styled.div`

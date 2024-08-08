@@ -16,6 +16,8 @@ export function defaultOptionValueValidation(
   /*
    * Function to check if the object has `label` and `value`
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hasLabelValue = (obj: any) => {
     return (
       _.isPlainObject(value) &&

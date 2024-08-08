@@ -1,10 +1,12 @@
 /* eslint-disable no-console */
-import { WorkerErrorTypes } from "@appsmith/workers/common/types";
+import { WorkerErrorTypes } from "ee/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { getErrorMessage } from "workers/Evaluation/errorModifier";
 type TPromiseResponse =
   | {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: any;
       error: null;
     }
@@ -66,6 +68,8 @@ const defaultErrorHandler: TransmissionErrorHandler = (
 };
 
 export class WorkerMessenger {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async request(payload: any) {
     const messageId = uniqueId(`request-${payload.method}-`);
     sendMessage.call(self, {
@@ -77,6 +81,8 @@ export class WorkerMessenger {
     return response;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static ping(payload: any) {
     try {
       sendMessage.call(self, {

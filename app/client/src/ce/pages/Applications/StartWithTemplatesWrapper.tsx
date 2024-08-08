@@ -2,7 +2,7 @@ import {
   START_WITH_TEMPLATE_CONNECT_HEADING,
   START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Template } from "api/TemplatesApi";
 import { Flex, Text } from "design-system";
 import TemplatesLayoutWithFilters from "pages/Templates/TemplatesLayoutWithFilters";
@@ -64,7 +64,7 @@ export const StartWithTemplatesHeader = ({
     <Flex
       flexDirection="column"
       mb={isModalLayout ? "spaces-5" : "spaces-14"}
-      mt={isModalLayout ? "" : "spaces-7"}
+      mt={isModalLayout ? undefined : "spaces-7"}
     >
       <Text kind="heading-xl">{title}</Text>
       <Text>{subtitle}</Text>

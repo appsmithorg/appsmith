@@ -15,7 +15,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationConfig,
@@ -29,6 +29,8 @@ import type {
 
 export interface WidgetSizeConfig {
   viewportMinWidth: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   configuration: (props: any) => Record<string, string | number>;
 }
 
@@ -36,13 +38,16 @@ interface ResizableValues {
   vertical?: boolean;
   horizontal?: boolean;
 }
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
 export interface AutoDimensionValues {
   width?: boolean;
   height?: boolean;
 }
 export type AutoDimensionOptions =
-  | AutoDimensionValues
+  | AutoDimensionValues // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | ((props: any) => AutoDimensionValues);
 
 export interface AutoLayoutConfig {
@@ -70,7 +75,8 @@ export interface AnvilConfig {
   isLargeWidget: boolean;
   // min/max sizes for the widget
   widgetSize?:
-    | SizeConfig
+    | SizeConfig // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | ((props: any, isPreviewMode: boolean) => SizeConfig);
 }
 
@@ -115,11 +121,15 @@ export interface WidgetConfiguration extends WidgetBaseConfiguration {
     contentConfig?: PropertyPaneConfig[];
     styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setterConfig?: Record<string, any>;
   };
   methods?: Record<string, WidgetMethods>;
@@ -217,11 +227,14 @@ export type AutocompleteDefinitionFunction = (
   widgetProps: WidgetProps,
   extraDefsToDefine?: ExtraDef,
   configTree?: WidgetEntityConfig,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => Record<string, any>;
 
 export type AutocompletionDefinitions =
-  | Record<string, any>
-  | AutocompleteDefinitionFunction;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Record<string, any> | AutocompleteDefinitionFunction;
 
 const staticProps = omit(
   WIDGET_STATIC_PROPS,
@@ -471,8 +484,12 @@ export interface WidgetBlueprint {
     type: string;
     size?: { rows: number; cols: number };
     position: { top?: number; left?: number };
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     props: Record<string, any>;
   }>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   operations?: any;
 }
 

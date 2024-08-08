@@ -86,6 +86,8 @@ export function getLayoutProperties(
 
 export const generateResponsiveBehaviorConfig = (
   value: ResponsiveBehavior,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   return {
     helpText: "Widget layout behavior on smaller view port",
@@ -106,6 +108,8 @@ export const generateResponsiveBehaviorConfig = (
 
 export const generateAlignmentConfig = (
   value: Alignment = Alignment.Left,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   return {
     helpText:
@@ -124,10 +128,14 @@ export const generateAlignmentConfig = (
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     hidden: (props: any) => props?.positioning === Positioning.Fixed,
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const generateSpacingConfig = (value: Spacing = Spacing.None): any => {
   return {
     helpText: "Spacing between the children (applies to Stack positioning)",
@@ -144,12 +152,16 @@ export const generateSpacingConfig = (value: Spacing = Spacing.None): any => {
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     hidden: (props: any) => props?.positioning === Positioning.Fixed,
   };
 };
 
 export const generatePositioningConfig = (
   value: Positioning = Positioning.Vertical,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   return {
     helpText: "Position styles to be applied to the children",
@@ -171,6 +183,8 @@ export const generatePositioningConfig = (
 
 export const generateVerticalAlignmentConfig = (
   value: FlexVerticalAlignment = FlexVerticalAlignment.Top,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   return {
     helpText: "Vertical alignment with respect to the siblings in the same row",
@@ -190,6 +204,8 @@ export const generateVerticalAlignmentConfig = (
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getLayoutConfig(alignment: Alignment, spacing: Spacing): any[] {
   return [generateAlignmentConfig(alignment), generateSpacingConfig(spacing)];
 }

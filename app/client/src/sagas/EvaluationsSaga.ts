@@ -16,8 +16,8 @@ import type {
   ReduxAction,
   ReduxActionType,
   AnyReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   getDataTree,
   getUnevaluatedDataTree,
@@ -28,7 +28,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import type { WidgetProps } from "widgets/BaseWidget";
 import PerformanceTracker, {
@@ -40,7 +40,7 @@ import {
   EVAL_AND_LINT_REDUX_ACTIONS,
   FIRST_EVAL_REDUX_ACTIONS,
   getRequiresLinting,
-} from "@appsmith/actions/evaluationActionsList";
+} from "ee/actions/evaluationActionsList";
 import {
   setDependencyMap,
   setEvaluatedTree,
@@ -59,11 +59,11 @@ import {
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { get, isEmpty } from "lodash";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import { executeActionTriggers } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import {
   EventType,
   TriggerKind,
@@ -73,7 +73,7 @@ import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "constants/EvalConstants";
 
 import type { LogObject } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { FormEvalActionPayload } from "./FormEvaluationSaga";
@@ -82,8 +82,8 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
-} from "@appsmith/selectors/entitiesSelector";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+} from "ee/selectors/entitiesSelector";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
@@ -94,14 +94,14 @@ import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
 } from "workers/Evaluation/types";
-import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
+import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
-import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
 import {
@@ -109,10 +109,11 @@ import {
   parseUpdatesAndDeleteUndefinedUpdates,
 } from "./EvaluationsSagaUtils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
-import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
+import { getIsCurrentEditorWorkflowType } from "ee/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { transformTriggerEvalErrors } from "ee/sagas/helpers";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -190,6 +191,8 @@ export function* updateDataTreeHandler(
 
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logs?.forEach((evalLog: any) => log.debug(evalLog));
 
   yield call(
@@ -308,6 +311,8 @@ export function* evaluateTreeSaga(
 
 export function* evaluateActionBindings(
   bindings: string[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executionParams: Record<string, any> | string = {},
 ) {
   const span = startRootSpan("evaluateActionBindings");
@@ -331,6 +336,8 @@ export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
   triggerMeta: TriggerMeta,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
@@ -350,11 +357,19 @@ export function* evaluateAndExecuteDynamicTrigger(
       triggerMeta,
     },
   );
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { errors = [] } = response as any;
-  yield call(dynamicTriggerErrorHandler, errors);
+
+  const transformedErrors: EvaluationError[] = yield call(
+    transformTriggerEvalErrors,
+    errors,
+  );
+
+  yield call(dynamicTriggerErrorHandler, transformedErrors);
   yield fork(logDynamicTriggerExecution, {
     dynamicTrigger,
-    errors,
+    errors: transformedErrors,
     triggerMeta,
   });
   return response;
@@ -462,11 +477,9 @@ export function* executeJSFunction(
   return { result, isDirty };
 }
 
-export function* validateProperty(
-  property: string,
-  value: any,
-  props: WidgetProps,
-) {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* validateProperty(property: string, value: any, props: WidgetProps) {
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
     yield select(getUnevaluatedDataTree);
   const configTree = unEvalAndConfigTree.configTree;
@@ -508,6 +521,8 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
 };
 export function evalQueueBuffer() {
   let canTake = false;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let collectedPostEvalActions: any = [];
   let collectedAffectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects;
 
@@ -645,7 +660,10 @@ function* evalAndLintingHandler(
   endSpan(span);
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* evaluationChangeListenerSaga(): any {
+  const firstEvalActionChannel = yield actionChannel(FIRST_EVAL_REDUX_ACTIONS);
   // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
   const [evalWorkerListenerChannel] = yield all([
@@ -669,8 +687,9 @@ function* evaluationChangeListenerSaga(): any {
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   const initAction: EvaluationReduxAction<unknown> = yield take(
-    FIRST_EVAL_REDUX_ACTIONS,
+    firstEvalActionChannel,
   );
+  firstEvalActionChannel.close();
 
   // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
   const isCurrentEditorWorkflowType = yield select(
@@ -691,6 +710,8 @@ function* evaluationChangeListenerSaga(): any {
       isAllAffected: true,
     },
   });
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVAL_AND_LINT_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -713,6 +734,8 @@ function* evaluationChangeListenerSaga(): any {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* evaluateActionSelectorFieldSaga(action: any) {
   const { id, type, value } = action.payload;
   try {
@@ -723,6 +746,8 @@ export function* evaluateActionSelectorFieldSaga(action: any) {
       expression: value,
     });
     const lintErrors = (workerResponse.errors || []).filter(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
     if (workerResponse.result) {

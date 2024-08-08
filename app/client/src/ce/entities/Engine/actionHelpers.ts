@@ -1,15 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors";
+} from "ee/constants/ReduxActionConstants";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
+import type { DependentFeatureFlags } from "ee/selectors/engineSelectors";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
 import type { Plugin } from "api/PluginApi";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router";
 import type { EditConsolidatedApi } from "sagas/InitSagas";
+import {
+  convertToBaseParentEntityIdSelector,
+  convertToPageIdSelector,
+} from "selectors/pageListSelectors";
 
 export const CreateNewActionKey = {
   PAGE: "pageId",
@@ -58,16 +65,28 @@ export const doesPluginRequireDatasource = (plugin: Plugin | undefined) => {
 
 export enum APPSMITH_NAMESPACED_FUNCTIONS {}
 
-export const getParentEntityDetailsFromParams = (
-  parentEntityIdObject: { pageId?: string },
+export const useParentEntityDetailsFromParams = (
   parentEntityIdProp: string,
   isInsideReconnectModal?: boolean,
 ) => {
-  const { pageId } = parentEntityIdObject;
-  const parentEntityIdQuery = pageId || "";
+  const baseParentEntityIdProp = useSelector((state) =>
+    convertToBaseParentEntityIdSelector(state, parentEntityIdProp),
+  );
+
+  const { basePageId } = useParams<ExplorerURLParams>();
+  const parentEntityIdQuery = basePageId || "";
+  const pageId = useSelector((state) =>
+    convertToPageIdSelector(state, basePageId),
+  );
+  const baseParentEntityIdQuery = pageId || "";
+
   const parentEntityId = isInsideReconnectModal
     ? parentEntityIdProp
     : parentEntityIdQuery;
+  const baseParentEntityId = isInsideReconnectModal
+    ? baseParentEntityIdProp
+    : baseParentEntityIdQuery;
+
   const entityType = ActionParentEntityType.PAGE;
-  return { parentEntityId, entityType };
+  return { baseParentEntityId, parentEntityId, entityType };
 };

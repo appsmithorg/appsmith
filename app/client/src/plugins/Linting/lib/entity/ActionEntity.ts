@@ -1,16 +1,13 @@
 import type {
   ActionEntity as TActionEntity,
   ActionEntityConfig as TActionEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   defaultDiffGenerator,
   type EntityDiffGenerator,
 } from "plugins/Linting/utils/diffGenerator";
 import type { EntityParser } from "plugins/Linting/utils/entityParser";
-import {
-  ENTITY_TYPE,
-  type IEntity,
-} from "@appsmith/plugins/Linting/lib/entity/types";
+import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
 import type { Diff } from "deep-diff";
 
 export class ActionEntity implements IEntity {
