@@ -10,13 +10,19 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import { urlToBase64 } from "../../../../../../src/widgets/ImageWidget/helper";
 
 describe(
   "Image widget - Rotation & Download",
   { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
     const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
-    before(() => {
+    let base64Url: string;
+    before(function () {
+      cy.wrap(urlToBase64(jpgImg)).then((url) => {
+        base64Url = url as string;
+      });
+
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
       propPane.UpdatePropertyFieldValue("Image", jpgImg);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.IMAGE));
@@ -63,7 +69,10 @@ describe(
       agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.IMAGE));
       agHelper.HoverElement(locators._widgetInDeployed(draggableWidgets.IMAGE));
       agHelper.AssertElementVisibility(widgetLocators.imageDownloadBtn);
-      agHelper.AssertAttribute(widgetLocators.imageDownloadBtn, "href", jpgImg);
+      cy.wrap(base64Url).then((url) => {
+        // This is to validate the final base64 url which is used for download as href in the anchor tag
+        agHelper.AssertAttribute(widgetLocators.imageDownloadBtn, "href", url);
+      });
     });
   },
 );

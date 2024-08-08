@@ -4,6 +4,8 @@ import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { createMessage, IMAGE_LOAD_ERROR } from "ee/constants/messages";
 import { importSvg } from "design-system-old";
+import { urlToBase64 } from "../helper";
+import log from "loglevel";
 
 const RotateLeftIcon = importSvg(
   async () => import("assets/icons/widget/image/rotate-left.svg"),
@@ -141,6 +143,7 @@ class ImageComponent extends React.Component<
     showImageControl: boolean;
     imageRotation: number;
     zoomingState: ZoomingState;
+    downloadUrl?: string;
   }
 > {
   isPanning: boolean;
@@ -152,10 +155,23 @@ class ImageComponent extends React.Component<
       showImageControl: false,
       imageRotation: 0,
       zoomingState: ZoomingState.MAX_ZOOMED_OUT,
+      downloadUrl: "",
     };
   }
 
+  componentDidMount = () => {
+    this.updateDownloadUrl();
+  };
+
   componentDidUpdate = (prevProps: ImageComponentProps) => {
+    // update download url when imageUrl or defaultImageUrl changes
+    if (
+      this.props.imageUrl !== prevProps.imageUrl ||
+      prevProps.defaultImageUrl !== this.props.defaultImageUrl
+    ) {
+      this.updateDownloadUrl();
+    }
+
     // reset the imageError flag when the defaultImageUrl or imageUrl changes
     if (
       (prevProps.imageUrl !== this.props.imageUrl ||
@@ -163,6 +179,25 @@ class ImageComponent extends React.Component<
       this.state.imageError
     ) {
       this.setState({ imageError: false });
+    }
+  };
+
+  updateDownloadUrl = async () => {
+    try {
+      /* This solution only works for images that are hosted on server which allows cross origin request 
+         For images that are hosted on server which doesn't allow cross origin request, the backend should also return base64 url
+      */
+      const { defaultImageUrl, imageUrl } = this.props;
+      const url = imageUrl || defaultImageUrl;
+
+      const base64Url = await urlToBase64(url);
+      if (base64Url) {
+        this.setState({ downloadUrl: base64Url });
+      } else {
+        this.setState({ downloadUrl: "" });
+      }
+    } catch (error) {
+      log.error("Could not fetch image for download", error);
     }
   };
 
@@ -315,7 +350,8 @@ class ImageComponent extends React.Component<
     } = this.props;
     const { showImageControl } = this.state;
     const showDownloadBtn = enableDownload && (!!imageUrl || !!defaultImageUrl);
-    const hrefUrl = imageUrl || defaultImageUrl;
+    const hrefUrl = this.state.downloadUrl || imageUrl || defaultImageUrl;
+    if (!hrefUrl) return null;
 
     if (showImageControl && (enableRotation || showDownloadBtn)) {
       return (
