@@ -7,15 +7,14 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
-import formWidgetsPage from "../../../../../locators/FormWidgets.json";
-import commonlocators from "../../../../../locators/commonlocators.json";
 
 describe(
   "Rich Text Editor widget Tests",
   { tags: ["@tag.Widget", "@tag.TextEditor"] },
   function () {
     before(() => {
-      entityExplorer.DragDropWidgetNVerify("richtexteditorwidget", 500, 200);
+      agHelper.AddDsl("richTextEditorDsl");
+      EditorNavigation.SelectEntityByName("RichTextEditor1", EntityType.Widget);
       cy.waitUntil(() =>
         cy.get(locators._richText_TitleBlock).should("be.visible"),
       );
