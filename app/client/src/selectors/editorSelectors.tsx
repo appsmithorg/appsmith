@@ -255,25 +255,6 @@ export const getViewModePageList = createSelector(
   },
 );
 
-export const getViewModePageListWithHiddenPages = createSelector(
-  getPageList,
-  getCurrentPageId,
-  (pageList: PageListReduxState["pages"], currentPageId?: string) => {
-    if (currentPageId) {
-      const currentPage = pageList.find(
-        (page) => page.pageId === currentPageId,
-      );
-      if (!!currentPage?.isHidden) {
-        return [currentPage];
-      }
-
-      return pageList;
-    }
-
-    return [];
-  },
-);
-
 const defaultLayout: AppLayoutConfig = {
   type: "FLUID",
 };
