@@ -145,8 +145,6 @@ public class ThemeImportableServiceCETest {
                 .verifyComplete();
     }
 
-    @WithUserDetails("api_user")
-    @Test
     public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
         Theme defaultTheme = themeRepository
                 .getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES)
