@@ -4,7 +4,7 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CON
 
 public class PageSpanCE {
     public static final String GET_PAGE = CONSOLIDATED_API_PREFIX + "getpage";
-    public static final String GET_PAGE_WITHOUT_BRANCH = CONSOLIDATED_API_PREFIX + "wo_branch";
-    public static final String GET_PAGE_WITH_BRANCH = CONSOLIDATED_API_PREFIX + "w_branch";
+    public static final String GET_PAGE_WITHOUT_BRANCH = CONSOLIDATED_API_PREFIX + "without_branch";
+    public static final String GET_PAGE_WITH_BRANCH = CONSOLIDATED_API_PREFIX + "with_branch";
     public static final String FETCH_PAGE_FROM_DB = CONSOLIDATED_API_PREFIX + "pagedb";
 }
