@@ -993,7 +993,7 @@ export class AggregateHelper {
     containsText: string | RegExp,
     index = 0,
     force = true,
-    waitTimeInterval = 0,
+    waitTimeInterval = 100,
   ) {
     return cy
       .get(selector)
