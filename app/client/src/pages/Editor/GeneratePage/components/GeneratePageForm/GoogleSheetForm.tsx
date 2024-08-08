@@ -13,8 +13,8 @@ import type {
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
 } from "./hooks";
-import type { DropdownOption } from "design-system-old";
-import { getTypographyByKey, Text, TextType } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
 import { debounce } from "lodash";
 import {
   createMessage,

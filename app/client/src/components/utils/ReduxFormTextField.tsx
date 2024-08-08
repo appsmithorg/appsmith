@@ -1,7 +1,7 @@
 import React from "react";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field } from "redux-form";
-import type { InputType } from "design-system-old";
+import type { InputType } from "@appsmith/ads-old";
 import { Input, NumberInput } from "design-system";
 
 import type { Intent } from "constants/DefaultTheme";

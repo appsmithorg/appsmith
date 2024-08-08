@@ -1,5 +1,5 @@
 import React from "react";
-import type { CommonComponentProps } from "design-system-old";
+import type { CommonComponentProps } from "@appsmith/ads-old";
 import { getInitials } from "utils/AppsmithUtils";
 import {
   Menu,

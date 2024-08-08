@@ -1,6 +1,6 @@
 import type { MutableRefObject } from "react";
 import React, { useRef } from "react";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 

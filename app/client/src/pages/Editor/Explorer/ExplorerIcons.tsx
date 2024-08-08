@@ -9,7 +9,7 @@ import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConsta
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "design-system";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const ApiIcon = importSvg(
   async () => import("assets/icons/menu/api-colored.svg"),

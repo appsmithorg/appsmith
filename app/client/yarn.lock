@@ -174,6 +174,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@appsmith/ads-old@workspace:^, @appsmith/ads-old@workspace:packages/design-system/ads-old":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/ads-old@workspace:packages/design-system/ads-old"
+  dependencies:
+    "@types/loadable__component": ^5.13.4
+    "@types/react-form": ^4.0.2
+    "@types/wait-on": ^5.2.0
+    concurrently: ^7.3.0
+    emoji-mart: 3.0.1
+    identity-obj-proxy: 3.0.0
+    react-toastify: ^5.5.0
+    wait-on: ^5.3.0
+  languageName: unknown
+  linkType: soft
+
 "@aws-crypto/crc32@npm:5.2.0":
   version: 5.2.0
   resolution: "@aws-crypto/crc32@npm:5.2.0"
@@ -13100,6 +13115,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "appsmith@workspace:."
   dependencies:
+    "@appsmith/ads-old": "workspace:^"
     "@aws-sdk/client-s3": ^3.622.0
     "@aws-sdk/lib-storage": ^3.622.0
     "@babel/helper-create-regexp-features-plugin": ^7.18.6
@@ -13253,7 +13269,6 @@ __metadata:
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
     design-system: "workspace:^"
-    design-system-old: "workspace:^"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -17419,21 +17434,6 @@ __metadata:
   checksum: 1ec2eedd7ed6bd61dd5e0519fd4c96124e93bb22de8a9d211b02d63e5dd152824853d919bb2090f965cc0e3eb9c515950a9836b332020d810f9c71feb0fd7df4
   languageName: node
   linkType: hard
-
-"design-system-old@workspace:^, design-system-old@workspace:packages/design-system/ads-old":
-  version: 0.0.0-use.local
-  resolution: "design-system-old@workspace:packages/design-system/ads-old"
-  dependencies:
-    "@types/loadable__component": ^5.13.4
-    "@types/react-form": ^4.0.2
-    "@types/wait-on": ^5.2.0
-    concurrently: ^7.3.0
-    emoji-mart: 3.0.1
-    identity-obj-proxy: 3.0.0
-    react-toastify: ^5.5.0
-    wait-on: ^5.3.0
-  languageName: unknown
-  linkType: soft
 
 "design-system@workspace:^, design-system@workspace:packages/design-system/ads":
   version: 0.0.0-use.local

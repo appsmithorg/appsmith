@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import type { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import { Button } from "design-system";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";

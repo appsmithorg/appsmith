@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { Classes, Text, TextType } from "design-system-old";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
 import history from "utils/history";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
