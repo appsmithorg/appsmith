@@ -442,14 +442,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!-- This dependency helps us print better & debuggable stack traces -->
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-tools</artifactId>
-            <version>${reactor-test.version}</version>
-        </dependency>
-
         <!-- We need this dependency only to ensure TestContainers work with JUnit5 -->
         <dependency>
             <groupId>io.quarkus</groupId>
