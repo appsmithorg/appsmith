@@ -63,17 +63,17 @@ jobs:
         id: args
         run: |
             echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
-            
-            checkArg=$(echo "${{ toJSON(github.event.client_payload.slash_command.args.named) }}" | jq 'has("runId")')
-            if [[ $checkArg == 'true' ]]; then
-                echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
+            checkArg=${{ github.event.client_payload.slash_command.args.named.runId }}
+            #checkArg=$(echo "${{ toJSON(github.event.client_payload.slash_command.args.named) }}" | jq 'has("runId")')
+            if [[ -z "$checkArg" ]]; then
+                echo "runId=$checkArg" >> $GITHUB_OUTPUT
             else
                 echo "runId=0" >> $GITHUB_OUTPUT
             fi
-
-            checkRunCount=$(echo "${{ toJSON(github.event.client_payload.slash_command.args.named) }}" | jq 'has("run_count")')
-            if [[ $checkRunCount == 'true' ]]; then
-                echo "run_count=${{ github.event.client_payload.slash_command.args.named.run_count }}" >> $GITHUB_OUTPUT
+            checkRunCount=${{ github.event.client_payload.slash_command.args.named.run_count }}
+            #checkRunCount=$(echo "${{ toJSON(github.event.client_payload.slash_command.args.named) }}" | jq 'has("run_count")')
+            if [[ -z "$checkRunCount" ]]; then
+                echo "run_count=$checkRunCount" >> $GITHUB_OUTPUT
             else
                 echo "run_count=1" >> $GITHUB_OUTPUT
             fi
