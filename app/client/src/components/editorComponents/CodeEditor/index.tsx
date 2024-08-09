@@ -161,7 +161,7 @@ import {
   setActiveEditorField,
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
