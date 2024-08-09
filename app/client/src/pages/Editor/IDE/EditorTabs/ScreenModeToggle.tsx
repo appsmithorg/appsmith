@@ -20,14 +20,29 @@ export const ScreenModeToggle = () => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.FullScreen,
     });
-    dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
+
+    // Animating using https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API
+    // this has limited availability right now
+    if ("startViewTransition" in document) {
+      document.startViewTransition(() => {
+        dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
+      });
+    } else {
+      dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
+    }
   }, [dispatch]);
 
   const switchToSplitScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.SplitScreen,
     });
-    dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+    if ("startViewTransition" in document) {
+      document.startViewTransition(() => {
+        dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+      });
+    } else {
+      dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+    }
   }, [dispatch]);
 
   if (ideViewMode === EditorViewMode.SplitScreen) {

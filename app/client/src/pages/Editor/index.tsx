@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "ee/reducers";
-import IDE from "./IDE";
+// import IDE from "./IDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -50,6 +50,7 @@ import { PartialExportModal } from "components/editorComponents/PartialImportExp
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 import type { Page } from "ee/constants/ReduxActionConstants";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
+import AnimatedGridIDE from "./IDE/AnimatedGridIDE";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -184,7 +185,7 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <IDE />
+            <AnimatedGridIDE />
             <GitSyncModal />
             <GitSettingsModal />
             <DisableCDModal />

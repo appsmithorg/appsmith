@@ -98,7 +98,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
       borderRight="1px solid var(--ads-v2-color-border)"
       flexDirection="column"
       height="100%"
-      width="300px"
+      width="100%"
     >
       <PaneHeader
         rightIcon={
