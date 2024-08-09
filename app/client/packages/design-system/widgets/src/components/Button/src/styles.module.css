@@ -10,7 +10,6 @@
   border: none;
   font-family: inherit;
   max-inline-size: var(--sizing-70);
-  //border-radius: var(--border-radius-elevation-3);
 
   @each $color in colors {
     &[data-variant="filled"][data-color="$(color)"] {
