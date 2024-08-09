@@ -39,7 +39,6 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
   width: 100%;
   height: auto;
   background: var(--ads-v2-color-bg);
-  border: 1px solid var(--ads-v2-color-border);
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -57,6 +56,7 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
     position: relative;
     background: var(--ads-v2-color-gray-50);
     display: table;
+    border: 1px solid var(--ads-v2-color-border);
     width: 100%;
     height: auto;
     .thead,
