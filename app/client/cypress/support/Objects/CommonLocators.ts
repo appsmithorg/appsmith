@@ -335,3 +335,4 @@ export class CommonLocators {
   _slashCommandHintText = ".slash-command-hint-text";
   _selectionItem = ".rc-select-selection-item";
 }
+
