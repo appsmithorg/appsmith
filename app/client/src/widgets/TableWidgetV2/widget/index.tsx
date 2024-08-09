@@ -2591,6 +2591,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         // To revert back to previous on discard
         initialValue: value,
         inputValue: value,
+        __originalIndex__: this.getRowOriginalIndex(rowIndex),
       });
       pushBatchMetaUpdates("columnEditableCellValue", {
         ...this.props.columnEditableCellValue,

@@ -21,6 +21,7 @@ export interface EditableCell {
   value: string | number | null;
   initialValue: string;
   inputValue: string;
+  [ORIGINAL_INDEX_KEY]: number;
 }
 
 export enum PaginationDirection {
@@ -218,12 +219,13 @@ export enum DateInputFormat {
   MILLISECONDS = "Milliseconds",
 }
 
-export const defaultEditableCell = {
+export const defaultEditableCell: EditableCell = {
   column: "",
   index: -1,
   inputValue: "",
   value: "",
   initialValue: "",
+  [ORIGINAL_INDEX_KEY]: -1,
 };
 
 export const DEFAULT_COLUMN_NAME = "Table Column";

@@ -113,7 +113,7 @@ const getBindingSuffix = (tableId: string) => {
     (
       ${tableId}.isAddRowInProgress,
       ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
-      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.${ORIGINAL_INDEX_KEY}] ||
         Object.keys(${tableId}.processedTableData[0])
           .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
           .reduce((prev, curr) => {
