@@ -7,7 +7,7 @@ import {
 
 describe(
   "Reconnect Datasource Modal validation while importing application",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.test"] },
   function () {
     let workspaceId;
     let appid;
@@ -52,18 +52,18 @@ describe(
               );
             }
             // check datasource configured success modal
-            cy.get(".t--import-app-success-modal").should("be.visible");
-            cy.get(".t--import-app-success-modal").should(
-              "contain",
-              "All your datasources are configured and ready to use.",
-            );
+            cy.get(".t--import-app-success-modal")
+              .should("be.visible")
+              .and(
+                "contain",
+                "All your datasources are configured and ready to use.",
+              );
+
             cy.get(".t--import-success-modal-got-it").click({ force: true });
             cy.get(".t--import-app-success-modal").should("not.exist");
             cy.wait("@getWorkspace");
 
-            const uuid = () => Cypress._.random(0, 1e4);
-            const name = uuid();
-            appName = `app${name}`;
+            appName = `app${Cypress._.random(0, 1e4)}`;
             cy.get(homePageLocators.applicationName).click({ force: true });
             cy.get(homePageLocators.portalMenuItem)
               .contains("Rename", { matchCase: false })
