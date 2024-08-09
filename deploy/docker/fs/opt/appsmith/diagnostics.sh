@@ -63,7 +63,7 @@ jcmd $java_pid GC.heap_dump "$tmpdir/java/heap-dump.log"
 # gather the java thread.print
 jcmd $java_pid Thread.print > "$tmpdir/java/thread.print.txt"
 
-# gather the configured umask
+# gather the java gc.class_histogram
 jcmd $java_pid GC.class_histogram > "$tmpdir/java/gc.class_histogram.txt"
 
 #
