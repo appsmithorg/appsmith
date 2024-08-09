@@ -29,7 +29,7 @@ import {
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
-import { FormGroup } from "design-system-old";
+import { FormGroup } from "@appsmith/ads-old";
 import { Button, Link, Callout } from "design-system";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 

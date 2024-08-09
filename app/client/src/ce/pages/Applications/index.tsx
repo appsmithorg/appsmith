@@ -58,7 +58,7 @@ import {
   MenuItem as ListItem,
   Text,
   TextType,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import PageWrapper from "pages/common/PageWrapper";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";

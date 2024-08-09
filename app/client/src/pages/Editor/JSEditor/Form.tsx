@@ -1,7 +1,7 @@
 import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction } from "entities/JSCollection";
-import type { DropdownOnSelect } from "design-system-old";
+import type { DropdownOnSelect } from "@appsmith/ads-old";
 import {
   CodeEditorBorder,
   EditorModes,

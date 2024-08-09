@@ -5,7 +5,7 @@ import {
   FontWeight,
   TextType,
   TooltipComponent,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import { Colors } from "constants/Colors";
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";

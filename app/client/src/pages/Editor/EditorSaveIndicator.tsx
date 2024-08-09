@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { TextType, Text } from "design-system-old";
+import { TextType, Text } from "@appsmith/ads-old";
 import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "ee/constants/messages";
 import { Icon, Spinner } from "design-system";

@@ -1,5 +1,5 @@
 import React from "react";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import styled from "styled-components";
 import { Text } from "design-system";
 const AppsmithLogo = importSvg(

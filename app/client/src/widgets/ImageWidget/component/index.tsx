@@ -3,7 +3,7 @@ import type { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { createMessage, IMAGE_LOAD_ERROR } from "ee/constants/messages";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const RotateLeftIcon = importSvg(
   async () => import("assets/icons/widget/image/rotate-left.svg"),

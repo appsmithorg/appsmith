@@ -20,7 +20,7 @@ import {
   checkIfCatchBlockExists,
   checkIfThenBlockExists,
 } from "@shared/ast";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import type { TActionBlock } from "./types";
 import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";

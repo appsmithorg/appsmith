@@ -8,7 +8,7 @@ import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import { Classes, getTypographyByKey } from "design-system-old";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import ContextualMenu from "./ContextualMenu";
 import { Button, Icon } from "design-system";
 import moment from "moment";

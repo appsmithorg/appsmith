@@ -3,8 +3,8 @@ import { Text } from "design-system";
 import React from "react";
 import { SearchListItem } from "./WorkspaceSearchItems";
 import styled from "styled-components";
-import type { AppIconName } from "design-system-old";
-import { AppIcon, Size } from "design-system-old";
+import type { AppIconName } from "@appsmith/ads-old";
+import { AppIcon, Size } from "@appsmith/ads-old";
 import { getApplicationIcon } from "utils/AppsmithUtils";
 
 const CircleAppIcon = styled(AppIcon)`

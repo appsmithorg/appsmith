@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Icon, Text, Tooltip } from "design-system";
-import { Classes, getTypographyByKey } from "design-system-old";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import type { Datasource } from "entities/Datasource";
 
 const Label = styled.span`

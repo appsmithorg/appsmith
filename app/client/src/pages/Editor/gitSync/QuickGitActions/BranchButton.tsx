@@ -17,7 +17,7 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Button, Icon, Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 import { setShowBranchPopupAction } from "actions/gitSyncActions";
 
 const ProtectedIcon = importRemixIcon(

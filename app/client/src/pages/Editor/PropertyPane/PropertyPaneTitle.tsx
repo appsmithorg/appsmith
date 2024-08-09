@@ -7,7 +7,7 @@ import {
   EditableText,
   EditInteractionKind,
   SavingState,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import type { TooltipPlacement } from "design-system";
 import { Tooltip, Button } from "design-system";
 import { updateWidgetName } from "actions/propertyPaneActions";

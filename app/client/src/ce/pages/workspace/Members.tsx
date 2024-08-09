@@ -8,7 +8,7 @@ import {
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { HighlightText, Table } from "design-system-old";
+import { HighlightText, Table } from "@appsmith/ads-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,

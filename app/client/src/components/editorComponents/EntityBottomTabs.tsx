@@ -1,5 +1,5 @@
 import React from "react";
-import type { CollapsibleTabProps } from "design-system-old";
+import type { CollapsibleTabProps } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";

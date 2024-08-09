@@ -14,7 +14,7 @@ import {
   getIsFetchingGlobalGitConfig,
 } from "selectors/gitSyncSelectors";
 import { updateGlobalGitConfigInit } from "actions/gitSyncActions";
-import { emailValidator } from "design-system-old";
+import { emailValidator } from "@appsmith/ads-old";
 
 export default function GitConfig() {
   const dispatch = useDispatch();

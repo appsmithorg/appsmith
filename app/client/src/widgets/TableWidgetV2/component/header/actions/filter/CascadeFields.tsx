@@ -17,7 +17,7 @@ import { RenderOptionWrapper } from "../../../TableStyledWrappers";
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const CloseIcon = importRemixIcon(
   async () => import("remixicon-react/CloseCircleFillIcon"),

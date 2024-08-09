@@ -15,8 +15,8 @@ import {
 } from "ee/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import type { SetProgress, UploadCallback } from "design-system-old";
-import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
+import type { SetProgress, UploadCallback } from "@appsmith/ads-old";
+import { FilePickerV2, FileType, Text, TextType } from "@appsmith/ads-old";
 import { Classes } from "@blueprintjs/core";
 import { useMediaQuery } from "react-responsive";
 import {

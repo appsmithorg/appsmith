@@ -24,7 +24,7 @@ import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import {
   ProgressiveImage,
   Container as ProgressiveImageContainer,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import SuccessTick from "pages/common/SuccessTick";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 

@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import styled from "styled-components";
-import { Classes, getTypographyByKey, Text, TextType } from "design-system-old";
+import { Classes, getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
 import InspectElement from "assets/images/InspectElement.svg";
 import {
   createMessage,
@@ -20,7 +20,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 import { Button, Icon, Tooltip } from "design-system";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const LongArrowSVG = importSvg(
   async () => import("assets/images/long-arrow-right.svg"),

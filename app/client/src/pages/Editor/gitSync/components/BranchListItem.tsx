@@ -9,7 +9,7 @@ import { isEllipsisActive } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const ProtectedIcon = importRemixIcon(
   async () => import("remixicon-react/ShieldKeyholeLineIcon"),
