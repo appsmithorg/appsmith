@@ -135,7 +135,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 
   ${({ alignment, compact, inline, optionCount, position, width }) => `
-    ${width && `width: ${width}px`};
+    ${width && `width: ${width}px; min-width:60px`};
     ${
       position !== LabelPosition.Top &&
       (position === LabelPosition.Left || compact)
