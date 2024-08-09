@@ -233,6 +233,13 @@ ${({ dropDownWidth, id }) => `
   }
 }
 .rc-select-item-option-selected {
+  background-color: ${({ accentColor }) =>
+    lightenColor(accentColor)} !important;
+
+    &:hover {
+      background-color: ${({ accentColor }) =>
+        lightenColor(accentColor, "0.90")} !important;
+    }
   & .rc-select-item-option-content {
     color: var(--wds-color-text);
   }
