@@ -27,6 +27,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -128,19 +129,23 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                                 entitySelectorTriggerSolution(datasourceId, triggerRequestDTO, trueEnvironmentId))
                         .map(Tuple2::getT2))
                 .map(entityNames -> {
-                    List<Object> result = new ArrayList<>();
+                    List<Map<String, String>> result = new ArrayList<>();
 
                     if (ClientDataDisplayType.DROP_DOWN.equals(displayType)) {
-                        // label, value
+                        // Create maps and add them to the result list
                         for (String entityName : entityNames) {
                             Map<String, String> entity = new HashMap<>();
                             entity.put("label", entityName);
                             entity.put("value", entityName);
                             result.add(entity);
                         }
+                        // Sort the list of maps based on the 'label' value
+                        result.sort(Comparator.comparing(
+                                entity -> entity.get("label").toLowerCase()));
                     }
-
-                    return new TriggerResultDTO(result);
+                    // Convert the result into a list of objects
+                    List<Object> objectResult = new ArrayList<>(result);
+                    return new TriggerResultDTO(objectResult);
                 });
 
         return resultFromPluginMono.switchIfEmpty(defaultResultMono);
