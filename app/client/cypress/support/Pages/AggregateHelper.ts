@@ -427,7 +427,7 @@ export class AggregateHelper {
     let index: number,
       force = true,
       waitAfterClick = true,
-      waitTime = 1000,
+      waitTime = 0,
       type = "click";
 
     if (typeof indexOrOptions === "number") {
