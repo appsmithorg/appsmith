@@ -4,6 +4,42 @@ on:
   repository_dispatch:
     types: [ci-test-limit-count-command]
 
+  workflow_dispatch:
+    inputs:
+        pr:
+            description: "PR number"
+            required: false
+            type: number
+            default: 0
+        previous-workflow-run-id:
+            description: "Workflow ID (To Download cicontainer)"
+            required: false
+            type: number
+            default: 0
+        run_count:
+            description: 'Number of times to repeat the test run'
+            required: false
+            type: number 
+            default: 1
+
+    
+  workflow_call:
+    inputs:
+        pr:
+            description: "This is the PR number in case the workflow is being called in a pull request"
+            required: false
+            type: number
+        previous-workflow-run-id:
+            description: "This is the PR number in case the workflow is being called in a pull request"
+            required: false
+            type: number
+            default: 0
+        run_count:
+            description: 'Number of times to repeat the test run'
+            required: false
+            type: number
+            default: 1
+            
 jobs:
   file-check:
     runs-on: ubuntu-latest
