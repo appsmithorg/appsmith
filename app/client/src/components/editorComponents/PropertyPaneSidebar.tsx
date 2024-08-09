@@ -1,40 +1,29 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import React, { memo, useContext, useEffect, useMemo, useRef } from "react";
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getSelectedWidgets } from "selectors/ui";
-import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
-import styled from "styled-components";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
-
-const StyledResizer = styled.div<{ resizing: boolean }>`
-  ${(props) =>
-    props.resizing &&
-    `
-  & > div {
-    background-color: var(--ads-v2-color-outline);
-  }
-  `}
-  :hover {
-    & > div {
-      background-color: var(--ads-v2-color-bg-emphasis);
-    }
-  }
-`;
 
 interface Props {
   width: number;
@@ -45,9 +34,6 @@ interface Props {
 export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
-
-  const { onMouseDown, onMouseUp, onTouchStart, resizing } =
-    useHorizontalResize(sidebarRef, props.onWidthChange, props.onDragEnd, true);
 
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
@@ -106,20 +92,22 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     keepThemeWhileDragging,
   ]);
 
-  const closeWalkthrough = () => {
+  const closeWalkthrough = useCallback(() => {
     if (popFeature) {
       popFeature("PROPERTY_PANE");
       sidebarRef.current?.removeEventListener("click", closeWalkthrough);
     }
-  };
+  }, [popFeature]);
 
   useEffect(() => {
-    if (isWalkthroughOpened)
+    if (isWalkthroughOpened) {
       sidebarRef.current?.addEventListener("click", closeWalkthrough);
+    }
+    const currentSidebar = sidebarRef.current;
     return () => {
-      sidebarRef.current?.removeEventListener("click", closeWalkthrough);
+      currentSidebar?.removeEventListener("click", closeWalkthrough);
     };
-  }, [isWalkthroughOpened]);
+  }, [closeWalkthrough, isWalkthroughOpened, sidebarRef]);
 
   return (
     <div className="relative h-full">
@@ -130,25 +118,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         id={PROPERTY_PANE_ID}
         ref={sidebarRef}
       >
-        {/* RESIZER */}
-        <StyledResizer
-          className={`absolute top-0 left-0 w-2 h-full -ml-1 group cursor-ew-resize ${tailwindLayers.resizer}`}
-          onMouseDown={onMouseDown}
-          onTouchEnd={onMouseUp}
-          onTouchStart={onTouchStart}
-          resizing={resizing}
-        >
-          <div
-            className={classNames({
-              "w-1 h-full bg-transparent transform transition flex items-center":
-                true,
-            })}
-          />
-        </StyledResizer>
         <div
           className={classNames({
-            "h-full p-0 overflow-y-auto min-w-72 max-w-104": true,
-            "transition-all duration-400": !resizing,
+            "h-full p-0 overflow-y-auto w-full": true,
           })}
           style={{ width: props.width }}
         >

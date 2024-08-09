@@ -75,8 +75,8 @@ function useAppIDEAnimated(): [string[], string[], string[][]] {
       case EditorState.LIBRARIES:
         setColumns([
           SIDEBAR_WIDTH,
-          "250px",
-          windowWidth - 50 - 250 + "px",
+          "255px",
+          windowWidth - 50 - 255 + "px",
           "0px",
         ]);
         break;

@@ -12,7 +12,7 @@ export const MainPane = (props: { id: string }) => {
 
   return (
     <div
-      className="relative flex flex-col flex-1 overflow-auto z-2"
+      className="relative flex flex-col flex-1 overflow-auto z-2 h-full"
       data-testid="t--ide-main-pane"
       id={props.id}
     >

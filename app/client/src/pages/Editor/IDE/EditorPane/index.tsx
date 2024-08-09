@@ -1,6 +1,5 @@
 import React from "react";
 import { Flex } from "design-system";
-import { useEditorPaneWidth } from "../hooks";
 import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
@@ -8,7 +7,6 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const EditorPane = () => {
-  const width = useEditorPaneWidth();
   const ideViewMode = useSelector(getIDEViewMode);
 
   return (
@@ -26,7 +24,7 @@ const EditorPane = () => {
       gap="spacing-2"
       height="100%"
       overflow="hidden"
-      width={width}
+      width={"100%"}
     >
       <EditorPaneExplorer />
       <Editor />
