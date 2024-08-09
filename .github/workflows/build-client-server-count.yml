@@ -49,7 +49,7 @@ jobs:
       pr: ${{steps.args.outputs.pr}}
       runId: ${{steps.args.outputs.runId}}
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
-      run_count: ${{ steps.args.outputs.run_count }}
+      run_count: ${{ steps.countargs.outputs.run_count }}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -75,6 +75,16 @@ jobs:
             else
                 echo "run_count=1" >> $GITHUB_OUTPUT
             fi
+
+      - name: Set run_count args
+        id: countargs
+        run: |
+            checkRunCount=${{ github.event.client_payload.slash_command.args.named.run_count }}
+            if [[ -z "$checkRunCount" ]]; then
+                echo "run_count=$checkRunCount" >> $GITHUB_OUTPUT
+            else
+                echo "run_count=1" >> $GITHUB_OUTPUT
+            fi   
 
       - name: Get the diff from base branch
         continue-on-error: true
