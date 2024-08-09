@@ -1,16 +1,7 @@
-name: "Storybook Tests"
+name: "Tests Storybook stories"
 
 on:
-  push:
-    branches:
-      - release
-    paths:
-      - "app/client/packages/design-system/**"
-      - "app/client/packages/storybook/**"
-  pull_request:
-    paths:
-      - "app/client/packages/design-system/**"
-      - "app/client/packages/storybook/**"
+  workflow_dispatch:
 
 jobs:
   storybook-tests:
