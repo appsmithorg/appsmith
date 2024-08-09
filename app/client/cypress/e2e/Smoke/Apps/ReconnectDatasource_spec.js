@@ -15,7 +15,7 @@ describe(
     let appName;
     it("1. Import application from json with one postgres and success modal", function () {
       homePage.NavigateToHome();
-      // import application
+      // import application test
       cy.generateUUID().then((uid) => {
         workspaceId = uid;
         cy.createWorkspace();
