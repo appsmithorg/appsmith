@@ -730,7 +730,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Neutral foreground. Slightly less prominent than main fg
     const color = this.fg.clone();
 
-    color.oklch.l += 0.35;
+    color.oklch.l += 0.125;
 
     return color;
   }
@@ -738,7 +738,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l += 0.125;
+    color.oklch.l += 0.35;
 
     return color;
   }

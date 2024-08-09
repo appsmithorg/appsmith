@@ -567,19 +567,19 @@ describe("fgNeutral color", () => {
   it("should return correct color when chroma < 0.04", () => {
     const { fgNeutral } = new DarkModeTheme("oklch(0.45 0.03 60)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(60.245% 60.245% 60.245%)");
+    expect(fgNeutral).toEqual("rgb(78.709% 78.709% 78.709%)");
   });
 
   it("should return correct color when chroma > 0.04 and hue is between 120 and 300", () => {
     const { fgNeutral } = new DarkModeTheme("oklch(0.45 0.1 150)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(58.362% 61.165% 58.781%)");
+    expect(fgNeutral).toEqual("rgb(76.736% 79.678% 77.172%)");
   });
 
   it("should return correct color when chroma > 0.04 and hue is not between 120 and 300", () => {
     const { fgNeutral } = new DarkModeTheme("oklch(0.45 0.1 110)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(60.369% 60.601% 57.331%)");
+    expect(fgNeutral).toEqual("rgb(78.837% 79.085% 75.653%)");
   });
 });
 
