@@ -14,6 +14,7 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class PageDTO {
 
     @Transient
     @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
+    protected Map<String, Policy> policyMap = new HashMap<>();
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
@@ -81,6 +82,28 @@ public class PageDTO {
 
     @JsonView(Views.Public.class)
     Map<String, List<String>> dependencyMap;
+
+    /**
+     * An unmodifiable set of policies.
+     */
+    @JsonView(Views.Internal.class)
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public Set<Policy> getPolicies() {
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
+    }
+
+    @JsonView(Views.Internal.class)
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public void setPolicies(Set<Policy> policies) {
+        if (policies == null) {
+            policyMap = null;
+            return;
+        }
+        policyMap = new HashMap<>();
+        for (Policy policy : policies) {
+            policyMap.put(policy.getPermission(), policy);
+        }
+    }
 
     public void sanitiseToExportDBObject() {
         this.setDependencyMap(null);

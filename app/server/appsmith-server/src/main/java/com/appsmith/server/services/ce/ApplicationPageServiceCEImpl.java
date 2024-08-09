@@ -84,6 +84,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
+import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -1357,29 +1358,32 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewPage newPage = new NewPage();
                     newPage.setId(idPoliciesOnly.getId());
-                    newPage.setPolicies(idPoliciesOnly.getPolicies());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    newPage.setPolicies(policies);
                     return newPage;
                 })
                 .flatMap(newPageRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
-                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewAction newAction = new NewAction();
                     newAction.setId(idPoliciesOnly.getId());
-                    newAction.setPolicies(idPoliciesOnly.getPolicies());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    newAction.setPolicies(policies);
                     return newAction;
                 })
                 .flatMap(newActionRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
-                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     ActionCollection actionCollection = new ActionCollection();
                     actionCollection.setId(idPoliciesOnly.getId());
-                    actionCollection.setPolicies(idPoliciesOnly.getPolicies());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    actionCollection.setPolicies(policies);
                     return actionCollection;
                 })
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject));
@@ -1425,11 +1429,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .collect(Collectors.toSet());
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
-                        .findIdsAndPoliciesByIdIn(datasourceIds)
+                        .findIdsAndPolicyMapByIdIn(datasourceIds)
                         .flatMap(idPolicy -> {
                             Datasource datasource = new Datasource();
                             datasource.setId(idPolicy.getId());
-                            datasource.setPolicies(idPolicy.getPolicies());
+                            Set<Policy> policies = policyMapToSet(idPolicy.getPolicyMap());
+                            datasource.setPolicies(policies);
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
 
