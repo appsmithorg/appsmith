@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { SegmentedControlOption } from "design-system";
-import { SegmentedControl } from "design-system";
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,

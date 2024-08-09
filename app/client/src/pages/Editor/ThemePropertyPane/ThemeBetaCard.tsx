@@ -7,7 +7,7 @@ import {
   APP_THEME_BETA_CARD_HEADING,
   APP_THEME_BETA_CARD_CONTENT,
 } from "ee/constants/messages";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 export function ThemeBetaCard() {
   const dispatch = useDispatch();

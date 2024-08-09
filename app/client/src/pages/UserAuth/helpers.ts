@@ -3,7 +3,7 @@ import { SubmissionError } from "redux-form";
 import { useCallback, useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import UserApi from "ee/api/UserApi";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { ApiResponse } from "../../api/ApiResponses";
 
 export interface LoginFormValues {

@@ -23,7 +23,7 @@ import {
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "ee/constants/messages";
-import { Icon, Option, Select, Input, Tooltip } from "design-system";
+import { Icon, Option, Select, Input, Tooltip } from "@appsmith/ads";
 
 interface Props {
   googleSheetPluginId: string;

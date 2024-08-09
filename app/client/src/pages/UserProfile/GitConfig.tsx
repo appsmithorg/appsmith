@@ -7,7 +7,7 @@ import {
   SUBMIT,
 } from "ee/constants/messages";
 import { Classes } from "@blueprintjs/core";
-import { Button, Input, toast } from "design-system";
+import { Button, Input, toast } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getGlobalGitConfig,

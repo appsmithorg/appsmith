@@ -1,5 +1,5 @@
 import React from "react";
-import { Spinner, Text } from "design-system";
+import { Spinner, Text } from "@appsmith/ads";
 import {
   EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,

@@ -1,4 +1,4 @@
-import { Checkbox } from "design-system";
+import { Checkbox } from "@appsmith/ads";
 import React from "react";
 import { CheckBoxGrid, CheckboxWrapper } from "./StyledSheet";
 

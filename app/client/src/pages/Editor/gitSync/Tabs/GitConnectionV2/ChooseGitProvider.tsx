@@ -18,7 +18,7 @@ import {
   Radio,
   RadioGroup,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 import { GIT_DEMO_GIF } from "./constants";
 import { useDispatch, useSelector } from "react-redux";

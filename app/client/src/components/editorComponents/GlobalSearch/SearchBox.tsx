@@ -10,7 +10,7 @@ import {
 } from "ee/constants/messages";
 import type { SearchCategory } from "./utils";
 import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 
 const Container = styled.div`
   background: var(--ads-v2-color-bg);

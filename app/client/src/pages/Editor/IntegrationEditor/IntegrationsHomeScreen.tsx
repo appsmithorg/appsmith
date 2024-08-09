@@ -22,7 +22,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
-import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,

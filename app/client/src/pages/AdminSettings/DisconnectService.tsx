@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Button, Callout, Text } from "design-system";
+import { Button, Callout, Text } from "@appsmith/ads";
 import {
   createMessage,
   DANGER_ZONE,

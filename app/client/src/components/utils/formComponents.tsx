@@ -1,4 +1,4 @@
-import { Menu } from "design-system";
+import { Menu } from "@appsmith/ads";
 import styled from "styled-components";
 
 export const MenuWrapper = styled.div`

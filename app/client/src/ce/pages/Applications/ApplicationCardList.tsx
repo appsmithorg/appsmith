@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
 import CardList from "pages/Applications/CardList";

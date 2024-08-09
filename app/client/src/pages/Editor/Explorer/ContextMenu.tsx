@@ -10,7 +10,7 @@ import {
   MenuSubContent,
   Tooltip,
   MenuSeparator,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,

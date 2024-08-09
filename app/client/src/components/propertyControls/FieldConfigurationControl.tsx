@@ -10,7 +10,7 @@ import SchemaParser, {
 } from "widgets/JSONFormWidget/schemaParser";
 import type { Schema } from "widgets/JSONFormWidget/constants";
 import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import type { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { getNextEntityName } from "utils/AppsmithUtils";

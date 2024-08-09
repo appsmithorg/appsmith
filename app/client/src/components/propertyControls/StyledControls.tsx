@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import type { TextInputProps } from "@appsmith/ads-old";
 import type { ContainerOrientation } from "constants/WidgetConstants";
-import { Input, Icon } from "design-system";
+import { Input, Icon } from "@appsmith/ads";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 interface ControlWrapperProps {

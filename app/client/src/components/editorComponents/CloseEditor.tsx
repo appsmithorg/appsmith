@@ -13,7 +13,7 @@ import {
 import { useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 import styled from "styled-components";
 import type { AppsmithLocationState } from "../../utils/history";
 import { NavigationMethod } from "../../utils/history";

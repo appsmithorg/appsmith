@@ -13,7 +13,7 @@ import {
   EDIT_DATASOURCE,
   SAVE_DATASOURCE,
 } from "ee/constants/messages";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 interface storeDataSourceProps {
   datasourceId?: string;

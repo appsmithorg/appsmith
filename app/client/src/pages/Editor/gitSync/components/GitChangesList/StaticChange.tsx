@@ -1,6 +1,6 @@
 import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,

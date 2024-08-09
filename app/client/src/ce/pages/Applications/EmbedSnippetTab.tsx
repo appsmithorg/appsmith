@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Switch, Icon, Tooltip, Link, Text } from "design-system";
+import { Switch, Icon, Tooltip, Link, Text } from "@appsmith/ads";
 import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
 import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
 import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";

@@ -22,7 +22,7 @@ import {
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 describe("URL slug names", () => {
   beforeEach(async () => {

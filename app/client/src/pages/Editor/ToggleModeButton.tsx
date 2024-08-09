@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Tooltip, ToggleButton } from "design-system";
+import { Tooltip, ToggleButton } from "@appsmith/ads";
 
 import type { AppState } from "ee/reducers";
 import { APP_MODE } from "entities/App";
