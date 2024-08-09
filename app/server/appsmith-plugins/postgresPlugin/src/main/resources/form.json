@@ -5,13 +5,42 @@
       "id": 1,
       "children": [
         {
+          "label": "Connection method",
+          "configProperty": "datasourceConfiguration.properties[1].key",
+          "initialValue": "Connection method",
+          "hidden": true,
+          "controlType": "INPUT_TEXT"
+        },
+        {
+          "label": "Connection method",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "SEGMENTED_CONTROL",
+          "initialValue": "STANDARD",
+          "options": [
+            {
+              "label": "Standard",
+              "value": "STANDARD"
+            },
+            {
+              "label": "SSH tunnel",
+              "value": "SSH"
+            }
+          ]
+        },
+        {
           "label": "Connection mode",
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "SEGMENTED_CONTROL",
           "initialValue": "READ_WRITE",
           "options": [
-            { "label": "Read / Write", "value": "READ_WRITE" },
-            { "label": "Read only", "value": "READ_ONLY" }
+            {
+              "label": "Read / Write",
+              "value": "READ_WRITE"
+            },
+            {
+              "label": "Read only",
+              "value": "READ_ONLY"
+            }
           ]
         },
         {
@@ -34,6 +63,32 @@
               "placeholderText": "5432"
             }
           ]
+        },
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "SSH host address",
+              "configProperty": "datasourceConfiguration.sshProxy.endpoints[*].host",
+              "controlType": "KEYVALUE_ARRAY",
+              "validationMessage": "Please enter a valid host",
+              "validationRegex": "^((?![/:]).)*$",
+              "placeholderText": "myapp.abcde.sshHost.net"
+            },
+            {
+              "label": "SSH port",
+              "configProperty": "datasourceConfiguration.sshProxy.endpoints[*].port",
+              "dataType": "NUMBER",
+              "controlType": "KEYVALUE_ARRAY",
+              "initialValue": ["22"],
+              "placeholderText": "22"
+            }
+          ],
+          "hidden": {
+            "path": "datasourceConfiguration.properties[1].value",
+            "comparison": "NOT_EQUALS",
+            "value": "SSH"
+          }
         },
         {
           "label": "Database name",
@@ -64,6 +119,28 @@
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
               "encrypted": true
+            },
+            {
+              "label": "SSH username",
+              "configProperty": "datasourceConfiguration.sshProxy.username",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username",
+              "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "SSH"
+              }
+            },
+            {
+              "label": "SSH key",
+              "configProperty": "datasourceConfiguration.sshProxy.privateKey.keyFile",
+              "controlType": "FILE_PICKER",
+              "encrypted": true,
+              "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "SSH"
+              }
             }
           ]
         }
@@ -79,13 +156,34 @@
           "controlType": "DROP_DOWN",
           "initialValue": "DEFAULT",
           "options": [
-            { "label": "Default", "value": "DEFAULT" },
-            { "label": "Allow", "value": "ALLOW" },
-            { "label": "Prefer", "value": "PREFER" },
-            { "label": "Require", "value": "REQUIRE" },
-            { "label": "Disable", "value": "DISABLE" },
-            { "label": "Verify CA", "value": "VERIFY_CA" },
-            { "label": "Verify Full", "value": "VERIFY_FULL" }
+            {
+              "label": "Default",
+              "value": "DEFAULT"
+            },
+            {
+              "label": "Allow",
+              "value": "ALLOW"
+            },
+            {
+              "label": "Prefer",
+              "value": "PREFER"
+            },
+            {
+              "label": "Require",
+              "value": "REQUIRE"
+            },
+            {
+              "label": "Disable",
+              "value": "DISABLE"
+            },
+            {
+              "label": "Verify CA",
+              "value": "VERIFY_CA"
+            },
+            {
+              "label": "Verify Full",
+              "value": "VERIFY_FULL"
+            }
           ]
         },
         {
@@ -94,8 +192,14 @@
           "controlType": "DROP_DOWN",
           "initialValue": "-Select-",
           "options": [
-            { "label": "Upload File", "value": "FILE" },
-            { "label": "Base64 String", "value": "BASE64_STRING" }
+            {
+              "label": "Upload File",
+              "value": "FILE"
+            },
+            {
+              "label": "Base64 String",
+              "value": "BASE64_STRING"
+            }
           ],
           "hidden": {
             "conditionType": "AND",
@@ -114,10 +218,15 @@
           }
         },
         {
-          "sectionStyles": { "display": "flex", "flex-wrap": "wrap" },
+          "sectionStyles": {
+            "display": "flex",
+            "flex-wrap": "wrap"
+          },
           "children": [
             {
-              "sectionStyles": { "marginRight": "10px" },
+              "sectionStyles": {
+                "marginRight": "10px"
+              },
               "children": [
                 {
                   "label": "Client CA Certificate File",
@@ -145,7 +254,9 @@
               ]
             },
             {
-              "sectionStyles": { "marginRight": "10px" },
+              "sectionStyles": {
+                "marginRight": "10px"
+              },
               "children": [
                 {
                   "label": "Server CA Certificate File",
@@ -173,7 +284,9 @@
               ]
             },
             {
-              "sectionStyles": { "marginRight": "10px" },
+              "sectionStyles": {
+                "marginRight": "10px"
+              },
               "children": [
                 {
                   "label": "Client Key Certificate File",
@@ -201,15 +314,21 @@
               ]
             },
             {
-              "sectionStyles": { "flex": 1 },
+              "sectionStyles": {
+                "flex": 1
+              },
               "children": []
             },
             {
-              "sectionStyles": { "flex": 1 },
+              "sectionStyles": {
+                "flex": 1
+              },
               "children": []
             },
             {
-              "sectionStyles": { "flex": 1 },
+              "sectionStyles": {
+                "flex": 1
+              },
               "children": []
             }
           ],
