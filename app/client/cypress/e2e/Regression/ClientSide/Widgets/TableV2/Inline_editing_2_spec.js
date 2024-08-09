@@ -26,8 +26,6 @@ describe(
       agHelper.AddDsl("Table/InlineEditingDSL");
     });
 
-    let propPaneBack = "[data-testid='t--property-pane-back-btn']";
-
     it("1. should check that onDiscard event is working", () => {
       cy.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
@@ -51,7 +49,7 @@ describe(
     it("2. should check that inline editing works with text wrapping disabled", () => {
       agHelper.AddDsl("Table/InlineEditingDSL");
       cy.openPropertyPane("tablewidgetv2");
-      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editTableCell(0, 0);
       cy.get(
         "[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
@@ -71,13 +69,16 @@ describe(
       ).should("not.be.disabled");
     });
 
-    it("4. should check that doesn't grow taller when text wrapping is disabled", () => {
+    it("4. should check that cell column height doesn't grow taller when text wrapping is disabled", () => {
+      const DEFAULT_NON_WRAP_CELL_COLUMN_HEIGHT = 28;
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      table.EnableEditableOfColumn("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       table.EditTableCell(0, 0, "", false);
       agHelper.GetHeight(table._editCellEditor);
       cy.get("@eleHeight").then(($initiaHeight) => {
-        expect(Number($initiaHeight)).to.eq(28);
+        expect(Number($initiaHeight.toFixed())).to.eq(
+          DEFAULT_NON_WRAP_CELL_COLUMN_HEIGHT,
+        );
         table.EditTableCell(
           1,
           0,
@@ -91,9 +92,10 @@ describe(
       });
     });
 
-    it("5. should check that grows taller when text wrapping is enabled", () => {
+    it("5. should check that cell column height grows taller when text wrapping is enabled", () => {
+      const MIN_WRAP_CELL_COLUMN_HEIGHT = 34;
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      table.EnableEditableOfColumn("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       table.EditColumn("step");
       propPane.TogglePropertyState("Cell Wrapping", "On");
       table.EditTableCell(
@@ -104,7 +106,9 @@ describe(
       );
       agHelper.GetHeight(table._editCellEditor);
       cy.get("@eleHeight").then(($newHeight) => {
-        expect(Number($newHeight)).to.be.greaterThan(34);
+        expect(Number($newHeight)).to.be.greaterThan(
+          MIN_WRAP_CELL_COLUMN_HEIGHT,
+        );
       });
     });
 
@@ -130,8 +134,7 @@ describe(
 
       cy.openPropertyPane("tablewidgetv2");
 
-      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
-      cy.wait(1000);
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
 
       // case 2: check if updatedRowIndex is 0, when cell at row 0 is updated.
       cy.editTableCell(0, 0);
@@ -149,7 +152,6 @@ describe(
       cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
       // case 5: check if the updatedRowIndex changes to -1 when the table data changes.
-      cy.wait(1000);
       cy.editTableCell(0, 2);
       cy.enterTableCellValue(0, 2, "#14").type("{enter}");
       cy.openPropertyPane("tablewidgetv2");
@@ -159,13 +161,13 @@ describe(
     });
 
     it("7. should check if updatedRowIndex is getting updated for multi row update mode", () => {
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 400, 400);
+      cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
       cy.get(".t--widget-textwidget").should("exist");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{Table1.updatedRowIndex}}`,
       );
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+      cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
       cy.get(".t--widget-buttonwidget").should("exist");
       cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
       cy.updateCodeInput(".t--property-control-label", "Reset");
@@ -175,7 +177,7 @@ describe(
       );
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      table.EnableEditableOfColumn("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       agHelper.GetNClick(table._updateMode("Multi"), 0, false, 1000);
 
       // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.
@@ -190,7 +192,6 @@ describe(
       cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
       // case 3: check if the updatedRowIndex changes to -1 when the table data changes.
-      cy.wait(1000);
       table.EditTableCell(2, 0, "#14");
       cy.get(commonlocators.textWidgetContainer).should("contain.text", 2);
       cy.openPropertyPane("tablewidgetv2");
