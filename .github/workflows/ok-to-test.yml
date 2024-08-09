@@ -12,9 +12,9 @@ jobs:
     if: |
       github.event.issue.pull_request
     steps:
-      - name: Generate token
-        id: generate_token
-        uses: tibdex/github-app-token@v1
+      # - name: Generate token
+      #   id: generate_token
+      #   uses: tibdex/github-app-token@v1
         # with:
         #   app_id: ${{ secrets.APPSMITH_INTEGRATION_TESTING_ID }}
         #   private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
