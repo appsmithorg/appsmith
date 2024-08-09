@@ -72,6 +72,43 @@ export const excludeList: WidgetType[] = [
   "WDS_BUTTON_WIDGET",
   "WDS_TABLE_WIDGET",
 ];
+export function getActions(
+  widgetProperties: any,
+  onCopy: () => void,
+  onDelete: () => void
+): Array<{
+  tooltipContent: any;
+  icon: ReactElement;
+}> {
+  return widgetProperties?.type === "CONTAINER_WIDGET"
+    ? []
+    : [
+        {
+          tooltipContent: "Copy widget",
+          icon: (
+            <Button
+              data-testid="t--copy-widget"
+              isIconButton
+              kind="tertiary"
+              onClick={onCopy}
+              startIcon="duplicate"
+            />
+          ),
+        },
+        {
+          tooltipContent: "Delete widget",
+          icon: (
+            <Button
+              data-testid="t--delete-widget"
+              isIconButton
+              kind="tertiary"
+              onClick={onDelete}
+              startIcon="delete-bin-line"
+            />
+          ),
+        },
+      ];
+}
 
 function PropertyPaneView(
   props: {
@@ -208,39 +245,11 @@ function PropertyPaneView(
   /**
    * actions shown on the right of title
    */
-  const actions = useMemo((): Array<{
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tooltipContent: any;
-    icon: ReactElement;
-  }> => {
-    return [
-      {
-        tooltipContent: "Copy widget",
-        icon: (
-          <Button
-            data-testid="t--copy-widget"
-            isIconButton
-            kind="tertiary"
-            onClick={onCopy}
-            startIcon="duplicate"
-          />
-        ),
-      },
-      {
-        tooltipContent: "Delete widget",
-        icon: (
-          <Button
-            data-testid="t--delete-widget"
-            isIconButton
-            kind="tertiary"
-            onClick={onDelete}
-            startIcon="delete-bin-line"
-          />
-        ),
-      },
-    ];
-  }, [onCopy, onDelete]);
+  const actions = useMemo(
+    () => getActions(widgetProperties, onCopy, onDelete),
+    [onCopy, onDelete, widgetProperties]
+  );
+
 
   useEffect(() => {
     setSearchText("");
