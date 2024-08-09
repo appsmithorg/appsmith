@@ -288,10 +288,6 @@ class AudioRecorderWidget extends BaseWidget<
 
       this.props.updateWidgetMetaProperty("dataURL", blobIdForBase64, {
         triggerPropertyName: "onRecordingComplete",
-        dynamicString: this.props.onRecordingComplete,
-        event: {
-          type: EventType.ON_RECORDING_COMPLETE,
-        },
       });
       this.props.updateWidgetMetaProperty("rawBinary", blobIdForRaw, {
         triggerPropertyName: "onRecordingComplete",
