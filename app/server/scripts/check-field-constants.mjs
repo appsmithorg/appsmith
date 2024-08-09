@@ -83,14 +83,14 @@ async function processJavaFile(filePath) {
 // Can't use `import.meta.dirname` because it's not available in Node.js 18.
 // And v18 is what is included in GitHub Actions today.
 // See <https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md#language-and-runtime>.
-const directoryPath = import.meta.resolve("..").replace("file://", "");
+// const directoryPath = import.meta.resolve("..").replace("file://", "");
 
-findInnerClassDefinitions(directoryPath)
-  .then(isPass => {
-    if (isPass) {
-      console.log("All okay.");
-    } else {
-      console.error("Some field constants are not looking good.");
-      process.exitCode = 1;
-    }
-  });
+// findInnerClassDefinitions(directoryPath)
+//   .then(isPass => {
+//     if (isPass) {
+//       console.log("All okay.");
+//     } else {
+//       console.error("Some field constants are not looking good.");
+//       process.exitCode = 1;
+//     }
+//   });

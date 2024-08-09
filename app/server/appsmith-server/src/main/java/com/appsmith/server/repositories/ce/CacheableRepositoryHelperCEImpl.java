@@ -98,7 +98,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(inMemoryCacheableRepositoryHelper.getAnonymousUserPermissionGroupIds());
         }
 
-        log.debug(
+        log.error(
                 "In memory cache miss for anonymous user permission groups. Fetching from DB and adding it to in memory storage.");
 
         BridgeQuery<Config> query = Bridge.equal(Config.Fields.name, FieldName.PUBLIC_PERMISSION_GROUP);
@@ -181,7 +181,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
         Query query = new Query();
         query.addCriteria(andCriteria);
-        log.info("Fetching tenant from database as it couldn't be found in the cache!");
+        log.error("Fetching tenant from database as it couldn't be found in the cache!");
         return mongoOperations
                 .findOne(query, Tenant.class)
                 .map(tenant -> {

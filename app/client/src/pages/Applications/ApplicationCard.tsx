@@ -434,7 +434,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const editApp = useCallback(() => {
     setURLParams();
-    dispatch(getCurrentUser());
+    // dispatch(getCurrentUser());
   }, []);
 
   const launchMobileApp = useCallback(() => {

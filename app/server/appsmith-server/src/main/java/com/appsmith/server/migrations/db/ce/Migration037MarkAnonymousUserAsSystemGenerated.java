@@ -33,7 +33,7 @@ public class Migration037MarkAnonymousUserAsSystemGenerated {
             // We expect only 1 anonymous user to be present in the system, but we are using updateMulti to be safe.
             UpdateResult result = mongoTemplate.updateMulti(
                     query(where(User.Fields.isAnonymous).is(true)), update, User.class);
-            log.info("Marked {} anonymous users as system generated", result.getModifiedCount());
+            log.error("Marked {} anonymous users as system generated", result.getModifiedCount());
         } catch (Exception e) {
             log.error("Error while marking anonymous user as system generated", e);
         }

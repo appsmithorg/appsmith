@@ -156,7 +156,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .onErrorResume(error -> {
                     // We're gobbling up errors here so that all feature flags are turned off by default
                     // This will be problematic if we do not maintain code to reflect validity of flags
-                    log.debug("Received error from CS for feature flags: {}", error.getMessage());
+                    log.error("Received error from CS for feature flags: {}", error.getMessage());
                     return Mono.just(new HashMap<>());
                 });
     }
@@ -186,7 +186,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
     @Override
     public Mono<CachedFeatures> updateCachedTenantFeatures(String tenantId, CachedFeatures cachedFeatures) {
-        log.debug("Updating cached tenant features for tenant: {}", tenantId);
+        log.error("Updating cached tenant features for tenant: {}", tenantId);
         return Mono.just(cachedFeatures);
     }
 

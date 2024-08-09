@@ -215,7 +215,7 @@ public class AnthropicPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         errorResult.setIsExecutionSuccess(false);
-                        log.debug(
+                        log.error(
                                 "An error has occurred while trying to run the anthropic API query command with error {}",
                                 error.getStackTrace());
                         if (!(error instanceof AppsmithPluginException)) {
@@ -292,7 +292,7 @@ public class AnthropicPlugin extends BasePlugin {
                         return getDataToMap(models);
                     })
                     .onErrorResume(error -> {
-                        log.debug("Error while fetching Anthropic models list", error);
+                        log.error("Error while fetching Anthropic models list", error);
                         if (ANTHROPIC_MODELS.containsKey(requestType)) {
                             return Mono.just(getDataToMap(ANTHROPIC_MODELS.get(requestType)));
                         }

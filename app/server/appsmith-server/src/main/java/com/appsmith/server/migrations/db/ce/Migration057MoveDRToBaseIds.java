@@ -45,7 +45,7 @@ public class Migration057MoveDRToBaseIds {
         // NewPage
         AggregationUpdate moveNewPageDRUpdateQuery = getUpdateDefinition("defaultResources.pageId");
         Mono<UpdateResult> newPageMono = Mono.fromCallable(() -> {
-                    log.debug("NewPage");
+                    log.error("NewPage");
                     return mongoTemplate.updateMulti(findQuery, moveNewPageDRUpdateQuery, NewPage.class);
                 })
                 .subscribeOn(Schedulers.boundedElastic());
@@ -53,7 +53,7 @@ public class Migration057MoveDRToBaseIds {
         // NewAction
         AggregationUpdate moveNewActionDRUpdateQuery = getUpdateDefinition("defaultResources.actionId");
         Mono<UpdateResult> newActionMono = Mono.fromCallable(() -> {
-                    log.debug("NewAction");
+                    log.error("NewAction");
                     return mongoTemplate.updateMulti(findQuery, moveNewActionDRUpdateQuery, NewAction.class);
                 })
                 .subscribeOn(Schedulers.boundedElastic());
@@ -61,7 +61,7 @@ public class Migration057MoveDRToBaseIds {
         // ActionCollection
         AggregationUpdate moveActionCollectionDRUpdateQuery = getUpdateDefinition("defaultResources.collectionId");
         Mono<UpdateResult> actionCollectionMono = Mono.fromCallable(() -> {
-                    log.debug("ActionCollection");
+                    log.error("ActionCollection");
                     return mongoTemplate.updateMulti(
                             findQuery, moveActionCollectionDRUpdateQuery, ActionCollection.class);
                 })

@@ -29,7 +29,7 @@ class PerformanceLoggingHandler implements ObservationHandler<Observation.Contex
         requestID = (requestID + 1) % 10000;
         context.put("requestID", requestID);
 
-        log.info(
+        log.error(
                 "\nRequest ID : {}\nExecution Started : {} \nContext : {}\n{}\n",
                 requestID,
                 context.getName(),
@@ -71,7 +71,7 @@ class PerformanceLoggingHandler implements ObservationHandler<Observation.Contex
 
         int localRequestID = context.getOrDefault("requestID", 0);
 
-        log.info(
+        log.error(
                 "\nRequest ID: {}\nExecution Complete: {}\nTotal Time Taken: {} ms\nContext: {}\n{}\n",
                 localRequestID,
                 context.getName(),
@@ -86,7 +86,7 @@ class PerformanceLoggingHandler implements ObservationHandler<Observation.Contex
         long executionTime = System.currentTimeMillis() - startTime;
         long localRequestID = context.getOrDefault("requestID", 0);
 
-        log.info(
+        log.error(
                 "\nRequest ID : {}\nError Encountered: {}\nTime Taken {} ms\nError: {}\nContext: {}\n{}\n",
                 localRequestID,
                 context.getName(),

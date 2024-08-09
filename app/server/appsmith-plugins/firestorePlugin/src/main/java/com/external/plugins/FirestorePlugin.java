@@ -578,7 +578,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the Firestore Plugin, got action execution result");
+                        log.error("In the Firestore Plugin, got action execution result");
                         return Mono.just(result);
                     });
         }
@@ -773,7 +773,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the Firestore Plugin, got action execution result for get collection");
+                        log.error("In the Firestore Plugin, got action execution result for get collection");
                         return Mono.just(result);
                     });
         }
@@ -824,7 +824,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the Firestore Plugin, got action execution result for add to collection");
+                        log.error("In the Firestore Plugin, got action execution result for add to collection");
                         return Mono.just(result);
                     });
         }
@@ -942,7 +942,7 @@ public class FirestorePlugin extends BasePlugin {
                 try {
                     connection.listCollections();
                 } catch (FirestoreException e) {
-                    log.debug("Invalid datasource configuration : {}", e.getMessage());
+                    log.error("Invalid datasource configuration : {}", e.getMessage());
                     if (e.getMessage().contains("Metadata operations require admin authentication")) {
                         DatasourceTestResult datasourceTestResult = new DatasourceTestResult();
                         datasourceTestResult.setMessages(new HashSet<>(

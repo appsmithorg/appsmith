@@ -77,7 +77,7 @@ public class EmailSender {
      * @param text    HTML Body of the message. This method assumes UTF-8.
      */
     private void sendMailSync(String to, String subject, String text, String replyTo) {
-        log.debug("Got request to send email to: {} with subject: {}", to, subject);
+        log.error("Got request to send email to: {} with subject: {}", to, subject);
         // Don't send an email for local, dev or test environments
         if (!emailConfig.isEmailEnabled()) {
             return;
@@ -89,7 +89,7 @@ public class EmailSender {
             return;
         }
 
-        log.debug("Going to send email to {} with subject {}", to, subject);
+        log.error("Going to send email to {} with subject {}", to, subject);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
@@ -107,7 +107,7 @@ public class EmailSender {
             helper.setText(text, true);
             javaMailSender.send(mimeMessage);
 
-            log.debug("Email sent successfully to {} with subject {}", to, subject);
+            log.error("Email sent successfully to {} with subject {}", to, subject);
         } catch (MessagingException e) {
             log.error(
                     "Unable to create the mime message while sending an email to {} with subject: {}. Cause: ",

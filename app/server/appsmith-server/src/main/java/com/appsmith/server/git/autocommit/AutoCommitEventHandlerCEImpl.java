@@ -58,14 +58,14 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     @Override
     public void publish(AutoCommitEvent autoCommitEvent) {
         applicationEventPublisher.publishEvent(autoCommitEvent);
-        log.info("published event for auto commit: {}", autoCommitEvent);
+        log.error("published event for auto commit: {}", autoCommitEvent);
     }
 
     @Async
     @EventListener
     @Override
     public void handle(AutoCommitEvent event) {
-        log.info("received event for auto commit: {}", event);
+        log.error("received event for auto commit: {}", event);
         Mono<Boolean> autocommitMigration;
         if (Boolean.TRUE.equals(event.getIsServerSideEvent())) {
             autocommitMigration = this.autoCommitServerMigration(event);
@@ -76,7 +76,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         autocommitMigration
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe(
-                        result -> log.info(
+                        result -> log.error(
                                 "Auto-commit completed successfully for application: {}", event.getApplicationId()),
                         error -> log.error(
                                 "Error during auto-commit for application: {}", event.getApplicationId(), error));
@@ -140,7 +140,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
                         .defaultIfEmpty(Boolean.FALSE))
                 .flatMap(result -> {
-                    log.info(
+                    log.error(
                             "auto commit finished. added commit: {}, application: {}, branch: {}",
                             result,
                             autoCommitEvent.getApplicationId(),
@@ -198,15 +198,15 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                     // if no page is updated then no need to proceed further
                     .filter(list -> {
                         if (CollectionUtils.isNullOrEmpty(list)) {
-                            log.info("No page is migrated, skipping auto commit");
+                            log.error("No page is migrated, skipping auto commit");
                             return false;
                         } else {
-                            log.info("{} pages migrated, proceeding auto commit", list.size());
+                            log.error("{} pages migrated, proceeding auto commit", list.size());
                             return true;
                         }
                     })
                     .map(updatedPageNamesList -> {
-                        log.info("{} pages migrated and will be added to auto commit", updatedPageNamesList.size());
+                        log.error("{} pages migrated and will be added to auto commit", updatedPageNamesList.size());
                         /*
                          Need to set the page names in the updated resources because the
                          ApplicationJson to file system conversion will use this field to decide
@@ -220,7 +220,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         return applicationJson;
                     });
         } else {
-            log.info(
+            log.error(
                     "empty list of pages found in auto commit. application {}, branch {}",
                     autoCommitEvent.getApplicationId(),
                     autoCommitEvent.getBranchName());
@@ -304,7 +304,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                 .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
                 .defaultIfEmpty(Boolean.FALSE)
                 .flatMap(result -> {
-                    log.info(
+                    log.error(
                             "server side auto commit finished. added commit: {}, application: {}, branch: {}",
                             result,
                             autoCommitEvent.getApplicationId(),

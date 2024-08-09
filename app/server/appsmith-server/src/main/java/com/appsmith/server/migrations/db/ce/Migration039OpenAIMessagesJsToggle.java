@@ -41,7 +41,7 @@ public class Migration039OpenAIMessagesJsToggle {
                 Plugin.class);
         if (plugin == null || !StringUtils.hasText(plugin.getId())) {
             // plugin is not installed, no need of rest of migration steps
-            log.warn("Unable to find OpenAI plugin in installed datasources");
+            log.error("Unable to find OpenAI plugin in installed datasources");
             return;
         }
         Query openAiDatasourceQuery =

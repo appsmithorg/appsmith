@@ -137,7 +137,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                     authenticationResponse.setIssuedAt(issuedAt);
                     authenticationResponse.setToken(String.valueOf(mappedResponse.get(Authentication.ACCESS_TOKEN)));
                     oAuth2.setAuthenticationResponse(authenticationResponse);
-                    log.debug("Entered token generation...");
+                    log.error("Entered token generation...");
                     return oAuth2;
                 });
     }

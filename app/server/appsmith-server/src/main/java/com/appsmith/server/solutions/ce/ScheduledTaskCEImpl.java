@@ -21,7 +21,7 @@ public class ScheduledTaskCEImpl implements ScheduledTaskCE {
     @Scheduled(initialDelay = 10 * 1000 /* ten seconds */, fixedRate = 30 * 60 * 1000 /* thirty minutes */)
     @Observed(name = "fetchFeatures")
     public void fetchFeatures() {
-        log.info("Fetching features for default tenant");
+        log.error("Fetching features for default tenant");
         featureFlagService
                 .getAllRemoteFeaturesForTenantAndUpdateFeatureFlagsWithPendingMigrations()
                 .then(tenantService

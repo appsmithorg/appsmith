@@ -488,7 +488,7 @@ public class DatabaseChangelog2 {
                     User user = mongoTemplate.findOne(userQuery, User.class);
 
                     if (user == null) {
-                        log.info("Creating super user with username {}", email);
+                        log.error("Creating super user with username {}", email);
                         user = updateSuperUserMigrationHelper.createNewUser(
                                 email, tenant, instanceAdminPG, mongoTemplate, policySolution, policyGenerator);
                     }
@@ -579,7 +579,7 @@ public class DatabaseChangelog2 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -715,7 +715,7 @@ public class DatabaseChangelog2 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }

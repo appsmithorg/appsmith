@@ -106,7 +106,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                 })
                 .map(savedAction -> savedAction.getUnpublishedAction().getName())
                 .collectList()
-                .doOnNext(updatedActionNames -> log.debug(
+                .doOnNext(updatedActionNames -> log.error(
                         "Actions updated due to refactor name in {} {} are : {}",
                         contextType.toString().toLowerCase(),
                         contextId,
@@ -162,7 +162,7 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
             */
             if (actionDTO.getPluginType().equals(PluginType.JS)
                     && !StringUtils.hasLength(actionDTO.getCollectionId())) {
-                log.debug(
+                log.error(
                         "JS Action with Id: {} doesn't have any collection Id under pageId: {}",
                         actionDTO.getId(),
                         contextId);

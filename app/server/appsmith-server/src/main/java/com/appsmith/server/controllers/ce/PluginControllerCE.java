@@ -41,7 +41,7 @@ public class PluginControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<List<Plugin>>> getAll(@RequestParam String workspaceId) {
-        log.debug("Getting all plugins in workspace {}", workspaceId);
+        log.error("Getting all plugins in workspace {}", workspaceId);
         return service.getInWorkspace(workspaceId)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
@@ -68,7 +68,7 @@ public class PluginControllerCE {
             @RequestBody TriggerRequestDTO triggerRequestDTO,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             ServerWebExchange serverWebExchange) {
-        log.debug("Trigger received for Plugin {}", pluginId);
+        log.error("Trigger received for Plugin {}", pluginId);
         return pluginTriggerSolution
                 .trigger(
                         pluginId,
@@ -87,7 +87,7 @@ public class PluginControllerCE {
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             @RequestPart(name = FieldName.WORKSPACE_ID, required = false) String workspaceId,
             ServerWebExchange serverWebExchange) {
-        log.debug("Trigger received for plugin {}", pluginId);
+        log.error("Trigger received for plugin {}", pluginId);
         return pluginTriggerSolution
                 .trigger(
                         pluginId,

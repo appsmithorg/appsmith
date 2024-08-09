@@ -22,17 +22,17 @@ public class CompatibilityUtils {
     public static <T extends BaseDomain> Query optimizeQueryForNoCursorTimeout(
             MongoTemplate mongoTemplate, Query originalQuery, Class<T> clazz) {
         try {
-            log.debug("Check if performant query can be used.");
+            log.error("Check if performant query can be used.");
             Query queryBatchedPerformant = Query.of(originalQuery).noCursorTimeout();
             Query queryBatchedPerformantLimit1 =
                     Query.of(queryBatchedPerformant).limit(1);
             mongoTemplate.stream(queryBatchedPerformantLimit1, clazz)
-                    .forEach(domain -> log.debug("{} Id: {}", clazz.getName(), domain.getId()));
-            log.debug("Using performant query.");
+                    .forEach(domain -> log.error("{} Id: {}", clazz.getName(), domain.getId()));
+            log.error("Using performant query.");
             return queryBatchedPerformant;
 
         } catch (UncategorizedMongoDbException uncategorizedMongoDbException) {
-            log.debug("Using non-performant query");
+            log.error("Using non-performant query");
         }
 
         return originalQuery;

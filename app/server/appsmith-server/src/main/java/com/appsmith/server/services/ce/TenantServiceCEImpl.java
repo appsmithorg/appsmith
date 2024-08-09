@@ -191,7 +191,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     // the db. This handles the case for deserialization errors. This prevents the entire instance to
                     // go down if tenant cache is corrupted.
                     // More info - https://github.com/appsmithorg/appsmith/issues/33504
-                    log.info("Evicting the default tenant from cache and fetching from the database!");
+                    log.error("Evicting the default tenant from cache and fetching from the database!");
                     return cacheableRepositoryHelper
                             .evictCachedTenant(tenantId)
                             .then(repository.findBySlug(FieldName.DEFAULT).map(tenant -> {
@@ -314,7 +314,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         Mono<Tenant> defaultTenantMono = this.getDefaultTenantId().flatMap(this::retrieveById);
         return defaultTenantMono.flatMap(updatedTenant -> {
             if (TRUE.equals(updatedTenant.getTenantConfiguration().getIsRestartRequired())) {
-                log.debug("Triggering tenant restart after the feature flag migrations are executed");
+                log.error("Triggering tenant restart after the feature flag migrations are executed");
                 TenantConfiguration tenantConfiguration = updatedTenant.getTenantConfiguration();
                 tenantConfiguration.setIsRestartRequired(false);
                 return this.update(updatedTenant.getId(), updatedTenant).then(envManager.restartWithoutAclCheck());

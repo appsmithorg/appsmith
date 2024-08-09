@@ -471,7 +471,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> deleteApplication(String id) {
-        log.debug("Archiving application with id: {}", id);
+        log.error("Archiving application with id: {}", id);
 
         Mono<Application> applicationMono = applicationRepository
                 .findById(id, applicationPermission.getDeletePermission())
@@ -494,7 +494,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Flux.fromIterable(List.of(application));
                 })
                 .flatMap(application -> {
-                    log.debug("Archiving application with id: {}", application.getId());
+                    log.error("Archiving application with id: {}", application.getId());
                     return deleteApplicationByResource(application);
                 })
                 .then(applicationMono)
@@ -515,7 +515,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<Application> deleteApplicationByResource(Application application) {
-        log.debug("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
+        log.error("Archiving actionCollections, actions, pages and themes for applicationId: {}", application.getId());
         return deleteApplicationResources(application)
                 .flatMap(deletedApplication -> sendAppDeleteAnalytics(deletedApplication));
     }
@@ -889,7 +889,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findById(id, deletePagePermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
-                    log.debug(
+                    log.error(
                             "Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
                     // Application is accessed without any application permission over here.
                     // previously it was getting accessed only with read permission.
@@ -930,7 +930,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
-                                log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
+                                log.error("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
                                 return newActionService.deleteUnpublishedAction(action.getId(), deleteActionPermission);
                             })
                             .collectList();
@@ -939,7 +939,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService
                             .findByPageId(page.getId())
                             .flatMap(actionCollection -> {
-                                log.debug(
+                                log.error(
                                         "Going to archive actionCollectionId: {} for applicationId: {}",
                                         actionCollection.getId(),
                                         id);
@@ -954,7 +954,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 List<ActionDTO> actions = tuple.getT1();
                                 final List<ActionCollectionDTO> actionCollections = tuple.getT2();
                                 Application application = tuple.getT3();
-                                log.debug(
+                                log.error(
                                         "Archived {} actions and {} action collections for applicationId: {}",
                                         actions.size(),
                                         actionCollections.size(),
@@ -963,7 +963,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             })
                             .then(archivedPageMono)
                             .map(pageDTO -> {
-                                log.debug(
+                                log.error(
                                         "Archived pageId: {} for applicationId: {}",
                                         pageDTO.getId(),
                                         pageDTO.getApplicationId());
@@ -994,7 +994,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .elapsed()
                 .map(objects -> {
-                    log.debug(
+                    log.error(
                             "Published application {} in {} ms", objects.getT2().getId(), objects.getT1());
                     return objects.getT2();
                 });

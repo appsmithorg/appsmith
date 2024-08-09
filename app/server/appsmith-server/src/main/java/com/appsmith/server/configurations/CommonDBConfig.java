@@ -33,7 +33,7 @@ public class CommonDBConfig {
         if (!appsmithDbUrl.startsWith("mongodb")) {
             return null;
         }
-        log.info("Found MongoDB uri configuring now");
+        log.error("Found MongoDB uri configuring now");
         MongoProperties mongoProperties = new MongoProperties();
         mongoProperties.setUri(appsmithDbUrl);
         return mongoProperties;
@@ -45,7 +45,7 @@ public class CommonDBConfig {
         if (!appsmithDbUrl.contains("postgresql")) {
             return null;
         }
-        log.info("Found PostgreSQL uri configuring now");
+        log.error("Found PostgreSQL uri configuring now");
         return extractJdbcProperties(appsmithDbUrl);
     }
 

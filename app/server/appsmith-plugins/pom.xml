@@ -138,6 +138,13 @@
             <version>${mockito.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound-junit-platform</artifactId>
+            <version>1.0.9.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/mockwebserver3 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>

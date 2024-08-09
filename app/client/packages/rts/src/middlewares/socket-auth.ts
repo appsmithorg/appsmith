@@ -30,13 +30,13 @@ export async function tryAuth(socket: Socket) {
   const sessionCookie = matchedCookie[0];
   let response;
   try {
-    response = await axios.request({
-      method: "GET",
-      url: API_BASE_URL + "/users/me",
-      headers: {
-        Cookie: sessionCookie,
-      },
-    });
+    // response = await axios.request({
+    //   method: "GET",
+    //   url: API_BASE_URL + "/users/me",
+    //   headers: {
+    //     Cookie: sessionCookie,
+    //   },
+    // });
   } catch (error) {
     if (error.response?.status === 401) {
       // eslint-disable-next-line no-console

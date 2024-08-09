@@ -209,7 +209,7 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
                                 actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
-                        log.debug(
+                        log.error(
                                 "An error has occurred while trying to run the API query for url: {}, path : {}",
                                 datasourceConfiguration.getUrl(),
                                 actionConfiguration.getPath());

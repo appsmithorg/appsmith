@@ -40,7 +40,7 @@ public class Migration040AddAppsmithAiPlugin {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         assert plugin.getId() != null;

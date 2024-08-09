@@ -40,7 +40,7 @@ public class NetworkUtilsCE {
                 })
                 .timeout(Duration.ofSeconds(60))
                 .onErrorResume(throwable -> {
-                    log.debug("Unable to get the machine ip: ", throwable);
+                    log.error("Unable to get the machine ip: ", throwable);
                     return Mono.just(FALLBACK_IP);
                 });
     }

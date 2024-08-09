@@ -264,7 +264,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                 })
                 .elapsed()
                 .map(tuple -> {
-                    log.debug("Time taken to import datasources: {} ms", tuple.getT1());
+                    log.error("Time taken to import datasources: {} ms", tuple.getT1());
                     return tuple.getT2();
                 });
     }

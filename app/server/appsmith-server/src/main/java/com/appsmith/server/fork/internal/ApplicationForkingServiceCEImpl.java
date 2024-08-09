@@ -216,7 +216,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                 .flatMap(actionCollection -> {
                                     // Keep a record of the original collection id
                                     final String originalCollectionId = actionCollection.getId();
-                                    log.info("Creating clone of action collection {}", originalCollectionId);
+                                    log.error("Creating clone of action collection {}", originalCollectionId);
                                     // Sanitize them
                                     actionCollection.makePristine();
                                     actionCollection.setGitSyncId(null);
@@ -258,7 +258,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                     return sourceActionFlux
                                             .map(newAction -> {
                                                 ActionDTO action = newAction.getUnpublishedAction();
-                                                log.info(
+                                                log.error(
                                                         "Preparing action for cloning {} {}.",
                                                         action.getName(),
                                                         newAction.getId());
@@ -273,7 +273,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                         .getUnpublishedAction()
                                                         .getCollectionId();
                                                 String forkedCollectionId = collectionIdMap.get(originalCollectionId);
-                                                log.info("Creating clone of action {}", originalActionId);
+                                                log.error("Creating clone of action {}", originalActionId);
                                                 newAction.makePristine();
                                                 newAction.setGitSyncId(null);
                                                 newAction.setWorkspaceId(toWorkspaceId);
@@ -365,7 +365,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .findByApplicationIdAndNonDeletedEditMode(
                                     templateApplicationId, pagePermission.getReadPermission())
                             .map(newPage -> {
-                                log.info(
+                                log.error(
                                         "Preparing page for cloning {} {}.",
                                         newPage.getUnpublishedPage().getName(),
                                         newPage.getId());
@@ -547,7 +547,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, application, data);
                 })
                 .onErrorResume(e -> {
-                    log.warn("Error sending action execution data point", e);
+                    log.error("Error sending action execution data point", e);
                     return Mono.just(application);
                 });
     }

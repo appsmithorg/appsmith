@@ -251,7 +251,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             boolean createDefaultApplication,
             boolean isFromSignup,
             String defaultWorkspaceId) {
-        log.debug("Login succeeded for user: {}", authentication.getPrincipal());
+        log.error("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono = null;
         User user = (User) authentication.getPrincipal();
         String originHeader =

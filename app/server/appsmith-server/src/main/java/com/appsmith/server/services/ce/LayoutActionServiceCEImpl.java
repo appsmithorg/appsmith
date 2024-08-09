@@ -80,7 +80,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     .flatMap(action1 -> collectionService.removeSingleActionFromCollection(
                             action1.getUnpublishedAction().getCollectionId(), Mono.just(action1)))
                     .flatMap(action1 -> {
-                        log.debug("Action {} has been removed from its collection.", action1.getId());
+                        log.error("Action {} has been removed from its collection.", action1.getId());
                         actionDTO.setCollectionId(null);
                         return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
                                 .updatePageLayoutsByPageId(updatedAction.getPageId())
@@ -108,7 +108,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 actionDTO.getCollectionId(), unpublishedAction);
                     })
                     .flatMap(action1 -> {
-                        log.debug(
+                        log.error(
                                 "Action {} removed from its previous collection and added to the new collection",
                                 action1.getId());
                         return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
@@ -222,7 +222,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      * This is a basic action update, which updates actions related to pages.
      */
     protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
-        log.debug("Updating action based on context type with action id: {}", action != null ? action.getId() : null);
+        log.error("Updating action based on context type with action id: {}", action != null ? action.getId() : null);
         String pageId = newAction.getUnpublishedAction().getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
@@ -237,7 +237,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     if (pageDTO.getLayouts().size() > 0) {
                         actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
                     }
-                    log.debug(
+                    log.error(
                             "Update action based on context type completed, returning actionDTO with action id: {}",
                             actionDTO != null ? actionDTO.getId() : null);
                     return actionDTO;

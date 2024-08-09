@@ -465,7 +465,7 @@ public class ApplicationImportServiceCEImpl
                 })
                 .elapsed()
                 .map(tuples -> {
-                    log.debug("time to create or update application object: {}", tuples.getT1());
+                    log.error("time to create or update application object: {}", tuples.getT1());
                     return tuples.getT2();
                 })
                 .onErrorResume(error -> {
@@ -478,7 +478,7 @@ public class ApplicationImportServiceCEImpl
     public Mono<Application> updateImportableArtifact(Artifact importableArtifact) {
         return Mono.just((Application) importableArtifact)
                 .flatMap(application -> {
-                    log.info("Imported application with id {}", application.getId());
+                    log.error("Imported application with id {}", application.getId());
                     // Need to update the application object with updated pages and publishedPages
                     Application updateApplication = new Application();
                     updateApplication.setPages(application.getPages());

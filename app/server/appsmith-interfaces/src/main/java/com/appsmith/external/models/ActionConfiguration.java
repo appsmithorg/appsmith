@@ -139,7 +139,7 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
         try {
             this.timeoutInMillisecond = Integer.valueOf(timeoutInMillisecond);
         } catch (NumberFormatException e) {
-            log.debug("Failed to convert timeout request parameter to Integer. Setting it to max valid value.");
+            log.error("Failed to convert timeout request parameter to Integer. Setting it to max valid value.");
             this.timeoutInMillisecond = MAX_TIMEOUT_VALUE;
         }
     }

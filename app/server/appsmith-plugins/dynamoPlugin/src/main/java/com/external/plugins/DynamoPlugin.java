@@ -209,7 +209,7 @@ public class DynamoPlugin extends BasePlugin {
                             }
                         } catch (IOException e) {
                             final String message = "Error parsing the JSON body: " + e.getMessage();
-                            log.warn(message, e);
+                            log.error(message, e);
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, body, e.getMessage());
                         }
@@ -243,7 +243,7 @@ public class DynamoPlugin extends BasePlugin {
                                 | NoSuchMethodException
                                 | ClassNotFoundException e) {
                             final String errorMessage = (e.getCause() == null ? e : e.getCause()).getMessage();
-                            log.warn("Error executing the DynamoDB Action: {}", errorMessage, e);
+                            log.error("Error executing the DynamoDB Action: {}", errorMessage, e);
                             throw new AppsmithPluginException(
                                     DynamoPluginError.QUERY_EXECUTION_FAILED,
                                     DynamoErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -251,7 +251,7 @@ public class DynamoPlugin extends BasePlugin {
                         }
 
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the DynamoPlugin, got action execution result");
+                        log.error("In the DynamoPlugin, got action execution result");
                         return result;
                     })
                     .onErrorResume(error -> {

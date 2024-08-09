@@ -118,7 +118,7 @@ public class SshTransportConfigCallback implements TransportConfigCallback {
                 keyPair = new KeyPair(generatedPublicKey, generatedPrivateKey);
                 return List.of(keyPair);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e) {
-                log.debug("Error while associating keys for signing: ", e);
+                log.error("Error while associating keys for signing: ", e);
                 throw new RuntimeException(e);
             }
         }

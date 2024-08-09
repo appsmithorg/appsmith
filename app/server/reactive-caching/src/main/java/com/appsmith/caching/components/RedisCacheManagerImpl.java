@@ -41,7 +41,7 @@ public class RedisCacheManagerImpl implements CacheManager {
     public void logStats() {
         statsMap.keySet().forEach(key -> {
             CacheStats stats = statsMap.get(key);
-            log.debug(
+            log.error(
                     "Cache {} stats: hits = {}, misses = {}, singleEvictions = {}, completeEvictions = {}",
                     key,
                     stats.getHits(),
@@ -81,7 +81,7 @@ public class RedisCacheManagerImpl implements CacheManager {
                 .switchIfEmpty(Mono.defer(() -> {
                     // This is a cache miss, update stats and return empty
                     statsMap.get(cacheName).getMisses().incrementAndGet();
-                    log.debug("Cache miss for key {}", path);
+                    log.error("Cache miss for key {}", path);
                     return Mono.empty();
                 }));
     }
@@ -90,7 +90,7 @@ public class RedisCacheManagerImpl implements CacheManager {
     public Mono<Boolean> put(String cacheName, String key, Object value) {
         ensureStats(cacheName);
         String path = cacheName + ":" + key;
-        log.debug("Cache entry added for key {}", path);
+        log.error("Cache entry added for key {}", path);
         return reactiveRedisTemplate.opsForValue().set(path, value);
     }
 
@@ -99,7 +99,7 @@ public class RedisCacheManagerImpl implements CacheManager {
         ensureStats(cacheName);
         statsMap.get(cacheName).getSingleEvictions().incrementAndGet();
         String path = cacheName + ":" + key;
-        log.debug("Cache entry evicted for key {}", path);
+        log.error("Cache entry evicted for key {}", path);
         return reactiveRedisTemplate.delete(path).then();
     }
 
