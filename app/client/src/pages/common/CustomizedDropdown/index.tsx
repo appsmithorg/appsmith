@@ -161,7 +161,13 @@ export function CustomizedDropdown(props: CustomizedDropdownProps) {
             : PopoverInteractionKind.CLICK
         }
         minimal
-        modifiers={props.modifiers}
+        modifiers={{
+          preventOverflow: {
+            enabled: false,
+            boundariesElement: "viewport"
+          },
+          ...props.modifiers,
+        }}
         onClose={() => {
           if (props.onCloseDropDown) {
             props.onCloseDropDown();
@@ -173,6 +179,7 @@ export function CustomizedDropdown(props: CustomizedDropdownProps) {
             props.openDirection,
           ) as PopoverPosition
         }
+        usePortal={false}
       >
         <DropdownTrigger skin={skin}>{trigger}</DropdownTrigger>
         <DropdownContent borderRadius={props.borderRadius} skin={skin}>
