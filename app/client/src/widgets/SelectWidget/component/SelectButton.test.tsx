@@ -68,10 +68,10 @@ describe("SelectButton", () => {
   });
 
   it("should render cancel button when select widget required is false", () => {
-    const { queryByTestId } = renderComponent({
+    const { getByTestId } = renderComponent({
       ...defaultProps,
       isRequired: false,
     });
-    expect(queryByTestId("selectbutton.btn.cancel")).not.toBeNull();
+    expect(getByTestId("selectbutton.btn.cancel")).not.toBeNull();
   });
 });
