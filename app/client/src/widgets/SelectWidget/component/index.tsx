@@ -26,6 +26,7 @@ import SelectButton from "./SelectButton";
 import { labelMargin } from "../../WidgetUtils";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;
@@ -334,113 +335,118 @@ class SelectComponent extends React.Component<
         : "";
 
     return (
-      <DropdownContainer
-        className={this.props.className}
-        compactMode={compactMode}
-        data-testid="select-container"
-        labelPosition={labelPosition}
-        rtl={this.props.rtl}
+      <ErrorTooltip
+        isOpen={!!this.props.hasError && !!this.props.showError}
+        message={this.props.errorMessage ?? ""}
       >
-        {this.props.rtl ? (
-          <RTLStyleContainer
-            dropdownPopoverContainer={`select-popover-wrapper-${this.props.widgetId}`}
-          />
-        ) : null}
-        <DropdownStyles
-          accentColor={accentColor}
-          borderRadius={borderRadius}
-          dropDownWidth={this.getDropdownWidth()}
-          id={widgetId}
-        />
-        {labelText && (
-          <LabelWithTooltip
-            alignment={labelAlignment}
-            className={`select-label`}
-            color={labelTextColor}
-            compact={compactMode}
-            cyHelpTextClassName="select-tooltip"
-            disabled={disabled}
-            fontSize={labelTextSize}
-            fontStyle={labelStyle}
-            helpText={labelTooltip}
-            isDynamicHeightEnabled={isDynamicHeightEnabled}
-            loading={isLoading}
-            position={labelPosition}
-            ref={this.labelRef}
-            text={labelText}
-            width={labelWidth}
-          />
-        )}
-        <StyledControlGroup
-          $compactMode={compactMode}
-          $isDisabled={disabled}
-          $labelPosition={labelPosition}
-          fill
+        <DropdownContainer
+          className={this.props.className}
+          compactMode={compactMode}
+          data-testid="select-container"
+          labelPosition={labelPosition}
+          rtl={this.props.rtl}
         >
-          <StyledSingleDropDown
-            accentColor={accentColor}
-            activeItem={activeItem()}
-            borderRadius={borderRadius}
-            boxShadow={boxShadow}
-            className={isLoading ? Classes.SKELETON : ""}
-            disabled={disabled}
-            filterable={this.props.isFilterable}
-            hasError={this.props.hasError}
-            isValid={this.props.isValid}
-            itemListPredicate={
-              !this.props.serverSideFiltering
-                ? this.itemListPredicate
-                : undefined
-            }
-            itemListRenderer={this.itemListRenderer}
-            itemRenderer={this.renderSingleSelectItem}
-            items={this.props.options}
-            noResults={this.noResultsUI}
-            onActiveItemChange={this.handleActiveItemChange}
-            onItemSelect={this.onItemSelect}
-            onQueryChange={this.onQueryChange}
-            popoverProps={{
-              portalContainer:
-                document.getElementById(CANVAS_ART_BOARD) || undefined,
-              boundary: "window",
-              isOpen: this.state.isOpen,
-              minimal: true,
-              usePortal: true,
-              onClose: this.handleCloseList,
-              // onActiveItemChange is called twice abd puts the focus on the first item https://github.com/palantir/blueprint/issues/4192
-              onOpening: () => {
-                if (!this.props.selectedIndex) {
-                  return this.handleActiveItemChange(null);
-                }
-                return this.handleActiveItemChange(
-                  this.props.options[this.props.selectedIndex],
-                );
-              },
-              modifiers: {
-                preventOverflow: {
-                  enabled: false,
-                },
-              },
-              popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId} select-popover-wrapper-${this.props.widgetId}`,
-            }}
-            query={this.props.filterText}
-            resetOnClose={this.props.resetFilterTextOnClose}
-            scrollToActiveItem
-            value={this.props.value as string}
-          >
-            <SelectButton
-              disabled={disabled}
-              displayText={value.toString()}
-              handleCancelClick={this.handleCancelClick}
-              hideCancelIcon={this.props.hideCancelIcon}
-              spanRef={this.spanRef}
-              togglePopoverVisibility={this.togglePopoverVisibility}
-              tooltipText={tooltipText}
-              value={this.props.value?.toString()}
+          {this.props.rtl ? (
+            <RTLStyleContainer
+              dropdownPopoverContainer={`select-popover-wrapper-${this.props.widgetId}`}
             />
-          </StyledSingleDropDown>
-        </StyledControlGroup>
-      </DropdownContainer>
+          ) : null}
+          <DropdownStyles
+            accentColor={accentColor}
+            borderRadius={borderRadius}
+            dropDownWidth={this.getDropdownWidth()}
+            id={widgetId}
+          />
+          {labelText && (
+            <LabelWithTooltip
+              alignment={labelAlignment}
+              className={`select-label`}
+              color={labelTextColor}
+              compact={compactMode}
+              cyHelpTextClassName="select-tooltip"
+              disabled={disabled}
+              fontSize={labelTextSize}
+              fontStyle={labelStyle}
+              helpText={labelTooltip}
+              isDynamicHeightEnabled={isDynamicHeightEnabled}
+              loading={isLoading}
+              position={labelPosition}
+              ref={this.labelRef}
+              text={labelText}
+              width={labelWidth}
+            />
+          )}
+          <StyledControlGroup
+            $compactMode={compactMode}
+            $isDisabled={disabled}
+            $labelPosition={labelPosition}
+            fill
+          >
+            <StyledSingleDropDown
+              accentColor={accentColor}
+              activeItem={activeItem()}
+              borderRadius={borderRadius}
+              boxShadow={boxShadow}
+              className={isLoading ? Classes.SKELETON : ""}
+              disabled={disabled}
+              filterable={this.props.isFilterable}
+              hasError={this.props.hasError}
+              isValid={this.props.isValid}
+              itemListPredicate={
+                !this.props.serverSideFiltering
+                  ? this.itemListPredicate
+                  : undefined
+              }
+              itemListRenderer={this.itemListRenderer}
+              itemRenderer={this.renderSingleSelectItem}
+              items={this.props.options}
+              noResults={this.noResultsUI}
+              onActiveItemChange={this.handleActiveItemChange}
+              onItemSelect={this.onItemSelect}
+              onQueryChange={this.onQueryChange}
+              popoverProps={{
+                portalContainer:
+                  document.getElementById(CANVAS_ART_BOARD) || undefined,
+                boundary: "window",
+                isOpen: this.state.isOpen,
+                minimal: true,
+                usePortal: true,
+                onClose: this.handleCloseList,
+                // onActiveItemChange is called twice abd puts the focus on the first item https://github.com/palantir/blueprint/issues/4192
+                onOpening: () => {
+                  if (!this.props.selectedIndex) {
+                    return this.handleActiveItemChange(null);
+                  }
+                  return this.handleActiveItemChange(
+                    this.props.options[this.props.selectedIndex],
+                  );
+                },
+                modifiers: {
+                  preventOverflow: {
+                    enabled: false,
+                  },
+                },
+                popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId} select-popover-wrapper-${this.props.widgetId}`,
+              }}
+              query={this.props.filterText}
+              resetOnClose={this.props.resetFilterTextOnClose}
+              scrollToActiveItem
+              value={this.props.value as string}
+            >
+              <SelectButton
+                disabled={disabled}
+                displayText={value.toString()}
+                handleCancelClick={this.handleCancelClick}
+                hideCancelIcon={this.props.hideCancelIcon}
+                spanRef={this.spanRef}
+                togglePopoverVisibility={this.togglePopoverVisibility}
+                tooltipText={tooltipText}
+                value={this.props.value?.toString()}
+              />
+            </StyledSingleDropDown>
+          </StyledControlGroup>
+        </DropdownContainer>
+      </ErrorTooltip>
     );
   }
 }
@@ -484,6 +490,8 @@ export interface SelectComponentProps extends ComponentProps {
   hideCancelIcon?: boolean;
   resetFilterTextOnClose?: boolean;
   rtl?: boolean;
+  errorMessage?: string;
+  showError?: boolean;
 }
 
 export default React.memo(SelectComponent);
