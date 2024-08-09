@@ -99,7 +99,6 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       skip-tests: "true"
-      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
 
   client-build:
     name: client-build
@@ -140,6 +139,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
+     
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
@@ -151,6 +151,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
+      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
