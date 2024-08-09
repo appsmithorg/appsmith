@@ -16,7 +16,6 @@ import PerformanceTracker, {
 import { getSelectedWidgets } from "selectors/ui";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
-import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
@@ -25,13 +24,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 
-interface Props {
-  width: number;
-  onDragEnd?: () => void;
-  onWidthChange: (width: number) => void;
-}
-
-export const PropertyPaneSidebar = memo((props: Props) => {
+export const PropertyPaneSidebar = memo(() => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
 
@@ -47,16 +40,9 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       selectedWidgetIds[0] !== prevSelectedWidgetId.current) ||
     selectedWidgetIds[0] === MAIN_CONTAINER_WIDGET_ID;
 
-  // This is to keep the theming properties from changing,
-  // while dragging a widget when no other widgets were selected
-  const keepThemeWhileDragging =
-    prevSelectedWidgetId.current === undefined && shouldNotRenderPane;
-
   const selectedWidgetsLength = useSelector(
     (state) => selectedWidgetsPresentInCanvas(state).length,
   );
-
-  const isDraggingForSelection = useSelector(getIsDraggingForSelection);
 
   prevSelectedWidgetId.current =
     selectedWidgetIds.length === 1 ? selectedWidgetIds[0] : undefined;
@@ -85,12 +71,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       default:
         return <CanvasPropertyPane />;
     }
-  }, [
-    selectedWidgetsLength,
-    isDraggingForSelection,
-    shouldNotRenderPane,
-    keepThemeWhileDragging,
-  ]);
+  }, [selectedWidgetsLength, shouldNotRenderPane]);
 
   const closeWalkthrough = useCallback(() => {
     if (popFeature) {
@@ -122,7 +103,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
           className={classNames({
             "h-full p-0 overflow-y-auto w-full": true,
           })}
-          style={{ width: props.width }}
+          style={{ width: "100%" }}
         >
           {propertyPane}
         </div>
