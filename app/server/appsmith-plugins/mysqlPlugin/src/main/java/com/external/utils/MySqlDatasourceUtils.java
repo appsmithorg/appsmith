@@ -144,14 +144,12 @@ public class MySqlDatasourceUtils {
                 datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
              switch (sslAuthType) {
-            case ALLOW:
-            case PREFER:
-            case REQUIRE:
+            case REQUIRED:
                 ob = ob.option(SSL, true)
                     .option(Option.valueOf("sslMode"), sslAuthType.toString().toLowerCase());
                 break;
 
-            case DISABLE:
+            case DISABLED:
                 ob = ob.option(SSL, false)
                      .option(Option.valueOf("sslMode"), sslAuthType.toString().toLowerCase());
                 break;
@@ -159,9 +157,8 @@ public class MySqlDatasourceUtils {
                 break;
 
             case VERIFY_CA:
-            case VERIFY_FULL:
                 ob = ob.option(SSL, true)
-                    .option(Option.valueOf("sslMode"), sslAuthType == SSLDetails.AuthType.VERIFY_FULL ? "verify-full" : "verify-ca")
+                    .option(Option.valueOf("sslMode"), "verify-ca")
                     .option(Option.valueOf("sslFactory"), MutualTLSCertValidatingFactory.class.getName())
                     .option(
                         Option.valueOf("clientCertString"),

@@ -162,12 +162,10 @@
           "initialValue": "DEFAULT",
           "options": [
             { "label": "Default", "value": "DEFAULT" },
-            { "label": "Allow", "value": "ALLOW" },
-            { "label": "Prefer", "value": "PREFER" },
-            { "label": "Require", "value": "REQUIRE" },
-            { "label": "Disable", "value": "DISABLE" },
-            { "label": "Verify CA", "value": "VERIFY_CA" },
-            { "label": "Verify Full", "value": "VERIFY_FULL" }
+            {"label": "Preferred", "value": "PREFERRED" },
+            { "label": "Required", "value": "REQUIRED" },
+            { "label": "Disabled", "value": "DISABLED" },
+            { "label": "Verify CA", "value": "VERIFY_CA" }
           ]
         },
         {
@@ -219,19 +217,9 @@
             { "label": "Base64 String", "value": "BASE64_STRING" }
           ],
           "hidden": {
-            "conditionType": "AND",
-            "conditions": [
-              {
                 "path": "datasourceConfiguration.connection.ssl.authType",
                 "comparison": "NOT_EQUALS",
                 "value": "VERIFY_CA"
-              },
-              {
-                "path": "datasourceConfiguration.connection.ssl.authType",
-                "comparison": "NOT_EQUALS",
-                "value": "VERIFY_FULL"
-              }
-            ]
           }
         },
         {
@@ -335,19 +323,9 @@
             }
           ],
           "hidden": {
-            "conditionType": "AND",
-            "conditions": [
-              {
                 "path": "datasourceConfiguration.connection.ssl.authType",
                 "comparison": "NOT_EQUALS",
                 "value": "VERIFY_CA"
-              },
-              {
-                "path": "datasourceConfiguration.connection.ssl.authType",
-                "comparison": "NOT_EQUALS",
-                "value": "VERIFY_FULL"
-              }
-            ]
           }
         }
       ]
