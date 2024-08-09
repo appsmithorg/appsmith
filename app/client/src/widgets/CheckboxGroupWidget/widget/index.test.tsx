@@ -1,6 +1,9 @@
 // eslint-disable-next-line
 // @ts-nocheck
-import { defaultSelectedValuesValidation } from "./";
+import React from "react";
+import "@testing-library/jest-dom/extend-expect";
+import { render } from "@testing-library/react";
+import CheckboxGroupWidget, { defaultSelectedValuesValidation } from "./";
 
 describe("<CheckboxGroup />", () => {
   test("should return empty parsed array on null options", async () => {
@@ -77,5 +80,30 @@ describe("<CheckboxGroup />", () => {
     });
 
     expect(result).toStrictEqual({ isValid: true, parsed: [] });
+  });
+
+  test("should sets accent color to default color when accentColor prop is empty", () => {
+    const DEFAULT_BACKGROUND_COLOR = "#50AF6C";
+    const labels = [
+      { label: "Blue", value: "BLUE" },
+      { label: "Green", value: "GREEN" },
+      { label: "Red", value: "RED" },
+    ];
+    const updateWidgetMetaProperty = jest.fn();
+
+    render(
+      <CheckboxGroupWidget
+        accentColor=""
+        options={labels}
+        updateWidgetMetaProperty={updateWidgetMetaProperty}
+        selectedValues={["BLUE"]}
+      />,
+    );
+
+    const checkboxOne = document.querySelectorAll(".bp3-control-indicator")[0];
+    expect(checkboxOne).toBeInTheDocument();
+    expect(checkboxOne).toHaveStyle(
+      `background-color: ${DEFAULT_BACKGROUND_COLOR}`,
+    );
   });
 });

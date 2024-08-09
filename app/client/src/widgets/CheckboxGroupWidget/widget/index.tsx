@@ -32,6 +32,9 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
+import { Colors } from "constants/Colors";
+
+const DEFAULT_BACKGROUND_COLOR = Colors.GREEN_SOLID;
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -680,7 +683,7 @@ class CheckboxGroupWidget extends BaseWidget<
 
     return (
       <CheckboxGroupComponent
-        accentColor={this.props.accentColor}
+        accentColor={this.props.accentColor || DEFAULT_BACKGROUND_COLOR}
         borderRadius={this.props.borderRadius}
         compactMode={isCompactMode(componentHeight)}
         isDisabled={this.props.isDisabled}
