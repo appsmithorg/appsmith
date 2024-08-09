@@ -130,11 +130,13 @@ jobs:
 
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
-        if: inputs.previous-workflow-run-id != 0
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{ inputs.previous-workflow-run-id }}
+        # if: inputs.previous-workflow-run-id != 0
+        # uses: actions/cache@v4
+        # with:
+        #   path: cicontainer.tar.gz
+        #   key: docker-image-${{ inputs.previous-workflow-run-id }}
+        run: |
+          docker run -d --name cicontainer -p 80:80 -p 9001:9001 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:latest
 
       # In case of run-id is 0 download the artifact from the current run
       - name: Download Docker image artifact
