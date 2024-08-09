@@ -1515,7 +1515,14 @@ export class AggregateHelper {
       .invoke("height")
       .should("be.closeTo", height, 1);
   }
-
+  
+  public validateToastMessageNTimes(texts: string, length = 1) {
+    this.GetElement(this.locator._toastMsg, "noVerify").should(
+      "have.length",
+      length,
+    );
+  }
+  
   public AssertText(
     selector: ElementType,
     textOrValue: "text" | "val" = "text",
