@@ -21,11 +21,10 @@ import {
   EditorEntityTab,
   EditorState,
   EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+} from "ee/entities/IDE/constants";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import EditorWrapperContainer from "../commons/EditorWrapperContainer";
 import BottomBar from "components/BottomBar";
-import useWindowDimensions from "utils/hooks/useWindowDimensions";
 
 const Areas = {
   Sidebar: "Sidebar",
@@ -52,7 +51,6 @@ function useAppIDEAnimated(): [
   const [columns, setColumns] = useState<AnimatedGridUnit[]>([]);
   const [rows] = useState<AnimatedGridUnit[]>(["1fr"]);
   const LeftPaneWidth = useEditorPaneWidth();
-  const [windowWidth] = useWindowDimensions();
   const PropertyPaneWidth = useSelector(getPropertyPaneWidth);
   const { segment } = useCurrentEditorState();
   const appState = useCurrentAppState();
@@ -105,7 +103,6 @@ function useAppIDEAnimated(): [
     PropertyPaneWidth,
     segment,
     editorMode,
-    windowWidth,
   ]);
 
   return [rows, columns, areas];
