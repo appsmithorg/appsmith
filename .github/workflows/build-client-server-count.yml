@@ -40,6 +40,7 @@ jobs:
             else
                 echo "run_count=1" >> $GITHUB_OUTPUT
             fi
+            echo $GITHUB_OUTPUT
 
       - name: Get the diff from base branch
         continue-on-error: true
