@@ -12,23 +12,24 @@ jobs:
     if: |
       github.event.issue.pull_request
     steps:
-      # - name: Generate token
-      #   id: generate_token
-      #   uses: tibdex/github-app-token@v1
-      #   with:
-      #     app_id: ${{ secrets.APPSMITH_INTEGRATION_TESTING_ID }}
-      #     private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        # with:
+        #   app_id: ${{ secrets.APPSMITH_INTEGRATION_TESTING_ID }}
+        #   private_key: ${{ secrets.APPSMITH_INTEGRATION_TESTING_KEY }}
 
       - name: Slash Command Dispatch
         uses: peter-evans/slash-command-dispatch@v3
-        env:
-          TOKEN: ${{ steps.generate_token.outputs.token }}
+        # env:
+        #   TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
-          token: ${{ env.TOKEN }} # GitHub App installation access token
+          #token: ${{ env.TOKEN }} # GitHub App installation access token
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
           commands: |
             ok-to-test
             ci-test-limit
             build-deploy-preview
+            ci-test-limit-count
           permission: write

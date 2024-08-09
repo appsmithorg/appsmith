@@ -137,6 +137,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       skip-tests: "true"
+      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
 
   client-build:
     name: client-build
