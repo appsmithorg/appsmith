@@ -187,9 +187,7 @@ export default {
         tableSizes.COLUMN_HEADER_HEIGHT) /
       tableSizes.ROW_HEIGHT;
 
-    return pageSize % 1 > 0.3 && props.tableData.length > pageSize
-      ? Math.ceil(pageSize)
-      : Math.floor(pageSize);
+    return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
   },
   //
   getProcessedTableData: (props, moment, _) => {
@@ -851,7 +849,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number", "currency"];
+    const validatableColumns = ["text","number", "currency","date"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)
@@ -903,6 +901,7 @@ export default {
         switch (editedColumn.columnType) {
           case "number":
           case "currency":
+          case "date":
             if (
               !_.isNil(validation.min) &&
               validation.min !== "" &&
