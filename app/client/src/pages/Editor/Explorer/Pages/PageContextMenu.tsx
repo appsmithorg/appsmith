@@ -10,7 +10,7 @@ import {
   updatePageAction,
 } from "actions/pageActions";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import {
   CONTEXT_RENAME,
   CONTEXT_CLONE,

@@ -58,7 +58,7 @@ import {
   toast,
   Button,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { isEnvironmentConfigured } from "ee/utils/Environments";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";

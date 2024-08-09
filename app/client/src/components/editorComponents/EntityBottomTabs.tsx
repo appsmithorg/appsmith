@@ -2,7 +2,7 @@ import React from "react";
 import type { CollapsibleTabProps } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
-import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import styled from "styled-components";
 import { LIST_HEADER_HEIGHT, FOOTER_MARGIN } from "./Debugger/DebuggerLogs";
 

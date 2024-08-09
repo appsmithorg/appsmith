@@ -9,7 +9,7 @@ import { getBindingOrConfigPathsForSortingControl } from "entities/Action/action
 import { SortingSubComponent } from "./utils";
 import { get, isArray } from "lodash";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {

@@ -152,7 +152,7 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";

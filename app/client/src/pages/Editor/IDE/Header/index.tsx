@@ -13,7 +13,7 @@ import {
   TabPanel,
   Button,
   Link,
-} from "design-system";
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
 import styled from "styled-components";

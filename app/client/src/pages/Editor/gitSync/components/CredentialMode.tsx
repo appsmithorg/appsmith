@@ -11,7 +11,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { CREDENTIAL_MODE } from "../constants";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const Container = styled.div`
   margin-top: ${(props) => props.theme.spaces[7]}px;

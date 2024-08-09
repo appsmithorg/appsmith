@@ -12,14 +12,8 @@
   },
   "contributors": [
     "Albin <albin@appsmith.com>",
-    "Rohit Agarwal <rohit.agarwal@appsmith.com>",
-    "Tanvi Bhakta <tanvi@appsmith.com>"
+    "Rohit Agarwal <rohit.agarwal@appsmith.com>"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/appsmithorg/design-system.git",
-    "directory": "packages/design-system"
-  },
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/loadable__component": "^5.13.4",

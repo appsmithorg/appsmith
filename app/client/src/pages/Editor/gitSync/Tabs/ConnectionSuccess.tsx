@@ -22,7 +22,7 @@ import {
   Text,
   Link,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";

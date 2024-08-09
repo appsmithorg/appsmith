@@ -4,7 +4,7 @@ import {
   createMessage,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
 } from "ee/constants/messages";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 
 /**
  * getNotificationBanner returns a notification banner about copying the key to repo settings.

@@ -51,7 +51,7 @@ import {
   Select,
   Tooltip,
   Tag,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   AppIconCollection,
   Classes,

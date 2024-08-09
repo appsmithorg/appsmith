@@ -13,7 +13,7 @@ import {
 import { noop } from "utils/AppsmithUtils";
 import type { Intent } from "constants/DefaultTheme";
 import type { DropdownOption } from "components/constants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 export type ContextDropdownOption = DropdownOption & {
   onSelect: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;

@@ -7,7 +7,7 @@ import {
 } from "ee/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "@appsmith/ads-old";
-import { Input, Text } from "design-system";
+import { Input, Text } from "@appsmith/ads";
 import { IconSelector } from "@appsmith/ads-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";

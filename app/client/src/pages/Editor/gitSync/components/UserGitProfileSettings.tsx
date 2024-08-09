@@ -16,7 +16,7 @@ import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import { Checkbox, Input, Text } from "design-system";
+import { Checkbox, Input, Text } from "@appsmith/ads";
 
 const InputContainer = styled.div`
   display: flex;

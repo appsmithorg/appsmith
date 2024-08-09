@@ -21,7 +21,7 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   APPLICATION_NAME,
   createMessage,

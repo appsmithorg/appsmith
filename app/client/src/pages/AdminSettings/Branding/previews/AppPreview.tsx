@@ -3,7 +3,7 @@ import React from "react";
 
 import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const AppPreview = (props: PreviewsProps) => {
   const { logo, shades } = props;

@@ -11,7 +11,7 @@ import {
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styles from "./styles.module.css";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 
 export default function HTMLEditor(props: ContentProps) {

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { createMessage, NO_USERS_INVITED } from "ee/constants/messages";
 import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
-import { Avatar, Icon, Spinner, Text, Tooltip } from "design-system";
+import { Avatar, Icon, Spinner, Text, Tooltip } from "@appsmith/ads";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";

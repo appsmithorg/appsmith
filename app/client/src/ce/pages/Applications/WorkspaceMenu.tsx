@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Icon, Menu, MenuContent, MenuTrigger } from "design-system";
+import { Button, Icon, Menu, MenuContent, MenuTrigger } from "@appsmith/ads";
 import {
   EditInteractionKind,
   EditableText,
