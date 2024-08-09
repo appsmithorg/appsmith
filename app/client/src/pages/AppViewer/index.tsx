@@ -19,7 +19,7 @@ import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
   getIsAutoLayout,
-  getViewModePageList,
+  getPageList,
 } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { getSearchQuery } from "utils/helpers";
@@ -88,7 +88,7 @@ function AppViewer(props: Props) {
   const { pathname, search } = props.location;
   const { baseApplicationId, basePageId } = props.match.params;
   const isInitialized = useSelector(getIsInitialized);
-  const pages = useSelector(getViewModePageList);
+  const pages = useSelector(getPageList);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const lightTheme = useSelector((state: AppState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
