@@ -1,8 +1,43 @@
 name: Build Client, Server & Run only Cypress with count
 
 on:
-    repository_dispatch:
-      types: [ci-test-limit-count-command]
+  repository_dispatch:
+    types: [ci-test-limit-count-command]
+  workflow_dispatch:
+    inputs:
+        pr:
+            description: "PR number"
+            required: false
+            type: number
+            default: 0
+        previous-workflow-run-id:
+            description: "Workflow ID (To Download cicontainer)"
+            required: false
+            type: number
+            default: 0
+        run_count:
+            description: 'Number of times to repeat the test run'
+            required: false
+            type: number 
+            default: 1
+
+
+  workflow_call:
+    inputs:
+        pr:
+            description: "This is the PR number in case the workflow is being called in a pull request"
+            required: false
+            type: number
+        previous-workflow-run-id:
+            description: "This is the PR number in case the workflow is being called in a pull request"
+            required: false
+            type: number
+            default: 0
+        run_count:
+            description: 'Number of times to repeat the test run'
+            required: false
+            type: number
+            default: 1  
 
 jobs:
   file-check:
@@ -27,20 +62,18 @@ jobs:
       - name: Set args
         id: args
         run: |
-            echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
-            checkArg=$(echo '${{ toJSON(github.event.client_payload.slash_command.args.named) }}' | jq 'has("runId")')
-            if [[ $checkArg == "true" ]]; then
-                echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
-            else
-                echo "runId=0" >> $GITHUB_OUTPUT
-            fi
-            checkRunCount=$(echo '${{ toJSON(github.event.client_payload.slash_command.args.named) }}' | jq 'has("run_count")')
-            if [[ $checkRunCount == "true" ]]; then
-                echo "run_count=${{ github.event.client_payload.slash_command.args.named.run_count }}" >> $GITHUB_OUTPUT
-            else
-                echo "run_count=1" >> $GITHUB_OUTPUT
-            fi
-            echo ${GITHUB_OUTPUT}
+          echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
+          checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("runId")'`
+          if [[ $checkArg == 'true' ]]; then
+            echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
+          else
+            echo "runId=0" >> $GITHUB_OUTPUT
+          fi
+          checkRunCount=`echo '${{ toJSON(github.event.client_payload.slash_command.args.named) }}' | jq 'has("run_count")'`
+          if [[ $checkRunCount == 'true' ]]; then
+            echo "run_count=${{ github.event.client_payload.slash_command.args.named.run_count }}" >> $GITHUB_OUTPUT
+          else
+            echo "run_count=1" >> $GITHUB_OUTPUT
 
       - name: Get the diff from base branch
         continue-on-error: true
@@ -140,7 +173,6 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
-     
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
@@ -167,7 +199,7 @@ jobs:
         if: needs.ci-test-limited.result != 'success'
         uses: actions/setup-node@v4
         with:
-          node-version-file: ../app/client/package.json
+          node-version-file: app/client/package.json
 
       - name: install pg
         if: needs.ci-test-limited.result != 'success'
