@@ -24,7 +24,7 @@ jobs:
         # env:
         #   TOKEN: ${{ steps.generate_token.outputs.token }}
         with:
-          token: ${{ env.TOKEN }} # GitHub App installation access token
+          token: ${{ secrets.TOKEN }} # GitHub App installation access token
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
           commands: |
