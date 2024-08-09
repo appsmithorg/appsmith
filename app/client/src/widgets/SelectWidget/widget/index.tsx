@@ -858,6 +858,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         isValid={this.props.isValid}
         label={this.props.selectedOptionLabel}
         labelAlignment={this.props.labelAlignment}

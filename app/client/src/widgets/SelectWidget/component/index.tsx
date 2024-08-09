@@ -437,6 +437,7 @@ class SelectComponent extends React.Component<
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
               value={this.props.value?.toString()}
+              isRequired={this.props.isRequired}
             />
           </StyledSingleDropDown>
         </StyledControlGroup>
@@ -463,6 +464,7 @@ export interface SelectComponentProps extends ComponentProps {
   options: DropdownOption[];
   isDynamicHeightEnabled?: boolean;
   isLoading: boolean;
+  isRequired?: boolean;
   isFilterable: boolean;
   isValid: boolean;
   width: number;
