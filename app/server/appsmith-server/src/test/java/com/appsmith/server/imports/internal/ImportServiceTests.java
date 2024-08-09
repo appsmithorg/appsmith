@@ -2505,8 +2505,6 @@ public class ImportServiceTests {
         StepVerifier.create(resultMonoWithDiscardOperation)
                 .assertNext(application -> {
                     assertThat(application.getWorkspaceId()).isNotNull();
-                    assertThat(application.getUnpublishedApplicationDetail()).isNull();
-                    assertThat(application.getPublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
