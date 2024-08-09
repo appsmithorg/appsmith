@@ -503,8 +503,13 @@ class CurrencyInputWidget extends BaseInputWidget<
   onValueChange = (value: string) => {
     let formattedValue = "";
     const decimalSeperator = getLocaleDecimalSeperator();
+    const decimals = this.props.decimals ?? 0;
     try {
       if (value && value.includes(decimalSeperator)) {
+        const [integerPart, fractionalPart] = value.split(decimalSeperator);
+            if (fractionalPart && fractionalPart.length > decimals) {
+                return;
+            }
         formattedValue = limitDecimalValue(this.props.decimals, value);
       } else {
         formattedValue = value;
