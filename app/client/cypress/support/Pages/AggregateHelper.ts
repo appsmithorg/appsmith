@@ -1764,7 +1764,7 @@ export class AggregateHelper {
       apiToValidate.includes("getAllWorkspaces") &&
       Cypress.env("AIRGAPPED")
     ) {
-      this.Sleep(2000);
+      // Intentionally left blank: No actions needed in air-gapped environment
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
