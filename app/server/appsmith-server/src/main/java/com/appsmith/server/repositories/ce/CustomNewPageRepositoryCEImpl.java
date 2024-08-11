@@ -112,7 +112,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
                 NewPage.Fields.branchName,
-                NewPage.Fields.policies,
+                NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
                 NewPage.Fields.unpublishedPage_isHidden,
