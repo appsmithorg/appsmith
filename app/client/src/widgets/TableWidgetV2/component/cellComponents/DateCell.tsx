@@ -1,24 +1,24 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  createMessage,
+  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+} from "ee/constants/messages";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { Colors } from "constants/Colors";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import moment from "moment";
+import React, { useMemo, useRef, useState } from "react";
+import styled from "styled-components";
+import DateComponent from "widgets/DatePickerWidget2/component";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import type { VerticalAlignment } from "../Constants";
 import {
   ALIGN_ITEMS,
   EDITABLE_CELL_PADDING_OFFSET,
   TABLE_SIZES,
 } from "../Constants";
-import DateComponent from "widgets/DatePickerWidget2/component";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import type { RenderDefaultPropsType } from "./PlainTextCell";
-import styled from "styled-components";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
-import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import moment from "moment";
 import { BasicCell } from "./BasicCell";
-import { Colors } from "constants/Colors";
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import {
-  createMessage,
-  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "ee/constants/messages";
+import type { RenderDefaultPropsType } from "./PlainTextCell";
 
 type DateComponentProps = RenderDefaultPropsType &
   editPropertyType & {
@@ -169,6 +169,7 @@ export const DateCell = (props: DateComponentProps) => {
     isCellEditable,
     isCellEditMode,
     isCellVisible,
+    isEditableCellValid,
     isHidden,
     isNewRow,
     isRequired,
@@ -195,15 +196,8 @@ export const DateCell = (props: DateComponentProps) => {
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const isCellCompletelyValid = isEditableCellValid && isValid;
 
-  useEffect(() => {
-    if (isRequired && !value) {
-      setIsValid(false);
-    } else {
-      setIsValid(true);
-    }
-  }, [value, isRequired]);
-  
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
 
@@ -221,9 +215,8 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
-    const formattedDate = date ? moment(date).format(inputFormat) : "";
     if (isNewRow) {
-      updateNewRowValues(alias, date, formattedDate);
+      updateNewRowValues(alias, date, date);
       return;
     }
 
@@ -236,7 +229,7 @@ export const DateCell = (props: DateComponentProps) => {
     setShowRequiredError(false);
     setHasFocus(false);
 
-    
+    const formattedDate = date ? moment(date).format(inputFormat) : "";
     onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
 
@@ -250,9 +243,8 @@ export const DateCell = (props: DateComponentProps) => {
   };
 
   const onPopoverClosed = () => {
-    const isValidValue = value !== undefined && value !== null;
     setHasFocus(false);
-    setIsValid(isValidValue);
+    setIsValid(true);
     toggleCellEditMode(
       false,
       rowIndex,
@@ -282,16 +274,16 @@ export const DateCell = (props: DateComponentProps) => {
         accentColor={accentColor}
         allowCellWrapping={allowCellWrapping}
         className={`${hasFocus ? FOCUS_CLASS : ""} t--inlined-cell-editor ${
-          !isValid && "t--inlined-cell-editor-has-error"
+          !isCellCompletelyValid && "t--inlined-cell-editor-has-error"
         }`}
         compactMode={compactMode}
-        isEditableCellValid={isValid}
+        isEditableCellValid={isCellCompletelyValid}
         paddedInput
         textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
         <ErrorTooltip
-          isOpen={showRequiredError && !isValid}
+          isOpen={showRequiredError && !isCellCompletelyValid}
           message={
             validationErrorMessage ||
             createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
