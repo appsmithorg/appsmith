@@ -1,8 +1,6 @@
 import { filterInternalProperties } from "..";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
 import type {
   DataTreeEntityConfig,
   DataTreeEntityObject,

@@ -1,6 +1,6 @@
 import type { Action } from "entities/Action/index";
 import _ from "lodash";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
 import {
   alternateViewTypeInputConfig,
   isHidden,

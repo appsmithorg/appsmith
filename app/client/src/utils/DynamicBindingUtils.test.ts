@@ -9,10 +9,10 @@ import {
 import {
   EVAL_VALUE_PATH,
   getDynamicBindingsChangesSaga,
-  getDynamicStringSegments,
   getEvalValuePath,
   isChildPropertyPath,
 } from "./DynamicBindingUtils";
+import { getDynamicStringSegments } from "@shared/dsl";
 
 describe.each([
   ["{{A}}", ["{{A}}"]],

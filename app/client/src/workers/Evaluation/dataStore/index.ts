@@ -1,7 +1,7 @@
-import { convertPathToString } from "ee/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, set, unset } from "lodash";
+import { convertPathToString } from "@shared/dsl";
 
 export type TDataStore = Record<string, Record<string, unknown>>;
 export default class DataStore {

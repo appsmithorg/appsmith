@@ -9,7 +9,7 @@ import type {
   DataTreeEvaluationProps,
   EvaluationError,
 } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "@shared/dsl";
 
 import {
   generateOptimisedUpdates,

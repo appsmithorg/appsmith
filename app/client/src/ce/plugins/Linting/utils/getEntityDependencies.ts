@@ -1,8 +1,4 @@
-import {
-  addWidgetPropertyDependencies,
-  convertPathToString,
-  getEntityNameAndPropertyPath,
-} from "ee/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DependencyMap as TDependencyMap } from "utils/DynamicBindingUtils";
 import { getPropertyPath } from "utils/DynamicBindingUtils";
@@ -18,6 +14,10 @@ import type { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
 import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
+import {
+  addWidgetPropertyDependencies,
+  convertPathToString,
+} from "@shared/dsl";
 
 export const getDependencies: Record<
   string,
@@ -54,9 +54,10 @@ function getWidgetDependencies(widgetEntity: WidgetEntity): TDependencyMap {
   let dependencies: TDependencyMap = {};
   const widgetConfig = widgetEntity.getConfig();
   const widgetName = widgetEntity.getName();
+  const { propertyOverrideDependency } = widgetConfig;
 
   const widgetInternalDependencies = addWidgetPropertyDependencies({
-    widgetConfig,
+    propertyOverrideDependency,
     widgetName,
   });
 

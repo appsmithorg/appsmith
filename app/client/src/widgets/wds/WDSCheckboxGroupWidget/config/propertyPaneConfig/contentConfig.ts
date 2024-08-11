@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
 import { defaultSelectedValuesValidation } from "./validations";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 

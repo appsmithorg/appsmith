@@ -404,7 +404,7 @@ export interface IdentifierInfo {
 export const extractIdentifierInfoFromCode = (
   code: string,
   evaluationVersion: number,
-  invalidIdentifiers?: Record<string, unknown>,
+  reservedIdentifiers?: Record<string, unknown>,
 ): IdentifierInfo => {
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
@@ -429,7 +429,7 @@ export const extractIdentifierInfoFromCode = (
       return !(
         functionalParams.has(topLevelIdentifier) ||
         variableDeclarations.has(topLevelIdentifier) ||
-        has(invalidIdentifiers, topLevelIdentifier)
+        has(reservedIdentifiers, topLevelIdentifier)
       );
     });
     return {

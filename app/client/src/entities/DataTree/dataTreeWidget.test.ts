@@ -3,10 +3,9 @@ import {
   generateDataTreeWidget,
   getSetterConfig,
 } from "entities/DataTree/dataTreeWidget";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
+
 import WidgetFactory from "WidgetProvider/factory";
 
 import { ValidationTypes } from "constants/WidgetValidation";

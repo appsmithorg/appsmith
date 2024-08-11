@@ -1,10 +1,8 @@
 import type {
   DataTreeEvaluationProps,
-  EvalError as TEvalError,
   EvaluationError,
 } from "utils/DynamicBindingUtils";
 import {
-  EvalErrorTypes,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
   getEntityId,
@@ -32,18 +30,21 @@ import type {
   ConfigTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import {
+  EvaluationSubstitutionType,
+  EvalErrorTypes,
+  convertPathToString,
+  type EvalError as TEvalError,
+} from "@shared/dsl";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
   getAllPathsBasedOnDiffPaths,
 } from "ee/workers/Evaluation/evaluationUtils";
-
 import {
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
-  convertPathToString,
   CrashingError,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,

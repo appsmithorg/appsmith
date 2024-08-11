@@ -5,10 +5,8 @@ import type {
   ActionEntity,
 } from "ee/entities/DataTree/types";
 import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { RenderModes } from "constants/WidgetConstants";
 import { PluginType } from "entities/Action";

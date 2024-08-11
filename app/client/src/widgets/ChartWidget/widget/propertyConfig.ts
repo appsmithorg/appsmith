@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import {
   CUSTOM_CHART_TYPES,

@@ -1,8 +1,5 @@
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
-import {
-  getDynamicStringSegments,
-  isDynamicValue,
-} from "./DynamicBindingUtils";
+import { getDynamicStringSegments, isDynamicValue } from "@shared/dsl";
 
 /**
  * This function updates the header at a given index.

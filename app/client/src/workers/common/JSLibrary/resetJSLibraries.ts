@@ -3,7 +3,7 @@ import moment from "moment-timezone";
 import forge from "node-forge";
 import { defaultLibraries, JSLibraryAccessor } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
-import { invalidEntityIdentifiers } from "../DependencyMap/utils";
+
 const defaultLibImplementations = {
   lodash: _,
   moment: moment,
@@ -29,7 +29,6 @@ export function resetJSLibraries() {
     }
     //we have to update invalidEntityIdentifiers as well
     delete libraryReservedIdentifiers[key];
-    delete invalidEntityIdentifiers[key];
   }
 
   JSLibraries.forEach((library) => {

@@ -1,5 +1,5 @@
 import _, { get, isString } from "lodash";
-import { DATA_BIND_REGEX } from "constants/BindingsConstants";
+import { DATA_BIND_REGEX } from "@shared/dsl";
 import type { Action } from "entities/Action";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { Severity } from "entities/AppsmithConsole";
@@ -136,26 +136,6 @@ function addOperatorPrecedenceIfNeeded(stringifiedJS: string) {
   }
 
   return stringifiedJS;
-}
-
-export enum EvalErrorTypes {
-  CYCLICAL_DEPENDENCY_ERROR = "CYCLICAL_DEPENDENCY_ERROR",
-  EVAL_PROPERTY_ERROR = "EVAL_PROPERTY_ERROR",
-  EVAL_TREE_ERROR = "EVAL_TREE_ERROR",
-  UNKNOWN_ERROR = "UNKNOWN_ERROR",
-  BAD_UNEVAL_TREE_ERROR = "BAD_UNEVAL_TREE_ERROR",
-  PARSE_JS_ERROR = "PARSE_JS_ERROR",
-  EXTRACT_DEPENDENCY_ERROR = "EXTRACT_DEPENDENCY_ERROR",
-  CLONE_ERROR = "CLONE_ERROR",
-  SERIALIZATION_ERROR = "SERIALIZATION_ERROR",
-}
-
-export interface EvalError {
-  type: EvalErrorTypes;
-  message: string;
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  context?: Record<string, any>;
 }
 
 export interface DynamicPath {

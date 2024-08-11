@@ -34,6 +34,7 @@ import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import type { Difference } from "microdiff";
+import { convertPathToString } from "@shared/dsl";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -56,27 +57,6 @@ export interface DataTreeDiff {
 }
 
 export class CrashingError extends Error {}
-
-export const convertPathToString = (arrPath: Array<string | number>) => {
-  let string = "";
-  arrPath.forEach((segment) => {
-    if (isInt(segment)) {
-      string = string + "[" + segment + "]";
-    } else {
-      if (string.length !== 0) {
-        string = string + ".";
-      }
-      string = string + segment;
-    }
-  });
-  return string;
-};
-
-// Todo: improve the logic here
-// Right now NaN, Infinity, floats, everything works
-function isInt(val: string | number): boolean {
-  return Number.isInteger(val) || (_.isString(val) && /^\d+$/.test(val));
-}
 
 // Removes the entity name from the property path
 export function getEntityNameAndPropertyPath(fullPath: string): {
@@ -697,39 +677,6 @@ export const isDynamicLeaf = (
     (isWidget(entityConfig) &&
       relativePropertyPath in entityConfig?.triggerPaths)
   );
-};
-
-export const addWidgetPropertyDependencies = ({
-  widgetConfig,
-  widgetName,
-}: {
-  widgetConfig: WidgetEntityConfig;
-  widgetName: string;
-}) => {
-  const dependencies: DependencyMap = {};
-
-  Object.entries(widgetConfig.propertyOverrideDependency).forEach(
-    ([overriddenPropertyKey, overridingPropertyKeyMap]) => {
-      const existingDependenciesSet = new Set(
-        dependencies[`${widgetName}.${overriddenPropertyKey}`] || [],
-      );
-      // add meta dependency
-      overridingPropertyKeyMap.META &&
-        existingDependenciesSet.add(
-          `${widgetName}.${overridingPropertyKeyMap.META}`,
-        );
-      // add default dependency
-      overridingPropertyKeyMap.DEFAULT &&
-        existingDependenciesSet.add(
-          `${widgetName}.${overridingPropertyKeyMap.DEFAULT}`,
-        );
-
-      dependencies[`${widgetName}.${overriddenPropertyKey}`] = [
-        ...existingDependenciesSet,
-      ];
-    },
-  );
-  return dependencies;
 };
 
 export const isPrivateEntityPath = (

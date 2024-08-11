@@ -1,5 +1,6 @@
 import type { DSLWidget, WidgetProps } from "../types";
-import { isDynamicValue, traverseDSLAndMigrate } from "../utils";
+import { traverseDSLAndMigrate } from "../utils";
+import { isDynamicValue } from "../../dynamicBinding";
 
 const oldBindingPrefix = `{{
   (

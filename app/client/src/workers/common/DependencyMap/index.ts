@@ -13,22 +13,24 @@ import type {
 } from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { convertArrayToObject, extractInfoFromBindings } from "./utils";
+import { convertArrayToObject } from "./utils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { get, isEmpty, set } from "lodash";
 import { getFixedTimeDifference } from "../DataTreeEvaluator/utils";
-import {
-  getEntityDependencies,
-  getEntityPathDependencies,
-} from "./utils/getEntityDependencies";
+import { getEntityPathDependencies } from "./utils/getEntityDependencies";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
+import {
+  AppsmithFunctionsWithFields,
+  getEntityDependencies,
+  extractInfoFromBindings,
+} from "@shared/dsl";
 import {
   getAllSetterFunctions,
   getEntitySetterFunctions,
 } from "ee/workers/Evaluation/Actions";
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
+import { libraryReservedIdentifiers } from "../JSLibrary";
 
 export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
@@ -59,6 +61,8 @@ export function createDependencyMap(
       const { errors, references } = extractInfoFromBindings(
         pathDependencies,
         allKeys,
+        self.evaluationVersion,
+        libraryReservedIdentifiers,
       );
       dependencyMap.addDependency(path, references);
       dataTreeEvalRef.errors.push(...errors);
@@ -140,7 +144,12 @@ export const updateDependencyMap = ({
                 Object.entries(entityDependencyMap).forEach(
                   ([path, pathDependencies]) => {
                     const { errors: extractDependencyErrors, references } =
-                      extractInfoFromBindings(pathDependencies, allKeys);
+                      extractInfoFromBindings(
+                        pathDependencies,
+                        allKeys,
+                        self.evaluationVersion,
+                        libraryReservedIdentifiers,
+                      );
                     dependencyMap.addDependency(path, references);
                     didUpdateDependencyMap = true;
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
@@ -157,7 +166,12 @@ export const updateDependencyMap = ({
                 allKeys,
               );
               const { errors: extractDependencyErrors, references } =
-                extractInfoFromBindings(entityPathDependencies, allKeys);
+                extractInfoFromBindings(
+                  entityPathDependencies,
+                  allKeys,
+                  self.evaluationVersion,
+                  libraryReservedIdentifiers,
+                );
               dependencyMap.addDependency(fullPropertyPath, references);
               didUpdateDependencyMap = true;
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
@@ -217,7 +231,12 @@ export const updateDependencyMap = ({
               allKeys,
             );
             const { errors: extractDependencyErrors, references } =
-              extractInfoFromBindings(entityPathDependencies, allKeys);
+              extractInfoFromBindings(
+                entityPathDependencies,
+                allKeys,
+                self.evaluationVersion,
+                libraryReservedIdentifiers,
+              );
             dependencyMap.addDependency(fullPropertyPath, references);
             didUpdateDependencyMap = true;
             dataTreeEvalErrors = dataTreeEvalErrors.concat(

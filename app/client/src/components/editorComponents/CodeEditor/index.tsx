@@ -34,7 +34,8 @@ import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import type { EvaluationSubstitutionType } from "@shared/dsl";
+
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

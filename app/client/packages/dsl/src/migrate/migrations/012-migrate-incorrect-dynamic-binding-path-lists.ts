@@ -6,8 +6,9 @@ import get from "lodash/get";
 import isString from "lodash/isString";
 import memoize from "micro-memoize";
 import { isObject, isUndefined } from "lodash";
-import { generateReactKey, isDynamicValue } from "../utils";
+import { generateReactKey } from "../utils";
 import widgetConfigs from "../helpers/widget-configs.json";
+import { isDynamicValue } from "../../dynamicBinding";
 
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,

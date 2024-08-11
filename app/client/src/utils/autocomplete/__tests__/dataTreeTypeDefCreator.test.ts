@@ -3,10 +3,8 @@ import type {
   WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
 
 import InputWidget from "widgets/InputWidgetV2";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";

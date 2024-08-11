@@ -1,7 +1,7 @@
 import { get, isEmpty, isUndefined, set } from "lodash";
 import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
+import { getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
@@ -21,6 +21,7 @@ import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
+import { EvalErrorTypes } from "@shared/dsl";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body

@@ -7,7 +7,7 @@ import MapComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@shared/dsl";
 import styled from "styled-components";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { MarkerProps } from "../constants";

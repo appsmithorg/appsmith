@@ -6,7 +6,7 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isObject, set } from "lodash";
 import { isMoment } from "moment";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "@shared/dsl";
 
 export const fn_keys: string = "__fn_keys__";
 

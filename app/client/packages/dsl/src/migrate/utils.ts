@@ -2,9 +2,9 @@
 import generate from "nanoid/generate";
 import type { DSLWidget, WidgetProps } from "./types";
 import { isString } from "lodash";
+import { getDynamicStringSegments, isDynamicValue } from "../dynamicBinding";
 
 export const DATA_BIND_REGEX_GLOBAL = /{{([\s\S]*?)}}/g;
-export const DATA_BIND_REGEX = /{{([\s\S]*?)}}/;
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
 export const generateReactKey = ({
@@ -21,54 +21,10 @@ export const removeSpecialChars = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const isDynamicValue = (value: string): boolean =>
-  DATA_BIND_REGEX.test(value);
-
 // ### JS Action ###
 
-type DataTreeEntity = any;
-type JSActionEntity = any;
-
-function getDynamicStringSegments(dynamicString: string): string[] {
-  let stringSegments = [];
-  const indexOfDoubleParanStart = dynamicString.indexOf("{{");
-  if (indexOfDoubleParanStart === -1) {
-    return [dynamicString];
-  }
-  //{{}}{{}}}
-  const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
-  firstString && stringSegments.push(firstString);
-  let rest = dynamicString.substring(
-    indexOfDoubleParanStart,
-    dynamicString.length,
-  );
-  //{{}}{{}}}
-  let sum = 0;
-  for (let i = 0; i <= rest.length - 1; i++) {
-    const char = rest[i];
-    const prevChar = rest[i - 1];
-
-    if (char === "{") {
-      sum++;
-    } else if (char === "}") {
-      sum--;
-      if (prevChar === "}" && sum === 0) {
-        stringSegments.push(rest.substring(0, i + 1));
-        rest = rest.substring(i + 1, rest.length);
-        if (rest) {
-          stringSegments = stringSegments.concat(
-            getDynamicStringSegments(rest),
-          );
-          break;
-        }
-      }
-    }
-  }
-  if (sum !== 0 && dynamicString !== "") {
-    return [dynamicString];
-  }
-  return stringSegments;
-}
+export type DataTreeEntity = any;
+export type JSActionEntity = any;
 
 function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
   return (
@@ -79,7 +35,7 @@ function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
 }
 
 //{{}}{{}}}
-const getDynamicBindings = (
+export const getDynamicBindings = (
   dynamicString: string,
   entity?: DataTreeEntity,
 ): { stringSegments: string[]; jsSnippets: string[] } => {

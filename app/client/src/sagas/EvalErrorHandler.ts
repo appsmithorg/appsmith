@@ -11,8 +11,8 @@ import {
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { get } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
@@ -30,6 +30,7 @@ import type { AppState } from "ee/reducers";
 import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
+import { EvalErrorTypes, type EvalError } from "@shared/dsl";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 

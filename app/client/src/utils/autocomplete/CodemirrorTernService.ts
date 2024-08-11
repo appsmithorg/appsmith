@@ -3,10 +3,7 @@
 import type { Server, Def, QueryRegistry } from "tern";
 import type { Hint, Hints } from "codemirror";
 import type CodeMirror from "codemirror";
-import {
-  getDynamicStringSegments,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import { getDynamicStringSegments, isDynamicValue } from "@shared/dsl";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";

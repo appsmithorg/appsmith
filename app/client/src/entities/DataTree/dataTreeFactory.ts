@@ -2,10 +2,9 @@ import { generateDataTreeAction } from "ee/entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "ee/entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "@shared/dsl";
+
 import { generateDataTreeModuleInputs } from "ee/entities/DataTree/utils";
 import type {
   DataTreeSeed,

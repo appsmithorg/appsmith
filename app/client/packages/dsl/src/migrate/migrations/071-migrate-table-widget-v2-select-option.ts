@@ -1,5 +1,6 @@
 import type { DSLWidget, WidgetProps } from "../types";
-import { isDynamicValue, stringToJS, traverseDSLAndMigrate } from "../utils";
+import { stringToJS, traverseDSLAndMigrate } from "../utils";
+import { isDynamicValue } from "../../dynamicBinding";
 
 export const migrateTableWidgetV2SelectOption = (currentDSL: DSLWidget) => {
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {

@@ -16,10 +16,9 @@ import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/constants";
-import {
-  EvaluationSubstitutionType,
-  type WidgetEntity,
-} from "ee/entities/DataTree/types";
+import { type WidgetEntity } from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "@shared/dsl";
+
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,

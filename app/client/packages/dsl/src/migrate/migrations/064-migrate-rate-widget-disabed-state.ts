@@ -1,5 +1,5 @@
 import type { DSLWidget } from "../types";
-import { isDynamicValue } from "../utils";
+import { isDynamicValue } from "../../dynamicBinding";
 
 // migrate all rate widgets with isDisabled = true to isReadOnly = true
 export function migrateRateWidgetDisabledState(currentDSL: DSLWidget) {

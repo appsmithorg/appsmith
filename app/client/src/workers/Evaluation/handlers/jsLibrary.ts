@@ -1,7 +1,6 @@
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import difference from "lodash/difference";
 import type { Def } from "tern";
-import { invalidEntityIdentifiers } from "workers/common/DependencyMap/utils";
 import {
   JSLibraries,
   JSLibraryAccessor,
@@ -218,7 +217,6 @@ export async function installLibrary(
     for (const acc of accessors) {
       //we have to update invalidEntityIdentifiers as well
       libraryReservedIdentifiers[acc] = true;
-      invalidEntityIdentifiers[acc] = true;
     }
 
     return { success: true, defs, accessor: accessors };
@@ -239,7 +237,6 @@ export function uninstallLibrary(
       self[key] = undefined;
       //we have to update invalidEntityIdentifiers as well
       delete libraryReservedIdentifiers[key];
-      delete invalidEntityIdentifiers[key];
     }
     return { success: true };
   } catch (e) {
@@ -288,7 +285,6 @@ export async function loadLibraries(
           self[accessors[i]] = self[defaultAccessors[i]];
           libStore[defaultAccessors[i]] = self[defaultAccessors[i]];
           libraryReservedIdentifiers[accessors[i]] = true;
-          invalidEntityIdentifiers[accessors[i]] = true;
         }
 
         continue;
@@ -304,7 +300,6 @@ export async function loadLibraries(
         libStore[key] = flattenedModule;
         self[key] = flattenedModule;
         libraryReservedIdentifiers[key] = true;
-        invalidEntityIdentifiers[key] = true;
       } catch (e) {
         log.debug(e);
         throw new ImportError(url);

@@ -3,7 +3,7 @@ import type {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationSubstitutionType } from "@shared/dsl";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

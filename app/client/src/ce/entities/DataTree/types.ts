@@ -19,7 +19,10 @@ import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEn
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { Module } from "ee/constants/ModuleConstants";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
-
+import type {
+  OverrideDependency,
+  EvaluationSubstitutionType,
+} from "@shared/dsl";
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
@@ -35,12 +38,6 @@ export const ACTION_TYPE = ENTITY_TYPE.ACTION;
 
 type ValueOf<T> = T[keyof T];
 export type EntityTypeValue = ValueOf<typeof ENTITY_TYPE>;
-
-export enum EvaluationSubstitutionType {
-  TEMPLATE = "TEMPLATE",
-  PARAMETER = "PARAMETER",
-  SMART_SUBSTITUTE = "SMART_SUBSTITUTE",
-}
 
 // Action entity types
 export interface ActionEntity {
@@ -124,16 +121,13 @@ export enum OverridingPropertyType {
   META = "META",
   DEFAULT = "DEFAULT",
 }
-export interface overrideDependency {
-  DEFAULT: string;
-  META: string;
-}
+
 /**
  *  Map of property name as key and value as object with defaultPropertyName and metaPropertyName which it depends on.
  */
 export type PropertyOverrideDependency = Record<
   string,
-  Partial<overrideDependency>
+  Partial<OverrideDependency>
 >;
 
 export interface WidgetConfig extends EntityConfig {

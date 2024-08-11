@@ -5,11 +5,7 @@ import {
 } from "constants/WidgetConstants";
 import lazyLottie from "./lazyLottie";
 import welcomeConfettiAnimationURL from "assets/lottie/welcome-confetti.json.txt";
-import {
-  DATA_TREE_KEYWORDS,
-  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-  JAVASCRIPT_KEYWORDS,
-} from "constants/WidgetValidation";
+import { DATA_TREE_KEYWORDS } from "constants/WidgetValidation";
 import { get, set, isNil, has, uniq } from "lodash";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
@@ -28,7 +24,11 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import {
+  APPSMITH_GLOBAL_FUNCTIONS,
+  JAVASCRIPT_KEYWORDS,
+  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+} from "@shared/dsl";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,

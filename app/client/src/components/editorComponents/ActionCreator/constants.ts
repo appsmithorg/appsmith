@@ -1,26 +1,8 @@
 import { APPSMITH_NAMESPACED_FUNCTIONS as EE_APPSMITH_NAMESPACED_FUNCTIONS } from "ee/entities/Engine/actionHelpers";
-
-export enum APPSMITH_GLOBAL_FUNCTIONS {
-  navigateTo = "navigateTo",
-  showAlert = "showAlert",
-  showModal = "showModal",
-  closeModal = "closeModal",
-  storeValue = "storeValue",
-  removeValue = "removeValue",
-  clearStore = "clearStore",
-  download = "download",
-  copyToClipboard = "copyToClipboard",
-  resetWidget = "resetWidget",
-  setInterval = "setInterval",
-  clearInterval = "clearInterval",
-  postWindowMessage = "postWindowMessage",
-}
-
-export enum APPSMITH_NAMESPACED_FUNCTIONS {
-  getGeolocation = "appsmith.geolocation.getCurrentPosition",
-  watchGeolocation = "appsmith.geolocation.watchPosition",
-  stopWatchGeolocation = "appsmith.geolocation.clearWatch",
-}
+import {
+  APPSMITH_GLOBAL_FUNCTIONS,
+  APPSMITH_NAMESPACED_FUNCTIONS,
+} from "@shared/dsl";
 
 export enum APPSMITH_INTEGRATIONS {
   none = "none",
@@ -34,11 +16,6 @@ export const AppsmithFunction = {
   ...APPSMITH_NAMESPACED_FUNCTIONS,
   ...EE_APPSMITH_NAMESPACED_FUNCTIONS,
 };
-
-export const AppsmithFunctionsWithFields = [
-  ...Object.values(APPSMITH_NAMESPACED_FUNCTIONS),
-  ...Object.keys(APPSMITH_GLOBAL_FUNCTIONS),
-];
 
 export const RESET_CHILDREN_OPTIONS = [
   { label: "true", value: "true", id: "true" },

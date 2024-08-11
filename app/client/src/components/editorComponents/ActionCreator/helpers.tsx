@@ -38,14 +38,16 @@ import {
   getNextModalName,
 } from "selectors/widgetSelectors";
 import {
-  APPSMITH_GLOBAL_FUNCTIONS,
   APPSMITH_INTEGRATIONS,
   AppsmithFunction,
-  AppsmithFunctionsWithFields,
   FieldType,
   NAVIGATE_TO_TAB_OPTIONS,
   NEW_MODAL_LABEL,
 } from "./constants";
+import {
+  APPSMITH_GLOBAL_FUNCTIONS,
+  AppsmithFunctionsWithFields,
+} from "@shared/dsl";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import type {
   DataTreeForActionCreator,
