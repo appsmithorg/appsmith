@@ -42,10 +42,7 @@
   ],
   "pageList": [
     {
-      "userPermissions": [
-        "read:pages",
-        "manage:pages"
-      ],
+      "userPermissions": ["read:pages", "manage:pages"],
       "gitSyncId": "61f2706d5090aa7077cb878f_61f2706d5090aa7077cb8791",
       "unpublishedPage": {
         "name": "Page1",
@@ -77,12 +74,7 @@
                 {
                   "widgetName": "Table1",
                   "defaultPageSize": 0,
-                  "columnOrder": [
-                    "step",
-                    "task",
-                    "status",
-                    "action"
-                  ],
+                  "columnOrder": ["step", "task", "status", "action"],
                   "isVisibleDownload": true,
                   "displayName": "Table",
                   "iconSVG": "/static/media/icon.db8a9cbd.svg",
@@ -280,19 +272,13 @@
       "new": true
     }
   ],
-  "pageOrder": [
-    "Page1"
-  ],
+  "pageOrder": ["Page1"],
   "publishedDefaultPageName": "Page1",
   "unpublishedDefaultPageName": "Page1",
   "actionList": [
     {
       "id": "Page1_testQuery",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "61f2706d5090aa7077cb878f_61f270a25090aa7077cb8795",
       "pluginType": "DB",
       "pluginId": "mongo-plugin",
@@ -354,11 +340,7 @@
     },
     {
       "id": "Page1_testQuery1",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "gitSyncId": "61f2706d5090aa7077cb878f_61f271395090aa7077cb8799",
       "pluginType": "DB",
       "pluginId": "postgres-plugin",

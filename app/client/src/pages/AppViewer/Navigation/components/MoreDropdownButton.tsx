@@ -4,7 +4,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import MenuText from "./MenuText";
 import classNames from "classnames";
 import {

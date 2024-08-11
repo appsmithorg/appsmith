@@ -1,6 +1,6 @@
 import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
 import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 

@@ -13,7 +13,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),

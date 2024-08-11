@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
 import { getTenantConfig } from "ee/selectors/tenantSelectors";

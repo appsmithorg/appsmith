@@ -32,7 +32,7 @@ import { PluginType } from "entities/Action";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import {
   EditorEntityTab,
   EditorEntityTabState,

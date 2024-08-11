@@ -25,7 +25,7 @@ import {
   TEST_BUTTON_TEXT,
   createMessage,
 } from "ee/constants/messages";
-import { Button, toast } from "design-system";
+import { Button, toast } from "@appsmith/ads";
 import type { ClientCredentials } from "entities/Datasource/RestAPIForm";
 import {
   GrantType,

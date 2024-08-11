@@ -7,7 +7,7 @@ import Button, { Category, IconPositions, Size } from "../Button";
 import type { IconName } from "../Icon";
 import Icon, { IconSize } from "../Icon";
 import Text, { TextType } from "../Text";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import TooltipComponent from "../Tooltip";
 import {
   createMessage,

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -37,7 +37,7 @@ import {
   Button,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { get } from "lodash";
 import {
   isLocalBranch,

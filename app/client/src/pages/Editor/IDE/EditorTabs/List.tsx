@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 
 import { useCurrentEditorState } from "../hooks";
 import { EditorEntityTab } from "ee/entities/IDE/constants";

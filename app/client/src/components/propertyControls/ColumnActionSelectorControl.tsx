@@ -6,7 +6,7 @@ import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
 import { InputText } from "components/propertyControls/InputTextControl";
 import ActionCreator from "components/editorComponents/ActionCreator";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 export interface ColumnAction {
   label?: string;

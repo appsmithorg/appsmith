@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 
 interface RadioButtonGroupProps {

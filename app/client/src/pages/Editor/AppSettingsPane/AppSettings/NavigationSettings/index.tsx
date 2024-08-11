@@ -17,7 +17,7 @@ import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "ee/actions/applicationActions";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import LogoInput from "pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";

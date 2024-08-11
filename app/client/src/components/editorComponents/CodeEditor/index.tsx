@@ -73,7 +73,7 @@ import {
 } from "components/editorComponents/CodeEditor/hintHelpers";
 
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -162,6 +162,7 @@ import {
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1771,26 +1772,33 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: EditorProps) => ({
-  dynamicData: getDataTreeForAutocomplete(state),
-  datasources: state.entities.datasources,
-  pluginIdToPlugin: getPluginIdToPlugin(state),
-  recentEntities: getRecentEntityIds(state),
-  lintErrors: getEntityLintErrors(state, props.dataTreePath),
-  editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),
-  editorLastCursorPosition: getCodeEditorLastCursorPosition(
-    state,
-    getEditorIdentifier(props),
-  ),
-  entitiesForNavigation: getEntitiesForNavigation(
-    state,
-    props.dataTreePath?.split(".")[0],
-  ),
-  featureFlags: selectFeatureFlags(state),
-  datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
-  installedLibraries: selectInstalledLibraries(state),
-  focusedProperty: getFocusablePropertyPaneField(state),
-});
+const mapStateToProps = (state: AppState, props: EditorProps) => {
+  const currentPageId: string = getCurrentPageId(state);
+  let entitiesForNavigation: EntityNavigationData = {};
+  if (currentPageId) {
+    entitiesForNavigation = getEntitiesForNavigation(
+      state,
+      props.dataTreePath?.split(".")[0],
+    );
+  }
+  return {
+    dynamicData: getDataTreeForAutocomplete(state),
+    datasources: state.entities.datasources,
+    pluginIdToPlugin: getPluginIdToPlugin(state),
+    recentEntities: getRecentEntityIds(state),
+    lintErrors: getEntityLintErrors(state, props.dataTreePath),
+    editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),
+    editorLastCursorPosition: getCodeEditorLastCursorPosition(
+      state,
+      getEditorIdentifier(props),
+    ),
+    entitiesForNavigation,
+    featureFlags: selectFeatureFlags(state),
+    datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
+    installedLibraries: selectInstalledLibraries(state),
+    focusedProperty: getFocusablePropertyPaneField(state),
+  };
+};
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

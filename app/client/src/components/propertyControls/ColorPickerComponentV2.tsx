@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { Switch } from "design-system";
+import { Switch } from "@appsmith/ads";
 import {
   Popover,
   InputGroup,

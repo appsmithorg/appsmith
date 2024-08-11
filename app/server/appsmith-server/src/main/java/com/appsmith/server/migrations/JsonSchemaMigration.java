@@ -144,6 +144,10 @@ public class JsonSchemaMigration {
             case 6:
                 MigrationHelperMethods.ensureXmlParserPresenceInCustomJsLibList(applicationJson);
                 applicationJson.setServerSchemaVersion(7);
+            case 7:
+            case 8:
+                MigrationHelperMethods.migrateThemeSettingsForAnvil(applicationJson);
+                applicationJson.setServerSchemaVersion(9);
             default:
                 // Unable to detect the serverSchema
         }

@@ -9,7 +9,7 @@ import {
   MenuTrigger,
   SearchInput,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { HeaderWrapper } from "pages/AdminSettings/components";
 import { SettingsHeader } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "ee/constants/messages";

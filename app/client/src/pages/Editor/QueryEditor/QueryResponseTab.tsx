@@ -13,7 +13,7 @@ import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/co
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
-import { Callout, Flex, SegmentedControl } from "design-system";
+import { Callout, Flex, SegmentedControl } from "@appsmith/ads";
 import styled from "styled-components";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

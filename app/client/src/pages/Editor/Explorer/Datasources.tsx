@@ -9,7 +9,7 @@ import {
   EMPTY_DATASOURCE_MAIN_TEXT,
 } from "ee/constants/messages";
 import styled from "styled-components";
-import { Icon, Button } from "design-system";
+import { Icon, Button } from "@appsmith/ads";
 import { AddEntity, EmptyComponent } from "./common";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 

@@ -36,7 +36,7 @@ import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToMo
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";

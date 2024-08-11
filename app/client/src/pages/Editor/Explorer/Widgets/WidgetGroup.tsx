@@ -21,7 +21,7 @@ import {
 } from "ee/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";

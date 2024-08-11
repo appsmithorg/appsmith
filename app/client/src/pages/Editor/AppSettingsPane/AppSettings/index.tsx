@@ -29,7 +29,7 @@ import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Divider } from "design-system";
+import { Divider } from "@appsmith/ads";
 import { ImportAppSettings } from "./ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 

@@ -1,4 +1,4 @@
-import { Icon, SearchInput, Spinner, Text } from "design-system";
+import { Icon, SearchInput, Spinner, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
