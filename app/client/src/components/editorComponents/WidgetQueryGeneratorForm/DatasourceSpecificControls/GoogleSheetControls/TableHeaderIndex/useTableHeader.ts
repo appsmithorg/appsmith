@@ -1,10 +1,10 @@
 import { fetchGheetColumns } from "actions/datasourceActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import { isNumber } from "lodash";
 import { useCallback, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
+import { getDatasource } from "ee/selectors/entitiesSelector";
 import { isValidGsheetConfig } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
 
 export function useTableHeaderIndex() {

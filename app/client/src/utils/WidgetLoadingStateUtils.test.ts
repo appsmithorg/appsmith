@@ -3,7 +3,7 @@ import type {
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,

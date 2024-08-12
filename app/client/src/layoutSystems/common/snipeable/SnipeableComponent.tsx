@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import styled from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";

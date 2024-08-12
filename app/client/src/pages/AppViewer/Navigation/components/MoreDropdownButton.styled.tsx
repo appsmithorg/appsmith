@@ -8,7 +8,7 @@ import {
 import styled from "styled-components";
 import Button from "pages/AppViewer/AppViewerButton";
 import { NavLink } from "react-router-dom";
-import { Menu } from "design-system-old";
+import { Menu } from "@appsmith/ads-old";
 
 export const StyleMoreDropdownButton = styled(Button)<{
   borderRadius: string;

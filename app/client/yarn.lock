@@ -174,6 +174,60 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@appsmith/ads-old@workspace:^, @appsmith/ads-old@workspace:packages/design-system/ads-old":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/ads-old@workspace:packages/design-system/ads-old"
+  dependencies:
+    "@types/loadable__component": ^5.13.4
+    "@types/react-form": ^4.0.2
+    "@types/wait-on": ^5.2.0
+    concurrently: ^7.3.0
+    emoji-mart: 3.0.1
+    identity-obj-proxy: 3.0.0
+    react-toastify: ^5.5.0
+    wait-on: ^5.3.0
+  languageName: unknown
+  linkType: soft
+
+"@appsmith/ads@workspace:^, @appsmith/ads@workspace:packages/design-system/ads":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/ads@workspace:packages/design-system/ads"
+  dependencies:
+    "@radix-ui/react-dialog": ^1.0.2
+    "@radix-ui/react-dropdown-menu": ^2.0.4
+    "@radix-ui/react-hover-card": ^1.0.7
+    "@radix-ui/react-popover": ^1.0.6
+    "@radix-ui/react-tabs": ^1.0.2
+    "@react-aria/button": ^3.7.0
+    "@react-aria/checkbox": ^3.7.1
+    "@react-aria/focus": ^3.10.1
+    "@react-aria/link": ^3.3.6
+    "@react-aria/radio": ^3.4.2
+    "@react-aria/switch": ^3.3.1
+    "@react-aria/textfield": ^3.8.1
+    "@react-stately/radio": ^3.6.2
+    "@react-stately/toggle": ^3.4.4
+    "@react-types/button": ^3.7.0
+    "@types/loadable__component": ^5.13.4
+    "@types/react-datepicker": ^4.10.0
+    "@xstyled/styled-components": ^3.8.0
+    axe-core: ^4.7.2
+    concurrently: ^8.2.0
+    csstype: ^3.1.2
+    date-fns: ^2.29.3
+    file-loader: 6.2.0
+    normalize.css: ^8.0.1
+    overlayscrollbars: ^2.7.2
+    overlayscrollbars-react: ^0.5.6
+    rc-select: ^14.4.3
+    rc-table: ^7.35.2
+    rc-tooltip: ^5.3.1
+    react-datepicker: ^4.10.0
+    react-toastify: 9.0.3
+    remark-gfm: ^3.0.1
+  languageName: unknown
+  linkType: soft
+
 "@aws-crypto/crc32@npm:5.2.0":
   version: 5.2.0
   resolution: "@aws-crypto/crc32@npm:5.2.0"
@@ -10291,16 +10345,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tinymce/tinymce-react@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "@tinymce/tinymce-react@npm:5.0.0"
+"@tinymce/tinymce-react@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "@tinymce/tinymce-react@npm:5.1.1"
   dependencies:
     prop-types: ^15.6.2
     tinymce: ^7.0.0 || ^6.0.0 || ^5.5.1
   peerDependencies:
     react: ^18.0.0 || ^17.0.1 || ^16.7.0
     react-dom: ^18.0.0 || ^17.0.1 || ^16.7.0
-  checksum: f22d7ab785c39d43174b98d978ce1e665c525b0504c0904922aa11527b7517466dde36af0ca3123a2b7ff24418a5ce403b50ec18b9228c7cf83670d2c8566db4
+  checksum: 80cb97203f8dbe2a9c0cedd46aec8cb37f233932567fe4e5e283d6f65b1c0b25e6cbc33a69a3af7554d06875f809740f1e5a1000474702ec24ed69c7e7dcf2d9
   languageName: node
   linkType: hard
 
@@ -13100,6 +13154,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "appsmith@workspace:."
   dependencies:
+    "@appsmith/ads": "workspace:^"
+    "@appsmith/ads-old": "workspace:^"
     "@aws-sdk/client-s3": ^3.622.0
     "@aws-sdk/lib-storage": ^3.622.0
     "@babel/helper-create-regexp-features-plugin": ^7.18.6
@@ -13150,7 +13206,7 @@ __metadata:
     "@testing-library/react": 12.1.2
     "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": 13.5.0
-    "@tinymce/tinymce-react": ^5.0.0
+    "@tinymce/tinymce-react": ^5.1.1
     "@types/babel__standalone": ^7.1.7
     "@types/codemirror": ^0.0.96
     "@types/cypress-image-snapshot": ^3.1.9
@@ -13252,8 +13308,6 @@ __metadata:
     d3-geo: ^3.1.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "workspace:^"
-    design-system-old: "workspace:^"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -17419,60 +17473,6 @@ __metadata:
   checksum: 1ec2eedd7ed6bd61dd5e0519fd4c96124e93bb22de8a9d211b02d63e5dd152824853d919bb2090f965cc0e3eb9c515950a9836b332020d810f9c71feb0fd7df4
   languageName: node
   linkType: hard
-
-"design-system-old@workspace:^, design-system-old@workspace:packages/design-system/ads-old":
-  version: 0.0.0-use.local
-  resolution: "design-system-old@workspace:packages/design-system/ads-old"
-  dependencies:
-    "@types/loadable__component": ^5.13.4
-    "@types/react-form": ^4.0.2
-    "@types/wait-on": ^5.2.0
-    concurrently: ^7.3.0
-    emoji-mart: 3.0.1
-    identity-obj-proxy: 3.0.0
-    react-toastify: ^5.5.0
-    wait-on: ^5.3.0
-  languageName: unknown
-  linkType: soft
-
-"design-system@workspace:^, design-system@workspace:packages/design-system/ads":
-  version: 0.0.0-use.local
-  resolution: "design-system@workspace:packages/design-system/ads"
-  dependencies:
-    "@radix-ui/react-dialog": ^1.0.2
-    "@radix-ui/react-dropdown-menu": ^2.0.4
-    "@radix-ui/react-hover-card": ^1.0.7
-    "@radix-ui/react-popover": ^1.0.6
-    "@radix-ui/react-tabs": ^1.0.2
-    "@react-aria/button": ^3.7.0
-    "@react-aria/checkbox": ^3.7.1
-    "@react-aria/focus": ^3.10.1
-    "@react-aria/link": ^3.3.6
-    "@react-aria/radio": ^3.4.2
-    "@react-aria/switch": ^3.3.1
-    "@react-aria/textfield": ^3.8.1
-    "@react-stately/radio": ^3.6.2
-    "@react-stately/toggle": ^3.4.4
-    "@react-types/button": ^3.7.0
-    "@types/loadable__component": ^5.13.4
-    "@types/react-datepicker": ^4.10.0
-    "@xstyled/styled-components": ^3.8.0
-    axe-core: ^4.7.2
-    concurrently: ^8.2.0
-    csstype: ^3.1.2
-    date-fns: ^2.29.3
-    file-loader: 6.2.0
-    normalize.css: ^8.0.1
-    overlayscrollbars: ^2.7.2
-    overlayscrollbars-react: ^0.5.6
-    rc-select: ^14.4.3
-    rc-table: ^7.35.2
-    rc-tooltip: ^5.3.1
-    react-datepicker: ^4.10.0
-    react-toastify: 9.0.3
-    remark-gfm: ^3.0.1
-  languageName: unknown
-  linkType: soft
 
 "destroy@npm:1.2.0":
   version: 1.2.0
@@ -33834,9 +33834,9 @@ __metadata:
   linkType: hard
 
 "tinymce@npm:^7.0.0 || ^6.0.0 || ^5.5.1":
-  version: 7.0.0
-  resolution: "tinymce@npm:7.0.0"
-  checksum: 1f2dc383c1c6f4efb8d3f4223577a8f2b450f6cc62b2861c80467495d68c2453cbd8b646416a0376282fb0b6341c194c698503149037347133b7b936fb7c717b
+  version: 7.2.1
+  resolution: "tinymce@npm:7.2.1"
+  checksum: 0e154d70888d7f4f086783b17b4c1e7eb5b9a3de8fe7e6e4d2336cb2cbced23dffcb87e5124b035c1a70792a778006fdf83447d610431ae62e72f8b568709cde
   languageName: node
   linkType: hard
 

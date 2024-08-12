@@ -8,7 +8,7 @@ import {
   SEMRESATTRS_SERVICE_VERSION,
   SEMRESATTRS_SERVICE_INSTANCE_ID,
 } from "@opentelemetry/semantic-conventions";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import {
   MeterProvider,

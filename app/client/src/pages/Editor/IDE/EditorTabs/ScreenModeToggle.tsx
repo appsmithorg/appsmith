@@ -1,15 +1,15 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Tooltip } from "design-system";
+import { Button, Tooltip } from "@appsmith/ads";
 
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   MAXIMIZE_BUTTON_TOOLTIP,
   MINIMIZE_BUTTON_TOOLTIP,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { setIdeEditorViewMode } from "actions/ideActions";
 
 export const ScreenModeToggle = () => {

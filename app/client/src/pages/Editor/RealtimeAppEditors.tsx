@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import ProfileImage from "pages/common/ProfileImage";
-import UserApi from "@appsmith/api/UserApi";
+import UserApi from "ee/api/UserApi";
 import styled from "styled-components";
 import {
   collabStartEditingAppEvent,
@@ -12,7 +12,7 @@ import {
 } from "actions/appCollabActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 
 const UserImageContainer = styled.div`
   display: flex;

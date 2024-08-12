@@ -18,8 +18,8 @@ import {
   apiEditorIdURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "@appsmith/RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+} from "ee/RouteBuilder";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed

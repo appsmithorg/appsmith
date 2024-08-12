@@ -9,10 +9,10 @@ import {
 import { useSelector } from "react-redux";
 import EntityAddButton from "../Entity/AddButton";
 import keyBy from "lodash/keyBy";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import {
   Menu,
@@ -22,7 +22,7 @@ import {
   Tooltip,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 const SubMenuContainer = styled.div`
   width: 250px;

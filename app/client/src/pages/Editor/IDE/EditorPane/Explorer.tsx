@@ -1,12 +1,12 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
-import { SentryRoute } from "@appsmith/AppRouter";
+import { SentryRoute } from "ee/AppRouter";
 import {
   jsSegmentRoutes,
   querySegmentRoutes,
   widgetSegmentRoutes,
-} from "@appsmith/pages/Editor/IDE/EditorPane/constants";
+} from "ee/pages/Editor/IDE/EditorPane/constants";
 import { JSExplorer } from "./JS";
 import { QueryExplorer } from "./Query";
 import WidgetsSegment from "./UI";
@@ -14,12 +14,12 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 import SegmentedHeader from "./components/SegmentedHeader";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const EditorPaneExplorer = () => {
@@ -34,7 +34,6 @@ const EditorPaneExplorer = () => {
       }
       className="relative ide-editor-left-pane__content"
       flexDirection="column"
-      overflow="hidden"
       width={
         ideViewMode === EditorViewMode.FullScreen
           ? DEFAULT_EXPLORER_PANE_WIDTH

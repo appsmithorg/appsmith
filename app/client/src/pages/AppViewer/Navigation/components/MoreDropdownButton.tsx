@@ -4,7 +4,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import MenuText from "./MenuText";
 import classNames from "classnames";
 import {
@@ -12,10 +12,10 @@ import {
   StyledMenuItemInDropdown,
   StyleMoreDropdownButton,
 } from "./MoreDropdownButton.styled";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import type { Page } from "ee/constants/ReduxActionConstants";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { NavigationMethod } from "utils/history";
 

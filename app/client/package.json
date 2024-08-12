@@ -48,6 +48,8 @@
     "cypress:snapshot:docker:build": "docker build . -f cypress/Dockerfile -t cypress-snapshot"
   },
   "dependencies": {
+    "@appsmith/ads": "workspace:^",
+    "@appsmith/ads-old": "workspace:^",
     "@aws-sdk/client-s3": "^3.622.0",
     "@aws-sdk/lib-storage": "^3.622.0",
     "@babel/standalone": "^7.23.6",
@@ -85,7 +87,7 @@
     "@shared/ast": "workspace:^",
     "@shared/dsl": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
-    "@tinymce/tinymce-react": "^5.0.0",
+    "@tinymce/tinymce-react": "^5.1.1",
     "@types/babel__standalone": "^7.1.7",
     "@types/cypress-image-snapshot": "^3.1.9",
     "@types/d3-geo": "^3.1.0",
@@ -122,8 +124,6 @@
     "d3-geo": "^3.1.0",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "workspace:^",
-    "design-system-old": "workspace:^",
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
     "fast-deep-equal": "^3.1.3",

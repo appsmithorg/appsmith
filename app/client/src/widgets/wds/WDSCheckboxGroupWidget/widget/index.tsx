@@ -96,17 +96,19 @@ class WDSCheckboxGroupWidget extends BaseWidget<
   }
 
   onChange = (selectedValues: OptionProps["value"][]) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+    pushBatchMetaUpdates("selectedValues", selectedValues, {
       triggerPropertyName: "onCheckChange",
       dynamicString: this.props.onCheckChange,
       event: {
         type: EventType.ON_CHECKBOX_GROUP_SELECTION_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {

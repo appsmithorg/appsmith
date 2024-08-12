@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
 import { getCurrentUser } from "./usersSelectors";
 import type { User } from "entities/AppCollab/CollabInterfaces";

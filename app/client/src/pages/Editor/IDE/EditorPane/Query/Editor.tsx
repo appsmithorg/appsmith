@@ -1,8 +1,8 @@
 import React from "react";
 import { useRouteMatch } from "react-router";
 import { Switch } from "react-router-dom";
-import { useQueryEditorRoutes } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
-import { SentryRoute } from "@appsmith/AppRouter";
+import { useQueryEditorRoutes } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { SentryRoute } from "ee/AppRouter";
 
 const QueryEditor = () => {
   const { path } = useRouteMatch();

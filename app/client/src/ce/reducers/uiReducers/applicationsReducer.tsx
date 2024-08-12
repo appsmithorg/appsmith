@@ -2,24 +2,24 @@ import { createReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   ApplicationPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type {
   AppEmbedSetting,
   PageDefaultMeta,
   UpdateApplicationRequest,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import {
   defaultNavigationSetting,

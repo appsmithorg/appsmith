@@ -1,11 +1,11 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   GO_BACK,
   START_WITH_TEMPLATE_CONNECT_HEADING,
   START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
-} from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import {
   getAllTemplates,
@@ -20,7 +20,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
@@ -33,7 +33,7 @@ import {
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { StartWithTemplatesHeader } from "../StartWithTemplatesWrapper";
 
 interface CreateNewAppFromTemplatesModalProps {

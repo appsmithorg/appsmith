@@ -27,8 +27,10 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -147,7 +149,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
     @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
+    protected Map<String, Policy> policyMap = new HashMap<>();
 
     @Transient
     @JsonView({Views.Public.class, FromRequest.class})
@@ -170,6 +172,29 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @Transient
     @JsonView({Views.Internal.class})
     private String branchName;
+
+    // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
+    /**
+     * An unmodifiable set of policies.
+     */
+    @JsonView(Views.Internal.class)
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public Set<Policy> getPolicies() {
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
+    }
+
+    @JsonView(Views.Internal.class)
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public void setPolicies(Set<Policy> policies) {
+        if (policies == null) {
+            this.policyMap = null;
+            return;
+        }
+        policyMap = new HashMap<>();
+        for (Policy policy : policies) {
+            policyMap.put(policy.getPermission(), policy);
+        }
+    }
 
     @Override
     @JsonView({Views.Internal.class})
@@ -218,10 +243,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
         } else {
             this.setUserPermissions(Set.of());
         }
-        if (this.getPolicies() != null) {
-            this.getPolicies().clear();
+        if (this.getPolicyMap() != null) {
+            this.getPolicyMap().clear();
         } else {
-            this.setPolicies(Set.of());
+            this.setPolicyMap(Map.of());
         }
     }
 

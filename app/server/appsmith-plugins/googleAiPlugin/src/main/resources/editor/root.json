@@ -21,7 +21,5 @@
       ]
     }
   ],
-  "files": [
-    "generate.json"
-  ]
+  "files": ["generate.json"]
 }

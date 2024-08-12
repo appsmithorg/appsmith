@@ -1,9 +1,9 @@
 import { render } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import Radio from "./Radio";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { reduxForm } from "redux-form";
 
 // TODO: Fix this the next time the file is edited

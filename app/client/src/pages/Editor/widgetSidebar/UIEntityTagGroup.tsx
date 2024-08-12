@@ -10,13 +10,13 @@ import {
   CollapsibleHeader,
   Spinner,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { sortBy } from "lodash";
 import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
 import styled from "styled-components";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import WidgetCard from "./WidgetCard";
 
 const LoadingWrapper = styled.div`

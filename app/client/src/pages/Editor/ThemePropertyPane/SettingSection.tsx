@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef } from "react";
 import React, { useState } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const SettingsWrapper = styled.div`
   color: var(--ads-v2-color-fg);

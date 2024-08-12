@@ -5,8 +5,8 @@ import {
   SAVE_AND_RESTART_BUTTON,
   SAVE_BUTTON,
   createMessage,
-} from "@appsmith/constants/messages";
-import { Button } from "design-system";
+} from "ee/constants/messages";
+import { Button } from "@appsmith/ads";
 import styled from "styled-components";
 
 const SettingsButtonWrapper = styled.div`

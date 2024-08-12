@@ -7,14 +7,14 @@ import {
   isDirty,
   reset,
 } from "redux-form";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { get, isEmpty, isEqual, isNil, memoize, merge } from "lodash";
 import {
   getPluginImages,
   getDatasource,
   getPlugin,
   getDatasourceFormButtonConfig,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   switchDatasource,
   setDatasourceViewMode,
@@ -31,7 +31,7 @@ import {
 import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
-} from "@appsmith/constants/forms";
+} from "ee/constants/forms";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
@@ -44,7 +44,7 @@ import {
   getCurrentApplicationId,
   selectURLSlugs,
 } from "selectors/editorSelectors";
-import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
+import { saasEditorDatasourceIdURL } from "ee/RouteBuilder";
 import {
   createMessage,
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
@@ -53,13 +53,13 @@ import {
   SAVE_BUTTON_TEXT,
   TEST_DATASOURCE_ERROR,
   TEST_DATASOURCE_SUCCESS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 
-import { toast, Callout } from "design-system";
+import { toast, Callout } from "@appsmith/ads";
 import styled from "styled-components";
 import {
   isDatasourceAuthorizedForQueryCreation,
@@ -85,25 +85,25 @@ import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransf
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
-import DSDataFilter from "@appsmith/components/DSDataFilter";
-import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
-import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
-import type { CalloutKind } from "design-system";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import DSDataFilter from "ee/components/DSDataFilter";
+import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";
+import { isStorageEnvironmentCreated } from "ee/utils/Environments";
+import type { CalloutKind } from "@appsmith/ads";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { setCurrentEditingEnvironmentID } from "ee/actions/environmentAction";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
-import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
+import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;

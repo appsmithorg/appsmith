@@ -1,6 +1,6 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
 
 export type JSExecutionRecord = Record<string, string>;
 const initialState: JSExecutionRecord = {};

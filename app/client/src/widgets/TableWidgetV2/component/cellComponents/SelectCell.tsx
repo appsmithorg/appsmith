@@ -1,4 +1,4 @@
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";

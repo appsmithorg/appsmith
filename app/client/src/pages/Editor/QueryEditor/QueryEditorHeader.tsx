@@ -1,24 +1,24 @@
 import React, { useContext } from "react";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { StyledFormRow } from "./EditorJSONtoForm";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasExecuteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { useSelector } from "react-redux";
 import {
   getActionByBaseId,
   getPluginNameFromId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { QueryEditorContext } from "./QueryEditorContext";
 import type { Plugin } from "api/PluginApi";
 import type { Datasource } from "entities/Datasource";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import DatasourceSelector from "./DatasourceSelector";
 

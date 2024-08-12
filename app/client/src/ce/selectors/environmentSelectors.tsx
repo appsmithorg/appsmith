@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { AppState } from "@appsmith/reducers";
-import type { EnvironmentType } from "@appsmith/configs/types";
+import type { AppState } from "ee/reducers";
+import type { EnvironmentType } from "ee/configs/types";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
 
 export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>

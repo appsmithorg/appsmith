@@ -3,9 +3,9 @@ import {
   ACTION_EXECUTION_CANCEL,
   ACTION_EXECUTION_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import ActionAPI from "api/ActionAPI";
-import { Button, Spinner, Text } from "design-system";
+import { Button, Spinner, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import LoadingOverlayScreen from "./LoadingOverlayScreen";

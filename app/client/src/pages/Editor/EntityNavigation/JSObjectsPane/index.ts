@@ -3,7 +3,7 @@ import PaneNavigation from "../PaneNavigation";
 import type { JSCollection } from "entities/JSCollection";
 import { call, delay, put, select } from "redux-saga/effects";
 import history from "utils/history";
-import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
+import { jsCollectionIdURL } from "ee/RouteBuilder";
 import type { EntityInfo, IJSPaneNavigationConfig } from "../types";
 import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
@@ -12,8 +12,8 @@ import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
-import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
-import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
+import { getJSCollection } from "ee/selectors/entitiesSelector";
 
 export default class JSObjectsPaneNavigation extends PaneNavigation {
   jsCollection!: JSCollection;

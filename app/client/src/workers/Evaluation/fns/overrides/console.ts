@@ -5,10 +5,10 @@ import type {
   SourceEntity,
 } from "entities/AppsmithConsole";
 import { Severity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { klona } from "klona/lite";
 import moment from "moment";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import TriggerEmitter from "../utils/TriggerEmitter";
 import type { EventEmitter } from "events";
 import ExecutionMetaData from "../utils/ExecutionMetaData";

@@ -1,5 +1,5 @@
-import type { AppState } from "@appsmith/reducers";
-import { Icon } from "design-system";
+import type { AppState } from "ee/reducers";
+import { Icon } from "@appsmith/ads";
 import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";

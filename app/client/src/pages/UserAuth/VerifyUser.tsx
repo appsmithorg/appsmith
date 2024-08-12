@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import Container from "./Container";
 import type { RouteComponentProps } from "react-router-dom";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import * as Sentry from "@sentry/react";
-import { EMAIL_VERIFICATION_PATH } from "@appsmith/constants/ApiConstants";
+import { EMAIL_VERIFICATION_PATH } from "ee/constants/ApiConstants";
 import { Redirect } from "react-router-dom";
 import { VerificationErrorType } from "./VerificationError";
 

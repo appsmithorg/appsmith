@@ -1,4 +1,4 @@
-import { Callout, Text, toast } from "design-system";
+import { Callout, Text, toast } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -12,7 +12,7 @@ import {
   ERROR_SSH_RECONNECT_OPTION2,
   NO_COPIED_SSH_KEY,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { fetchGitStatusInit } from "actions/gitSyncActions";
 
 const NumberedList = styled.ol`

@@ -1,4 +1,4 @@
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { jsObjectFunctionFactory } from "workers/Evaluation/fns/utils/jsObjectFnFactory";

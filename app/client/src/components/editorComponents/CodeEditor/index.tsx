@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   Annotation,
   EditorConfiguration,
@@ -34,10 +34,10 @@ import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
+import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";
 import "components/editorComponents/CodeEditor/modes";
 import type {
@@ -73,7 +73,7 @@ import {
 } from "components/editorComponents/CodeEditor/hintHelpers";
 
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -88,7 +88,7 @@ import {
   shouldShowSlashCommandMenu,
 } from "./codeEditorUtils";
 import { slashCommandHintHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getPluginIdToPlugin } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
@@ -126,7 +126,7 @@ import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
@@ -137,22 +137,22 @@ import {
   getSaveAndAutoIndentKey,
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
-import { AskAIButton } from "@appsmith/components/editorComponents/GPT/AskAIButton";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { AIWindow } from "ee/components/editorComponents/GPT";
+import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
-import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
+import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
-import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
+import { CodeEditorSignPosting } from "ee/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
 import { EMPTY_BINDING } from "../ActionCreator/constants";
@@ -161,7 +161,7 @@ import {
   setActiveEditorField,
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;

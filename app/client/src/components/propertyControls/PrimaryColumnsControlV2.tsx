@@ -1,11 +1,11 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import * as Sentry from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import type { Indices } from "constants/Layers";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import _, { toString as lodashToString } from "lodash";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
