@@ -92,7 +92,6 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.get(".t--dropdown-option").children().contains("Date").click();
     cy.wait("@updateLayout");
     cy.enterTableCellValue(0, 0, "");
-    cy.wait(500);
     cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
 
     cy.get(".t--discard-new-row").click({ force: true });
