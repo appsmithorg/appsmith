@@ -5,7 +5,7 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import type { noop } from "lodash";
-import { Icon } from "@appsmith/ads";
+import { Spinner } from "@appsmith/ads";
 import { Text, TextType } from "../index";
 import type { CommonComponentProps } from "../types/common";
 
@@ -117,14 +117,6 @@ const TextContainer = styled.div<{
   }
 `;
 
-const IconWrapper = styled.div`
-  width: var(--ads-spaces-15);
-  padding-right: var(--ads-spaces-5);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
 export const EditableTextSubComponent = React.forwardRef(
   (props: EditableTextSubComponentProps, ref: any) => {
     const {
@@ -225,17 +217,6 @@ export const EditableTextSubComponent = React.forwardRef(
       [inputValidation, onTextChanged],
     );
 
-    const iconName =
-      !isEditing &&
-      savingState === SavingState.NOT_STARTED &&
-      !props.hideEditIcon
-        ? "pencil-line"
-        : !isEditing && savingState === SavingState.SUCCESS
-          ? "success"
-          : savingState === SavingState.ERROR || (isEditing && !!isInvalid)
-            ? "error"
-            : undefined;
-
     return (
       <>
         <TextContainer
@@ -259,19 +240,7 @@ export const EditableTextSubComponent = React.forwardRef(
             value={value}
           />
 
-          {savingState === SavingState.STARTED ? (
-            <IconWrapper className="icon-wrapper">
-              <Icon name={"loader"} size="lg" />
-            </IconWrapper>
-          ) : value && !props.hideEditIcon ? (
-            <IconWrapper className="icon-wrapper">
-              <Icon
-                color="var(--ads-v2-color-fg)"
-                name={iconName as string}
-                size="lg"
-              />
-            </IconWrapper>
-          ) : null}
+          {savingState === SavingState.STARTED ? <Spinner size="md" /> : null}
         </TextContainer>
         {isEditing && !!isInvalid ? (
           <Text className="error-message" type={TextType.P2}>
