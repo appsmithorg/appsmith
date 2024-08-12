@@ -20,7 +20,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
      * @param id ID of the domain to be found
      * @return Domain with the given ID if it exists, empty otherwise
      */
-    Optional<T> findById(String id);
+    Optional<T> getById(String id);
 
     Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
 

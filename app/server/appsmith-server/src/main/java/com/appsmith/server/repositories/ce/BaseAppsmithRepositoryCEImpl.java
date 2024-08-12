@@ -141,7 +141,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().byId(id).permission(permission, currentUser).one();
     }
 
-    public Optional<T> findById(String id) {
+    public Optional<T> getById(String id) {
         return queryBuilder().byId(id).one();
     }
 

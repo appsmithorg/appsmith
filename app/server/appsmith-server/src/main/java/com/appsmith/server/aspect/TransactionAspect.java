@@ -116,7 +116,7 @@ public class TransactionAspect {
                             if (transactionContext.containsKey(getObjectId(dbOps))) {
                                 return obj;
                             }
-                            Optional<?> entity = repository.findById(((BaseDomain) obj).getId());
+                            Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
                             dbOps = new DBOps();
                             if (entity.isPresent()) {
                                 dbOps.setEntity(entity.get());
@@ -173,7 +173,7 @@ public class TransactionAspect {
                                 if (transactionContext.containsKey(getObjectId(dbOps))) {
                                     return obj;
                                 }
-                                Optional<?> entity = repository.findById(((BaseDomain) obj).getId());
+                                Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
                                 dbOps = new DBOps();
                                 if (entity.isPresent()) {
                                     dbOps.setEntity(entity.get());
