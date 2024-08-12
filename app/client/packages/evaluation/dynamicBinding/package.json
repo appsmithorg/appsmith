@@ -1,0 +1,13 @@
+{
+  "name": "@evaluation/dynamic-binding",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier"
+  }
+}

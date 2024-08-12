@@ -1,5 +1,5 @@
 import _, { get, isString } from "lodash";
-import { DATA_BIND_REGEX } from "@shared/dsl";
+import { DATA_BIND_REGEX } from "@evaluation/dynamic-binding";
 import type { Action } from "entities/Action";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { Severity } from "entities/AppsmithConsole";

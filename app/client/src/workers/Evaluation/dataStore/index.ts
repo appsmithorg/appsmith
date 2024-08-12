@@ -1,7 +1,7 @@
 import type { Diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, set, unset } from "lodash";
-import { convertPathToString } from "@shared/dsl";
+import { convertPathToString } from "@evaluation/common";
 
 export type TDataStore = Record<string, Record<string, unknown>>;
 export default class DataStore {

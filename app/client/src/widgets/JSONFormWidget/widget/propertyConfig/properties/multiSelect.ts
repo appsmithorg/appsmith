@@ -1,4 +1,4 @@
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import type { HiddenFnParams } from "../helper";
 import { getSchemaItem, getAutocompleteProperties } from "../helper";

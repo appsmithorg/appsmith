@@ -1,0 +1,16 @@
+{
+  "name": "@evaluation/common",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
+}

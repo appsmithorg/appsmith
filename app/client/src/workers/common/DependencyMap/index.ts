@@ -19,11 +19,8 @@ import { get, isEmpty, set } from "lodash";
 import { getFixedTimeDifference } from "../DataTreeEvaluator/utils";
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import {
-  AppsmithFunctionsWithFields,
-  getEntityDependencies,
-  extractInfoFromBindings,
-} from "@shared/dsl";
+import { AppsmithFunctionsWithFields } from "@evaluation/common";
+import { getEntityDependencies } from "@evaluation/dependency";
 import {
   getAllSetterFunctions,
   getEntitySetterFunctions,
@@ -31,6 +28,7 @@ import {
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
 import { libraryReservedIdentifiers } from "../JSLibrary";
+import { extractInfoFromBindings } from "@evaluation/dynamic-binding";
 
 export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,

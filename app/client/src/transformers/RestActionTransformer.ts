@@ -6,7 +6,10 @@ import type { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
 import cloneDeep from "lodash/cloneDeep";
-import { getDynamicStringSegments, isDynamicValue } from "@shared/dsl";
+import {
+  isDynamicValue,
+  getDynamicStringSegments,
+} from "@evaluation/dynamic-binding";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = cloneDeep(data);

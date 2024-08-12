@@ -14,10 +14,8 @@ import type { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
 import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
-import {
-  addWidgetPropertyDependencies,
-  convertPathToString,
-} from "@shared/dsl";
+import { addWidgetPropertyDependencies } from "@evaluation/dependency";
+import { convertPathToString } from "@evaluation/common";
 
 export const getDependencies: Record<
   string,

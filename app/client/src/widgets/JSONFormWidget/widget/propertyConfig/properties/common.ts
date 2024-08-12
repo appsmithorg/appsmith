@@ -1,6 +1,6 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 import { get } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";

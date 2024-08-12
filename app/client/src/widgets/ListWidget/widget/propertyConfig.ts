@@ -3,7 +3,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { ListWidgetProps } from "../constants";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 export const PropertyPaneContentConfig = [

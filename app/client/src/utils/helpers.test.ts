@@ -1,6 +1,6 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 import type { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {

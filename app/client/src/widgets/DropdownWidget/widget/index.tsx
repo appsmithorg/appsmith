@@ -12,7 +12,7 @@ import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 import _ from "lodash";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
 import React from "react";

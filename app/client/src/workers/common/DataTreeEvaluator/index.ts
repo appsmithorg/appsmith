@@ -33,9 +33,9 @@ import type {
 import {
   EvaluationSubstitutionType,
   EvalErrorTypes,
-  convertPathToString,
   type EvalError as TEvalError,
-} from "@shared/dsl";
+} from "@evaluation/common";
+import { convertPathToString } from "@evaluation/common";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {

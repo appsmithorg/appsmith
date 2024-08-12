@@ -4,7 +4,7 @@ import {
   getSetterConfig,
 } from "entities/DataTree/dataTreeWidget";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 
 import WidgetFactory from "WidgetProvider/factory";
 

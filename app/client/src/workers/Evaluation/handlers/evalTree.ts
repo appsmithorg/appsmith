@@ -3,7 +3,7 @@ import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
 import { isEmpty } from "lodash";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes, type EvalError } from "@shared/dsl";
+import { EvalErrorTypes, type EvalError } from "@evaluation/common";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";

@@ -11,7 +11,7 @@ import type {
   JSActionEntity,
 } from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 import type {
   ConfigTree,
   DataTreeEntity,

@@ -21,7 +21,7 @@ import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
-import { EvalErrorTypes } from "@shared/dsl";
+import { EvalErrorTypes } from "@evaluation/common";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body

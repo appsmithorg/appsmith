@@ -6,7 +6,8 @@ import { lightTheme } from "selectors/themeSelectors";
 import { render } from "@testing-library/react";
 import ActionTree from "./ActionTree";
 import type { TActionBlock } from "../../types";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "@shared/dsl";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "@evaluation/common";
+
 describe("tests for Action Tree in Action Selector", () => {
   const store = testStore({});
   it("callback button is rendered for chainable actions", function () {

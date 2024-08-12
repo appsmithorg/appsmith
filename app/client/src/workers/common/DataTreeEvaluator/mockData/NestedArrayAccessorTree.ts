@@ -7,7 +7,7 @@ import type {
 } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 
 export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {

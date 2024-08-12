@@ -3,7 +3,7 @@ import {
   getAllPaths,
   getEntityNameAndPropertyPath,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { AppsmithFunctionsWithFields } from "@shared/dsl";
+import { AppsmithFunctionsWithFields } from "@evaluation/common";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
 import { extractReferencesFromPath } from "ee/plugins/Linting/utils/getEntityDependencies";
 import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
@@ -23,7 +23,7 @@ import {
   type EntityTree,
 } from "plugins/Linting/lib/entity/EntityTree";
 import { getEntityFunctions } from "ee/workers/Evaluation/fns";
-import { convertPathToString } from "@shared/dsl";
+import { convertPathToString } from "@evaluation/common";
 
 class LintService {
   cachedEntityTree: EntityTree | null;

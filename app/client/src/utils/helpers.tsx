@@ -28,7 +28,7 @@ import {
   APPSMITH_GLOBAL_FUNCTIONS,
   JAVASCRIPT_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-} from "@shared/dsl";
+} from "@evaluation/common";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,

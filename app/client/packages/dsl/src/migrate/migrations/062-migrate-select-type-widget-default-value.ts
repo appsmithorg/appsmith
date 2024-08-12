@@ -1,6 +1,6 @@
 import type { DSLWidget } from "../types";
 import { stringToJS } from "../utils";
-import { isDynamicValue } from "../../dynamicBinding";
+import { isDynamicValue } from "@evaluation/dynamic-binding";
 
 const getBindingTemplate = (widgetName: string) => {
   const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;

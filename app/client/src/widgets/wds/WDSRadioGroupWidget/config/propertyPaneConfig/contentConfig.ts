@@ -5,7 +5,7 @@ import {
   defaultOptionValidation,
   optionsCustomValidation,
 } from "./validations";
-import { EvaluationSubstitutionType } from "@shared/dsl";
+import { EvaluationSubstitutionType } from "@evaluation/common";
 
 export const propertyPaneContentConfig = [
   {

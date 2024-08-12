@@ -3775,6 +3775,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@evaluation/common@workspace:^, @evaluation/common@workspace:packages/evaluation/common":
+  version: 0.0.0-use.local
+  resolution: "@evaluation/common@workspace:packages/evaluation/common"
+  dependencies:
+    lodash: ^4.17.21
+  languageName: unknown
+  linkType: soft
+
+"@evaluation/dependency@workspace:^, @evaluation/dependency@workspace:packages/evaluation/dependency":
+  version: 0.0.0-use.local
+  resolution: "@evaluation/dependency@workspace:packages/evaluation/dependency"
+  dependencies:
+    lodash: ^4.17.21
+  languageName: unknown
+  linkType: soft
+
+"@evaluation/dynamic-binding@workspace:^, @evaluation/dynamic-binding@workspace:packages/evaluation/dynamicBinding":
+  version: 0.0.0-use.local
+  resolution: "@evaluation/dynamic-binding@workspace:packages/evaluation/dynamicBinding"
+  languageName: unknown
+  linkType: soft
+
 "@faker-js/faker@npm:^7.4.0":
   version: 7.4.0
   resolution: "@faker-js/faker@npm:7.4.0"
@@ -13172,6 +13194,9 @@ __metadata:
     "@design-system/theming": "workspace:^"
     "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
+    "@evaluation/common": "workspace:^"
+    "@evaluation/dependency": "workspace:^"
+    "@evaluation/dynamic-binding": "workspace:^"
     "@faker-js/faker": ^7.4.0
     "@floating-ui/dom": ^1.6.4
     "@fusioncharts/powercharts": ^3.16.0
