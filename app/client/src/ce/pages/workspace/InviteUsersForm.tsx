@@ -27,8 +27,8 @@ import {
 } from "ee/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { SelectOptionProps } from "design-system";
-import { Callout, Checkbox } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Callout, Checkbox } from "@appsmith/ads";
 import {
   Button,
   Icon,
@@ -38,7 +38,7 @@ import {
   Tooltip,
   toast,
   Link,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   fetchRolesForWorkspace,
   fetchUsersForWorkspace,

@@ -10,7 +10,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import { isValidLicense } from "ee/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";

@@ -1,6 +1,6 @@
 import React from "react";
 import { VIEW_MODE_TABS } from "constants/DatasourceEditorConstants";
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
+import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
 import styled from "styled-components";
 import {
   DATASOURCE_CONFIGURATIONS_TAB,

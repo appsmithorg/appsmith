@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import history from "utils/history";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import { INTEGRATION_TABS } from "constants/routes";

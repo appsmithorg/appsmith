@@ -3,7 +3,7 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
   createMessage,
 } from "ee/constants/messages";
-import { Input, Text } from "design-system";
+import { Input, Text } from "@appsmith/ads";
 import { emailValidator } from "@appsmith/ads-old";
 import React, { useMemo } from "react";
 import styled from "styled-components";

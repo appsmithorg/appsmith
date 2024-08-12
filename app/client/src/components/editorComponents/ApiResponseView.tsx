@@ -23,7 +23,7 @@ import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Classes, Text, TextType } from "@appsmith/ads-old";
-import { Button, Callout, Flex, SegmentedControl } from "design-system";
+import { Button, Callout, Flex, SegmentedControl } from "@appsmith/ads";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";

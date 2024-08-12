@@ -12,7 +12,7 @@ import styled from "styled-components";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import store from "store";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";

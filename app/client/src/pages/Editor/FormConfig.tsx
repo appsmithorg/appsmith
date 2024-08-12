@@ -23,7 +23,7 @@ import {
 } from "utils/editorContextUtils";
 import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
 import { setFocusableInputField } from "actions/editorContextActions";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 
 const FlexWrapper = styled.div`
   display: flex;

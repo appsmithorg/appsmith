@@ -5,7 +5,7 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import React from "react";
 import CommunityTemplateForm from "./CommunityTemplateForm";
 import { PublishPageHeaderContainer } from "./StyledComponents";

@@ -2,7 +2,7 @@ import React from "react";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button, Input, Icon } from "design-system";
+import { Button, Input, Icon } from "@appsmith/ads";
 import type { WidgetProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";

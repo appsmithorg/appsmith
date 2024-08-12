@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   LOCK_ENTITY_EXPLORER_MESSAGE,

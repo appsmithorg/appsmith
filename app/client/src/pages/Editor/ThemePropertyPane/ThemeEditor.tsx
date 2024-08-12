@@ -26,7 +26,7 @@ import {
   MenuContent,
   MenuTrigger,
   MenuItem,
-} from "design-system";
+} from "@appsmith/ads";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";

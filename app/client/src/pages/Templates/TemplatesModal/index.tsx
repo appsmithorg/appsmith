@@ -15,7 +15,7 @@ import { fetchDefaultPlugins } from "actions/pluginActions";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { isEmpty } from "lodash";
 import type { AppState } from "ee/reducers";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
 import TemplateModalHeader from "./Header";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import TemplatesListLayoutSwitcher from "./TemplatesListLayoutSwitcher";

@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Option } from "design-system";
+import { Option } from "@appsmith/ads";
 import { DropdownOption } from "../../../../CommonControls/DatasourceDropdown/DropdownOption";
 import { WidgetQueryGeneratorFormContext } from "../../../../index";
 import { useColumns } from "../../../ColumnDropdown/useColumns";

@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   List,
-} from "design-system";
+} from "@appsmith/ads";
 import styles from "./styles.module.css";
 import type { DebuggerLog } from "../../types";
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";

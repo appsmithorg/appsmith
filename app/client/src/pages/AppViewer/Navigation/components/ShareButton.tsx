@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Button from "../../AppViewerButton";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";

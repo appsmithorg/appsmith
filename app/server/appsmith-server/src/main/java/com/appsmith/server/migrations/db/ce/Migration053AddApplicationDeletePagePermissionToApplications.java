@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import io.mongock.api.annotations.ChangeUnit;
@@ -36,7 +35,7 @@ public class Migration053AddApplicationDeletePagePermissionToApplications {
     private static final String APPLICATION_DELETE_PAGES_VALUE = AclPermission.APPLICATION_DELETE_PAGES.getValue();
     private static final String DELETE_APPLICATIONS_VALUE = AclPermission.DELETE_APPLICATIONS.getValue();
 
-    private static final String POLICIES = BaseDomain.Fields.policies;
+    private static final String POLICIES = "policies";
     private static final String PERMISSION = "permission";
     private static final String PERMISSION_GROUPS = "permissionGroups";
 

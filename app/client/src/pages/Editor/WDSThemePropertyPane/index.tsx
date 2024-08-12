@@ -13,7 +13,7 @@ import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
+import { SegmentedControl, Tooltip, Select, Option, Icon } from "@appsmith/ads";
 
 import styles from "./styles.module.css";
 

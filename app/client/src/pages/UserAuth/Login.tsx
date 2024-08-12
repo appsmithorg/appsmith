@@ -26,7 +26,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { FormGroup } from "@appsmith/ads-old";
-import { Button, Link, Callout } from "design-system";
+import { Button, Link, Callout } from "@appsmith/ads";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
 import { isEmail, isEmptyString } from "utils/formhelpers";

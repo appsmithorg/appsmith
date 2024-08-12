@@ -22,7 +22,7 @@ import {
   Tooltip,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 const SubMenuContainer = styled.div`
   width: 250px;

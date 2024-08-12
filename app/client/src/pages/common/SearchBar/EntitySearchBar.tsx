@@ -1,7 +1,7 @@
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";

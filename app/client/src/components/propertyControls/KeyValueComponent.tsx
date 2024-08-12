@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { ControlWrapper, InputGroup } from "./StyledControls";
-import type { SegmentedControlOption } from "design-system";
-import { Button } from "design-system";
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { Button } from "@appsmith/ads";
 import { generateReactKey } from "utils/generators";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";

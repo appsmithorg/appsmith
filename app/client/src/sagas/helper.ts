@@ -9,7 +9,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   ReduxActionTypes,
   type ReduxActionType,

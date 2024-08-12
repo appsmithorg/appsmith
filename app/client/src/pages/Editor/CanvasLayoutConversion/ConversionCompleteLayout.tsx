@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Callout, Icon, Text } from "design-system";
+import { Callout, Icon, Text } from "@appsmith/ads";
 import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 
 const AlertIcons = {

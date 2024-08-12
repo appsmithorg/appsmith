@@ -61,7 +61,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
   ONSUBMIT_NOT_CONFIGURED_ACTION_URL,

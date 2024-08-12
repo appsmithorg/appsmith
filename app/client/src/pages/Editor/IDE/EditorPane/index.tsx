@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { useEditorPaneWidth } from "../hooks";
 import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";

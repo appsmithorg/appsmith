@@ -3,7 +3,7 @@ import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
 import { FieldArray } from "redux-form";
 import type { ControlProps } from "./BaseControl";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const CenteredIconButton = styled(Button)<{
   alignSelf?: string;
