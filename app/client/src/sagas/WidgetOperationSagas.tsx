@@ -85,7 +85,6 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
-import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
@@ -169,6 +168,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import localStorage from "utils/localStorage";
 import { getNewPositions } from "./PasteWidgetUtils";
+import { getAllPaths } from "@evaluation/common";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {

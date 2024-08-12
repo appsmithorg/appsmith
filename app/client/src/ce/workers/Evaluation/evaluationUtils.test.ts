@@ -23,13 +23,13 @@ import {
   addErrorToEntityProperty,
   convertJSFunctionsToString,
   DataTreeDiffEvent,
-  getAllPaths,
   getAllPrivateWidgetsInDataTree,
   getDataTreeWithoutPrivateWidgets,
   isPrivateEntityPath,
   makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
 } from "ee/workers/Evaluation/evaluationUtils";
+import { getAllPaths } from "@evaluation/common";
 import { warn as logWarn } from "loglevel";
 import type { Diff } from "deep-diff";
 import _, { flatten, set } from "lodash";

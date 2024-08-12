@@ -13,8 +13,8 @@ import type { FormConfigType } from "components/formControls/BaseControl";
 import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
+import { isTrueObject } from "@evaluation/common";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true

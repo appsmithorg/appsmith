@@ -138,10 +138,7 @@ import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { matchBasePath } from "ee/pages/Editor/Explorer/helpers";
-import {
-  findDatatype,
-  isTrueObject,
-} from "ee/workers/Evaluation/evaluationUtils";
+import { findDatatype } from "ee/workers/Evaluation/evaluationUtils";
 import type { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
@@ -179,6 +176,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
+import { isTrueObject } from "@evaluation/common";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

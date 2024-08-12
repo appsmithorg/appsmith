@@ -1,4 +1,4 @@
-import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
+import { isTrueObject } from "@evaluation/common";
 import { promisify } from "./utils/Promisify";
 import type { ActionEntity } from "ee/entities/DataTree/types";
 

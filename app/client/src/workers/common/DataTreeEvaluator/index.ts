@@ -34,6 +34,7 @@ import {
   EvaluationSubstitutionType,
   EvalErrorTypes,
   type EvalError as TEvalError,
+  getAllPaths,
 } from "@evaluation/common";
 import { convertPathToString } from "@evaluation/common";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
@@ -55,7 +56,6 @@ import {
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
   overrideWidgetProperties,
-  getAllPaths,
   isNewEntity,
   getStaleMetaStateIds,
   convertJSFunctionsToString,

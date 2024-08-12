@@ -1,6 +1,5 @@
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
-  getAllPaths,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isDynamicLeaf,
@@ -19,7 +18,7 @@ import { get, isEmpty, set } from "lodash";
 import { getFixedTimeDifference } from "../DataTreeEvaluator/utils";
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import { AppsmithFunctionsWithFields } from "@evaluation/common";
+import { AppsmithFunctionsWithFields, getAllPaths } from "@evaluation/common";
 import { getEntityDependencies } from "@evaluation/dependency";
 import {
   getAllSetterFunctions,

@@ -34,7 +34,11 @@ import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import type { Difference } from "microdiff";
-import { convertPathToString } from "@evaluation/common";
+import {
+  convertPathToString,
+  getAllPaths,
+  isTrueObject,
+} from "@evaluation/common";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -493,26 +497,6 @@ export const getImmediateParentsOfPropertyPaths = (
   return Array.from(parents);
 };
 
-export const getAllPaths = (
-  records: Record<string, unknown> | unknown,
-  curKey = "",
-  result: Record<string, true> = {},
-): Record<string, true> => {
-  // Add the key if it exists
-  if (curKey) result[curKey] = true;
-  if (Array.isArray(records)) {
-    for (let i = 0; i < records.length; i++) {
-      const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
-      getAllPaths(records[i], tempKey, result);
-    }
-  } else if (isTrueObject(records)) {
-    for (const key of Object.keys(records)) {
-      const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
-      getAllPaths(records[key], tempKey, result);
-    }
-  }
-  return result;
-};
 export const getAllPathsBasedOnDiffPaths = (
   records: Record<string, unknown> | unknown,
   diff: DataTreeDiff[],
@@ -636,14 +620,6 @@ export const resetValidationErrorsForEntityProperty = ({
     );
     _.set(evalProps, errorPath, existingErrorsExceptValidation);
   }
-};
-
-// For the times when you need to know if something truly an object like { a: 1, b: 2}
-// typeof, lodash.isObject and others will return false positives for things like array, null, etc
-export const isTrueObject = (
-  item: unknown,
-): item is Record<string, unknown> => {
-  return Object.prototype.toString.call(item) === "[object Object]";
 };
 
 /**

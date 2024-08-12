@@ -3,10 +3,11 @@ import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants";
 import { has, isFinite, isNil, isString, toPath } from "lodash";
-import { getStringValue, isTrueObject, sanitizeScript } from "./utils";
+import { getStringValue, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject";
 import { attachComments } from "astravel";
 import { generate } from "astring";
+import { isTrueObject } from "@evaluation/common";
 /*
  * Valuable links:
  *
