@@ -137,7 +137,7 @@ function WidgetCard(props: CardProps) {
       setDraggingNewWidget(true, {
         ...props.details,
         widgetId: generateReactKey({
-          prefix: props.details.type === "ZONE_WIDGET" ? "zone-" : "component-",
+          prefix: props.details.type === "ZONE_WIDGET" ? "zone_" : "component_",
         }),
       });
   };
