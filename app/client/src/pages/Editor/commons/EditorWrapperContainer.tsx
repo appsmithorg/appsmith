@@ -27,7 +27,7 @@ function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
   return (
     <Wrapper
       className={classNames({
-        [`relative w-full overflow-x-hidden`]: true,
+        [`relative w-full h-full overflow-x-hidden`]: true,
         "select-none": !isCombinedPreviewMode,
       })}
       isProtectedMode={isProtectedMode}

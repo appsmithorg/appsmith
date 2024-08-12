@@ -26,18 +26,18 @@ import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import EditorWrapperContainer from "../commons/EditorWrapperContainer";
 import BottomBar from "components/BottomBar";
 
-const Areas = {
+export const Areas = {
   Sidebar: "Sidebar",
   Explorer: "Explorer",
   CodeEditor: "CodeEditor",
   WidgetEditor: "WidgetEditor",
   PropertyPane: "PropertyPane",
   BottomBar: "BottomBar",
-};
+} as const;
 
 const SIDEBAR_WIDTH = "50px";
 
-function useAppIDEAnimated(): [
+export function useAppIDEAnimated(): [
   AnimatedGridUnit[],
   AnimatedGridUnit[],
   string[][],
