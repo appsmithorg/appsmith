@@ -169,7 +169,7 @@ export function* addNewZonesToSection(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newWidget: any = {
-      newWidgetId: generateReactKey({ prefix: "zone-" }),
+      newWidgetId: generateReactKey({ prefix: "zone_" }),
       parentId: sectionWidget.widgetId,
       type: anvilWidgets.ZONE_WIDGET,
     };

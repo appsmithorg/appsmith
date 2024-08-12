@@ -26,7 +26,7 @@ export function* createSectionAndAddWidget(
    * Step 1: Create Section widget.
    */
   const widgetId: string = generateReactKey({
-    prefix: "section-",
+    prefix: "section_",
   });
   const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
