@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { Classes } from "../constants/classes";
 import { typography } from "../constants/typography";
-import Spinner from "../Spinner";
+import { Spinner } from "@appsmith/ads";
 import { importSvg } from "../utils/icon-loadables";
 
 const DownArrow = importSvg(

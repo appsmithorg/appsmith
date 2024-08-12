@@ -60,9 +60,6 @@ export * from "./RectangularSwitcher";
 export { default as SearchComponent } from "./SearchComponent";
 export * from "./SearchComponent";
 
-export { default as Spinner } from "./Spinner";
-export * from "./Spinner";
-
 export { default as Statusbar } from "./Statusbar";
 export * from "./Statusbar";
 

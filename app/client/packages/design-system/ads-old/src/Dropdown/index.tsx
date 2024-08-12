@@ -12,7 +12,7 @@ import { Popover, Position } from "@blueprintjs/core";
 import { typography } from "../constants/typography";
 import styled from "styled-components";
 import SearchComponent from "../SearchComponent";
-import Spinner from "../Spinner";
+import { Spinner } from "@appsmith/ads";
 import Tooltip from "../Tooltip";
 import SegmentHeader from "../ListSegmentHeader";
 import { debounce, isArray } from "lodash";
