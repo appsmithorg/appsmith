@@ -3,9 +3,6 @@
 export { default as AppIcon } from "./AppIcon";
 export * from "./AppIcon";
 
-export { default as Breadcrumbs } from "./Breadcrumbs";
-export * from "./Breadcrumbs";
-
 export { default as Checkbox } from "./Checkbox";
 export * from "./Checkbox";
 
