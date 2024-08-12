@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { selectLibrariesForExplorer } from "ee/selectors/entitiesSelector";
 import { animated, useTransition } from "react-spring";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 
 const LibrarySidePane = () => {
   const libraries = useSelector(selectLibrariesForExplorer);

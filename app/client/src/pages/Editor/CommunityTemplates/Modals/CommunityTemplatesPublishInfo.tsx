@@ -5,7 +5,7 @@ import {
 } from "ee/constants/messages";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { Button, Icon, Text } from "design-system";
+import { Button, Icon, Text } from "@appsmith/ads";
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";

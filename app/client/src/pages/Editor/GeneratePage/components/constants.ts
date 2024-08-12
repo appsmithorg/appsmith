@@ -1,4 +1,4 @@
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import type { DatasourceTable } from "entities/Datasource";
 import { PluginPackageName } from "entities/Action";
 

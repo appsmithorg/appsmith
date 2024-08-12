@@ -24,7 +24,7 @@ import {
   FilterableColumnTypes,
 } from "widgets/TableWidgetV2/constants";
 import { generateReactKey } from "utils/generators";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const AddIcon = importRemixIcon(
   async () => import("remixicon-react/AddLineIcon"),

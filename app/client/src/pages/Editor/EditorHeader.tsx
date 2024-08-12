@@ -26,7 +26,7 @@ import {
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
 import EditorName from "./EditorName";
-import { EditInteractionKind, SavingState } from "design-system-old";
+import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
 import {
   Button,
   Tooltip,
@@ -38,7 +38,7 @@ import {
   TabsList,
   Tab,
   TabPanel,
-} from "design-system";
+} from "@appsmith/ads";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { showConnectGitModal } from "actions/gitSyncActions";

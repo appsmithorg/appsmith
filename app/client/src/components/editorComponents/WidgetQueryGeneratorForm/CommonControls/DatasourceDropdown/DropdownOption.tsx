@@ -1,4 +1,4 @@
-import { Icon, MenuItem } from "design-system";
+import { Icon, MenuItem } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 import { DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW } from "../../constants";

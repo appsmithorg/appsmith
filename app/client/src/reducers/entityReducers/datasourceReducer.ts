@@ -12,7 +12,7 @@ import type {
 } from "entities/Datasource";
 import { ToastMessageType } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import produce from "immer";
 import { assign } from "lodash";
 

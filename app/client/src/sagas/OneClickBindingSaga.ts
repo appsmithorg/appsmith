@@ -48,7 +48,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { fetchActions, runAction } from "actions/pluginActionActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import WidgetFactory from "WidgetProvider/factory";
 
 export function* createActionsForOneClickBindingSaga(

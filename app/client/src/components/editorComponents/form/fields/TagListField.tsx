@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import React from "react";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field } from "redux-form";
-import { TagInput } from "design-system-old";
+import { TagInput } from "@appsmith/ads-old";
 import type { Intent } from "constants/DefaultTheme";
 
 const renderComponent = (

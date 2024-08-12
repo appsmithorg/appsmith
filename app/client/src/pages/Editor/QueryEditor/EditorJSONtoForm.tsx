@@ -6,7 +6,7 @@ import type { Datasource } from "entities/Datasource";
 import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
+import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
@@ -23,7 +23,6 @@ const EditorPane = () => {
       // @ts-expect-error Fix this the next time the file is edited
       gap="spacing-2"
       height="100%"
-      overflow="hidden"
       width={"100%"}
     >
       <EditorPaneExplorer />

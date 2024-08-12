@@ -209,14 +209,14 @@ jobs:
       # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
-      - name: Restore Yarn cache
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v4
-        with:
-          path: |
-            app/client/.yarn/cache
-            app/client/node_modules/.cache/webpack/
-          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+      # - name: Restore Yarn cache
+      #   if: steps.run_result.outputs.run_result != 'success'
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       app/client/.yarn/cache
+      #       app/client/node_modules/.cache/webpack/
+      #     key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Install all the dependencies
       - name: Install dependencies

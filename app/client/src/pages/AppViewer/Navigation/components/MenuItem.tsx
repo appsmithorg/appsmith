@@ -10,7 +10,7 @@ import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { trimQueryString } from "utils/helpers";
-import { Icon } from "design-system-old";
+import { Icon } from "@appsmith/ads-old";
 import MenuText from "./MenuText";
 import classNames from "classnames";
 import { StyledMenuItem } from "./MenuItem.styled";

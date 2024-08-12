@@ -8,7 +8,7 @@ import type {
   UseFormResetField,
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { Button, Icon, Text, Tooltip } from "design-system";
+import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
 
 import type { Inputs } from "./BrandingPage";
 import {

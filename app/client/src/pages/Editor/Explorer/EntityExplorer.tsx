@@ -23,7 +23,7 @@ import {
 } from "selectors/editorSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

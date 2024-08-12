@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import React from "react";
-import { Flex } from "design-system";
-import { Text, TextType } from "design-system-old";
+import { Flex } from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
 import { formatBytes } from "../../utils/helpers";
 import { isEmpty } from "lodash";
 import BindDataButton from "pages/Editor/QueryEditor/BindDataButton";

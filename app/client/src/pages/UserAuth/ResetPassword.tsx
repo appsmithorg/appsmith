@@ -9,7 +9,7 @@ import { RESET_PASSWORD_FORM_NAME } from "ee/constants/forms";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, Callout, Icon, Link } from "design-system";
+import { Button, Callout, Icon, Link } from "@appsmith/ads";
 import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
@@ -32,7 +32,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import Container from "./Container";
-import type { CalloutProps } from "design-system";
+import type { CalloutProps } from "@appsmith/ads";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};

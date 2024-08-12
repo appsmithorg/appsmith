@@ -78,13 +78,13 @@ import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import {
   USER_PROFILE_PICTURE_UPLOAD_FAILED,
   UPDATE_USER_DETAILS_FAILED,
 } from "ee/constants/messages";
-import { createMessage } from "design-system-old";
+import { createMessage } from "@appsmith/ads-old";
 import type {
   ProductAlert,
   ProductAlertConfig,

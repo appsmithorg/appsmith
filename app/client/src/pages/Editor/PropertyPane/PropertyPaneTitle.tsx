@@ -7,9 +7,9 @@ import {
   EditableText,
   EditInteractionKind,
   SavingState,
-} from "design-system-old";
-import type { TooltipPlacement } from "design-system";
-import { Tooltip, Button } from "design-system";
+} from "@appsmith/ads-old";
+import type { TooltipPlacement } from "@appsmith/ads";
+import { Tooltip, Button } from "@appsmith/ads";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import type { AppState } from "ee/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";

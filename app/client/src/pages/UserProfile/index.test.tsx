@@ -83,11 +83,6 @@ const defaultStoreState = {
   },
 };
 
-jest.mock("design-system-old/build/constants/messages", () => ({
-  ...jest.requireActual("design-system-old/build/constants/messages"),
-  createMessage: () => "",
-}));
-
 jest.mock("actions/gitSyncActions", () => ({
   fetchGlobalGitConfigInit: jest.fn(),
 }));

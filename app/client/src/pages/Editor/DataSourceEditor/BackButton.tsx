@@ -5,7 +5,7 @@ import { builderURL, generateTemplateFormURL } from "ee/RouteBuilder";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
 import { useHistory } from "react-router-dom";

@@ -22,7 +22,7 @@ import {
 } from "ee/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   MIGRATION_STATUS,

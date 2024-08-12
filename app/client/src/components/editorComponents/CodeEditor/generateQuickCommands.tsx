@@ -9,7 +9,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 import { APPSMITH_AI } from "ee/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

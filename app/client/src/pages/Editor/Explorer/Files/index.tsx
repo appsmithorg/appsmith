@@ -23,7 +23,7 @@ import {
 } from "ee/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";

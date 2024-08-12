@@ -33,7 +33,7 @@ import {
 } from "../utils";
 import store from "store";
 import { getPageList } from "ee/selectors/entitiesSelector";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
 

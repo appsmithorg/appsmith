@@ -15,7 +15,7 @@ import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import store from "store";
 
 const { cloudHosting } = getAppsmithConfigs();

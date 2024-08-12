@@ -12,13 +12,13 @@ import {
   CodeEditorBorder,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes } from "design-system-old";
+import { Classes } from "@appsmith/ads-old";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import RequestDropdownField from "./RequestDropdownField";
 
 interface CustomStack {

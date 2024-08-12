@@ -1,6 +1,6 @@
 import React, { useCallback, useContext } from "react";
 import styled from "styled-components";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 
 import history from "utils/history";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";

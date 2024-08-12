@@ -9,7 +9,7 @@ import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import {
   createDatasourceFromForm,
   toggleSaveActionFlag,

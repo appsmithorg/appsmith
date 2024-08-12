@@ -45,7 +45,7 @@ import {
 } from "../constants";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { getVideoConstraints } from "../../utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 

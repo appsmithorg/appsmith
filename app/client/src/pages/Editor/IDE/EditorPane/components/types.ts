@@ -1,4 +1,4 @@
-import type { ListItemProps } from "design-system";
+import type { ListItemProps } from "@appsmith/ads";
 
 export interface GroupedListProps {
   groupTitle?: string;

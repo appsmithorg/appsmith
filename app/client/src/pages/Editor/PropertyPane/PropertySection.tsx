@@ -10,7 +10,7 @@ import React, {
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon, Tag } from "design-system";
+import { Icon, Tag } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
