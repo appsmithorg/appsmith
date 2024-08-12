@@ -146,10 +146,10 @@ jobs:
           path: cicontainer.tar.gz
           key: docker-image-${{github.run_id}}
 
-      - name: Load Docker image from tar file
-        run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+      # - name: Load Docker image from tar file
+      #   run: |
+      #     gunzip cicontainer.tar.gz
+      #     docker load -i cicontainer.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
