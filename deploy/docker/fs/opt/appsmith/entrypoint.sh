@@ -469,12 +469,12 @@ init_loading_pages(){
   "$_APPSMITH_CADDY" start --config "$TMP/Caddyfile"
 }
 
-function create_heap_dump_path(
+function create_heap_dump_path() {
   if [[ "$(echo $APPSMITH_JAVA_ARGS | grep HeapDumpPath)" ]];then
     heap_dump_path="$(echo $APPSMITH_JAVA_ARGS | awk -FHeapDumpPath= '{print $2}' | cut -f 1 -d " ")"
     mkdir  -p "$heap_dump_path"
   fi
-)
+}
 
 function setup_auto_heal(){
    if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
