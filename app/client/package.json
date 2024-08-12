@@ -106,6 +106,7 @@
     "@welldone-software/why-did-you-render": "^4.2.5",
     "algoliasearch": "^4.2.0",
     "appsmith-icons": "workspace:^",
+    "appsmith-utils": "workspace:^",
     "assert-never": "^1.2.1",
     "astring": "^1.7.5",
     "async-mutex": "^0.5.0",
