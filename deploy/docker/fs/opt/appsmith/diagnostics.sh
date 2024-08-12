@@ -4,7 +4,7 @@ modified_within_last_x_minutes=180
 tail_lines=10000
 hostname=$(hostname)
 timestamp=$(date +%F_%H.%M.%S-%Z)
-tmpdir="$(mktemp -d)/$hostname/$timestamp"
+tmpdir=tmpdir="$(mktemp -d)/"$hostname"/"$timestamp""
 java_pid="$(pgrep -f -- "-jar\sserver.jar")"
 
 mkdir -p $tmpdir/{java,config,proc}
