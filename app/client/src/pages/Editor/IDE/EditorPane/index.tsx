@@ -25,7 +25,6 @@ const EditorPane = () => {
       // @ts-expect-error Fix this the next time the file is edited
       gap="spacing-2"
       height="100%"
-      overflow="hidden"
       width={width}
     >
       <EditorPaneExplorer />
