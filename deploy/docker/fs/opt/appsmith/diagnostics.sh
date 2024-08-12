@@ -99,12 +99,9 @@ function memory_util ()
 {
   BUFFCACHE_MEM=$(free -m | awk '/Mem/ {print $6}')
   FREE_MEM=$(free -m | awk '/Mem/ {print $4}')
-  YIELD_MEM=$(( $BUFFCACHE_MEM + $FREE_MEM ))
   
   AVAILABLE_MEM=$(free -m | awk '/Mem/ {print $7}')
   TOTAL_MEM=$(free -m | awk '/Mem/ {print $2}')
-
-  TOTAL_USED_MEM=$(( $TOTAL_MEM - $AVAILABLE_MEM ))
 
   echo -e "........................................\nMEMORY UTILIZATION\n"
   echo -e "Total Memory\t\t:$TOTAL_MEM MB"
@@ -136,7 +133,7 @@ cpu_util > "$tmpdir/cpu.txt"
 function disk_util ()
 {
   DISK_USED=$(df -h | grep -w '/' | awk '{print $5}')
-  DISK_USED=$(printf %s "$DISK_USED" | tr -d [="%"=])
+  DISK_USED=$(printf %s "$DISK_USED" | tr -d '[=%=]')
   DISK_AVAIL=$(( 100 - $DISK_USED ))
 
   echo -e "........................................\nDISK UTILIZATION\n"
