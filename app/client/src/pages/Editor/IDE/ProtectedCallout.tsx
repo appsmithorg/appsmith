@@ -1,5 +1,5 @@
 import React from "react";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {

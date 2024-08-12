@@ -101,13 +101,13 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type { SetDefaultPageActionPayload } from "actions/pageActions";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import {
   defaultNavigationSetting,
   keysOfNavigationSetting,

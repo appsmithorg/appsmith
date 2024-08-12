@@ -18,7 +18,7 @@ import {
   Avatar,
   Callout,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {

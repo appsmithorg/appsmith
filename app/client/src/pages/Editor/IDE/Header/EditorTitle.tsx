@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Popover, PopoverTrigger, PopoverContent } from "design-system";
+import { Popover, PopoverTrigger, PopoverContent } from "@appsmith/ads";
 
 import { createMessage, HEADER_TITLES } from "ee/constants/messages";
 import { PagesSection } from "../EditorPane/PagesSection";

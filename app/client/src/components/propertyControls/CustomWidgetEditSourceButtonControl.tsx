@@ -2,7 +2,7 @@ import React from "react";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 import { CUSTOM_WIDGET_BUILDER_EVENTS } from "pages/Editor/CustomWidgetBuilder/constants";
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import CustomWidgetBuilderService from "utils/CustomWidgetBuilderService";

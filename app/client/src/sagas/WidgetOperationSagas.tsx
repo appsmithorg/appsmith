@@ -89,7 +89,7 @@ import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getAllPathsFromPropertyConfig,

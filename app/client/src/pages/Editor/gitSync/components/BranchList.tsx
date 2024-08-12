@@ -37,7 +37,7 @@ import {
   Button,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { get } from "lodash";
 import {
   isLocalBranch,

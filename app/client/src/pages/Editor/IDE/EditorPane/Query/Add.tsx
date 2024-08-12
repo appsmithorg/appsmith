@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flex, SearchInput } from "design-system";
+import { Flex, SearchInput } from "@appsmith/ads";
 
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
@@ -14,7 +14,7 @@ import type { GroupedListProps } from "../components/types";
 import { EmptySearchResult } from "../components/EmptySearchResult";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import type { FlexProps } from "design-system";
+import type { FlexProps } from "@appsmith/ads";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const AddQuery = () => {

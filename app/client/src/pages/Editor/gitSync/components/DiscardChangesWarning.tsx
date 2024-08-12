@@ -4,7 +4,7 @@ import {
   DISCARD_CHANGES_WARNING,
   DISCARD_MESSAGE,
 } from "ee/constants/messages";
-import { Callout, Text } from "design-system";
+import { Callout, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
 const Container = styled.div`

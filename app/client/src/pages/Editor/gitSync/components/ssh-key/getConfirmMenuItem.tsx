@@ -9,7 +9,7 @@ import {
   REGENERATE_KEY_CONFIRM_MESSAGE,
   YES,
 } from "ee/constants/messages";
-import { Button, MenuItem, Text } from "design-system";
+import { Button, MenuItem, Text } from "@appsmith/ads";
 
 /**
  * getConfirmMenuItem

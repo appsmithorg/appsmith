@@ -5,7 +5,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface FormDialogComponentProps {
   isOpen?: boolean;

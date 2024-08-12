@@ -15,7 +15,7 @@ import { bindActionCreators } from "redux";
 import { change } from "redux-form";
 import { get } from "lodash";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "ee/constants/messages";
-import { ToggleButton, Tooltip } from "design-system";
+import { ToggleButton, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 
 interface Props {

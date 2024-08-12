@@ -3,7 +3,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import ImportModal from "pages/common/ImportModal";
 import React from "react";
 import { useSelector } from "react-redux";

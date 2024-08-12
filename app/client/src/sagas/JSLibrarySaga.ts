@@ -30,7 +30,7 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "ee/selectors/entitiesSelector";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 

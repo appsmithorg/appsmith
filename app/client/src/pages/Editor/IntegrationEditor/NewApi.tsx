@@ -15,7 +15,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";

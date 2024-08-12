@@ -19,7 +19,7 @@ import type {
 import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import {
   defaultNavigationSetting,

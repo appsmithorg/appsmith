@@ -70,7 +70,7 @@ import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
 import { DB_NOT_SUPPORTED } from "ee/utils/Environments";

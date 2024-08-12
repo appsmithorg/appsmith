@@ -67,7 +67,7 @@ import {
   Link,
   ModalBody,
   ModalFooter,
-} from "design-system";
+} from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";

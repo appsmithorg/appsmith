@@ -15,7 +15,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
