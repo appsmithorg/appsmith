@@ -15,11 +15,13 @@ describe(
       });
     });
     it("1. Widget name component shows and positioned correctly", () => {
+      const horizontalPixelOnCanvasMouseMovement = 5;
+      let verticalPixelOnCanvasMouseMovement = 20;
       // Dnd Button widget into the existing zone
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSBUTTON,
-        5,
-        20,
+        horizontalPixelOnCanvasMouseMovement,
+        verticalPixelOnCanvasMouseMovement,
         {
           skipWidgetSearch: true,
         },
@@ -47,11 +49,12 @@ describe(
           },
         );
       });
+      verticalPixelOnCanvasMouseMovement = 200;
       // Dnd Button widget into the existing zone
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSBUTTON,
-        5,
-        200,
+        horizontalPixelOnCanvasMouseMovement,
+        verticalPixelOnCanvasMouseMovement,
         {
           skipWidgetSearch: true,
         },
@@ -86,12 +89,13 @@ describe(
       agHelper.PressEscape();
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
-
+      const horizontalPixelOnCanvasMouseMovement = 5;
+      const verticalPixelOnCanvasMouseMovement = 20;
       // DnD Switch widget
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSSWITCH,
-        5,
-        20,
+        horizontalPixelOnCanvasMouseMovement,
+        verticalPixelOnCanvasMouseMovement,
         {
           skipWidgetSearch: true,
         },
@@ -100,8 +104,8 @@ describe(
       // DnD Switch widget into the existing zone
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSSWITCH,
-        5,
-        20,
+        horizontalPixelOnCanvasMouseMovement,
+        verticalPixelOnCanvasMouseMovement,
         {
           skipWidgetSearch: true,
           dropTargetDetails: {
@@ -112,8 +116,8 @@ describe(
       // Dnd Button widget into the existing zone
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSBUTTON,
-        5,
-        20,
+        horizontalPixelOnCanvasMouseMovement,
+        verticalPixelOnCanvasMouseMovement,
         {
           skipWidgetSearch: true,
           dropTargetDetails: {

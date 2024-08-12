@@ -98,6 +98,9 @@ export class AnvilDnDHelper {
     this.startDraggingWidgetFromPane(widgetType);
     this.performDnDInAnvil(x, y, options);
   }
+
+  /* This function will drag and drop a new widget of the specified type to the specified x and y pixel coordinates.
+    The x and y coordinates are relative to the main canvas's top left corner on the viewport */
   public DragDropNewAnvilWidgetNVerify(
     widgetType: string,
     x = 300,
