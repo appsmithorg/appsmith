@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import Icon from "../Icon";
+import { Icon } from "@appsmith/ads";
 
 export interface BreadcrumbsProps {
   items: {

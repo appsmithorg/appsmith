@@ -6,9 +6,6 @@ export * from "./AppIcon";
 export { default as Breadcrumbs } from "./Breadcrumbs";
 export * from "./Breadcrumbs";
 
-export { default as Button } from "./Button";
-export * from "./Button";
-
 export { default as Checkbox } from "./Checkbox";
 export * from "./Checkbox";
 
@@ -47,9 +44,6 @@ export { default as GifPlayer } from "./GifPlayer";
 export * from "./GifPlayer";
 
 export * from "./HighlightText";
-
-export { default as Icon } from "./Icon";
-export * from "./Icon";
 
 export { default as IconSelector } from "./IconSelector";
 export * from "./IconSelector";

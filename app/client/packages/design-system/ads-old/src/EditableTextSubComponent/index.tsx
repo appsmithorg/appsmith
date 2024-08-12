@@ -5,7 +5,8 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import type { noop } from "lodash";
-import { Icon, IconSize, Text, TextType } from "../index";
+import { Icon } from "@appsmith/ads";
+import { Text, TextType } from "../index";
 import type { CommonComponentProps } from "../types/common";
 
 export enum EditInteractionKind {
@@ -260,14 +261,14 @@ export const EditableTextSubComponent = React.forwardRef(
 
           {savingState === SavingState.STARTED ? (
             <IconWrapper className="icon-wrapper">
-              <Icon name={"loader"} size={IconSize.XL} />
+              <Icon name={"loader"} size="lg" />
             </IconWrapper>
           ) : value && !props.hideEditIcon ? (
             <IconWrapper className="icon-wrapper">
               <Icon
-                fillColor="var(--ads-v2-color-fg)"
-                name={iconName}
-                size={IconSize.XL}
+                color="var(--ads-v2-color-fg)"
+                name={iconName as string}
+                size="lg"
               />
             </IconWrapper>
           ) : null}

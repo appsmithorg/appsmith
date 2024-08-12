@@ -1,7 +1,6 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import type { IconSize } from "../Icon";
-import { sizeHandler } from "../Icon";
+import type { IconSizes } from "@appsmith/ads";
 import { Classes } from "../constants/classes";
 
 const rotate = keyframes`
@@ -27,8 +26,8 @@ const dash = keyframes`
 
 const SvgContainer = styled.svg<SpinnerProp>`
   animation: ${rotate} 2s linear infinite;
-  width: ${(props) => sizeHandler(props.size)}px;
-  height: ${(props) => sizeHandler(props.size)}px;
+  width: ${(props) => props.size}px;
+  height: ${(props) => props.size}px;
 `;
 
 const SvgCircle = styled.circle`
@@ -39,7 +38,7 @@ const SvgCircle = styled.circle`
 `;
 
 export interface SpinnerProp {
-  size?: IconSize;
+  size?: IconSizes;
 }
 
 Spinner.defaultProp = {

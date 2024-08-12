@@ -17,8 +17,8 @@ import {
   createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
 } from "../constants/messages";
-import type { IconName } from "../Icon";
-import Icon, { IconCollection, IconSize } from "../Icon";
+import type { IconNames } from "@appsmith/ads";
+import { Icon, IconCollection } from "@appsmith/ads";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
 import { replayHighlightClass } from "../constants/classes";
@@ -67,7 +67,7 @@ export type TextInputProps = CommonComponentProps & {
   onChange?: (value: string) => void;
   readOnly?: boolean;
   dataType?: string;
-  leftIcon?: IconName;
+  leftIcon?: IconNames;
   prefix?: string;
   helperText?: string;
   rightSideComponent?: React.ReactNode;
@@ -413,11 +413,7 @@ const TextInput = forwardRef(
       >
         {props.leftIcon && (
           <IconWrapper className="left-icon">
-            <Icon
-              fillColor={iconColor}
-              name={props.leftIcon}
-              size={IconSize.MEDIUM}
-            />
+            <Icon color={iconColor} name={props.leftIcon} size="md" />
           </IconWrapper>
         )}
 

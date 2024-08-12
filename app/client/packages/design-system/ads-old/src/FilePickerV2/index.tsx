@@ -3,9 +3,9 @@ import styled from "styled-components";
 import type { DropTargetMonitor } from "react-dnd";
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
-import Button, { Category, IconPositions, Size } from "../Button";
-import type { IconName } from "../Icon";
-import Icon, { IconSize } from "../Icon";
+import { Button } from "@appsmith/ads";
+import type { IconNames } from "@appsmith/ads";
+import { Icon } from "@appsmith/ads";
 import Text, { TextType } from "../Text";
 import { toast } from "@appsmith/ads";
 import TooltipComponent from "../Tooltip";
@@ -51,7 +51,7 @@ export interface FilePickerProps {
   logoUploadError?: string;
   fileType: FileType;
   delayedUpload?: boolean;
-  uploadIcon?: IconName;
+  uploadIcon?: IconNames;
   title?: string;
   description?: string;
   containerClickable?: boolean; // when container is clicked, it'll work as button
@@ -407,7 +407,7 @@ function FilePickerComponent(props: FilePickerProps) {
     <div className="button-wrapper" ref={fileContainerRef}>
       <UploadIconWrapper>
         <Icon
-          fillColor={
+          color={
             props.iconFillColor ||
             "var(--ads-file-picker-v2-upload-icon-fill-color)"
           }
@@ -434,12 +434,13 @@ function FilePickerComponent(props: FilePickerProps) {
         />
         {!props.containerClickable && (
           <Button
-            category={Category.secondary}
             className="browse-button"
+            kind="secondary"
             onClick={(el: React.MouseEvent<HTMLElement>) => ButtonClick(el)}
-            size={Size.medium}
-            text="Browse"
-          />
+            size="md"
+          >
+            Browse
+          </Button>
         )}
       </form>
     </div>
@@ -466,13 +467,13 @@ function FilePickerComponent(props: FilePickerProps) {
       <div className="remove-button">
         <div className="overlay" />
         <Button
-          category={Category.secondary}
-          icon="delete"
-          iconPosition={IconPositions.left}
+          kind="secondary"
           onClick={() => removeFile()}
-          size={Size.medium}
-          text="Remove"
-        />
+          size="md"
+          startIcon="delete"
+        >
+          Remove
+        </Button>
       </div>
     </>
   );
@@ -493,7 +494,7 @@ function FilePickerComponent(props: FilePickerProps) {
           </Text>
           <TooltipComponent content={REMOVE_FILE_TOOL_TIP()} position="top">
             <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
-              <Icon name="close" size={IconSize.XL} />
+              <Icon name="close" size="lg" />
             </IconWrapper>
           </TooltipComponent>
         </div>

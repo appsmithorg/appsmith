@@ -12,7 +12,6 @@ import {
 } from "ee/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import type { TabProp } from "@appsmith/ads-old";
-import { IconSize } from "@appsmith/ads-old";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
@@ -70,9 +69,6 @@ const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
   padding: 0 var(--ads-v2-spaces-7);
-  /* .react-tabs__tab-list {
-    margin: 2px;
-  } */
 `;
 
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
@@ -275,15 +271,15 @@ class IntegrationsHomeScreen extends React.Component<
         panelComponent: <div />,
       },
       ...(canCreateDatasource
-        ? [
+        ? ([
             {
               key: "CREATE_NEW",
               title: "Create new",
               panelComponent: <div />,
               icon: "plus",
-              iconSize: IconSize.XS,
+              iconSize: "sm",
             },
-          ]
+          ] as TabProp[])
         : []),
     ].filter(Boolean);
 

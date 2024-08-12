@@ -3,8 +3,8 @@ import React, { useCallback, useState, useEffect } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
-import type { IconName } from "../Icon";
-import Icon, { IconSize } from "../Icon";
+import type { IconNames, IconSizes } from "@appsmith/ads";
+import { Icon } from "@appsmith/ads";
 import { useResizeObserver } from "../hooks";
 import { Classes } from "../constants/classes";
 import type { CommonComponentProps } from "../types/common";
@@ -17,8 +17,8 @@ export interface TabProp {
   title: string;
   count?: number;
   panelComponent?: JSX.Element;
-  icon?: IconName;
-  iconSize?: IconSize;
+  icon?: IconNames;
+  iconSize?: IconSizes;
 }
 
 const TabsWrapper = styled.div<{
@@ -272,7 +272,7 @@ function DefaultTabItem(props: TabItemProps) {
       {tab.icon ? (
         <Icon
           name={tab.icon}
-          size={tab.iconSize != null ? tab.iconSize : IconSize.XXXL}
+          size={tab.iconSize != null ? tab.iconSize : "lg"}
         />
       ) : null}
       <TabTitle className="tab-title" responseViewer={responseViewer}>
@@ -387,7 +387,7 @@ export function TabComponent(
           <Icon
             name={isExpanded ? "expand-more" : "expand-less"}
             onClick={toggleCollapse}
-            size={IconSize.XXXXL}
+            size="lg"
           />
         </CollapseIconWrapper>
       )}

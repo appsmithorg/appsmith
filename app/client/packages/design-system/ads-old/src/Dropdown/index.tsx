@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import type { IconName } from "../Icon";
-import Icon, { IconSize } from "../Icon";
+import type { IconSizes, IconNames } from "@appsmith/ads";
+import { Icon } from "@appsmith/ads";
 import type { CommonComponentProps } from "../types/common";
 import { SubTextPosition, DSEventTypes, emitDSEvent } from "../types/common";
 import { Classes, replayHighlightClass } from "../constants/classes";
@@ -33,12 +33,12 @@ export interface DropdownOption {
   label?: string;
   value?: string;
   id?: string;
-  icon?: IconName;
+  icon?: IconNames;
   leftElement?: string;
   searchText?: string;
   subText?: string;
   subTextPosition?: SubTextPosition;
-  iconSize?: IconSize;
+  iconSize?: IconSizes;
   iconColor?: string;
   onSelect?: DropdownOnSelect;
   data?: any;
@@ -112,7 +112,7 @@ export type DropdownProps = CommonComponentProps &
     hideSubText?: boolean;
     removeSelectedOption?: DropdownOnSelect;
     boundary?: PopperBoundary;
-    defaultIcon?: IconName;
+    defaultIcon?: IconNames;
     allowDeselection?: boolean; //prevents de-selection of the selected option
     truncateOption?: boolean; // enabled wrapping and adding tooltip on option item of dropdown menu
     portalClassName?: string;
@@ -577,8 +577,8 @@ const SelectedIcon = styled(Icon)`
   svg {
     path {
       fill: ${(props) =>
-        props.fillColor
-          ? props.fillColor
+        props.color
+          ? props.color
           : "var(--ads-dropdown-default-icon-selected-fill-color)"};
     }
   }
@@ -587,8 +587,8 @@ const SelectedIcon = styled(Icon)`
 const DropdownIcon = styled(Icon)`
   svg {
     fill: ${(props) =>
-      props.fillColor
-        ? props.fillColor
+      props.color
+        ? props.color
         : "var(--ads-dropdown-default-icon-fill-color)"};
   }
 `;
@@ -719,7 +719,7 @@ function DefaultDropDownValueNode({
                 <Text type={TextType.P2}>{s.label}</Text>
                 <StyledIcon
                   className={`t--remove-option-${s.label}`}
-                  fillColor="var(--ads-old-color-gray-7)"
+                  color="var(--ads-old-color-gray-7)"
                   name="close-x"
                   onClick={(event: any) => {
                     event.stopPropagation();
@@ -727,7 +727,7 @@ function DefaultDropDownValueNode({
                       removeSelectedOptionClickHandler(s as DropdownOption);
                     }
                   }}
-                  size={IconSize.XXL}
+                  size="lg"
                 />
               </Chips>
             );
@@ -773,18 +773,13 @@ function DefaultDropDownValueNode({
           <>
             {selected?.icon ? (
               <SelectedIcon
-                fillColor={
-                  hasError
-                    ? "var(--ads-old-color-pomegranate)"
-                    : selected?.iconColor
-                }
-                hoverFillColor={
+                color={
                   hasError
                     ? "var(--ads-old-color-pomegranate)"
                     : selected?.iconColor
                 }
                 name={selected.icon}
-                size={selected.iconSize ?? IconSize.XL}
+                size={selected.iconSize ?? "lg"}
               />
             ) : null}
             {selected?.leftElement && (
@@ -947,10 +942,9 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                 )}
                 {option.icon ? (
                   <SelectedIcon
-                    fillColor={option?.iconColor}
-                    hoverFillColor={option?.iconColor}
+                    color={option?.iconColor}
                     name={option.icon}
-                    size={option.iconSize ?? IconSize.XL}
+                    size={option.iconSize ?? "lg"}
                   />
                 ) : null}
                 {props.isMultiSelect ? (
@@ -1314,14 +1308,13 @@ export default function Dropdown(props: DropdownProps) {
           showLabelOnly={props.showLabelOnly}
         />
         {isLoading ? (
-          <Spinner size={IconSize.LARGE} />
+          <Spinner size="lg" />
         ) : (
           showDropIcon && (
             <DropdownIcon
-              fillColor={downIconColor}
-              hoverFillColor={downIconColor}
+              color={downIconColor}
               name={props.defaultIcon || "expand-more"}
-              size={IconSize.XXL}
+              size="lg"
             />
           )
         )}
