@@ -4,7 +4,7 @@ import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
 import type { JSActionConfig } from "entities/JSCollection";
 import type { Datasource } from "entities/Datasource";
-import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import isEmpty from "lodash/isEmpty";
 import type { Canvas } from "./ReplayCanvas";
 
@@ -34,6 +34,8 @@ export default class ReplayEditor extends ReplayEntity<Replayable> {
 
   public processDiff(
     diff: Diff<Replayable, Replayable>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     replay: any,
     isUndo: boolean,
   ): void {

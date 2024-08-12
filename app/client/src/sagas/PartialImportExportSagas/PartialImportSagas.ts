@@ -1,17 +1,17 @@
 import {
   importPartialApplicationSuccess,
   initDatasourceConnectionDuringImportRequest,
-} from "@appsmith/actions/applicationActions";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
-import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/actions/applicationActions";
+import ApplicationApi from "ee/api/ApplicationApi";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import { areEnvironmentsFetched } from "ee/selectors/environmentSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { pasteWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { call, fork, put, select } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
@@ -39,26 +39,18 @@ async function readJSONFile(file: File) {
 
 function* partialImportWidgetsSaga(file: File) {
   const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-  try {
-    // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
-    const userUploadedJSON: { widgets: string } = yield call(
-      readJSONFile,
-      file,
+  // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
+  const userUploadedJSON: { widgets: string } = yield call(readJSONFile, file);
+  if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
+    yield saveCopiedWidgets(userUploadedJSON.widgets);
+    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+    yield put(
+      pasteWidget({
+        groupWidgets: false,
+        mouseLocation: { x: 0, y: 0 },
+        existingWidgets: existingCopiedWidgets,
+      }),
     );
-    if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
-      yield saveCopiedWidgets(userUploadedJSON.widgets);
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(
-        pasteWidget({
-          groupWidgets: false,
-          mouseLocation: { x: 0, y: 0 },
-        }),
-      );
-    }
-  } finally {
-    if (existingCopiedWidgets) {
-      yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
-    }
   }
 }
 

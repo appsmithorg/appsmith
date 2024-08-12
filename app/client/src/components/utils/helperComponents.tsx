@@ -2,7 +2,7 @@ import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
-import { Link, Text } from "design-system";
+import { Link, Text } from "@appsmith/ads";
 
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {

@@ -1,7 +1,7 @@
 import React from "react";
 import type { ReactNode } from "react";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 export interface SignPostingBannerProps {
   iconName: string;

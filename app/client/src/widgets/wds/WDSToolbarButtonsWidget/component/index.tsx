@@ -1,5 +1,5 @@
 import type { Key } from "react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ToolbarButtons } from "@design-system/widgets";
 import type {
   ToolbarButtonsComponentProps,
@@ -14,23 +14,33 @@ export const ToolbarButtonsComponent = (
     Array<ToolbarButtonsItemComponentProps["id"]>
   >([]);
 
-  const { alignment, buttonsList, color, onButtonClick, variant } = props;
+  const {
+    alignment,
+    buttonsList,
+    color,
+    excludeFromTabOrder,
+    onButtonClick,
+    variant,
+  } = props;
 
-  const sortedButtons = sortBy(
-    Object.keys(buttonsList)
+  const { disabledKeys, sortedButtons } = useMemo(() => {
+    const sortedButtons = sortBy(
+      Object.keys(buttonsList)
+        .map((key) => buttonsList[key])
+        .filter((button) => {
+          return button.isVisible === true;
+        }),
+      ["index"],
+    );
+
+    const disabledKeys = Object.keys(buttonsList)
       .map((key) => buttonsList[key])
       .filter((button) => {
-        return button.isVisible === true;
-      }),
-    ["index"],
-  );
-
-  const disabledKeys = Object.keys(buttonsList)
-    .map((key) => buttonsList[key])
-    .filter((button) => {
-      return button.isDisabled;
-    })
-    .map((button) => button.id);
+        return button.isDisabled;
+      })
+      .map((button) => button.id);
+    return { sortedButtons, disabledKeys };
+  }, [buttonsList]);
 
   const onActionComplete = (button: ToolbarButtonsItemComponentProps) => {
     const newLoadingButtonIds = [...loadingButtonIds];
@@ -58,6 +68,7 @@ export const ToolbarButtonsComponent = (
       alignment={alignment}
       color={color}
       disabledKeys={disabledKeys}
+      excludeFromTabOrder={excludeFromTabOrder}
       items={sortedButtons}
       onAction={onAction}
       variant={variant}

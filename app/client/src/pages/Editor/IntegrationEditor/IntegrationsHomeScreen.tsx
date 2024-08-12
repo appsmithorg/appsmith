@@ -3,36 +3,36 @@ import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
-import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
+import type { AppState } from "ee/reducers";
+import { API_HOME_SCREEN_FORM } from "ee/constants/forms";
 import ActiveDataSources from "./ActiveDataSources";
 import {
   getDatasources,
   getMockDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
-import type { TabProp } from "design-system-old";
-import { IconSize } from "design-system-old";
+import type { TabProp } from "@appsmith/ads-old";
+import { IconSize } from "@appsmith/ads-old";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
-import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import CreateNewDatasourceTab from "./CreateNewDatasourceTab";
 
 const HeaderFlex = styled.div`
@@ -86,7 +86,7 @@ const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
 `;
 
 interface IntegrationsHomeScreenProps {
-  pageId: string;
+  basePageId: string;
   selectedTab: string;
   location: {
     search: string;
@@ -170,7 +170,7 @@ class IntegrationsHomeScreen extends React.Component<
   };
 
   componentDidMount() {
-    const { dataSources, history, pageId } = this.props;
+    const { basePageId, dataSources, history } = this.props;
 
     const queryParams = getQueryParams();
     const redirectMode = queryParams.mode;
@@ -181,7 +181,7 @@ class IntegrationsHomeScreen extends React.Component<
         delete queryParams.from;
         history.replace(
           integrationEditorURL({
-            pageId,
+            basePageId,
             selectedTab: INTEGRATION_TABS.NEW,
             params: queryParams,
           }),
@@ -194,7 +194,7 @@ class IntegrationsHomeScreen extends React.Component<
       // User will be taken to active tab if there are datasources
       history.replace(
         integrationEditorURL({
-          pageId,
+          basePageId,
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),
       );
@@ -202,7 +202,7 @@ class IntegrationsHomeScreen extends React.Component<
       // If there are no datasources -> new user
       history.replace(
         integrationEditorURL({
-          pageId,
+          basePageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
@@ -216,11 +216,11 @@ class IntegrationsHomeScreen extends React.Component<
 
   componentDidUpdate(prevProps: Props) {
     this.syncActivePrimaryMenu();
-    const { dataSources, history, pageId } = this.props;
+    const { basePageId, dataSources, history } = this.props;
     if (dataSources.length === 0 && prevProps.dataSources.length > 0) {
       history.replace(
         integrationEditorURL({
-          pageId,
+          basePageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
@@ -231,13 +231,13 @@ class IntegrationsHomeScreen extends React.Component<
   }
 
   onSelectPrimaryMenu = (activePrimaryMenuId: string) => {
-    const { dataSources, history, pageId } = this.props;
+    const { basePageId, dataSources, history } = this.props;
     if (activePrimaryMenuId === this.state.activePrimaryMenuId) {
       return;
     }
     history.push(
       integrationEditorURL({
-        pageId,
+        basePageId,
         selectedTab:
           activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
             ? INTEGRATION_TABS.ACTIVE
@@ -258,10 +258,10 @@ class IntegrationsHomeScreen extends React.Component<
 
   render() {
     const {
+      basePageId,
       canCreateDatasource = false,
       dataSources,
       location,
-      pageId,
       showDebugger,
     } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
@@ -296,6 +296,7 @@ class IntegrationsHomeScreen extends React.Component<
     } else {
       currentScreen = (
         <ActiveDataSources
+          basePageId={basePageId}
           dataSources={dataSources}
           history={this.props.history}
           location={location}
@@ -307,7 +308,6 @@ class IntegrationsHomeScreen extends React.Component<
               entryPoint,
             });
           }}
-          pageId={pageId}
         />
       );
     }

@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
-import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "./constants";
 
 const CanvasResizerIcon = importSvg(
   async () => import("assets/icons/ads/app-icons/canvas-resizer.svg"),
@@ -76,6 +76,8 @@ export function MainContainerResizer({
 
     if (isPageInitiated && enableMainCanvasResizer) {
       const fullWidthCSS = `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const wrapperElement: any = document.getElementById("widgets-editor");
 
       let maxWidth =
@@ -92,10 +94,14 @@ export function MainContainerResizer({
 
         // The dimension of the element
         let w = 0;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let events: any = [];
 
         // Handle the mousedown event
         // that's triggered when user drags the resizer
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mouseDownHandler = function (e: any) {
           if (!ele || e.buttons !== 1) return;
           maxWidth =
@@ -108,6 +114,8 @@ export function MainContainerResizer({
           dispatch(setAutoCanvasResizing(true));
           w = parseInt(styles.width, 10);
           // h = parseInt(styles.height, 10);
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const mouseMove = (e: any) => mouseMoveHandler(e);
           events.push(mouseMove);
           // Attach the listeners to `document`
@@ -115,6 +123,8 @@ export function MainContainerResizer({
           document.addEventListener("mouseup", mouseUpHandler);
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mouseMoveHandler = function (e: any) {
           if (!ele) return;
           // How far the mouse has been moved
@@ -133,15 +143,21 @@ export function MainContainerResizer({
           }
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mouseUpHandler = function (e: any) {
           // Remove the handlers of `mousemove` and `mouseup`
           mouseMoveHandler(e);
           dispatch(setAutoCanvasResizing(false));
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           document.removeEventListener("mousemove", events[0] as any);
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];
         };
         const rightResizer = ref.current;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const rightMove = (e: any) => mouseDownHandler(e);
         rightResizer && rightResizer.addEventListener("mousedown", rightMove);
 

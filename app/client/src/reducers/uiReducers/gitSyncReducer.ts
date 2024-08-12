@@ -1,13 +1,13 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { GitConfig, MergeStatus } from "entities/GitSync";
 import { GitSyncModalTab } from "entities/GitSync";
 import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
-import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
+import type { PageDefaultMeta } from "ee/api/ApplicationApi";
 
 export enum GitSettingsTab {
   GENERAL = "GENERAL",
@@ -55,6 +55,7 @@ const initialState: GitSyncReducerState = {
 
   isAutocommitModalOpen: false,
   togglingAutocommit: false,
+  triggeringAutocommit: false,
   pollingAutocommitStatus: false,
 
   gitMetadata: null,
@@ -208,6 +209,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_BRANCHES_SUCCESS]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any[]>,
   ) => ({
     ...state,
@@ -481,6 +484,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -497,6 +502,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.DELETE_BRANCH_SUCCESS]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -504,6 +511,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionErrorTypes.DELETE_BRANCH_ERROR]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -518,6 +527,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.DELETING_BRANCH]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -530,6 +541,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -538,6 +551,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -552,6 +567,8 @@ const gitSyncReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SWITCH_GIT_BRANCH_INIT]: (
     state: GitSyncReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -619,6 +636,18 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     togglingAutocommit: false,
   }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_INIT]: (state) => ({
+    ...state,
+    triggeringAutocommit: true,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_SUCCESS]: (state) => ({
+    ...state,
+    triggeringAutocommit: false,
+  }),
+  [ReduxActionErrorTypes.GIT_AUTOCOMMIT_TRIGGER_ERROR]: (state) => ({
+    ...state,
+    triggeringAutocommit: false,
+  }),
   [ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING]: (state) => ({
     ...state,
     pollingAutocommitStatus: true,
@@ -667,22 +696,52 @@ const gitSyncReducer = createReducer(initialState, {
 export interface GitStatusData {
   modified: string[];
   added: string[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removed: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pagesModified: any[];
   pagesAdded: string[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pagesRemoved: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   queriesModified: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   queriesAdded: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   queriesRemoved: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsObjectsModified: any[];
   jsObjectsAdded: string[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsObjectsRemoved: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasourcesModified: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasourcesAdded: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasourcesRemoved: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsLibsModified: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsLibsAdded: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   jsLibsRemoved: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   conflicting: any[];
   isClean: boolean;
   aheadCount: number;
@@ -715,8 +774,14 @@ export interface GitErrorType {
 }
 
 export interface GitBranchDeleteState {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteBranch?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteBranchError?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deleteBranchWarning?: any;
   deletingBranch?: boolean;
 }
@@ -817,6 +882,8 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   isImportingApplicationViaGit?: boolean;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gitImportError?: any;
 
   isDiscarding: boolean;
@@ -833,6 +900,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   isAutocommitModalOpen: boolean;
   togglingAutocommit: boolean;
+  triggeringAutocommit: boolean;
   pollingAutocommitStatus: boolean;
 
   gitMetadata: GitMetadata | null;

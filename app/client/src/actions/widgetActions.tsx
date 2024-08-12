@@ -1,8 +1,8 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
@@ -97,16 +97,18 @@ export const copyWidget = (isShortcut: boolean) => {
 };
 
 export const pasteWidget = ({
+  existingWidgets,
   gridPosition,
   groupWidgets = false,
   mouseLocation,
 }: PasteWidgetReduxAction) => {
   return {
-    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    type: ReduxActionTypes.VERIFY_LAYOUT_SYSTEM_AND_PASTE_WIDGETS,
     payload: {
       groupWidgets,
       mouseLocation,
       gridPosition,
+      existingWidgets,
     },
   };
 };

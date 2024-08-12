@@ -6,7 +6,7 @@ import type {
 import isNumber from "lodash/isNumber";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
-import { Radio, RadioGroup } from "@design-system/widgets";
+import { RadioGroup } from "@design-system/widgets";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -76,6 +76,8 @@ class WDSRadioGroupWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOptionValue: undefined,
@@ -107,23 +109,24 @@ class WDSRadioGroupWidget extends BaseWidget<
     } else {
       newVal = updatedValue;
     }
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     // Set isDirty to true when the selection changes
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("selectedOptionValue", newVal, {
+    pushBatchMetaUpdates("selectedOptionValue", newVal, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {
-    const { labelTooltip, options, selectedOptionValue, widgetId, ...rest } =
-      this.props;
+    const { labelTooltip, options, selectedOptionValue, ...rest } = this.props;
 
     const validation = validateInput(this.props);
 
@@ -132,16 +135,11 @@ class WDSRadioGroupWidget extends BaseWidget<
         {...rest}
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
+        isInvalid={validation.validationStatus === "invalid"}
+        items={options}
         onChange={this.onRadioSelectionChange}
-        validationState={validation.validationStatus}
         value={selectedOptionValue}
-      >
-        {options.map((option, index) => (
-          <Radio key={`${widgetId}-option-${index}`} value={option.value}>
-            {option.label}
-          </Radio>
-        ))}
-      </RadioGroup>
+      />
     );
   }
 }

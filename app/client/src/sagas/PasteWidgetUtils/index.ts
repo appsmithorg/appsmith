@@ -39,7 +39,6 @@ import {
   isDropTarget,
 } from "../WidgetOperationUtils";
 import _ from "lodash";
-import { isString } from "utils/helpers";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.
@@ -396,45 +395,6 @@ function* getNewPositionsBasedOnSelectedWidgets(
   };
 }
 
-export function handleTextWidgetWhenPasting(
-  widgetNameMap: Record<string, string>,
-  widget: FlattenedWidgetProps,
-) {
-  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (isString(widget.text) && widget.text.includes(oldWidgetName)) {
-      widget.text = widget.text.replaceAll(oldWidgetName, newWidgetName);
-    }
-  });
-}
-
-export function handleImageWidgetWhenPasting(
-  widgetNameMap: Record<string, string>,
-  widget: FlattenedWidgetProps,
-) {
-  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (isString(widget.image) && widget.image.includes(oldWidgetName)) {
-      widget.image = widget.image.replaceAll(oldWidgetName, newWidgetName);
-    }
-  });
-}
-
-export function handleJSONFormWidgetWhenPasting(
-  widgetNameMap: Record<string, string>,
-  widget: FlattenedWidgetProps,
-) {
-  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (
-      isString(widget.sourceData) &&
-      widget.sourceData.includes(oldWidgetName)
-    ) {
-      widget.sourceData = widget.sourceData.replaceAll(
-        oldWidgetName,
-        newWidgetName,
-      );
-    }
-  });
-}
-
 export function handleJSONFormPropertiesListedInDynamicBindingPath(
   widget: FlattenedWidgetProps,
   oldName: string,
@@ -453,28 +413,55 @@ export function handleJSONFormPropertiesListedInDynamicBindingPath(
  * @param newValue: This is the value that will replace the oldValue.
  */
 export function accessNestedObjectValue(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any,
   path: string,
   oldValue: string,
   newValue: string,
 ) {
   // this function is a utility for finding and replacing a specific value within a nested object structure, given a path to the value.
-  _.set(
-    obj,
-    path,
-    _.get(obj, path, "").replace(
-      new RegExp(_.escapeRegExp(oldValue), "g"),
-      newValue,
-    ),
-  );
+  // since this replacement can occur multiple times within the object, to prevent unnecessary replacements(& wrong replacements), we check if the value already contains the newValue before replacing it.
+  const currentPathValue = _.get(obj, path, "");
+  if (!currentPathValue.includes(newValue)) {
+    _.set(
+      obj,
+      path,
+      currentPathValue.replace(
+        new RegExp(_.escapeRegExp(oldValue), "g"),
+        newValue,
+      ),
+    );
+  }
 }
 
-export function handleButtonDynamicTriggerPathList(
+export function handleWidgetDynamicTriggerPathList(
   widgetNameMap: Record<string, string>,
   widget: FlattenedWidgetProps,
 ) {
   Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
     widget.dynamicTriggerPathList?.forEach((path: { key: string }) => {
+      accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
+    });
+  });
+}
+export function handleWidgetDynamicBindingPathList(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    widget.dynamicBindingPathList?.forEach((path: { key: string }) => {
+      accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
+    });
+  });
+}
+
+export function handleWidgetDynamicPropertyPathList(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    widget.dynamicPropertyPathList?.forEach((path: { key: string }) => {
       accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
     });
   });

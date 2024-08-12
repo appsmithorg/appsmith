@@ -1,22 +1,22 @@
 import React, { useState, useCallback } from "react";
 
-import { useTheme } from "styled-components";
 import type { noop } from "lodash";
 import type {
   CommonComponentProps,
   EditInteractionKind,
-} from "design-system-old";
-import { SavingState } from "design-system-old";
+} from "@appsmith/ads-old";
+import { SavingState } from "@appsmith/ads-old";
 import EditableName from "./EditableName";
 import { NavigationMenu } from "./NavigationMenu";
+import { Menu, toast, MenuTrigger } from "@appsmith/ads";
 import type { Theme } from "constants/DefaultTheme";
-import { Menu, toast, MenuTrigger } from "design-system";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { Container, StyledIcon } from "./components";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import type { NavigationMenuDataProps } from "./useNavigationMenuData";
 import type { MenuItemData } from "./NavigationMenuItem";
-import type { NavigationMenuDataProps } from "./NavigationMenuData";
+import { useTheme } from "styled-components";
 
 type EditorNameProps = CommonComponentProps & {
   applicationId?: string | undefined;
@@ -102,7 +102,7 @@ export function EditorName(props: EditorNameProps) {
     }
   }, []);
 
-  const NavigationMenuData = getNavigationMenu({
+  const navigationMenuData = getNavigationMenu({
     editMode,
     theme,
     setForkApplicationModalOpen,
@@ -145,7 +145,7 @@ export function EditorName(props: EditorNameProps) {
           </Container>
         </MenuTrigger>
         <NavigationMenu
-          menuItems={NavigationMenuData}
+          menuItems={navigationMenuData}
           setIsPopoverOpen={setIsPopoverOpen}
         />
       </Menu>

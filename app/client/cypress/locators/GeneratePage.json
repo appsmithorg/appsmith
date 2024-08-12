@@ -1,5 +1,4 @@
 {
-  "generateCRUDPageActionCard": "[data-testid='generate-app']",
   "selectDatasourceDropdown": "[data-testid=t--datasource-dropdown]",
   "datasourceDropdownOption": "[data-testid=t--datasource-dropdown-option]",
   "selectTableDropdown": "[data-testid=t--table-dropdown]",

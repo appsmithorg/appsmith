@@ -1,7 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
@@ -32,32 +30,27 @@ public class ThemeControllerCE {
     private final ThemeService service;
 
     @JsonView(Views.Public.class)
-    @GetMapping("applications/{applicationId}")
-    public Mono<ResponseDTO<List<Theme>>> getApplicationThemes(
-            @PathVariable String applicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.getApplicationThemes(applicationId, branchName)
+    @GetMapping("applications/{branchedApplicationId}")
+    public Mono<ResponseDTO<List<Theme>>> getApplicationThemes(@PathVariable String branchedApplicationId) {
+        return service.getApplicationThemes(branchedApplicationId)
                 .collectList()
                 .map(themes -> new ResponseDTO<>(HttpStatus.OK.value(), themes, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("applications/{applicationId}/current")
+    @GetMapping("applications/{branchedApplicationId}/current")
     public Mono<ResponseDTO<Theme>> getCurrentTheme(
-            @PathVariable String applicationId,
-            @RequestParam(required = false, defaultValue = "EDIT") ApplicationMode mode,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.getApplicationTheme(applicationId, mode, branchName)
+            @PathVariable String branchedApplicationId,
+            @RequestParam(required = false, defaultValue = "EDIT") ApplicationMode mode) {
+        return service.getApplicationTheme(branchedApplicationId, mode)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("applications/{applicationId}")
+    @PutMapping("applications/{branchedApplicationId}")
     public Mono<ResponseDTO<Theme>> updateTheme(
-            @PathVariable String applicationId,
-            @Valid @RequestBody Theme resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.updateTheme(applicationId, branchName, resource)
+            @PathVariable String branchedApplicationId, @Valid @RequestBody Theme resource) {
+        return service.updateTheme(branchedApplicationId, resource)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 

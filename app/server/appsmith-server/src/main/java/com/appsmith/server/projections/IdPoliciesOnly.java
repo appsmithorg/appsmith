@@ -2,10 +2,10 @@ package com.appsmith.server.projections;
 
 import com.appsmith.external.models.Policy;
 
-import java.util.Set;
+import java.util.Map;
 
 public interface IdPoliciesOnly {
     String getId();
 
-    Set<Policy> getPolicies();
+    Map<String, Policy> getPolicyMap();
 }

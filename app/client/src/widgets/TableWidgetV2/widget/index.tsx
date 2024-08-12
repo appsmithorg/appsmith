@@ -139,12 +139,14 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 
 type addNewRowToTable = (
@@ -164,6 +166,8 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
   memoisedAddNewRow: addNewRowToTable;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
 
@@ -210,7 +214,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       columnOrder: [],
       enableClientSideSearch: true,
       isVisibleSearch: true,
-      isVisibleFilters: true,
+      isVisibleFilters: false,
       isVisibleDownload: true,
       isVisiblePagination: true,
       isSortable: true,
@@ -412,6 +416,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       getMemoiseTransformDataWithEditableCell();
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -1496,6 +1502,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSearchTable = (searchKey: any) => {
     const {
       commitBatchMetaUpdates,
@@ -1880,6 +1888,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderCell = (props: any) => {
     const column =
       this.getColumnByOriginalId(
@@ -2770,6 +2780,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   onCheckChange = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     column: any,
     row: Record<string, unknown>,
     value: boolean,

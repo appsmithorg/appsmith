@@ -2,11 +2,11 @@ import { call, put, race, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { reset } from "redux-form";
 import type {
   CreateUserRequest,
@@ -16,8 +16,8 @@ import type {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   LeaveWorkspaceRequest,
-} from "@appsmith/api/UserApi";
-import UserApi from "@appsmith/api/UserApi";
+} from "ee/api/UserApi";
+import UserApi from "ee/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
@@ -40,8 +40,8 @@ import {
   fetchProductAlertFailure,
   fetchFeatureFlagsInit,
 } from "actions/userActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -68,28 +68,28 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { getSegmentState } from "selectors/analyticsSelectors";
 import {
   segmentInitUncertain,
   segmentInitSuccess,
 } from "actions/analyticsActions";
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
-import { toast } from "design-system";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { toast } from "@appsmith/ads";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import {
   USER_PROFILE_PICTURE_UPLOAD_FAILED,
   UPDATE_USER_DETAILS_FAILED,
-} from "@appsmith/constants/messages";
-import { createMessage } from "design-system-old/build/constants/messages";
+} from "ee/constants/messages";
+import { createMessage } from "@appsmith/ads-old";
 import type {
   ProductAlert,
   ProductAlertConfig,
 } from "reducers/uiReducers/usersReducer";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export function* createUserSaga(
@@ -337,6 +337,8 @@ interface InviteUserPayload {
   permissionGroupId: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse: boolean = yield validateResponse(response);
@@ -533,6 +535,8 @@ export function* updatePhoto(
       show: true,
       error: {
         message:
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (error as any).message ??
           createMessage(USER_PROFILE_PICTURE_UPLOAD_FAILED),
       },

@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Icon, Link, Option, Select, Text, Tooltip } from "design-system";
+import { Icon, Link, Option, Select, Text, Tooltip } from "@appsmith/ads";
 import { capitalizeFirstLetter } from "utils/helpers";
 import {
   BUSINESS_EDITION_TEXT,
   SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import {
-  getRampLink,
-  showProductRamps,
-} from "@appsmith/selectors/rampSelectors";
+} from "ee/constants/messages";
+import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { matchDatasourcePath, matchSAASGsheetsPath } from "constants/routes";
 import {
@@ -53,6 +50,8 @@ export interface Props {
   viewMode?: boolean;
   editorId: string;
   onChangeEnv?: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   startSwitchEnvMessage: (...strArgs: any[]) => string;
 }
 

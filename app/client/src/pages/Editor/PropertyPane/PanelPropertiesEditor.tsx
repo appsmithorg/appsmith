@@ -33,6 +33,8 @@ function PanelHeader(props: PanelHeaderProps) {
   };
   return (
     <div
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onClick={(e: any) => {
         e.stopPropagation();
       }}
@@ -281,6 +283,8 @@ export function PanelPropertiesEditor(
 }
 
 interface PanelPropertiesEditorProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   panelProps: any;
   onPropertiesChange: (updates: Record<string, unknown>) => void;
   panelParentPropertyPath: string;

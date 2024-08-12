@@ -10,13 +10,13 @@ import {
   CollapsibleHeader,
   Spinner,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { sortBy } from "lodash";
 import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
 import styled from "styled-components";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import WidgetCard from "./WidgetCard";
 
 const LoadingWrapper = styled.div`
@@ -77,7 +77,7 @@ const UIEntityTagGroup = (props: Props) => {
 
   return (
     <Collapsible
-      className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${props.tag
+      className={`pb-2 widget-tag-collapsible widget-tag-collapsible-${props.tag
         .toLowerCase()
         .replace(/ /g, "-")}`}
       isOpen
@@ -93,15 +93,22 @@ const UIEntityTagGroup = (props: Props) => {
         </Text>
       </CollapsibleHeader>
       <CollapsibleContent>
-        <div className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
+        <div
+          className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch"
+          data-testid="ui-entity-tag-group"
+        >
           {props.tag === WIDGET_TAGS.SUGGESTED_WIDGETS
             ? sortBy(
                 props.cards,
                 (widget) => SUGGESTED_WIDGETS_ORDER[widget.type],
-              ).map((card) => <WidgetCard details={card} key={card.key} />)
+              ).map((card, index) => (
+                <WidgetCard details={card} key={`${card.key}${index}`} />
+              ))
             : props.cards
                 .slice(0, noOfItemsToRender)
-                .map((card) => <WidgetCard details={card} key={card.key} />)}
+                .map((card, index) => (
+                  <WidgetCard details={card} key={`${card.key}${index}`} />
+                ))}
         </div>
         <SeeMoreButton
           hidden={noOfItemsToRender >= props.cards.length && !showFullItems}

@@ -6,14 +6,14 @@ import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
 import type { ThemeSetting } from "constants/AppConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplication } from "@appsmith/actions/applicationActions";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { updateApplication } from "ee/actions/applicationActions";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
+import { SegmentedControl, Tooltip, Select, Option, Icon } from "@appsmith/ads";
 
 import styles from "./styles.module.css";
 
@@ -26,6 +26,7 @@ import {
   THEME_SETTING_COLOR_PRESETS,
 } from "./constants";
 import SettingSection from "../ThemePropertyPane/SettingSection";
+import { AppMaxWidthSelect } from "./components/AppMaxWidthSelect";
 
 const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);
@@ -83,7 +84,7 @@ function WDSThemePropertyPane() {
 
       dispatch(updateApplication(applicationId, payload));
     },
-    [updateApplication],
+    [updateApplication, dispatch],
   );
 
   const debouncedOnColorChange = useCallback(
@@ -117,6 +118,7 @@ function WDSThemePropertyPane() {
       <SettingSection className="px-4 pb-3" isDefaultOpen title="Color">
         <section className="space-y-2">
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-color-mode"
             isFullWidth
             onChange={(value: string) => {
               updateTheme({
@@ -138,7 +140,10 @@ function WDSThemePropertyPane() {
             type="text"
             value={accentColor}
           />
-          <div className={styles["presets-list"]}>
+          <div
+            className={styles["presets-list"]}
+            data-testid="t--anvil-theme-settings-accent-color-list"
+          >
             {THEME_SETTING_COLOR_PRESETS[theme.colorMode].map((color) => (
               <button
                 data-selected={theme.accentColor === color ? "" : undefined}
@@ -182,11 +187,13 @@ function WDSThemePropertyPane() {
 
       <SettingSection
         className="px-4 py-3 border-t "
+        data-testid="t--anvil-theme-settings-typography"
         isDefaultOpen
         title="Typography"
       >
         <section className="space-y-2">
           <Select
+            data-testid="t--anvil-theme-settings-font-family"
             dropdownClassName="t--theme-font-dropdown"
             onSelect={(value: string) => {
               updateTheme({
@@ -230,6 +237,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Density</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-density"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -244,6 +252,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Sizing</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-sizing"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -265,6 +274,7 @@ function WDSThemePropertyPane() {
       >
         <section className="space-y-2">
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-corners"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -287,6 +297,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Icon Style</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-icon-style"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -296,6 +307,26 @@ function WDSThemePropertyPane() {
             }}
             options={THEME_SETTINGS_ICON_STYLE_OPTIONS}
             value={theme.iconStyle}
+          />
+        </section>
+      </SettingSection>
+
+      {/* Layout Style */}
+      <SettingSection
+        className="px-4 py-3 border-t"
+        isDefaultOpen
+        title="Layout"
+      >
+        <section className="space-y-2">
+          <SubText>Max app width</SubText>
+          <AppMaxWidthSelect
+            onSelect={(value) => {
+              updateTheme({
+                ...theme,
+                appMaxWidth: value as ThemeSetting["appMaxWidth"],
+              });
+            }}
+            value={theme.appMaxWidth}
           />
         </section>
       </SettingSection>

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import TreeStructure from "components/utils/TreeStructure";
-import { Text, Icon, Button, Tooltip } from "design-system";
+import { Text, Icon, Button, Tooltip } from "@appsmith/ads";
 import { klona } from "klona/lite";
 import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";
@@ -9,7 +9,7 @@ import type { TActionBlock, VariantType } from "../../types";
 import { chainableFns } from "../../utils";
 import ActionCard from "./ActionCard";
 import ActionSelector from "./ActionSelector";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
 import classNames from "classnames";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

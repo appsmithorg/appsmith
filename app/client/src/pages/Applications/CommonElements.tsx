@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 type ResourceHeadingProps = React.PropsWithChildren<{
@@ -80,6 +80,10 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
 
 const StyledResourceHeadingText = styled(Text)`
   font-weight: var(--ads-font-weight-bold-xl);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
 `;
 
 export const Space = styled.div`

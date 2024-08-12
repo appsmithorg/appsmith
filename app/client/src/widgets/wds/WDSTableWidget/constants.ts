@@ -13,7 +13,7 @@ import type { ColumnAction } from "components/propertyControls/ColumnActionSelec
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export interface EditableCell {
   column: string;

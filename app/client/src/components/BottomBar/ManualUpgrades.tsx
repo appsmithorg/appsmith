@@ -1,7 +1,7 @@
 import {
   ApplicationVersion,
   updateApplication,
-} from "@appsmith/actions/applicationActions";
+} from "ee/actions/applicationActions";
 import {
   Button,
   Tooltip,
@@ -11,8 +11,8 @@ import {
   ModalHeader,
   ModalFooter,
   Callout,
-} from "design-system";
-import { Text, TextType } from "design-system-old";
+} from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
 import type { ReactNode } from "react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,9 +23,9 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
+import { createMessage, CLEAN_URL_UPDATE } from "ee/constants/messages";
 import { useLocation } from "react-router";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import classNames from "classnames";
 
 const StyledList = styled.ul`

@@ -87,7 +87,7 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       // Disable isSortable
       // Confirm if isSortable is false
-      cy.togglebarDisable(commonlocators.isSortable);
+      _.agHelper.CheckUncheck(commonlocators.isSortable, false);
 
       // Publish App
       _.deployMode.DeployApp();
@@ -185,7 +185,7 @@ describe(
       });
 
       cy.get("[data-testid='t--property-pane-back-btn']").click();
-      cy.makeColumnEditable("step");
+      _.table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.get(".t--table-filter-columns-dropdown").click();
       cy.get(".t--dropdown-option").should("not.contain", "Save / Discard");
     });

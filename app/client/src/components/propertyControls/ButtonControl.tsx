@@ -2,11 +2,13 @@ import React from "react";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface OnButtonClickProps {
   props: ControlProps;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateProperty: (propertyName: string, propertyValue: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   batchUpdateProperties: (updates: Record<string, unknown>) => void;
@@ -16,6 +18,8 @@ export interface OnButtonClickProps {
 export type ButtonControlProps = ControlProps & {
   onClick: (props: OnButtonClickProps) => void;
   buttonLabel: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isDisabled?: (widgetProperties: any) => boolean;
 };
 

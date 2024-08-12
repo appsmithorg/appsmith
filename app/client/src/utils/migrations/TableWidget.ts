@@ -405,6 +405,8 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
           // When id is undefined it's likely value isn't correct and needs fixing
           else if (Object.keys(value)) {
             const onlyKey = Object.keys(value)[0] as keyof ColumnProperties;
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const obj: ColumnProperties = value[onlyKey] as any;
             if (!obj.id && !obj.columnType) {
               continue;

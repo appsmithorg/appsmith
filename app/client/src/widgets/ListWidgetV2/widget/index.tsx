@@ -159,7 +159,7 @@ class ListWidget extends BaseWidget<
       name: "List",
       iconSVG: IconSVG,
       thumbnailSVG: ThumbnailSVG,
-      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
+      tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       isCanvas: true,
     };
@@ -294,6 +294,8 @@ class ListWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -1284,6 +1286,8 @@ class ListWidget extends BaseWidget<
   overrideUpdateWidget = (
     operation: WidgetOperation,
     metaWidgetId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
   ) => {
     const templateWidgetId =
@@ -1296,6 +1300,8 @@ class ListWidget extends BaseWidget<
   overrideUpdateWidgetProperty = (
     metaWidgetId: string,
     propertyName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => {
     const templateWidgetId =

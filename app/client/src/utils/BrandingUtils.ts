@@ -7,10 +7,10 @@ import {
   ADMIN_BRANDING_FAVICON_SIZE_ERROR,
   ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
   ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
-} from "@appsmith/constants/messages";
-import { toast } from "design-system";
+} from "ee/constants/messages";
+import { toast } from "@appsmith/ads";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { LightModeTheme } from "@design-system/theming";
 
 const FAVICON_MAX_WIDTH = 32;
@@ -202,3 +202,16 @@ export const faivconImageValidator = (
     callback && callback(e);
   };
 };
+
+// NOTE: the reason why the json parsing is out of selector is we don't
+// want to do the parsing everytime selector is called
+let cachedTenantConfigParsed = {};
+const cachedTenantConfig = localStorage.getItem("tenantConfig");
+
+try {
+  if (cachedTenantConfig) {
+    cachedTenantConfigParsed = JSON.parse(cachedTenantConfig);
+  }
+} catch (e) {}
+
+export { cachedTenantConfigParsed };

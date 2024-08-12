@@ -16,17 +16,17 @@ import {
 } from "actions/appThemingActions";
 import SettingSection from "./SettingSection";
 import type { AppTheme } from "entities/AppTheming";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import { Classes as CsClasses } from "design-system-old";
+import { Classes as CsClasses } from "@appsmith/ads-old";
 import {
   Button,
   Menu,
   MenuContent,
   MenuTrigger,
   MenuItem,
-} from "design-system";
+} from "@appsmith/ads";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";

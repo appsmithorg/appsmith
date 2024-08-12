@@ -1,8 +1,8 @@
 import type { AppTheme } from "entities/AppTheming";
 import type { AppThemingMode } from "selectors/appThemingSelectors";
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export interface AppThemingState {
   isSaving: boolean;
@@ -125,6 +125,12 @@ const themeReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.START_CANVAS_SELECTION]: (state: AppThemingState) => {
     state.stack = [];
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: AppThemingState) => {
+    return {
+      ...state,
+      isSaving: false,
+    };
   },
 });
 

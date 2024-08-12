@@ -5,13 +5,13 @@ import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isElementVisible } from "./utils";
 import { hideIndicator } from "components/utils/Indicator";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 const WalkthroughRenderer = lazy(async () => {
   return retryPromise(
@@ -24,6 +24,8 @@ const WalkthroughRenderer = lazy(async () => {
 
 const LoadingFallback = () => null;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Walkthrough({ children }: any) {
   const [activeWalkthrough, setActiveWalkthrough] =
     useState<FeatureParams | null>();

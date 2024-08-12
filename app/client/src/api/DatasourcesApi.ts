@@ -1,4 +1,4 @@
-import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
+import { DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";
@@ -14,16 +14,9 @@ export interface CreateDatasourceConfig {
   appName?: string;
 }
 
-export interface EmbeddedRestDatasourceRequest {
-  datasourceConfiguration: { url: string };
-  invalids: Array<string>;
-  isValid: boolean;
-  name: string;
-  workspaceId: string;
-  pluginId: string;
-}
-
 // type executeQueryData = Array<{ key?: string; value?: string }>;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type executeQueryData = Record<string, any>;
 
 interface executeDatasourceQueryRequest {
@@ -42,8 +35,107 @@ class DatasourcesApi extends API {
 
   static async createDatasource(
     datasourceConfig: Partial<Datasource>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
+    // This here abomination is to remove several fields that are not accepted by the server.
+    for (const [name, storage] of Object.entries(
+      datasourceConfig.datasourceStorages || {},
+    )) {
+      datasourceConfig = {
+        ...datasourceConfig,
+        isValid: undefined,
+        datasourceStorages: {
+          ...datasourceConfig.datasourceStorages,
+          [name]: {
+            ...storage,
+            isValid: undefined,
+            toastMessage: undefined,
+            datasourceConfiguration: {
+              ...storage.datasourceConfiguration,
+              isValid: undefined,
+              connection: storage.datasourceConfiguration.connection && {
+                ...storage.datasourceConfiguration.connection,
+                ssl: {
+                  ...storage.datasourceConfiguration.connection.ssl,
+                  authTypeControl: undefined,
+                  certificateType: undefined,
+                },
+              },
+            },
+          },
+        },
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
+    }
+
     return API.post(DatasourcesApi.url, datasourceConfig);
+  }
+
+  // Need for when we add strict type checking back on server
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static cleanAuthenticationObject(authentication: any): any {
+    if (!authentication) {
+      return undefined;
+    }
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const clean: any = {
+      authenticationType: authentication.authenticationType ?? "dbAuth",
+    };
+
+    switch (clean.authenticationType) {
+      case "dbAuth":
+        clean.authType = authentication.authType;
+        clean.username = authentication.username;
+        clean.password = authentication.password;
+        clean.databaseName = authentication.databaseName;
+        break;
+      case "oAuth2":
+        clean.grantType = authentication.grantType;
+        clean.isTokenHeader = authentication.isTokenHeader;
+        clean.isAuthorizationHeader = authentication.isAuthorizationHeader;
+        clean.clientId = authentication.clientId;
+        clean.clientSecret = authentication.clientSecret;
+        clean.authorizationUrl = authentication.authorizationUrl;
+        clean.expiresIn = authentication.expiresIn;
+        clean.accessTokenUrl = authentication.accessTokenUrl;
+        clean.scopeString = authentication.scopeString;
+        clean.scope = authentication.scope;
+        clean.sendScopeWithRefreshToken =
+          authentication.sendScopeWithRefreshToken;
+        clean.refreshTokenClientCredentialsLocation =
+          authentication.refreshTokenClientCredentialsLocation;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.customTokenParameters = authentication.customTokenParameters;
+        clean.audience = authentication.audience;
+        clean.resource = authentication.resource;
+        clean.useSelfSignedCert = authentication.useSelfSignedCert;
+        clean.authenticationStatus = authentication.authenticationStatus;
+        break;
+      case "basic":
+        clean.username = authentication.username;
+        clean.password = authentication.password;
+        break;
+      case "apiKey":
+        clean.addTo = authentication.addTo;
+        clean.label = authentication.label;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.value = authentication.value;
+        break;
+      case "bearerToken":
+        clean.bearerToken = authentication.bearerToken;
+        break;
+      case "snowflakeKeyPairAuth":
+        clean.username = authentication.username;
+        clean.privateKey = authentication.privateKey;
+        clean.passphrase = authentication.passphrase;
+    }
+
+    return clean;
   }
 
   // Api to test current environment datasource
@@ -51,35 +143,68 @@ class DatasourcesApi extends API {
     datasourceConfig: Partial<DatasourceStorage>,
     pluginId: string,
     workspaceId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
-    return API.post(
-      `${DatasourcesApi.url}/test`,
-      { ...datasourceConfig, pluginId, workspaceId },
-      undefined,
-      {
-        timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+    const payload = {
+      ...datasourceConfig,
+      pluginId,
+      workspaceId,
+      isValid: undefined,
+      toastMessage: undefined,
+      datasourceConfiguration: datasourceConfig.datasourceConfiguration && {
+        ...datasourceConfig.datasourceConfiguration,
+        connection: datasourceConfig.datasourceConfiguration.connection && {
+          ...datasourceConfig.datasourceConfiguration.connection,
+          ssl: {
+            ...datasourceConfig.datasourceConfiguration.connection.ssl,
+            certificateType: undefined,
+          },
+        },
       },
-    );
+    };
+    return API.post(`${DatasourcesApi.url}/test`, payload, undefined, {
+      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+    });
   }
 
   // Api to update datasource name.
   static async updateDatasource(
     datasourceConfig: Partial<Datasource>,
     id: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return API.put(DatasourcesApi.url + `/${id}`, datasourceConfig);
   }
 
   // Api to update specific datasource storage/environment configuration
   static async updateDatasourceStorage(
-    datasourceConfig: Partial<DatasourceStorage>,
+    datasourceStorage: Partial<DatasourceStorage>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
-    return API.put(
-      DatasourcesApi.url + `/datasource-storages`,
-      datasourceConfig,
-    );
+    const payload = {
+      ...datasourceStorage,
+      isValid: undefined,
+      toastMessage: undefined,
+      datasourceConfiguration: datasourceStorage.datasourceConfiguration && {
+        ...datasourceStorage.datasourceConfiguration,
+        connection: datasourceStorage.datasourceConfiguration.connection && {
+          ...datasourceStorage.datasourceConfiguration.connection,
+          ssl: {
+            ...datasourceStorage.datasourceConfiguration.connection.ssl,
+            authTypeControl: undefined,
+            certificateType: undefined,
+          },
+        },
+      },
+    };
+    return API.put(DatasourcesApi.url + `/datasource-storages`, payload);
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async deleteDatasource(id: string): Promise<any> {
     return API.delete(DatasourcesApi.url + `/${id}`);
   }
@@ -87,6 +212,8 @@ class DatasourcesApi extends API {
   static async fetchDatasourceStructure(
     id: string,
     ignoreCache = false,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return API.get(
       DatasourcesApi.url + `/${id}/structure?ignoreCache=${ignoreCache}`,
@@ -104,6 +231,8 @@ class DatasourcesApi extends API {
     workspaceId: string,
     pluginId: string,
     packageName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return API.post(DatasourcesApi.url + `/mocks`, {
       name,

@@ -1,8 +1,9 @@
-import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
+import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import type { DeleteErrorLogPayload } from "actions/debuggerActions";
 import type { Action } from "entities/Action";
 import type { Log } from "entities/AppsmithConsole";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 
 export interface ResolveParentEntityMetadataReturnType {
   parentEntityId?: string;
@@ -29,4 +30,8 @@ export function* transformAddErrorLogsSaga(logs: Log[]) {
 
 export function* transformDeleteErrorLogsSaga(payload: DeleteErrorLogPayload) {
   return payload;
+}
+
+export function* transformTriggerEvalErrors(errors: EvaluationError[]) {
+  return errors;
 }

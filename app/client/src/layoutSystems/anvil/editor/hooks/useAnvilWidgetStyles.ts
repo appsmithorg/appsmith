@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getIsNewWidgetBeingDragged } from "sagas/selectors";
 import { AnvilDataAttributes } from "widgets/anvil/constants";
 
@@ -31,6 +31,8 @@ export const useAnvilWidgetStyles = (
     Object.entries(widgetBorderStyles).forEach(([property, value]) => {
       if (ref.current) {
         // Set each border style property on the widget's DOM element
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref.current.style[property as any] = value;
       }
     });
@@ -39,7 +41,6 @@ export const useAnvilWidgetStyles = (
   // Effect hook to set a data attribute for testing purposes
   useEffect(() => {
     if (ref.current) {
-      ref.current.setAttribute(AnvilDataAttributes.WIDGET_NAME, widgetName);
       ref.current.setAttribute(
         AnvilDataAttributes.IS_SELECTED_WIDGET,
         isSelected ? "true" : "false",

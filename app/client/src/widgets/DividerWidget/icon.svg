@@ -1,9 +1,1 @@
-<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1 15H29" stroke="#364252" stroke-width="2" stroke-linecap="round"/>
-<path d="M7 25H5C3.89543 25 3 25.8954 3 27V29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M27 29V27C27 25.8954 26.1046 25 25 25H23" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 25H17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M7 5H5C3.89543 5 3 4.10457 3 3V1" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M27 1V3C27 4.10457 26.1046 5 25 5H23" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 5H17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="#000" stroke-linecap="round" d="M.5 7.5h14"/><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="M3.5 12.5h-1a1 1 0 0 0-1 1v1M13.5 14.5v-1a1 1 0 0 0-1-1h-1M6.5 12.5h2M3.5 2.5h-1a1 1 0 0 1-1-1v-1M13.5.5v1a1 1 0 0 1-1 1h-1M6.5 2.5h2"/></svg>

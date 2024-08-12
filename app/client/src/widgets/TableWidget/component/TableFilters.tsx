@@ -10,11 +10,11 @@ import type { ReactTableColumnProps, ReactTableFilter } from "./Constants";
 import { OperatorTypes } from "./Constants";
 
 //TODO(abhinav): All of the following imports should not exist in a widget component
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import TableAction from "./TableAction";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const FilterIcon = importSvg(
   async () => import("assets/icons/control/filter-icon.svg"),

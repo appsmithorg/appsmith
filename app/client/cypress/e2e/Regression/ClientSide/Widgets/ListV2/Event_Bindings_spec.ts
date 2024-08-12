@@ -13,7 +13,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
-      agHelper.AddDsl("Listv2/nestedList.json");
+      agHelper.AddDsl("Listv2/nestedList");
       // Open the property pane of button in the inner list widget
       EditorNavigation.SelectEntityByName("Button3", EntityType.Widget, {}, [
         "List1",

@@ -1,8 +1,5 @@
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type {
-  ActionEntity,
-  WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+import type { ActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
 import { getActionChildrenPeekData } from "utils/FilterInternalProperties/Action";
 import { getAppsmithPeekData } from "utils/FilterInternalProperties/Appsmith";
 import { getJsActionPeekData } from "utils/FilterInternalProperties/JsAction";
@@ -12,7 +9,7 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export const getEntityPeekData: Record<
   string,

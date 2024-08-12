@@ -10,7 +10,7 @@ import {
   MenuTrigger,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { DropdownOption, LoadMoreOptions } from "./DropdownOption";
 import styled from "styled-components";
 import type { DropdownOptionType } from "../../types";
@@ -18,7 +18,7 @@ import { DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW } from "../../constants";
 import {
   createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import useSource from "./useSource";
 
 const StyledDropdownTrigger = styled.div<{
@@ -134,6 +134,7 @@ function DatasourceDropdown() {
                 data-testId="t--one-click-binding-datasource--search"
                 onChange={onChange}
                 size="md"
+                // @ts-expect-error Fix this the next time the file is edited
                 type="text"
                 value={searchText}
               />

@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import { ConversionForm } from "./ConversionForm";
@@ -13,7 +13,7 @@ import {
   USE_SNAPSHOT_HEADER,
   SNAPSHOT_BANNER_MESSAGE,
   SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   setConversionStart,
   setConversionStop,
@@ -25,7 +25,7 @@ import {
   ModalBody,
   Callout,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { getReadableSnapShotDetails } from "../../../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import styled from "styled-components";

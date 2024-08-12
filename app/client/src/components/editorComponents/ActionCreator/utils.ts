@@ -20,12 +20,12 @@ import {
   checkIfCatchBlockExists,
   checkIfThenBlockExists,
 } from "@shared/ast";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import type { TActionBlock } from "./types";
 import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
-import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import { FIELD_CONFIG } from "./Field/FieldConfig";
 import { setGenericArgAtPostition } from "@shared/ast/src/actionCreator";
 
@@ -77,6 +77,8 @@ export function getEvaluationVersion() {
   return selectEvaluationVersion(state);
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const modalSetter = (changeValue: any, currentValue: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
@@ -97,6 +99,8 @@ export const modalGetter = (value: string) => {
 };
 
 export const objectSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
@@ -116,6 +120,8 @@ export const objectSetter = (
 };
 
 export const textSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
@@ -148,6 +154,8 @@ export const textGetter = (value: string, argNum: number): string => {
 };
 
 export const enumTypeSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
@@ -186,6 +194,8 @@ export const enumTypeGetter = (
 };
 
 export const callBackFieldSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
@@ -294,6 +304,8 @@ export function codeToAction(
 
   const mainActionType = (selectedOption.type ||
     selectedOption.value ||
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     AppsmithFunction.none) as any;
 
   if (strict) {
@@ -450,6 +462,8 @@ export function actionToCode(
    */
   const supportsCallback = actionType === AppsmithFunction.integration;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (chainableFns.includes(actionType as any) && multipleActions) {
     const existingSuccessCallback =
       supportsCallback &&

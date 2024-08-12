@@ -8,9 +8,9 @@ import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.events.AutoCommitEvent;
-import com.appsmith.server.git.AutoCommitEventHandler;
+import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
 import com.appsmith.server.git.common.CommonGitService;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
@@ -21,24 +21,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.IDLE;
+import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.IN_PROGRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -92,7 +91,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), anyString()))
                 .thenReturn(Mono.just(Boolean.FALSE));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
@@ -115,7 +114,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
                 .thenReturn(Mono.just(Boolean.TRUE));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
@@ -140,7 +139,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
@@ -165,7 +164,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.FALSE));
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
@@ -198,12 +197,11 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
@@ -241,14 +239,14 @@ public class GitAutoCommitHelperImplTest {
 
     @Test
     public void getAutoCommitProgress_WhenAutoCommitRunning_ReturnsValidResponse() {
-        Mono<AutoCommitProgressDTO> progressDTOMono = redisUtils
+        Mono<AutoCommitResponseDTO> progressDTOMono = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
                 .then(redisUtils.setAutoCommitProgress(defaultApplicationId, 20))
-                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId));
+                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName));
 
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
-                    assertThat(dto.getIsRunning()).isTrue();
+                    assertThat(dto.getAutoCommitResponse()).isEqualTo(IN_PROGRESS);
                     assertThat(dto.getProgress()).isEqualTo(20);
                     assertThat(dto.getBranchName()).isEqualTo(branchName);
                 })
@@ -257,15 +255,15 @@ public class GitAutoCommitHelperImplTest {
 
     @Test
     public void getAutoCommitProgress_WhenNoAutoCommitFinished_ReturnsValidResponse() {
-        Mono<AutoCommitProgressDTO> progressDTOMono = redisUtils
+        Mono<AutoCommitResponseDTO> progressDTOMono = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
                 .then(redisUtils.setAutoCommitProgress(defaultApplicationId, 20))
                 .then(redisUtils.finishAutoCommit(defaultApplicationId))
-                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId));
+                .then(gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName));
 
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
-                    assertThat(dto.getIsRunning()).isFalse();
+                    assertThat(dto.getAutoCommitResponse()).isEqualTo(IDLE);
                     assertThat(dto.getProgress()).isZero();
                     assertThat(dto.getBranchName()).isNull();
                 })
@@ -274,10 +272,11 @@ public class GitAutoCommitHelperImplTest {
 
     @Test
     public void getAutoCommitProgress_WhenNoAutoCommitRunning_ReturnsValidResponse() {
-        Mono<AutoCommitProgressDTO> progressDTOMono = gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId);
+        Mono<AutoCommitResponseDTO> progressDTOMono =
+                gitAutoCommitHelper.getAutoCommitProgress(defaultApplicationId, branchName);
         StepVerifier.create(progressDTOMono)
                 .assertNext(dto -> {
-                    assertThat(dto.getIsRunning()).isFalse();
+                    assertThat(dto.getAutoCommitResponse()).isEqualTo(IDLE);
                     assertThat(dto.getProgress()).isZero();
                     assertThat(dto.getBranchName()).isNull();
                 })
@@ -299,11 +298,10 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(1);
@@ -333,7 +331,7 @@ public class GitAutoCommitHelperImplTest {
 
         application.setGitApplicationMetadata(metaData);
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_server_autocommit_feature_enabled))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.FALSE));
 
         StepVerifier.create(gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName))
@@ -358,26 +356,36 @@ public class GitAutoCommitHelperImplTest {
 
         application.setGitApplicationMetadata(metaData);
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_server_autocommit_feature_enabled))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
 
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        GitProfile gitProfile = new GitProfile();
+        gitProfile.setAuthorEmail("user@example.com");
+        gitProfile.setAuthorName("test user name");
+
+        Mockito.when(userDataService.getGitProfileForCurrentUser(defaultApplicationId))
+                .thenReturn(Mono.just(gitProfile));
+
         StepVerifier.create(gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName))
                 .assertNext(isAutoCommitPublished -> {
                     assertThat(isAutoCommitPublished).isTrue();
-                });
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -396,15 +404,20 @@ public class GitAutoCommitHelperImplTest {
 
         application.setGitApplicationMetadata(metaData);
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_server_autocommit_feature_enabled))
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
+                        anyString(), anyString(), any(AclPermission.class)))
+                .thenReturn(Mono.just(application));
+
         StepVerifier.create(gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName))
                 .assertNext(isAutoCommitPublished -> {
                     assertThat(isAutoCommitPublished).isFalse();
-                });
+                })
+                .verifyComplete();
     }
 }

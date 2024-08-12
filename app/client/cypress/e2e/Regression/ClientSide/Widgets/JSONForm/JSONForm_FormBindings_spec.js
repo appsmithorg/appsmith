@@ -240,7 +240,7 @@ describe(
 
       // migrant.visible -> false
       cy.openFieldConfiguration("migrant", false);
-      cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-visible input`, false);
       cy.get(backBtn).click({ force: true }).wait(500);
 
       // address.street.required -> true
@@ -258,7 +258,7 @@ describe(
       agHelper.CheckUncheck(`${propertyControlPrefix}-required input`);
       cy.get(backBtn).click({ force: true }).wait(500);
       cy.openFieldConfiguration("year", false);
-      cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-visible input`, false);
       cy.get(backBtn).click({ force: true }).wait(500);
 
       cy.closePropertyPane();

@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
@@ -10,6 +9,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -43,12 +45,16 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     private final ReactiveMongoOperations mongoOperations;
 
+    private final ObservationRegistry observationRegistry;
+
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
-                .all();
+                .all()
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -232,11 +238,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
-        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
-                        NewAction.Fields.defaultResources_actionId, defaultActionId)
-                .equal(NewAction.Fields.defaultResources_branchName, branchName);
+    public Mono<NewAction> findByBranchNameAndBaseActionId(
+            String branchName, String baseActionId, Boolean viewMode, AclPermission permission) {
+        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.baseId, baseActionId)
+                .equal(NewAction.Fields.branchName, branchName);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
@@ -327,16 +332,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         }
 
         return q;
-    }
-
-    @Override
-    public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
-        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
-        return queryBuilder()
-                .criteria(Bridge.equal(NewAction.Fields.defaultResources_applicationId, defaultApplicationId)
-                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
-                .permission(permission.orElse(null))
-                .all();
     }
 
     @Override
@@ -447,5 +442,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         }
 
         return queryBuilder().criteria(q).permission(permission).all();
+    }
+
+    @Override
+    public Flux<NewAction> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
+        return queryBuilder()
+                .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
+                .fields(includedFields)
+                .all();
     }
 }

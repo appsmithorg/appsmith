@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import type { SelectOptionProps } from "design-system";
-import { Select, Option } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Select, Option } from "@appsmith/ads";
 
 type DropdownFieldWrapperProps = SelectOptionProps & { placeholder?: string };
 
@@ -16,6 +16,8 @@ function DropdownFieldWrapper(props: DropdownFieldWrapperProps) {
       return props.input.value;
     }
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedOption, setSelectedOption] = useState<any>({
     value: selectedValueHandler(),
   });

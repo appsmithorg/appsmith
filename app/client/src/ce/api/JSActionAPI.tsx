@@ -5,7 +5,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse<JSCollection>;
 
@@ -43,6 +43,8 @@ export interface CreateJSCollectionRequest {
 export interface SetFunctionPropertyPayload {
   action: JSAction;
   propertyName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 export interface RefactorAction {
@@ -52,6 +54,7 @@ export interface RefactorAction {
   oldName: string;
   collectionName: string;
   moduleId?: string;
+  workflowId?: string;
   contextType?: ActionParentEntityTypeInterface;
 }
 export interface RefactorActionRequest extends RefactorAction {
@@ -74,13 +77,47 @@ class JSActionAPI extends API {
   static async createJSCollection(
     jsConfig: CreateJSCollectionRequest,
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
-    return API.post(JSActionAPI.url, jsConfig);
+    const payload = {
+      ...jsConfig,
+      actions:
+        jsConfig.actions?.map((action) => ({
+          ...action,
+          entityReferenceType: undefined,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          datasource: (action as any).datasource && {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...(action as any).datasource,
+            isValid: undefined,
+            new: undefined,
+          },
+        })) ?? undefined,
+    };
+    return API.post(JSActionAPI.url, payload);
   }
 
   static async copyJSCollection(
     jsConfig: Partial<JSCollection>,
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
-    return API.post(JSActionAPI.url, jsConfig);
+    const payload = {
+      ...jsConfig,
+      actions:
+        jsConfig.actions?.map((action) => ({
+          ...action,
+          entityReferenceType: undefined,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          datasource: (action as any).datasource && {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...(action as any).datasource,
+            isValid: undefined,
+            new: undefined,
+          },
+        })) ?? undefined,
+    };
+    return API.post(JSActionAPI.url, payload);
   }
 
   static async updateJSCollectionBody(
@@ -95,8 +132,24 @@ class JSActionAPI extends API {
   static async updateJSCollection(
     jsConfig: JSCollection,
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
-    const jsAction = Object.assign({}, jsConfig);
-    return API.put(`${JSActionAPI.url}/${jsAction.id}`, jsAction);
+    const payload = {
+      ...jsConfig,
+      actions:
+        jsConfig.actions?.map((action) => ({
+          ...action,
+          entityReferenceType: undefined,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          datasource: (action as any).datasource && {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...(action as any).datasource,
+            isValid: undefined,
+            new: undefined,
+          },
+        })) ?? undefined,
+    };
+    return API.put(`${JSActionAPI.url}/${jsConfig.id}`, payload);
   }
 
   static async deleteJSCollection(id: string) {
@@ -128,10 +181,29 @@ class JSActionAPI extends API {
   static async updateJSCollectionActionRefactor(
     updateJSCollectionActionName: UpdateCollectionActionNameRequest,
   ) {
-    return API.put(
-      JSActionAPI.url + "/refactorAction",
-      updateJSCollectionActionName,
-    );
+    const payload = {
+      ...updateJSCollectionActionName,
+      actionCollection: updateJSCollectionActionName.actionCollection && {
+        ...updateJSCollectionActionName.actionCollection,
+        actions:
+          updateJSCollectionActionName.actionCollection.actions?.map(
+            (action) => ({
+              ...action,
+              entityReferenceType: undefined,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              datasource: (action as any).datasource && {
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ...(action as any).datasource,
+                isValid: undefined,
+                new: undefined,
+              },
+            }),
+          ) ?? undefined,
+      },
+    };
+    return API.put(JSActionAPI.url + "/refactorAction", payload);
   }
 }
 

@@ -50,8 +50,20 @@ public class NewPage extends BranchAwareDomain implements Context {
     @JsonView(Views.Internal.class)
     @Override
     public Layout getLayout() {
+        if (this.getUnpublishedPage() == null || this.getUnpublishedPage().getLayouts() == null) {
+            return null;
+        }
         List<Layout> layouts = this.getUnpublishedPage().getLayouts();
-        return (layouts != null && !layouts.isEmpty()) ? layouts.get(0) : null;
+        return !layouts.isEmpty() ? layouts.get(0) : null;
+    }
+
+    @JsonView(Views.Internal.class)
+    @Override
+    public String getUnpublishedName() {
+        if (this.getUnpublishedPage() == null) {
+            return null;
+        }
+        return this.getUnpublishedPage().getName();
     }
 
     public static class Fields extends BranchAwareDomain.Fields {

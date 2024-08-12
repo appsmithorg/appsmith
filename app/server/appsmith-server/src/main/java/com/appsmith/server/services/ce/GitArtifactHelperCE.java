@@ -27,12 +27,11 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     Mono<T> getArtifactById(String artifactId, AclPermission aclPermission);
 
-    Mono<T> getArtifactByDefaultIdAndBranchName(
-            String defaultArtifactId, String branchName, AclPermission aclPermission);
+    Mono<T> getArtifactByBaseIdAndBranchName(String baseArtifactId, String branchName, AclPermission aclPermission);
 
-    Flux<T> getAllArtifactByDefaultId(String defaultArtifactId, AclPermission aclPermission);
+    Flux<T> getAllArtifactByBaseId(String baseArtifactId, AclPermission aclPermission);
 
-    Mono<GitAuthDTO> getSshKeys(String defaultArtifactId);
+    Mono<GitAuthDTO> getSshKeys(String baseArtifactId);
 
     Mono<T> createNewArtifactForCheckout(Artifact sourceArtifact, String branchName);
 
@@ -40,17 +39,15 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     Mono<T> updateArtifactWithSchemaVersions(Artifact artifact);
 
-    Mono<Void> updateArtifactWithProtectedBranches(String defaultArtifactId, List<String> branchNames);
+    Mono<Void> updateArtifactWithProtectedBranches(String baseArtifactId, List<String> branchNames);
 
-    T updateArtifactWithDefaultReponseUtils(Artifact artifact);
-
-    Flux<T> deleteAllBranches(String defaultArtifactId, List<String> branches);
+    Flux<T> deleteAllBranches(String baseArtifactId, List<String> branches);
 
     Mono<T> deleteArtifactByResource(Artifact artifact);
 
-    void resetAttributeInDefaultArtifact(Artifact defaultArtifact);
+    void resetAttributeInBaseArtifact(Artifact baseArtifact);
 
-    Mono<T> disconnectEntitiesOfDefaultArtifact(Artifact artifact);
+    Mono<T> disconnectEntitiesOfBaseArtifact(Artifact artifact);
 
     Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName, String... args);
 

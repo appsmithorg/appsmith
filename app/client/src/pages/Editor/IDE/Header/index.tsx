@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import {
   Flex,
   Tooltip,
-  Text,
   Divider,
   Modal,
   ModalContent,
@@ -13,9 +12,10 @@ import {
   Tab,
   TabPanel,
   Button,
-} from "design-system";
+  Link,
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
-import { EditInteractionKind, SavingState } from "design-system-old";
+import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
 import styled from "styled-components";
 
 import {
@@ -27,9 +27,8 @@ import {
   IN_APP_EMBED_SETTING,
   INVITE_TAB,
   HEADER_TITLES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import EditorName from "pages/Editor/EditorName";
-import { GetNavigationMenuData } from "pages/Editor/EditorName/NavigationMenuData";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -43,39 +42,41 @@ import {
   getCurrentApplication,
   getIsErroredSavingAppName,
   getIsSavingAppName,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import {
   publishApplication,
   updateApplication,
-} from "@appsmith/actions/applicationActions";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/actions/applicationActions";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { Omnibar } from "pages/Editor/commons/Omnibar";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { EditorShareButton } from "pages/Editor/EditorShareButton";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
-import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
+import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
 import CommunityTemplatesPublishInfo from "pages/Editor/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "pages/Editor/CommunityTemplates/Modals/PublishCommunityTemplate";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getAppsmithConfigs } from "ee/configs";
 import {
   getIsGitConnected,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { NavigationSetting } from "constants/AppConstants";
 import { useHref } from "pages/Editor/utils";
-import { viewerURL } from "@appsmith/RouteBuilder";
+import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "ee/constants/ReduxActionConstants";
 import { IDEHeader, IDEHeaderTitle } from "IDE";
+import { APPLICATIONS_URL } from "constants/routes";
+import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -157,7 +158,9 @@ const Header = () => {
     FEATURE_FLAG.license_private_embeds_enabled,
   );
 
-  const deployLink = useHref(viewerURL, { pageId });
+  const deployLink = useHref(viewerURL, {
+    basePageId: currentPage?.basePageId,
+  });
 
   const updateApplicationDispatch = (
     id: string,
@@ -166,7 +169,7 @@ const Header = () => {
     dispatch(updateApplication(id, data));
   };
 
-  const handlePublish = () => {
+  const handlePublish = useCallback(() => {
     if (applicationId) {
       dispatch(publishApplication(applicationId));
 
@@ -201,23 +204,18 @@ const Header = () => {
         templateTitle: currentApplication?.forkedFromTemplateTitle,
       });
     }
-  };
+  }, [applicationId, currentApplication, dispatch]);
 
-  const handleClickDeploy = useCallback(
-    (fromDeploy?: boolean) => {
-      if (isGitConnected) {
-        dispatch(showConnectGitModal());
-        AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
-          source: fromDeploy
-            ? "Deploy button"
-            : "Application name menu (top left)",
-        });
-      } else {
-        handlePublish();
-      }
-    },
-    [dispatch, handlePublish],
-  );
+  const handleClickDeploy = useCallback(() => {
+    if (isGitConnected) {
+      dispatch(showConnectGitModal());
+      AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
+        source: "Deploy button",
+      });
+    } else {
+      handlePublish();
+    }
+  }, [dispatch, handlePublish, isGitConnected]);
 
   return (
     <>
@@ -230,12 +228,10 @@ const Header = () => {
           <Flex alignItems={"center"}>
             {currentWorkspace.name && (
               <>
-                <Text
-                  color={"var(--ads-v2-colors-content-label-inactive-fg)"}
-                  kind="body-m"
-                >
-                  {currentWorkspace.name + " / "}
-                </Text>
+                <Link className="mr-1.5" to={APPLICATIONS_URL}>
+                  {currentWorkspace.name}
+                </Link>
+                {"/"}
                 <EditorName
                   applicationId={applicationId}
                   className="t--application-name editable-application-name max-w-48"
@@ -246,7 +242,7 @@ const Header = () => {
                   editInteractionKind={EditInteractionKind.SINGLE}
                   editorName="Application"
                   fill
-                  getNavigationMenu={GetNavigationMenuData}
+                  getNavigationMenu={useNavigationMenuData}
                   isError={isErroredSavingName}
                   isNewEditor={
                     applicationList.filter((el) => el.id === applicationId)
@@ -343,7 +339,7 @@ const Header = () => {
                 isDisabled={isProtectedMode}
                 isLoading={isPublishing}
                 kind="tertiary"
-                onClick={() => handleClickDeploy(true)}
+                onClick={handleClickDeploy}
                 size="md"
                 startIcon={"rocket"}
               >

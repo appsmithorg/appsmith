@@ -1,16 +1,16 @@
 import ApplicationApi, {
   type exportApplicationRequest,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import type {
   ApplicationPayload,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { toast } from "design-system";
+} from "ee/constants/ReduxActionConstants";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { toast } from "@appsmith/ads";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -22,10 +22,9 @@ import {
 import { validateResponse } from "../ErrorSagas";
 import { createWidgetCopy } from "../WidgetOperationUtils";
 import { getWidgets } from "../selectors";
-import {
-  createMessage,
-  ERROR_IN_EXPORTING_APP,
-} from "@appsmith/constants/messages";
+import { createMessage, ERROR_IN_EXPORTING_APP } from "ee/constants/messages";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export interface PartialExportParams {
   jsObjects: string[];
@@ -95,6 +94,7 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
   const canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = yield select(getWidgets);
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   const selectedWidgets = widgetIds.map((each) => canvasWidgets[each]);
 
   if (!selectedWidgets || !selectedWidgets.length) return;
@@ -114,6 +114,7 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
     canvasId ? canvasWidgets[canvasId] : undefined,
   );
   const widgetsDSL = {
+    layoutSystemType, // We pass the layout system type, so that we can check if the widgets are compatible when importing
     widgets: widgetListsToStore,
     flexLayers,
   };

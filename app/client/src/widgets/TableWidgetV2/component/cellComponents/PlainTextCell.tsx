@@ -36,6 +36,8 @@ const Container = styled.div<{
 
 export type RenderDefaultPropsType = BaseCellComponentProps & {
   accentColor: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   columnType: string;
   tableWidth: number;

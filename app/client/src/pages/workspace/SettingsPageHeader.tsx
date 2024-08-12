@@ -9,10 +9,10 @@ import {
   MenuTrigger,
   SearchInput,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { HeaderWrapper } from "pages/AdminSettings/components";
 import { SettingsHeader } from "components/utils/helperComponents";
-import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
+import { ARE_YOU_SURE, createMessage } from "ee/constants/messages";
 import { useMediaQuery } from "react-responsive";
 
 interface PageHeaderProps {
@@ -20,6 +20,8 @@ interface PageHeaderProps {
   searchPlaceholder: string;
   onButtonClick?: () => void;
   onSearch?: DebouncedFunc<(search: string) => void>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pageMenuItems: any[];
   title?: string;
   showMoreOptions?: boolean;
@@ -69,6 +71,8 @@ export function SettingsPageHeader(props: PageHeaderProps) {
 
   const onOptionSelect = (
     e: React.MouseEvent<Element, MouseEvent>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     menuItem: any,
   ) => {
     if (menuItem.label === "delete") {

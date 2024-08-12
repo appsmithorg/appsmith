@@ -1,50 +1,39 @@
-import React, { Component } from "react";
-import type { AppState } from "@appsmith/reducers";
-import { connect } from "react-redux";
-import type { Placement } from "popper.js";
+import type { AppState } from "ee/reducers";
 import * as Sentry from "@sentry/react";
-import _, { toString } from "lodash";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import styled from "styled-components";
-import type { Indices } from "constants/Layers";
-import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
-import { StickyType } from "widgets/TableWidgetV2/component/Constants";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import type { Indices } from "constants/Layers";
+import { Button } from "@appsmith/ads";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import _, { toString as lodashToString } from "lodash";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import type { Placement } from "popper.js";
+import React, { Component } from "react";
+import { connect } from "react-redux";
 import {
+  getDataTreeForAutocomplete,
+  getPathEvalErrors,
+} from "selectors/dataTreeSelectors";
+import styled from "styled-components";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import {
+  StickyType,
+  extraSpace,
   itemHeight,
   noOfItemsToDisplay,
-  extraSpace,
 } from "widgets/TableWidgetV2/component/Constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
   createColumn,
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import {
-  getDataTreeForAutocomplete,
-  getPathEvalErrors,
-} from "selectors/dataTreeSelectors";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Checkbox } from "design-system";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-import { Button } from "design-system";
-const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
-  position: relative;
-  ${(props) => props.rightPadding && `right: 6px;`}
-  align-items: center;
-  .ads-v2-checkbox {
-    width: 16px;
-    height: 16px;
-    padding: 0;
-  }
-`;
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const EmptyStateLabel = styled.div`
   margin: 20px 0px;
@@ -54,6 +43,8 @@ const EmptyStateLabel = styled.div`
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasources: any;
   errors: EvaluationError[];
 }
@@ -63,6 +54,8 @@ interface EvaluatedValueProps {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
   dataTreePath?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   hideEvaluatedValue?: boolean;
@@ -206,18 +199,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       <>
         <div className="flex pt-2 pb-2 justify-between">
           <div>{Object.values(reorderedColumns).length} columns</div>
-          {this.isEditableColumnPresent() && (
-            <EdtiableCheckboxWrapper
-              className="flex t--uber-editable-checkbox"
-              rightPadding={this.state.hasScrollableList}
-            >
-              <span className="mr-2">Editable</span>
-              <Checkbox
-                isSelected={this.isAllColumnsEditable()}
-                onChange={this.toggleAllColumnsEditability}
-              />
-            </EdtiableCheckboxWrapper>
-          )}
         </div>
         <div className="flex flex-col w-full gap-1">
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
@@ -231,10 +212,11 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               keyAccessor="id"
               onEdit={this.onEdit}
               propertyPath={this.props.dataTreePath}
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
-                  showCheckbox: true,
                   placeholder: "Column title",
                 })
               }
@@ -328,6 +310,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   }[] => {
     const updates: {
       propertyName: string;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any;
     }[] = [];
     updates.push({
@@ -340,7 +324,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
      * if not, toggle isCellEditable value as well. We're doing this to smooth
      * the user experience.
      */
-    if (!isDynamicValue(toString(column.isCellEditable))) {
+    if (!isDynamicValue(lodashToString(column.isCellEditable))) {
       updates.push({
         propertyName: `${propertyName}.${column.id}.isCellEditable`,
         propertyValue: checked,
@@ -466,12 +450,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
         this.deleteOption(columnOrder.indexOf(editActionColumn.id));
       }
     }
-  };
-
-  isEditableColumnPresent = () => {
-    return Object.values(this.props.propertyValue).some((column) =>
-      isColumnTypeEditable((column as ColumnProperties).columnType),
-    );
   };
 
   static getControlType() {
