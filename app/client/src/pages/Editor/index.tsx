@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "ee/reducers";
-// import IDE from "./IDE";
+import IDE from "./IDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -51,6 +51,8 @@ import { PartialImportModal } from "components/editorComponents/PartialImportExp
 import type { Page } from "ee/constants/ReduxActionConstants";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import AnimatedGridIDE from "./IDE/AnimatedGridIDE";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -73,6 +75,7 @@ interface EditorProps {
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
   pages: Page[];
+  isAnimatedIDEEnabled: boolean;
 }
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -185,7 +188,8 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <AnimatedGridIDE />
+            {this.props.isAnimatedIDEEnabled ? <AnimatedGridIDE /> : <IDE />}
+
             <GitSyncModal />
             <GitSettingsModal />
             <DisableCDModal />
@@ -220,6 +224,10 @@ const mapStateToProps = (state: AppState) => ({
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
   pages: getPageList(state),
+  isAnimatedIDEEnabled: selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_ide_animations_enabled,
+  ),
 });
 
 // TODO: Fix this the next time the file is edited
