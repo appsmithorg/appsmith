@@ -32,7 +32,8 @@ jobs:
             if [[ -z "$checkArg" ]]; then
                 echo "runId=0" >> $GITHUB_OUTPUT
             else
-                echo "runId=$checkArg" >> $GITHUB_OUTPUT
+              runId=$((checkArg + 0))
+              echo "runId=$runId" >> $GITHUB_OUTPUT
             fi
          
       - name: Set run count
@@ -42,7 +43,8 @@ jobs:
             if [[ -z "$checkRunCount" ]]; then
                 echo "run_count=1" >> $GITHUB_OUTPUT  # Set default to 1 if empty
             else
-                echo "run_count=$checkRunCount" >> $GITHUB_OUTPUT
+                run_count=$((checkRunCount + 0))
+                echo "run_count=$run_count" >> $GITHUB_OUTPUT
             fi
         
 
