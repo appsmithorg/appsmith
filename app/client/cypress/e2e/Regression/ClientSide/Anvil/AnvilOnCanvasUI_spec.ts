@@ -15,11 +15,6 @@ describe(
       });
     });
     it("1. Widget name component shows and positioned correctly", () => {
-      // Cleanup the canvas before each test
-      agHelper.PressEscape();
-      agHelper.SelectAllWidgets();
-      agHelper.PressDelete();
-
       // Dnd Button widget into the existing zone
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSBUTTON,
@@ -87,7 +82,7 @@ describe(
       anvilLayout.verifyParentChildRelationship("Zone2", "Button1");
     });
     it("2. Multiple widget names should show when multiple widgets are selected", () => {
-      // Cleanup the canvas before each test
+      // Cleanup the canvas before test
       agHelper.PressEscape();
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
