@@ -30,6 +30,7 @@ describe(
       agHelper.ClickButton("Save");
       agHelper.ValidateToastMessage("Successfully saved");
       cy.title().should("eq", "Appsmith");
+      cy.title().should("eq", "Appsmith");
     });
   },
 );
