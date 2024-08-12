@@ -28,18 +28,18 @@ jobs:
         id: args
         run: |
             echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
-            checkArg=${{ github.event.client_payload.slash_command.args.named.runId }}
-            if [[ -z "$checkArg" ]]; then
-                echo "runId=0" >> $GITHUB_OUTPUT
+            echo "run_count=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
+            checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("runId")'`
+            if [[ $checkArg == 'true' ]]; then
+              echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
             else
-                echo "runId=$checkArg" >> $GITHUB_OUTPUT
+              echo "runId=0" >> $GITHUB_OUTPUT
             fi
-            checkRunCount=${{ github.event.client_payload.slash_command.args.named.run_count }}
-            if [[ -z "$checkRunCount" ]]; then
-                echo "run_count=1" >> $GITHUB_OUTPUT
+            checkRunCount=`echo '${{ toJSON(github.event.client_payload.slash_command.args.named) }}' | jq 'has("run_count")'`
+            if [[ $checkRunCount == 'true' ]]; then
+              echo "run_count=${{ github.event.client_payload.slash_command.args.named.run_count }}" >> $GITHUB_OUTPUT
             else
-                echo "run_count=$checkRunCount" >> $GITHUB_OUTPUT
-            fi
+              echo "run_count=1" >> $GITHUB_OUTPUT
         
 
       - name: Get the diff from base branch
