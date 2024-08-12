@@ -851,7 +851,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number", "currency"];
+    const validatableColumns = ["text", "number", "currency", "date"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)
