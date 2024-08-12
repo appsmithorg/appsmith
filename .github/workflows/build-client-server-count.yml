@@ -30,15 +30,15 @@ jobs:
             echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
             checkArg=${{ github.event.client_payload.slash_command.args.named.runId }}
             if [[ -z "$checkArg" ]]; then
-                echo "runId=$checkArg" >> $GITHUB_OUTPUT
-            else
                 echo "runId=0" >> $GITHUB_OUTPUT
+            else
+                echo "runId=$checkArg" >> $GITHUB_OUTPUT
             fi
             checkRunCount=${{ github.event.client_payload.slash_command.args.named.run_count }}
             if [[ -z "$checkRunCount" ]]; then
-                echo "run_count=$checkRunCount" >> $GITHUB_OUTPUT
-            else
                 echo "run_count=1" >> $GITHUB_OUTPUT
+            else
+                echo "run_count=$checkRunCount" >> $GITHUB_OUTPUT
             fi
         
 
@@ -140,7 +140,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      run_count: ${{needs.file-check.outputs.run_count}}
+      run_count: ${{needs.file-check.outputs.run_count || 1}}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
@@ -152,7 +152,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
-      run_count: ${{needs.file-check.outputs.run_count}}
+      run_count: ${{needs.file-check.outputs.run_count || 1}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
