@@ -16,7 +16,7 @@ export type ControlMethods = Record<
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
-  shoudUpdateProperty(newValue: unknown) {
+  shouldUpdateProperty(newValue: unknown) {
     const { defaultValue, propertyValue: oldValue } = this.props;
 
     if (oldValue === undefined && newValue === defaultValue) return false;
@@ -59,7 +59,7 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
     if (this.props.onBatchUpdateWithAssociatedUpdates) {
       this.props.onBatchUpdateWithAssociatedUpdates(
         updates.filter(({ propertyValue }) =>
-          this.shoudUpdateProperty(propertyValue),
+          this.shouldUpdateProperty(propertyValue),
         ),
       );
     }
