@@ -146,9 +146,10 @@ public class TransactionAspect {
                         String methodName = signature.getMethod().getName();
                         boolean isWriteOp = isWriteOp(methodName);
 
-                        /*if (!isWriteOp) {
-                            // (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
-                            return ((Flux<?>) joinPoint.proceed(joinPoint.getArgs())).collectList().map(obj -> {
+                        Flux flux = (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
+
+                        if (!isWriteOp) {
+                            return flux.map(obj -> {
                                 if (obj instanceof BaseDomain) {
                                     DBOps dbOps = new DBOps();
                                     dbOps.setEntity(obj);
@@ -159,9 +160,31 @@ public class TransactionAspect {
                                     return obj;
                                 }
                                 return obj;
-                            })
-                                .flatMapMany(Flux::fromIterable);
-                        } */
+                            });
+                        } else {
+                            return flux.map(obj -> {
+                                AppsmithRepository<?> repository = repoByEntityClass.get(obj.getClass());
+                                if (repository == null) {
+                                    log.error(" Unable to find the repository for the entity {}", obj.getClass());
+                                    return obj;
+                                }
+                                DBOps dbOps = new DBOps();
+                                dbOps.setEntity(obj);
+                                if (transactionContext.containsKey(getObjectId(dbOps))) {
+                                    return obj;
+                                }
+                                Optional<?> entity = repository.findById(((BaseDomain) obj).getId());
+                                dbOps = new DBOps();
+                                if (entity.isPresent()) {
+                                    dbOps.setEntity(entity.get());
+                                } else {
+                                    dbOps.setEntity(obj);
+                                    dbOps.setNew(true);
+                                }
+                                transactionContext.put(getObjectId(dbOps), dbOps);
+                                return obj;
+                            });
+                        }
                     }
 
                     return (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
