@@ -3,41 +3,7 @@ name: Build Client, Server & Run only Cypress with count
 on:
   repository_dispatch:
     types: [ci-test-limit-count-command]
-  workflow_dispatch:
-    inputs:
-        pr:
-            description: "PR number"
-            required: false
-            type: number
-            default: 0
-        previous-workflow-run-id:
-            description: "Workflow ID (To Download cicontainer)"
-            required: false
-            type: number
-            default: 0
-        run_count:
-            description: 'Number of times to repeat the test run'
-            required: false
-            type: number 
-            default: 1
 
-
-  workflow_call:
-    inputs:
-        pr:
-            description: "This is the PR number in case the workflow is being called in a pull request"
-            required: false
-            type: number
-        previous-workflow-run-id:
-            description: "This is the PR number in case the workflow is being called in a pull request"
-            required: false
-            type: number
-            default: 0
-        run_count:
-            description: 'Number of times to repeat the test run'
-            required: false
-            type: number
-            default: 1  
 
 jobs:
   file-check:
@@ -49,7 +15,7 @@ jobs:
       pr: ${{steps.args.outputs.pr}}
       runId: ${{steps.args.outputs.runId}}
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
-      run_count: ${{ steps.args.outputs.run_count }}
+      run_count: ${{ steps.countArgs.outputs.run_count }}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -63,18 +29,24 @@ jobs:
         id: args
         run: |
           echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
-          echo "run_count=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
-          checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("runId")'`
-          if [[ $checkArg == 'true' ]]; then
-            echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
+          checkArg=${{ github.event.client_payload.slash_command.args.named.runId }}
+          if [[ -z "$checkArg" ]]; then
+              echo "runId=0" >> $GITHUB_OUTPUT
           else
-            echo "runId=0" >> $GITHUB_OUTPUT
+              runId=$((checkArg + 0))
+              echo "runId=$runId" >> $GITHUB_OUTPUT
           fi
-          checkRunCount=`echo '${{ toJSON(github.event.client_payload.slash_command.args.named) }}' | jq 'has("run_count")'`
-          if [[ $checkRunCount == 'true' ]]; then
-            echo "run_count=${{ github.event.client_payload.slash_command.args.named.run_count }}" >> $GITHUB_OUTPUT
+       
+      - name: Set run count
+        id: countArgs
+        run: |    
+          checkRunCount=${{ github.event.client_payload.slash_command.args.named.run_count }}
+          if [[ -z "$checkRunCount" ]]; then
+              echo "run_count=1" >> $GITHUB_OUTPUT  # Set default to 1 if empty
           else
-            echo "run_count=1" >> $GITHUB_OUTPUT
+              run_count=$((checkRunCount + 0))
+              echo "run_count=$run_count" >> $GITHUB_OUTPUT
+          fi
 
       - name: Get the diff from base branch
         continue-on-error: true
