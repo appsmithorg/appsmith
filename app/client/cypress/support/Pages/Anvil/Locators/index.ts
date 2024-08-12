@@ -31,6 +31,11 @@ const anvilModalWidgetSelectors = {
   },
 };
 
+const anvilOnCanvasUISelectors = {
+  anvilOnCanvasWidgetNameSelector:
+    "[data-testid=t--anvil-draggable-widget-name]",
+};
+
 // sections and zones based selectors
 const anvilSectionAndZonesBasedSelectors = {
   anvilZoneDistributionValue: "[data-testid=t--anvil-zone-distribution-value]",
@@ -68,4 +73,5 @@ export const anvilLocators = {
   ...anvilWidgetsLocators,
   ...anvilSectionAndZonesBasedSelectors,
   ...anvilDnDBasedSelectors,
+  ...anvilOnCanvasUISelectors,
 };
