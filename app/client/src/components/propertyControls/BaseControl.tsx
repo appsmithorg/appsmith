@@ -34,7 +34,7 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
     isUpdatedViaKeyboard?: boolean,
   ) {
     if (
-      this.shoudUpdateProperty(propertyValue) &&
+      this.shouldUpdateProperty(propertyValue) &&
       this.props.onPropertyChange
     ) {
       this.props.onPropertyChange(
