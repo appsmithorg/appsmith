@@ -44,9 +44,10 @@ describe(
       // This adds offsetValue using autocomplete menu
       cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
         .contains("__offset__")
-        .dblclick()
-        .dblclick()
-        .type("{{JSObject1.");
+        .dblclick();
+      cy.focused().clear();
+      cy.focused().type("{{JSObject1.");
+
       _.agHelper.GetNAssertElementText(
         _.locators._hints,
         "offsetValue",
@@ -59,8 +60,9 @@ describe(
       // thus asserting bug resolution of 16702
       cy.get(".t--graphql-query-editor pre.CodeMirror-line span")
         .contains("__limit__")
-        .dblclick()
-        .type("{{JSObject1.");
+        .dblclick();
+      cy.focused().clear();
+      cy.focused().type("{{JSObject1.");
       _.agHelper.GetNClickByContains(_.locators._hints, "limitValue");
     });
   },
