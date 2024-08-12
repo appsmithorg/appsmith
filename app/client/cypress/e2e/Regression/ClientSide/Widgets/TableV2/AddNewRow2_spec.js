@@ -94,6 +94,11 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.enterTableCellValue(0, 0, "");
     cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
 
+    // revert to Number for remainder of tests
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("Number").click();
+    cy.wait("@updateLayout");
+
     cy.get(".t--discard-new-row").click({ force: true });
   });
 
