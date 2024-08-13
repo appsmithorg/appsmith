@@ -98,6 +98,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
             log.warn("Ignoring jsonl file as table doesn't exist: {}", jsonlPath);
             return;
         }
+        log.info("Importing data to table: {}", tableName);
 
         try {
             jdbcTemplate.query("SELECT * FROM \"" + tableName + "\" LIMIT 1", rs -> {

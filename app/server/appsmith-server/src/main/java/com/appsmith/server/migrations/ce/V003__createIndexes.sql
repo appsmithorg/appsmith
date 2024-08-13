@@ -105,12 +105,13 @@ create index if not exists new_action_unpublished_collection_id_idx
 create index if not exists new_action_published_collection_id_idx
     on new_action((published_action ->> 'collectionId'))
     WHERE deleted_at IS NULL AND published_action IS NOT NULL;
-create index if not exists new_action_unpublished_datasource_id_idx
-    on new_action((unpublished_action ->> 'datasource' ->> 'id'))
-    WHERE deleted_at IS NULL AND unpublished_action IS NOT NULL AND unpublished_action ->> 'datasource' IS NOT NULL;
-create index if not exists new_action_published_datasource_id_idx
-    on new_action((published_action ->> 'datasource' ->> 'id'))
-    WHERE deleted_at IS NULL AND published_action IS NOT NULL AND published_action ->> 'datasource' IS NOT NULL;
+
+-- create index if not exists new_action_unpublished_datasource_id_idx
+--    on new_action((unpublished_action ->> 'datasource' ->> 'id'))
+--    WHERE deleted_at IS NULL AND unpublished_action IS NOT NULL AND unpublished_action ->> 'datasource' IS NOT NULL;
+-- create index if not exists new_action_published_datasource_id_idx
+--    on new_action((published_action ->> 'datasource' ->> 'id'))
+--    WHERE deleted_at IS NULL AND published_action IS NOT NULL AND published_action ->> 'datasource' IS NOT NULL;
 create index if not exists new_action_base_id_branch_name_idx
     on new_action(base_id, branch_name)
     WHERE deleted_at IS NULL;
