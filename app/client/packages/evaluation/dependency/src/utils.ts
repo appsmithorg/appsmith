@@ -9,9 +9,6 @@ export {
 export const getEntityDependencies = (
   entity: {
     ENTITY_TYPE: string;
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key: string]: any;
     widgetName?: string;
   },
   entityConfig: EntityConfig,
@@ -21,12 +18,15 @@ export const getEntityDependencies = (
     return {};
   }
 
-  return EntityDependencyGetterMap[entity.ENTITY_TYPE](
-    entity,
-    entityConfig,
-    allKeys,
+  return (
+    EntityDependencyGetterMap[entity.ENTITY_TYPE](
+      entity,
+      entityConfig,
+      allKeys,
+    ) || {}
   );
 };
+
 export const getSetterFunctions = (configTree: {
   [entityName: string]: {
     __setters?: Record<
