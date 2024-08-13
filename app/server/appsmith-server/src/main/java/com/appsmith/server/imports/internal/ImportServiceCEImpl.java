@@ -30,7 +30,7 @@ import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.TransactionManager;
+import com.appsmith.server.solutions.TransactionHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +68,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter;
     private final JsonSchemaMigration jsonSchemaMigration;
     private final DryOperationRepository dryOperationRepository;
-    private final TransactionManager transactionManager;
+    private final TransactionHandler transactionHandler;
 
     /**
      * This method provides the importService specific to the artifact based on the ArtifactType.
@@ -513,7 +513,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .contextWrite(context -> context.put("transactionContext", enityMap))
                 .onErrorResume(throwable -> {
                     // clean up stale entities and modified entities back to the original state from the db
-                    transactionManager.cleanUpDatabase(enityMap);
+                    transactionHandler.cleanUpDatabase(enityMap);
                     return Mono.error(throwable);
                 });
 

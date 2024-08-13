@@ -14,7 +14,7 @@ import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.TransactionManager;
+import com.appsmith.server.solutions.TransactionHandler;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
             ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter,
             JsonSchemaMigration jsonSchemaMigration,
             DryOperationRepository dryOperationRepository,
-            TransactionManager transactionManager) {
+            TransactionHandler transactionHandler) {
         super(
                 applicationImportService,
                 sessionUserService,
@@ -45,6 +45,6 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
                 artifactExchangeJsonAdapter,
                 jsonSchemaMigration,
                 dryOperationRepository,
-                transactionManager);
+                transactionHandler);
     }
 }

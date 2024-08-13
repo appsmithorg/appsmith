@@ -33,7 +33,7 @@ import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class TransactionManager {
+public class TransactionHandler {
 
     private final DatasourceRepository datasourceRepository;
 

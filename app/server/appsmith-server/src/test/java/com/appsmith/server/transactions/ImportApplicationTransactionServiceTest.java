@@ -22,12 +22,10 @@ import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
 import jakarta.transaction.TransactionalException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
@@ -38,7 +36,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -49,12 +46,9 @@ import static org.mockito.ArgumentMatchers.any;
 // All the test case are for failure or exception. Test cases for valid json file is already present in
 // ImportExportApplicationServiceTest class
 
-@ExtendWith(AfterAllCleanUpExtension.class)
-@AutoConfigureDataMongo
 @SpringBootTest
-@TestPropertySource(properties = "property=C")
+@ExtendWith(AfterAllCleanUpExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-@Disabled
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
