@@ -1,21 +1,4 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "target": "es6",
-    "baseUrl": "./",
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "module": "ESNext",
-    "isolatedModules": true,
-    "paths": {
-      "@appsmith/utils/*": ["src/*"],
-      "@*": ["src/*"]
-    },
-    "typeRoots": ["./src"]
-  },
-  "include": ["src/**/*", "**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "extends": "../../tsconfig.json",
+  "include": ["./src/**/*"]
 }

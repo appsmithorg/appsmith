@@ -231,11 +231,6 @@ __metadata:
 "@appsmith/utils@workspace:^, @appsmith/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@appsmith/utils@workspace:packages/utils"
-  dependencies:
-    "@types/jest": ^29.5.12
-    jest: ^29.7.0
-    ts-jest: ^29.2.4
-    typescript: ^5.5.4
   languageName: unknown
   linkType: soft
 
@@ -10928,7 +10923,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:*, @types/jest@npm:^29.2.3, @types/jest@npm:^29.5.12":
+"@types/jest@npm:*, @types/jest@npm:^29.2.3":
   version: 29.5.12
   resolution: "@types/jest@npm:29.5.12"
   dependencies:
@@ -23785,7 +23780,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.3.1, jest@npm:^29.5.0, jest@npm:^29.6.4, jest@npm:^29.7.0":
+"jest@npm:^29.3.1, jest@npm:^29.5.0, jest@npm:^29.6.4":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:
@@ -34107,7 +34102,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.1.0, ts-jest@npm:^29.2.4":
+"ts-jest@npm:^29.1.0":
   version: 29.2.4
   resolution: "ts-jest@npm:29.2.4"
   dependencies:

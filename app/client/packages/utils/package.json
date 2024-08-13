@@ -10,11 +10,5 @@
     "test:unit": "yarn g:jest"
   },
   "author": "Aman Agarwal <aman@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/jest": "^29.5.12",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.2.4",
-    "typescript": "^5.5.4"
-  }
+  "license": "ISC"
 }
