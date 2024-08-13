@@ -53,6 +53,7 @@ import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 import AnimatedGridIDE from "./IDE/AnimatedGridIDE";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { IDE_HEADER_HEIGHT } from "IDE";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -172,7 +173,7 @@ class Editor extends Component<Props> {
     if (!this.props.isEditorInitialized || this.props.loadingGuidedTour) {
       return (
         <CenteredWrapper
-          style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
+          style={{ height: `calc(100vh - ${IDE_HEADER_HEIGHT}px)` }}
         >
           <Spinner size="lg" />
         </CenteredWrapper>

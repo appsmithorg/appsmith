@@ -4,6 +4,8 @@ import classNames from "classnames";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "../../../selectors/editorSelectors";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { IDE_HEADER_HEIGHT } from "IDE";
+import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/contants";
 
 interface EditorWrapperContainerProps {
   children: React.ReactNode;
@@ -14,8 +16,7 @@ const Wrapper = styled.div<{
 }>`
   display: flex;
   height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight} -
+    100vh - ${IDE_HEADER_HEIGHT}px - ${BOTTOM_BAR_HEIGHT}px -
       ${(props) => (props.isProtectedMode ? "70px" : "0px")}
   );
   background-color: ${(props) => props.theme.appBackground};

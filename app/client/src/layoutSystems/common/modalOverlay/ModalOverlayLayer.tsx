@@ -4,12 +4,13 @@ import React, { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
-import { theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
+import { IDE_HEADER_HEIGHT } from "IDE";
+
 const Container = styled.div<{
   width?: number;
   height?: number;
@@ -30,6 +31,7 @@ const Container = styled.div<{
       .${Classes.OVERLAY_BACKDROP} {
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
+
       position: fixed;
       top: 0;
       right: 0;
@@ -44,6 +46,7 @@ const Container = styled.div<{
       display: flex;
       justify-content: center;
       align-items: center;
+
       & .${Classes.OVERLAY_CONTENT} {
         max-width: ${(props) => {
           if (props.maxWidth) return `${props.maxWidth}px`;
@@ -152,7 +155,7 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
           maxWidth={maxModalWidth}
           minSize={props.minSize}
           right={props.bottom}
-          smallHeaderHeight={theme.smallHeaderHeight}
+          smallHeaderHeight={IDE_HEADER_HEIGHT + "px"}
           top={props.top}
           width={props.width}
           zIndex={

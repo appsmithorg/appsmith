@@ -20,10 +20,10 @@ import {
   APP_SIDEBAR_WIDTH,
   DEFAULT_EXPLORER_PANE_WIDTH,
 } from "../../../../constants/AppConstants";
+import { BOTTOM_BAR_HEIGHT } from "../../../../components/BottomBar/contants";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
-const BottomBarHeight = 34;
 
 const EntityInfoContainer = styled.div`
   min-width: 220px;
@@ -120,7 +120,7 @@ export function EntityProperties() {
       let bottom;
       if (
         top + BindingContainerMaxHeight >
-        window.innerHeight - BottomBarHeight
+        window.innerHeight - BOTTOM_BAR_HEIGHT
       ) {
         bottom = window.innerHeight - rect?.bottom - EntityHeight;
       }

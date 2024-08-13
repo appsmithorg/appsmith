@@ -8,12 +8,11 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import { EditorState } from "ee/entities/IDE/constants";
 import { RenderModes } from "constants/WidgetConstants";
 import styled from "styled-components";
+import { IDE_HEADER_HEIGHT } from "IDE";
+import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/contants";
 
 const Container = styled.div`
-  height: calc(
-    100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight}
-  );
+  height: calc(100vh - ${IDE_HEADER_HEIGHT} - ${BOTTOM_BAR_HEIGHT});
 `;
 
 /**
