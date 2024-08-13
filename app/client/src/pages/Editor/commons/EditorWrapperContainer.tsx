@@ -6,6 +6,7 @@ import { combinedPreviewModeSelector } from "../../../selectors/editorSelectors"
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { IDE_HEADER_HEIGHT } from "IDE";
 import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/contants";
+import { PROTECTED_CALLOUT_HEIGHT } from "../IDE/ProtectedCallout";
 
 interface EditorWrapperContainerProps {
   children: React.ReactNode;
@@ -17,7 +18,8 @@ const Wrapper = styled.div<{
   display: flex;
   height: calc(
     100vh - ${IDE_HEADER_HEIGHT}px - ${BOTTOM_BAR_HEIGHT}px -
-      ${(props) => (props.isProtectedMode ? "70px" : "0px")}
+      ${(props) =>
+        props.isProtectedMode ? PROTECTED_CALLOUT_HEIGHT + "px" : "0px"}
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
