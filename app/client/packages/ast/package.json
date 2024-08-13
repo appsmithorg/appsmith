@@ -13,6 +13,7 @@
     "build": "rollup -c"
   },
   "dependencies": {
+    "@appsmith/evaluation": "workspace:^",
     "@babel/runtime": "^7.21.0",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@types/escodegen": "^0.0.7",

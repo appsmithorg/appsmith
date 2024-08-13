@@ -8526,6 +8526,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shared/ast@workspace:packages/ast"
   dependencies:
+    "@appsmith/evaluation": "workspace:^"
     "@babel/preset-typescript": ^7.17.12
     "@babel/runtime": ^7.21.0
     "@rollup/plugin-commonjs": ^22.0.0
