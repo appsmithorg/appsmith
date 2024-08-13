@@ -206,8 +206,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // Hash usernames at all places for self-hosted instance
         if (shouldHashUserId(event, userId, hashUserId, commonConfig.isCloudHosting())) {
             final String hashedUserId = hash(userId);
+            // Remove params map and request key properties, if it's self-hosted as it contains user's evaluated params
             analyticsProperties.remove("request");
-            // Remove params map key property if it's self-hosted
             if (analyticsProperties.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP)) {
                 analyticsProperties.remove(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP);
             }
