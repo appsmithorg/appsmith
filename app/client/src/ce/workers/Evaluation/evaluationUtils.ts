@@ -38,7 +38,7 @@ import {
   convertPathToString,
   getAllPaths,
   isTrueObject,
-} from "@evaluation/common";
+} from "@appsmith/evaluation";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options

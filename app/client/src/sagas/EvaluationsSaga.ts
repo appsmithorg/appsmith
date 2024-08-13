@@ -27,7 +27,7 @@ import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import type { EvalError } from "@evaluation/common";
+import type { EvalError } from "@appsmith/evaluation";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";

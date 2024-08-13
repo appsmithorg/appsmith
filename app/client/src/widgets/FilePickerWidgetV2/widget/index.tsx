@@ -5,7 +5,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import { klona } from "klona";
 import _, { findIndex } from "lodash";
 import log from "loglevel";

@@ -1,5 +1,5 @@
 {
-  "name": "@evaluation/common",
+  "name": "@appsmith/evaluation",
   "version": "1.0.0",
   "main": "src/index.ts",
   "license": "MIT",
@@ -12,5 +12,8 @@
   },
   "dependencies": {
     "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.17.7"
   }
 }

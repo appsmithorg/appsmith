@@ -7,7 +7,7 @@ import {
   RESERVED_KEYWORDS_AND_INDENTIFIERS,
   type BindingsInfo,
   type EvalError,
-} from "@evaluation/common";
+} from "../common";
 import { toPath, union } from "lodash";
 
 function isJSAction(entity: { ENTITY_TYPE: string }) {

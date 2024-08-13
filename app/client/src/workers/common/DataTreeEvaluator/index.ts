@@ -35,8 +35,8 @@ import {
   EvalErrorTypes,
   type EvalError as TEvalError,
   getAllPaths,
-} from "@evaluation/common";
-import { convertPathToString } from "@evaluation/common";
+} from "@appsmith/evaluation";
+import { convertPathToString } from "@appsmith/evaluation";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {

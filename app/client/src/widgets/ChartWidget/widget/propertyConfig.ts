@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import {
   CUSTOM_CHART_TYPES,

@@ -5,9 +5,9 @@ import type {
   WidgetConfig,
 } from "./types";
 import union from "lodash/union";
-import type { OverrideDependency } from "@evaluation/common";
+import type { OverrideDependency } from "../../common";
 import get from "lodash/get";
-import { getDynamicBindings } from "@evaluation/dynamic-binding";
+import { getDynamicBindings } from "../../dynamicBinding";
 
 export function getDependencyFromEntityPath(
   propertyPath: string,
@@ -71,8 +71,8 @@ export function getJSDependencies(
   allKeys: Record<string, true>,
 ): Record<string, string[]> {
   let dependencies: Record<string, string[]> = {};
-  const jsActionReactivePaths = jsActionConfig.reactivePaths || {};
-  const jsActionDependencyMap = jsActionConfig.dependencyMap || {};
+  const jsActionReactivePaths = jsActionConfig.reactivePaths ?? {};
+  const jsActionDependencyMap = jsActionConfig.dependencyMap ?? {};
   const jsObjectName = jsActionConfig.name || "";
 
   for (const [propertyPath, pathDeps] of Object.entries(

@@ -50,6 +50,7 @@
   "dependencies": {
     "@appsmith/ads": "workspace:^",
     "@appsmith/ads-old": "workspace:^",
+    "@appsmith/evaluation": "workspace:^",
     "@aws-sdk/client-s3": "^3.622.0",
     "@aws-sdk/lib-storage": "^3.622.0",
     "@babel/standalone": "^7.23.6",
@@ -62,9 +63,6 @@
     "@design-system/theming": "workspace:^",
     "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
-    "@evaluation/common": "workspace:^",
-    "@evaluation/dependency": "workspace:^",
-    "@evaluation/dynamic-binding": "workspace:^",
     "@floating-ui/dom": "^1.6.4",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",

@@ -228,6 +228,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@appsmith/evaluation@workspace:^, @appsmith/evaluation@workspace:packages/evaluation":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/evaluation@workspace:packages/evaluation"
+  dependencies:
+    "@types/lodash": ^4.17.7
+    lodash: ^4.17.21
+  languageName: unknown
+  linkType: soft
+
 "@aws-crypto/crc32@npm:5.2.0":
   version: 5.2.0
   resolution: "@aws-crypto/crc32@npm:5.2.0"
@@ -3774,28 +3783,6 @@ __metadata:
   checksum: 0228bf1e1e0414843e56d9ff362a2a72d579c078f93174666f29315690e9e30a8633ad72c923297f7fd7182381b5a476805ff04dac8debe638953eb1ded3ac73
   languageName: node
   linkType: hard
-
-"@evaluation/common@workspace:^, @evaluation/common@workspace:packages/evaluation/common":
-  version: 0.0.0-use.local
-  resolution: "@evaluation/common@workspace:packages/evaluation/common"
-  dependencies:
-    lodash: ^4.17.21
-  languageName: unknown
-  linkType: soft
-
-"@evaluation/dependency@workspace:^, @evaluation/dependency@workspace:packages/evaluation/dependency":
-  version: 0.0.0-use.local
-  resolution: "@evaluation/dependency@workspace:packages/evaluation/dependency"
-  dependencies:
-    lodash: ^4.17.21
-  languageName: unknown
-  linkType: soft
-
-"@evaluation/dynamic-binding@workspace:^, @evaluation/dynamic-binding@workspace:packages/evaluation/dynamicBinding":
-  version: 0.0.0-use.local
-  resolution: "@evaluation/dynamic-binding@workspace:packages/evaluation/dynamicBinding"
-  languageName: unknown
-  linkType: soft
 
 "@faker-js/faker@npm:^7.4.0":
   version: 7.4.0
@@ -11040,10 +11027,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.105, @types/lodash@npm:^4.14.120, @types/lodash@npm:^4.14.167":
-  version: 4.14.191
-  resolution: "@types/lodash@npm:4.14.191"
-  checksum: ba0d5434e10690869f32d5ea49095250157cae502f10d57de0a723fd72229ce6c6a4979576f0f13e0aa9fbe3ce2457bfb9fa7d4ec3d6daba56730a51906d1491
+"@types/lodash@npm:^4.14.105, @types/lodash@npm:^4.14.120, @types/lodash@npm:^4.14.167, @types/lodash@npm:^4.17.7":
+  version: 4.17.7
+  resolution: "@types/lodash@npm:4.17.7"
+  checksum: 09e58a119cd8a70acfb33f8623dc2fc54f74cdce3b3429b879fc2daac4807fe376190a04b9e024dd300f9a3ee1876d6623979cefe619f70654ca0fe0c47679a7
   languageName: node
   linkType: hard
 
@@ -13178,6 +13165,7 @@ __metadata:
   dependencies:
     "@appsmith/ads": "workspace:^"
     "@appsmith/ads-old": "workspace:^"
+    "@appsmith/evaluation": "workspace:^"
     "@aws-sdk/client-s3": ^3.622.0
     "@aws-sdk/lib-storage": ^3.622.0
     "@babel/helper-create-regexp-features-plugin": ^7.18.6
@@ -13194,9 +13182,6 @@ __metadata:
     "@design-system/theming": "workspace:^"
     "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
-    "@evaluation/common": "workspace:^"
-    "@evaluation/dependency": "workspace:^"
-    "@evaluation/dynamic-binding": "workspace:^"
     "@faker-js/faker": ^7.4.0
     "@floating-ui/dom": ^1.6.4
     "@fusioncharts/powercharts": ^3.16.0

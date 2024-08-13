@@ -3,7 +3,7 @@ import { generateDataTreeJSAction } from "ee/entities/DataTree/dataTreeJSAction"
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 
 import { generateDataTreeModuleInputs } from "ee/entities/DataTree/utils";
 import type {

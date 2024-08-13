@@ -15,8 +15,8 @@ import type {
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { find, union } from "lodash";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
-import { getDependencyFromEntityPath } from "@evaluation/dependency";
-import { addWidgetPropertyDependencies } from "@evaluation/dependency";
+import { getDependencyFromEntityPath } from "@appsmith/evaluation";
+import { addWidgetPropertyDependencies } from "@appsmith/evaluation";
 
 export const getPathDependencies = {
   [ENTITY_TYPE.ACTION]: (

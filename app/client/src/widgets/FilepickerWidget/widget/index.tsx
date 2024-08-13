@@ -11,7 +11,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import _ from "lodash";
 import log from "loglevel";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";

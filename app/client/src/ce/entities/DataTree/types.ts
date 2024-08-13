@@ -22,7 +22,7 @@ import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import type {
   OverrideDependency,
   EvaluationSubstitutionType,
-} from "@evaluation/common";
+} from "@appsmith/evaluation";
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ActionDispatcher = (...args: any[]) => ActionDescription;

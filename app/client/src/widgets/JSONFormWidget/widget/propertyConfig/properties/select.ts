@@ -5,7 +5,7 @@ import type { JSONFormWidgetProps } from "../..";
 import type { SelectFieldProps } from "widgets/JSONFormWidget/fields/SelectField";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export function defaultOptionValueValidation(

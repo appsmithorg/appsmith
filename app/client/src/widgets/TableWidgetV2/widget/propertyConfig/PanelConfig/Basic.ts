@@ -10,7 +10,7 @@ import {
 } from "../../propertyUtils";
 import { IconNames } from "@blueprintjs/icons";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 
 export default {

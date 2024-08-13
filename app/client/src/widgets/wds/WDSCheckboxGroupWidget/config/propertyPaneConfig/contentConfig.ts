@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import { defaultSelectedValuesValidation } from "./validations";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 

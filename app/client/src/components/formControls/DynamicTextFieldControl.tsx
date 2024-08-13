@@ -18,7 +18,7 @@ import {
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
-import type { EvaluationSubstitutionType } from "@evaluation/common";
+import type { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 

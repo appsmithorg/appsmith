@@ -47,7 +47,7 @@ import {
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
   AppsmithFunctionsWithFields,
-} from "@evaluation/common";
+} from "@appsmith/evaluation";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import type {
   DataTreeForActionCreator,

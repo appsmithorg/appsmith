@@ -1,8 +1,5 @@
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
-import {
-  isDynamicValue,
-  getDynamicStringSegments,
-} from "@evaluation/dynamic-binding";
+import { isDynamicValue, getDynamicStringSegments } from "@appsmith/evaluation";
 
 /**
  * This function updates the header at a given index.

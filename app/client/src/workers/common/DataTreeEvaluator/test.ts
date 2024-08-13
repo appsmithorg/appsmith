@@ -17,7 +17,7 @@ import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/constants";
 import { type WidgetEntity } from "ee/entities/DataTree/types";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 
 import {
   EXECUTION_PARAM_KEY,

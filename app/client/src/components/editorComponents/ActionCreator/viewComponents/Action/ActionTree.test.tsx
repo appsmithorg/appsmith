@@ -6,7 +6,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { render } from "@testing-library/react";
 import ActionTree from "./ActionTree";
 import type { TActionBlock } from "../../types";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "@evaluation/common";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "@appsmith/evaluation";
 
 describe("tests for Action Tree in Action Selector", () => {
   const store = testStore({});

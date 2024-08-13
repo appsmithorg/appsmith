@@ -1,6 +1,6 @@
 import { getType, Types } from "utils/TypeHelpers";
 import _ from "lodash";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { QUOTED_BINDING_REGEX } from "constants/BindingsConstants";
 

@@ -1,6 +1,6 @@
 import { get, intersection, isEmpty, uniq } from "lodash";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
-import { AppsmithFunctionsWithFields } from "@evaluation/common";
+import { AppsmithFunctionsWithFields } from "@appsmith/evaluation";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
 import { extractReferencesFromPath } from "ee/plugins/Linting/utils/getEntityDependencies";
 import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
@@ -20,7 +20,7 @@ import {
   type EntityTree,
 } from "plugins/Linting/lib/entity/EntityTree";
 import { getEntityFunctions } from "ee/workers/Evaluation/fns";
-import { convertPathToString, getAllPaths } from "@evaluation/common";
+import { convertPathToString, getAllPaths } from "@appsmith/evaluation";
 
 class LintService {
   cachedEntityTree: EntityTree | null;

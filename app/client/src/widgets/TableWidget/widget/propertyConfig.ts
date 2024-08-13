@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import type { TableWidgetProps } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ButtonVariantTypes } from "components/constants";

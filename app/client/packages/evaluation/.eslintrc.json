@@ -1,0 +1,7 @@
+{
+  "extends": ["../../.eslintrc.base.json"],
+  "ignorePatterns": ["build"],
+  "rules": {
+    "@typescript-eslint/strict-boolean-expressions": "off"
+  }
+}

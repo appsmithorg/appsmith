@@ -4,7 +4,7 @@ import type {
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 
 import InputWidget from "widgets/InputWidgetV2";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";

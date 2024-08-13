@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { clone, get, has, isEmpty, set } from "lodash";
 import type { DSLWidget } from "../types";
-import { isDynamicValue } from "@evaluation/dynamic-binding";
+import { isDynamicValue } from "@appsmith/evaluation";
 
 enum ButtonBorderRadiusTypes {
   SHARP = "SHARP",

@@ -1,5 +1,5 @@
 import { PaginationSubComponent } from "components/formControls/utils";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 
 /*
   We kept the graphql constants in this file because we were facing an error : Uncaught TypeError: Cannot read properties of undefined (reading 'register'). So we kept these variables at one place in this file to make sure this is not present in different files.

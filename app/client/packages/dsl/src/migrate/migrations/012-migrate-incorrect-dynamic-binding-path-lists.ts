@@ -8,7 +8,7 @@ import memoize from "micro-memoize";
 import { isObject, isUndefined } from "lodash";
 import { generateReactKey } from "../utils";
 import widgetConfigs from "../helpers/widget-configs.json";
-import { isDynamicValue } from "@evaluation/dynamic-binding";
+import { isDynamicValue } from "@appsmith/evaluation";
 
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,

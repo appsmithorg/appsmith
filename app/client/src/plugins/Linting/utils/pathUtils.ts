@@ -3,7 +3,7 @@ import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUt
 import { toPath, union } from "lodash";
 import { isDynamicEntity } from "ee/plugins/Linting/lib/entity/isDynamicEntity";
 import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
-import { convertPathToString, isTrueObject } from "@evaluation/common";
+import { convertPathToString, isTrueObject } from "@appsmith/evaluation";
 
 export class PathUtils {
   static getReactivePaths(entity: IEntity) {

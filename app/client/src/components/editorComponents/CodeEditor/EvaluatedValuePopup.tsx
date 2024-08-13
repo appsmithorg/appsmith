@@ -8,7 +8,7 @@ import type { FieldEntityInformation } from "components/editorComponents/CodeEdi
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { Placement } from "popper.js";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { Classes, Collapse } from "@blueprintjs/core";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";

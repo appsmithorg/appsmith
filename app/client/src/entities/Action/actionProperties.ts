@@ -1,6 +1,6 @@
 import type { Action } from "entities/Action/index";
 import _ from "lodash";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import {
   alternateViewTypeInputConfig,
   isHidden,

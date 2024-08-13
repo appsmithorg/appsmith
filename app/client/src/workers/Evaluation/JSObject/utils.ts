@@ -7,7 +7,7 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { unset, set, get, find } from "lodash";
 import type {

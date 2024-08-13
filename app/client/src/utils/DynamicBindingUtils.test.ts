@@ -12,7 +12,7 @@ import {
   getEvalValuePath,
   isChildPropertyPath,
 } from "./DynamicBindingUtils";
-import { getDynamicStringSegments } from "@evaluation/dynamic-binding";
+import { getDynamicStringSegments } from "@appsmith/evaluation";
 
 describe.each([
   ["{{A}}", ["{{A}}"]],

@@ -1,5 +1,5 @@
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 
 describe("substituteDynamicBindingWithValues", () => {
   describe("template substitution", () => {

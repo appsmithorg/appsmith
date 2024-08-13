@@ -29,7 +29,7 @@ import {
 import type { getLintingErrorsProps } from "../types";
 import { JSLibraries } from "workers/common/JSLibrary";
 import getLintSeverity from "./getLintSeverity";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "@evaluation/common";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "@appsmith/evaluation";
 import { last } from "lodash";
 import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import setters from "workers/Evaluation/setters";

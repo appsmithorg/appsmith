@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import { sourceDataArrayValidation } from "./validations";
 import { configureMenuItemsConfig, menuItemsConfig } from "./childPanels";
 import { updateMenuItemsSource } from "../helper";

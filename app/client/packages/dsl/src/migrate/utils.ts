@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import generate from "nanoid/generate";
 import type { DSLWidget, WidgetProps } from "./types";
-import { getDynamicBindings } from "@evaluation/dynamic-binding";
+import { getDynamicBindings } from "@appsmith/evaluation";
 
 export const DATA_BIND_REGEX_GLOBAL = /{{([\s\S]*?)}}/g;
 

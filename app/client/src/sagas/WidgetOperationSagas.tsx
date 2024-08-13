@@ -168,7 +168,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import localStorage from "utils/localStorage";
 import { getNewPositions } from "./PasteWidgetUtils";
-import { getAllPaths } from "@evaluation/common";
+import { getAllPaths } from "@appsmith/evaluation";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {

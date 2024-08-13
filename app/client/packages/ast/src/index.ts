@@ -7,7 +7,7 @@ import { getStringValue, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject";
 import { attachComments } from "astravel";
 import { generate } from "astring";
-import { isTrueObject } from "@evaluation/common";
+import { isTrueObject } from "@appsmith/evaluation";
 /*
  * Valuable links:
  *

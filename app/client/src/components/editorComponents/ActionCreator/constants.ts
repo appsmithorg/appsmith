@@ -2,7 +2,7 @@ import { APPSMITH_NAMESPACED_FUNCTIONS as EE_APPSMITH_NAMESPACED_FUNCTIONS } fro
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
   APPSMITH_NAMESPACED_FUNCTIONS,
-} from "@evaluation/common";
+} from "@appsmith/evaluation";
 
 export enum APPSMITH_INTEGRATIONS {
   none = "none",

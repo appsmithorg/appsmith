@@ -1,7 +1,7 @@
 import {
   type EvaluationSubstitutionType,
   type OverrideDependency,
-} from "@evaluation/common";
+} from "../common";
 
 export interface WidgetConfig {
   dependencyMap?: Record<string, string[]>;

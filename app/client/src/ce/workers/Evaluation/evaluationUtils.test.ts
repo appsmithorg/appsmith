@@ -11,7 +11,7 @@ import type {
   JSActionEntity,
 } from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { EvaluationSubstitutionType } from "@evaluation/common";
+import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import type {
   ConfigTree,
   DataTreeEntity,
@@ -29,7 +29,7 @@ import {
   makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { getAllPaths } from "@evaluation/common";
+import { getAllPaths } from "@appsmith/evaluation";
 import { warn as logWarn } from "loglevel";
 import type { Diff } from "deep-diff";
 import _, { flatten, set } from "lodash";
