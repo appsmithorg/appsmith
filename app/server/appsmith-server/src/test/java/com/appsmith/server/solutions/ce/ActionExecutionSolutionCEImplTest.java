@@ -129,7 +129,7 @@ class ActionExecutionSolutionCEImplTest {
     @SpyBean
     TenantService tenantService;
 
-    @MockBean
+    @SpyBean
     CommonConfig commonConfig;
 
     @Autowired
