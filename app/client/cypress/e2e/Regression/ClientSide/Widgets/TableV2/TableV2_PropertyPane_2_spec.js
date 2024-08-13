@@ -171,8 +171,7 @@ describe(
       cy.get(".bp3-popover-content").contains("Row with id 2 is not valid");
 
       cy.discardTableCellValue(4, 1);
-      agHelper.Sleep(500);
-      cy.discardTableRow(5, 1);
+      table.DiscardEditRow(1, 5);
 
       // Sort the id column and ensure that `currentRow` is correctly evaluated
       table.SortColumn("id", "descending");
@@ -180,9 +179,6 @@ describe(
       cy.get(".bp3-popover-content").contains("Row with id 24 is not valid");
 
       cy.discardTableCellValue(4, 1);
-      agHelper.Sleep(500);
-      cy.discardTableRow(5, 1);
-
       table.SortColumn("id", "ascending");
 
       propPane.UpdatePropertyFieldValue("Min", "");
@@ -213,25 +209,22 @@ describe(
       cy.get(".bp3-popover-content").should("not.exist");
 
       cy.discardTableCellValue(4, 1);
-      agHelper.Sleep(500);
-      cy.discardTableRow(5, 1);
+      table.DiscardEditRow(1, 5);
 
       // Sort the id column and ensure that `currentRow` is correctly evaluated
       table.SortColumn("id", "descending");
-      table.EditTableCell(1, 4, 24, false);
-      cy.get(".bp3-popover-content").should("not.exist");
-      table.UpdateTableCell(1, 4, 10);
+
+      table.EditTableCell(1, 4, 10, false);
       cy.get(".bp3-popover-content").contains("Invalid input");
+
       table.UpdateTableCell(1, 4, 24);
       cy.get(".bp3-popover-content").should("not.exist");
 
-      cy.discardTableCellValue(4, 1);
-      agHelper.Sleep(500);
-      cy.discardTableRow(5, 1);
+      propPane.UpdatePropertyFieldValue("Regex", "");
 
+      table.DiscardEditRow(1, 5);
       table.SortColumn("id", "ascending");
 
-      propPane.UpdatePropertyFieldValue("Regex", "");
       // #endregion Regex
 
       // #region Required
@@ -241,10 +234,6 @@ describe(
       table.UpdateTableCell(1, 4, 1, true);
       cy.get(".bp3-popover-content").should("not.exist");
 
-      cy.wait(1500);
-      cy.discardTableRow(5, 1);
-      cy.wait(1500);
-
       // Value isn't required in Row Index 2
       table.EditTableCell(2, 4, "", false);
       cy.get(".bp3-popover-content").should("not.exist");
@@ -253,9 +242,8 @@ describe(
       table.UpdateTableCell(2, 4, "", true);
       cy.get(".bp3-popover-content").should("not.exist");
 
-      cy.wait(1500);
-      cy.discardTableRow(5, 2);
-
+      cy.discardTableCellValue(4, 2);
+      table.DiscardEditRow(2, 5);
       // Check for Required property using currentRow, row with index 1 has id 2
       propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 2}}");
 
@@ -269,10 +257,6 @@ describe(
       table.UpdateTableCell(1, 4, "1", true);
       cy.get(".bp3-popover-content").should("not.exist");
 
-      cy.wait(1500);
-      cy.discardTableRow(5, 1);
-      cy.wait(1500);
-
       // Value isn't required in Row Index 2
       table.EditTableCell(2, 4, "", false);
       cy.get(".bp3-popover-content").should("not.exist");
@@ -281,8 +265,8 @@ describe(
       table.UpdateTableCell(2, 4, "", true);
       cy.get(".bp3-popover-content").should("not.exist");
 
-      cy.wait(1500);
-      cy.discardTableRow(5, 2);
+      cy.discardTableCellValue(4, 2);
+      table.DiscardEditRow(2, 5);
 
       // Sort the id column and ensure that `currentRow` is correctly evaluated
       table.SortColumn("id", "descending");
@@ -296,8 +280,7 @@ describe(
       cy.get(".bp3-popover-content").contains("This field is required");
 
       cy.discardTableCellValue(4, 1);
-      agHelper.Sleep(500);
-      cy.discardTableRow(5, 1);
+      table.DiscardEditRow(1, 5);
 
       table.SortColumn("id", "ascending");
       // #endregion Required
