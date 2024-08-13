@@ -13,23 +13,22 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 @Component
 @RequiredArgsConstructor
@@ -53,87 +52,71 @@ public class TransactionHandler {
 
     private final TransactionTemplate transactionTemplate;
 
-    private Map<Class<?>, AppsmithRepository<?>> repoByEntityClass;
-
-    @PostConstruct
-    public void init() {
-        final Map<Class<?>, AppsmithRepository<?>> map = new HashMap<>();
-        map.put(Datasource.class, datasourceRepository);
-        map.put(DatasourceStorage.class, datasourceStorageRepository);
-        map.put(Theme.class, themeRepository);
-        map.put(CustomJSLib.class, customJSLibRepository);
-        repoByEntityClass = Collections.unmodifiableMap(map);
+    public void saveDatasourceToDb(Datasource datasource) {
+        datasourceRepository.save(datasource);
     }
 
-    public <T> AppsmithRepository<?> getRepositoryForEntity(Class<T> entityClass) {
-        return (AppsmithRepository<?>) repoByEntityClass.get(entityClass);
+    public void archiveDatasource(String id) {
+        datasourceRepository.archiveById(id);
     }
 
-    public Datasource saveDatasourceToDb(Datasource datasource) {
-        return datasourceRepository.save(datasource);
+    public void saveDatasourceStorageToDb(DatasourceStorage datasourceStorage) {
+        datasourceStorageRepository.save(datasourceStorage);
     }
 
-    public int archiveDatasource(String id) {
-        return datasourceRepository.archiveById(id);
+    public void archiveDatasourceStorage(String id) {
+        datasourceRepository.archiveById(id);
     }
 
-    public DatasourceStorage saveDatasourceStorageToDb(DatasourceStorage datasourceStorage) {
-        return datasourceStorageRepository.save(datasourceStorage);
+    private void saveCustomJSLibToDb(CustomJSLib customJSLib) {
+        customJSLibRepository.save(customJSLib);
     }
 
-    public int archiveDatasourceStorage(String id) {
-        return datasourceRepository.archiveById(id);
+    private void archiveCustomJSLib(String customJSLibId) {
+        customJSLibRepository.archiveById(customJSLibId);
     }
 
-    private CustomJSLib saveCustomJSLibToDb(CustomJSLib customJSLib) {
-        return customJSLibRepository.save(customJSLib);
+    private void saveThemeToDb(Theme theme) {
+        themeRepository.save(theme);
     }
 
-    private int archiveCustomJSLib(String customJSLibId) {
-        return customJSLibRepository.archiveById(customJSLibId);
+    private void archiveTheme(String themeId) {
+        themeRepository.archiveById(themeId);
     }
 
-    private Theme saveThemeToDb(Theme theme) {
-        return themeRepository.save(theme);
+    private void saveApplicationToDb(Application application) {
+        applicationRepository.save(application);
     }
 
-    private int archiveTheme(String themeId) {
-        return themeRepository.archiveById(themeId);
+    private void archiveApplication(String applicationId) {
+        applicationRepository.archiveById(applicationId);
     }
 
-    private Application saveApplicationToDb(Application application) {
-        return applicationRepository.save(application);
+    private void saveNewPageToDb(NewPage newPage) {
+        newPageRepository.save(newPage);
     }
 
-    private int archiveApplication(String applicationId) {
-        return applicationRepository.archiveById(applicationId);
+    private void archiveNewPage(String newPageId) {
+        newPageRepository.archiveById(newPageId);
     }
 
-    private NewPage saveNewPageToDb(NewPage newPage) {
-        return newPageRepository.save(newPage);
+    private void saveActionCollectionToDb(ActionCollection actionCollection) {
+        actionCollectionRepository.save(actionCollection);
     }
 
-    private int archiveNewPage(String newPageId) {
-        return newPageRepository.archiveById(newPageId);
+    private void archiveActionCollection(String actionCollectionId) {
+        actionCollectionRepository.archiveById(actionCollectionId);
     }
 
-    private ActionCollection saveActionCollectionToDb(ActionCollection actionCollection) {
-        return actionCollectionRepository.save(actionCollection);
+    private void saveActionToDb(NewAction action) {
+        newActionRepository.save(action);
     }
 
-    private int archiveActionCollection(String actionCollectionId) {
-        return actionCollectionRepository.archiveById(actionCollectionId);
+    private void archiveAction(String actionId) {
+        newActionRepository.archiveById(actionId);
     }
 
-    private NewAction saveActionToDb(NewAction action) {
-        return newActionRepository.save(action);
-    }
-
-    private int archiveAction(String actionId) {
-        return newActionRepository.archiveById(actionId);
-    }
-
-    public void cleanUpDatabase(Map<String, TransactionAspect.DBOps> entityMap) {
+    public Mono<Void> cleanUpDatabase(Map<String, TransactionAspect.DBOps> entityMap) {
         List<Datasource> datasourceList = new ArrayList<>();
         List<DatasourceStorage> datasourceStorageList = new ArrayList<>();
         List<Theme> themeList = new ArrayList<>();
@@ -164,65 +147,78 @@ public class TransactionHandler {
             }
         });
 
-        transactionTemplate.executeWithoutResult(transactionStatus -> {
-            for (Datasource datasource : datasourceList) {
-                TransactionAspect.DBOps dbOps = entityMap.get(datasource.getId());
-                if (dbOps.isNew()) {
-                    archiveDatasource(datasource.getId());
-                } else {
-                    saveDatasourceToDb(datasource);
-                }
-            }
-            for (DatasourceStorage datasourceStorage : datasourceStorageList) {
-                TransactionAspect.DBOps dbOps = entityMap.get(datasourceStorage.getId());
-                if (dbOps.isNew()) {
-                    archiveDatasourceStorage(datasourceStorage.getId());
-                } else {
-                    saveDatasourceStorageToDb(datasourceStorage);
-                }
-            }
-            for (Theme theme : themeList) {
-                TransactionAspect.DBOps dbOps = entityMap.get(theme.getId());
-                if (dbOps.isNew()) {
-                    archiveTheme(theme.getId());
-                } else {
-                    saveThemeToDb(theme);
-                }
-            }
+        return asMonoDirect(() -> {
+                    transactionTemplate.executeWithoutResult(transactionStatus -> {
+                        for (Datasource datasource : datasourceList) {
+                            TransactionAspect.DBOps dbOps = entityMap.get(datasource.getId());
+                            if (dbOps.isNew()) {
+                                archiveDatasource(datasource.getId());
+                            } else {
+                                saveDatasourceToDb(datasource);
+                            }
+                        }
+                        for (DatasourceStorage datasourceStorage : datasourceStorageList) {
+                            TransactionAspect.DBOps dbOps = entityMap.get(datasourceStorage.getId());
+                            if (dbOps.isNew()) {
+                                archiveDatasourceStorage(datasourceStorage.getId());
+                            } else {
+                                saveDatasourceStorageToDb(datasourceStorage);
+                            }
+                        }
+                        for (Theme theme : themeList) {
+                            TransactionAspect.DBOps dbOps = entityMap.get(theme.getId());
+                            if (dbOps.isNew()) {
+                                archiveTheme(theme.getId());
+                            } else {
+                                saveThemeToDb(theme);
+                            }
+                        }
 
-            TransactionAspect.DBOps dbOps = entityMap.get(application[0].getId());
-            if (dbOps.isNew()) {
-                archiveApplication(application[0].getId());
-            } else {
-                saveApplicationToDb(application[0]);
-            }
+                        TransactionAspect.DBOps dbOps = entityMap.get(application[0].getId());
+                        if (dbOps.isNew()) {
+                            archiveApplication(application[0].getId());
+                        } else {
+                            saveApplicationToDb(application[0]);
+                        }
 
-            for (NewPage newPage : newPageList) {
-                dbOps = entityMap.get(newPage.getId());
-                if (dbOps.isNew()) {
-                    archiveNewPage(newPage.getId());
-                } else {
-                    saveNewPageToDb(newPage);
-                }
-            }
+                        for (CustomJSLib customJSLib : customJSLibList) {
+                            dbOps = entityMap.get(customJSLib.getId());
+                            if (dbOps.isNew()) {
+                                archiveCustomJSLib(customJSLib.getId());
+                            } else {
+                                saveCustomJSLibToDb(customJSLib);
+                            }
+                        }
 
-            for (ActionCollection actionCollection : actionCollectionList) {
-                dbOps = entityMap.get(actionCollection.getId());
-                if (dbOps.isNew()) {
-                    archiveActionCollection(actionCollection.getId());
-                } else {
-                    saveActionCollectionToDb(actionCollection);
-                }
-            }
+                        for (NewPage newPage : newPageList) {
+                            dbOps = entityMap.get(newPage.getId());
+                            if (dbOps.isNew()) {
+                                archiveNewPage(newPage.getId());
+                            } else {
+                                saveNewPageToDb(newPage);
+                            }
+                        }
 
-            for (NewAction action : actionList) {
-                dbOps = entityMap.get(action.getId());
-                if (dbOps.isNew()) {
-                    archiveAction(action.getId());
-                } else {
-                    saveActionToDb(action);
-                }
-            }
-        });
+                        for (ActionCollection actionCollection : actionCollectionList) {
+                            dbOps = entityMap.get(actionCollection.getId());
+                            if (dbOps.isNew()) {
+                                archiveActionCollection(actionCollection.getId());
+                            } else {
+                                saveActionCollectionToDb(actionCollection);
+                            }
+                        }
+
+                        for (NewAction action : actionList) {
+                            dbOps = entityMap.get(action.getId());
+                            if (dbOps.isNew()) {
+                                archiveAction(action.getId());
+                            } else {
+                                saveActionToDb(action);
+                            }
+                        }
+                    });
+                    return true;
+                })
+                .then();
     }
 }

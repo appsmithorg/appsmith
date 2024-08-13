@@ -504,17 +504,15 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(importableArtifact -> updateImportableEntities(
                         artifactBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
                 .flatMap(importableArtifact -> updateImportableArtifact(artifactBasedImportService, importableArtifact))
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
                 .contextWrite(context -> context.put("transactionContext", enityMap))
                 .onErrorResume(throwable -> {
                     // clean up stale entities and modified entities back to the original state from the db
-                    transactionHandler.cleanUpDatabase(enityMap);
-                    return Mono.error(throwable);
+                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                    log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
+                    return transactionHandler
+                            .cleanUpDatabase(enityMap)
+                            .then(Mono.error(new AppsmithException(
+                                    AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage)));
                 });
 
         final Mono<? extends Artifact> resultMono = importMono
