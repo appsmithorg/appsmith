@@ -4,6 +4,7 @@ const common = require("./webpack.common.config.js");
 
 module.exports = merge(common, {
   devServer: {
+    historyApiFallback: true,
     allowedHosts: "all",
     headers: {
       "Access-Control-Allow-Origin": "*",
@@ -37,7 +38,7 @@ module.exports = merge(common, {
   },
   plugins: [
     new WorkboxPlugin.InjectManifest({
-      swSrc: "./src/serviceWorker.js",
+      swSrc: "./src/serviceWorker.ts",
       mode: "development",
       swDest: "./pageService.js",
       exclude: [

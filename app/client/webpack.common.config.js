@@ -16,6 +16,7 @@ module.exports = {
   output: {
     filename: "[name].js",
     path: __dirname + "/dist",
+    publicPath: "/",
   },
 
   //   babel: {
@@ -31,7 +32,12 @@ module.exports = {
     modules: [path.resolve(__dirname, "src"), "node_modules"],
     alias: {
       // ...alias,
-      "@appsmith": "/Users/alexg/Node/appsmith/app/client/src/ee",
+      // "@appsmith": "/Users/alexg/Node/appsmith/app/client/src/ee",
+      // "@appsmith/ads-old": "./node_modules/@appsmith/ads-old",
+      // "@appsmith/ads":
+      //   "/Users/alexg/Node/appsmith/app/client/packages/design-system/ads",
+      // "@appsmith/ads-old":
+      //   "/Users/alexg/Node/appsmith/app/client/packages/design-system/ads-old",
       test: "/Users/alexg/Node/appsmith/app/test",
       "lodash-es": "lodash",
     },
@@ -60,9 +66,29 @@ module.exports = {
       },
       {
         test: /\.(ts|tsx)$/,
-        exclude: /(node_modules)/,
+        // exclude: /(node_modules\/!(@appsmith))/,
         use: {
           loader: "swc-loader",
+          options: {
+            jsc: {
+              parser: {
+                syntax: "typescript",
+                tsx: true,
+                decorators: true,
+              },
+              transform: {
+                legacyDecorator: true,
+                decoratorMetadata: true,
+                react: {
+                  runtime: "automatic",
+                },
+              },
+            },
+            module: {
+              type: "es6",
+              lazy: true, // Enable lazy loading
+            },
+          },
         },
       },
 
