@@ -6,13 +6,11 @@ import {
   EvalErrorTypes,
   RESERVED_KEYWORDS_AND_INDENTIFIERS,
   type BindingsInfo,
-  type DataTreeEntity,
   type EvalError,
-  type JSActionEntity,
 } from "@evaluation/common";
 import { toPath, union } from "lodash";
 
-function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
+function isJSAction(entity: { ENTITY_TYPE: string }) {
   return (
     typeof entity === "object" &&
     "ENTITY_TYPE" in entity &&
@@ -23,14 +21,16 @@ function isJSAction(entity: DataTreeEntity): entity is JSActionEntity {
 //{{}}{{}}}
 export const getDynamicBindings = (
   dynamicString: string,
-  entity?: DataTreeEntity,
+  entity?: {
+    ENTITY_TYPE: string;
+  },
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
   if (!dynamicString || !isString(dynamicString)) {
     return { stringSegments: [], jsSnippets: [] };
   }
   const sanitisedString = dynamicString.trim();
-  let stringSegments, paths: any;
+  let stringSegments: string[], paths: string[];
   if (entity && isJSAction(entity)) {
     stringSegments = [sanitisedString];
     paths = [sanitisedString];

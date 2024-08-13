@@ -1,1 +1,5 @@
-export * from "./utils";
+export {
+  getDependencyFromEntityPath,
+  getEntityDependencies,
+  getSetterFunctions,
+} from "./utils";

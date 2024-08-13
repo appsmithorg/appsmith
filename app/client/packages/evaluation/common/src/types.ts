@@ -17,6 +17,3 @@ export interface EvalError {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>;
 }
-
-export type DataTreeEntity = any;
-export type JSActionEntity = any;
