@@ -884,7 +884,7 @@ public class PostgresPlugin extends BasePlugin {
                                     setFragments.deleteCharAt(setFragments.length() - 1);
                                 }
 
-                                final String quotedTableName = table.getName().replaceFirst("\\.(.+)", ".\"$1\"");
+                                final String quotedTableName = table.getName().replaceFirst("\\.([\\w\\-]+)", ".\"$1\"");
                                 table.getTemplates()
                                         .addAll(List.of(
                                                 new DatasourceStructure.Template(
