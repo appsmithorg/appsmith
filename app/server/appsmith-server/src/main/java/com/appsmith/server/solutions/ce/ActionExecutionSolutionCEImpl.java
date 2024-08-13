@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -19,6 +20,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -51,6 +53,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -117,6 +120,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
     private final TenantService tenantService;
+    private final CommonConfig commonConfig;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -143,7 +147,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            TenantService tenantService) {
+            TenantService tenantService,
+            CommonConfig commonConfig) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -162,6 +167,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.environmentPermission = environmentPermission;
         this.configService = configService;
         this.tenantService = tenantService;
+        this.commonConfig = commonConfig;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -789,7 +795,14 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     final DatasourceStorage datasourceStorage = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
-                    final String rawQuery = actionDTO.getActionConfiguration().getBody();
+                    // This is to return the raw user query including bindings
+                    ActionConfiguration rawActionConfiguration = null;
+                    if (actionDTO != null && actionDTO.getActionConfiguration() != null) {
+                        // deep copying the actionConfiguration to avoid any changes in the original object
+                        Gson gson = commonConfig.gsonInstance();
+                        rawActionConfiguration = gson.fromJson(
+                                gson.toJson(actionDTO.getActionConfiguration()), ActionConfiguration.class);
+                    }
 
                     log.debug(
                             "[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
@@ -808,6 +821,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             executeActionDTO, actionDTO, datasourceStorage, plugin, pluginExecutor)
                                     .timeout(Duration.ofMillis(timeoutDuration)));
 
+                    ActionConfiguration finalRawActionConfiguration = rawActionConfiguration;
                     return actionExecutionResultMono
                             .onErrorMap(executionExceptionMapper(actionDTO, timeoutDuration))
                             .onErrorResume(executionExceptionHandler(actionDTO))
@@ -830,7 +844,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                                 executeActionDTO,
                                                 result,
                                                 timeElapsed,
-                                                rawQuery)
+                                                finalRawActionConfiguration)
                                         .thenReturn(result);
                             });
                 });
@@ -932,7 +946,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             ExecuteActionDTO executeActionDto,
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed,
-            String rawQuery) {
+            ActionConfiguration rawActionConfiguration) {
 
         if (!isSendExecuteAnalyticsEvent()) {
             return Mono.empty();
@@ -1126,7 +1140,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
                                 executeActionDto.getInvertParameterMap());
                     }
-                    data.put(FieldName.ACTION_EXECUTION_RAW_QUERY, rawQuery);
+                    data.put(FieldName.ACTION_CONFIGURATION, rawActionConfiguration);
                     data.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, actionDTO, data)
