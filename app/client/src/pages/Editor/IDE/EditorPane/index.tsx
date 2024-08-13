@@ -6,6 +6,7 @@ import Editor from "./Editor";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
+import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 
 const EditorPane = () => {
   const width = useEditorPaneWidth();
@@ -27,6 +28,10 @@ const EditorPane = () => {
       height="100%"
       width={width}
     >
+      {/** Entity Properties component is necessary to render
+       the Bindings popover in the context menu.
+       Will be removed eventually **/}
+      <EntityProperties />
       <EditorPaneExplorer />
       <Editor />
     </Flex>
