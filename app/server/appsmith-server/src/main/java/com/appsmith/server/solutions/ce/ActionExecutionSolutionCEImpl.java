@@ -1135,7 +1135,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
                     }
                     if (executeActionDto != null) {
-                        data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
+                        if (commonConfig.isCloudHosting()) {
+                            // Only send this parameter if cloud hosting is true as it contains user's evaluated params
+                            data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
+                        }
                         data.put(
                                 FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
                                 executeActionDto.getInvertParameterMap());
