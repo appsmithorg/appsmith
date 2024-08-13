@@ -228,6 +228,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@appsmith/utils@workspace:^, @appsmith/utils@workspace:packages/utils":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/utils@workspace:packages/utils"
+  dependencies:
+    "@types/jest": ^29.5.12
+    jest: ^29.7.0
+    ts-jest: ^29.2.4
+    typescript: ^5.5.4
+  languageName: unknown
+  linkType: soft
+
 "@aws-crypto/crc32@npm:5.2.0":
   version: 5.2.0
   resolution: "@aws-crypto/crc32@npm:5.2.0"
@@ -3188,6 +3199,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@design-system/widgets@workspace:packages/design-system/widgets"
   dependencies:
+    "@appsmith/utils": "workspace:^"
     "@design-system/headless": "workspace:^"
     "@design-system/theming": "workspace:^"
     "@emotion/css": ^11.11.2
@@ -13150,23 +13162,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"appsmith-utils@workspace:^, appsmith-utils@workspace:packages/utils":
-  version: 0.0.0-use.local
-  resolution: "appsmith-utils@workspace:packages/utils"
-  dependencies:
-    "@types/jest": ^29.5.12
-    jest: ^29.7.0
-    ts-jest: ^29.2.4
-    typescript: ^5.5.4
-  languageName: unknown
-  linkType: soft
-
 "appsmith@workspace:.":
   version: 0.0.0-use.local
   resolution: "appsmith@workspace:."
   dependencies:
     "@appsmith/ads": "workspace:^"
     "@appsmith/ads-old": "workspace:^"
+    "@appsmith/utils": "workspace:^"
     "@aws-sdk/client-s3": ^3.622.0
     "@aws-sdk/lib-storage": ^3.622.0
     "@babel/helper-create-regexp-features-plugin": ^7.18.6
@@ -13283,7 +13285,6 @@ __metadata:
     "@welldone-software/why-did-you-render": ^4.2.5
     algoliasearch: ^4.2.0
     appsmith-icons: "workspace:^"
-    appsmith-utils: "workspace:^"
     assert-never: ^1.2.1
     astring: ^1.7.5
     async-mutex: ^0.5.0

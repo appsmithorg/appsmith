@@ -7,7 +7,7 @@ import {
   SIZES,
 } from "@design-system/widgets";
 import type { Meta, StoryObj } from "@storybook/react";
-import { objectKeys } from "appsmith-utils/src/object";
+import { objectKeys } from "@appsmith/utils/src/object";
 import {
   itemList,
   longItemList,

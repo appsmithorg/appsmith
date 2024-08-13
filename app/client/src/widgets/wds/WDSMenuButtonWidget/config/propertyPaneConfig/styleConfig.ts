@@ -1,7 +1,7 @@
 import { capitalize } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { BUTTON_VARIANTS, COLORS, ICONS } from "@design-system/widgets";
-import { objectKeys } from "appsmith-utils/src/object";
+import { objectKeys } from "@appsmith/utils/src/object";
 
 import type { MenuButtonWidgetProps } from "../../widget/types";
 

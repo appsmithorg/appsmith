@@ -50,6 +50,7 @@
   "dependencies": {
     "@appsmith/ads": "workspace:^",
     "@appsmith/ads-old": "workspace:^",
+    "@appsmith/utils": "workspace:^",
     "@aws-sdk/client-s3": "^3.622.0",
     "@aws-sdk/lib-storage": "^3.622.0",
     "@babel/standalone": "^7.23.6",
@@ -106,7 +107,6 @@
     "@welldone-software/why-did-you-render": "^4.2.5",
     "algoliasearch": "^4.2.0",
     "appsmith-icons": "workspace:^",
-    "appsmith-utils": "workspace:^",
     "assert-never": "^1.2.1",
     "astring": "^1.7.5",
     "async-mutex": "^0.5.0",

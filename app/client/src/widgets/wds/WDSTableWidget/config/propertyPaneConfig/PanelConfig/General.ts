@@ -3,7 +3,7 @@ import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 import { hideByColumnType } from "../../../widget/propertyUtils";
 import { BUTTON_VARIANTS } from "@design-system/widgets";
-import { objectKeys } from "appsmith-utils/src/object";
+import { objectKeys } from "@appsmith/utils/src/object";
 
 export default {
   sectionName: "General",

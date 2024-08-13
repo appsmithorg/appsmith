@@ -7,7 +7,7 @@ import {
   ToolbarButtons,
   SIZES,
 } from "@design-system/widgets";
-import { objectKeys } from "appsmith-utils/src/object";
+import { objectKeys } from "@appsmith/utils/src/object";
 import {
   itemList,
   itemListWithIcons,
