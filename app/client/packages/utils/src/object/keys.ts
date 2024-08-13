@@ -10,8 +10,6 @@
  * @returns array of keys with correct type information
  */
 
-export default function objectKeys<T extends object>(
-  object: T,
-): Array<keyof T> {
+export function objectKeys<T extends object>(object: T): Array<keyof T> {
   return Object.keys(object) as Array<keyof T>;
 }
