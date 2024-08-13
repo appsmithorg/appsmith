@@ -1126,7 +1126,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
                                 executeActionDto.getInvertParameterMap());
                     }
-                    data.put("rawQuery", rawQuery);
+                    data.put(FieldName.ACTION_EXECUTION_RAW_QUERY, rawQuery);
                     data.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, actionDTO, data)
