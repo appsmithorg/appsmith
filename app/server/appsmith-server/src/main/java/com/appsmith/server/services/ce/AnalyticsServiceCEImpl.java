@@ -207,6 +207,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         if (shouldHashUserId(event, userId, hashUserId, commonConfig.isCloudHosting())) {
             final String hashedUserId = hash(userId);
             analyticsProperties.remove("request");
+            // Remove params map key property if it's self-hosted
+            if (analyticsProperties.containsKey(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP)) {
+                analyticsProperties.remove(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP);
+            }
             for (final Map.Entry<String, Object> entry : analyticsProperties.entrySet()) {
                 if (userId.equals(entry.getValue())) {
                     analyticsProperties.put(entry.getKey(), hashedUserId);

@@ -789,6 +789,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     final DatasourceStorage datasourceStorage = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
+                    final String rawQuery = actionDTO.getActionConfiguration().getBody();
 
                     log.debug(
                             "[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
@@ -824,7 +825,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                         timeElapsed);
 
                                 return sendExecuteAnalyticsEvent(
-                                                actionDTO, datasourceStorage, executeActionDTO, result, timeElapsed)
+                                                actionDTO,
+                                                datasourceStorage,
+                                                executeActionDTO,
+                                                result,
+                                                timeElapsed,
+                                                rawQuery)
                                         .thenReturn(result);
                             });
                 });
@@ -925,7 +931,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorage datasourceStorage,
             ExecuteActionDTO executeActionDto,
             ActionExecutionResult actionExecutionResult,
-            Long timeElapsed) {
+            Long timeElapsed,
+            String rawQuery) {
 
         if (!isSendExecuteAnalyticsEvent()) {
             return Mono.empty();
@@ -1113,8 +1120,14 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     } else {
                         eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
                     }
+                    if (executeActionDto != null) {
+                        data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
+                        data.put(
+                                FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
+                                executeActionDto.getInvertParameterMap());
+                    }
+                    data.put("rawQuery", rawQuery);
                     data.put(FieldName.EVENT_DATA, eventData);
-
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, actionDTO, data)
                             .thenReturn(request);
