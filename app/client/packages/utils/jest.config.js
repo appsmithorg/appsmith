@@ -5,8 +5,4 @@ module.exports = {
       isolatedModules: true,
     }],
   },
-  testTimeout: 9000,
-  testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(ts)?$",
-  moduleFileExtensions: ["ts"],
-  moduleDirectories: ["node_modules", "src"],
 };
