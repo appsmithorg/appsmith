@@ -176,7 +176,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
-import { isTrueObject } from "@appsmith/evaluation";
+import { isTrueObject } from "@shared/ast";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

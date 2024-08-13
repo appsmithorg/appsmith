@@ -34,11 +34,8 @@ import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import type { Difference } from "microdiff";
-import {
-  convertPathToString,
-  getAllPaths,
-  isTrueObject,
-} from "@appsmith/evaluation";
+import { convertPathToString, getAllPaths } from "@appsmith/evaluation";
+import { isTrueObject } from "@shared/ast";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options

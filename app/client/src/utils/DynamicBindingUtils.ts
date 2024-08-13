@@ -13,7 +13,7 @@ import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
-import { isTrueObject } from "@appsmith/evaluation";
+import { isTrueObject } from "@shared/ast";
 
 export type DependencyMap = Record<string, Array<string>>;
 // TODO: Fix this the next time the file is edited

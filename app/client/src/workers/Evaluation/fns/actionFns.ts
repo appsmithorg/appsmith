@@ -1,4 +1,4 @@
-import { isTrueObject } from "@appsmith/evaluation";
+import { isTrueObject } from "@shared/ast";
 import { promisify } from "./utils/Promisify";
 import type { ActionEntity } from "ee/entities/DataTree/types";
 
