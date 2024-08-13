@@ -80,17 +80,19 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   }
 
   onChange = (isSwitchedOn: boolean) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("isSwitchedOn", isSwitchedOn, {
+    pushBatchMetaUpdates("isSwitchedOn", isSwitchedOn, {
       triggerPropertyName: "onChange",
       dynamicString: this.props.onChange,
       event: {
         type: EventType.ON_SWITCH_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {

@@ -1,5 +1,7 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -19,6 +21,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
@@ -34,6 +37,8 @@ import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 public class Migration059PolicySetToPolicyMap {
 
     private final ReactiveMongoTemplate mongoTemplate;
+
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     private static final Set<String> CE_COLLECTION_NAMES = Set.of(
             "actionCollection",
@@ -80,6 +85,13 @@ public class Migration059PolicySetToPolicyMap {
                     return Mono.error(error);
                 })
                 .block();
+
+        // Evict the default tenant from the cache to ensure that the updated tenant object is fetched from the database
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is(DEFAULT));
+        Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class).block();
+        assert defaultTenant != null : "Default tenant not found";
+        cacheableRepositoryHelper.evictCachedTenant(defaultTenant.getId()).block();
     }
 
     private static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {

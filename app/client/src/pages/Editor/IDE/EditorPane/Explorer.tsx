@@ -34,7 +34,6 @@ const EditorPaneExplorer = () => {
       }
       className="relative ide-editor-left-pane__content"
       flexDirection="column"
-      overflow="hidden"
       width={
         ideViewMode === EditorViewMode.FullScreen
           ? DEFAULT_EXPLORER_PANE_WIDTH
