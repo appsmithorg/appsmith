@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
 import {
@@ -34,7 +34,6 @@ const EditorPaneExplorer = () => {
       }
       className="relative ide-editor-left-pane__content"
       flexDirection="column"
-      overflow="hidden"
       width={
         ideViewMode === EditorViewMode.FullScreen
           ? DEFAULT_EXPLORER_PANE_WIDTH

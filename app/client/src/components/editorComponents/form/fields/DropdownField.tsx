@@ -3,8 +3,8 @@ import _ from "lodash";
 import type { BaseFieldProps, WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
-import type { SelectOptionProps, SelectProps } from "design-system";
-import { Select, Option } from "design-system";
+import type { SelectOptionProps, SelectProps } from "@appsmith/ads";
+import { Select, Option } from "@appsmith/ads";
 import styled from "styled-components";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 

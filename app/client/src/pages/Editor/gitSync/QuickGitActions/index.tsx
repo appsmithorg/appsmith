@@ -41,7 +41,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { getTypographyByKey } from "@appsmith/ads-old";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";

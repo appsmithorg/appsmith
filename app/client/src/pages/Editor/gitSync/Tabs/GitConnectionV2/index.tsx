@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, ModalBody, ModalFooter } from "design-system";
+import { Button, ModalBody, ModalFooter } from "@appsmith/ads";
 import Steps from "./Steps";
 import type { GitProvider } from "./ChooseGitProvider";
 import ChooseGitProvider from "./ChooseGitProvider";

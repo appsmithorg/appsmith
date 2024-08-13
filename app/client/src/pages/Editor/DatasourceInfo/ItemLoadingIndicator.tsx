@@ -6,7 +6,7 @@ import {
   GSHEET_SPREADSHEET_LOADING,
   LOADING_SCHEMA,
 } from "ee/constants/messages";
-import { Spinner, Text } from "design-system";
+import { Spinner, Text } from "@appsmith/ads";
 import { MessageWrapper } from "./SchemaViewModeCSS";
 
 type LoadingItemType = "SPREADSHEET" | "SHEET" | "DATA" | "SCHEMA";

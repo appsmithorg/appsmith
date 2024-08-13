@@ -26,7 +26,7 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import useMessages from "ee/hooks/importModal/useMessages";
 import useMethods from "ee/hooks/importModal/useMethods";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";

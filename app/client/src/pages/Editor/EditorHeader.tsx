@@ -38,7 +38,7 @@ import {
   TabsList,
   Tab,
   TabPanel,
-} from "design-system";
+} from "@appsmith/ads";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { showConnectGitModal } from "actions/gitSyncActions";

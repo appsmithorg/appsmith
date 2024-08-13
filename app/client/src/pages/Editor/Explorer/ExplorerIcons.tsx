@@ -7,7 +7,7 @@ import styled from "styled-components";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { importSvg } from "@appsmith/ads-old";
 

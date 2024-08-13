@@ -20,7 +20,7 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";

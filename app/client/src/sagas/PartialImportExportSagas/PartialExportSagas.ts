@@ -10,7 +10,7 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";

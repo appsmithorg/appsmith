@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 
 function ManageUsers({ workspaceId }: { workspaceId: string }) {
   const currentPath = useLocation().pathname;

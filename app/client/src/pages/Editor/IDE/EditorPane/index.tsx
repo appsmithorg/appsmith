@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { useEditorPaneWidth } from "../hooks";
 import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
@@ -25,7 +25,6 @@ const EditorPane = () => {
       // @ts-expect-error Fix this the next time the file is edited
       gap="spacing-2"
       height="100%"
-      overflow="hidden"
       width={width}
     >
       <EditorPaneExplorer />

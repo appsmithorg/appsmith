@@ -17,7 +17,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 
 const ActionButtons = styled.div`

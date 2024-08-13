@@ -20,7 +20,7 @@ import {
   Select,
   Text,
   toast,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 import { CopyButton } from "../../components/CopyButton";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

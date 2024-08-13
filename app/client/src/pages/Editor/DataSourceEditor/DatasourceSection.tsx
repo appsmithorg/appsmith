@@ -19,7 +19,7 @@ import { EnvConfigSection } from "ee/components/EnvConfigSection";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { isMultipleEnvEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { Table } from "@appsmith/ads-old";
 
 const Key = styled.div`

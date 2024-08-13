@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Spinner, Button } from "design-system";
+import { Flex, Spinner, Button } from "@appsmith/ads";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import { useIsJSAddLoading } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import { EditorEntityTabState } from "ee/entities/IDE/constants";

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Spinner, Text } from "design-system";
+import { Spinner, Text } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   height: 85vh;

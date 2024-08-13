@@ -26,7 +26,7 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentUser } from "selectors/usersSelectors";

@@ -10,7 +10,7 @@ import EntityLink from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import ContextualMenu from "./ContextualMenu";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 import moment from "moment";
 import classNames from "classnames";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";

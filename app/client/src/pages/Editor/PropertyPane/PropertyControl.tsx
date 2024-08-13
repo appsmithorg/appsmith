@@ -4,7 +4,7 @@ import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { ToggleButton, Tooltip, Button } from "design-system";
+import { ToggleButton, Tooltip, Button } from "@appsmith/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";

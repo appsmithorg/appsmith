@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import { Button, Tooltip, Text } from "design-system";
+import { Button, Tooltip, Text } from "@appsmith/ads";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import { createMessage, FORK_THIS_TEMPLATE } from "ee/constants/messages";

@@ -12,7 +12,7 @@ import {
   OUTGOING_ENTITIES,
 } from "ee/constants/messages";
 import { Connection } from "../Debugger/EntityDependecies";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import Collapsible from "components/common/Collapsible";
 
 const ConnectionType = styled.span`

@@ -1,4 +1,4 @@
-import { Icon, Text, Button, Divider } from "design-system";
+import { Icon, Text, Button, Divider } from "@appsmith/ads";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { PADDING_HIGHLIGHT, getPosition } from "./utils";

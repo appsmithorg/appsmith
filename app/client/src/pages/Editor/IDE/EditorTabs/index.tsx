@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
-import { Flex, ScrollArea, ToggleButton } from "design-system";
+import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import type { EntityItem } from "ee/entities/IDE/constants";
 import {

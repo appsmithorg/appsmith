@@ -12,7 +12,7 @@ import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
+import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";

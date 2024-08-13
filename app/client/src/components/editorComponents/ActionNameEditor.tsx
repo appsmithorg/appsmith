@@ -9,7 +9,7 @@ import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "ee/reducers";
 
 import { saveActionName } from "actions/pluginActionActions";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,

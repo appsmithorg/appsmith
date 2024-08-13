@@ -17,7 +17,7 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,

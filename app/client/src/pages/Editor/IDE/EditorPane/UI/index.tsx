@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 
 import { SentryRoute } from "ee/AppRouter";

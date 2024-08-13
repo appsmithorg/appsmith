@@ -1,5 +1,5 @@
 import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import React from "react";
 import { SearchListItem } from "./WorkspaceSearchItems";
 import styled from "styled-components";

@@ -5,7 +5,7 @@ import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "@appsmith/ads-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Button, type MenuItemProps } from "design-system";
+import { Button, type MenuItemProps } from "@appsmith/ads";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 

@@ -86,7 +86,7 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   getJSActionPathNameToDisplay,
