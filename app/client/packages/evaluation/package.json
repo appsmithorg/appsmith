@@ -11,10 +11,6 @@
     "prettier": "yarn g:prettier"
   },
   "dependencies": {
-    "@shared/ast": "workspace:^",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.17.7"
+    "@shared/ast": "workspace:^"
   }
 }

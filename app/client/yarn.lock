@@ -233,8 +233,6 @@ __metadata:
   resolution: "@appsmith/evaluation@workspace:packages/evaluation"
   dependencies:
     "@shared/ast": "workspace:^"
-    "@types/lodash": ^4.17.7
-    lodash: ^4.17.21
   languageName: unknown
   linkType: soft
 
@@ -11029,10 +11027,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4.14.105, @types/lodash@npm:^4.14.120, @types/lodash@npm:^4.14.167, @types/lodash@npm:^4.17.7":
-  version: 4.17.7
-  resolution: "@types/lodash@npm:4.17.7"
-  checksum: 09e58a119cd8a70acfb33f8623dc2fc54f74cdce3b3429b879fc2daac4807fe376190a04b9e024dd300f9a3ee1876d6623979cefe619f70654ca0fe0c47679a7
+"@types/lodash@npm:^4.14.105, @types/lodash@npm:^4.14.120, @types/lodash@npm:^4.14.167":
+  version: 4.14.191
+  resolution: "@types/lodash@npm:4.14.191"
+  checksum: ba0d5434e10690869f32d5ea49095250157cae502f10d57de0a723fd72229ce6c6a4979576f0f13e0aa9fbe3ce2457bfb9fa7d4ec3d6daba56730a51906d1491
   languageName: node
   linkType: hard
 
