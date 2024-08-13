@@ -1,15 +1,24 @@
 package com.appsmith.server.aspect;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
+import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -35,15 +44,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TransactionAspect {
 
-    private final ApplicationRepository applicationRepository;
-
-    private final ThemeRepository themeRepository;
-
     private final DatasourceRepository datasourceRepository;
 
     private final DatasourceStorageRepository datasourceStorageRepository;
 
     private final CustomJSLibRepository customJSLibRepository;
+
+    private final ThemeRepository themeRepository;
+
+    private final ApplicationRepository applicationRepository;
+
+    private final NewPageRepository newPageRepository;
+
+    private final NewActionRepository newActionRepository;
+
+    private final ActionCollectionRepository actionCollectionRepository;
 
     private Map<Class<?>, AppsmithRepository<?>> repoByEntityClass;
 
@@ -54,10 +69,14 @@ public class TransactionAspect {
         map.put(DatasourceStorage.class, datasourceStorageRepository);
         map.put(Theme.class, themeRepository);
         map.put(CustomJSLib.class, customJSLibRepository);
+        map.put(Application.class, applicationRepository);
+        map.put(NewPage.class, newPageRepository);
+        map.put(NewAction.class, newActionRepository);
+        map.put(ActionCollection.class, actionCollectionRepository);
         repoByEntityClass = Collections.unmodifiableMap(map);
     }
 
-    @Around("execution(* com.appsmith.server.repositories.cakes..*(..))")
+    @Around("execution(* com.appsmith.server.repositories.cakes.*.*(..))")
     public Object handleTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
 
         Class<?> returnType =
@@ -72,9 +91,7 @@ public class TransactionAspect {
                     }
                     Map<String, DBOps> transactionContext = context.get("transactionContext");
                     // Check if it's a write operation
-                    MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-                    String methodName = signature.getMethod().getName();
-                    boolean isWriteOp = isWriteOp(methodName);
+                    boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
 
                     // If the operation is read, operation
                     // 1. Get the object from DB
@@ -83,18 +100,8 @@ public class TransactionAspect {
                     //      - If yes, then return the object as is. We want to just maintain the initial state of the
                     // object as we are concerned with the objects initial state before the transaction started
                     if (!isWriteOp) {
-                        return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs())).map(obj -> {
-                            if (obj instanceof BaseDomain) {
-                                DBOps dbOps = new DBOps();
-                                dbOps.setEntity(obj);
-                                String id = getObjectId(dbOps);
-                                if (!transactionContext.containsKey(id)) {
-                                    transactionContext.put(id, dbOps);
-                                }
-                                return obj;
-                            }
-                            return obj;
-                        });
+                        return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()))
+                                .map(obj -> addNonWriteEntityToContextMap(transactionContext, obj));
                     } else {
                         // If the operation is writing operation
                         // 1. Extract the id of the object
@@ -105,28 +112,8 @@ public class TransactionAspect {
                         //      - If end up in switchIfEmpty means no object is present in the DB and should mark this
                         //         as a new object and store the object in DB
                         //      - If object is present in the DB, then store the initial state in the context
-                        return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs())).map(obj -> {
-                            AppsmithRepository<?> repository = repoByEntityClass.get(obj.getClass());
-                            if (repository == null) {
-                                log.error(" Unable to find the repository for the entity {}", obj.getClass());
-                                return obj;
-                            }
-                            DBOps dbOps = new DBOps();
-                            dbOps.setEntity(obj);
-                            if (transactionContext.containsKey(getObjectId(dbOps))) {
-                                return obj;
-                            }
-                            Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
-                            dbOps = new DBOps();
-                            if (entity.isPresent()) {
-                                dbOps.setEntity(entity.get());
-                            } else {
-                                dbOps.setEntity(obj);
-                                dbOps.setNew(true);
-                            }
-                            transactionContext.put(getObjectId(dbOps), dbOps);
-                            return obj;
-                        });
+                        return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()))
+                                .map(obj -> addEntityToContextMap(transactionContext, obj));
                     }
 
                 } catch (Throwable e) {
@@ -142,48 +129,14 @@ public class TransactionAspect {
                 try {
                     if (!context.isEmpty() && context.hasKey("transactionContext")) {
                         Map<String, DBOps> transactionContext = context.get("transactionContext");
-                        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-                        String methodName = signature.getMethod().getName();
-                        boolean isWriteOp = isWriteOp(methodName);
+                        boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
 
                         Flux flux = (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
 
                         if (!isWriteOp) {
-                            return flux.map(obj -> {
-                                if (obj instanceof BaseDomain) {
-                                    DBOps dbOps = new DBOps();
-                                    dbOps.setEntity(obj);
-                                    String id = getObjectId(dbOps);
-                                    if (!transactionContext.containsKey(id)) {
-                                        transactionContext.put(id, dbOps);
-                                    }
-                                    return obj;
-                                }
-                                return obj;
-                            });
+                            return flux.map(obj -> addNonWriteEntityToContextMap(transactionContext, obj));
                         } else {
-                            return flux.map(obj -> {
-                                AppsmithRepository<?> repository = repoByEntityClass.get(obj.getClass());
-                                if (repository == null) {
-                                    log.error(" Unable to find the repository for the entity {}", obj.getClass());
-                                    return obj;
-                                }
-                                DBOps dbOps = new DBOps();
-                                dbOps.setEntity(obj);
-                                if (transactionContext.containsKey(getObjectId(dbOps))) {
-                                    return obj;
-                                }
-                                Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
-                                dbOps = new DBOps();
-                                if (entity.isPresent()) {
-                                    dbOps.setEntity(entity.get());
-                                } else {
-                                    dbOps.setEntity(obj);
-                                    dbOps.setNew(true);
-                                }
-                                transactionContext.put(getObjectId(dbOps), dbOps);
-                                return obj;
-                            });
+                            return flux.map(obj -> addEntityToContextMap(transactionContext, obj));
                         }
                     }
 
@@ -201,12 +154,72 @@ public class TransactionAspect {
         return joinPoint.proceed(joinPoint.getArgs());
     }
 
-    private boolean isWriteOp(String methodName) {
+    private Object addNonWriteEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
+        if (obj instanceof BaseDomain) {
+            DBOps dbOps = new DBOps();
+            dbOps.setEntity(obj);
+            dbOps.setModified(true);
+            String id = getObjectId(dbOps);
+            if (!transactionContext.containsKey(id)) {
+                transactionContext.put(id, dbOps);
+            }
+            return obj;
+        }
+        return obj;
+    }
+
+    private Object addEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
+        AppsmithRepository<?> repository = getDomainClassFromObject(obj);
+        if (repository == null) {
+            log.error(" Unable to find the repository for the entity {}", obj.getClass());
+            return obj;
+        }
+        DBOps dbOps = new DBOps();
+        dbOps.setEntity(obj);
+        if (transactionContext.containsKey(getObjectId(dbOps))) {
+            return obj;
+        }
+        Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
+        dbOps = new DBOps();
+        if (entity.isPresent()) {
+            dbOps.setEntity(entity.get());
+            dbOps.setModified(true);
+        } else {
+            dbOps.setEntity(obj);
+            dbOps.setNew(true);
+        }
+        transactionContext.put(getObjectId(dbOps), dbOps);
+        return obj;
+    }
+
+    private boolean isWriteOp(MethodSignature signature) {
+        String methodName = signature.getMethod().getName();
         return methodName.contains("save")
                 || methodName.contains("update")
                 || methodName.contains("delete")
                 || methodName.contains("insert")
                 || methodName.contains("archive");
+    }
+
+    private AppsmithRepository<?> getDomainClassFromObject(Object object) {
+        if (object instanceof Datasource) {
+            return repoByEntityClass.get(Datasource.class);
+        } else if (object instanceof DatasourceStorage) {
+            return repoByEntityClass.get(DatasourceStorage.class);
+        } else if (object instanceof Theme) {
+            return repoByEntityClass.get(Theme.class);
+        } else if (object instanceof NewPage) {
+            return repoByEntityClass.get(NewPage.class);
+        } else if (object instanceof ActionCollectionDTO) {
+            return repoByEntityClass.get(ActionCollectionDTO.class);
+        } else if (object instanceof ActionDTO) {
+            return repoByEntityClass.get(ActionDTO.class);
+        } else if (object instanceof CustomJSLib) {
+            return repoByEntityClass.get(CustomJSLib.class);
+        } else if (object instanceof Application) {
+            return repoByEntityClass.get(Application.class);
+        }
+        return null;
     }
 
     private String getObjectId(DBOps obj) {

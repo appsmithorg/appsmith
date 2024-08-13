@@ -175,10 +175,12 @@ public class TransactionHandler {
                         }
 
                         TransactionAspect.DBOps dbOps = entityMap.get(application[0].getId());
-                        if (dbOps.isNew()) {
-                            archiveApplication(application[0].getId());
-                        } else {
-                            saveApplicationToDb(application[0]);
+                        if (dbOps != null) {
+                            if (dbOps.isNew()) {
+                                archiveApplication(application[0].getId());
+                            } else {
+                                saveApplicationToDb(application[0]);
+                            }
                         }
 
                         for (CustomJSLib customJSLib : customJSLibList) {
