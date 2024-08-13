@@ -2,12 +2,11 @@ import type { Node, SourceLocation, Options, Comment } from "acorn";
 import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants";
-import { has, isFinite, isNil, isString, toPath } from "lodash";
+import { has, isFinite, isNil, isPlainObject, isString, toPath } from "lodash";
 import { getStringValue, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject";
 import { attachComments } from "astravel";
 import { generate } from "astring";
-import { isTrueObject } from "@appsmith/evaluation";
 /*
  * Valuable links:
  *
@@ -695,6 +694,12 @@ export interface AssignmentExpressionNode extends Node {
   left: Expression;
   Right: Expression;
 }
+
+export const isTrueObject = (
+  value: unknown,
+): value is Record<string, unknown> => {
+  return isPlainObject(value);
+};
 
 /** Function returns Invalid top-level member expressions from code
  * @param code
