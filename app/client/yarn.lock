@@ -232,6 +232,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@appsmith/evaluation@workspace:packages/evaluation"
   dependencies:
+    "@shared/ast": "workspace:^"
     "@types/lodash": ^4.17.7
     lodash: ^4.17.21
   languageName: unknown
@@ -8555,6 +8556,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shared/dsl@workspace:packages/dsl"
   dependencies:
+    "@appsmith/evaluation": "workspace:^"
     "@babel/runtime": ^7.21.0
     "@rollup/plugin-commonjs": ^22.0.0
     "@rollup/plugin-json": ^6.0.0
