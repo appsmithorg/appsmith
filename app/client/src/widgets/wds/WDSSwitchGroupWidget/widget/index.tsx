@@ -87,17 +87,19 @@ class WDSSwitchGroupWidget extends BaseWidget<
   }
 
   onChange = (selectedValues: OptionProps["value"][]) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+    pushBatchMetaUpdates("selectedValues", selectedValues, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
         type: EventType.ON_SWITCH_GROUP_SELECTION_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {
