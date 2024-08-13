@@ -56,6 +56,7 @@ const getElementsBoundingBoxValue = (ele: HTMLElement) => {
 export const getAnvilZoneBoundaryOffset = (zoneId: string) => {
   const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
   if (zoneDom) {
+    // (TODO: Anvil): Why is 2 added here?
     return getElementsBoundingBoxValue(zoneDom) + 2;
   }
   return 0;
