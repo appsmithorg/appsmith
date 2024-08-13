@@ -53,7 +53,7 @@ export function useAppIDEAnimated(): [
     ],
     [],
   );
-  const [, height] = useWindowDimensions();
+  const [width, height] = useWindowDimensions();
   const [columns, setColumns] = useState<AnimatedGridUnit[]>([]);
   const [rows, setRows] = useState<AnimatedGridUnit[]>([
     (height - IDE_HEADER_HEIGHT - BOTTOM_BAR_HEIGHT + "px") as AnimatedGridUnit,
@@ -87,7 +87,12 @@ export function useAppIDEAnimated(): [
     function updateIDEColumns() {
       switch (appState) {
         case EditorState.DATA:
-          setColumns([SIDEBAR_WIDTH, "300px", "1fr", "0px"]);
+          setColumns([
+            SIDEBAR_WIDTH,
+            "300px",
+            (width - 300 - 50 + "px") as AnimatedGridUnit,
+            "0px",
+          ]);
           break;
         case EditorState.SETTINGS:
           setColumns([
