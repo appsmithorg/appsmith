@@ -1,5 +1,15 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/Autocomplete/BracketNotation_AC_spec.ts
+cypress/e2e/Sanity/Datasources/MockDBs_Spec.ts
+cypress/e2e/Regression/ServerSide/ApiTests/API_MultiPart_Spec.ts
+cypress/e2e/Regression/ServerSide/JsFunctionExecution/JSFunctionExecution_spec.ts
+cypress/e2e/Regression/ClientSide/Workspace/Workspace_validation_spec.js
+cypress/e2e/Regression/ClientSide/EmbedSettings/EmbedSettings_spec.js
+cypress/e2e/Regression/ServerSide/GenerateCRUD/Mongo_Spec.ts
+cypress/e2e/Regression/ServerSide/GenerateCRUD/MySQL2_Spec.ts
+cypress/e2e/Regression/ClientSide/JSObject/JSObjectMutation_spec.ts
+cypress/e2e/Regression/ServerSide/GenerateCRUD/MongoURI_Spec.ts
+
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
