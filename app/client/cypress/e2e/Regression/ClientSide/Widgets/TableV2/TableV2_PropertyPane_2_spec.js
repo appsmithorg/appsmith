@@ -242,7 +242,6 @@ describe(
       table.UpdateTableCell(2, 4, "", true);
       cy.get(".bp3-popover-content").should("not.exist");
 
-      cy.discardTableCellValue(4, 2);
       table.DiscardEditRow(2, 5);
       // Check for Required property using currentRow, row with index 1 has id 2
       propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 2}}");
@@ -265,7 +264,6 @@ describe(
       table.UpdateTableCell(2, 4, "", true);
       cy.get(".bp3-popover-content").should("not.exist");
 
-      cy.discardTableCellValue(4, 2);
       table.DiscardEditRow(2, 5);
 
       // Sort the id column and ensure that `currentRow` is correctly evaluated
