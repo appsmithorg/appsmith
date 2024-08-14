@@ -1,7 +1,7 @@
 import React from "react";
 import { ListBoxItem as HeadlessListBoxItem } from "react-aria-components";
 import clsx from "clsx";
-import { getTypographyClassName } from "@design-system/theming";
+import { getTypographyClassName } from "@appsmith/wds-theming";
 import { listItemStyles } from "@design-system/widgets";
 import type { ListBoxItemProps } from "react-aria-components";
 

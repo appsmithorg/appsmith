@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 import { Link, Flex } from "@design-system/widgets";
 
 /**

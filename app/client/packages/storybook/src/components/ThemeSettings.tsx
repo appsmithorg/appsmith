@@ -2,7 +2,7 @@ import { Form } from "@storybook/components";
 import React, { useCallback } from "react";
 import { Flex, Text } from "@design-system/widgets";
 import { ColorControl, BooleanControl, RangeControl } from "@storybook/blocks";
-import { FONT_METRICS } from "@design-system/theming";
+import { FONT_METRICS } from "@appsmith/wds-theming";
 import styled from "styled-components";
 import { debounce } from "lodash";
 import { AddonPanel } from "@storybook/components";

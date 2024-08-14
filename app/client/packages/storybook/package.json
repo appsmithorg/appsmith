@@ -39,8 +39,8 @@
     "vite-plugin-svgr": "^4.2.0"
   },
   "dependencies": {
-    "@design-system/headless": "workspace:^",
-    "@design-system/theming": "workspace:^",
+    "@appsmith/wds-headless": "workspace:^",
+    "@appsmith/wds-theming": "workspace:^",
     "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
     "appsmith-icons": "workspace:^",

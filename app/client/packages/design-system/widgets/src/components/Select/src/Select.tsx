@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import clsx from "clsx";
-import { getTypographyClassName } from "@design-system/theming";
+import { getTypographyClassName } from "@appsmith/wds-theming";
 import {
   Button,
   ListBox,
