@@ -37,20 +37,22 @@ export const getSetterFunctions = (configTree: {
 }) => {
   const entityNames = Object.keys(configTree);
 
-  const setters = entityNames.reduce((acc, entityName) => {
-    const entityConfig = configTree[entityName];
-    const entityMethodMap: Record<string, true> = {};
+  const setters = entityNames.reduce(
+    (acc, entityName) => {
+      const entityConfig = configTree[entityName];
 
-    if (!entityConfig) return acc;
+      if (!entityConfig) return acc;
 
-    if (entityConfig.__setters) {
-      for (const setterMethodName of Object.keys(entityConfig.__setters)) {
-        entityMethodMap[`${entityName}.${setterMethodName}`] = true;
+      if (entityConfig.__setters) {
+        for (const setterMethodName of Object.keys(entityConfig.__setters)) {
+          acc[`${entityName}.${setterMethodName}`] = true;
+        }
       }
-    }
 
-    return { ...acc, ...entityMethodMap };
-  }, {});
+      return acc;
+    },
+    {} as Record<string, true>,
+  );
 
   return setters;
 };
