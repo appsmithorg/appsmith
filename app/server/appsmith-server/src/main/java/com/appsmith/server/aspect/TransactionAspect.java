@@ -11,6 +11,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -95,6 +96,16 @@ public class TransactionAspect {
                     // Check if it's a write operation
                     boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
 
+                    Object[] args = getArgs(joinPoint.getArgs());
+                    boolean isNewWriteOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
+
+                    // TODO - remove this once the values are consistent with the new method to check write operation
+                    if (isNewWriteOp != isWriteOp) {
+                        log.error(
+                                "Mismatch in write operation detection. isNewWriteOp: {}, isWriteOp: {}",
+                                isNewWriteOp,
+                                isWriteOp);
+                    }
                     // If the operation is read, operation
                     // 1. Get the object from DB
                     // 2. Check if the object is already present in the context:
@@ -114,17 +125,13 @@ public class TransactionAspect {
                         //      - If end up in switchIfEmpty means no object is present in the DB and should mark this
                         //         as a new object and store the object in DB
                         //      - If object is present in the DB, then store the initial state in the context
-                        // 3. Return the object
-
-                        BaseDomain domain = (BaseDomain) joinPoint.getArgs()[0];
-                        if (isByIdMethod((MethodSignature) joinPoint.getSignature())) {
-                            BaseDomain domainObject = domain;
-                            String updateById = (String) joinPoint.getArgs()[1];
-                            domainObject.setId(updateById);
-                            addEntityToContextMap(transactionContext, domainObject);
+                        if ((args[2] != null && isUpdateOp(args[2]))
+                                || (isArchiveOp((MethodSignature) joinPoint.getSignature()))) {
+                            addEntityToMapUpdateAndArchiveOp(transactionContext, (String) args[1]);
                             return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
                         }
 
+                        BaseDomain domain = (BaseDomain) args[0];
                         if (domain.getId() == null) {
                             domain.setId(generateId());
                         }
@@ -145,26 +152,26 @@ public class TransactionAspect {
                 try {
                     if (!context.isEmpty() && context.hasKey("transactionContext")) {
                         Map<String, DBOps> transactionContext = context.get("transactionContext");
-                        boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
+                        Object[] args = getArgs(joinPoint.getArgs());
+                        boolean isWriteOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
 
                         Flux flux = (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
 
                         if (!isWriteOp) {
                             return flux.map(obj -> addNonWriteEntityToContextMap(transactionContext, obj));
                         } else {
-                            BaseDomain domain = (BaseDomain) joinPoint.getArgs()[0];
-                            if (isByIdMethod((MethodSignature) joinPoint.getSignature())) {
-                                BaseDomain domainObject = domain;
-                                String updateById = (String) joinPoint.getArgs()[1];
-                                domainObject.setId(updateById);
-                                addEntityToContextMap(transactionContext, domainObject);
+                            if ((args[2] != null && isUpdateOp(args[2]))
+                                    || (isArchiveOp((MethodSignature) joinPoint.getSignature()))) {
+                                addEntityToMapUpdateAndArchiveOp(transactionContext, (String) args[1]);
                                 return flux;
                             }
 
+                            BaseDomain domain = (BaseDomain) args[0];
                             if (domain.getId() == null) {
                                 domain.setId(generateId());
                             }
                             addEntityToContextMap(transactionContext, domain);
+
                             return flux;
                         }
                     }
@@ -183,15 +190,46 @@ public class TransactionAspect {
         return joinPoint.proceed(joinPoint.getArgs());
     }
 
+    private Object[] getArgs(Object[] args) {
+        // To store the baseDomain and the id of the object and BridgeUpdate
+        // when the BaseDomain is not present, in the case of updateById methods
+        Object[] newArgs = new Object[3];
+        for (Object arg : args) {
+            if (arg instanceof BaseDomain domain) {
+                newArgs[0] = domain;
+            } else if (arg instanceof String && isUUIDString((String) arg)) {
+                newArgs[1] = arg;
+            } else if (arg instanceof BridgeUpdate) {
+                newArgs[2] = arg;
+            }
+        }
+        return newArgs;
+    }
+
     private String generateId() {
         return UUID.randomUUID().toString();
+    }
+
+    private boolean isUUIDString(String id) {
+        try {
+            UUID.fromString(id);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private void addEntityToMapUpdateAndArchiveOp(Map<String, DBOps> transactionContext, String id) {
+        BaseDomain domainObject = new BaseDomain() {};
+        domainObject.setId(id);
+        addEntityToContextMap(transactionContext, domainObject);
     }
 
     private Object addNonWriteEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
         if (obj instanceof BaseDomain) {
             DBOps dbOps = new DBOps();
             dbOps.setEntity(obj);
-            dbOps.setModified(true);
+            dbOps.setModified(false);
             String id = getObjectId(dbOps);
             if (!transactionContext.containsKey(id)) {
                 transactionContext.put(id, dbOps);
@@ -201,16 +239,16 @@ public class TransactionAspect {
         return obj;
     }
 
-    private Object addEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
+    private void addEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
         AppsmithRepository<?> repository = getDomainClassFromObject(obj);
         if (repository == null) {
             log.error(" Unable to find the repository for the entity {}", obj.getClass());
-            return obj;
+            return;
         }
         DBOps dbOps = new DBOps();
         dbOps.setEntity(obj);
         if (transactionContext.containsKey(getObjectId(dbOps))) {
-            return obj;
+            return;
         }
         Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
         dbOps = new DBOps();
@@ -222,21 +260,43 @@ public class TransactionAspect {
             dbOps.setNew(true);
         }
         transactionContext.put(getObjectId(dbOps), dbOps);
-        return obj;
     }
 
+    private boolean isWriteOp(Object[] args, MethodSignature signature) {
+        // Special case like findCustomJsLib accepting the BaseDomain object as parameter instead of the UUID,
+        // hence the need to check for method name as well
+        if (args[0] != null
+                && isSaveOrCreateOp(args[0])
+                && !signature.getMethod().getName().contains("find")) {
+            return true;
+        } else if (args[2] != null && isUpdateOp(args[2])) {
+            return true;
+        } else return isArchiveOp(signature);
+    }
+
+    private boolean isSaveOrCreateOp(Object obj) {
+        return obj instanceof BaseDomain;
+    }
+
+    private boolean isUpdateOp(Object obj) {
+        return obj instanceof BridgeUpdate;
+    }
+
+    private boolean isArchiveOp(MethodSignature signature) {
+        return signature.getMethod().getName().contains("archive");
+    }
+
+    // TODO - remove this method, used only for testing the validity of the new method
     private boolean isWriteOp(MethodSignature signature) {
         String methodName = signature.getMethod().getName();
+        // save/create instance of BaseDomain
+        // update instance of BridgeUpdate
+        // archive is archive
         return methodName.contains("save")
                 || methodName.contains("update")
                 || methodName.contains("delete")
                 || methodName.contains("insert")
                 || methodName.contains("archive");
-    }
-
-    private boolean isByIdMethod(MethodSignature signature) {
-        String methodName = signature.getMethod().getName();
-        return methodName.contains("updateById") || methodName.contains("archiveById");
     }
 
     private AppsmithRepository<?> getDomainClassFromObject(Object object) {
