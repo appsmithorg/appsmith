@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Aspect
 @Component
@@ -76,13 +77,14 @@ public class TransactionAspect {
         repoByEntityClass = Collections.unmodifiableMap(map);
     }
 
-    @Around("execution(* com.appsmith.server.repositories.cakes.*.*(..))")
+    @Around("execution(* com.appsmith.server.repositories.cakes..*(..))")
     public Object handleTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
 
         Class<?> returnType =
                 ((MethodSignature) joinPoint.getSignature()).getMethod().getReturnType();
 
         if (Mono.class.isAssignableFrom(returnType)) {
+
             return Mono.deferContextual(context -> {
                 try {
                     // transaction context is not maintained
@@ -112,8 +114,22 @@ public class TransactionAspect {
                         //      - If end up in switchIfEmpty means no object is present in the DB and should mark this
                         //         as a new object and store the object in DB
                         //      - If object is present in the DB, then store the initial state in the context
-                        return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()))
-                                .map(obj -> addEntityToContextMap(transactionContext, obj));
+                        // 3. Return the object
+
+                        BaseDomain domain = (BaseDomain) joinPoint.getArgs()[0];
+                        if (isByIdMethod((MethodSignature) joinPoint.getSignature())) {
+                            BaseDomain domainObject = domain;
+                            String updateById = (String) joinPoint.getArgs()[1];
+                            domainObject.setId(updateById);
+                            addEntityToContextMap(transactionContext, domainObject);
+                            return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
+                        }
+
+                        if (domain.getId() == null) {
+                            domain.setId(generateId());
+                        }
+                        addEntityToContextMap(transactionContext, domain);
+                        return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
                     }
 
                 } catch (Throwable e) {
@@ -136,7 +152,20 @@ public class TransactionAspect {
                         if (!isWriteOp) {
                             return flux.map(obj -> addNonWriteEntityToContextMap(transactionContext, obj));
                         } else {
-                            return flux.map(obj -> addEntityToContextMap(transactionContext, obj));
+                            BaseDomain domain = (BaseDomain) joinPoint.getArgs()[0];
+                            if (isByIdMethod((MethodSignature) joinPoint.getSignature())) {
+                                BaseDomain domainObject = domain;
+                                String updateById = (String) joinPoint.getArgs()[1];
+                                domainObject.setId(updateById);
+                                addEntityToContextMap(transactionContext, domainObject);
+                                return flux;
+                            }
+
+                            if (domain.getId() == null) {
+                                domain.setId(generateId());
+                            }
+                            addEntityToContextMap(transactionContext, domain);
+                            return flux;
                         }
                     }
 
@@ -152,6 +181,10 @@ public class TransactionAspect {
             });
         }
         return joinPoint.proceed(joinPoint.getArgs());
+    }
+
+    private String generateId() {
+        return UUID.randomUUID().toString();
     }
 
     private Object addNonWriteEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
@@ -199,6 +232,11 @@ public class TransactionAspect {
                 || methodName.contains("delete")
                 || methodName.contains("insert")
                 || methodName.contains("archive");
+    }
+
+    private boolean isByIdMethod(MethodSignature signature) {
+        String methodName = signature.getMethod().getName();
+        return methodName.contains("updateById") || methodName.contains("archiveById");
     }
 
     private AppsmithRepository<?> getDomainClassFromObject(Object object) {

@@ -182,12 +182,14 @@ public class ImportApplicationTransactionServiceTest {
                 .importNewArtifactInWorkspaceFromJson(createdWorkspace.getId(), applicationJson)
                 .map(importableArtifact -> (Application) importableArtifact);
 
+        String errorMessage = AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(
+                createdWorkspace.getId(),
+                "Error: Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'");
+
         // Check  if expected exception is thrown
         StepVerifier.create(resultMono)
-                .expectErrorMatches(error -> error instanceof AppsmithException
-                        && error.getMessage()
-                                .equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(
-                                        createdWorkspace.getId(), "")))
+                .expectErrorMatches(error ->
+                        error instanceof AppsmithException && error.getMessage().equals(errorMessage))
                 .verify();
     }
 }
