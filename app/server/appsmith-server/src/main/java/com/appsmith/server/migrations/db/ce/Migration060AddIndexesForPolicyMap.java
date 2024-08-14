@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
+import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.constants.DeprecatedFieldName.DELETED;
@@ -78,6 +79,7 @@ public class Migration060AddIndexesForPolicyMap {
     private void createAndApplyIndex(String indexName, Class<?> clazz, String... fields) {
         try {
             Index index = makeIndex(fields).named(indexName);
+            dropIndexIfExists(mongoTemplate, clazz, indexName);
             ensureIndexes(mongoTemplate, clazz, index);
         } catch (UncategorizedMongoDbException exception) {
             log.error(
