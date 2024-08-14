@@ -2,8 +2,8 @@ import type { Node, SourceLocation, Options, Comment } from "acorn";
 import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants";
-import { has, isFinite, isNil, isPlainObject, isString, toPath } from "lodash";
-import { getStringValue, sanitizeScript } from "./utils";
+import { has, isFinite, isNil, isString, toPath } from "lodash";
+import { getStringValue, isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject";
 import { attachComments } from "astravel";
 import { generate } from "astring";
@@ -404,7 +404,7 @@ export interface IdentifierInfo {
 export const extractIdentifierInfoFromCode = (
   code: string,
   evaluationVersion: number,
-  reservedIdentifiers?: Record<string, unknown>,
+  invalidIdentifiers?: Record<string, unknown>,
 ): IdentifierInfo => {
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
@@ -429,7 +429,7 @@ export const extractIdentifierInfoFromCode = (
       return !(
         functionalParams.has(topLevelIdentifier) ||
         variableDeclarations.has(topLevelIdentifier) ||
-        has(reservedIdentifiers, topLevelIdentifier)
+        has(invalidIdentifiers, topLevelIdentifier)
       );
     });
     return {
@@ -694,12 +694,6 @@ export interface AssignmentExpressionNode extends Node {
   left: Expression;
   Right: Expression;
 }
-
-export const isTrueObject = (
-  value: unknown,
-): value is Record<string, unknown> => {
-  return isPlainObject(value);
-};
 
 /** Function returns Invalid top-level member expressions from code
  * @param code

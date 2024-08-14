@@ -1,5 +1,11 @@
-import { isTrueObject } from "@shared/ast";
+import isPlainObject from "lodash/isPlainObject";
 import isInteger from "lodash/isInteger";
+
+export const isTrueObject = (
+  value: unknown,
+): value is Record<string, unknown> => {
+  return isPlainObject(value);
+};
 
 export const convertPathToString = (arrPath: Array<string | number>) => {
   let string = "";

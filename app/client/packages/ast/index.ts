@@ -23,7 +23,6 @@ import {
   isTypeOfFunction,
   isFunctionPresent,
   getMemberExpressionObjectFromProperty,
-  isTrueObject,
 } from "./src";
 
 // constants
@@ -145,5 +144,4 @@ export {
   PeekOverlayExpressionIdentifier,
   getMemberExpressionObjectFromProperty,
   addPropertiesToJSObjectCode,
-  isTrueObject,
 };
