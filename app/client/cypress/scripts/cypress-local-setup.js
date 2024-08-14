@@ -5,7 +5,7 @@ const prompt = require("prompt-sync")();
 
 function isContainerRunning(containerName) {
   try {
-    const output = execSync(`docker ps --format '{{.Names}}' | grep -w "${containerName}"`);
+    const output = execSync(`docker ps --filter "name=^/${containerName}$" --format '{{.Names}}'`);
     return output.length > 0;
   } catch (error) {
     return false;
@@ -41,7 +41,7 @@ async function runLocalServer() {
     let user_input = prompt(
       `Do you wish to continue without setting up the local server with docker? (yes/no): `
     );
-    user_input = user_input.trim().toLowerCase();
+    user_input = (user_input || "").trim().toLowerCase();
     
     if (user_input === "yes" || user_input === "y") {
         console.log("INFO", "Continuing without setting up local backend docker based server.");
