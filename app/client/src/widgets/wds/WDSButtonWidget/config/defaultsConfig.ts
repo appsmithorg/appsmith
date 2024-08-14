@@ -1,7 +1,7 @@
 import { RecaptchaTypes } from "components/constants";
 import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { objectKeys } from "@appsmith/utils/src/object";
+import { objectKeys } from "@appsmith/utils";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,

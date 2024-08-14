@@ -1,7 +1,7 @@
 import { capitalize } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
-import { objectKeys } from "@appsmith/utils/src/object";
+import { objectKeys } from "@appsmith/utils";
 
 export const propertyPaneStyleConfig = [
   {

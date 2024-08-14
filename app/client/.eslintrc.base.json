@@ -16,7 +16,8 @@
     "sort-destructure-keys",
     "cypress",
     "testing-library",
-    "jest"
+    "jest",
+     "@appsmith-plugins"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
@@ -84,7 +85,8 @@
           }
         ]
       }
-    ]
+    ],
+    "@appsmith-plugins/object-keys": "warn"
   },
   "settings": {
     "import/resolver": {

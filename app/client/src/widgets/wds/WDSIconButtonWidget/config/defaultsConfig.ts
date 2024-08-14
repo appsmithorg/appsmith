@@ -1,5 +1,5 @@
 import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
-import { objectKeys } from "@appsmith/utils/src/object";
+import { objectKeys } from "@appsmith/utils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {

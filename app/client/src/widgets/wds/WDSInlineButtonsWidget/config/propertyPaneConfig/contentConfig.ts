@@ -5,7 +5,7 @@ import {
 } from "ee/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
-import { objectKeys } from "@appsmith/utils/src/object";
+import { objectKeys } from "@appsmith/utils";
 
 export const propertyPaneContentConfig = [
   {

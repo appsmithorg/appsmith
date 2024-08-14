@@ -253,6 +253,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@appsmith-plugins/eslint-plugin": "workspace:^",
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
     "@babel/helper-string-parser": "^7.19.4",
     "@craco/craco": "^7.0.0",
