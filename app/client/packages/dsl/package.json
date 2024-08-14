@@ -15,6 +15,7 @@
     "@appsmith/evaluation": "workspace:^",
     "@babel/runtime": "^7.21.0",
     "@rollup/plugin-commonjs": "^22.0.0",
+    "@shared/ast": "workspace:^",
     "@types/escodegen": "^0.0.7",
     "@types/lodash": "^4.14.120",
     "normalizr": "^3.6.2",
