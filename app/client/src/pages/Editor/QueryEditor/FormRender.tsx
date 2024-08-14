@@ -4,7 +4,7 @@ import {
   createMessage,
   INVALID_FORM_CONFIGURATION,
   UNEXPECTED_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Tag } from "@blueprintjs/core";
 import styled from "styled-components";
 import { UIComponentTypes } from "api/PluginApi";
@@ -22,7 +22,7 @@ import {
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import FormControl from "../FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import type { QueryAction, SaaSAction } from "entities/Action";
 
 interface Props {

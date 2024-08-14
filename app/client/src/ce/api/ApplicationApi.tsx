@@ -1,12 +1,12 @@
-import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
+import type { ApplicationVersion } from "ee/actions/applicationActions";
+import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { EvaluationVersion } from "constants/EvalConstants";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { Action, BaseAction } from "entities/Action";
 import type { APP_MODE } from "entities/App";
 import type { Datasource } from "entities/Datasource";

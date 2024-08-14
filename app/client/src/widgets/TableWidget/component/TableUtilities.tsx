@@ -45,7 +45,7 @@ import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
 import tinycolor from "tinycolor2";
 import { generateTableColumnId } from "./TableHelpers";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const CheckBoxLineIcon = importSvg(
   async () => import("assets/icons/widget/table/checkbox-line.svg"),

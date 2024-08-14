@@ -3,7 +3,7 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   QUERIES_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_BASE_PATH,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 import { SAAS_EDITOR_PATH } from "pages/Editor/SaaSEditor/constants";
 
 export const querySegmentRoutes = [

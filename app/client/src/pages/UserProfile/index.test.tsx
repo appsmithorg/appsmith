@@ -11,7 +11,7 @@ import UserProfile from ".";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 import Login from "pages/UserAuth/Login";
 
@@ -82,11 +82,6 @@ const defaultStoreState = {
     },
   },
 };
-
-jest.mock("design-system-old/build/constants/messages", () => ({
-  ...jest.requireActual("design-system-old/build/constants/messages"),
-  createMessage: () => "",
-}));
 
 jest.mock("actions/gitSyncActions", () => ({
   fetchGlobalGitConfigInit: jest.fn(),

@@ -2,11 +2,14 @@
 const shell = require('shelljs');
 const readlineSync = require('readline-sync');
 const process = require('process');
-const Constants = require('./constants')
+const Constants = require('./constants');
+const utils = require('./utils');
+
 
 function import_database() {
   console.log('import_database  ....')
-  const cmd = `mongorestore --uri='${process.env.APPSMITH_DB_URL}' --drop --archive='${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`
+  dbUrl = utils.getDburl();
+  const cmd = `mongorestore --uri='${dbUrl}' --drop --archive='${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`
   shell.exec(cmd)
   console.log('import_database done')
 }
@@ -70,4 +73,4 @@ const main = (forceOption) => {
 
 module.exports = {
   runImportDatabase: main,
-};
+}

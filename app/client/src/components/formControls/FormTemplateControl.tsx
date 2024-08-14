@@ -3,12 +3,12 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import styled from "styled-components";
-import { Button, Flex } from "design-system";
-import type { ButtonProps } from "design-system";
+import { Button, Flex } from "@appsmith/ads";
+import type { ButtonProps } from "@appsmith/ads";
 import { change, getFormValues } from "redux-form";
 import { connect } from "react-redux";
 import { get, omit } from "lodash";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
 
 const StyledButton = styled((props: ButtonProps & { isActive: boolean }) => (

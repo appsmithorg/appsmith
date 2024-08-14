@@ -1,21 +1,21 @@
 import React from "react";
 import styled from "styled-components";
-import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
+import { DATASOURCE_REST_API_FORM } from "ee/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { getFormMeta, reduxForm } from "redux-form";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { Callout } from "design-system";
+import type { AppState } from "ee/reducers";
+import { Callout } from "@appsmith/ads";
 import {
   createDatasourceFromForm,
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
@@ -30,18 +30,18 @@ import {
   AuthType,
   GrantType,
 } from "entities/Datasource/RestAPIForm";
-import { createMessage, INVALID_URL } from "@appsmith/constants/messages";
+import { createMessage, INVALID_URL } from "ee/constants/messages";
 import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { updateReplayEntity } from "actions/pageActions";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { Form } from "./DBForm";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface DatasourceRestApiEditorProps {
   // TODO: Fix this the next time the file is edited

@@ -126,7 +126,7 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-input] :is(input, textarea)::placeholder {
-    color: var(--color-fg-neutral-subtle);
+    color: var(--color-fg-neutral-subtle) !important;
     opacity: 1;
   }
 

@@ -2,14 +2,14 @@ import type {
   ApplicationPayload,
   Page,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UpdatePageResponse } from "api/PageApi";
 import type {
   ApplicationURLParams,
   PageURLParams,
-} from "@appsmith/entities/URLRedirect/URLAssembly";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+} from "ee/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { Middleware } from "redux";
 
 // TODO: Fix this the next time the file is edited

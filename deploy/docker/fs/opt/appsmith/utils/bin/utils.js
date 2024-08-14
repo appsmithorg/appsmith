@@ -2,6 +2,7 @@ const shell = require("shelljs");
 const fsPromises = require("fs/promises");
 const Constants = require("./constants");
 const childProcess = require("child_process");
+const fs = require('node:fs');
 const { ConnectionString } = require("mongodb-connection-string-url");
 
 function showHelp() {
@@ -29,6 +30,27 @@ function start(apps) {
   console.log("Starting " + appsStr);
   shell.exec("/usr/bin/supervisorctl start " + appsStr);
   console.log("Started " + appsStr);
+}
+
+function getDburl() {
+  let dbUrl = '';
+  try {
+    let env_array = fs.readFileSync(Constants.ENV_PATH, 'utf8').toString().split("\n");
+    for (let i in env_array) {
+      if (env_array[i].startsWith("APPSMITH_MONGODB_URI") || env_array[i].startsWith("APPSMITH_DB_URL")) {
+        dbUrl = env_array[i].toString().split("=")[1];
+        break; // Break early when the desired line is found
+      }
+    }
+  } catch (err) {
+    console.error("Error reading the environment file:", err);
+  }
+  let dbEnvUrl = process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGO_DB_URI;
+  // Make sure dbEnvUrl takes precedence over dbUrl
+  if (dbEnvUrl && dbEnvUrl !== "undefined") {
+    dbUrl = dbEnvUrl;
+  }
+  return dbUrl;
 }
 
 function execCommand(cmd, options) {
@@ -174,4 +196,5 @@ module.exports = {
   preprocessMongoDBURI,
   execCommandSilent,
   getDatabaseNameFromMongoURI,
+  getDburl
 };

@@ -3,14 +3,14 @@ import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import { connect, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getRolesForField } from "@appsmith/selectors/workspaceSelectors";
+import type { AppState } from "ee/reducers";
+import { getRolesForField } from "ee/selectors/workspaceSelectors";
 import type {
   InviteUsersToWorkspaceFormValues,
   InviteUsersProps,
-} from "@appsmith/pages/workspace/helpers";
-import { inviteUsersToWorkspace } from "@appsmith/pages/workspace/helpers";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+} from "ee/pages/workspace/helpers";
+import { inviteUsersToWorkspace } from "ee/pages/workspace/helpers";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
 import {
   createMessage,
   INVITE_USERS_SUBMIT_SUCCESS,
@@ -24,11 +24,11 @@ import {
   CUSTOM_ROLES_RAMP_TEXT,
   CUSTOM_ROLE_DISABLED_OPTION_TEXT,
   CUSTOM_ROLE_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { isEmail } from "utils/formhelpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import type { SelectOptionProps } from "design-system";
-import { Callout, Checkbox } from "design-system";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Callout, Checkbox } from "@appsmith/ads";
 import {
   Button,
   Icon,
@@ -38,28 +38,25 @@ import {
   Tooltip,
   toast,
   Link,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   fetchRolesForWorkspace,
   fetchUsersForWorkspace,
   fetchWorkspace,
-} from "@appsmith/actions/workspaceActions";
-import {
-  getRampLink,
-  showProductRamps,
-} from "@appsmith/selectors/rampSelectors";
+} from "ee/actions/workspaceActions";
+import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
 import {
   RAMP_NAME,
   RampFeature,
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 import BusinessTag from "components/BusinessTag";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
+import { isGACEnabled } from "ee/utils/planHelpers";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import log from "loglevel";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
 
 const featureFlags = selectFeatureFlags(store.getState());

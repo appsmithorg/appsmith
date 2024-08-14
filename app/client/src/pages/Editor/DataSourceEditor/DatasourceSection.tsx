@@ -9,18 +9,18 @@ import {
 } from "components/formControls/utils";
 import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
-import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
+import { getPlugin } from "ee/selectors/entitiesSelector";
+import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
 import type { PluginType } from "entities/Action";
-import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { EnvConfigSection } from "@appsmith/components/EnvConfigSection";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { Text } from "design-system";
-import { Table } from "design-system-old";
+import { getDefaultEnvId } from "ee/api/ApiUtils";
+import { EnvConfigSection } from "ee/components/EnvConfigSection";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import { isMultipleEnvEnabled } from "ee/utils/planHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { Text } from "@appsmith/ads";
+import { Table } from "@appsmith/ads-old";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);

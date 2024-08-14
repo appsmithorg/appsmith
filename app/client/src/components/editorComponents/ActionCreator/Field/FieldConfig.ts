@@ -9,7 +9,7 @@ import {
   RESET_CHILDREN_OPTIONS,
   ViewTypes,
 } from "../constants";
-import { ALERT_STYLE_OPTIONS } from "@appsmith/constants/messages";
+import { ALERT_STYLE_OPTIONS } from "ee/constants/messages";
 import type {
   ActionIntegrationType,
   ActionType,
@@ -32,8 +32,8 @@ import {
   genericSetter,
 } from "../utils";
 import store from "store";
-import { getPageList } from "@appsmith/selectors/entitiesSelector";
-import type { TreeDropdownOption } from "design-system-old";
+import { getPageList } from "ee/selectors/entitiesSelector";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
 

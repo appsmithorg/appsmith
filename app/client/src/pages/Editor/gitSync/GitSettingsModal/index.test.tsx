@@ -50,7 +50,7 @@ jest.mock("./TabBranch", () => {
   return () => null;
 });
 
-jest.mock("@appsmith/components/gitComponents/GitSettingsCDTab", () => {
+jest.mock("ee/components/gitComponents/GitSettingsCDTab", () => {
   return () => null;
 });
 

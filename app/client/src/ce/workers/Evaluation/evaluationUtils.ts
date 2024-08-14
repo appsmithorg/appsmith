@@ -13,13 +13,13 @@ import type {
   DataTree,
   ConfigTree,
 } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type {
   JSActionEntityConfig,
   PrivateWidgets,
@@ -29,10 +29,10 @@ import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
-import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import type { Difference } from "microdiff";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
@@ -514,9 +514,7 @@ export const getImmediateParentsOfPropertyPaths = (
 };
 
 export const getAllPaths = (
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  records: any,
+  records: Record<string, unknown> | unknown,
   curKey = "",
   result: Record<string, true> = {},
 ): Record<string, true> => {
@@ -534,6 +532,27 @@ export const getAllPaths = (
     }
   }
   return result;
+};
+export const getAllPathsBasedOnDiffPaths = (
+  records: Record<string, unknown> | unknown,
+  diff: DataTreeDiff[],
+  // this argument would be mutable
+  previousResult: Record<string, true> = {},
+): Record<string, true> => {
+  const newResult = previousResult;
+  diff.forEach((curr) => {
+    const { event, payload } = curr;
+    if (event === DataTreeDiffEvent.DELETE) {
+      delete newResult[payload.propertyPath];
+    }
+    if (event === DataTreeDiffEvent.NEW || event === DataTreeDiffEvent.EDIT) {
+      const newDataSegments = get(records, payload.propertyPath);
+      // directly mutates on the result so we don't have to merge it back to the result
+      getAllPaths(newDataSegments, payload.propertyPath, newResult);
+    }
+  });
+
+  return newResult;
 };
 export const trimDependantChangePaths = (
   changePaths: Set<string>,

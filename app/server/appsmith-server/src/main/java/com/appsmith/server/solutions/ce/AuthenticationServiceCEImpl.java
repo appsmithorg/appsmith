@@ -140,8 +140,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 })
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
-                .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .zipWith(Mono.zip(workspaceIdMono, trueEnvironmentIdCached, newPageMono))
+                .flatMap(ds -> this.validateRequiredFieldsForGenericOAuth2(ds)
+                        .zipWith(Mono.zip(workspaceIdMono, trueEnvironmentIdCached, newPageMono)))
                 .flatMap(tuple2 -> {
                     DatasourceStorage datasourceStorage = tuple2.getT1();
                     String workspaceId = tuple2.getT2().getT1();

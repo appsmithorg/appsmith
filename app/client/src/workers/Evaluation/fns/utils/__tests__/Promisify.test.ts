@@ -18,7 +18,7 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   },
 }));
 
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ExecutionMetaData from "../ExecutionMetaData";
 import { promisify } from "../Promisify";

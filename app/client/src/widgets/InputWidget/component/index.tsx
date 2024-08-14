@@ -19,7 +19,7 @@ import _ from "lodash";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
 

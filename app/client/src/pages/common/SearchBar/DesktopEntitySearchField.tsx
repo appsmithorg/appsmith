@@ -1,11 +1,11 @@
-import { Icon, SearchInput, Spinner, Text } from "design-system";
+import { Icon, SearchInput, Spinner, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
-import PackageSearchItem from "@appsmith/pages/common/PackageSearchItem";
-import WorkflowSearchItem from "@appsmith/pages/common/WorkflowSearchItem";
+import PackageSearchItem from "ee/pages/common/PackageSearchItem";
+import WorkflowSearchItem from "ee/pages/common/WorkflowSearchItem";
 import { useRouteMatch } from "react-router";
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`

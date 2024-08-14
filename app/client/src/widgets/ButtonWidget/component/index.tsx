@@ -13,7 +13,7 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -34,7 +34,7 @@ import {
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 
 const RecaptchaWrapper = styled.div`
   position: relative;

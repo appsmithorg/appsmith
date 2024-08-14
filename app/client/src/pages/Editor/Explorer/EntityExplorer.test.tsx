@@ -7,7 +7,7 @@ import React from "react";
 import { MockPageDSL } from "test/testCommon";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import { runSagaMiddleware } from "store";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import * as explorerSelector from "selectors/explorerSelector";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
@@ -24,23 +24,21 @@ pushState.mockImplementation((state: any, title: any, url: any) => {
   window.location.pathname = url;
 });
 
-jest.mock("@appsmith/utils/permissionHelpers", () => {
+jest.mock("ee/utils/permissionHelpers", () => {
   return {
     __esModule: true,
-    ...jest.requireActual("@appsmith/utils/permissionHelpers"),
+    ...jest.requireActual("ee/utils/permissionHelpers"),
   };
 });
 
-jest.mock("@appsmith/pages/Editor/Explorer/helpers", () => ({
+jest.mock("ee/pages/Editor/Explorer/helpers", () => ({
   __esModule: true,
-  ...jest.requireActual("@appsmith/pages/Editor/Explorer/helpers"),
+  ...jest.requireActual("ee/pages/Editor/Explorer/helpers"),
 }));
 
-jest.mock("@appsmith/utils/BusinessFeatures/permissionPageHelpers", () => ({
+jest.mock("ee/utils/BusinessFeatures/permissionPageHelpers", () => ({
   __esModule: true,
-  ...jest.requireActual(
-    "@appsmith/utils/BusinessFeatures/permissionPageHelpers",
-  ),
+  ...jest.requireActual("ee/utils/BusinessFeatures/permissionPageHelpers"),
 }));
 
 jest.mock("selectors/explorerSelector", () => ({

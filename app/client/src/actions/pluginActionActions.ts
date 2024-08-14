@@ -5,7 +5,7 @@ import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import type { Action, ActionViewMode } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";

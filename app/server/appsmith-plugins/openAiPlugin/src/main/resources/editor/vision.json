@@ -85,7 +85,7 @@
           "label": "Type",
           "key": "type",
           "controlType": "DROP_DOWN",
-          "initialValue": "text",        
+          "initialValue": "text",
           "options": [
             {
               "label": "Text",

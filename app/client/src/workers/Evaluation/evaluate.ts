@@ -9,7 +9,7 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import DOM_APIS from "./domApis";
 import {
@@ -23,10 +23,10 @@ import {
   PrimitiveErrorModifier,
   TypeErrorModifier,
 } from "./errorModifier";
-import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { addDataTreeToContext } from "ee/workers/Evaluation/Actions";
 import { set } from "lodash";
 import { klona } from "klona";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 
 export interface EvalResult {
   // TODO: Fix this the next time the file is edited

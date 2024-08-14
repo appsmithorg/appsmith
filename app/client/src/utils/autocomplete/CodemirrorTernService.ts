@@ -9,7 +9,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
 import TernWorkerServer from "./TernWorkerService";
@@ -18,7 +18,7 @@ import {
   getCodeMirrorNamespaceFromDoc,
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
 
