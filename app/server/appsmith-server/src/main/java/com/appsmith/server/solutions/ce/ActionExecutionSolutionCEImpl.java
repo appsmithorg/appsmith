@@ -53,7 +53,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -771,6 +770,19 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         };
     }
 
+    ActionConfiguration deepCopyActionConfiguration(ActionConfiguration actionConfiguration) {
+        try {
+            // Convert the ActionConfiguration object to JSON string
+            String json = objectMapper.writeValueAsString(actionConfiguration);
+
+            // Convert the JSON string back to an ActionConfiguration object
+            return objectMapper.readValue(json, ActionConfiguration.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * Handles the execution logic, call to pluginExecutor with the payload post retrieval and validation of action, datasource, and plugin
      *
@@ -799,9 +811,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     ActionConfiguration rawActionConfiguration = null;
                     if (actionDTO != null && actionDTO.getActionConfiguration() != null) {
                         // deep copying the actionConfiguration to avoid any changes in the original object
-                        Gson gson = commonConfig.gsonInstance();
-                        rawActionConfiguration = gson.fromJson(
-                                gson.toJson(actionDTO.getActionConfiguration()), ActionConfiguration.class);
+                        rawActionConfiguration = deepCopyActionConfiguration(actionDTO.getActionConfiguration());
                     }
 
                     log.debug(
