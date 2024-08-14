@@ -49,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.TRANSACTION_CONTEXT;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -504,7 +506,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(importableArtifact -> updateImportableEntities(
                         artifactBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
                 .flatMap(importableArtifact -> updateImportableArtifact(artifactBasedImportService, importableArtifact))
-                .contextWrite(context -> context.put("transactionContext", enityMap))
+                .contextWrite(context -> context.put(TRANSACTION_CONTEXT, enityMap))
                 .onErrorResume(throwable -> {
                     // clean up stale entities and modified entities back to the original state from the db
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);

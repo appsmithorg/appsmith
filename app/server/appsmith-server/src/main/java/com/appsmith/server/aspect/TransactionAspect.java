@@ -40,6 +40,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.ARCHIVE;
+import static com.appsmith.server.constants.ce.FieldNameCE.FIND;
+import static com.appsmith.server.constants.ce.FieldNameCE.TRANSACTION_CONTEXT;
+
 @Aspect
 @Component
 @Slf4j
@@ -88,11 +92,11 @@ public class TransactionAspect {
 
             return Mono.deferContextual(context -> {
                 try {
-                    // transaction context is not maintained
-                    if (context.isEmpty() || !context.hasKey("transactionContext")) {
+                    // Check if the transaction context is available, if not execute the DB call and return
+                    if (context.isEmpty() || !context.hasKey(TRANSACTION_CONTEXT)) {
                         return (Mono<?>) joinPoint.proceed(joinPoint.getArgs());
                     }
-                    Map<String, DBOps> transactionContext = context.get("transactionContext");
+                    Map<String, DBOps> transactionContext = context.get(TRANSACTION_CONTEXT);
                     // Check if it's a write operation
                     boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
 
@@ -111,10 +115,14 @@ public class TransactionAspect {
                     // 2. Check if the object is already present in the context:
                     //      - If not, store the object in the context and return
                     //      - If yes, then return the object as is. We want to just maintain the initial state of the
-                    // object as we are concerned with the objects initial state before the transaction started
+                    // object as we are concerned with the object initial state before the transaction started
+                    // We are considering the previous state of the db,
+                    // because we want to revert the changes if the transaction fails, and we want to store the initial
+                    // state of the object before the transaction started.
+                    // This cleanup is done in the TransactionHandler class in Solution module
                     if (!isWriteOp) {
                         return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()))
-                                .map(obj -> addNonWriteEntityToContextMap(transactionContext, obj));
+                                .map(obj -> updateContextMapWithReadOperation(transactionContext, obj));
                     } else {
                         // If the operation is writing operation
                         // 1. Extract the id of the object
@@ -141,7 +149,7 @@ public class TransactionAspect {
 
                 } catch (Throwable e) {
                     log.error(
-                            "Error occurred while invoking function {}",
+                            "Error while executing the function in the Transaction Aspect {}",
                             joinPoint.getSignature().getName(),
                             e);
                     return Mono.error(e);
@@ -150,15 +158,15 @@ public class TransactionAspect {
         } else if (Flux.class.isAssignableFrom(returnType)) {
             return Flux.deferContextual(context -> {
                 try {
-                    if (!context.isEmpty() && context.hasKey("transactionContext")) {
-                        Map<String, DBOps> transactionContext = context.get("transactionContext");
+                    if (!context.isEmpty() && context.hasKey(TRANSACTION_CONTEXT)) {
+                        Map<String, DBOps> transactionContext = context.get(TRANSACTION_CONTEXT);
                         Object[] args = getArgs(joinPoint.getArgs());
                         boolean isWriteOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
 
                         Flux flux = (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
 
                         if (!isWriteOp) {
-                            return flux.map(obj -> addNonWriteEntityToContextMap(transactionContext, obj));
+                            return flux.map(obj -> updateContextMapWithReadOperation(transactionContext, obj));
                         } else {
                             if ((args[2] != null && isUpdateOp(args[2]))
                                     || (isArchiveOp((MethodSignature) joinPoint.getSignature()))) {
@@ -171,7 +179,6 @@ public class TransactionAspect {
                                 domain.setId(generateId());
                             }
                             addEntityToContextMap(transactionContext, domain);
-
                             return flux;
                         }
                     }
@@ -180,7 +187,7 @@ public class TransactionAspect {
 
                 } catch (Throwable e) {
                     log.error(
-                            "Error occurred while adding the user context to the permission object when invoking function {}",
+                            "Error while executing the function in the Transaction Aspect {}",
                             joinPoint.getSignature().getName(),
                             e);
                     return Flux.error(e);
@@ -225,7 +232,7 @@ public class TransactionAspect {
         addEntityToContextMap(transactionContext, domainObject);
     }
 
-    private Object addNonWriteEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
+    private Object updateContextMapWithReadOperation(Map<String, DBOps> transactionContext, Object obj) {
         if (obj instanceof BaseDomain) {
             DBOps dbOps = new DBOps();
             dbOps.setEntity(obj);
@@ -267,7 +274,7 @@ public class TransactionAspect {
         // hence the need to check for method name as well
         if (args[0] != null
                 && isSaveOrCreateOp(args[0])
-                && !signature.getMethod().getName().contains("find")) {
+                && !signature.getMethod().getName().contains(FIND)) {
             return true;
         } else if (args[2] != null && isUpdateOp(args[2])) {
             return true;
@@ -283,7 +290,7 @@ public class TransactionAspect {
     }
 
     private boolean isArchiveOp(MethodSignature signature) {
-        return signature.getMethod().getName().contains("archive");
+        return signature.getMethod().getName().contains(ARCHIVE);
     }
 
     // TODO - remove this method, used only for testing the validity of the new method
