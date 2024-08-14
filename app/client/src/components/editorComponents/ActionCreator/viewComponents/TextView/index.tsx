@@ -19,7 +19,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
-} from "design-system";
+} from "@appsmith/ads";
 
 export function TextView(props: TextViewProps) {
   const id = useMemo(() => generateReactKey(), []);

@@ -125,7 +125,7 @@ import {
   getFromServerWhenNoPrefetchedResult,
 } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { getFormValues } from "redux-form";
 import {
   API_EDITOR_FORM_NAME,

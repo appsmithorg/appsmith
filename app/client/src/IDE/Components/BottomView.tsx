@@ -5,7 +5,7 @@ import Resizer, {
 } from "components/editorComponents/Debugger/Resizer";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/styledComponents";
 import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const VIEW_MIN_HEIGHT = 38;
 

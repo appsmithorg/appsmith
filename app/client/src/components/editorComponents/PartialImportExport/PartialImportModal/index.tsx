@@ -14,7 +14,7 @@ import {
   getIsImportingPartialApplication,
   getPartialImportExportLoadingState,
 } from "ee/selectors/applicationSelectors";
-import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
+import { Icon, Modal, ModalContent, ModalHeader, Text } from "@appsmith/ads";
 import type { SetProgress } from "@appsmith/ads-old";
 import { FilePickerV2, FileType } from "@appsmith/ads-old";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";

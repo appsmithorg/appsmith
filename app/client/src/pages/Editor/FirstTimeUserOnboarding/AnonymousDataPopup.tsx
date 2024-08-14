@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import {
   ADMIN_SETTINGS,
   LEARN_MORE,

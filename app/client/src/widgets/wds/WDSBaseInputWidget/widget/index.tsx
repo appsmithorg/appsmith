@@ -37,6 +37,7 @@ class WDSBaseInputWidget<
       isRequired: false,
       isReadOnly: false,
       isDisabled: false,
+      isVisible: true,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
     } as unknown as WidgetDefaultProps;

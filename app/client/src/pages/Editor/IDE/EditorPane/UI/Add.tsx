@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Button, Flex, Text } from "design-system";
+import { Button, Flex, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 

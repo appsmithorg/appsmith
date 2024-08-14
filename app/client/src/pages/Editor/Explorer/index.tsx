@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { SegmentedControl } from "design-system";
+import { SegmentedControl } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import type { AppState } from "ee/reducers";

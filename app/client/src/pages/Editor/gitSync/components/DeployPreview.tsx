@@ -15,7 +15,7 @@ import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { viewerURL } from "ee/RouteBuilder";
-import { Link, Text } from "design-system";
+import { Link, Text } from "@appsmith/ads";
 import { importSvg } from "@appsmith/ads-old";
 
 const CloudyIcon = importSvg(

@@ -11,7 +11,7 @@ import {
   ModalHeader,
   ModalFooter,
   Callout,
-} from "design-system";
+} from "@appsmith/ads";
 import { Text, TextType } from "@appsmith/ads-old";
 import type { ReactNode } from "react";
 import React, { useState } from "react";

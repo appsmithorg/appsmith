@@ -50,9 +50,7 @@ public class JsonSchemaVersionsTest {
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
                 .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
-        assertThat(jsonSchemaVersions.getServerVersion()).isNotEqualTo(jsonSchemaVersionsFallback.getServerVersion());
-        assertThat(jsonSchemaVersions.getServerVersion()).isEqualTo(jsonSchemaVersionsFallback.getServerVersion() + 1);
-
+        assertThat(jsonSchemaVersions.getServerVersion()).isEqualTo(jsonSchemaVersionsFallback.getServerVersion());
         assertThat(jsonSchemaVersions.getClientVersion()).isEqualTo(jsonSchemaVersionsFallback.getClientVersion());
     }
 }

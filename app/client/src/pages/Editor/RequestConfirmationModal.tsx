@@ -14,7 +14,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,

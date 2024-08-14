@@ -1,8 +1,8 @@
 import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ToggleGroupOption } from "design-system";
-import { ToggleButtonGroup } from "design-system";
+import type { ToggleGroupOption } from "@appsmith/ads";
+import { ToggleButtonGroup } from "@appsmith/ads";
 import produce from "immer";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {

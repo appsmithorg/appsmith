@@ -9,7 +9,7 @@ import {
   MenuTrigger,
   Text,
   Avatar,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 import type { PopperModifiers } from "@blueprintjs/core";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";

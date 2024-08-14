@@ -27,7 +27,7 @@ import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 const overflowCSS = css`
   overflow: hidden;

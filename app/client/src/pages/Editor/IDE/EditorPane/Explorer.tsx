@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
 import {
@@ -15,7 +15,6 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 import SegmentedHeader from "./components/SegmentedHeader";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
@@ -42,9 +41,6 @@ const EditorPaneExplorer = () => {
       }
     >
       <SegmentedHeader />
-      {/** Entity Properties component is needed to render
-       the Bindings popover in the context menu. Will be removed eventually **/}
-      <EntityProperties />
       <Switch>
         <SentryRoute
           component={JSExplorer}

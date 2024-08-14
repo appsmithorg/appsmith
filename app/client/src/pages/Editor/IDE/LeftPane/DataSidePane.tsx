@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Flex, List, Text } from "design-system";
+import { Flex, List, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
   getDatasourceUsageCountForApp,

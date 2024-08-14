@@ -1,6 +1,6 @@
 import React from "react";
 import { PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE } from "ee/constants/messages";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 export function EmptySearchResult() {
   return (

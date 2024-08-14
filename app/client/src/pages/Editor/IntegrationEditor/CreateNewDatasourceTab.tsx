@@ -18,7 +18,7 @@ import {
 import { connect } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import MockDataSources from "./MockDataSources";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
@@ -30,7 +30,7 @@ import {
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
   SAMPLE_DATASOURCES,
 } from "ee/constants/messages";
-import { Divider } from "design-system";
+import { Divider } from "@appsmith/ads";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,

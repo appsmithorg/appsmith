@@ -13,7 +13,7 @@ import {
   isEntityAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "@appsmith/ads-old";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";

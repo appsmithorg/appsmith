@@ -21,7 +21,7 @@ import { viewerURL } from "ee/RouteBuilder";
 import { useHistory, useLocation } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 import { setPreviewModeInitAction } from "actions/editorActions";
