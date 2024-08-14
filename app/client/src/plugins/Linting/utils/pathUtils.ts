@@ -4,7 +4,7 @@ import { toPath, union } from "lodash";
 import { isDynamicEntity } from "ee/plugins/Linting/lib/entity/isDynamicEntity";
 import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 import { convertPathToString } from "@appsmith/evaluation";
-import { isTrueObject } from "@shared/ast";
+import { isTrueObject } from "@appsmith/evaluation";
 
 export class PathUtils {
   static getReactivePaths(entity: IEntity) {

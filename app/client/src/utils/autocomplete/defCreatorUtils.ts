@@ -1,4 +1,4 @@
-import { isTrueObject } from "@shared/ast";
+import { isTrueObject } from "@appsmith/evaluation";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { Variable } from "entities/JSCollection";

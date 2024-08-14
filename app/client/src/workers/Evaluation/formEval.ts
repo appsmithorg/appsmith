@@ -14,7 +14,7 @@ import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
-import { isTrueObject } from "@shared/ast";
+import { isTrueObject } from "@appsmith/evaluation";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true
