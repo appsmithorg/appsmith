@@ -8,7 +8,8 @@ module.exports = {
       },
       schema: [], // No options
       messages: {
-        useObjectKeys: "Use objectKeys instead of Object.keys.",
+        useObjectKeys:
+          "Use objectKeys from '@appsmith/utils' package instead of Object.keys",
       },
     },
     create(context) {
