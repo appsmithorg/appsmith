@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.aspect.TransactionAspect;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -1062,31 +1061,5 @@ public class ApplicationServiceCEImpl
         return findById(branchedApplicationId, permissionForApplication)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
-    }
-
-    @Override
-    public Mono<Application> findSaveUpdateApp(String id) {
-        Map<String, TransactionAspect.DBOps> contextMap = new ConcurrentHashMap<>();
-
-        return repository
-                .findById(id, applicationPermission.getEditPermission())
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .flatMap(obj -> {
-                    obj.setName("saved_name");
-                    return repository.save(obj);
-                })
-                .flatMap(obj -> {
-                    Application update = new Application();
-                    update.setName("updated_name");
-                    return repository.updateById(id, update, null);
-                })
-                .contextWrite(ctx -> ctx.put("transactionContext", contextMap))
-                .onErrorResume(e -> {
-                    if (!contextMap.isEmpty()) {
-                        // Add the cleanup stage here
-                    }
-                    return Mono.error(e);
-                });
     }
 }
