@@ -1,5 +1,5 @@
 import React from "react";
-import { Divider, Flex } from "design-system";
+import { Divider, Flex } from "@appsmith/ads";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
 
 interface ChildrenProps {

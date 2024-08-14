@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Flex, SegmentedControl } from "design-system";
+import { Button, Flex, SegmentedControl } from "@appsmith/ads";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { EditorEntityTab } from "ee/entities/IDE/constants";
 import history from "utils/history";

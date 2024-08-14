@@ -36,7 +36,7 @@ import type {
   TemplateFiltersResponse,
 } from "api/TemplatesApi";
 import TemplatesAPI from "api/TemplatesApi";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { APP_MODE } from "entities/App";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

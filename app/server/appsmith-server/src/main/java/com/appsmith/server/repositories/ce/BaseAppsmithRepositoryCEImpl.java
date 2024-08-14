@@ -61,6 +61,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
 

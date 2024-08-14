@@ -10,7 +10,7 @@ import CodeEditorFallback from "./CodeEditorFallback";
 import { CODE_EDITOR_LOADING_ERROR } from "ee/constants/messages";
 import assertNever from "assert-never/index";
 import log from "loglevel";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 
 let CachedCodeEditor: typeof CodeEditor | undefined;
 

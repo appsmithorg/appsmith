@@ -17,5 +17,5 @@ public interface DatasourceRepositoryCE extends BaseRepository<Datasource, Strin
 
     Optional<Long> countByDeletedAtNull();
 
-    List<IdPoliciesOnly> findIdsAndPoliciesByIdIn(Set<String> datasourceIds);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByIdIn(Set<String> datasourceIds);
 }

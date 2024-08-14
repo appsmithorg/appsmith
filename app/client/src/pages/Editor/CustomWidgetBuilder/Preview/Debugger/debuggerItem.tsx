@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import styles from "./styles.module.css";
 import HelpDropdown from "./helpDropdown";
 import { DebuggerLogType, type DebuggerLog } from "../../types";

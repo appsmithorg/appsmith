@@ -5,10 +5,10 @@ import { getPluginImages } from "ee/selectors/entitiesSelector";
 import type {
   DropdownOption,
   RenderDropdownOptionType,
-} from "design-system-old";
-import { Classes, Text, TextType } from "design-system-old";
+} from "@appsmith/ads-old";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
 import _ from "lodash";
-import { Tooltip, Icon } from "design-system";
+import { Tooltip, Icon } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------

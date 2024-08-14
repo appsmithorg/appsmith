@@ -2,7 +2,7 @@ import { BranchListItem } from "./BranchListItem";
 import { getIsActiveItem } from "../utils";
 import React from "react";
 import { createMessage, LOCAL_BRANCHES } from "ee/constants/messages";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 /**
  * LocalBranchList: returns a list of local branches

@@ -9,7 +9,7 @@ import PostBodyData from "./PostBodyData";
 import type { AppState } from "ee/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes, Text, TextType } from "design-system-old";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
 import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";

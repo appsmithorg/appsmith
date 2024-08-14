@@ -7,14 +7,14 @@ import {
   SUBMIT,
 } from "ee/constants/messages";
 import { Classes } from "@blueprintjs/core";
-import { Button, Input, toast } from "design-system";
+import { Button, Input, toast } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
 } from "selectors/gitSyncSelectors";
 import { updateGlobalGitConfigInit } from "actions/gitSyncActions";
-import { emailValidator } from "design-system-old";
+import { emailValidator } from "@appsmith/ads-old";
 
 export default function GitConfig() {
   const dispatch = useDispatch();

@@ -7,7 +7,7 @@ import { isAirgapped } from "ee/utils/airgapHelpers";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { validateResponse, type ErrorActionPayload } from "./ErrorSagas";
 import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type {
   PublishCommunityTemplateRequest,
   PublishCommunityTemplateResponse,

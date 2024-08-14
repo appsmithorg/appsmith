@@ -2,16 +2,16 @@ import React from "react";
 import type {
   DefaultDropDownValueNodeProps,
   DropdownOption,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import {
   Dropdown,
   DropdownWrapper,
   DropdownContainer as DropdownComponentContainer,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Classes as GitSyncClasses } from "pages/Editor/gitSync/constants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const ChevronDown = importSvg(
   async () => import("assets/icons/ads/chevron-down.svg"),

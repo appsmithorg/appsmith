@@ -68,7 +68,7 @@ import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
 } from "sagas/helper";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";

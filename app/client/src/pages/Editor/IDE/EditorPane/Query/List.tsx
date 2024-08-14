@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
 import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";

@@ -8,7 +8,7 @@ import {
   Text,
   Button,
   Switch,
-} from "design-system";
+} from "@appsmith/ads";
 import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";

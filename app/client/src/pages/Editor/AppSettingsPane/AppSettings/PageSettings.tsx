@@ -17,7 +17,7 @@ import {
 } from "ee/constants/messages";
 import type { Page } from "ee/constants/ReduxActionConstants";
 import classNames from "classnames";
-import { Input, Switch } from "design-system";
+import { Input, Switch } from "@appsmith/ads";
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";

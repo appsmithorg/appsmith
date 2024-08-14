@@ -2,7 +2,7 @@ import type {
   SwitcherProps,
   TreeDropdownOption,
   IconName,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import type { EntityTypeValue, MetaArgs } from "ee/entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

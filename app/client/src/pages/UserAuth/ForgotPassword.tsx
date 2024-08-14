@@ -20,8 +20,8 @@ import {
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "ee/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { FormGroup } from "design-system-old";
-import { Button, Link, Callout, Icon } from "design-system";
+import { FormGroup } from "@appsmith/ads-old";
+import { Button, Link, Callout, Icon } from "@appsmith/ads";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { ForgotPasswordFormValues } from "./helpers";
 import { forgotPasswordSubmitHandler } from "./helpers";

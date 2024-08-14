@@ -2,7 +2,7 @@ import type { Log } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "ee/constants/messages";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";

@@ -15,10 +15,7 @@
   "datasourceList": [],
   "pageList": [
     {
-      "userPermissions": [
-        "read:pages",
-        "manage:pages"
-      ],
+      "userPermissions": ["read:pages", "manage:pages"],
       "gitSyncId": "61f2706d5090aa7077cb878f_61f2706d5090aa7077cb8791",
       "unpublishedPage": {
         "name": "importedPage",
@@ -50,12 +47,7 @@
                 {
                   "widgetName": "Table1",
                   "defaultPageSize": 0,
-                  "columnOrder": [
-                    "step",
-                    "task",
-                    "status",
-                    "action"
-                  ],
+                  "columnOrder": ["step", "task", "status", "action"],
                   "isVisibleDownload": true,
                   "displayName": "Table",
                   "iconSVG": "/static/media/icon.db8a9cbd.svg",
@@ -253,9 +245,7 @@
       "new": true
     }
   ],
-  "pageOrder": [
-    "importedPage"
-  ],
+  "pageOrder": ["importedPage"],
   "publishedDefaultPageName": "importedPage",
   "unpublishedDefaultPageName": "importedPage",
   "actionList": [],

@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { getTypographyByKey, Text, TextType } from "design-system-old";
-import { Icon } from "design-system";
+import { getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
+import { Icon } from "@appsmith/ads";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

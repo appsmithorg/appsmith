@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AnnouncementModal, Button } from "design-system";
+import { AnnouncementModal, Button } from "@appsmith/ads";
 import localStorage, { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { SPLITPANE_ANNOUNCEMENT, createMessage } from "ee/constants/messages";
 import { getAssetUrl } from "ee/utils/airgapHelpers";

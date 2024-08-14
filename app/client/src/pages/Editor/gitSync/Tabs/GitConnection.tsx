@@ -23,7 +23,7 @@ import {
   UPDATE_CONFIG,
 } from "ee/constants/messages";
 import styled from "styled-components";
-import { emailValidator } from "design-system-old";
+import { emailValidator } from "@appsmith/ads-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS, Classes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
@@ -67,7 +67,7 @@ import {
   Link,
   ModalBody,
   ModalFooter,
-} from "design-system";
+} from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";

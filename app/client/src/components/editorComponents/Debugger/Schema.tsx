@@ -1,4 +1,4 @@
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";

@@ -6,7 +6,7 @@ import {
   SegmentedControl,
   type SegmentedControlOption,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface ThemeBorderRadiusControlProps {
   options: {

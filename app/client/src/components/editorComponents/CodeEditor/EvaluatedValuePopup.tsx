@@ -27,7 +27,7 @@ import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
-import { Button, Icon, Link, toast, Tooltip } from "design-system";
+import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 

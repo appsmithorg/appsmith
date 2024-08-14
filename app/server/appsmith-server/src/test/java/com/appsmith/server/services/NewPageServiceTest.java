@@ -291,10 +291,11 @@ public class NewPageServiceTest {
                             .findFirst()
                             .get();
 
-                    firstPage
-                            .getPolicies()
-                            .forEach(policy -> policy.setPermission(
-                                    pagePermission.getReadPermission().getValue()));
+                    Set<Policy> pagePolicies = firstPage.getPolicies().stream()
+                            .peek(policy -> policy.setPermission(
+                                    pagePermission.getReadPermission().getValue()))
+                            .collect(Collectors.toUnmodifiableSet());
+                    firstPage.setPolicies(pagePolicies);
                     return newPageRepository.save(firstPage).thenMany(Flux.fromIterable(savedPages));
                 })
                 .map(NewPage::getId)

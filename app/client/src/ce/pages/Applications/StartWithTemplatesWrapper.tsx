@@ -4,7 +4,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import type { Template } from "api/TemplatesApi";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import TemplatesLayoutWithFilters from "pages/Templates/TemplatesLayoutWithFilters";
 import React from "react";
 import { useSelector } from "react-redux";

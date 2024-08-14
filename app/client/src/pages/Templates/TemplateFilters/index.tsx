@@ -3,7 +3,7 @@ import {
   filterTemplates,
   setTemplateSearchQuery,
 } from "actions/templateActions";
-import { Icon, SearchInput } from "design-system";
+import { Icon, SearchInput } from "@appsmith/ads";
 import { debounce } from "lodash";
 import React, { useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";

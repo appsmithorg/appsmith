@@ -1,6 +1,6 @@
 import React from "react";
-import { hexToRgba } from "design-system-old";
-import { Button, Icon, Spinner, Text } from "design-system";
+import { hexToRgba } from "@appsmith/ads-old";
+import { Button, Icon, Spinner, Text } from "@appsmith/ads";
 import {
   getIsRestartFailed,
   getRestartingState,

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import TreeStructure from "components/utils/TreeStructure";
-import { Text, Icon, Button, Tooltip } from "design-system";
+import { Text, Icon, Button, Tooltip } from "@appsmith/ads";
 import { klona } from "klona/lite";
 import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";

@@ -8,7 +8,7 @@ import {
   MenuItem,
   MenuTrigger,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { ListIconContainer, ListTitle } from "./StyledComponents";
 
 interface Props {

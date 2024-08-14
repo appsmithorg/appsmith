@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
-import { FieldError } from "design-system-old";
+import { FieldError } from "@appsmith/ads-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import { FormGroup, type SettingComponentProps } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Position } from "@blueprintjs/core";
-import type { RadioProps } from "design-system";
-import { Icon, Link, Radio, RadioGroup, Tag, Text } from "design-system";
+import type { RadioProps } from "@appsmith/ads";
+import { Icon, Link, Radio, RadioGroup, Tag, Text } from "@appsmith/ads";
 
 type RadioOption = {
   node?: ReactElement;
