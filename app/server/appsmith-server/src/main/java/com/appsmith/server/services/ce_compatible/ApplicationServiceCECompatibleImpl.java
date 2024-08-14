@@ -16,7 +16,6 @@ import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
@@ -35,8 +34,7 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             SessionUserService sessionUserService,
             UserDataService userDataService,
             WorkspaceService workspaceService,
-            WorkspacePermission workspacePermission,
-            TransactionTemplate template) {
+            WorkspacePermission workspacePermission) {
         super(
                 validator,
                 repositoryDirect,
@@ -51,7 +49,6 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 sessionUserService,
                 userDataService,
                 workspaceService,
-                workspacePermission,
-                template);
+                workspacePermission);
     }
 }
