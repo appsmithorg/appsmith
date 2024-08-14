@@ -8,6 +8,7 @@ export const defaultsConfig = {
   labelPosition: "start",
   version: 1,
   isDisabled: false,
+  isVisible: true,
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;

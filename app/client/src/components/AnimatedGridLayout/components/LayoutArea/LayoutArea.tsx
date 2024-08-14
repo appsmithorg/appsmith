@@ -9,7 +9,6 @@ interface AreaDimensions {
   /** Height in pixels. */
   height: number;
 }
-
 export interface LayoutAreaProps {
   /** CSS grid area name. */
   name: string;
@@ -22,7 +21,7 @@ export interface LayoutAreaProps {
 }
 
 export function LayoutArea(props: LayoutAreaProps) {
-  const { children, hidden = false, name } = props;
+  const { children, dimensions, hidden = false, name } = props;
   const display = hidden ? "none" : "block";
   const springs = useSpring({
     config: SPRING_ANIMATION_CONFIG,
@@ -42,7 +41,7 @@ export function LayoutArea(props: LayoutAreaProps) {
     >
       <div
         style={{
-          minWidth: "100%",
+          minWidth: dimensions?.width || "100%",
           height: "100%",
           position: "absolute",
           overflow: "auto",
