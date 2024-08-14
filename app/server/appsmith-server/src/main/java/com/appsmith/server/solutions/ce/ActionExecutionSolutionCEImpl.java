@@ -770,7 +770,13 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         };
     }
 
-    ActionConfiguration deepCopyActionConfiguration(ActionConfiguration actionConfiguration) {
+    /**
+     * This function deep copies the actionConfiguration object to send the original object to mixpanel which contains
+     * the actual user query with bindings
+     * @param actionConfiguration
+     * @return
+     */
+    private ActionConfiguration deepCopyActionConfiguration(ActionConfiguration actionConfiguration) {
         try {
             // Convert the ActionConfiguration object to JSON string
             String json = objectMapper.writeValueAsString(actionConfiguration);
@@ -811,7 +817,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     ActionConfiguration rawActionConfiguration = null;
                     if (actionDTO != null && actionDTO.getActionConfiguration() != null) {
                         // deep copying the actionConfiguration to avoid any changes in the original object
-                        rawActionConfiguration = deepCopyActionConfiguration(actionDTO.getActionConfiguration());
+                        rawActionConfiguration = this.deepCopyActionConfiguration(actionDTO.getActionConfiguration());
                     }
 
                     log.debug(
