@@ -4,7 +4,7 @@ import {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
 } from "@appsmith/wds-theming";
-import { Text, Flex, COLORS } from "@design-system/widgets";
+import { Text, Flex, COLORS } from "@appsmith/wds";
 
 /**
  * Text is a component that renders a capsized text.

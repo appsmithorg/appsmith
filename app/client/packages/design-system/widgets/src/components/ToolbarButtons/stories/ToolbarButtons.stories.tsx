@@ -7,7 +7,7 @@ import {
   objectKeys,
   ToolbarButtons,
   SIZES,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 import {
   itemList,
   itemListWithIcons,

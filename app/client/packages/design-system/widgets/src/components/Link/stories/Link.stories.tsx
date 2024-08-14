@@ -4,7 +4,7 @@ import {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
 } from "@appsmith/wds-theming";
-import { Link, Flex } from "@design-system/widgets";
+import { Link, Flex } from "@appsmith/wds";
 
 /**
  * Link component is used to navigate to a different page or section of the current page.
