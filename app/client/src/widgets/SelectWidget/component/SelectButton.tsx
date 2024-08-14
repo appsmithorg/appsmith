@@ -27,11 +27,11 @@ function SelectButton(props: SelectButtonProps) {
     displayText,
     handleCancelClick,
     hideCancelIcon,
+    isRequired,
     spanRef,
     togglePopoverVisibility,
     tooltipText,
     value,
-    isRequired,
   } = props;
 
   return (
