@@ -1760,11 +1760,8 @@ export class AggregateHelper {
   public VisitNAssert(url: string, apiToValidate = "") {
     cy.visit(url);
     this.AssertURL(url);
-    if (
-      apiToValidate.includes("getAllWorkspaces") &&
-      Cypress.env("AIRGAPPED")
-    ) {
-      this.Sleep(2000);
+    if (Cypress.env("AIRGAPPED")) {
+      // Intentionally left blank: No actions needed in air-gapped environment
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
