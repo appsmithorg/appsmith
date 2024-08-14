@@ -1,10 +1,7 @@
 import type { EntityConfig } from "./ee/types";
 import { EntityDependencyGetterMap } from "./ee/utils";
 
-export {
-  getDependencyFromEntityPath,
-  addWidgetPropertyDependencies,
-} from "./ee/utils";
+export * from "./ee/utils";
 
 export const getEntityDependencies = (
   entity: {
