@@ -731,10 +731,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         return cb.isTrue(cb.function(
-            "jsonb_exists_any",
-            Boolean.class,
-            cb.function("jsonb_extract_path", String.class, root.get(BaseDomain.Fields.policyMap), cb.literal(permission.getValue()), cb.literal("permissionGroups")),
-            cb.literal(permissionGroups.toArray(new String[0]))));
+                "jsonb_exists_any",
+                Boolean.class,
+                cb.function(
+                        "jsonb_extract_path",
+                        String.class,
+                        root.get(BaseDomain.Fields.policyMap),
+                        cb.literal(permission.getValue()),
+                        cb.literal("permissionGroups")),
+                cb.literal(permissionGroups.toArray(new String[0]))));
     }
 
     /**
