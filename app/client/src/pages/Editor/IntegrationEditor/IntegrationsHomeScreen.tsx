@@ -11,7 +11,7 @@ import {
   getMockDatasources,
 } from "ee/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
-import type { TabProp } from "@appsmith/ads-old";
+import type { IconNames, IconSizes } from "@appsmith/ads";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
@@ -33,6 +33,14 @@ import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "ee/utils/planHelpers";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import CreateNewDatasourceTab from "./CreateNewDatasourceTab";
+
+interface TabProp {
+  key: string;
+  title: string;
+  panelComponent?: JSX.Element;
+  icon?: IconNames;
+  iconSize?: IconSizes;
+}
 
 const HeaderFlex = styled.div`
   font-size: 20px;

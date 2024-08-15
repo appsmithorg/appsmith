@@ -69,8 +69,6 @@ export * from "./Switch";
 export { default as Switcher } from "./Switcher";
 export * from "./Switcher";
 
-export * from "./Tabs";
-
 export { default as Table } from "./Table";
 export * from "./Table";
 
