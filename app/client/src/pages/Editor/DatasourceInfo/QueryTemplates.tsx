@@ -18,7 +18,7 @@ import {
   getPlugin,
 } from "ee/selectors/entitiesSelector";
 import { integrationEditorURL } from "ee/RouteBuilder";
-import { MenuItem, Tag } from "design-system";
+import { MenuItem, Tag } from "@appsmith/ads";
 import type { Plugin } from "api/PluginApi";
 
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";

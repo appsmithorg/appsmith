@@ -13,6 +13,7 @@ import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewPage>
         implements CustomNewPageRepositoryCE {
+
+    private final ObservationRegistry observationRegistry;
 
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser) {
@@ -121,7 +124,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
                 NewPage.Fields.branchName,
-                NewPage.Fields.policies,
+                NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
                 NewPage.Fields.unpublishedPage_isHidden,
@@ -173,7 +176,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.branchName);
         }
 
-        return queryBuilder().criteria(q).permission(permission, currentUser).one();
+        return queryBuilder().criteria(q).permission(permission, currentUser).one()
+        /*.name(FETCH_PAGE_FROM_DB)
+        .tap(Micrometer.observation(observationRegistry))*/ ;
     }
 
     public Optional<String> findBranchedPageId(

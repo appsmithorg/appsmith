@@ -74,10 +74,7 @@
               "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
               "displayName": "Button",
               "iconSVG": "/static/media/icon.05d209fafeb13a8569e3b4e97069d9ee.svg",
-              "searchTags": [
-                "click",
-                "submit"
-              ],
+              "searchTags": ["click", "submit"],
               "topRow": 2,
               "bottomRow": 6,
               "parentRowSpace": 10,
@@ -107,9 +104,7 @@
               "recaptchaType": "V3",
               "version": 1,
               "parentId": "p0x6x4f231",
-              "tags": [
-                "Buttons"
-              ],
+              "tags": ["Buttons"],
               "renderMode": "CANVAS",
               "isLoading": false,
               "mobileTopRow": 2,
@@ -184,18 +179,13 @@
               "isVisible": true,
               "allowCurrencyChange": false,
               "version": 1,
-              "tags": [
-                "Inputs"
-              ],
+              "tags": ["Inputs"],
               "isLoading": false,
               "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
               "mobileBottomRow": 9,
               "widgetName": "CurrencyInput1",
               "displayName": "Currency Input",
-              "searchTags": [
-                "amount",
-                "total"
-              ],
+              "searchTags": ["amount", "total"],
               "bottomRow": 9,
               "parentRowSpace": 10,
               "autoFocus": false,
@@ -274,9 +264,7 @@
       "isVisible": true,
       "version": 3,
       "parentId": "0",
-      "tags": [
-        "Layout"
-      ],
+      "tags": ["Layout"],
       "renderMode": "CANVAS",
       "isLoading": false,
       "mobileTopRow": 37,

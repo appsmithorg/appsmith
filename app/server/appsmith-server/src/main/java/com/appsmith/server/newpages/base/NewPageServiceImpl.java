@@ -7,6 +7,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,8 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
             ApplicationService applicationService,
             UserDataService userDataService,
             ApplicationPermission applicationPermission,
-            PagePermission pagePermission) {
+            PagePermission pagePermission,
+            ObservationRegistry observationRegistry) {
         super(
                 validator,
                 repositoryDirect,
@@ -32,6 +34,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
                 applicationService,
                 userDataService,
                 applicationPermission,
-                pagePermission);
+                pagePermission,
+                observationRegistry);
     }
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { Switch } from "design-system";
+import { Switch } from "@appsmith/ads";
 import type { LogoConfigurationSwitches } from ".";
 import kebabCase from "lodash/kebabCase";
 

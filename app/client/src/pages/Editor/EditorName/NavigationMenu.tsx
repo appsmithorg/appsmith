@@ -3,7 +3,7 @@ import React from "react";
 import type { noop } from "lodash";
 
 import type { MenuItemData } from "./NavigationMenuItem";
-import { MenuContent } from "design-system";
+import { MenuContent } from "@appsmith/ads";
 import { NavigationMenuItem } from "./NavigationMenuItem";
 
 interface NavigationMenuProps {

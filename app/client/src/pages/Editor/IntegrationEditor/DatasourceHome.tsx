@@ -24,7 +24,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import {
   createMessage,

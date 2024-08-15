@@ -13,7 +13,7 @@ import styled from "styled-components";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 
 interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;

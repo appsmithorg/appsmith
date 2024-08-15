@@ -5,7 +5,7 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useCallback, useState } from "react";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { Installer } from "../../Explorer/Libraries/Installer";

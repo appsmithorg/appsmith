@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Classes, FontWeight, Text, TextType } from "design-system-old";
+import { Classes, FontWeight, Text, TextType } from "@appsmith/ads-old";
 import history from "utils/history";
 import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
@@ -12,7 +12,7 @@ import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
+import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";

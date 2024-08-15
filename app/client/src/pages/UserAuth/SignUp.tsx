@@ -29,8 +29,8 @@ import {
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
-import { FormGroup } from "design-system-old";
-import { Button, Link, Callout } from "design-system";
+import { FormGroup } from "@appsmith/ads-old";
+import { Button, Link, Callout } from "@appsmith/ads";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
 import type { SignupFormValues } from "pages/UserAuth/helpers";

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 

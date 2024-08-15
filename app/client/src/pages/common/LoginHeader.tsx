@@ -7,7 +7,7 @@ import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import type { AppState } from "ee/reducers";
 import { BASE_URL } from "constants/routes";
 import { Colors } from "constants/Colors";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const AppsmithLogo = importSvg(
   async () => import("assets/svg/appsmith_logo_primary.svg"),

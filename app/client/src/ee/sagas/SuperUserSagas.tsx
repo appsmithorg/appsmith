@@ -7,14 +7,14 @@ import {
   RestryRestartServerPoll,
   SendTestEmail,
 } from "ce/sagas/SuperUserSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { User } from "constants/userConstants";
 import { takeLatest, all, select } from "redux-saga/effects";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 
 export function* InitSuperUserSaga() {
   const user: User = yield select(getCurrentUser);

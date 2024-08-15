@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactType;
@@ -61,6 +62,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -571,11 +574,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
             // Normal Application forking with developer/edit access
             Flux<BaseDomain> pageFlux = applicationMonoWithOutPermission.flatMapMany(application -> newPageRepository
-                    .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                    .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                     .map(idPoliciesOnly -> {
                         NewPage newPage = new NewPage();
                         newPage.setId(idPoliciesOnly.getId());
-                        newPage.setPolicies(idPoliciesOnly.getPolicies());
+                        Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                        newPage.setPolicies(policies);
                         return newPage;
                     })
                     .zipWith(currentUserFlux)
@@ -583,11 +587,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
             Flux<BaseDomain> actionFlux =
                     applicationMonoWithOutPermission.flatMapMany(application -> newActionRepository
-                            .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                            .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                             .map(idPoliciesOnly -> {
                                 NewAction newAction = new NewAction();
                                 newAction.setId(idPoliciesOnly.getId());
-                                newAction.setPolicies(idPoliciesOnly.getPolicies());
+                                Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                                newAction.setPolicies(policies);
                                 return newAction;
                             })
                             .zipWith(currentUserFlux)
@@ -596,7 +601,14 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
             Flux<BaseDomain> actionCollectionFlux =
                     applicationMonoWithOutPermission.flatMapMany(application -> actionCollectionRepository
-                            .findByApplicationId(application.getId(), Optional.empty(), Optional.empty())
+                            .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
+                            .map(idPoliciesOnly -> {
+                                ActionCollection actionCollection = new ActionCollection();
+                                actionCollection.setId(idPoliciesOnly.getId());
+                                Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                                actionCollection.setPolicies(policies);
+                                return actionCollection;
+                            })
                             .zipWith(currentUserFlux)
                             .flatMap(object -> actionCollectionRepository.setUserPermissionsInObject(
                                     object.getT1(), object.getT2())));

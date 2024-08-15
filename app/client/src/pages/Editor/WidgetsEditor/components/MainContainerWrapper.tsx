@@ -13,7 +13,7 @@ import { getCanvasClassName } from "utils/generators";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { useDispatch } from "react-redux";

@@ -42,7 +42,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
 import {

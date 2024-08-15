@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import PageContent from "./components/PageContent";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { BackButton } from "components/utils/helperComponents";
 
 const Container = styled.div`

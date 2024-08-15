@@ -16,7 +16,7 @@ import {
   Icon,
   Input,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { isValidGitRemoteUrl } from "../../utils";
 import {
   COPY_SSH_URL_MESSAGE,

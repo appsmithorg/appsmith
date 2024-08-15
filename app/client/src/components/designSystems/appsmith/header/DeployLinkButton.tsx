@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { Menu, MenuItem, MenuContent, MenuTrigger } from "design-system";
+import { Menu, MenuItem, MenuContent, MenuTrigger } from "@appsmith/ads";
 import { useSelector, useDispatch } from "react-redux";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -10,7 +10,7 @@ import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
 } from "ee/constants/messages";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { KBEditorMenuItem } from "ee/pages/Editor/KnowledgeBase/KBEditorMenuItem";
 import { useHasConnectToGitPermission } from "pages/Editor/gitSync/hooks/gitPermissionHooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";

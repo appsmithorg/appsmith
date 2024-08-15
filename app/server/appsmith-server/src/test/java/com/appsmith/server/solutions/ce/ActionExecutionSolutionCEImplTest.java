@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Param;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
@@ -133,6 +134,9 @@ class ActionExecutionSolutionCEImplTest {
     @SpyBean
     TenantService tenantService;
 
+    @SpyBean
+    CommonConfig commonConfig;
+
     @Autowired
     EnvironmentPermission environmentPermission;
 
@@ -162,7 +166,8 @@ class ActionExecutionSolutionCEImplTest {
                 datasourceStorageService,
                 environmentPermission,
                 configService,
-                tenantService);
+                tenantService,
+                commonConfig);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);

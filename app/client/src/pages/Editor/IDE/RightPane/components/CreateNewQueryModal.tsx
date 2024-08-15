@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody } from "design-system";
+import { Modal, ModalContent, ModalHeader, ModalBody } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 
 import { CREATE_A_NEW_ITEM, createMessage } from "ee/constants/messages";

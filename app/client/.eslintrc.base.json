@@ -76,11 +76,11 @@
           {
             "group": ["*.svg"],
             "importNames": ["ReactComponent"],
-            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from design-system-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
+            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
           },
           {
             "group": ["remixicon-react/*"],
-            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
+            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
           }
         ]
       }

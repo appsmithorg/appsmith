@@ -10,7 +10,7 @@ import { ThemeCard } from "./ThemeCard";
 import { SettingSection } from "./SettingSection";
 import { setAppThemingModeStackAction } from "actions/appThemingActions";
 import styled from "styled-components";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 
 const Title = styled.h3`
   color: var(--ads-v2-color-fg-emphasis);

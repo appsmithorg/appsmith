@@ -10,7 +10,7 @@ import type {
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { Flex, SearchInput, Text } from "design-system";
+import { Flex, SearchInput, Text } from "@appsmith/ads";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";

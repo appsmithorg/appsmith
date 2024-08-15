@@ -1,4 +1,4 @@
-import { Button, Flex, Tooltip } from "design-system";
+import { Button, Flex, Tooltip } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";

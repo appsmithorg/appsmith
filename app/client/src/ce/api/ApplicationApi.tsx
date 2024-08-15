@@ -6,7 +6,7 @@ import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { EvaluationVersion } from "constants/EvalConstants";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { Action, BaseAction } from "entities/Action";
 import type { APP_MODE } from "entities/App";
 import type { Datasource } from "entities/Datasource";

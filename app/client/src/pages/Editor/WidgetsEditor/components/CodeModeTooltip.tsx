@@ -1,4 +1,4 @@
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { modText } from "utils/helpers";
 import { useSelector } from "react-redux";

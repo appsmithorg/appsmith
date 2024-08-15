@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import {
   Button,
   Modal,
@@ -7,7 +7,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalFooter,
-} from "design-system";
+} from "@appsmith/ads";
 import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {

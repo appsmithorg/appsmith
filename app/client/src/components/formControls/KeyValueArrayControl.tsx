@@ -10,10 +10,10 @@ import type { ControlProps, ControlData } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { InputProps } from "design-system";
+import type { InputProps } from "@appsmith/ads";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Button, Icon, Input, Text, Tooltip } from "design-system";
+import { Button, Icon, Input, Text, Tooltip } from "@appsmith/ads";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;

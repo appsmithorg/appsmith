@@ -10,7 +10,7 @@ import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-import { get, set, isNil, has, uniq } from "lodash";
+import { get, isNil, has, uniq } from "lodash";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import moment from "moment";
@@ -649,24 +649,6 @@ export const flattenObject = (data: Record<string, any>) => {
 
   recurse(data, "");
   return result;
-};
-
-/**
- * renames key in object
- *
- * @param object
- * @param key
- * @param newKey
- * @returns
- */
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const renameKeyInObject = (object: any, key: string, newKey: string) => {
-  if (object[key]) {
-    set(object, newKey, object[key]);
-  }
-
-  return object;
 };
 
 // Can be used to check if the user has developer role access to workspace

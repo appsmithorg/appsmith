@@ -4,7 +4,7 @@ import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import type { CellAlignment, VerticalAlignment } from "../Constants";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),

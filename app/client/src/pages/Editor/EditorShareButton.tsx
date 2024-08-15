@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Tooltip } from "design-system";
+import { Button, Tooltip } from "@appsmith/ads";
 import {
   EDITOR_HEADER,
   SHARE_BUTTON_TOOLTIP,

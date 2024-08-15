@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Icon, Menu, MenuContent, MenuTrigger } from "design-system";
+import { Button, Icon, Menu, MenuContent, MenuTrigger } from "@appsmith/ads";
 import {
   EditInteractionKind,
   EditableText,
   SavingState,
   notEmptyValidator,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import {
   DropdownOnSelectActions,

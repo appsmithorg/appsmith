@@ -18,7 +18,7 @@ import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/Datasourc
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { saasEditorDatasourceIdURL } from "ee/RouteBuilder";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
