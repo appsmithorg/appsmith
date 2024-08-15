@@ -12,7 +12,8 @@ import appReducer from "ee/reducers";
 import { applyMiddleware, compose, createStore } from "redux";
 import { reduxBatch } from "@manaflair/redux-batch";
 import createSagaMiddleware from "redux-saga";
-import store, { testStore } from "store";
+import store from "store";
+import { testStoreWithTestMiddleWare as testStore } from "test/testUtils";
 import { sagasToRunForTests } from "./sagas";
 import { all, call, spawn } from "redux-saga/effects";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
@@ -21,9 +22,11 @@ import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 
 const testSagaMiddleware = createSagaMiddleware();
 
-const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
+export const testStoreWithTestMiddleWare = (initialState: Partial<AppState>) =>
   createStore(
     appReducer,
+    // TODO: Fix this type error
+    // @ts-expect-error initial state is not compatible with AppState
     initialState,
     compose(reduxBatch, applyMiddleware(testSagaMiddleware), reduxBatch),
   );
@@ -62,10 +65,14 @@ const setupState = (state?: State) => {
     }
   }
   if (state && state.sagasToRun) {
-    reduxStore = testStoreWithTestMiddleWare(reduxStore.getState());
+    reduxStore = testStoreWithTestMiddleWare(
+      reduxStore.getState() as unknown as AppState,
+    );
     testSagaMiddleware.run(() => rootSaga(state.sagasToRun));
   }
-  const defaultTheme = getCurrentThemeDetails(reduxStore.getState());
+  const defaultTheme = getCurrentThemeDetails(
+    reduxStore.getState() as unknown as AppState,
+  );
 
   return { reduxStore, defaultTheme };
 };

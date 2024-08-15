@@ -1,6 +1,6 @@
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import { keyBy } from "lodash";
-import { testStore } from "store";
+import { testStoreWithTestMiddleWare as testStore } from "test/testUtils";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
 import type { Saga } from "redux-saga";
 import { runSaga } from "redux-saga";

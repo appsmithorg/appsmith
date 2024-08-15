@@ -36,7 +36,7 @@ export const getIDETestState = ({
   js = [],
   pages = [],
   tabs = IDETabsDefaultValue,
-}: IDEStateArgs): AppState => {
+}: IDEStateArgs): Partial<AppState> => {
   const initialState = store.getState();
 
   const pageList = {

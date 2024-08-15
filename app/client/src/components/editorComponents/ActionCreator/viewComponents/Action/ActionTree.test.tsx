@@ -1,6 +1,6 @@
 import React from "react";
 import { Provider } from "react-redux";
-import { testStore } from "store";
+import { testStoreWithTestMiddleWare as testStore } from "test/testUtils";
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
 import { render } from "@testing-library/react";

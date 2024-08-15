@@ -1,17 +1,16 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import produce from "immer";
+import produce, { type Draft } from "immer";
+import type { Reducer } from "redux";
 
-export const createReducer = (
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialState: any,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handlers: { [type: string]: (state: any, action: any) => any },
-) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return function reducer(state = initialState, action: ReduxAction<any>) {
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Action = ReduxAction<any>;
+
+export const createReducer = <T>(
+  initialState: T,
+  handlers: { [type: string]: (state: T, action: Action) => T },
+): Reducer<T, Action> => {
+  return function reducer(state = initialState, action: Action): T {
     if (handlers.hasOwnProperty(action.type)) {
       return handlers[action.type](state, action);
     } else {
@@ -20,19 +19,17 @@ export const createReducer = (
   };
 };
 
-export const createImmerReducer = (
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialState: any,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handlers: { [type: string]: any },
+export const createImmerReducer = <T>(
+  initialState: T,
+  handlers: {
+    [type: string]: (state: Draft<T>, action: Action) => T | void;
+  },
 ) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return function reducer(state = initialState, action: ReduxAction<any>) {
+  return function reducer(state = initialState, action: Action) {
     if (handlers.hasOwnProperty(action.type)) {
-      return produce(handlers[action.type])(state, action);
+      return produce(state, (draft: unknown) => {
+        return handlers[action.type](draft as Draft<T>, action);
+      });
     } else {
       return state;
     }

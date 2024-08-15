@@ -231,7 +231,7 @@ export const handlers = {
   },
   [ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB]: (
     state: ApiPaneReduxState,
-    action: ReduxAction<{ selectedTab: number }>,
+    action: ReduxAction<{ selectedTab: string }>,
   ) => {
     const { selectedTab } = action.payload;
     return {

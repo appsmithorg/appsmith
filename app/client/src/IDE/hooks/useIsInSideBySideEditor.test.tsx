@@ -11,8 +11,8 @@ import { Router } from "react-router";
 
 import { getIDEViewMode } from "../../selectors/ideSelectors";
 import { setIdeEditorViewMode } from "../../actions/ideActions";
-import { testStore } from "../../store";
 import type { Store } from "redux";
+import { testStoreWithTestMiddleWare as testStore } from "test/testUtils";
 
 const JS_COLLECTION_EDITOR_PATH =
   "/app/app-name/page-665dd1103e4483728c9ed11a/edit/jsObjects";

@@ -44,16 +44,12 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state: SettingsReduxState & TenantReduxState<any>,
+    state: SettingsReduxState,
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const configs: any = {};
+    const configs: SettingsReduxState["config"] = {};
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
         configs[key] = action.payload?.tenantConfiguration?.[key];
@@ -69,16 +65,12 @@ export const handlers = {
     };
   },
   [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    state: SettingsReduxState & TenantReduxState<any>,
+    state: SettingsReduxState,
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const configs: any = {};
+    const configs: SettingsReduxState["config"] = {};
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
         configs[key] = action.payload?.tenantConfiguration?.[key];

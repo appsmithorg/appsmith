@@ -7,7 +7,7 @@ import {
   createDefaultApiActionPayload,
   handleDatasourceCreatedSaga,
 } from "sagas/ApiPaneSagas";
-import { testStore } from "store";
+import { testStoreWithTestMiddleWare as testStore } from "test/testUtils";
 import MockPluginsState, { PluginIDs } from "test/factories/MockPluginsState";
 import history from "utils/history";
 
