@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { BASE_URL } from "constants/routes";
 import { Colors } from "constants/Colors";
 import { importSvg } from "design-system-old";

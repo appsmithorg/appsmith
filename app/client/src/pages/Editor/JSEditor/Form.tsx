@@ -24,13 +24,13 @@ import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { JSFunctionRun } from "./JSFunctionRun";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
   getJSActions,
   getJSCollectionParseErrors,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { JSActionDropdownOption } from "./utils";
 import {
   convertJSActionsToDropdownOptions,
@@ -52,26 +52,26 @@ import {
   TabbedViewContainer,
 } from "./styledComponents";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
 import history from "utils/history";
-import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasExecuteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
-import RunHistory from "@appsmith/components/RunHistory";
+import RunHistory from "ee/components/RunHistory";
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;

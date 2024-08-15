@@ -3,13 +3,13 @@ import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
-import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
+import type { AppState } from "ee/reducers";
+import { API_HOME_SCREEN_FORM } from "ee/constants/forms";
 import ActiveDataSources from "./ActiveDataSources";
 import {
   getDatasources,
   getMockDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import type { TabProp } from "design-system-old";
 import { IconSize } from "design-system-old";
@@ -19,8 +19,8 @@ import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import Debugger, {
@@ -28,11 +28,11 @@ import Debugger, {
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import CreateNewDatasourceTab from "./CreateNewDatasourceTab";
 
 const HeaderFlex = styled.div`

@@ -2,13 +2,13 @@ import evaluate, {
   createEvaluationContext,
   evaluateAsync,
 } from "workers/Evaluation/evaluate";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { convertAllDataTypesToString } from "../errorModifier";
 import { get } from "lodash";
 

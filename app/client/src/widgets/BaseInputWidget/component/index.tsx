@@ -16,7 +16,7 @@ import { Colors } from "constants/Colors";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { NumberInputStepButtonPosition } from "../constants";
 import { InputTypes } from "../constants";
 

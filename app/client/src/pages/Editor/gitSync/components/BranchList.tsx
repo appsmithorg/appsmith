@@ -29,7 +29,7 @@ import {
   FIND_OR_CREATE_A_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Icon,
   Spinner,
@@ -44,7 +44,7 @@ import {
   isRemoteBranch,
   removeSpecialChars,
 } from "pages/Editor/gitSync/utils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";

@@ -16,7 +16,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { focusWidget } from "actions/widgetActions";

@@ -3,7 +3,7 @@ import { NotificationBannerContainer } from "./StyledComponents";
 import {
   createMessage,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Callout } from "design-system";
 
 /**

@@ -37,3 +37,6 @@ app/client/.fleet/*
 # Observability related local storage
 utils/observability/tempo-data/*
 
+# Ignore the mongo data folder for Mongo to PG migrations
+mongo-data/
+

@@ -4,7 +4,7 @@ import { Field } from "redux-form";
 import type { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system-old";
 import { Input } from "design-system";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
 
 const renderComponent = (
   componentProps: FormTextAreaFieldProps & {

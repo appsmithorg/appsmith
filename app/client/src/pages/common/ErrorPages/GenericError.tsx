@@ -6,7 +6,7 @@ import {
   createMessage,
   PAGE_CLIENT_ERROR_DESCRIPTION,
   PAGE_CLIENT_ERROR_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { flushErrors } from "actions/errorActions";
 import { useDispatch } from "react-redux";
 import { DISCORD_URL } from "constants/ThirdPartyConstants";

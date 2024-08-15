@@ -1,28 +1,28 @@
 import React from "react";
 import styled from "styled-components";
-import AdminConfig from "@appsmith/pages/AdminSettings/config";
+import AdminConfig from "ee/pages/AdminSettings/config";
 import {
   CategoryType,
   type Category,
-} from "@appsmith/pages/AdminSettings/config/types";
-import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
+} from "ee/pages/AdminSettings/config/types";
+import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
 import { useParams } from "react-router";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Link, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
 import {
   getFilteredAclCategories,
   getFilteredGeneralCategories,
   getFilteredOtherCategories,
-} from "@appsmith/utils/adminSettingsHelpers";
+} from "ee/utils/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasAuditLogsReadPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasAuditLogsReadPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};

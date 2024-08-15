@@ -16,7 +16,7 @@ import { ToggleComponentToJsonHandler } from "components/editorComponents/form/T
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,

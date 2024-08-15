@@ -1,10 +1,7 @@
 import React from "react";
 import { Text, Button } from "design-system";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import {
-  APPSMITH_DISPLAY_VERSION,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "ee/configs";
+import { APPSMITH_DISPLAY_VERSION, createMessage } from "ee/constants/messages";
 import moment from "moment";
 import styled from "styled-components";
 import { useSelector } from "react-redux";

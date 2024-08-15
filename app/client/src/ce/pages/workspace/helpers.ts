@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 import type { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
 import type { DefaultOptionType } from "rc-select/lib/Select";

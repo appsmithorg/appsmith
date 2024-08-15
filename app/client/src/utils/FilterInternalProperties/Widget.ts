@@ -1,9 +1,9 @@
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import type { EntityDefinitionsOptions } from "ee/utils/autocomplete/EntityDefinitions";
 import { isFunction } from "lodash";
 import type { Def } from "tern";
 import WidgetFactory from "WidgetProvider/factory";

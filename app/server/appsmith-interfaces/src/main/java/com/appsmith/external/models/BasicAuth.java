@@ -22,6 +22,6 @@ public class BasicAuth extends AuthenticationDTO {
     @JsonView({Views.Public.class, FromRequest.class})
     String username;
 
-    @Encrypted @JsonView(FromRequest.class)
+    @Encrypted @JsonView({Views.Internal.class, FromRequest.class})
     String password;
 }

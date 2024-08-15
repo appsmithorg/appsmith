@@ -18,7 +18,7 @@ import {
   NodeTypes,
   SourceType,
 } from "@shared/ast";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import log from "loglevel";
 import type CodeMirror from "codemirror";
 

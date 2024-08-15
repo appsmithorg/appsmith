@@ -1,19 +1,16 @@
 import { get } from "lodash";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
 import { flushErrors, safeCrashApp } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
-import {
-  ERROR_CODES,
-  SERVER_ERROR_CODES,
-} from "@appsmith/constants/ApiConstants";
+import { ERROR_CODES, SERVER_ERROR_CODES } from "ee/constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -25,12 +22,12 @@ import {
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
-import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
+import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
+import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
 

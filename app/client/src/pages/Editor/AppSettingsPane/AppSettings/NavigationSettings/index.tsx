@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import {
-  APP_NAVIGATION_SETTING,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { APP_NAVIGATION_SETTING, createMessage } from "ee/constants/messages";
 // import { ReactComponent as NavOrientationTopIcon } from "assets/icons/settings/nav-orientation-top.svg";
 // import { ReactComponent as NavOrientationSideIcon } from "assets/icons/settings/nav-orientation-side.svg";
 // import { ReactComponent as NavStyleInlineIcon } from "assets/icons/settings/nav-style-inline.svg";
@@ -16,14 +13,14 @@ import _, { debounce, isEmpty, isPlainObject } from "lodash";
 import ButtonGroupSetting from "./ButtonGroupSetting";
 import ColorStyleIcon from "./ColorStyleIcon";
 import SwitchSetting from "./SwitchSetting";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplication } from "@appsmith/actions/applicationActions";
+import { updateApplication } from "ee/actions/applicationActions";
 import { Spinner } from "design-system";
 import LogoInput from "pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav

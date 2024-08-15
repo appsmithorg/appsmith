@@ -1,17 +1,17 @@
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   ConnectToGitPayload,
   GitAutocommitProgressResponse,
 } from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
+import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import {
   type GitStatusData,
   GitSettingsTab,

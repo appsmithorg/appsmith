@@ -1,9 +1,9 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 import {
   getCurrentActions,
   getCanvasWidgets,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { isBoolean, intersection } from "lodash";
 import { getEvaluationInverseDependencyMap } from "./dataTreeSelectors";

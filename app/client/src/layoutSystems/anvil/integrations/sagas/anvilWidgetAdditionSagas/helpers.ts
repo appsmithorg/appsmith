@@ -10,8 +10,8 @@ import { executeWidgetBlueprintOperations } from "sagas/WidgetBlueprintSagas";
 import { call, put, select } from "redux-saga/effects";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import { WidgetReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { WidgetReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 /**
  * In Anvil, we maintain some properties set by users on widgets.

@@ -14,7 +14,7 @@ import {
   MAX_ZONE_COUNT,
   MIN_ZONE_COUNT,
 } from "layoutSystems/anvil/utils/constants";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 const ZoneNumInput = React.forwardRef(
   (

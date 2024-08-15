@@ -1,11 +1,11 @@
-import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { ERROR_CODES } from "ee/constants/ApiConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
-} from "@appsmith/api/ApplicationApi";
-import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
+} from "ee/api/ApplicationApi";
+import type { ApplicationVersion } from "ee/actions/applicationActions";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import type {

@@ -1,9 +1,9 @@
-import { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ApplicationVersion } from "ee/actions/applicationActions";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
-import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { builderURL } from "ee/RouteBuilder";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { isURLDeprecated } from "utils/helpers";
 import URLRedirect from ".";
 

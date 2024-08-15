@@ -40,10 +40,7 @@ import VirtualTable from "./VirtualTable";
 import fastdom from "fastdom";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
-import {
-  createMessage,
-  CONNECT_BUTTON_TEXT,
-} from "@appsmith/constants/messages";
+import { createMessage, CONNECT_BUTTON_TEXT } from "ee/constants/messages";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";

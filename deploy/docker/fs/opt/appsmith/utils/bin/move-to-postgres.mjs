@@ -74,6 +74,12 @@ for await (const {name: collectionName} of mongoDb.listCollections({}, {nameOnly
     doc.id = doc._id.toString();
     delete doc._id;
 
+    // Skip archived objects as they are not migrated during the Mongock migration which may end up failing for the
+    // constraints in the Postgres DB.
+    if (isArchivedObject(doc)) {
+      continue;
+    }
+
     if (outFile == null) {
       // Don't create the file unless there's data to write.
       outFile = fs.openSync(EXPORT_ROOT + "/" + collectionName + ".jsonl", "w");
@@ -97,6 +103,10 @@ process.exit(0);
 
 function extractValueFromArg(arg) {
   return arg.replace(/^.*?=/, "");
+}
+
+function isArchivedObject(doc) {
+  return doc.deleted === true || doc.isDeleted != null;
 }
 
 function toJsonSortedKeys(obj) {

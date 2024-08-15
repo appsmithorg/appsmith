@@ -1,9 +1,9 @@
 import {
   ReduxActionTypes,
   type ReduxActionType,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   RequestPayloadAnalyticsPath,
   cleanValuesInObjectForHashing,
@@ -14,7 +14,7 @@ import log from "loglevel";
 import { all, put, select, takeEvery } from "redux-saga/effects";
 import { getIdeCanvasSideBySideHoverState } from "selectors/ideSelectors";
 
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import {
   recordAnalyticsForSideBySideNavigation,
   recordAnalyticsForSideBySideWidgetHover,
@@ -31,7 +31,7 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
 } from "constants/routes";
 import type { focusWidget } from "actions/widgetActions";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { getCurrentEntityInfo, isInSideBySideEditor } from "pages/Editor/utils";
 

@@ -5,7 +5,7 @@ import Card from "components/common/Card";
 import CardList from "pages/Applications/CardList";
 import { Button } from "design-system";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 
 interface ResourcesLoaderProps {
   isMobile: boolean;

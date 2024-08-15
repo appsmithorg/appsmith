@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "dotenv": "10.0.0",
-    "mongodb": "^5.8.0",
+    "mongodb": "^5.9.2",
     "nodemailer": "6.9.9",
     "readline-sync": "1.4.10",
     "shelljs": "0.8.5"
@@ -26,5 +26,8 @@
   },
   "scripts": {
     "test": "jest"
+  },
+  "overrides": {
+    "fast-xml-parser": "4.4.1"
   }
 }

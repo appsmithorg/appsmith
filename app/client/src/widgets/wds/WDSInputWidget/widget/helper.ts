@@ -7,7 +7,7 @@ import {
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { InputType } from "../component/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 

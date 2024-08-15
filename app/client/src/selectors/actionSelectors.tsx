@@ -7,7 +7,7 @@ import { getDataTree } from "./dataTreeSelectors";
 import {
   getExistingPageNames,
   selectInstalledLibraries,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   getErrorForApiName,
   getErrorForJSObjectName,

@@ -2,12 +2,9 @@ import React from "react";
 import { Route } from "react-router-dom";
 import { render } from "test/testUtils";
 import IDE from "pages/Editor/IDE/index";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { BUILDER_PATH } from "@appsmith/constants/routes/appRoutes";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
+import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { APIFactory } from "test/factories/Actions/API";
 import localStorage from "utils/localStorage";
 import { PostgresFactory } from "test/factories/Actions/Postgres";

@@ -1,14 +1,14 @@
 import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import type { Types } from "utils/TypeHelpers";
-import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
-import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns/index";
+import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns/index";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import store from "store";

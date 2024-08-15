@@ -52,7 +52,7 @@ for attempt in {1..99}; do
   if curl --silent --fail --fail-early 127.0.0.1:8080/api/v1/health; then
     break
   fi
-  sleep 1
+  sleep 2
 done
 
 supervisorctl stop editor postgres rts backend redis
