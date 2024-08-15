@@ -20,8 +20,12 @@ export * from "./DisplayImageUpload";
 export { default as DraggableList } from "./DraggableList";
 export * from "./DraggableList";
 
-export { default as Dropdown } from "./Dropdown";
-export * from "./Dropdown";
+// export { default as Dropdown } from "./Dropdown";
+export type {
+  DropdownOption,
+  DropdownOnSelect,
+  RenderDropdownOptionType,
+} from "./Dropdown";
 
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
