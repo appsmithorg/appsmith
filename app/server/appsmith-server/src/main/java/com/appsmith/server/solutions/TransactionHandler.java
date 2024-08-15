@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.aspect.TransactionAspect;
@@ -27,6 +28,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
@@ -150,77 +152,73 @@ public class TransactionHandler {
         return asMonoDirect(() -> {
                     transactionTemplate.executeWithoutResult(transactionStatus -> {
                         for (Datasource datasource : datasourceList) {
-                            TransactionAspect.DBOps dbOps = entityMap.get(datasource.getId());
-                            if (dbOps.isNew()) {
-                                archiveDatasource(datasource.getId());
-                            } else {
-                                saveDatasourceToDb(datasource);
-                            }
+                            processEntity(datasource, entityMap, this::archiveDatasource, this::saveDatasourceToDb);
                         }
                         for (DatasourceStorage datasourceStorage : datasourceStorageList) {
-                            TransactionAspect.DBOps dbOps = entityMap.get(datasourceStorage.getId());
-                            if (dbOps.isNew()) {
-                                archiveDatasourceStorage(datasourceStorage.getId());
-                            } else {
-                                saveDatasourceStorageToDb(datasourceStorage);
-                            }
+                            processEntity(
+                                    datasourceStorage,
+                                    entityMap,
+                                    this::archiveDatasourceStorage,
+                                    this::saveDatasourceStorageToDb);
                         }
                         for (Theme theme : themeList) {
-                            TransactionAspect.DBOps dbOps = entityMap.get(theme.getId());
-                            if (dbOps.isNew()) {
-                                archiveTheme(theme.getId());
-                            } else {
-                                saveThemeToDb(theme);
-                            }
+                            processEntity(theme, entityMap, this::archiveTheme, this::saveThemeToDb);
                         }
-
-                        TransactionAspect.DBOps dbOps = entityMap.get(application[0].getId());
-                        if (dbOps != null) {
-                            if (dbOps.isNew()) {
-                                archiveApplication(application[0].getId());
-                            } else {
-                                saveApplicationToDb(application[0]);
-                            }
-                        }
+                        processEntity(application[0], entityMap, this::archiveApplication, this::saveApplicationToDb);
 
                         for (CustomJSLib customJSLib : customJSLibList) {
-                            dbOps = entityMap.get(customJSLib.getId());
-                            if (dbOps.isNew()) {
-                                archiveCustomJSLib(customJSLib.getId());
-                            } else {
-                                saveCustomJSLibToDb(customJSLib);
-                            }
+                            processEntity(customJSLib, entityMap, this::archiveCustomJSLib, this::saveCustomJSLibToDb);
                         }
-
                         for (NewPage newPage : newPageList) {
-                            dbOps = entityMap.get(newPage.getId());
-                            if (dbOps.isNew()) {
-                                archiveNewPage(newPage.getId());
-                            } else {
-                                saveNewPageToDb(newPage);
-                            }
+                            processEntity(newPage, entityMap, this::archiveNewPage, this::saveNewPageToDb);
                         }
-
                         for (ActionCollection actionCollection : actionCollectionList) {
-                            dbOps = entityMap.get(actionCollection.getId());
-                            if (dbOps.isNew()) {
-                                archiveActionCollection(actionCollection.getId());
-                            } else {
-                                saveActionCollectionToDb(actionCollection);
-                            }
+                            processEntity(
+                                    actionCollection,
+                                    entityMap,
+                                    this::archiveActionCollection,
+                                    this::saveActionCollectionToDb);
                         }
-
                         for (NewAction action : actionList) {
-                            dbOps = entityMap.get(action.getId());
-                            if (dbOps.isNew()) {
-                                archiveAction(action.getId());
-                            } else {
-                                saveActionToDb(action);
-                            }
+                            processEntity(action, entityMap, this::archiveAction, this::saveActionToDb);
                         }
                     });
                     return true;
                 })
                 .then();
+    }
+
+    private <T> void processEntity(
+            T entity,
+            Map<String, TransactionAspect.DBOps> entityMap,
+            Consumer<String> archiveMethod,
+            Consumer<T> saveMethod) {
+        TransactionAspect.DBOps dbOps = entityMap.get(getEntityId(entity));
+        if (dbOps != null && dbOps.isNew()) {
+            archiveMethod.accept(getEntityId(entity));
+        } else {
+            saveMethod.accept(entity);
+        }
+    }
+
+    private String getEntityId(Object entity) {
+        if (entity instanceof Datasource) {
+            return ((Datasource) entity).getId();
+        } else if (entity instanceof DatasourceStorage) {
+            return ((DatasourceStorage) entity).getId();
+        } else if (entity instanceof Theme) {
+            return ((Theme) entity).getId();
+        } else if (entity instanceof Application) {
+            return ((Application) entity).getId();
+        } else if (entity instanceof CustomJSLib) {
+            return ((CustomJSLib) entity).getId();
+        } else if (entity instanceof NewPage) {
+            return ((NewPage) entity).getId();
+        } else if (entity instanceof ActionCollection) {
+            return ((ActionCollection) entity).getId();
+        } else if (entity instanceof NewAction) {
+            return ((NewAction) entity).getId();
+        }
+        return ((BaseDomain) entity).getId();
     }
 }
