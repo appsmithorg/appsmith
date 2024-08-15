@@ -211,3 +211,14 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/*
 
 #Cypress
 app/client/cypress/**/* @ApekshaBhosale @sagar-qa007
+
+
+# Performance Pod
+app/client/src/serviceWorker.ts @appsmithorg/performance-pod
+app/client/src/ce/utils/serviceWorkerUtils.ts @appsmithorg/performance-pod
+app/client/src/ee/utils/serviceWorkerUtils.ts @appsmithorg/performance-pod
+app/client/packages/evaluation/**/* @appsmithorg/performance-pod
+app/client/src/UITelemetry/**/* @appsmithorg/performance-pod
+
+# Query JS Pod
+app/client/packages/evaluation/**/* @appsmithorg/query-js-pod
