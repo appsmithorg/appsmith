@@ -1,15 +1,15 @@
 import React from "react";
 import { Flex } from "@appsmith/ads";
-import { useEditorPaneWidth } from "../hooks";
 import EditorPaneExplorer from "./Explorer";
 import Editor from "./Editor";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
+import { useEditorStateLeftPaneWidth } from "../Layout/hooks/useEditorStateLeftPaneWidth";
 
 const EditorPane = () => {
-  const width = useEditorPaneWidth();
+  const width = useEditorStateLeftPaneWidth();
   const ideViewMode = useSelector(getIDEViewMode);
 
   return (
