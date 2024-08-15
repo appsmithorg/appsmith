@@ -8473,19 +8473,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:^6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/tracing@npm:6.2.4"
-  dependencies:
-    "@sentry/hub": 6.2.4
-    "@sentry/minimal": 6.2.4
-    "@sentry/types": 6.2.4
-    "@sentry/utils": 6.2.4
-    tslib: ^1.9.3
-  checksum: 74fb1cf110e10fda9b5eac1c7e0eb92204311d336bcd30642a33fde3a3a0fd73ed8d13ea62e744059adf6bb84d638ec5a35e8d2b40af2f5ff3131c0fb70017a5
-  languageName: node
-  linkType: hard
-
 "@sentry/types@npm:6.2.4":
   version: 6.2.4
   resolution: "@sentry/types@npm:6.2.4"
@@ -13197,7 +13184,6 @@ __metadata:
     "@react-types/shared": ^3.23.0
     "@redux-saga/testing-utils": ^1.1.5
     "@sentry/react": ^6.2.4
-    "@sentry/tracing": ^6.2.4
     "@sentry/webpack-plugin": ^1.18.9
     "@shared/ast": "workspace:^"
     "@shared/dsl": "workspace:^"

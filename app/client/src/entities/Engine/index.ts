@@ -78,8 +78,6 @@ export default abstract class AppEngine {
     rootSpan: Span,
   ): any;
   abstract loadGit(applicationId: string, rootSpan: Span): any;
-  abstract startPerformanceTracking(): any;
-  abstract stopPerformanceTracking(): any;
   abstract completeChore(rootSpan: Span): any;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
