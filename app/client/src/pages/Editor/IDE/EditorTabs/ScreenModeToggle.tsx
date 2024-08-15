@@ -11,10 +11,19 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { setIdeEditorViewMode } from "actions/ideActions";
+import type { AppState } from "ee/reducers";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export const ScreenModeToggle = () => {
   const dispatch = useDispatch();
   const ideViewMode = useSelector(getIDEViewMode);
+  const isAnimatedIDEEnabled = useSelector((state: AppState) => {
+    return selectFeatureFlagCheck(
+      state,
+      FEATURE_FLAG.release_ide_animations_enabled,
+    );
+  });
 
   const switchToFullScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
@@ -23,27 +32,27 @@ export const ScreenModeToggle = () => {
 
     // Animating using https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API
     // this has limited availability right now
-    if ("startViewTransition" in document) {
+    if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
         dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
       });
     } else {
       dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
     }
-  }, [dispatch]);
+  }, [dispatch, isAnimatedIDEEnabled]);
 
   const switchToSplitScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.SplitScreen,
     });
-    if ("startViewTransition" in document) {
+    if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
         dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
       });
     } else {
       dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
     }
-  }, [dispatch]);
+  }, [dispatch, isAnimatedIDEEnabled]);
 
   if (ideViewMode === EditorViewMode.SplitScreen) {
     return (

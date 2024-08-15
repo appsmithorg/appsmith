@@ -107,7 +107,7 @@ function useGridLayoutTemplate(): ReturnValue {
               SIDEBAR_WIDTH,
               editorStateLeftPaneWidth,
               "1fr",
-              (PropertyPaneWidth + "px") as AnimatedGridUnit,
+              (PropertyPaneWidth + 1 + "px") as AnimatedGridUnit,
             ]);
           }
       }
