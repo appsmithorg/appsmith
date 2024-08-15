@@ -78,9 +78,6 @@ export * from "./TagInput";
 export { default as Text } from "./Text";
 export * from "./Text";
 
-export { default as TextInput } from "./TextInput";
-export * from "./TextInput";
-
 export { default as TooltipComponent } from "./Tooltip";
 export * from "./Tooltip";
 
@@ -94,3 +91,5 @@ export * from "./constants/variants";
 export * from "./types/common";
 export * from "./utils/colors";
 export * from "./utils/icon-loadables";
+export * from "./utils/emailValidator";
+export * from "./utils/notEmptyValidator";
