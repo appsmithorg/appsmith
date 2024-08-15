@@ -196,7 +196,10 @@ export const DateCell = (props: DateComponentProps) => {
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const isCellCompletelyValid = isEditableCellValid && isValid;
+  const isCellCompletelyValid = useMemo(
+    () => isEditableCellValid && isValid,
+    [isEditableCellValid, isValid],
+  );
 
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
