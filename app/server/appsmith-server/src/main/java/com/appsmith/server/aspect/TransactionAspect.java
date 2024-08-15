@@ -50,8 +50,8 @@ public class TransactionAspect {
                     // Check if it's a write operation
                     boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
 
-                    Object[] args = getArgs(joinPoint.getArgs());
-                    boolean isInsertOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
+                    EntityData entityData = getArgs(joinPoint.getArgs());
+                    boolean isInsertOp = isWriteOp(entityData, (MethodSignature) joinPoint.getSignature());
 
                     // TODO - remove this once the values are consistent with the new method to check write operation
                     if (isInsertOp != isWriteOp) {
@@ -83,13 +83,13 @@ public class TransactionAspect {
                         //      - If end up in switchIfEmpty means no object is present in the DB and should mark this
                         //         as a new object and store the object in DB
                         //      - If object is present in the DB, then store the initial state in the context
-                        if ((args[2] != null && isUpdateOp(args[2]))
+                        if ((entityData.getUpdate() != null && isUpdateOp(entityData.getUpdate()))
                                 || (isArchiveOp((MethodSignature) joinPoint.getSignature()))) {
-                            addEntityToMapUpdateAndArchiveOp(transactionContext, (String) args[1]);
+                            addEntityToMapUpdateAndArchiveOp(transactionContext, entityData.getId());
                             return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
                         }
 
-                        BaseDomain domain = (BaseDomain) args[0];
+                        BaseDomain domain = entityData.getBaseDomain();
                         if (domain.getId() == null) {
                             domain.setId(generateId());
                         }
@@ -110,32 +110,22 @@ public class TransactionAspect {
                 try {
                     if (!context.isEmpty() && context.hasKey(TRANSACTION_CONTEXT)) {
                         Map<String, DBOps> transactionContext = context.get(TRANSACTION_CONTEXT);
-                        Object[] args = getArgs(joinPoint.getArgs());
-                        boolean isWriteOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
+                        EntityData entityData = getArgs(joinPoint.getArgs());
 
-                        boolean isInsertOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
-
-                        // TODO - remove this once the values are consistent with the new method to check write
-                        // operation
-                        if (isInsertOp != isWriteOp) {
-                            log.error(
-                                    "Mismatch in write operation detection. isNewWriteOp: {}, isWriteOp: {}",
-                                    isInsertOp,
-                                    isWriteOp);
-                        }
+                        boolean isInsertOp = isWriteOp(entityData, (MethodSignature) joinPoint.getSignature());
 
                         Flux flux = (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
 
                         if (!isInsertOp) {
                             return flux.map(obj -> updateContextMapWithReadOperation(transactionContext, obj));
                         } else {
-                            if ((args[2] != null && isUpdateOp(args[2]))
+                            if ((entityData.getUpdate() != null && isUpdateOp(entityData.getUpdate()))
                                     || (isArchiveOp((MethodSignature) joinPoint.getSignature()))) {
-                                addEntityToMapUpdateAndArchiveOp(transactionContext, (String) args[1]);
+                                addEntityToMapUpdateAndArchiveOp(transactionContext, entityData.getId());
                                 return flux;
                             }
 
-                            BaseDomain domain = (BaseDomain) args[0];
+                            BaseDomain domain = entityData.getBaseDomain();
                             if (domain.getId() == null) {
                                 domain.setId(generateId());
                             }
@@ -158,20 +148,21 @@ public class TransactionAspect {
         return joinPoint.proceed(joinPoint.getArgs());
     }
 
-    private Object[] getArgs(Object[] args) {
+    private EntityData getArgs(Object[] args) {
         // To store the baseDomain and the id of the object and BridgeUpdate
         // when the BaseDomain is not present, in the case of updateById methods
-        Object[] newArgs = new Object[3];
+
+        EntityData entityData = new EntityData();
         for (Object arg : args) {
             if (arg instanceof BaseDomain domain) {
-                newArgs[0] = domain;
+                entityData.setBaseDomain(domain);
             } else if (arg instanceof String && isUUIDString((String) arg)) {
-                newArgs[1] = arg;
+                entityData.setId((String) arg);
             } else if (arg instanceof BridgeUpdate) {
-                newArgs[2] = arg;
+                entityData.setUpdate((BridgeUpdate) arg);
             }
         }
-        return newArgs;
+        return entityData;
     }
 
     private String generateId() {
@@ -230,14 +221,14 @@ public class TransactionAspect {
         transactionContext.put(getObjectId(dbOps), dbOps);
     }
 
-    private boolean isWriteOp(Object[] args, MethodSignature signature) {
+    private boolean isWriteOp(EntityData entityData, MethodSignature signature) {
         // Special case like findCustomJsLib accepting the BaseDomain object as parameter instead of the UUID,
         // hence the need to check for method name as well
-        if (args[0] != null
-                && isSaveOrCreateOp(args[0])
+        if (entityData.getBaseDomain() != null
+                && isSaveOrCreateOp(entityData.getBaseDomain())
                 && !signature.getMethod().getName().contains(FIND)) {
             return true;
-        } else if (args[2] != null && isUpdateOp(args[2])) {
+        } else if (entityData.getUpdate() != null && isUpdateOp(entityData.getUpdate())) {
             return true;
         } else return isArchiveOp(signature);
     }
@@ -281,5 +272,13 @@ public class TransactionAspect {
         private Object entity;
         private boolean isModified;
         private boolean isNew;
+    }
+
+    @Getter
+    @Setter
+    public static class EntityData {
+        private BaseDomain baseDomain;
+        private String id;
+        private BridgeUpdate update;
     }
 }
