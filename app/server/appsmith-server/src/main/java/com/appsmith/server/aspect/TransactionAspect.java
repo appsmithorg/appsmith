@@ -51,13 +51,13 @@ public class TransactionAspect {
                     boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
 
                     Object[] args = getArgs(joinPoint.getArgs());
-                    boolean isNewWriteOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
+                    boolean isInsertOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
 
                     // TODO - remove this once the values are consistent with the new method to check write operation
-                    if (isNewWriteOp != isWriteOp) {
+                    if (isInsertOp != isWriteOp) {
                         log.error(
                                 "Mismatch in write operation detection. isNewWriteOp: {}, isWriteOp: {}",
-                                isNewWriteOp,
+                                isInsertOp,
                                 isWriteOp);
                     }
                     // If the operation is read, operation
@@ -70,7 +70,7 @@ public class TransactionAspect {
                     // because we want to revert the changes if the transaction fails, and we want to store the initial
                     // state of the object before the transaction started.
                     // This cleanup is done in the TransactionHandler class in Solution module
-                    if (!isWriteOp) {
+                    if (!isInsertOp) {
                         return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()))
                                 .map(obj -> updateContextMapWithReadOperation(transactionContext, obj));
                     } else {
@@ -113,9 +113,20 @@ public class TransactionAspect {
                         Object[] args = getArgs(joinPoint.getArgs());
                         boolean isWriteOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
 
+                        boolean isInsertOp = isWriteOp(args, (MethodSignature) joinPoint.getSignature());
+
+                        // TODO - remove this once the values are consistent with the new method to check write
+                        // operation
+                        if (isInsertOp != isWriteOp) {
+                            log.error(
+                                    "Mismatch in write operation detection. isNewWriteOp: {}, isWriteOp: {}",
+                                    isInsertOp,
+                                    isWriteOp);
+                        }
+
                         Flux flux = (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
 
-                        if (!isWriteOp) {
+                        if (!isInsertOp) {
                             return flux.map(obj -> updateContextMapWithReadOperation(transactionContext, obj));
                         } else {
                             if ((args[2] != null && isUpdateOp(args[2]))
@@ -257,7 +268,7 @@ public class TransactionAspect {
     }
 
     private AppsmithRepository<?> getDomainClassFromObject(Object object) {
-        return repositoryFactory.getRepositoryObjectFromEntityType(object);
+        return repositoryFactory.getRepositoryFromEntity(object);
     }
 
     private String getObjectId(DBOps obj) {

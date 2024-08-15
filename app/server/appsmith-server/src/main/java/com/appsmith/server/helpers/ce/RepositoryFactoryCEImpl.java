@@ -63,7 +63,7 @@ public class RepositoryFactoryCEImpl implements RepositoryFactoryCE {
     }
 
     @Override
-    public AppsmithRepository<?> getRepositoryObjectFromEntityType(Object object) {
+    public AppsmithRepository<?> getRepositoryFromEntity(Object object) {
         if (object instanceof Datasource) {
             return repoByEntityClass.get(Datasource.class);
         } else if (object instanceof DatasourceStorage) {
