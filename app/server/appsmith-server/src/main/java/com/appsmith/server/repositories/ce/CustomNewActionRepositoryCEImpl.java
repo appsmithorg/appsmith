@@ -33,8 +33,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(permission, currentUser)
                 .all()
-                /*.name(VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY)
-                .tap(Micrometer.observation(observationRegistry))*/;
+        /*.name(VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY)
+        .tap(Micrometer.observation(observationRegistry))*/ ;
     }
 
     @Override

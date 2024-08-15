@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 @Component
@@ -73,14 +74,12 @@ public class DryOperationRepository {
         return themeRepository.archiveAllById(themeIds);
     }
 
-    private Mono<List<Theme>> updateTheme(List<Theme> themes) {
-        return themes
-            .stream()
-            .map(themeToBeUpdated -> {
+    private List<Theme> updateTheme(List<Theme> themes) {
+        return themes.stream()
+                .map(themeToBeUpdated -> {
                     return themeRepository.updateById(
-                            themeToBeUpdated.getId(), themeToBeUpdated, AclPermission.MANAGE_THEMES);
-                })
-                .collectList();
+                            themeToBeUpdated.getId(), themeToBeUpdated, null, null).orElse(null);
+                }).toList();
     }
 
     private Optional<Application> updateApplication(Application application) {

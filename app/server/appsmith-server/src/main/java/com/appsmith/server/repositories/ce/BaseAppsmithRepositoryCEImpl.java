@@ -61,7 +61,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.StringUtils.dotted;
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
 
@@ -731,26 +730,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             return null;
         }
 
-        Map<String, String> fnVars = new HashMap<>();
-        fnVars.put("p", permission.getValue());
-        final List<String> conditions = new ArrayList<>();
-        for (int i = 0; i < permissionGroups.size(); i++) {
-            fnVars.put("g" + i, permissionGroups.get(i));
-            conditions.add("@ == $g" + i);
-        }
-
-        try {
-            return cb.isTrue(cb.function(
-                    "jsonb_path_exists",
-                    Boolean.class,
-                    root.get(BaseDomain.Fields.policies),
-                    cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                            + String.join(" || ", conditions) + ")))"),
-                    cb.literal(JsonForDatabase.writeValueAsString(fnVars))));
-        } catch (JsonProcessingException e) {
-            // This should never happen, were serializing a Map<String, String>, which ideally should never fail.
-            throw new RuntimeException(e);
-        }
+        return cb.isTrue(cb.function(
+            "jsonb_exists_any",
+            Boolean.class,
+            cb.function("jsonb_extract_path", String.class, root.get(BaseDomain.Fields.policyMap), cb.literal(permission.getValue()), cb.literal("permissionGroups")),
+            cb.literal(permissionGroups.toArray(new String[0]))));
     }
 
     /**

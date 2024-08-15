@@ -52,6 +52,7 @@ for attempt in {1..99}; do
   if curl --silent --fail --fail-early 127.0.0.1:8080/api/v1/health; then
     break
   fi
+  echo "Waiting for backend to come up..."
   sleep 2
 done
 
@@ -64,7 +65,7 @@ node utils/export.mjs --mongodb-url="$APPSMITH_DB_URL" --baseline
 baseline_dir="$project_root/deploy/docker/fs/opt/appsmith/baseline-$edition"
 rm -rf "$baseline_dir"
 docker cp "$container_name":/opt/appsmith/mongo-data "$baseline_dir"
-
 docker rm -f "$container_name"
+echo Removed "$container_name" and copied the new baseline files.
 
-echo Fin
+echo Finish
