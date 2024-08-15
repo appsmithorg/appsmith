@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.TRANSACTION_CONTEXT;
 
@@ -418,7 +419,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         String artifactContextString = artifactSpecificConstantsMap.get(FieldName.ARTIFACT_CONTEXT);
 
-        Map<String, TransactionAspect.DBOps> enityMap = new HashMap<>();
+        ConcurrentHashMap<String, TransactionAspect.DBOps> entityMap = new ConcurrentHashMap<>();
 
         // step 1: Schema Migration
         ArtifactExchangeJson importedDoc = jsonSchemaMigration.migrateArtifactToLatestSchema(artifactExchangeJson);
@@ -506,13 +507,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .flatMap(importableArtifact -> updateImportableEntities(
                         artifactBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
                 .flatMap(importableArtifact -> updateImportableArtifact(artifactBasedImportService, importableArtifact))
-                .contextWrite(context -> context.put(TRANSACTION_CONTEXT, enityMap))
+                .contextWrite(context -> context.put(TRANSACTION_CONTEXT, entityMap))
                 .onErrorResume(throwable -> {
                     // clean up stale entities and modified entities back to the original state from the db
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
                     return transactionHandler
-                            .cleanUpDatabase(enityMap)
+                            .cleanUpDatabase(entityMap)
                             .then(Mono.error(new AppsmithException(
                                     AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage)));
                 });
