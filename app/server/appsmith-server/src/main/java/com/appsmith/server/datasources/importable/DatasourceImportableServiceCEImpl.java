@@ -213,7 +213,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService
-                                            .save(existingDatasource, true)
+                                            .save(existingDatasource, false)
                                             .map(createdDatasource -> {
                                                 // Add dry run queries for the datasource
                                                 addDryOpsForEntity(
