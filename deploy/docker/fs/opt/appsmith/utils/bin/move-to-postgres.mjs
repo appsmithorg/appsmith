@@ -73,6 +73,7 @@ for await (const {name: collectionName} of mongoDb.listCollections({}, {nameOnly
     // TODO(Shri): Should we cleanup nested `ObjectId`s, like all over `doc`?
     doc.id = doc._id.toString();
     delete doc._id;
+    delete doc.policies;
 
     // Skip archived objects as they are not migrated during the Mongock migration which may end up failing for the
     // constraints in the Postgres DB.

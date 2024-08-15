@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { StyledFormRow } from "./EditorJSONtoForm";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";

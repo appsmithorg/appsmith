@@ -9,6 +9,8 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.ResourceModes;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
@@ -1205,5 +1207,53 @@ public class MigrationHelperMethods {
             }
         }
         return pathsToRemove;
+    }
+
+    public static void migrateThemeSettingsForAnvil(ApplicationJson applicationJson) {
+        if (applicationJson == null || applicationJson.getExportedApplication() == null) {
+            return;
+        }
+
+        Application exportedApplication = applicationJson.getExportedApplication();
+        ApplicationDetail applicationDetail = exportedApplication.getApplicationDetail();
+        ApplicationDetail unpublishedApplicationDetail = exportedApplication.getUnpublishedApplicationDetail();
+
+        if (applicationDetail == null) {
+            applicationDetail = new ApplicationDetail();
+            exportedApplication.setApplicationDetail(applicationDetail);
+        }
+
+        if (unpublishedApplicationDetail == null) {
+            unpublishedApplicationDetail = new ApplicationDetail();
+            exportedApplication.setUnpublishedApplicationDetail(unpublishedApplicationDetail);
+        }
+
+        Application.ThemeSetting themeSetting = applicationDetail.getThemeSetting();
+        Application.ThemeSetting unpublishedThemeSetting = unpublishedApplicationDetail.getThemeSetting();
+        if (themeSetting == null) {
+            themeSetting = new Application.ThemeSetting();
+        }
+
+        if (unpublishedThemeSetting == null) {
+            unpublishedThemeSetting = new Application.ThemeSetting();
+        }
+
+        applicationDetail.setThemeSetting(themeSetting);
+        unpublishedApplicationDetail.setThemeSetting(unpublishedThemeSetting);
+    }
+
+    public static void setThemeSettings(Application.ThemeSetting themeSetting) {
+        if (themeSetting.getAppMaxWidth() == null) {
+            themeSetting.setAppMaxWidth(Application.ThemeSetting.AppMaxWidth.LARGE);
+        }
+
+        // since these are primitive values we don't have concept of null, hence putting it to the default of 1.
+        if (themeSetting.getDensity() == 0) {
+            themeSetting.setDensity(1);
+        }
+
+        if (themeSetting.getSizing() == 0) {
+            themeSetting.setSizing(1);
+        }
     }
 }

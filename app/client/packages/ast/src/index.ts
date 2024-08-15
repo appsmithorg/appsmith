@@ -399,6 +399,7 @@ export interface IdentifierInfo {
   references: string[];
   functionalParams: string[];
   variables: string[];
+  isError: boolean;
 }
 export const extractIdentifierInfoFromCode = (
   code: string,
@@ -435,6 +436,7 @@ export const extractIdentifierInfoFromCode = (
       references: referencesArr,
       functionalParams: Array.from(functionalParams),
       variables: Array.from(variableDeclarations),
+      isError: false,
     };
   } catch (e) {
     if (e instanceof SyntaxError) {
@@ -443,6 +445,7 @@ export const extractIdentifierInfoFromCode = (
         references: [],
         functionalParams: [],
         variables: [],
+        isError: true,
       };
     }
     throw e;

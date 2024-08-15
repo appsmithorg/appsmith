@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { ternDocsInfo } from "ee/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 
 export function renderTernTooltipContent(
   element: HTMLElement,

@@ -14,5 +14,5 @@ public interface NewPageRepositoryCE extends BaseRepository<NewPage, String>, Cu
 
     Optional<Long> countByDeletedAtNull();
 
-    List<IdPoliciesOnly> findIdsAndPoliciesByApplicationIdIn(List<String> applicationIds);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
 }

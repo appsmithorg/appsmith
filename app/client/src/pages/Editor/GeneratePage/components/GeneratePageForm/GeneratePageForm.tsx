@@ -23,8 +23,8 @@ import DataSourceOption, {
   DatasourceImage,
 } from "../DataSourceOption";
 import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
-import type { DropdownOption } from "design-system-old";
-import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { Button, Icon, Text, Select, Option, Tooltip } from "@appsmith/ads";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,

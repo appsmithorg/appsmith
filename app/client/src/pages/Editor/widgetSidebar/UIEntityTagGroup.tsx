@@ -10,7 +10,7 @@ import {
   CollapsibleHeader,
   Spinner,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { sortBy } from "lodash";
 import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";

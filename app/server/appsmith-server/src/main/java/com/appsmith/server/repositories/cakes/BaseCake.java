@@ -4,12 +4,9 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Transient;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -31,12 +28,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUPS;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -162,27 +159,18 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     final CriteriaQuery<BaseDomain> cq = cb.createQuery(BaseDomain.class);
                     final Root<BaseDomain> root = cq.from(BaseDomain.class);
 
-                    try {
-                        Map<String, String> fnVars = new HashMap<>();
-                        fnVars.put("p", permission.getValue());
-                        final List<String> conditions = new ArrayList<>();
-                        for (var i = 0; i < permissionGroups.size(); i++) {
-                            fnVars.put("g" + i, permissionGroups.get(i));
-                            conditions.add("@ == $g" + i);
-                        }
-                        cq.where(cb.and(
-                                cb.equal(root.get(FieldName.ID), id),
-                                cb.function(
-                                        "jsonb_path_exists",
-                                        Boolean.class,
-                                        root.get(PermissionGroup.Fields.policies),
-                                        cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                                + String.join(" || ", conditions) + ")))"),
-                                        cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
-                    }
-
+                    cq.where(cb.and(
+                            cb.equal(root.get(FieldName.ID), id),
+                            cb.function(
+                                    "jsonb_exists_any",
+                                    Boolean.class,
+                                    cb.function(
+                                            "jsonb_extract_path",
+                                            String.class,
+                                            root.get(BaseDomain.Fields.policyMap),
+                                            cb.literal(permission.getValue()),
+                                            cb.literal(PERMISSION_GROUPS)),
+                                    cb.literal(permissionGroups.toArray(new String[0])))));
                     return (T) entityManager.createQuery(cq).getSingleResult();
                 })
                 .subscribeOn(Schedulers.boundedElastic());

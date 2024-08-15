@@ -25,7 +25,7 @@ import {
   ModalBody,
   Callout,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { getReadableSnapShotDetails } from "../../../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import styled from "styled-components";

@@ -11,7 +11,7 @@ import {
 } from "actions/widgetActions";
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
-import { TooltipComponent as Tooltip } from "design-system-old";
+import { TooltipComponent as Tooltip } from "@appsmith/ads-old";
 import { getSelectedWidgets } from "selectors/ui";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
@@ -23,7 +23,7 @@ import type { AppState } from "ee/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const POPUP_HEIGHT = 122;
 const POPUP_WIDTH = 38;

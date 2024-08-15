@@ -22,7 +22,7 @@ import {
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import FormControl from "../FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import type { QueryAction, SaaSAction } from "entities/Action";
 
 interface Props {

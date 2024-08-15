@@ -8,7 +8,7 @@ import {
   Text,
   MenuSeparator,
   Flex,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   ADD_NEW_WIDGET,
   CONNECT_EXISTING_WIDGET_LABEL,

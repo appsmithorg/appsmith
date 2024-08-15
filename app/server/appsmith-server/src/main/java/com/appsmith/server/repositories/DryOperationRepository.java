@@ -73,9 +73,14 @@ public class DryOperationRepository {
         return themeRepository.archiveAllById(themeIds);
     }
 
-    private Optional<List<Theme>> updateTheme(List<Theme> themes) {
-        themeRepository.bulkUpdate(themeRepository, themes);
-        return Optional.of(themes);
+    private List<Theme> updateTheme(List<Theme> themes) {
+        return themes.stream()
+                .map(themeToBeUpdated -> {
+                    return themeRepository
+                            .updateById(themeToBeUpdated.getId(), themeToBeUpdated, null, null)
+                            .orElse(null);
+                })
+                .toList();
     }
 
     private Optional<Application> updateApplication(Application application) {

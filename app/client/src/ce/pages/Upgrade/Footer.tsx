@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import type { FooterProps } from "./types";
 import {
   AVAILABLE_ON_BUSINESS,

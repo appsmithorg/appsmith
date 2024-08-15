@@ -23,6 +23,7 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -32,6 +33,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -45,6 +47,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FROM_DB;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITHOUT_BRANCH;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITH_BRANCH;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
@@ -57,6 +63,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     private final UserDataService userDataService;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final ObservationRegistry observationRegistry;
 
     @Autowired
     public NewPageServiceCEImpl(
@@ -67,12 +74,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             ApplicationService applicationService,
             UserDataService userDataService,
             ApplicationPermission applicationPermission,
-            PagePermission pagePermission) {
+            PagePermission pagePermission,
+            ObservationRegistry observationRegistry) {
         super(validator, repositoryDirect, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -110,7 +119,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
-        return repository.findById(pageId, aclPermission);
+        return repository
+                .findById(pageId, aclPermission)
+                .name(FETCH_PAGE_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -515,11 +527,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (!StringUtils.hasText(branchName)) {
             return this.findById(basePageId, permission)
+                    .name(GET_PAGE_WITHOUT_BRANCH)
+                    .tap(Micrometer.observation(observationRegistry))
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId)));
         }
         return repository
                 .findPageByBranchNameAndBasePageId(branchName, basePageId, permission)
+                .name(GET_PAGE_WITH_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId + ", " + branchName)));
     }
@@ -535,7 +551,9 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = pagePermission.getReadPermission();
         }
 
-        return this.findByBranchNameAndBasePageId(branchName, basePageId, permission);
+        return this.findByBranchNameAndBasePageId(branchName, basePageId, permission)
+                .name(GET_PAGE)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override

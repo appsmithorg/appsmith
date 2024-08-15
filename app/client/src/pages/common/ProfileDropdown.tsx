@@ -1,5 +1,5 @@
 import React from "react";
-import type { CommonComponentProps } from "design-system-old";
+import type { CommonComponentProps } from "@appsmith/ads-old";
 import { getInitials } from "utils/AppsmithUtils";
 import {
   Menu,
@@ -9,7 +9,7 @@ import {
   MenuTrigger,
   Text,
   Avatar,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 import type { PopperModifiers } from "@blueprintjs/core";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";

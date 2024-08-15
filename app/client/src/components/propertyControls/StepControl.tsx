@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { NumberInput } from "design-system";
+import { NumberInput } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,

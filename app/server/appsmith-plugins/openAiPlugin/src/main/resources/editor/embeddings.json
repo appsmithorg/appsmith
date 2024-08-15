@@ -35,7 +35,7 @@
     {
       "label": "Input",
       "tooltipText": "Provide the string or array of strings",
-      "subtitle" : "Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays.",
+      "subtitle": "Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays.",
       "propertyName": "input",
       "configProperty": "actionConfiguration.formData.input",
       "controlType": "QUERY_DYNAMIC_TEXT",
@@ -45,7 +45,7 @@
     {
       "label": "Encoding Format",
       "tooltipText": "Defaults to float",
-      "subtitle" : "The format to return the embeddings in. Can be either float or base64",
+      "subtitle": "The format to return the embeddings in. Can be either float or base64",
       "configProperty": "actionConfiguration.formData.encodingFormat",
       "controlType": "DROP_DOWN",
       "isRequired": false,

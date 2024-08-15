@@ -11,5 +11,5 @@ public interface ActionCollectionRepositoryCE
         extends BaseRepository<ActionCollection, String>, CustomActionCollectionRepository {
     List<ActionCollection> findByApplicationId(String applicationId);
 
-    List<IdPoliciesOnly> findIdsAndPoliciesByApplicationIdIn(List<String> applicationIds);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
 }

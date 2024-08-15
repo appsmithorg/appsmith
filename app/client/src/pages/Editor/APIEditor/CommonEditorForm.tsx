@@ -23,7 +23,7 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes } from "design-system-old";
+import { Classes } from "@appsmith/ads-old";
 import {
   Button,
   Callout,
@@ -34,7 +34,7 @@ import {
   TabPanel,
   Tooltip,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   API_EDITOR_TAB_TITLES,
   API_PANE_AUTO_GENERATED_HEADER,

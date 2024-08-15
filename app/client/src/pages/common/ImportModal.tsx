@@ -12,7 +12,7 @@ import {
   IMPORT_FROM_GIT_DISABLED_IN_ANVIL,
   UPLOADING_JSON,
 } from "ee/constants/messages";
-import { FilePickerV2, FileType } from "design-system-old";
+import { FilePickerV2, FileType } from "@appsmith/ads-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -26,7 +26,7 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import useMessages from "ee/hooks/importModal/useMessages";
 import useMethods from "ee/hooks/importModal/useMethods";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";

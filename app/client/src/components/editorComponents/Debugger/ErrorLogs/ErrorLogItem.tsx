@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
-import { Classes, getTypographyByKey } from "design-system-old";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
@@ -15,7 +15,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import moment from "moment";
 import LogHelper from "./components/LogHelper";
 import { toggleExpandErrorLogItem } from "actions/debuggerActions";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 
 const InnerWrapper = styled.div`
   display: flex;

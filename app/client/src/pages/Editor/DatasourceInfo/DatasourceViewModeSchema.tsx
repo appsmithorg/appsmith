@@ -8,7 +8,7 @@ import {
   getSelectedTableName,
 } from "ee/selectors/entitiesSelector";
 import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import {
   DATASOURCE_GENERATE_PAGE_BUTTON,
   createMessage,

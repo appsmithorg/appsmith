@@ -3,7 +3,7 @@ import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import SwitchEnvironment from "ee/components/SwitchEnvironment";
 import { Container, Wrapper } from "./components";
 import { useSelector } from "react-redux";

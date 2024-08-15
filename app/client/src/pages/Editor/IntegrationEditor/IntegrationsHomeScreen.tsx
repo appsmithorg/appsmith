@@ -11,8 +11,8 @@ import {
   getMockDatasources,
 } from "ee/selectors/entitiesSelector";
 import type { Datasource, MockDatasource } from "entities/Datasource";
-import type { TabProp } from "design-system-old";
-import { IconSize } from "design-system-old";
+import type { TabProp } from "@appsmith/ads-old";
+import { IconSize } from "@appsmith/ads-old";
 import { INTEGRATION_TABS, INTEGRATION_EDITOR_MODES } from "constants/routes";
 import BackButton from "../DataSourceEditor/BackButton";
 import UnsupportedPluginDialog from "./UnsupportedPluginDialog";
@@ -22,7 +22,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
-import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,

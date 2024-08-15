@@ -7,7 +7,7 @@ import { componentWillAppendToBody } from "react-append-to-body";
 import _, { debounce } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
-import { Divider } from "design-system";
+import { Divider } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";

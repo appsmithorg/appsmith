@@ -1,5 +1,5 @@
 import React from "react";
-import { NumberInput } from "design-system";
+import { NumberInput } from "@appsmith/ads";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";

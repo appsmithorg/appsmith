@@ -749,6 +749,16 @@ public class PageServiceTest {
                     assertThat(collections.get(0).getUnpublishedCollection().getPageId())
                             .isEqualTo(clonedPage.getId());
 
+                    NewAction actionWithCollection = actions.stream()
+                            .filter(newAction -> StringUtils.hasLength(
+                                    newAction.getUnpublishedAction().getCollectionId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    // Confirm that js action has correct collection id reference
+                    assertThat(actionWithCollection.getUnpublishedAction().getCollectionId())
+                            .isEqualTo(collections.get(0).getId());
+
                     // Check if the parent page collections are not altered
                     List<ActionCollection> parentPageCollections = tuple.getT4();
                     assertThat(parentPageCollections).hasSize(1);

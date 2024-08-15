@@ -8,7 +8,7 @@ import {
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { HighlightText, Table } from "design-system-old";
+import { HighlightText, Table } from "@appsmith/ads-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -16,8 +16,8 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "ee/actions/workspaceActions";
-import type { SelectOptionProps } from "design-system";
-import { Avatar, Button, Option, Select, Text } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Avatar, Button, Option, Select, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
@@ -12,7 +12,7 @@ import {
   OUTGOING_ENTITIES,
 } from "ee/constants/messages";
 import { Connection } from "../Debugger/EntityDependecies";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import Collapsible from "components/common/Collapsible";
 
 const ConnectionType = styled.span`

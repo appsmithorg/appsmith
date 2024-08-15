@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { flushErrors } from "actions/errorActions";
 
 import Page from "./Page";

@@ -19,7 +19,7 @@ import {
   getExplorerWidth,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";

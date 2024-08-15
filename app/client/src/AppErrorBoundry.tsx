@@ -4,7 +4,7 @@ import AppCrashImage from "assets/images/404-image.png";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   display: flex;

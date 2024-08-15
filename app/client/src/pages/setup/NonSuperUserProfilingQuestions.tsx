@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import {
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_NON_SUPER_FORM_NAME,

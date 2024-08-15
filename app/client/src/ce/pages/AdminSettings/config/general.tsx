@@ -11,7 +11,7 @@ import {
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
-import { TagInput } from "design-system-old";
+import { TagInput } from "@appsmith/ads-old";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";

@@ -10,13 +10,13 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import styled from "styled-components";
-import { emailValidator } from "design-system-old";
+import { emailValidator } from "@appsmith/ads-old";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import { Checkbox, Input, Text } from "design-system";
+import { Checkbox, Input, Text } from "@appsmith/ads";
 
 const InputContainer = styled.div`
   display: flex;

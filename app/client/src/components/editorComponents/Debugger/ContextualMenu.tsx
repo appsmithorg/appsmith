@@ -19,7 +19,7 @@ import {
   MenuItem,
   MenuTrigger,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 

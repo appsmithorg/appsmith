@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { createMessage, APP_NAVIGATION_SETTING } from "ee/constants/messages";
 import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
 import { useDispatch, useSelector } from "react-redux";
