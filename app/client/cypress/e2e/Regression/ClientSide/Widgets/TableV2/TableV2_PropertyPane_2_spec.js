@@ -200,7 +200,6 @@ describe(
 
       // Check for currentRow property on Regex field
       propPane.UpdatePropertyFieldValue("Regex", "{{currentRow.id}}");
-      agHelper.Sleep(500);
       table.EditTableCell(1, 4, 20, false);
       cy.get(".bp3-popover-content").should("not.exist");
       table.UpdateTableCell(1, 4, 8);
