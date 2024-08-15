@@ -1183,7 +1183,7 @@ public class PostgresPlugin extends BasePlugin {
 
         if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
             for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                hosts.add(endpoint.getHost() + ":" + endpoint.getPort());
+                hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L));
             }
         } else {
             ConnectionContext<HikariDataSource> connectionContext;
