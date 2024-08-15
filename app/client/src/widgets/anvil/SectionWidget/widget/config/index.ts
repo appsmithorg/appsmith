@@ -4,6 +4,7 @@ import { defaultConfig } from "./defaultConfig";
 import { propertyPaneContent } from "./propertyPaneContent";
 import { propertyPaneStyle } from "./propertyPaneStyle";
 import { methodsConfig } from "./methodsConfig";
+import { autocompleteConfig } from "./autocompleteConfig";
 
 export {
   anvilConfig,
@@ -12,4 +13,5 @@ export {
   propertyPaneContent,
   propertyPaneStyle,
   methodsConfig,
+  autocompleteConfig,
 };

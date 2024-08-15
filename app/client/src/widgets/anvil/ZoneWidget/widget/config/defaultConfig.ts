@@ -22,6 +22,7 @@ export const defaultConfig: WidgetDefaultProps = {
   rows: 0,
   version: 1,
   widgetName: "Zone",
+  isVisible: true,
   blueprint: {
     operations: [
       {
