@@ -626,7 +626,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }`}
         elementRef={buttonRef}
         onKeyDown={handleKeydown}
-        rightIcon={<Icon name="down-arrow" size="lg" />}
+        rightIcon={<Icon name="down-arrow" size="md" />}
         text={
           selectedLabelModifier
             ? selectedLabelModifier(selectedOptionFromProps, displayValue)
