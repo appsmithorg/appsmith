@@ -1,6 +1,6 @@
 import localStorage from "utils/localStorage";
 import { GridDefaults } from "./WidgetConstants";
-import { APP_MAX_WIDTH } from "@design-system/theming";
+import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
 
 export const CANVAS_DEFAULT_HEIGHT_PX = 1292;
 export const CANVAS_DEFAULT_MIN_HEIGHT_PX = 380;
@@ -101,7 +101,7 @@ export interface ThemeSetting {
   sizing: number;
   fontFamily: string;
   iconStyle: "FILLED" | "OUTLINED";
-  appMaxWidth: APP_MAX_WIDTH;
+  appMaxWidth: AppMaxWidth;
 }
 
 export type StringsFromNavigationSetting = Omit<

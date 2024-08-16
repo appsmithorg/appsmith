@@ -5,7 +5,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverModalContent,
-} from "@design-system/headless";
+} from "@appsmith/wds-headless";
 import { Button } from "react-aria-components";
 import { ControlledPopover as ControlledPopoverExample } from "./ControlledPopover";
 

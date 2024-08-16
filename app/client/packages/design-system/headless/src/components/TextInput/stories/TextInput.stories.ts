@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { TextInput } from "@design-system/headless";
+import { TextInput } from "@appsmith/wds-headless";
 
 /**
  * TextInput component allows users to input text. It is mostly used in forms.

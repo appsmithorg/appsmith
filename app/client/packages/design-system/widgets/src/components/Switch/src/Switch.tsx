@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { Text } from "@design-system/widgets";
+import { Text } from "@appsmith/wds";
 import { Checkbox as HeadlessCheckbox } from "react-aria-components";
 import styles from "./styles.module.css";
 import type { ForwardedRef } from "react";
