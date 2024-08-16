@@ -78,7 +78,7 @@
     border-block-end: var(--border-width-1) solid var(--color-bd);
   }
 
-  & thead [role="columnheader"]:is([aria-hidden]) {
+  & thead [role="columnheader"][aria-hidden] {
     opacity: var(--opacity-disabled);
   }
 
@@ -155,7 +155,7 @@
     background-color: var(--color-bg-elevation-3);
   }
 
-  & [role="cell"]:is([aria-hidden]) {
+  & [role="cell"][aria-hidden] {
     opacity: var(--opacity-disabled);
   }
 
