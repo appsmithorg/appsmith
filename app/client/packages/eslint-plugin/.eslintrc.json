@@ -1,3 +1,4 @@
 {
+  "ignorePatterns": ["dist/*"],
   "extends": ["../../.eslintrc.base.json"]
 }
