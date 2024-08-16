@@ -87,15 +87,8 @@ public class TransactionAspect {
                         //      - If end up in switchIfEmpty means no object is present in the DB and should mark this
                         //         as a new object and store the object in DB
                         //      - If object is present in the DB, then store the initial state in the context
-                        if (isArchiveOp((MethodSignature) joinPoint.getSignature())) {
-                            addEntityToMapUpdateAndArchiveOp(transactionContext, entityData);
-                            return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
-                        }
 
                         BaseDomain domain = entityData.getBaseDomain();
-                        if (domain.getId() == null) {
-                            domain.setId(generateId());
-                        }
                         addEntityToContextMap(transactionContext, domain, entityData);
                         return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
                     }
@@ -122,15 +115,7 @@ public class TransactionAspect {
                         if (!isInsertOp) {
                             return flux.map(obj -> updateContextMapWithReadOperation(transactionContext, obj));
                         } else {
-                            if (isArchiveOp((MethodSignature) joinPoint.getSignature())) {
-                                addEntityToMapUpdateAndArchiveOp(transactionContext, entityData);
-                                return flux;
-                            }
-
                             BaseDomain domain = entityData.getBaseDomain();
-                            if (domain.getId() == null) {
-                                domain.setId(generateId());
-                            }
                             addEntityToContextMap(transactionContext, domain, entityData);
                             return flux;
                         }
@@ -164,6 +149,25 @@ public class TransactionAspect {
                 entityData.setUpdate((BridgeUpdate) arg);
             }
         }
+
+        if (entityData.getBaseDomain() != null) {
+            // When the update method is called with id not present in baseDomain
+            if (entityData.getBaseDomain().getId() == null && entityData.getId() != null) {
+                entityData.getBaseDomain().setId(entityData.getId());
+            } else if (entityData.getBaseDomain().getId() == null && entityData.getId() == null) {
+                // When the object is new and not present in the DB, we need to generate the id
+                entityData.getBaseDomain().setId(generateId());
+                entityData.setId(entityData.getBaseDomain().getId());
+            }
+        } else if (entityData.getUpdate() != null) {
+            // When the updateById is called with the BridgeUpdate object
+            entityData.setBaseDomain(new BaseDomain() {});
+            entityData.getBaseDomain().setId(entityData.getId());
+        } else if (entityData.getId() != null) {
+            // When the id is passed as a parameter to the method for archiveById or deleteById
+            entityData.setBaseDomain(new BaseDomain() {});
+            entityData.getBaseDomain().setId(entityData.getId());
+        }
         return entityData;
     }
 
@@ -183,16 +187,6 @@ public class TransactionAspect {
     // To Support the mongo _ids as well
     private boolean isObjectIdString(String id) {
         return OBJECTID_PATTERN.matcher(id).matches();
-    }
-
-    private void addEntityToMapUpdateAndArchiveOp(Map<String, DBOps> transactionContext, EntityData entityData) {
-        BaseDomain domainObject = new BaseDomain() {};
-        if (entityData.getBaseDomain() != null) {
-            domainObject = entityData.getBaseDomain();
-        } else {
-            domainObject.setId(entityData.getId());
-        }
-        addEntityToContextMap(transactionContext, domainObject, entityData);
     }
 
     private Object updateContextMapWithReadOperation(Map<String, DBOps> transactionContext, Object obj) {
@@ -219,23 +213,6 @@ public class TransactionAspect {
         dbOps.setEntity(obj);
         if (transactionContext.containsKey(getObjectId(dbOps))) {
             return;
-        }
-
-        // Archive method needs to handled with id or without BaseDomain object
-        BaseDomain domain = (BaseDomain) obj;
-        if (domain.getId() == null) {
-            if (entityData.getBaseDomain() != null) {
-                String id = entityData.getBaseDomain().getId() != null
-                        ? entityData.getBaseDomain().getId()
-                        : entityData.getId();
-                if (id != null) {
-                    domain.setId(id);
-                } else {
-                    domain.setId(generateId());
-                }
-            } else {
-                domain.setId(generateId());
-            }
         }
 
         Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
