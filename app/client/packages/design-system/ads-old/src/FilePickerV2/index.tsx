@@ -14,7 +14,6 @@ import {
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
 } from "../constants/messages";
-import { Classes } from "../constants/classes";
 import { importSvg } from "../utils/icon-loadables";
 
 const UploadSuccessIcon = importSvg(
@@ -172,20 +171,10 @@ export const ContainerDiv = styled.div<{
       bottom: 0;
       border-radius: 0 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius);
     }
-    a {
+    .ads-v2-button {
       width: 110px;
       margin: var(--ads-spaces-13) var(--ads-spaces-3) var(--ads-spaces-3) auto;
-      color: var(--ads-v2-color-fg);
-      border-radius: var(--ads-v2-border-radius);
-      border-color: var(--ads-v2-color-border);
-      text-transform: capitalize;
-      background: var(--ads-v2-color-bg);
-      .${Classes.ICON} {
-        margin-right: calc(var(--ads-spaces-2) - 1px);
-      }
-      &:hover {
-        background: var(--ads-v2-color-bg-subtle);
-      }
+      display: flex;
     }
   }
 
@@ -437,7 +426,7 @@ function FilePickerComponent(props: FilePickerProps) {
             className="browse-button"
             kind="secondary"
             onClick={(el: React.MouseEvent<HTMLElement>) => ButtonClick(el)}
-            size="md"
+            size="sm"
           >
             Browse
           </Button>
@@ -464,12 +453,12 @@ function FilePickerComponent(props: FilePickerProps) {
           </div>
         </div>
       </div>
-      <div className="remove-button">
+      <div className="remove-button" data-testid="t--remove-logo">
         <div className="overlay" />
         <Button
           kind="secondary"
           onClick={() => removeFile()}
-          size="md"
+          size="sm"
           startIcon="delete"
         >
           Remove
