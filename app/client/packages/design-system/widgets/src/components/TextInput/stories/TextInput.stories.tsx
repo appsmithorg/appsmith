@@ -8,7 +8,7 @@ import {
   Menu,
   MenuTrigger,
   TextInput,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 
 /**
  * TextInput is a component that allows users to input text.

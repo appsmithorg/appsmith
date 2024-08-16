@@ -1,7 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Modal } from "@design-system/widgets";
-import { ModalHeader, ModalFooter, ModalContent } from "@design-system/widgets";
+import { Modal } from "@appsmith/wds";
+import { ModalHeader, ModalFooter, ModalContent } from "@appsmith/wds";
 import { SimpleModal } from "./SimpleModal";
 import { ModalExamples } from "./ModalExamples";
 import { CustomModal as CustomModalExample } from "./CustomModal";
