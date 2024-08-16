@@ -329,11 +329,13 @@ export interface RichtextEditorComponentProps {
   labelStyle?: string;
   isValid?: boolean;
   onValueChange: (valueAsString: string) => void;
+  disablePluginTypes: string[];
 }
 
 function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const {
     compactMode,
+    disablePluginTypes,
     isDisabled,
     isDynamicHeightEnabled,
     labelAlignment,
@@ -351,7 +353,35 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
 
   const toolbarConfig =
     "insertfile undo redo | blocks | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons | code | help";
+  const filterToolbarConfig = (toolbar: string, disabledPlugins: string[]) => {
+    const toolbarItems = toolbar.split("|").map((group) => group.trim());
 
+    const filteredToolbarItems = toolbarItems.map((group) => {
+      const buttons = group.split(" ").filter((button) => {
+        return !disabledPlugins?.some((plugin) => {
+          return button.includes(plugin);
+        });
+      });
+      return buttons.join(" ");
+    });
+
+    return filteredToolbarItems.filter((group) => group !== "").join(" | ");
+  };
+
+  const filteredToolbarConfig =
+    disablePluginTypes && Array.isArray(disablePluginTypes)
+      ? filterToolbarConfig(toolbarConfig, disablePluginTypes)
+      : toolbarConfig;
+
+  let toolbar: string | false;
+
+  if (props.isToolbarHidden) {
+    toolbar = false;
+  } else if (disablePluginTypes?.length > 0) {
+    toolbar = filteredToolbarConfig;
+  } else {
+    toolbar = toolbarConfig;
+  }
   const handleEditorChange = useCallback(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -484,9 +514,9 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               });
             },
           }}
-          key={`editor_${props.isToolbarHidden}_${props.isDisabled}`}
+          key={`editor_${props.isToolbarHidden}_${props.isDisabled}_${props.disablePluginTypes?.join("_")}`}
           onEditorChange={handleEditorChange}
-          toolbar={props.isToolbarHidden ? false : toolbarConfig}
+          toolbar={toolbar}
           value={editorValue}
         />
       </RichTextEditorInputWrapper>

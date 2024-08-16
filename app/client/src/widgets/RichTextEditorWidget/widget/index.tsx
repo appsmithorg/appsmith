@@ -331,6 +331,56 @@ class RichTextEditorWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "disablePluginTypes",
+            helpText: "Disables plugins from RTE",
+            label: "Disabled plugin types",
+            controlType: "DROP_DOWN",
+            isMultiSelect: true,
+            placeholderText: "Select plugin types",
+            options: [
+              { label: "Insert File", value: "insertfile" },
+              { label: "Undo", value: "undo" },
+              { label: "Redo", value: "redo" },
+              { label: "Blocks", value: "blocks" },
+              { label: "Bold", value: "bold" },
+              { label: "Italic", value: "italic" },
+              { label: "Underline", value: "underline" },
+              { label: "Backcolor", value: "backcolor" },
+              { label: "Forecolor", value: "forecolor" },
+              { label: "Lineheight", value: "lineheight" },
+              { label: "Align Left", value: "alignleft" },
+              { label: "Align Center", value: "aligncenter" },
+              { label: "Align Right", value: "alignright" },
+              { label: "Align Justify", value: "alignjustify" },
+              { label: "Bullist", value: "bullist" },
+              { label: "Numlist", value: "numlist" },
+              { label: "Outdent", value: "outdent" },
+              { label: "Indent", value: "indent" },
+              { label: "Link", value: "link" },
+              { label: "Image", value: "image" },
+              { label: "Remove Format", value: "removeformat" },
+              { label: "Table", value: "table" },
+              { label: "Print", value: "print" },
+              { label: "Preview", value: "preview" },
+              { label: "Media", value: "media" },
+              { label: "Emoticons", value: "emoticons" },
+              { label: "Code", value: "code" },
+              { label: "Help", value: "help" },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                unique: true,
+                children: {
+                  type: ValidationTypes.TEXT,
+                },
+              },
+            },
+          },
         ],
       },
 
@@ -543,6 +593,7 @@ class RichTextEditorWidget extends BaseWidget<
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           compactMode={isCompactMode(componentHeight)}
+          disablePluginTypes={this.props.disablePluginTypes}
           isDisabled={this.props.isDisabled}
           isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
@@ -589,6 +640,7 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   labelStyle?: string;
   isDirty: boolean;
   labelComponentWidth?: number;
+  disablePluginTypes: string[];
 }
 
 export default RichTextEditorWidget;
