@@ -91,7 +91,7 @@ interface PageElementTypeMap {
 }
 
 export const generatePageElementId = (prefix = ""): string =>
-  `${prefix}_${generate("1234567890abcdefghijklmnopqrstuvwxyz", 10)}`;
+  [prefix, generate("1234567890abcdefghijklmnopqrstuvwxyz", 10)].join("_");
 
 /**
  * Checks if a PageElement is of a given type and narrows the type
