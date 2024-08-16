@@ -7,7 +7,7 @@ import { Checkbox, Flex } from "@appsmith/wds";
  */
 const meta: Meta<typeof Checkbox> = {
   component: Checkbox,
-  title: "Design-system/Widgets/Checkbox",
+  title: "WDS/Widgets/Checkbox",
 };
 
 export default meta;
