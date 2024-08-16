@@ -751,8 +751,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     // No need to handle the edge case of unpublished action not being present. This is not possible
                     // because every created action starts from an unpublishedAction state.
-
-                    return Mono.just(action);
+                    log.debug("filter called");
+                    return Mono.just(action)
+                            .name(VIEW_MODE_FILTER_ACTION)
+                            .tap(Micrometer.observation(observationRegistry));
                 })
                 .name(VIEW_MODE_FILTER_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
@@ -1079,8 +1081,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     action != null ? action.getId() : null);
             actionMono = providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action);
         }
-
-        return actionMono;
+        log.debug("Sanitise called");
+        return actionMono.name(VIEW_MODE_SANITISE_ACTION).tap(Micrometer.observation(observationRegistry));
     }
 
     public Flux<NewAction> addMissingPluginDetailsIntoAllActions(List<NewAction> actionList) {

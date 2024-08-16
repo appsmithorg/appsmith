@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,6 +44,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTIONS_VIEW_MODE_PREFIX;
 import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -87,11 +89,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public static final int NO_SKIP = 0;
 
-    @SuppressWarnings("unchecked")
     public BaseAppsmithRepositoryCEImpl() {
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }
+    ;
 
     public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
         return Bridge.and(
@@ -216,41 +218,50 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
         return queryAllExecute(params, this.genericDomain)
-                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
+                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups())
+                        .name(ACTIONS_VIEW_MODE_PREFIX + "set_permissions")
+                        .tap(Micrometer.observation(params.getObservationRegistry())));
     }
 
     public <P> Flux<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
-        return ensurePermissionGroupsInParams(params).thenMany(Flux.defer(() -> {
-            final AclPermission permission = params.getPermission();
-            final Set<String> permissionGroups = params.getPermissionGroups();
+        return ensurePermissionGroupsInParams(params)
+                .thenMany(Flux.defer(() -> {
+                    final AclPermission permission = params.getPermission();
+                    final Set<String> permissionGroups = params.getPermissionGroups();
 
-            if (permission != null && CollectionUtils.isEmpty(permissionGroups)) {
-                // There's a permission we want to check, but there's zero permission groups to check against. The
-                // resulting query will _always_ be `false`. So returning an early response, without hitting the DB.
-                return Flux.empty();
-            }
+                    if (permission != null && CollectionUtils.isEmpty(permissionGroups)) {
+                        // There's a permission we want to check, but there's zero permission groups to check against.
+                        // The
+                        // resulting query will _always_ be `false`. So returning an early response, without hitting the
+                        // DB.
+                        return Flux.empty();
+                    }
 
-            final Query query =
-                    createQueryWithPermission(params.getCriteria(), params.getFields(), permissionGroups, permission);
+                    final Query query = createQueryWithPermission(
+                            params.getCriteria(), params.getFields(), permissionGroups, permission);
 
-            if (params.getSkip() > NO_SKIP) {
-                query.skip(params.getSkip());
-            }
+                    if (params.getSkip() > NO_SKIP) {
+                        query.skip(params.getSkip());
+                    }
 
-            if (params.getLimit() != NO_RECORD_LIMIT) {
-                query.limit(params.getLimit());
-            }
+                    if (params.getLimit() != NO_RECORD_LIMIT) {
+                        query.limit(params.getLimit());
+                    }
 
-            if (params.getSort() != null) {
-                query.with(params.getSort());
-            }
-
-            return mongoOperations
-                    .query(this.genericDomain)
-                    .as(projectionClass)
-                    .matching(query.cursorBatchSize(10_000))
-                    .all();
-        }));
+                    if (params.getSort() != null) {
+                        query.with(params.getSort());
+                    }
+                    System.out.println("Mongo query called");
+                    return mongoOperations
+                            .query(this.genericDomain)
+                            .as(projectionClass)
+                            .matching(query.cursorBatchSize(10_000))
+                            .all()
+                            .name(ACTIONS_VIEW_MODE_PREFIX + "query_run")
+                            .tap(Micrometer.observation(params.getObservationRegistry()));
+                }))
+                .name(ACTIONS_VIEW_MODE_PREFIX + "query_execute")
+                .tap(Micrometer.observation(params.getObservationRegistry()));
     }
 
     public Mono<T> queryOneExecute(QueryAllParams<T> params) {
@@ -404,7 +415,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         params.getPermission(), params.isIncludeAnonymousUserPermissions())
                 .defaultIfEmpty(Collections.emptySet())
                 .map(params::permissionGroups)
-                .then();
+                .then()
+                .name(ACTIONS_VIEW_MODE_PREFIX + "params_permission")
+                .tap(Micrometer.observation(params.getObservationRegistry()));
     }
 
     public Mono<T> setUserPermissionsInObject(T obj) {

@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Sort;
@@ -35,6 +36,7 @@ public class QueryAllParams<T extends BaseDomain> {
     private Sort sort;
     private int limit = NO_RECORD_LIMIT;
     private int skip = NO_SKIP;
+    private ObservationRegistry observationRegistry;
 
     /**
      * When this flag is true, permission checks will include the affects of anonymous user permissions. This is the
@@ -146,6 +148,11 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> sort(Sort sort) {
         this.sort = sort;
+        return this;
+    }
+
+    public QueryAllParams<T> observe(ObservationRegistry observationRegistry) {
+        this.observationRegistry = observationRegistry;
         return this;
     }
 

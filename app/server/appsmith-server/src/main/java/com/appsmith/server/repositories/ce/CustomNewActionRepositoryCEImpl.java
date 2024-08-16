@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.ACTIONS_VIEW_MODE_PREFIX;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -199,7 +200,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
                 .sort(sort)
-                .all();
+                .observe(observationRegistry)
+                .all()
+                .name(ACTIONS_VIEW_MODE_PREFIX + "db_call")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     protected BridgeQuery<NewAction> getCriterionForFindByApplicationId(String applicationId) {
