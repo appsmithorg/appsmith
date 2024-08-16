@@ -19,8 +19,10 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.ARCHIVE;
+import static com.appsmith.server.constants.ce.FieldNameCE.DELETE;
 import static com.appsmith.server.constants.ce.FieldNameCE.FIND;
 import static com.appsmith.server.constants.ce.FieldNameCE.TRANSACTION_CONTEXT;
 
@@ -31,6 +33,8 @@ import static com.appsmith.server.constants.ce.FieldNameCE.TRANSACTION_CONTEXT;
 public class TransactionAspect {
 
     private final RepositoryFactory repositoryFactory;
+
+    Pattern OBJECTID_PATTERN = Pattern.compile("^[0-9a-fA-F]{24}$"); // 24 character hex string
 
     @Around("execution(* com.appsmith.server.repositories.cakes..*(..))")
     public Object handleTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -83,9 +87,8 @@ public class TransactionAspect {
                         //      - If end up in switchIfEmpty means no object is present in the DB and should mark this
                         //         as a new object and store the object in DB
                         //      - If object is present in the DB, then store the initial state in the context
-                        if ((entityData.getUpdate() != null && isUpdateOp(entityData.getUpdate()))
-                                || (isArchiveOp((MethodSignature) joinPoint.getSignature()))) {
-                            addEntityToMapUpdateAndArchiveOp(transactionContext, entityData.getId());
+                        if (isArchiveOp((MethodSignature) joinPoint.getSignature())) {
+                            addEntityToMapUpdateAndArchiveOp(transactionContext, entityData);
                             return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
                         }
 
@@ -93,7 +96,7 @@ public class TransactionAspect {
                         if (domain.getId() == null) {
                             domain.setId(generateId());
                         }
-                        addEntityToContextMap(transactionContext, domain);
+                        addEntityToContextMap(transactionContext, domain, entityData);
                         return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()));
                     }
 
@@ -119,9 +122,8 @@ public class TransactionAspect {
                         if (!isInsertOp) {
                             return flux.map(obj -> updateContextMapWithReadOperation(transactionContext, obj));
                         } else {
-                            if ((entityData.getUpdate() != null && isUpdateOp(entityData.getUpdate()))
-                                    || (isArchiveOp((MethodSignature) joinPoint.getSignature()))) {
-                                addEntityToMapUpdateAndArchiveOp(transactionContext, entityData.getId());
+                            if (isArchiveOp((MethodSignature) joinPoint.getSignature())) {
+                                addEntityToMapUpdateAndArchiveOp(transactionContext, entityData);
                                 return flux;
                             }
 
@@ -129,7 +131,7 @@ public class TransactionAspect {
                             if (domain.getId() == null) {
                                 domain.setId(generateId());
                             }
-                            addEntityToContextMap(transactionContext, domain);
+                            addEntityToContextMap(transactionContext, domain, entityData);
                             return flux;
                         }
                     }
@@ -156,7 +158,7 @@ public class TransactionAspect {
         for (Object arg : args) {
             if (arg instanceof BaseDomain domain) {
                 entityData.setBaseDomain(domain);
-            } else if (arg instanceof String && isUUIDString((String) arg)) {
+            } else if (arg instanceof String && (isUUIDString((String) arg) || isObjectIdString((String) arg))) {
                 entityData.setId((String) arg);
             } else if (arg instanceof BridgeUpdate) {
                 entityData.setUpdate((BridgeUpdate) arg);
@@ -178,10 +180,19 @@ public class TransactionAspect {
         }
     }
 
-    private void addEntityToMapUpdateAndArchiveOp(Map<String, DBOps> transactionContext, String id) {
+    // To Support the mongo _ids as well
+    private boolean isObjectIdString(String id) {
+        return OBJECTID_PATTERN.matcher(id).matches();
+    }
+
+    private void addEntityToMapUpdateAndArchiveOp(Map<String, DBOps> transactionContext, EntityData entityData) {
         BaseDomain domainObject = new BaseDomain() {};
-        domainObject.setId(id);
-        addEntityToContextMap(transactionContext, domainObject);
+        if (entityData.getBaseDomain() != null) {
+            domainObject = entityData.getBaseDomain();
+        } else {
+            domainObject.setId(entityData.getId());
+        }
+        addEntityToContextMap(transactionContext, domainObject, entityData);
     }
 
     private Object updateContextMapWithReadOperation(Map<String, DBOps> transactionContext, Object obj) {
@@ -198,7 +209,7 @@ public class TransactionAspect {
         return obj;
     }
 
-    private void addEntityToContextMap(Map<String, DBOps> transactionContext, Object obj) {
+    private void addEntityToContextMap(Map<String, DBOps> transactionContext, Object obj, EntityData entityData) {
         AppsmithRepository<?> repository = getDomainClassFromObject(obj);
         if (repository == null) {
             log.error(" Unable to find the repository for the entity {}", obj.getClass());
@@ -209,6 +220,24 @@ public class TransactionAspect {
         if (transactionContext.containsKey(getObjectId(dbOps))) {
             return;
         }
+
+        // Archive method needs to handled with id or without BaseDomain object
+        BaseDomain domain = (BaseDomain) obj;
+        if (domain.getId() == null) {
+            if (entityData.getBaseDomain() != null) {
+                String id = entityData.getBaseDomain().getId() != null
+                        ? entityData.getBaseDomain().getId()
+                        : entityData.getId();
+                if (id != null) {
+                    domain.setId(id);
+                } else {
+                    domain.setId(generateId());
+                }
+            } else {
+                domain.setId(generateId());
+            }
+        }
+
         Optional<?> entity = repository.getById(((BaseDomain) obj).getId());
         dbOps = new DBOps();
         if (entity.isPresent()) {
@@ -242,7 +271,8 @@ public class TransactionAspect {
     }
 
     private boolean isArchiveOp(MethodSignature signature) {
-        return signature.getMethod().getName().contains(ARCHIVE);
+        return signature.getMethod().getName().contains(ARCHIVE)
+                || signature.getMethod().getName().contains(DELETE);
     }
 
     // TODO - remove this method, used only for testing the validity of the new method

@@ -212,4 +212,6 @@ public class FieldNameCE {
 
     public static final String FIND = "find";
     public static final String ARCHIVE = "archive";
+
+    public static final String DELETE = "delete";
 }
