@@ -1,5 +1,5 @@
 import { Keys } from "@blueprintjs/core";
-import { TextInput } from "@design-system/widgets";
+import { TextInput } from "@appsmith/wds";
 import React, { useCallback, useEffect, useState } from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 

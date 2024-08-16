@@ -306,7 +306,6 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload.mode,
       action.payload.mode,
     );
-    engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload, rootSpan);
 
     const getInitResponsesSpan = startNestedSpan(
@@ -344,7 +343,6 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield call(engine.loadGit, applicationId, rootSpan);
     yield call(engine.completeChore, rootSpan);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
-    engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
     if (e instanceof AppEngineApiError) return;
