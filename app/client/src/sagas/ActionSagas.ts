@@ -24,7 +24,7 @@ import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL, WidgetTypes } from "@appsmith/sagas/PageSagas";
+import { updateCanvasWithDSL, WidgetTypes } from "ee/sagas/PageSagas";
 
 import {
   closeQueryActionTab,
@@ -148,7 +148,7 @@ import {
   setShowQueryCreateNewModal,
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import {
   getCurrentWidgetId,
   getFocusablePropertyPaneField,

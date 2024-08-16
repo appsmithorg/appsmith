@@ -19,7 +19,7 @@ import {
   MenuItem,
   MenuSeparator,
   MenuTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import { ControlContext } from "./ControlContext";
 
 function findConfigByLabel(

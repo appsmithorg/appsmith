@@ -1,10 +1,10 @@
 import React, { useCallback } from "react";
-import { Button, Flex } from "design-system";
+import { Button, Flex } from "@appsmith/ads";
 import PropertySelector from "./PropertySelector";
 import { useDispatch, useSelector } from "react-redux";
 import { updateFloatingPane } from "./actions";
 import history from "utils/history";
-import { widgetURL } from "@appsmith/RouteBuilder";
+import { widgetURL } from "ee/RouteBuilder";
 import { getFloatingPaneSelectedWidget } from "./selectors";
 
 const Toolbar = () => {
@@ -21,7 +21,7 @@ const Toolbar = () => {
   return (
     <Flex
       alignItems="center"
-      direction="column"
+      flexDirection="column"
       justifyContent="space-between"
       paddingBottom="spaces-3"
       width={"256px"}

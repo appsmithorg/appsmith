@@ -4,19 +4,15 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { Icon, Text, Tooltip } from "design-system";
+import { Icon, Text, Tooltip } from "@appsmith/ads";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import { updateFloatingPane } from "pages/Editor/IDE/FloatingPane/actions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { isPropertyPaneActiveForWidget } from "pages/Editor/IDE/FloatingPane/selectors";
 import type { WidgetType } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
-import { Icon, Text, Tooltip } from "@appsmith/ads";
 
 // I honestly can't think of a better name for this enum
 export enum Activities {
