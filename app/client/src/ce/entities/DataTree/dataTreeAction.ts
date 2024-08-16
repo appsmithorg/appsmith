@@ -20,6 +20,11 @@ export const generateDataTreeAction = (
   unEvalEntity: ActionEntity;
   configEntity: ActionEntityConfig;
 } => {
+  console.log(">>> generateDataTreeAction", {
+    action,
+    editorConfig,
+    dependencyConfig,
+  });
   let dynamicBindingPathList: DynamicPath[] = [];
   let datasourceUrl = "";
 

@@ -17,3 +17,5 @@ export interface EvalError {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>;
 }
+
+export type DependencyMap = Record<string, string[]>;

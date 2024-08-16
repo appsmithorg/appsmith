@@ -1,0 +1,6 @@
+export enum ENTITY_TYPE {
+  ACTION = "ACTION",
+  WIDGET = "WIDGET",
+  APPSMITH = "APPSMITH",
+  JSACTION = "JSACTION",
+}
