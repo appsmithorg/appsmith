@@ -17,7 +17,7 @@
     "cypress",
     "testing-library",
     "jest",
-     "@appsmith"
+    "@appsmith"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
@@ -25,10 +25,10 @@
     "plugin:cypress/recommended",
     "plugin:testing-library/react",
     "plugin:react-hooks/recommended",
+    "plugin:@appsmith/recommended",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
-    "plugin:prettier/recommended",
-    "plugin:@appsmith/recommended"
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features

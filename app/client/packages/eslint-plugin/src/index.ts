@@ -1,6 +1,6 @@
-import { rule as objectKeysRule } from "./object-keys/rule";
+import { objectKeysRule } from "./object-keys/rule";
 
-module.exports = {
+const plugin = {
   rules: {
     "object-keys": objectKeysRule,
   },
@@ -12,3 +12,5 @@ module.exports = {
     },
   },
 };
+
+export = plugin;

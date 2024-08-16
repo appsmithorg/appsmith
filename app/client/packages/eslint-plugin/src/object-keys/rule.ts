@@ -1,6 +1,6 @@
-import { TSESLint } from "@typescript-eslint/utils";
+import type { TSESLint } from "@typescript-eslint/utils";
 
-export const rule: TSESLint.RuleModule<"useObjectKeys"> = {
+export const objectKeysRule: TSESLint.RuleModule<"useObjectKeys"> = {
   defaultOptions: [],
   meta: {
     type: "suggestion",

@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@appsmith/utils": "workspace:^",
-    "@design-system/headless": "workspace:^",
-    "@design-system/theming": "workspace:^",
+    "@appsmith/wds-headless": "workspace:^",
+    "@appsmith/wds-theming": "workspace:^",
     "@emotion/css": "^11.11.2",
     "@react-aria/actiongroup": "^3.7.0",
     "@react-aria/utils": "^3.16.0",

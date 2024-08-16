@@ -1,9 +1,9 @@
 import { TSESLint } from "@typescript-eslint/utils";
-import { rule } from "./rule";
+import { objectKeysRule } from "./rule";
 
 const ruleTester = new TSESLint.RuleTester();
 
-ruleTester.run("object-keys", rule, {
+ruleTester.run("object-keys", objectKeysRule, {
   valid: [
     {
       code: "objectKeys({ 'a': 'b' })",
