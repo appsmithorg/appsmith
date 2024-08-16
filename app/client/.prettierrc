@@ -1,9 +1,21 @@
 {
+	"plugins": [
+		"@trivago/prettier-plugin-sort-imports"
+	],
 	"printWidth": 80,
 	"tabWidth": 2,
 	"useTabs": false,
 	"semi": true,
 	"singleQuote": false,
 	"trailingComma": "all",
-	"arrowParens": "always"
+	"arrowParens": "always",
+	"importOrder": [
+		"^react$",
+		"^react-dom$",
+		"^@appsmith/.*$",
+		"<THIRD_PARTY_MODULES>",
+		"^[./]"
+	],
+	"importOrderSeparation": true,
+	"importOrderSortSpecifiers": true
 }
