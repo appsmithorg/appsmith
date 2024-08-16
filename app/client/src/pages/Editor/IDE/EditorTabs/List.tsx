@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 
 import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
+import { EditorEntityTab } from "ee/entities/IDE/constants";
 import ListQuery from "../EditorPane/Query/List";
 import ListJSObjects from "../EditorPane/JS/List";
 
@@ -24,9 +24,9 @@ export const List = () => {
   return (
     <ListContainer
       bg="var(--ads-v2-color-bg)"
-      className="absolute top-[78px]"
+      className="absolute top-[36px]" // space for tabs on top and then some padding
       data-testid="t--editorpane-list-view"
-      h="calc(100% - 78px)"
+      h="calc(100% - 32px)"
       w="100%"
       zIndex="10"
     >

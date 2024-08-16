@@ -2,7 +2,7 @@ import React from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const StyledDeleteIcon = styled.div`
   justify-self: flex-start;

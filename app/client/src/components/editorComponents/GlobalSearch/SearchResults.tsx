@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -22,12 +22,12 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 const overflowCSS = css`
   overflow: hidden;

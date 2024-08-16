@@ -1,5 +1,5 @@
 import React from "react";
-import { Tag } from "design-system";
+import { Tag } from "@appsmith/ads";
 
 function BetaCard() {
   return (

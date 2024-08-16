@@ -1,6 +1,6 @@
 import localStorage from "utils/localStorage";
 import { GridDefaults } from "./WidgetConstants";
-import { APP_MAX_WIDTH } from "@design-system/theming";
+import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
 
 export const CANVAS_DEFAULT_HEIGHT_PX = 1292;
 export const CANVAS_DEFAULT_MIN_HEIGHT_PX = 380;
@@ -13,8 +13,8 @@ export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
 export const DEFAULT_ENTITY_EXPLORER_WIDTH = 256;
 export const DEFAULT_PROPERTY_PANE_WIDTH = 288;
 export const APP_SETTINGS_PANE_WIDTH = 525;
-export const DEFAULT_EDITOR_PANE_WIDTH = 255;
-export const DEFAULT_SPLIT_SCREEN_WIDTH = "40.4vw";
+export const DEFAULT_EXPLORER_PANE_WIDTH = 255;
+export const SPLIT_SCREEN_RATIO = 0.404;
 
 const APP_STORE_NAMESPACE = "APPSMITH_LOCAL_STORE";
 
@@ -101,7 +101,7 @@ export interface ThemeSetting {
   sizing: number;
   fontFamily: string;
   iconStyle: "FILLED" | "OUTLINED";
-  appMaxWidth: APP_MAX_WIDTH;
+  appMaxWidth: AppMaxWidth;
 }
 
 export type StringsFromNavigationSetting = Omit<

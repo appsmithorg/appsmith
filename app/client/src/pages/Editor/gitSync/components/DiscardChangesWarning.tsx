@@ -3,8 +3,8 @@ import {
   createMessage,
   DISCARD_CHANGES_WARNING,
   DISCARD_MESSAGE,
-} from "@appsmith/constants/messages";
-import { Callout, Text } from "design-system";
+} from "ee/constants/messages";
+import { Callout, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
 const Container = styled.div`

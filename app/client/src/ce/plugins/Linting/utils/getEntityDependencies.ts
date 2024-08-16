@@ -2,8 +2,8 @@ import {
   addWidgetPropertyDependencies,
   convertPathToString,
   getEntityNameAndPropertyPath,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DependencyMap as TDependencyMap } from "utils/DynamicBindingUtils";
 import { getPropertyPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -17,7 +17,7 @@ import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
 import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 
 export const getDependencies: Record<
   string,

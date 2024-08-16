@@ -4,7 +4,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-} from "@design-system/headless";
+} from "@appsmith/wds-headless";
 import { Button } from "react-aria-components";
 
 /**

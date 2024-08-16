@@ -8,7 +8,7 @@ import {
   getIsFetchingSinglePluginForm,
   getDatasourcesStructure,
   getNumberOfEntitiesInCurrentPage,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 
 import type { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
@@ -22,15 +22,15 @@ import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   DatasourceImage,
 } from "../DataSourceOption";
-import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
-import type { DropdownOption } from "design-system-old";
-import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
+import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { Button, Icon, Text, Select, Option, Tooltip } from "@appsmith/ads";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
   createMessage,
   GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
@@ -39,8 +39,8 @@ import {
   useSheetColumnHeaders,
   useS3BucketList,
 } from "./hooks";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import type { AppState } from "@appsmith/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { AppState } from "ee/reducers";
 import type {
   DropdownOptions,
   DatasourceTableDropdownOption,
@@ -59,20 +59,17 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 
-import {
-  datasourcesEditorIdURL,
-  integrationEditorURL,
-} from "@appsmith/RouteBuilder";
+import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { getPluginImages } from "ee/selectors/entitiesSelector";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import equal from "fast-deep-equal";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 //  ---------- Styles ----------
 

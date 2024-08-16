@@ -7,7 +7,7 @@ import { Layers } from "constants/Layers";
 import { theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 const Container = styled.div<{

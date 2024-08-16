@@ -1,8 +1,8 @@
 import equal from "fast-deep-equal/es6";
 import React from "react";
 
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
 import {
   GridDefaults,
@@ -34,11 +34,11 @@ import {
 } from "utils/widgetRenderUtils";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
@@ -50,7 +50,8 @@ import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { WidgetProfiler } from "./BaseWidgetHOC/WidgetProfiler";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 const { newRelic } = getAppsmithConfigs();
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
@@ -69,6 +70,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetId,
     } = props;
 
+    const span = startRootSpan("withWidgetProps", { widgetType: type });
     const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
     const canvasWidget = useSelector((state: AppState) =>
@@ -253,7 +255,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;
-
+    endSpan(span);
     // isVisible prop defines whether to render a detached widget
     if (
       widgetProps.detachFromLayout &&

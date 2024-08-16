@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
 import type { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
@@ -24,7 +24,7 @@ import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 interface ReduxStateProps {
   dynamicData: DataTree;

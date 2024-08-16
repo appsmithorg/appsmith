@@ -1,4 +1,4 @@
-@import "@design-system/widgets/src/shared/colors/colors.module.css";
+@import "@appsmith/wds/src/shared/colors/colors.module.css";
 
 .table {
   --th-height: calc(

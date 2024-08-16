@@ -1,4 +1,4 @@
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import type {
   EntityNavigationData,
   NavigationData,

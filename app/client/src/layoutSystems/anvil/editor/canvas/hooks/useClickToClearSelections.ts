@@ -1,5 +1,5 @@
 import type { MouseEvent } from "react";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { useSelector } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";

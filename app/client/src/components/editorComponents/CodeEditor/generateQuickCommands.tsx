@@ -7,22 +7,19 @@ import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { Button, Icon } from "design-system";
-import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { Button, Icon } from "@appsmith/ads";
+import { APPSMITH_AI } from "ee/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
-import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
+import type { AIEditorContext } from "ee/components/editorComponents/GPT";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import history, { NavigationMethod } from "utils/history";
 import type { Plugin } from "api/PluginApi";
-import { EDIT, createMessage } from "@appsmith/constants/messages";
+import { EDIT, createMessage } from "ee/constants/messages";
 import { getShowHintOptions } from "./commandsHelper";
 
 export enum Shortcuts {
@@ -224,9 +221,7 @@ export function Command(props: {
     (event) => {
       event.stopPropagation();
       if (!props.url) return;
-      PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
-        url: props.url,
-      });
+
       history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
       AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", props.eventParams || {});
     },

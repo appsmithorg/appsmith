@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { Switch } from "design-system-old";
+import type { AppState } from "ee/reducers";
+import { Switch } from "@appsmith/ads-old";
 import Spinner from "components/editorComponents/Spinner";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const ShareWithPublicOption = styled.div`

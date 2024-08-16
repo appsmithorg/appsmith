@@ -1,12 +1,12 @@
 import React, { useCallback } from "react";
-import { Button, Flex, Text } from "design-system";
+import { Button, Flex, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 import history from "utils/history";
 import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
-import { widgetListURL } from "@appsmith/RouteBuilder";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { widgetListURL } from "ee/RouteBuilder";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 const Container = styled(Flex)`

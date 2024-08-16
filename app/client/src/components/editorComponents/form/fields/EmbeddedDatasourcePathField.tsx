@@ -5,7 +5,7 @@ import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
 import { change, Field, formValueSelector } from "redux-form";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
 import { get, merge } from "lodash";
 import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
@@ -42,24 +42,24 @@ import equal from "fast-deep-equal/es6";
 import {
   getDatasource,
   getDatasourcesByPluginId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { extractApiUrlPath } from "transformers/RestActionTransformer";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { Text } from "design-system";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { Text } from "@appsmith/ads";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isEnvironmentValid } from "@appsmith/utils/Environments";
+import { isEnvironmentValid } from "ee/utils/Environments";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { isString } from "lodash";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import {
   getHasCreateDatasourcePermission,
   getHasManageDatasourcePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 interface ReduxStateProps {
   workspaceId: string;

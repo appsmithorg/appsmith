@@ -1,4 +1,4 @@
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { PluginType } from "entities/Action";
@@ -8,7 +8,7 @@ import { MessageType } from "utils/MessageUtil";
 import {
   addDataTreeToContext,
   addPlatformFunctionsToEvalContext,
-} from "@appsmith/workers/Evaluation/Actions";
+} from "ee/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 
 jest.mock("lodash/uniqueId");

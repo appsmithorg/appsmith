@@ -1,5 +1,5 @@
 import type { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
+import { DEFAULT_ACTION_TIMEOUT } from "ee/constants/ApiConstants";
 import {
   HTTP_METHOD,
   EMPTY_KEY_VALUE_PAIRS,

@@ -27,7 +27,7 @@ import {
 import { ScannerLayout } from "../constants";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { usePageVisibility } from "react-page-visibility";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { getVideoConstraints } from "widgets/utils";
 import { isMobile } from "react-device-detect";
 

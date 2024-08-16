@@ -1,9 +1,9 @@
 import { getQueryEntityItemUrl, getQueryUrl } from "./utils";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
-import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorState } from "ee/entities/IDE/constants";
 import { PluginPackageName, PluginType } from "entities/Action";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 
 describe("getQueryEntityItemUrl", () => {
   it("throws error if plugin type is not a query", () => {

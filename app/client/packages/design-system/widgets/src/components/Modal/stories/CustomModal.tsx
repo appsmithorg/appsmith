@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Modal, ModalBody, ModalContent, Button } from "@design-system/widgets";
+import { Modal, ModalBody, ModalContent, Button } from "@appsmith/wds";
 // Since the Modal is rendered at the root of the Provider, we need to add Unstyled as a wrapper
 // so that Storybook does not break styles.
 import { Unstyled } from "@storybook/blocks";

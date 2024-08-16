@@ -1,4 +1,4 @@
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 
 export const generateModuleInstance = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

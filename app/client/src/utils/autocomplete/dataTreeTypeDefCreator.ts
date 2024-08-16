@@ -1,6 +1,6 @@
-import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
-import type { EntityMap } from "@appsmith/utils/autocomplete/entityDefGeneratorMap";
-import { entityDefGeneratorMap } from "@appsmith/utils/autocomplete/entityDefGeneratorMap";
+import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
+import type { EntityMap } from "ee/utils/autocomplete/entityDefGeneratorMap";
+import { entityDefGeneratorMap } from "ee/utils/autocomplete/entityDefGeneratorMap";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Def } from "tern";
 

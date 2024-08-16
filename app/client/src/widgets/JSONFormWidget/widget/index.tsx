@@ -61,13 +61,13 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
   ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {

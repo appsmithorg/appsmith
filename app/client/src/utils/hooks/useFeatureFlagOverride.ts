@@ -1,4 +1,4 @@
-import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlag } from "ee/entities/FeatureFlag";
 import {
   setFeatureFlagOverridesAction,
   updateFeatureFlagOverrideAction,

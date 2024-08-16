@@ -18,7 +18,7 @@ import {
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const isAirgappedInstance = isAirgapped();

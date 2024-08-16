@@ -2,17 +2,14 @@ import type {
   SwitcherProps,
   TreeDropdownOption,
   IconName,
-} from "design-system-old";
-import type {
-  EntityTypeValue,
-  MetaArgs,
-} from "@appsmith/entities/DataTree/types";
+} from "@appsmith/ads-old";
+import type { EntityTypeValue, MetaArgs } from "ee/entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 import type { APPSMITH_INTEGRATIONS } from "./constants";
 import type { Variants } from "./constants";
-import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,6 +58,7 @@ export type TextViewProps = ViewProps & {
   additionalAutoComplete?: AdditionalDynamicDataTree;
   toolTip?: string;
   dataTreePath?: string | undefined;
+  isValueChanged?: (value: string) => boolean;
 };
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;

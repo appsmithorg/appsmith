@@ -5,7 +5,7 @@ import {
   switchViewType,
   ViewTypes,
 } from "components/formControls/utils";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { connect, useSelector } from "react-redux";
@@ -14,8 +14,8 @@ import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { change } from "redux-form";
 import { get } from "lodash";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { ToggleButton, Tooltip } from "design-system";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "ee/constants/messages";
+import { ToggleButton, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 
 interface Props {

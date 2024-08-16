@@ -1,4 +1,4 @@
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import styled from "styled-components";
 import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 

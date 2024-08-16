@@ -70,7 +70,12 @@ public class DryOperationRepository {
     }
 
     private Mono<List<Theme>> updateTheme(List<Theme> themes) {
-        return themeRepository.bulkUpdate(themes).thenReturn(themes);
+        return Flux.fromIterable(themes)
+                .flatMap(themeToBeUpdated -> {
+                    return themeRepository.updateById(
+                            themeToBeUpdated.getId(), themeToBeUpdated, AclPermission.MANAGE_THEMES);
+                })
+                .collectList();
     }
 
     private Mono<Application> updateApplication(Application application) {

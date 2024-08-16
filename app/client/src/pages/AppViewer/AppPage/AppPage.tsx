@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { useSelector } from "react-redux";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -34,7 +34,7 @@ export function AppPage(props: AppPageProps) {
   }, [isAnvilLayout, canvasWidth]);
 
   const pageViewWrapperRef = useRef<HTMLDivElement>(null);
-  useCanvasWidthAutoResize({ ref: pageViewWrapperRef, sidebarWidth });
+  useCanvasWidthAutoResize({ ref: pageViewWrapperRef });
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {

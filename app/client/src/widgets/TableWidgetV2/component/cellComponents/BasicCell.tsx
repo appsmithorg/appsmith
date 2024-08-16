@@ -6,7 +6,7 @@ import type { BaseCellComponentProps } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),

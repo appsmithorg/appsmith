@@ -54,7 +54,7 @@ import type {
 
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import type { SelectComponentProps } from "../component";
 import {
@@ -910,14 +910,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     if (!isNil(this.props.selectedOptionValue)) {
       isChanged = this.props.selectedOptionValue !== selectedOption.value;
     }
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     if (isChanged) {
       if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
+        pushBatchMetaUpdates("isDirty", true);
       }
 
-      this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
+      pushBatchMetaUpdates("label", selectedOption.label ?? "");
 
-      this.props.updateWidgetMetaProperty("value", selectedOption.value ?? "", {
+      pushBatchMetaUpdates("value", selectedOption.value ?? "", {
         triggerPropertyName: "onOptionChange",
         dynamicString: this.props.onOptionChange,
         event: {
@@ -928,8 +929,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
     // When Label changes but value doesnt change, Applies to serverside Filtering
     if (!isChanged && this.props.selectedOptionLabel !== selectedOption.label) {
-      this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
+      pushBatchMetaUpdates("label", selectedOption.label ?? "");
     }
+    commitBatchMetaUpdates();
   };
 
   onFilterChange = (value: string) => {

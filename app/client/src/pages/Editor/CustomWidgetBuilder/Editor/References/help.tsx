@@ -1,10 +1,7 @@
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import styles from "./styles.module.css";
 import React from "react";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import { CUSTOM_WIDGET_DOC_URL } from "../../constants";
 
 export default function Help() {

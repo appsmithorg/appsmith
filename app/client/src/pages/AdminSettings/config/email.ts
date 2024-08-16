@@ -1,20 +1,20 @@
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { isEmail } from "utils/formhelpers";
 import type { Dispatch } from "react";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
 import {
   CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 import {
   ADMIN_SETTINGS_EMAIL_WARNING,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 export const config: AdminConfigType = {
   icon: "mail-line",

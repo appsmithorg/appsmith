@@ -6,26 +6,26 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import {
   hasDeleteApplicationPermission,
   isPermitted,
   PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+} from "ee/utils/permissionHelpers";
 import {
   getInitialsAndColorCode,
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import type { AppIconName } from "design-system-old";
+import type { AppIconName } from "@appsmith/ads-old";
 import {
   ColorSelector,
   EditableText,
   EditInteractionKind,
   IconSelector,
   SavingState,
-} from "design-system-old";
-import type { MenuItemProps } from "design-system";
+} from "@appsmith/ads-old";
+import type { MenuItemProps } from "@appsmith/ads";
 import {
   Button,
   Menu,
@@ -33,22 +33,22 @@ import {
   MenuContent,
   MenuItem,
   MenuTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import {
   getIsSavingAppName,
   getIsErroredSavingAppName,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import ForkApplicationModal from "./ForkApplicationModal";
-import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import history from "utils/history";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { toast } from "design-system";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { toast } from "@appsmith/ads";
 import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";

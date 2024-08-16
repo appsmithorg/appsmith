@@ -7,9 +7,9 @@ import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { noop } from "lodash";
 import React, { useCallback, useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
+import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import history from "utils/history";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   CONTEXT_COPY,
@@ -20,8 +20,8 @@ import {
   CONTEXT_NO_PAGE,
   CONTEXT_SHOW_BINDING,
   createMessage,
-} from "@appsmith/constants/messages";
-import { builderURL } from "@appsmith/RouteBuilder";
+} from "ee/constants/messages";
+import { builderURL } from "ee/RouteBuilder";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
@@ -29,8 +29,8 @@ import {
   ActionEntityContextMenuItemsEnum,
   FilesContext,
 } from "../Files/FilesContextProvider";
-import { useConvertToModuleOptions } from "@appsmith/pages/Editor/Explorer/hooks";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import { PluginType } from "entities/Action";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 

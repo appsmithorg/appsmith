@@ -17,10 +17,10 @@ import type {
   Page,
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
-import { resetCurrentApplication } from "@appsmith/actions/applicationActions";
+import { resetCurrentApplication } from "ee/actions/applicationActions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
@@ -46,7 +46,7 @@ import AppEngineFactory from "entities/Engine/factory";
 import type {
   ApplicationPagePayload,
   FetchApplicationResponse,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import { getSearchQuery, updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
@@ -59,16 +59,16 @@ import {
   isEditorPath,
   isViewerPath,
   matchEditorPath,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+} from "ee/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
 import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
 import { getCurrentUser } from "actions/authActions";
 
-import { getCurrentTenant } from "@appsmith/actions/tenantActions";
+import { getCurrentTenant } from "ee/actions/tenantActions";
 import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
@@ -76,7 +76,7 @@ import {
 import { embedRedirectURL, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ProductAlert } from "reducers/uiReducers/usersReducer";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
@@ -84,7 +84,7 @@ import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
 import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
-import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
+import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
 import {
   endSpan,
   startNestedSpan,
@@ -306,7 +306,6 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload.mode,
       action.payload.mode,
     );
-    engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload, rootSpan);
 
     const getInitResponsesSpan = startNestedSpan(
@@ -344,7 +343,6 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield call(engine.loadGit, applicationId, rootSpan);
     yield call(engine.completeChore, rootSpan);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
-    engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
     if (e instanceof AppEngineApiError) return;

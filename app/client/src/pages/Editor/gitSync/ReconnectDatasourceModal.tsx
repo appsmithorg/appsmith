@@ -5,7 +5,7 @@ import {
   getIsDatasourceConfigForImportFetched,
   getWorkspaceIdForImport,
   getPageIdForImport,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
 import { Colors } from "constants/Colors";
@@ -21,7 +21,7 @@ import {
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS,
   SKIP_CONFIGURATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   getDatasourceLoading,
   getDatasourcePlugins,
@@ -30,21 +30,21 @@ import {
   getIsListing,
   getIsReconnectingDatasourcesModalOpen,
   getUnconfiguredDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
   setPageIdForImport,
   setWorkspaceIdForImport,
-} from "@appsmith/actions/applicationActions";
+} from "ee/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import DatasourceForm from "../DataSourceEditor";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
-import { findDefaultPage } from "@appsmith/sagas/ApplicationSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { findDefaultPage } from "ee/sagas/ApplicationSagas";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   getOAuthAccessToken,
   loadFilePickerAction,
@@ -58,8 +58,8 @@ import {
   toast,
   Button,
   Text,
-} from "design-system";
-import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
+} from "@appsmith/ads";
+import { isEnvironmentConfigured } from "ee/utils/Environments";
 import { keyBy } from "lodash";
 import type { Plugin } from "api/PluginApi";
 import {
@@ -69,12 +69,12 @@ import {
 import {
   areEnvironmentsFetched,
   getCurrentEnvironmentDetails,
-} from "@appsmith/selectors/environmentSelectors";
-import type { AppState } from "@appsmith/reducers";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
-import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import useReconnectModalData from "@appsmith/pages/Editor/gitSync/useReconnectModalData";
-import { resetImportData } from "@appsmith/actions/workspaceActions";
+} from "ee/selectors/environmentSelectors";
+import type { AppState } from "ee/reducers";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import useReconnectModalData from "ee/pages/Editor/gitSync/useReconnectModalData";
+import { resetImportData } from "ee/actions/workspaceActions";
 import { getLoadingTokenForDatasourceId } from "selectors/datasourceSelectors";
 
 const Section = styled.div`

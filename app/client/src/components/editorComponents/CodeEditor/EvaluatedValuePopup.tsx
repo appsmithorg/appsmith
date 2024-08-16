@@ -21,13 +21,13 @@ import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
-import { Button, Icon, Link, toast, Tooltip } from "design-system";
+import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 

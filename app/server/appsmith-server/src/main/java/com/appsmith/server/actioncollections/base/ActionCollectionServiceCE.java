@@ -40,7 +40,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<ActionCollectionDTO> splitValidActionsByViewMode(
             ActionCollectionDTO actionCollectionDTO, List<ActionDTO> actionsList, Boolean viewMode);
 
-    Flux<ActionCollectionDTO> getActionCollectionsByViewMode(MultiValueMap<String, String> params, Boolean viewMode);
+    Flux<ActionCollectionDTO> getNonComposedActionCollectionsByViewMode(
+            MultiValueMap<String, String> params, Boolean viewMode);
 
     Mono<ActionCollectionDTO> update(String id, ActionCollectionDTO actionCollectionDTO);
 
