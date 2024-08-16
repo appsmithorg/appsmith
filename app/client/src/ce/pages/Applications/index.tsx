@@ -20,7 +20,7 @@ import {
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "ee/constants/messages";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
 import type { AppState } from "ee/reducers";

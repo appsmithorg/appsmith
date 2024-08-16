@@ -1,14 +1,6 @@
 import { useLocation } from "react-router-dom";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-// import { get } from "lodash";
-// import { useSelector } from "react-redux";
-import type {
-  ApplicationPayload,
-  Page,
-} from "ee/constants/ReduxActionConstants";
-// import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
-// import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import MenuItem from "./components/MenuItem";
 import { Container } from "./TopInline.styled";
 import MenuItemContainer from "./components/MenuItemContainer";
@@ -20,16 +12,9 @@ import {
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { throttle } from "lodash";
+import type { NavigationProps } from "./constants";
 
-// TODO - @Dhruvik - ImprovedAppNav
-// Replace with NavigationProps if nothing changes
-// appsmith/app/client/src/pages/AppViewer/Navigation/constants.ts
-interface TopInlineProps {
-  currentApplicationDetails?: ApplicationPayload;
-  pages: Page[];
-}
-
-export function TopInline(props: TopInlineProps) {
+export function TopInline(props: NavigationProps) {
   const { currentApplicationDetails, pages } = props;
   // const selectedTheme = useSelector(getSelectedAppTheme);
   // const navColorStyle =
