@@ -18,7 +18,7 @@ export type PageElementType =
   | "ZONE_WIDGET"
   | "WDS_BUTTON_WIDGET";
 
-export interface PageElementWithDynamic {
+export interface PageElementWithDynamicProperties {
   dynamicBindingPathList: DynamicPath[];
   dynamicTriggerPathList: DynamicPath[];
   dynamicPropertyPathList: DynamicPath[];
@@ -45,14 +45,14 @@ export interface LeafPageElement
 
 export interface CanvasPageElement
   extends ParentPageElement,
-    PageElementWithDynamic {
+    PageElementWithDynamicProperties {
   type: "CANVAS_WIDGET";
   detachFromLayout: boolean;
 }
 
 export interface SectionPageElement
   extends ParentPageElement,
-    PageElementWithDynamic {
+    PageElementWithDynamicProperties {
   type: "SECTION_WIDGET";
   zoneCount: number;
   elevatedBackground: boolean;
@@ -61,7 +61,7 @@ export interface SectionPageElement
 
 export interface ZonePageElement
   extends ParentPageElement,
-    PageElementWithDynamic {
+    PageElementWithDynamicProperties {
   type: "ZONE_WIDGET";
   flexGrow: number;
   elevatedBackground: boolean;
@@ -69,7 +69,7 @@ export interface ZonePageElement
 
 export interface ButtonPageElement
   extends LeafPageElement,
-    PageElementWithDynamic {
+    PageElementWithDynamicProperties {
   type: "WDS_BUTTON_WIDGET";
   variant: keyof typeof ButtonVariant;
   color: keyof typeof Colors;
@@ -115,5 +115,6 @@ export const isParentPageElement = (
   element: PageElement,
 ): element is PageElement & ParentPageElement => isParentTreeNode(element);
 
-export const isDynamicEnabled = (element: PageElementWithDynamic): boolean =>
-  element.dynamicPropertyPathList.length > 0;
+export const hasDynamicProperties = (
+  element: PageElementWithDynamicProperties,
+): boolean => element.dynamicPropertyPathList.length > 0;
