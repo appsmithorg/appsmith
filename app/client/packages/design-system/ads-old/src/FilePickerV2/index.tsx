@@ -453,9 +453,10 @@ function FilePickerComponent(props: FilePickerProps) {
           </div>
         </div>
       </div>
-      <div className="remove-button" data-testid="t--remove-logo">
+      <div className="remove-button">
         <div className="overlay" />
         <Button
+          data-testid="t--remove-logo"
           kind="secondary"
           onClick={() => removeFile()}
           size="sm"
