@@ -1,0 +1,49 @@
+name: "Storybook Tests"
+
+on:
+  push:
+    branches:
+      - release
+    paths:
+      - "app/client/packages/design-system/**"
+      - "app/client/packages/storybook/**"
+  pull_request:
+    paths:
+      - "app/client/packages/design-system/**"
+      - "app/client/packages/storybook/**"
+
+jobs:
+  storybook-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR if pull_request event
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+
+      - name: Checkout PR if push event
+        if: github.event_name == 'push'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: release
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      - name: Install Dependencies
+        working-directory: ./app/client/packages/storybook
+        run: |
+          yarn install --immutable
+          npx playwright install --with-deps
+
+      - name: Storybook Tests
+        working-directory: ./app/client/packages/storybook
+        run: |
+          yarn build-storybook
+          yarn test-storybook:ci

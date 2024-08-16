@@ -35,6 +35,8 @@ export const StyledCheckbox = styled(BlueprintCheckbox)<CheckboxProps>`
 `;
 
 export function Checkbox(props: CheckboxProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChange = (e: any) => {
     props.input &&
       props.input.onChange &&

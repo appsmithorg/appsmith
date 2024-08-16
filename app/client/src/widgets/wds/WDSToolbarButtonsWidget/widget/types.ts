@@ -1,7 +1,4 @@
-import type {
-  ToolbarButtonsProps,
-  ToolbarButtonsItem,
-} from "@design-system/widgets";
+import type { ToolbarButtonsProps, ToolbarButtonsItem } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ToolbarButtonsItemComponentProps } from "../component/types";
 

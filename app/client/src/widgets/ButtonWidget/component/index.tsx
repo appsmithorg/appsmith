@@ -13,7 +13,7 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -34,7 +34,7 @@ import {
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -281,6 +281,8 @@ interface ButtonComponentProps extends ComponentProps {
 }
 
 interface RecaptchaV2ComponentPropType {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
   className?: string;
   isDisabled?: boolean;
@@ -336,6 +338,8 @@ function RecaptchaV2Component(
 }
 
 interface RecaptchaV3ComponentPropType {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
   className?: string;
   isDisabled?: boolean;
@@ -356,12 +360,17 @@ function RecaptchaV3Component(
     if (props.isDisabled) return;
     if (props.isLoading) return;
     if (status === ScriptStatus.READY) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).grecaptcha.ready(() => {
         try {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (window as any).grecaptcha
             .execute(props.googleRecaptchaKey, {
               action: "submit",
-            })
+            }) // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .then((token: any) => {
               props.clickWithRecaptcha(token);
             })
@@ -404,6 +413,8 @@ const Wrapper = styled.div`
 
 function BtnWrapper(
   props: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     children: any;
     className?: string;
     isDisabled?: boolean;

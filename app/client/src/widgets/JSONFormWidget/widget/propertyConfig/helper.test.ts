@@ -384,6 +384,8 @@ describe(".getStylesheetValue", () => {
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
       const result = getStylesheetValue(props, input, {
         childStylesheet: schemaTestData.fieldThemeStylesheets,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       expect(result).toEqual(expectedOutput);

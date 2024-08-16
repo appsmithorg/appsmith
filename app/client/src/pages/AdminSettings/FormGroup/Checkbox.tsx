@@ -4,10 +4,10 @@ import { Field, getFormValues } from "redux-form";
 import styled from "styled-components";
 import { FormGroup, type SettingComponentProps } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Checkbox } from "design-system";
+import { Checkbox } from "@appsmith/ads";
 import { useSelector } from "react-redux";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
+import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
 
 const CheckboxWrapper = styled.div`
   display: grid;
@@ -76,6 +76,8 @@ const StyledFieldCheckboxGroup = styled.div`
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
 export function CheckboxComponent({ setting }: SettingComponentProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settings: Record<string, any> = useSelector(formValuesSelector);
 
   return (

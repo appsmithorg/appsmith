@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const SectionLabel = styled.div`
   font-weight: 500;
@@ -26,6 +26,8 @@ const SectionContainer = styled.div`
 `;
 
 interface ComponentProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
   title: string;
   // header icon props of collapse header

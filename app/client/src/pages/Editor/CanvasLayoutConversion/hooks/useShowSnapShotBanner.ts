@@ -1,5 +1,5 @@
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { EditorState } from "@appsmith/entities/IDE/constants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { EditorState } from "ee/entities/IDE/constants";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { useSelector } from "react-redux";

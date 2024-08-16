@@ -4,12 +4,12 @@ import { BranchListItemContainer } from "./BranchListItemContainer";
 import DefaultTag from "./DefaultTag";
 import { useHover } from "../hooks";
 import BranchMoreMenu from "./BranchMoreMenu";
-import { Tooltip, Text, Spinner } from "design-system";
+import { Tooltip, Text, Spinner } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const ProtectedIcon = importRemixIcon(
   async () => import("remixicon-react/ShieldKeyholeLineIcon"),
@@ -30,7 +30,8 @@ export function BranchListItem({
   isProtected,
   onClick,
   selected,
-  shouldScrollIntoView,
+  shouldScrollIntoView, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const [hover] = useHover(itemRef);

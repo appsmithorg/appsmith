@@ -2,11 +2,11 @@ import { createReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   UpdateCanvasPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import moment from "moment";
 import type {
   LayoutOnLoadActionErrors,
@@ -52,6 +52,11 @@ export const handlers = {
       pageWidgetId: undefined,
       pageActions: undefined,
       layoutOnLoadActionErrors: undefined,
+      loadingStates: {
+        ...state.loadingStates,
+        saving: false,
+        savingEntity: false,
+      },
     };
   },
   [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: EditorReduxState) => {

@@ -1,0 +1,17 @@
+.ads-v2-scroll-theme {
+  --os-size: 8px !important;
+  --os-handle-border-radius: 4px !important;
+  --os-handle-bg: var(--ads-v2-color-bg-emphasis-plus) !important;
+}
+
+.scroll-sm .ads-v2-scroll-theme {
+  --os-size: 4px !important;
+}
+
+.os-scrollbar-horizontal {
+  bottom: 2px !important;
+}
+
+.os-scrollbar-vertical {
+  right: 2px !important;
+}

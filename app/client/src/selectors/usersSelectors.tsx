@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { User } from "constants/userConstants";
 import type { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";

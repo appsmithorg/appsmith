@@ -3,7 +3,7 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import NumberField from "components/editorComponents/form/fields/NumberField";
-import { Classes, Text, TextType } from "design-system-old";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
 import styled from "styled-components";
 
 const FormGroup = styled.div`

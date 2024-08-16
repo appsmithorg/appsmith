@@ -16,7 +16,7 @@ import {
   type CustomWidgetBuilderContextType,
 } from "./types";
 import { compileSrcDoc } from "./utility";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 let connectionTimeout: number;
 
@@ -175,6 +175,8 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
   useEffect(replay, [contextValue.srcDoc]);
 
   useEffect(() => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     window.addEventListener("message", (event: any) => {
       switch (event.data.type) {
         case CUSTOM_WIDGET_BUILDER_EVENTS.READY_ACK:

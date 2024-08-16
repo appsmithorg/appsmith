@@ -1,8 +1,8 @@
 /* eslint-disable  @typescript-eslint/ban-ts-comment */
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { batchActionSuccess } from "actions/batchActions";
 import * as log from "loglevel";
 
@@ -45,8 +45,12 @@ const BATCH_PRIORITY = {
   },
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const batches: ReduxAction<any>[][] = [];
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
   try {
     const priority = BATCH_PRIORITY[action.payload.type].priority;

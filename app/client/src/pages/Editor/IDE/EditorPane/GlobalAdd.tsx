@@ -1,11 +1,11 @@
 import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Button, Flex, Icon, Text } from "design-system";
+import { Button, Flex, Icon, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history from "utils/history";
-import { queryAddURL } from "@appsmith/RouteBuilder";
+import { queryAddURL } from "ee/RouteBuilder";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import PaneHeader from "../LeftPane/PaneHeader";
 
@@ -58,14 +58,14 @@ const CreateCTA = (props: {
 };
 
 const GlobalAdd = () => {
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const dispatch = useDispatch();
   const onCreateNewQuery = useCallback(() => {
-    history.push(queryAddURL({ pageId }));
-  }, [pageId]);
+    history.push(queryAddURL({ basePageId }));
+  }, [basePageId]);
   const onCreateJS = useCallback(() => {
-    dispatch(createNewJSCollection(pageId, "ADD_PANE"));
-  }, [pageId]);
+    dispatch(createNewJSCollection(basePageId, "ADD_PANE"));
+  }, [basePageId]);
   return (
     <Flex flexDirection={"column"}>
       <PaneHeader

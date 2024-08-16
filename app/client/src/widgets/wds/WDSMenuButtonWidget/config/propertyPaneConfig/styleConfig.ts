@@ -1,11 +1,6 @@
 import { capitalize } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  BUTTON_VARIANTS,
-  COLORS,
-  ICONS,
-  objectKeys,
-} from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS, ICONS, objectKeys } from "@appsmith/wds";
 
 import type { MenuButtonWidgetProps } from "../../widget/types";
 

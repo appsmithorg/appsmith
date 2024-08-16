@@ -6,6 +6,8 @@ export const useMouseLocation = () => {
     y: 0,
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setMousePosition = (e: any) => {
     if (e) {
       mousePosition.current = { x: e.clientX, y: e.clientY };

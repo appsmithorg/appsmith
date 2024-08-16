@@ -1,18 +1,15 @@
-import {
-  ENTITY_TYPE,
-  type JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE, type JSActionEntity } from "ee/entities/DataTree/types";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   DataTreeEntityObject,
   JSActionEntityConfig,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import ConfigTreeActions from "utils/configTree";
 import store from "store";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export interface EntityProperty {
   propertyName: string;
@@ -84,11 +81,15 @@ enum ActionEntityPublicProperties {
 }
 
 const getActionBindings = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   entity: any,
   entityProperties: EntityProperty[],
   entityType: string,
   entityName: string,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config = (entityDefinitions.ACTION as any)(entity as any);
 
   entityProperties = Object.keys(config || {})
@@ -165,6 +166,8 @@ export const getEntityPropertiesMap: Record<
   string,
   (
     entity: DataTreeEntityObject,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     entityProperties: any,
     entityType: string,
     entityName: string,

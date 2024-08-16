@@ -3,7 +3,7 @@ import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
-import { SegmentedControl } from "design-system";
+import { SegmentedControl } from "@appsmith/ads";
 import React from "react";
 
 interface Option {
@@ -36,6 +36,7 @@ export function TabView(props: TabViewProps) {
             label: option.text,
             value: option.id,
           }))}
+          // @ts-expect-error fix this the next time the file is edited
           value={props.activeObj.id}
         />
       </ControlWrapper>

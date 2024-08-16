@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import type { TabProp } from "design-system-old";
-import { getTypographyByKey } from "design-system-old";
+import type { TabProp } from "@appsmith/ads-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import type { Theme } from "constants/DefaultTheme";
 
 interface WrapperProps {

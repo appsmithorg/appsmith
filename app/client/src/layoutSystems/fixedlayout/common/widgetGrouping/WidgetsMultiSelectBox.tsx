@@ -11,19 +11,19 @@ import {
 } from "actions/widgetActions";
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
-import { TooltipComponent as Tooltip } from "design-system-old";
+import { TooltipComponent as Tooltip } from "@appsmith/ads-old";
 import { getSelectedWidgets } from "selectors/ui";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import WidgetFactory from "WidgetProvider/factory";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const POPUP_HEIGHT = 122;
 const POPUP_WIDTH = 38;
@@ -179,6 +179,8 @@ function WidgetsMultiSelectBox(props: {
   noContainerOffset: boolean;
   snapColumnSpace: number;
   snapRowSpace: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): any {
   const dispatch = useDispatch();
   const canvasWidgets = useSelector(getCanvasWidgets);
@@ -219,6 +221,8 @@ function WidgetsMultiSelectBox(props: {
   const menuRef = useRef<HTMLDivElement>(null);
   const { setDraggingState } = useWidgetDragResize();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();

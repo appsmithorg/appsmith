@@ -1,5 +1,5 @@
 import React, { createContext, useMemo } from "react";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export enum ActionEntityContextMenuItemsEnum {
   RENAME = "Rename",
@@ -27,6 +27,8 @@ interface FilesContextContextProps {
   parentEntityType: ActionParentEntityTypeInterface;
   showModules?: boolean;
   showWorkflows?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectFilesForExplorer?: (state: any) => any;
 }
 

@@ -11,7 +11,7 @@ import {
   getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Errors from "./Errors";
 import EntityDeps from "./EntityDependecies";
 import {
@@ -19,7 +19,7 @@ import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";

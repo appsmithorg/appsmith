@@ -2,10 +2,12 @@ import React, { useCallback, useMemo } from "react";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useColumnDropdown(props: any) {
   const {
     alias,
@@ -24,6 +26,8 @@ export function useColumnDropdown(props: any) {
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
       isArray(sheetColumns?.value)
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return sheetColumns.value.map((column: any) => {
         return {
           ...column,
@@ -31,22 +35,26 @@ export function useColumnDropdown(props: any) {
         };
       });
     } else if (isArray(columns)) {
-      return columns
-        .filter((column: any) => {
-          return (
-            !isSearcheable ||
-            (column.type &&
-              ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase()))
-          );
-        })
-        .map((column: any) => {
-          return {
-            id: column.name,
-            label: column.name,
-            value: column.name,
-            subText: column.type,
-          };
-        });
+      return (
+        columns // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((column: any) => {
+            return (
+              !isSearcheable ||
+              (column.type &&
+                ALLOWED_SEARCH_DATATYPE.includes(column.type.toLowerCase()))
+            );
+          }) // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((column: any) => {
+            return {
+              id: column.name,
+              label: column.name,
+              value: column.name,
+              subText: column.type,
+            };
+          })
+      );
     } else {
       return [];
     }

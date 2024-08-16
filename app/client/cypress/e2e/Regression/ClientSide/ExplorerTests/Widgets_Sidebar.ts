@@ -1,10 +1,8 @@
 import {
-  entityExplorer,
   agHelper,
+  entityExplorer,
   locators,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Entity explorer tests related to widgets and validation",
@@ -86,12 +84,7 @@ describe(
       );
     };
 
-    before(() => {
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
-      PageLeftPane.switchToAddNew();
-    });
-
-    it("1. All widget tags should be visible but only Suggested tag is open.", () => {
+    it("1. All widget tags should be visible and open by default.", () => {
       agHelper.AssertElementLength(
         entityExplorer._widgetTagsList,
         Object.keys(WIDGET_TAGS).length,

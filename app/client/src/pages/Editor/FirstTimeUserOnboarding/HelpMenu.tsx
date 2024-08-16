@@ -1,10 +1,7 @@
 import React from "react";
-import { Text, Button } from "design-system";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import {
-  APPSMITH_DISPLAY_VERSION,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { Text, Button } from "@appsmith/ads";
+import { getAppsmithConfigs } from "ee/configs";
+import { APPSMITH_DISPLAY_VERSION, createMessage } from "ee/constants/messages";
 import moment from "moment";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
@@ -81,6 +78,8 @@ function HelpMenu(props: {
                 <Button
                   key={item.label}
                   kind="secondary"
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onClick={(e: any) => {
                     if (item.link) {
                       window.open(item.link, "_blank");

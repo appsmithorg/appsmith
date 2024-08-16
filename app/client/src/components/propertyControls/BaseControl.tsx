@@ -16,21 +16,25 @@ export type ControlMethods = Record<
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
-  shoudUpdateProperty(propertyValue: unknown) {
-    return !(
-      (this.props.propertyValue === undefined &&
-        propertyValue === this.props.defaultValue) ||
-      !(this.props.propertyValue !== propertyValue)
-    );
+  shouldUpdateProperty(newValue: unknown) {
+    const { defaultValue, propertyValue: oldValue } = this.props;
+
+    if (oldValue === undefined && newValue === defaultValue) return false;
+
+    if (newValue === oldValue) return false;
+
+    return true;
   }
 
   updateProperty(
     propertyName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
     isUpdatedViaKeyboard?: boolean,
   ) {
     if (
-      this.shoudUpdateProperty(propertyValue) &&
+      this.shouldUpdateProperty(propertyValue) &&
       this.props.onPropertyChange
     ) {
       this.props.onPropertyChange(
@@ -48,12 +52,14 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
   }
 
   batchUpdatePropertiesWithAssociatedUpdates = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     updates: { propertyName: string; propertyValue: any }[],
   ) => {
     if (this.props.onBatchUpdateWithAssociatedUpdates) {
       this.props.onBatchUpdateWithAssociatedUpdates(
         updates.filter(({ propertyValue }) =>
-          this.shoudUpdateProperty(propertyValue),
+          this.shouldUpdateProperty(propertyValue),
         ),
       );
     }
@@ -69,7 +75,7 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
   }
 
   // Checks whether a particular value can be displayed UI from JS edit mode
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return false;
   }
@@ -78,7 +84,7 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
   static shouldValidateValueOnDynamicPropertyOff(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config?: ControlData,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     value?: any,
   ): boolean {
     return true;
@@ -102,11 +108,19 @@ export interface ControlProps extends ControlData, ControlFunctions {
 }
 export interface ControlData
   extends Omit<PropertyPaneControlConfig, "additionalAutoComplete" | "label"> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   errorMessage?: string;
   expected?: CodeEditorExpected;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widgetProperties: any;
   useValidationMessage?: boolean;
   parentPropertyName: string;
@@ -131,6 +145,8 @@ export interface ControlFunctions {
     isUpdatedViaKeyboard?: boolean,
   ) => void;
   onBatchUpdateProperties?: (updates: Record<string, unknown>) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;
   theme: EditorTheme;

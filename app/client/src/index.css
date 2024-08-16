@@ -1,13 +1,10 @@
 @import "~normalize.css";
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
-@import "~design-system-old/build/css/design-system-old.css";
-@import "~design-system/build/css/design-system.css";
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
 @import "assets/fonts/custom/index.css";
-@import "assets/fonts/google/index.css";
 
 :root {
   /* TODO: This needs to be fixed! This override is to maintain branding changes. */

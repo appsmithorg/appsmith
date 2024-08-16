@@ -4,7 +4,7 @@ import {
   createMessage,
   APPLICATION_IMPORT_SUCCESS,
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Button,
   Icon,
@@ -14,7 +14,7 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 const BodyContainer = styled.div`
   display: flex;

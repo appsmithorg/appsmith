@@ -9,19 +9,17 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { sectionPreset } from "layoutSystems/anvil/layoutComponents/presets/sectionPreset";
-import { ButtonBoxShadowTypes } from "components/constants";
 
 export const defaultConfig: WidgetDefaultProps = {
   elevatedBackground: false,
-  boxShadow: ButtonBoxShadowTypes.NONE,
   children: [],
   columns: 0,
-  detachFromLayout: false,
   responsiveBehavior: ResponsiveBehavior.Fill,
   rows: 0,
   version: 1,
   widgetName: "Section",
   zoneCount: 1,
+  isVisible: true,
   blueprint: {
     operations: [
       {

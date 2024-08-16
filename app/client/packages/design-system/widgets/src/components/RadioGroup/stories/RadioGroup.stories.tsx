@@ -1,6 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { RadioGroup, Flex } from "@design-system/widgets";
+import { RadioGroup, Flex } from "@appsmith/wds";
 
 /**
  * Radio group is a component that allows users to select one option from a set of options.

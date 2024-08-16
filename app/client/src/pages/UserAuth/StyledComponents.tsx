@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
-import { FormGroup, getTypographyByKey } from "design-system-old";
+import { FormGroup, getTypographyByKey } from "@appsmith/ads-old";
 
 export const AuthContainer = styled.section`
   position: absolute;

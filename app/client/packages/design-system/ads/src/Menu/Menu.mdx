@@ -1,0 +1,38 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as MenuStories from "./Menu.stories";
+
+<Meta of={MenuStories} />
+
+# Menu
+
+A menu is a collection of items grouped together for navigation purposes. It generally displays these items upon being triggered through a button. Our menu has the provision to display sub-menus.
+
+## Anatomy
+
+1. Container
+2. List item (including label text and optional leading icon, trailing icon, and keyboard command)
+3. Divider (optional)
+4. Multi-level
+
+![Menu anatomy](./docs/menu-anatomy.png)
+
+## Spacing
+
+![Menu spacing](./docs/menu-spacing.png)
+
+## Usage
+
+- Menus should be easy to open, close, and interact with
+- Menu content should be suited to user needs
+- Menu items should be easy to scan
+- When list items in menus can only be used under specific conditions or at certain times, they should be visually displayed as disabled rather than completely removed from view.
+- Avoid making the menu unnecessarily long by overusing it.
+- Group the menu list using dividers and headings, and create submenus as necessary.
+
+### Select vs Menu
+
+> TODO
+
+Select is typically used as a form field, to change existing content on the page.
+Menus are used typically in navigation.

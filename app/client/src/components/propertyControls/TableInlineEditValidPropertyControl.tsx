@@ -16,7 +16,7 @@ import { JSToString, stringToJS } from "./utils";
 import {
   createMessage,
   TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const bindingPrefix = `{{
   (
@@ -60,6 +60,8 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
 
     const columns: Record<string, ColumnProperties> =
       widgetProperties.primaryColumns || {};
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentRow: { [key: string]: any } = {};
     Object.values(columns).forEach((column) => {
       currentRow[column.alias || column.originalId] = undefined;

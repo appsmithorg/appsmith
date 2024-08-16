@@ -1,11 +1,6 @@
 import React, { forwardRef, useRef } from "react";
 import { CheckboxGroup as HeadlessToggleGroup } from "react-aria-components";
-import {
-  ErrorMessage,
-  Label,
-  Flex,
-  useGroupOrientation,
-} from "@design-system/widgets";
+import { ErrorMessage, Label, Flex, useGroupOrientation } from "@appsmith/wds";
 import styles from "./styles.module.css";
 import type { ForwardedRef } from "react";
 import type { ToggleGroupProps } from "./types";

@@ -9,18 +9,18 @@ import {
 } from "components/formControls/utils";
 import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
-import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
+import { getPlugin } from "ee/selectors/entitiesSelector";
+import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
 import type { PluginType } from "entities/Action";
-import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { EnvConfigSection } from "@appsmith/components/EnvConfigSection";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import { isMultipleEnvEnabled } from "@appsmith/utils/planHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { Text } from "design-system";
-import { Table } from "design-system-old";
+import { getDefaultEnvId } from "ee/api/ApiUtils";
+import { EnvConfigSection } from "ee/components/EnvConfigSection";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import { isMultipleEnvEnabled } from "ee/utils/planHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { Text } from "@appsmith/ads";
+import { Table } from "@appsmith/ads-old";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -62,6 +62,8 @@ export const ViewModeWrapper = styled.div`
 `;
 
 interface RenderDatasourceSectionProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any;
   datasource: Datasource;
   viewMode?: boolean;
@@ -70,6 +72,8 @@ interface RenderDatasourceSectionProps {
   isEnvEnabled: boolean;
 }
 const renderKVArray = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: Array<any>,
   currentEnvironment: string,
   datasource: Datasource,
@@ -84,6 +88,8 @@ const renderKVArray = (
     const renderValues: Array<
       Array<{
         key: string;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         value: any;
         label: string;
       }>
@@ -93,6 +99,8 @@ const renderKVArray = (
         { configProperty, label }: { configProperty: string; label: string },
       ) => {
         const configPropertyKey = configProperty.split("[*].")[1];
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         values.forEach((value: any, index: number) => {
           if (!acc[index]) {
             acc[index] = [];
@@ -124,6 +132,8 @@ const renderKVArray = (
 };
 
 export function renderDatasourceSection(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   section: any,
   currentEnvironment: string,
   datasource: Datasource,
@@ -181,6 +191,8 @@ export function renderDatasourceSection(
             if (controlType === "DROP_DOWN") {
               if (Array.isArray(section.options)) {
                 const option = section.options.find(
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   (el: any) => el.value === value,
                 );
                 if (option && option.label) {
@@ -223,6 +235,8 @@ export function renderDatasourceSection(
                           {
                             Header: "Size",
                             accessor: "size",
+                            // TODO: Fix this the next time the file is edited
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             Cell: (props: any) => formatFileSize(props.value),
                           },
                         ]}
@@ -260,6 +274,8 @@ export function renderDatasourceSection(
                   <Key>{label}: </Key>
                   {value.map(
                     (
+                      // TODO: Fix this the next time the file is edited
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       { key, value }: { key: string; value: any },
                       index: number,
                     ) => (
@@ -324,6 +340,8 @@ class RenderDatasourceInformation extends React.Component<RenderDatasourceSectio
     );
   }
 }
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, ownProps: any) => {
   const { datasource } = ownProps;
   const pluginId = datasource.pluginId;

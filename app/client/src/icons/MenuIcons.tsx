@@ -4,8 +4,8 @@ import { IconWrapper } from "constants/IconConstants";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon as DSIcon } from "design-system";
-import { importRemixIcon, importSvg } from "design-system-old";
+import { Icon as DSIcon } from "@appsmith/ads";
+import { importRemixIcon, importSvg } from "@appsmith/ads-old";
 
 const ApisIcon = importSvg(async () => import("assets/icons/menu/api.svg"));
 const WorkspaceIcon = importSvg(

@@ -16,6 +16,7 @@ import {
   propertyPaneContent,
   propertyPaneStyle,
   methodsConfig,
+  autocompleteConfig,
 } from "./config";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -33,7 +34,6 @@ import type {
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 import { SectionColumns } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
@@ -62,9 +62,7 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-    };
+    return autocompleteConfig;
   }
 
   static getSetterConfig(): SetterConfig | null {
@@ -86,6 +84,8 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }

@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 
 /**
  * Handy little styled component that can be used to render the title in the IDEHeader component

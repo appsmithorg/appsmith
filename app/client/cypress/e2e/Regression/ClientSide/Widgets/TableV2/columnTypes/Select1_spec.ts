@@ -5,6 +5,7 @@ import {
 
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../../support/Objects/FeatureFlags";
 
 describe(
   "Table widget - Select column type functionality",
@@ -129,7 +130,9 @@ describe(
       ]}}
     `,
       );
-      cy.get(".t--property-control-filterable input").click({ force: true });
+      cy.get(_.locators._propertyControlInput("filterable")).click({
+        force: true,
+      });
       cy.editTableSelectCell(0, 0);
       cy.get(".select-popover-wrapper .bp3-input-group input").should("exist");
       cy.get(".select-popover-wrapper .bp3-input-group input").type("1", {
@@ -153,6 +156,7 @@ describe(
     });
 
     it("5. should check that on option select is working", () => {
+      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(".t--property-control-onoptionchange .t--js-toggle").click();
@@ -162,14 +166,33 @@ describe(
       {{showAlert(currentRow.step)}}
     `,
       );
+      cy.updateCodeInput(
+        ".t--property-control-options",
+        `
+      [
+        {
+          "label": "#1label",
+          "value": "#1value"
+        },
+        {
+          "label": "#2label",
+          "value": "#2value"
+        },
+        {
+          "label": "#3label",
+          "value": "#3value"
+        }
+      ]
+    `,
+      );
       cy.editTableSelectCell(0, 0);
-      cy.get(".menu-item-link").contains("#3").click();
+      cy.get(".menu-item-link").contains("#3label").click();
 
-      _.agHelper.ValidateToastMessage("#3");
+      _.agHelper.ValidateToastMessage("#3value");
 
       cy.get(".menu-virtual-list").should("not.exist");
       cy.readTableV2data(0, 0).then((val) => {
-        expect(val).to.equal("#3");
+        expect(val).to.equal("#3label");
       });
       cy.discardTableRow(4, 0);
     });
@@ -342,6 +365,10 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
+      _.agHelper.CheckUncheck(
+        _.locators._propertyControlInput("filterable"),
+        true,
+      );
       cy.get(".t--property-control-serversidefiltering input").click();
       cy.updateCodeInput(
         ".t--property-pane-section-selectproperties",
