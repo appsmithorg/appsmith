@@ -23,8 +23,9 @@ function useRegisterFieldValidity({
   fieldType,
   isValid,
 }: UseRegisterFieldValidityProps) {
-  const { clearErrors, setError } = useFormContext();
+  const { clearErrors, getFieldState, setError } = useFormContext();
   const { setMetaInternalFieldState } = useContext(FormContext);
+  const { error } = getFieldState(fieldName);
 
   useEffect(() => {
     /**
@@ -36,7 +37,9 @@ function useRegisterFieldValidity({
       try {
         isValid
           ? startAndEndSpanForFn("JSONFormWidget.clearErrors", {}, () => {
-              clearErrors(fieldName);
+              if (error) {
+                clearErrors(fieldName);
+              }
             })
           : startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
               setError(fieldName, {
@@ -58,7 +61,15 @@ function useRegisterFieldValidity({
         metaInternalFieldState,
       };
     });
-  }, [isValid, fieldName, fieldType]);
+  }, [
+    isValid,
+    fieldName,
+    fieldType,
+    setMetaInternalFieldState,
+    error,
+    clearErrors,
+    setError,
+  ]);
 }
 
 export default useRegisterFieldValidity;
