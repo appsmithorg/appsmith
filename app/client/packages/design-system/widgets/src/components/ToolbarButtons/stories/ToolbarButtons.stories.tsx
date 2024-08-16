@@ -6,7 +6,7 @@ import {
   Flex,
   ToolbarButtons,
   SIZES,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 import { objectKeys } from "@appsmith/utils";
 import {
   itemList,

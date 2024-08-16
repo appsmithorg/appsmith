@@ -1,4 +1,4 @@
-import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
 import { objectKeys } from "@appsmith/utils";

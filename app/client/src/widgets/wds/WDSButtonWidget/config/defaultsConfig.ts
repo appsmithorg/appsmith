@@ -1,5 +1,5 @@
 import { RecaptchaTypes } from "components/constants";
-import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
+import { COLORS, BUTTON_VARIANTS } from "@appsmith/wds";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { objectKeys } from "@appsmith/utils";
 import {

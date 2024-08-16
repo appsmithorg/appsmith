@@ -6,7 +6,7 @@ import {
   SIZES,
   BUTTON_VARIANTS,
   COLORS,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 import { objectKeys } from "@appsmith/utils";
 
 /**

@@ -1,12 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Button,
-  Flex,
-  BUTTON_VARIANTS,
-  COLORS,
-  SIZES,
-} from "@design-system/widgets";
+import { Button, Flex, BUTTON_VARIANTS, COLORS, SIZES } from "@appsmith/wds";
 import { objectKeys } from "@appsmith/utils";
 
 /**

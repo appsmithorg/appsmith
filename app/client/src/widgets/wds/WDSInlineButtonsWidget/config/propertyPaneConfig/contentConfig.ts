@@ -1,4 +1,4 @@
-import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
