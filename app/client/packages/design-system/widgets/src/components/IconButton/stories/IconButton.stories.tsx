@@ -7,7 +7,7 @@ import {
   BUTTON_VARIANTS,
   COLORS,
   objectKeys,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 
 /**
  * Icon Button is a button component that only contains an icon.

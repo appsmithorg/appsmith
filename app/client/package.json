@@ -50,6 +50,8 @@
   "dependencies": {
     "@appsmith/ads": "workspace:^",
     "@appsmith/ads-old": "workspace:^",
+    "@appsmith/wds": "workspace:^",
+    "@appsmith/wds-theming": "workspace:^",
     "@aws-sdk/client-s3": "^3.622.0",
     "@aws-sdk/lib-storage": "^3.622.0",
     "@babel/standalone": "^7.23.6",
@@ -59,8 +61,6 @@
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
     "@design-system/storybook": "workspace:^",
-    "@design-system/theming": "workspace:^",
-    "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
     "@floating-ui/dom": "^1.6.4",
     "@fusioncharts/powercharts": "^3.16.0",

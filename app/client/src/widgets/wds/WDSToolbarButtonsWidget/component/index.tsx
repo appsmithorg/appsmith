@@ -1,6 +1,6 @@
 import type { Key } from "react";
 import React, { useMemo, useState } from "react";
-import { ToolbarButtons } from "@design-system/widgets";
+import { ToolbarButtons } from "@appsmith/wds";
 import type {
   ToolbarButtonsComponentProps,
   ToolbarButtonsItemComponentProps,

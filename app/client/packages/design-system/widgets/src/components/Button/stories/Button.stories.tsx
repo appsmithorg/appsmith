@@ -7,7 +7,7 @@ import {
   COLORS,
   SIZES,
   objectKeys,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 
 /**
  * A button is a clickable element that is used to trigger an action.
