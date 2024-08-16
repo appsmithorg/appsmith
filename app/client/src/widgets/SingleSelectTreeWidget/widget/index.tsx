@@ -21,7 +21,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import SingleSelectTreeComponent from "../component";
+import SingleSelectTreeComponent, { type TreeSelectProps } from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type {
   AnvilConfig,
@@ -34,6 +34,7 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -663,12 +664,22 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const isDefaultValueRequired: boolean =
+      this.props.isRequired &&
+      this.props.selectedOptionValue === "" &&
+      this.props.defaultOptionValue === "";
+    const isInvalid: boolean =
+      isDefaultValueRequired ||
+      ("isValid" in this.props && !this.props.isValid && !!this.props.isDirty);
     const dropDownWidth =
       (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
+    const conditionalProps: Partial<TreeSelectProps> = {};
+    conditionalProps.errorMessage = this.props.errorMessage;
+    if (isDefaultValueRequired) {
+      conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+    }
 
     return (
       <SingleSelectTreeComponent
@@ -704,6 +715,9 @@ class SingleSelectTreeWidget extends BaseWidget<
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
+        showError={this.props.isWidgetSelected}
+        hasError={isInvalid}
+        {...conditionalProps}
       />
     );
   }

@@ -29,6 +29,7 @@ import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
 import useDropdown from "widgets/useDropdown";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 
 export interface TreeSelectProps
   extends Required<
@@ -64,6 +65,9 @@ export interface TreeSelectProps
   isFilterable: boolean;
   renderMode?: RenderMode;
   options?: DefaultOptionType[];
+  errorMessage?: string;
+  showError?: boolean;
+  hasError?: boolean;
 }
 
 export const NoDataFoundContainer = styled.div`
@@ -138,6 +142,9 @@ function MultiTreeSelectComponent({
   value,
   widgetId,
   width,
+  errorMessage,
+  showError,
+  hasError,
 }: TreeSelectProps): JSX.Element {
   const [key, setKey] = useState(Math.random());
   const [filter, setFilter] = useState(filterText ?? "");
@@ -224,107 +231,112 @@ function MultiTreeSelectComponent({
   };
 
   return (
-    <TreeSelectContainer
-      accentColor={accentColor}
-      allowClear={allowClear}
-      borderRadius={borderRadius}
-      boxShadow={boxShadow}
-      compactMode={compactMode}
-      data-testid="multitreeselect-container"
-      isValid={isValid}
-      labelPosition={labelPosition}
-      ref={_menu as React.RefObject<HTMLDivElement>}
+    <ErrorTooltip
+      isOpen={!!hasError && !!showError}
+      message={errorMessage || ""}
     >
-      <DropdownStyles
+      <TreeSelectContainer
         accentColor={accentColor}
+        allowClear={allowClear}
         borderRadius={borderRadius}
-        dropDownWidth={memoDropDownWidth}
-        id={widgetId}
-      />
-      {labelText && (
-        <LabelWithTooltip
-          alignment={labelAlignment}
-          className={`multitree-select-label`}
-          color={labelTextColor}
-          compact={compactMode}
-          cyHelpTextClassName="multitree-select-tooltip"
-          disabled={disabled}
-          fontSize={labelTextSize}
-          fontStyle={labelStyle}
-          helpText={labelTooltip}
-          isDynamicHeightEnabled={isDynamicHeightEnabled}
-          loading={loading}
-          position={labelPosition}
-          ref={labelRef}
-          text={labelText}
-          width={labelWidth}
+        boxShadow={boxShadow}
+        compactMode={compactMode}
+        data-testid="multitreeselect-container"
+        isValid={isValid}
+        labelPosition={labelPosition}
+        ref={_menu as React.RefObject<HTMLDivElement>}
+      >
+        <DropdownStyles
+          accentColor={accentColor}
+          borderRadius={borderRadius}
+          dropDownWidth={memoDropDownWidth}
+          id={widgetId}
         />
-      )}
-      <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
-        <TreeSelect
-          allowClear={allowClear}
-          animation="slide-up"
-          choiceTransitionName="rc-tree-select-selection__choice-zoom"
-          className="rc-tree-select"
-          clearIcon={
-            <Icon
-              className="clear-icon"
-              fillColor={Colors.GREY_10}
-              name="close-x"
-            />
-          }
-          disabled={disabled}
-          dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${widgetId}`}
-          dropdownRender={dropdownRender}
-          dropdownStyle={dropdownStyle}
-          filterTreeNode
-          getPopupContainer={getPopupContainer}
-          inputIcon={
-            <Icon
-              className="dropdown-icon"
-              fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
-              name="dropdown"
-            />
-          }
-          key={key}
-          loading={loading}
-          maxTagCount={"responsive"}
-          maxTagPlaceholder={(e) => `+${e.length} more`}
-          multiple
-          notFoundContent={
-            <NoDataFoundContainer>No Results Found</NoDataFoundContainer>
-          }
-          onChange={onChange}
-          onClear={onClear}
-          onDropdownVisibleChange={onDropdownVisibleChange}
-          open={isOpen}
-          placeholder={placeholder}
-          ref={selectRef}
-          removeIcon={
-            <Icon
-              className="remove-icon"
-              fillColor={Colors.GREY_10}
-              name="close-x"
-            />
-          }
-          searchValue={filter}
-          showArrow
-          showCheckedStrategy={mode}
-          showSearch={false}
-          style={{ width: "100%" }}
-          switcherIcon={switcherIcon}
-          transitionName="rc-tree-select-dropdown-slide-up"
-          treeCheckable={
-            <span className={`rc-tree-select-tree-checkbox-inner`} />
-          }
-          treeData={options}
-          treeDefaultExpandAll={expandAll}
-          treeIcon
-          treeNodeFilterProp="label"
-          value={value}
-        />
-      </InputContainer>
-    </TreeSelectContainer>
+        {labelText && (
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className={`multitree-select-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            cyHelpTextClassName="multitree-select-tooltip"
+            disabled={disabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            helpText={labelTooltip}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
+            loading={loading}
+            position={labelPosition}
+            ref={labelRef}
+            text={labelText}
+            width={labelWidth}
+          />
+        )}
+        <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
+          <TreeSelect
+            allowClear={allowClear}
+            animation="slide-up"
+            choiceTransitionName="rc-tree-select-selection__choice-zoom"
+            className="rc-tree-select"
+            clearIcon={
+              <Icon
+                className="clear-icon"
+                fillColor={Colors.GREY_10}
+                name="close-x"
+              />
+            }
+            disabled={disabled}
+            dropdownClassName={`tree-multiselect-dropdown multiselecttree-popover-width-${widgetId}`}
+            dropdownRender={dropdownRender}
+            dropdownStyle={dropdownStyle}
+            filterTreeNode
+            getPopupContainer={getPopupContainer}
+            inputIcon={
+              <Icon
+                className="dropdown-icon"
+                fillColor={disabled ? Colors.GREY_7 : Colors.GREY_10}
+                name="dropdown"
+              />
+            }
+            key={key}
+            loading={loading}
+            maxTagCount={"responsive"}
+            maxTagPlaceholder={(e) => `+${e.length} more`}
+            multiple
+            notFoundContent={
+              <NoDataFoundContainer>No Results Found</NoDataFoundContainer>
+            }
+            onChange={onChange}
+            onClear={onClear}
+            onDropdownVisibleChange={onDropdownVisibleChange}
+            open={isOpen}
+            placeholder={placeholder}
+            ref={selectRef}
+            removeIcon={
+              <Icon
+                className="remove-icon"
+                fillColor={Colors.GREY_10}
+                name="close-x"
+              />
+            }
+            searchValue={filter}
+            showArrow
+            showCheckedStrategy={mode}
+            showSearch={false}
+            style={{ width: "100%" }}
+            switcherIcon={switcherIcon}
+            transitionName="rc-tree-select-dropdown-slide-up"
+            treeCheckable={
+              <span className={`rc-tree-select-tree-checkbox-inner`} />
+            }
+            treeData={options}
+            treeDefaultExpandAll={expandAll}
+            treeIcon
+            treeNodeFilterProp="label"
+            value={value}
+          />
+        </InputContainer>
+      </TreeSelectContainer>
+    </ErrorTooltip>
   );
 }
 

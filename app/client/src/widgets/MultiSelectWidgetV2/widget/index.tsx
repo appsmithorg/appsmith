@@ -19,7 +19,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import MultiSelectComponent from "../component";
+import MultiSelectComponent, { type MultiSelectProps } from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type {
   AnvilConfig,
@@ -50,6 +50,7 @@ import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -845,8 +846,19 @@ class MultiSelectWidget extends BaseWidget<
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
-    const isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const isDefaultValueRequired: boolean =
+      this.props.isRequired &&
+      this.props.defaultOptionValue.length <= 0 &&
+      values.length <= 0;
+    const isInvalid: boolean =
+      isDefaultValueRequired ||
+      ("isValid" in this.props && !this.props.isValid && !!this.props.isDirty);
+
+    const conditionalProps: Partial<MultiSelectProps> = {};
+    conditionalProps.errorMessage = this.props.errorMessage;
+    if (isDefaultValueRequired) {
+      conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+    }
 
     return (
       <MultiSelectComponent
@@ -885,6 +897,9 @@ class MultiSelectWidget extends BaseWidget<
         value={values}
         widgetId={this.props.widgetId}
         width={componentWidth}
+        showError={this.props.isWidgetSelected}
+        hasError={isInvalid}
+        {...conditionalProps}
       />
     );
   }
