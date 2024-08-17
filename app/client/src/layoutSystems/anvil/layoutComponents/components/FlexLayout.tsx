@@ -1,6 +1,6 @@
 import "./styles.css";
-import { Flex } from "@design-system/widgets";
-import type { FlexProps } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
+import type { FlexProps } from "@appsmith/wds";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type { PositionValues } from "layoutSystems/anvil/utils/types";

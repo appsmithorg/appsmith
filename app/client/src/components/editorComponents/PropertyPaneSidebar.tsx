@@ -3,9 +3,6 @@ import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
 import React, { memo, useContext, useEffect, useMemo, useRef } from "react";
 
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
@@ -74,11 +71,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
 
   prevSelectedWidgetId.current =
     selectedWidgetIds.length === 1 ? selectedWidgetIds[0] : undefined;
-
-  PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
-  useEffect(() => {
-    PerformanceTracker.stopTracking();
-  });
 
   /**
    * renders the property pane:
