@@ -10,7 +10,7 @@ import { menuItems, submenusItems, submenusItemsWithIcons } from "./menuData";
  */
 const meta: Meta<typeof Menu> = {
   component: Menu,
-  title: "Design-system/Widgets/Menu",
+  title: "WDS/Widgets/Menu",
 };
 
 export default meta;

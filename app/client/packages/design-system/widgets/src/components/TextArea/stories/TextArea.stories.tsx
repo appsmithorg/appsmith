@@ -7,7 +7,7 @@ import { TextArea, Flex } from "@appsmith/wds";
  */
 const meta: Meta<typeof TextArea> = {
   component: TextArea,
-  title: "Design-system/Widgets/TextArea",
+  title: "WDS/Widgets/TextArea",
 };
 
 export default meta;
