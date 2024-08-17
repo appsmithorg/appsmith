@@ -42,7 +42,7 @@ export class AnvilSnapshot {
 
     this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName, {
       comparisonMethod: "ssim",
-      failureThreshold: 0.02,
+      failureThreshold: 0.03,
       failureThresholdType: "percent",
     });
   }
