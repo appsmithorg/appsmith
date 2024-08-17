@@ -27,14 +27,6 @@ app/client/src/widgets/wds/* @appsmithorg/wds-team
 app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
 app/client/src/widgets/anvil/* @appsmithorg/anvil-team
 
-# App viewers pod
-app/client/src/widgets/* @appsmithorg/app-viewers
-app/client/src/components/propertyControls/* @appsmithorg/app-viewers
-app/client/src/sagas/OneClickBindingSaga.ts @appsmithorg/app-viewers
-app/client/src/WidgetQueryGenerators/* @appsmithorg/app-viewers
-app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @appsmithorg/app-viewers
-app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
-
 # New Developers Pod
 app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/* @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierService.java @nilanshbansal
@@ -51,54 +43,6 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/Feature
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagService.java @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFlagServiceImpl.java @nilanshbansal
 app/server/appsmith-server/src/test/java/com/appsmith/server/services/FeatureFlagServiceTest.java @nilanshbansal
-
-# UI Builders Pod
-app/client/generators/* @appsmithorg/ui-builders
-app/client/src/actions/autoHeightActions.ts @appsmithorg/ui-builders
-app/client/src/actions/autoLayoutActions.ts @appsmithorg/ui-builders
-app/client/src/actions/canvasSelectionActions.ts @appsmithorg/ui-builders
-app/client/src/actions/reflowActions.ts @appsmithorg/ui-builders
-app/client/src/actions/widgetSelectionActions.ts @appsmithorg/ui-builders
-app/client/src/components/propertyControls/* @appsmithorg/ui-builders
-app/client/src/layoutSystems/* @appsmithorg/ui-builders
-app/client/src/pages/Editor/Canvas.tsx @appsmithorg/ui-builders
-app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/ui-builders
-app/client/src/pages/Editor/PropertyPane/* @appsmithorg/ui-builders
-app/client/src/pages/Editor/WidgetsEditor/* @appsmithorg/ui-builders
-app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/ui-builders
-app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/ui-builders
-app/client/src/reflow/* @appsmithorg/ui-builders
-app/client/src/sagas/AutoLayoutUpdateSagas.tsx @appsmithorg/ui-builders
-app/client/src/sagas/CanvasSagas/* @appsmithorg/ui-builders
-app/client/src/sagas/ReplaySaga.ts @appsmithorg/ui-builders
-app/client/src/sagas/SnapshotSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetAdditionSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetBlueprintSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetDeletionSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetOperationSagas.tsx @appsmithorg/ui-builders
-app/client/src/sagas/WidgetOperationUtils.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetSelectUtils.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetSelectionSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/autoHeightSagas/* @appsmithorg/ui-builders
-app/client/src/sagas/layoutConversionSagas.ts @appsmithorg/ui-builders
-app/client/src/selectors/autoHeightSelectors.ts @appsmithorg/ui-builders
-app/client/src/selectors/autoLayoutSelectors.tsx @appsmithorg/ui-builders
-app/client/src/selectors/canvasSelectors.ts @appsmithorg/ui-builders
-app/client/src/selectors/widgetSelectors.ts @appsmithorg/ui-builders
-app/client/src/utils/autoHeight/* @appsmithorg/ui-builders
-app/client/src/utils/hooks/autoHeightUIHooks.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/ui-builders
-app/client/src/utils/hooks/useDynamicAppLayout.tsx @appsmithorg/ui-builders
-app/client/src/utils/hooks/usePositionedContainerZIndex.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useReflow.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useWidgetSelection.ts @appsmithorg/ui-builders
-app/client/src/widgets/BaseWidget.tsx @appsmithorg/ui-builders
-app/client/src/widgets/BaseWidgetHOC/* @appsmithorg/ui-builders
-app/client/src/widgets/CanvasWidget.tsx @appsmithorg/ui-builders
-app/client/src/widgets/ContainerWidget/* @appsmithorg/ui-builders
-app/client/src/widgets/MetaHOC.tsx @appsmithorg/ui-builders
-app/client/src/widgets/withWidgetProps.tsx @appsmithorg/ui-builders
 
 # Git Pod
 app/server/appsmith-git/ @appsmithorg/git-be-reviewers
@@ -199,7 +143,7 @@ app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
 app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale
 
 # Enterprise Success
-app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @vivonk @abhvsn
+app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn
 
 # DevOps & Shri
 deploy/**/* @sharat87 @pratapaprasanna
@@ -212,13 +156,15 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/*
 #Cypress
 app/client/cypress/**/* @ApekshaBhosale @sagar-qa007
 
-
 # Performance Pod
 app/client/src/serviceWorker.ts @appsmithorg/performance-pod
 app/client/src/ce/utils/serviceWorkerUtils.ts @appsmithorg/performance-pod
 app/client/src/ee/utils/serviceWorkerUtils.ts @appsmithorg/performance-pod
 app/client/packages/evaluation/**/* @appsmithorg/performance-pod
 app/client/src/UITelemetry/**/* @appsmithorg/performance-pod
+app/client/src/workers/Evaluation/**/* @appsmithorg/performance-pod
+app/client/src/ce/workers/Evaluation/**/* @appsmithorg/performance-pod
+app/client/src/ee/workers/Evaluation/**/* @appsmithorg/performance-pod
 
 # Query JS Pod
 app/client/packages/evaluation/**/* @appsmithorg/query-js-pod
