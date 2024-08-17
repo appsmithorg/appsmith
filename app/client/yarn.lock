@@ -235,7 +235,7 @@ __metadata:
     "@shared/ast": "workspace:^"
   languageName: unknown
   linkType: soft
-  
+
 "@appsmith/wds-headless@workspace:^, @appsmith/wds-headless@workspace:packages/design-system/headless":
   version: 0.0.0-use.local
   resolution: "@appsmith/wds-headless@workspace:packages/design-system/headless"
