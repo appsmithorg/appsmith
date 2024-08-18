@@ -51,16 +51,6 @@ function useRegisterFieldValidity({
         Sentry.captureException(e);
       }
     }, 0);
-
-    setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = klona(prevState.metaInternalFieldState);
-      set(metaInternalFieldState, `${fieldName}.isValid`, isValid);
-
-      return {
-        ...prevState,
-        metaInternalFieldState,
-      };
-    });
   }, [
     isValid,
     fieldName,
@@ -70,6 +60,18 @@ function useRegisterFieldValidity({
     clearErrors,
     setError,
   ]);
+
+  useEffect(() => {
+    setMetaInternalFieldState((prevState) => {
+      const metaInternalFieldState = klona(prevState.metaInternalFieldState);
+      set(metaInternalFieldState, `${fieldName}.isValid`, isValid);
+
+      return {
+        ...prevState,
+        metaInternalFieldState,
+      };
+    });
+  }, [fieldName, isValid, setMetaInternalFieldState]);
 }
 
 export default useRegisterFieldValidity;
