@@ -81,6 +81,23 @@ module.exports = async (on, config) => {
       return launchOptions;
     }
 
+    if (browser.name === "chrome" && browser.isHeadless) {
+      const video = path.join(
+        "cypress",
+        "fixtures",
+        "Videos",
+        "webCamVideo.y4m",
+      );
+      launchOptions.args.push("--disable-dev-shm-usage");
+      launchOptions.args.push("--window-size=1400,1100");
+      launchOptions.args.push("--use-fake-ui-for-media-stream");
+      launchOptions.args.push("--use-fake-device-for-media-stream");
+      //Stream default video source for camera & code scanner
+      launchOptions.args.push(`--use-file-for-fake-video-capture=${video}`);
+      launchOptions.args.push('--force-device-scale-factor=1');
+      return launchOptions;
+    }
+
     if (browser.name === "chromium") {
       launchOptions.args.push("--window-size=1400,1100");
       return launchOptions;

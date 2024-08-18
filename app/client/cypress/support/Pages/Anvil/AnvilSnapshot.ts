@@ -39,10 +39,10 @@ export class AnvilSnapshot {
     const snapshotName = camelCase(
       `anvil_${name}$_${mode}${theme == "dark" ? "_dark" : ""}${size ? `_${size}` : ""}`,
     );
-
+      
     this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName, {
       comparisonMethod: "ssim",
-      failureThreshold: 0.03,
+      failureThreshold: 0.01,
       failureThresholdType: "percent",
     });
   }
