@@ -16,6 +16,7 @@ import {
   propertyPaneContent,
   propertyPaneStyle,
   methodsConfig,
+  autocompleteConfig,
 } from "./config";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
@@ -33,7 +34,6 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   static type = anvilWidgets.SECTION_WIDGET;
@@ -58,9 +58,7 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-    };
+    return autocompleteConfig;
   }
 
   static getSetterConfig(): SetterConfig | null {

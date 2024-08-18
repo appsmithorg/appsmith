@@ -1,4 +1,4 @@
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import type { CSSProperties, Key } from "react";
 import React, { useContext } from "react";
 import type { Row as ReactTableRowType } from "react-table";
