@@ -40,7 +40,7 @@ export interface LeafPageElement
   extends BasePageElement,
     LeafTreeNode<PageElementType> {
   isLeaf: true;
-  children: never;
+  // children: never;
 }
 
 export interface CanvasPageElement
@@ -73,6 +73,7 @@ export interface ButtonPageElement
   type: "WDS_BUTTON_WIDGET";
   variant: keyof typeof ButtonVariant;
   color: keyof typeof Colors;
+  text: string;
   isDisabled: boolean;
   isVisible: boolean;
 }
@@ -91,7 +92,9 @@ interface PageElementTypeMap {
 }
 
 export const generatePageElementId = (prefix = ""): string =>
-  [prefix, generate("1234567890abcdefghijklmnopqrstuvwxyz", 10)].join("_");
+  [prefix, generate("1234567890abcdefghijklmnopqrstuvwxyz", 10)]
+    .filter((x) => x)
+    .join("_");
 
 /**
  * Checks if a PageElement is of a given type and narrows the type
@@ -110,11 +113,11 @@ export const checkPageElementType = <TType extends PageElementType>(
 
 export const isEmptyParentElement = isEmptyTreeNode;
 
+export const hasDynamicProperties = (
+  element: PageElementWithDynamicProperties,
+): boolean => element.dynamicPropertyPathList.length > 0;
+
 // TYPE GUARDS
 export const isParentPageElement = (
   element: PageElement,
 ): element is PageElement & ParentPageElement => isParentTreeNode(element);
-
-export const hasDynamicProperties = (
-  element: PageElementWithDynamicProperties,
-): boolean => element.dynamicPropertyPathList.length > 0;

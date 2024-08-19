@@ -1,4 +1,4 @@
-import { makeLeafTreeNode, makeParentTreeNode } from "../factories/Node";
+import { makeLeafTreeNode, makeParentTreeNode } from "../factories";
 import {
   addNode,
   appendChildNode,

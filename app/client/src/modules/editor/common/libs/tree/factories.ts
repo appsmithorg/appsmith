@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import type { LeafTreeNode, ParentTreeNode, TreeNode } from "../types";
+import type { LeafTreeNode, ParentTreeNode, TreeNode } from "./types";
 
 export const makeTreeNode = (override: Partial<TreeNode> = {}): TreeNode => ({
   id: faker.string.uuid(),

@@ -24,7 +24,7 @@ const canAddChild = (
   rootPageElement: PageElement,
   pageElement: PageElement,
 ): boolean => {
-  return !allowedChildrenMap[rootPageElement.type]?.includes(pageElement.type);
+  return !!allowedChildrenMap[rootPageElement.type]?.includes(pageElement.type);
 };
 
 export const addPageElement = <TElement extends ParentPageElement>(
@@ -43,7 +43,7 @@ export const addPageElement = <TElement extends ParentPageElement>(
 
   if (!canAddChild(targetPageElement, pageElement)) {
     throw new Error(
-      `Cannot add ${pageElement.type} to ${rootPageElement.type} as child`,
+      `Cannot add ${pageElement.type} to ${targetPageElement.type} as child`,
     );
   }
 
