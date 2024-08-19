@@ -65,7 +65,7 @@ public class PageDTO {
     @JsonView(Views.Internal.class)
     protected Map<String, Policy> policyMap = new HashMap<>();
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant deletedAt = null;
 
