@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.helpers.RepositoryFactory;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
+import com.appsmith.server.repositories.cakes.BaseCake;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +57,7 @@ public class TransactionAspect {
                     // Check if it's a write operation
                     boolean isWriteOp = isWriteOp((MethodSignature) joinPoint.getSignature());
 
-                    EntityData entityData = getArgs(joinPoint.getArgs());
+                    EntityData entityData = getEntityData(joinPoint.getArgs(), joinPoint.getTarget());
                     boolean isInsertOp = isWriteOp(entityData, (MethodSignature) joinPoint.getSignature());
 
                     // TODO - remove this once the values are consistent with the new method to check write operation
@@ -106,7 +109,7 @@ public class TransactionAspect {
                 try {
                     if (!context.isEmpty() && context.hasKey(TRANSACTION_CONTEXT)) {
                         Map<String, DBOps> transactionContext = context.get(TRANSACTION_CONTEXT);
-                        EntityData entityData = getArgs(joinPoint.getArgs());
+                        EntityData entityData = getEntityData(joinPoint.getArgs(), joinPoint.getTarget());
 
                         boolean isInsertOp = isWriteOp(entityData, (MethodSignature) joinPoint.getSignature());
 
@@ -135,7 +138,7 @@ public class TransactionAspect {
         return joinPoint.proceed(joinPoint.getArgs());
     }
 
-    private EntityData getArgs(Object[] args) {
+    private EntityData getEntityData(Object[] args, Object target) {
         // To store the baseDomain and the id of the object and BridgeUpdate
         // when the BaseDomain is not present, in the case of updateById methods
 
@@ -158,14 +161,15 @@ public class TransactionAspect {
                 // When the object is new and not present in the DB, we need to generate the id
                 entityData.getBaseDomain().setId(generateId());
                 entityData.setId(entityData.getBaseDomain().getId());
+            } else if (entityData.getId() == null) {
+                entityData.setId(entityData.getBaseDomain().getId());
             }
-        } else if (entityData.getUpdate() != null) {
-            // When the updateById is called with the BridgeUpdate object
-            entityData.setBaseDomain(new BaseDomain() {});
-            entityData.getBaseDomain().setId(entityData.getId());
-        } else if (entityData.getId() != null) {
+        } else if (entityData.getUpdate() != null || entityData.getId() != null) {
+            // When the updateById is called with the BridgeUpdate object or
             // When the id is passed as a parameter to the method for archiveById or deleteById
-            entityData.setBaseDomain(new BaseDomain() {});
+            Object entityClass = createEntityTypeDomainObject(getEntityClassForBridgeUpdate(target));
+            ;
+            entityData.setBaseDomain((BaseDomain) entityClass);
             entityData.getBaseDomain().setId(entityData.getId());
         }
         return entityData;
@@ -180,6 +184,7 @@ public class TransactionAspect {
             UUID.fromString(id);
             return true;
         } catch (IllegalArgumentException e) {
+            log.error("Error while parsing the UUID {}", id, e);
             return false;
         }
     }
@@ -204,7 +209,7 @@ public class TransactionAspect {
     }
 
     private void addEntityToContextMap(Map<String, DBOps> transactionContext, Object obj, EntityData entityData) {
-        AppsmithRepository<?> repository = getDomainClassFromObject(obj);
+        AppsmithRepository<?> repository = getDomainClassFromObject(entityData.getBaseDomain());
         if (repository == null) {
             log.error(" Unable to find the repository for the entity {}", obj.getClass());
             return;
@@ -271,6 +276,33 @@ public class TransactionAspect {
 
     private String getObjectId(DBOps obj) {
         return obj != null && obj.getEntity() instanceof BaseDomain ? ((BaseDomain) obj.getEntity()).getId() : null;
+    }
+
+    private Class<?> getEntityClassForBridgeUpdate(Object target) {
+        Class<?> targetClass = target.getClass();
+
+        if (BaseCake.class.isAssignableFrom(targetClass)) {
+            Type genericSuperclass = targetClass.getGenericSuperclass();
+            if (genericSuperclass instanceof ParameterizedType) {
+                ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
+                Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                if (actualTypeArguments.length > 0) {
+                    Class<?> entityClass = (Class<?>) actualTypeArguments[0];
+                    return entityClass;
+                }
+            }
+        }
+        log.error(" No entity class exists for the given target {}", target.getClass());
+        return null;
+    }
+
+    private Object createEntityTypeDomainObject(Class<?> entityClass) {
+        try {
+            return entityClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            log.error("Error while creating the entity object for the class {}", entityClass, e);
+        }
+        return new BaseDomain() {};
     }
 
     @Getter
