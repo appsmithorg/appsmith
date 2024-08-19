@@ -1,0 +1,11 @@
+{
+  "entry": ["src/index.tsx"],
+  "project": ["src/**/*.tsx"],
+  "ignore": [
+    "packages/**/stories/**",
+    "packages/**/chromatic/**",
+    "packages/design-system/widgets/src/testing/**",
+    "**/*.stories.tsx",
+    "packages/rts/build.js"
+  ]
+}
