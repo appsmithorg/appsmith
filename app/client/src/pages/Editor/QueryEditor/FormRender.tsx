@@ -155,7 +155,7 @@ const FormRender = (props: Props) => {
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
-      if (section.hasOwnProperty("children")) {
+      if (Object.hasOwn(section, "children")) {
         return rederNodeWithChildren(section, formName);
       }
       try {
@@ -185,7 +185,7 @@ const FormRender = (props: Props) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rederNodeWithChildren = (section: any, formName: string) => {
-    if (!section.hasOwnProperty("children")) return;
+    if (!Object.hasOwn(section, "children")) return;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children = section.children.map((section: any, idx: number) =>
@@ -197,14 +197,13 @@ const FormRender = (props: Props) => {
         return <Section>{children}</Section>;
 
       case "SINGLE_COLUMN_ZONE":
-      case "DOUBLE_COLUMN_ZONE":
+      case "DOUBLE_COLUMN_ZONE": {
         const layout =
           section.controlType === "SINGLE_COLUMN_ZONE"
             ? "single_column"
             : "double_column";
         return <Zone layout={layout}>{children}</Zone>;
-
-      case "SECTION":
+      }
       default:
         return children;
     }
