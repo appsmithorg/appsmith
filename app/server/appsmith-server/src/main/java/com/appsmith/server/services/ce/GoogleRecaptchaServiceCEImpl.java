@@ -56,9 +56,6 @@ public class GoogleRecaptchaServiceCEImpl implements CaptchaServiceCE {
                         .build())
                 .exchange()
                 .flatMap(response -> {
-                    if (!response.statusCode().is2xxSuccessful()) {
-                        log.error("Failed to verify recaptcha response. Status code: {}", response.statusCode());
-                    }
                     return response.bodyToMono(String.class).zipWith(Mono.just(response.statusCode()));
                 })
                 .flatMap(tuple -> {
