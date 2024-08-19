@@ -34,7 +34,7 @@
           "conditionals": {
             "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
           },
-          "children":[
+          "children": [
             {
               "label": "Models",
               "tooltipText": "Select the model for response generation",
@@ -105,10 +105,10 @@
         {
           "controlType": "DOUBLE_COLUMN_ZONE",
           "identifier": "SO-Z4",
-          "conditionals":{
+          "conditionals": {
             "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
           },
-          "children":[
+          "children": [
             {
               "label": "Models",
               "tooltipText": "Select the model for response generation",
@@ -177,14 +177,14 @@
     {
       "controlType": "SECTION_V2",
       "identifier": "SECTION-TWO",
-      "children":[
+      "children": [
         {
           "controlType": "SINGLE_COLUMN_ZONE",
           "identifier": "ST-Z1",
           "conditionals": {
             "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
           },
-          "children":[
+          "children": [
             {
               "label": "Messages",
               "tooltipText": "Ask a question",
@@ -225,10 +225,10 @@
         {
           "controlType": "SINGLE_COLUMN_ZONE",
           "identifier": "ST-Z2",
-          "conditionals":{
-            "show":"{{actionConfiguration.formData.command.data === 'VISION'}}"
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
           },
-          "children":[
+          "children": [
             {
               "label": "Messages",
               "tooltipText": "Ask a question",
@@ -294,7 +294,7 @@
           "conditionals": {
             "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
           },
-          "children":[
+          "children": [
             {
               "label": "Temperature",
               "tooltipText": "Put a value between 0 and 1",
@@ -313,12 +313,12 @@
           ]
         },
         {
-          "controlType":"DOUBLE_COLUMN_ZONE",
-          "identifier":"STH-Z2",
-          "conditionals":{
-            "show":"{{actionConfiguration.formData.command.data === 'VISION'}}"
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "STH-Z2",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
           },
-          "children":[
+          "children": [
             {
               "label": "Temperature",
               "tooltipText": "Put a value between 0 and 1",
