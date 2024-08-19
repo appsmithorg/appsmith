@@ -6,6 +6,8 @@
     "packages/**/chromatic/**",
     "packages/design-system/widgets/src/testing/**",
     "**/*.stories.tsx",
-    "packages/rts/build.js"
+    "packages/rts/build.js",
+    "packages/design-system/ads/src/Documentation/**",
+    "src/components/designSystems/blueprintjs/**"
   ]
 }
