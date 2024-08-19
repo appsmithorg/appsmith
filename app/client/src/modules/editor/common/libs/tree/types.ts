@@ -3,7 +3,7 @@ export interface TreeNode<TType extends string = string> {
   type: TType;
   isLeaf: boolean;
   parentId: string | null;
-  children: TreeNode[];
+  // children: TreeNode[];
 }
 
 export interface ParentTreeNode<TType extends string = string>
@@ -15,7 +15,7 @@ export interface ParentTreeNode<TType extends string = string>
 export interface LeafTreeNode<TType extends string = string>
   extends TreeNode<TType> {
   isLeaf: true;
-  children: never;
+  // children: never;
 }
 
 export type Tree = TreeNode;

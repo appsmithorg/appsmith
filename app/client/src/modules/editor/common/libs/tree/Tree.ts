@@ -1,11 +1,12 @@
-import type { TreeNode } from "./types";
+import { isParentTreeNode } from "./Node";
+import type { ParentTreeNode, TreeNode } from "./types";
 
 /**
  * @param targetNode The node to add a child to
  * @param node The child node to add
  * @returns The new node with the added child
  */
-const appendChildNode = <TNode extends TreeNode>(
+export const appendChildNode = <TNode extends ParentTreeNode>(
   targetNode: TNode,
   node: TreeNode,
 ): TNode => ({
@@ -21,18 +22,18 @@ const appendChildNode = <TNode extends TreeNode>(
  * @param node The child node to add
  * @returns The new tree with the added node
  */
-export const addNode = <TNode extends TreeNode>(
+export const addNode = <TNode extends ParentTreeNode>(
   rootNode: TNode,
   targetNodeId: string,
   node: TreeNode,
 ): TNode => {
   if (rootNode.id === targetNodeId) return appendChildNode(rootNode, node);
 
-  if (rootNode.isLeaf) return rootNode;
+  const newChildren = rootNode.children.map((child) => {
+    if (!isParentTreeNode(child)) return child;
 
-  const newChildren = rootNode.children.map((child) =>
-    addNode(child, targetNodeId, node),
-  );
+    return addNode(child, targetNodeId, node);
+  });
 
   return { ...rootNode, children: newChildren };
 };
@@ -45,13 +46,19 @@ export const addNode = <TNode extends TreeNode>(
  * @returns The new tree with the removed node
  */
 export const removeNode = (
-  rootNode: TreeNode,
+  rootNode: ParentTreeNode,
   nodeId: string,
-): TreeNode | null => {
+): ParentTreeNode | null => {
   if (rootNode.id === nodeId) return null;
 
   const newChildren = rootNode.children
-    .map((child) => removeNode(child, nodeId))
+    .map((child) => {
+      if (child.id === nodeId) return null;
+
+      if (!isParentTreeNode(child)) return child;
+
+      return removeNode(child, nodeId);
+    })
     .filter((child) => child !== null);
 
   return { ...rootNode, children: newChildren };
@@ -66,14 +73,16 @@ export const removeNode = (
  * @returns The found node or null
  */
 export const findNode = (
-  rootNode: TreeNode,
+  rootNode: ParentTreeNode,
   nodeId: string,
 ): TreeNode | null => {
   if (rootNode.id === nodeId) return rootNode;
 
-  if (rootNode.isLeaf) return null;
-
   for (const child of rootNode.children) {
+    if (child.id === nodeId) return child;
+
+    if (!isParentTreeNode(child)) continue;
+
     const node = findNode(child, nodeId);
 
     if (node) return node;
@@ -91,7 +100,7 @@ export const findNode = (
  * @returns The new tree with the moved node
  */
 export const moveNode = (
-  rootNode: TreeNode,
+  rootNode: ParentTreeNode,
   nodeId: string,
   targetNodeId: string,
 ) => {
@@ -105,7 +114,11 @@ export const moveNode = (
 
   // To move node it first needs to be copied to the new parent
   // and then removed from the old parent
-  return removeNode(addNode(rootNode, targetNodeId, nodeToMove), nodeId);
+  const updatedRootNode = removeNode(rootNode, nodeId);
+
+  if (!updatedRootNode) return rootNode;
+
+  return addNode(updatedRootNode, targetNodeId, nodeToMove);
 };
 
 /**
@@ -117,17 +130,21 @@ export const moveNode = (
  * @returns The new tree with the updated node
  */
 export const updateNode = (
-  rootNode: TreeNode,
+  rootNode: ParentTreeNode,
   nodeId: string,
   data: Partial<TreeNode>,
-) => {
+): ParentTreeNode => {
   const nodeToUpdate = findNode(rootNode, nodeId);
 
   if (!nodeToUpdate) return rootNode;
 
   const updatedNode: TreeNode = { ...nodeToUpdate, ...data };
 
-  if (updatedNode.parentId === null) return updatedNode;
+  if (updatedNode.parentId === null) return rootNode;
 
-  return moveNode(rootNode, nodeId, updatedNode.parentId);
+  const updatedRootNode = removeNode(rootNode, nodeId);
+
+  if (!updatedRootNode) return rootNode;
+
+  return addNode(updatedRootNode, updatedNode.parentId, updatedNode);
 };

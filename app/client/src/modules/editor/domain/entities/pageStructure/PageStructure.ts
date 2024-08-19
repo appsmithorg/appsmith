@@ -1,9 +1,10 @@
+import { addNode, findNode } from "../../../common/libs/tree/Tree";
 import type {
   CanvasPageElement,
   PageElement,
   PageElementType,
+  ParentPageElement,
 } from "./PageElement";
-import { addNode, findNode } from "../../../common/libs/tree/Tree";
 
 export type PageStructure = CanvasPageElement;
 
@@ -14,7 +15,7 @@ const allowedChildrenMap: { [key in PageElementType]?: PageElementType[] } = {
 };
 
 export const findPageElement = (
-  rootPageElement: PageElement,
+  rootPageElement: ParentPageElement,
   pageElementId: string,
 ): PageElement | null =>
   findNode(rootPageElement, pageElementId) as PageElement; // TODO: Remove casting
@@ -26,7 +27,7 @@ const canAddChild = (
   return !allowedChildrenMap[rootPageElement.type]?.includes(pageElement.type);
 };
 
-export const addPageElement = <TElement extends PageElement>(
+export const addPageElement = <TElement extends ParentPageElement>(
   rootPageElement: TElement,
   targetPageElementId: string,
   pageElement: PageElement,
