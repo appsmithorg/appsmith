@@ -433,11 +433,11 @@ class SelectComponent extends React.Component<
               displayText={value.toString()}
               handleCancelClick={this.handleCancelClick}
               hideCancelIcon={this.props.hideCancelIcon}
+              isRequired={this.props.isRequired}
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
               value={this.props.value?.toString()}
-              isRequired={this.props.isRequired}
             />
           </StyledSingleDropDown>
         </StyledControlGroup>
