@@ -1,4 +1,4 @@
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import React, { memo } from "react";
 import { getDragHandlers } from "widgets/wds/WDSTableWidget/widget/utilities";
 import { HeaderCell } from "../cellComponents/HeaderCell";

@@ -1,7 +1,7 @@
 import { Meta, ArgTypes } from "@storybook/blocks";
-import { ThemeProvider } from "@design-system/theming";
+import { ThemeProvider } from "@appsmith/wds-theming";
 
-<Meta title="Design-system/Theme/Theme" component={ThemeProvider} />
+<Meta title="WDS/Theme/Theme" component={ThemeProvider} />
 
 # Theme
 
@@ -25,7 +25,7 @@ export const Template = () => <ThemeProvider theme={{}} />;
 A hook that helps dynamically update tokens depending on incoming parameters.
 
 ```javascript
-import { ThemeProvider, useTheme } from "@design-system/theming";
+import { ThemeProvider, useTheme } from "@appsmith/wds-theming";
 
 const { theme } = useTheme({
   seedColor,
@@ -56,7 +56,7 @@ import {
   TokensAccessor,
   defaultTokens,
   useFluidTokens,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 
 export const theming = (Story, args) => {
   const { fluid, ...restDefaultTokens } = defaultTokens;
