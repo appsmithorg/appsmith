@@ -10,12 +10,11 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { useCurrentEditorState } from "../../hooks";
-import type { AnimatedGridUnit } from "components/AnimatedGridLayout";
 import { previewModeSelector } from "selectors/editorSelectors";
 
-export const useEditorStateLeftPaneWidth = (): AnimatedGridUnit => {
+export const useEditorStateLeftPaneWidth = (): number => {
   const [windowWidth] = useWindowDimensions();
-  const [width, setWidth] = useState(windowWidth - APP_SIDEBAR_WIDTH + "px");
+  const [width, setWidth] = useState(windowWidth - APP_SIDEBAR_WIDTH);
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
@@ -23,19 +22,19 @@ export const useEditorStateLeftPaneWidth = (): AnimatedGridUnit => {
   useEffect(
     function updateWidth() {
       if (isPreviewMode) {
-        setWidth("0px");
+        setWidth(0);
       } else if (segment !== EditorEntityTab.UI) {
         if (editorMode === EditorViewMode.SplitScreen) {
-          setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
+          setWidth(windowWidth * SPLIT_SCREEN_RATIO);
         } else {
-          setWidth(windowWidth - APP_SIDEBAR_WIDTH + "px");
+          setWidth(windowWidth - APP_SIDEBAR_WIDTH);
         }
       } else {
-        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
+        setWidth(DEFAULT_EXPLORER_PANE_WIDTH);
       }
     },
     [editorMode, segment, propertyPaneWidth, windowWidth, isPreviewMode],
   );
 
-  return width as AnimatedGridUnit;
+  return width;
 };
