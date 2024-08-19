@@ -1,4 +1,4 @@
-@import "@design-system/widgets/src/shared/colors/colors.module.css";
+@import "@appsmith/wds/src/shared/colors/colors.module.css";
 
 .table {
   --th-height: calc(
@@ -78,6 +78,10 @@
     border-block-end: var(--border-width-1) solid var(--color-bd);
   }
 
+  & thead [role="columnheader"][aria-hidden] {
+    opacity: var(--opacity-disabled);
+  }
+
   &[data-variant="default"] thead [role="columnheader"] {
     border-inline-end: var(--border-width-1) solid var(--color-bd);
   }
@@ -149,6 +153,10 @@
   & [role="cell"] {
     position: relative;
     background-color: var(--color-bg-elevation-3);
+  }
+
+  & [role="cell"][aria-hidden] {
+    opacity: var(--opacity-disabled);
   }
 
   & [role="row"][aria-checked="true"] [role="cell"] {

@@ -72,7 +72,6 @@ import {
   extractClientDefinedErrorMetadata,
   validateResponse,
 } from "sagas/ErrorSagas";
-import type { EventName } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
@@ -103,9 +102,6 @@ import {
   getLayoutOnLoadActions,
   getLayoutOnLoadIssues,
 } from "selectors/editorSelectors";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "ee/reducers";
@@ -534,13 +530,6 @@ export default function* executePluginActionTriggerSaga(
       getType(params),
     );
   }
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.EXECUTE_ACTION,
-    {
-      actionId: actionId,
-    },
-    actionId,
-  );
 
   setAttributesToSpan(span, {
     actionId: actionId,
@@ -700,19 +689,9 @@ function* runActionShortcutSaga() {
   });
 
   if (!match || !match.params) return;
-  const { baseApiId, basePageId, baseQueryId } = match.params;
+  const { baseApiId, baseQueryId } = match.params;
   const actionId = baseApiId || baseQueryId;
   if (actionId) {
-    const trackerId = baseApiId
-      ? PerformanceTransactionName.RUN_API_SHORTCUT
-      : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
-    PerformanceTracker.startTracking(trackerId, {
-      actionId,
-      basePageId,
-    });
-    AnalyticsUtil.logEvent(trackerId as EventName, {
-      actionId,
-    });
     yield put(runAction(actionId));
   } else {
     return;
@@ -1205,13 +1184,6 @@ function* executePageLoadAction(
         }),
       );
 
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.EXECUTE_ACTION,
-        {
-          failed: true,
-        },
-        pageAction.id,
-      );
       AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
         type: pageAction.pluginType,
         name: actionName,
@@ -1254,11 +1226,6 @@ function* executePageLoadAction(
           ? actionExecutionContext
           : ActionExecutionContext.PAGE_LOAD,
       });
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.EXECUTE_ACTION,
-        undefined,
-        pageAction.id,
-      );
 
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
@@ -1280,10 +1247,6 @@ function* executePageLoadActionsSaga(
     setAttributesToSpan(span, { numActions: actionCount });
     // when cyclical depedency issue is there,
     // none of the page load actions would be executed
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-      { numActions: actionCount },
-    );
     for (const actionSet of pageActions) {
       // Load all sets in parallel
       // @ts-expect-error: no idea how to type this
@@ -1298,9 +1261,6 @@ function* executePageLoadActionsSaga(
         ),
       );
     }
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_PAGE_LOAD_ACTIONS,
-    );
     // We show errors in the debugger once onPageLoad actions
     // are executed
     yield put(hideDebuggerErrors(false));
@@ -1362,13 +1322,7 @@ function* executePluginActionSaga(
       throw new UserCancelledActionExecutionError();
     }
   }
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.EXECUTE_ACTION,
-    {
-      actionId: actionId,
-    },
-    actionId,
-  );
+
   yield put(executePluginActionRequest({ id: actionId }));
 
   const appMode: APP_MODE | undefined = yield select(getAppMode);
@@ -1413,9 +1367,6 @@ function* executePluginActionSaga(
     response = yield ActionAPI.executeAction(formData, timeout, parentSpan);
 
     const isError = isErrorResponse(response);
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.EXECUTE_ACTION,
-    );
     yield validateResponse(response);
     payload = createActionExecutionResponse(response);
 

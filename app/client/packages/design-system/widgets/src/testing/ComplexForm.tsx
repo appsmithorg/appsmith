@@ -19,7 +19,7 @@ import {
   ModalBody,
   ModalFooter,
   ModalContent,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 // This component is used only for testing purpose and is not used in the prod
 
 export const ComplexForm = () => {

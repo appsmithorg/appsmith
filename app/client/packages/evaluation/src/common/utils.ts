@@ -1,10 +1,19 @@
 import isPlainObject from "lodash/isPlainObject";
-import isInteger from "lodash/isInteger";
+import lodashIsInteger from "lodash/isInteger";
 
 export const isTrueObject = (
   value: unknown,
 ): value is Record<string, unknown> => {
   return isPlainObject(value);
+};
+
+const isInteger = (value: string | number) => {
+  if (typeof value === "number") {
+    return lodashIsInteger(value);
+  } else if (typeof value === "string") {
+    return /^\d+$/.test(value.trim());
+  }
+  return false;
 };
 
 export const convertPathToString = (arrPath: Array<string | number>) => {

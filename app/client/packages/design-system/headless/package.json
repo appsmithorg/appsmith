@@ -1,5 +1,5 @@
 {
-  "name": "@design-system/headless",
+  "name": "@appsmith/wds-headless",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
