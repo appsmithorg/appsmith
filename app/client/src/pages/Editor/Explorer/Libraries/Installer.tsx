@@ -52,7 +52,7 @@ const Wrapper = styled.div`
       margin-bottom: 16px;
       .left-icon {
         margin-left: 14px;
-        .cs-icon {
+        .ads-v2-icon {
           margin-right: 0;
         }
       }

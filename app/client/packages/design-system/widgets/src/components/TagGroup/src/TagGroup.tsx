@@ -12,7 +12,7 @@ import type {
 
 import { Text } from "../../Text";
 import styles from "./styles.module.css";
-import { getTypographyClassName } from "@design-system/theming";
+import { getTypographyClassName } from "@appsmith/wds-theming";
 
 export interface TagGroupProps<T>
   extends Omit<HeadlessTagGroupProps, "children">,

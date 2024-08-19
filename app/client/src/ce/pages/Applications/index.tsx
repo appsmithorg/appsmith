@@ -75,9 +75,6 @@ import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled, { ThemeContext } from "styled-components";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 
 import { getAppsmithConfigs } from "ee/configs";
 import type { Workspace } from "ee/constants/workspaceConstants";
@@ -1120,8 +1117,6 @@ export class Applications<
   }
 
   componentDidMount() {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
-    PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     const urlParams = new URLSearchParams(window.location.search);
     const workspaceIdFromQueryParams = urlParams.get("workspaceId");
     this.props.getAllWorkspaces({

@@ -8,9 +8,6 @@ import React, {
 } from "react";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { getSelectedWidgets } from "selectors/ui";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
 import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
@@ -44,11 +41,6 @@ export const PropertyPaneSidebar = memo(() => {
 
   prevSelectedWidgetId.current =
     selectedWidgetIds.length === 1 ? selectedWidgetIds[0] : undefined;
-
-  PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
-  useEffect(() => {
-    PerformanceTracker.stopTracking();
-  });
 
   /**
    * renders the property pane:

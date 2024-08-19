@@ -228,6 +228,75 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@appsmith/wds-headless@workspace:^, @appsmith/wds-headless@workspace:packages/design-system/headless":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/wds-headless@workspace:packages/design-system/headless"
+  dependencies:
+    "@floating-ui/react": ^0.24.0
+    "@react-aria/button": ^3.7.0
+    "@react-aria/checkbox": ^3.9.0
+    "@react-aria/focus": ^3.11.0
+    "@react-aria/interactions": ^3.14.0
+    "@react-aria/menu": ^3.11.1
+    "@react-aria/radio": ^3.6.1
+    "@react-aria/switch": ^3.5.2
+    "@react-aria/textfield": ^3.11.0
+    "@react-aria/utils": ^3.16.0
+    "@react-aria/visually-hidden": ^3.8.0
+    "@react-spectrum/utils": ^3.9.0
+    "@react-stately/checkbox": ^3.4.1
+    "@react-stately/collections": ^3.10.2
+    "@react-stately/menu": ^3.5.6
+    "@react-stately/radio": ^3.8.1
+    "@react-stately/toggle": ^3.5.1
+    "@react-types/button": ^3.7.1
+    "@react-types/checkbox": ^3.4.3
+    "@react-types/label": ^3.7.3
+    "@react-types/menu": ^3.9.5
+    "@react-types/shared": ^3.23.1
+    classnames: "*"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  languageName: unknown
+  linkType: soft
+
+"@appsmith/wds-theming@workspace:^, @appsmith/wds-theming@workspace:packages/design-system/theming":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/wds-theming@workspace:packages/design-system/theming"
+  dependencies:
+    "@capsizecss/core": ^3.1.1
+    "@capsizecss/metrics": ^1.2.0
+    "@emotion/sheet": ^1.2.2
+    lodash: "*"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  languageName: unknown
+  linkType: soft
+
+"@appsmith/wds@workspace:^, @appsmith/wds@workspace:packages/design-system/widgets":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/wds@workspace:packages/design-system/widgets"
+  dependencies:
+    "@appsmith/wds-headless": "workspace:^"
+    "@appsmith/wds-theming": "workspace:^"
+    "@emotion/css": ^11.11.2
+    "@react-aria/actiongroup": ^3.7.0
+    "@react-aria/utils": ^3.16.0
+    "@react-aria/visually-hidden": ^3.8.0
+    "@react-types/actiongroup": ^3.4.6
+    "@react-types/shared": ^3.23.1
+    "@tabler/icons-react": ^3.10.0
+    "@types/fs-extra": ^11.0.4
+    clsx: ^2.0.0
+    colorjs.io: ^0.5.2
+    eslint-plugin-storybook: ^0.6.10
+    lodash: "*"
+    react-aria-components: ^1.2.1
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  languageName: unknown
+  linkType: soft
+
 "@aws-crypto/crc32@npm:5.2.0":
   version: 5.2.0
   resolution: "@aws-crypto/crc32@npm:5.2.0"
@@ -3065,46 +3134,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@design-system/headless@workspace:^, @design-system/headless@workspace:packages/design-system/headless":
-  version: 0.0.0-use.local
-  resolution: "@design-system/headless@workspace:packages/design-system/headless"
-  dependencies:
-    "@floating-ui/react": ^0.24.0
-    "@react-aria/button": ^3.7.0
-    "@react-aria/checkbox": ^3.9.0
-    "@react-aria/focus": ^3.11.0
-    "@react-aria/interactions": ^3.14.0
-    "@react-aria/menu": ^3.11.1
-    "@react-aria/radio": ^3.6.1
-    "@react-aria/switch": ^3.5.2
-    "@react-aria/textfield": ^3.11.0
-    "@react-aria/utils": ^3.16.0
-    "@react-aria/visually-hidden": ^3.8.0
-    "@react-spectrum/utils": ^3.9.0
-    "@react-stately/checkbox": ^3.4.1
-    "@react-stately/collections": ^3.10.2
-    "@react-stately/menu": ^3.5.6
-    "@react-stately/radio": ^3.8.1
-    "@react-stately/toggle": ^3.5.1
-    "@react-types/button": ^3.7.1
-    "@react-types/checkbox": ^3.4.3
-    "@react-types/label": ^3.7.3
-    "@react-types/menu": ^3.9.5
-    "@react-types/shared": ^3.23.1
-    classnames: "*"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
-  languageName: unknown
-  linkType: soft
-
 "@design-system/storybook@workspace:^, @design-system/storybook@workspace:packages/storybook":
   version: 0.0.0-use.local
   resolution: "@design-system/storybook@workspace:packages/storybook"
   dependencies:
+    "@appsmith/wds": "workspace:^"
+    "@appsmith/wds-headless": "workspace:^"
+    "@appsmith/wds-theming": "workspace:^"
     "@chromatic-com/storybook": ^1.6.1
-    "@design-system/headless": "workspace:^"
-    "@design-system/theming": "workspace:^"
-    "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
     "@storybook/addon-a11y": ^8.2.7
     "@storybook/addon-controls": ^8.2.7
@@ -3131,19 +3168,6 @@ __metadata:
     storybook: ^8.2.7
     vite: ^5.3.5
     vite-plugin-svgr: ^4.2.0
-  languageName: unknown
-  linkType: soft
-
-"@design-system/theming@workspace:^, @design-system/theming@workspace:packages/design-system/theming":
-  version: 0.0.0-use.local
-  resolution: "@design-system/theming@workspace:packages/design-system/theming"
-  dependencies:
-    "@capsizecss/core": ^3.1.1
-    "@capsizecss/metrics": ^1.2.0
-    "@emotion/sheet": ^1.2.2
-    lodash: "*"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
   linkType: soft
 
@@ -3181,30 +3205,6 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  languageName: unknown
-  linkType: soft
-
-"@design-system/widgets@workspace:^, @design-system/widgets@workspace:packages/design-system/widgets":
-  version: 0.0.0-use.local
-  resolution: "@design-system/widgets@workspace:packages/design-system/widgets"
-  dependencies:
-    "@design-system/headless": "workspace:^"
-    "@design-system/theming": "workspace:^"
-    "@emotion/css": ^11.11.2
-    "@react-aria/actiongroup": ^3.7.0
-    "@react-aria/utils": ^3.16.0
-    "@react-aria/visually-hidden": ^3.8.0
-    "@react-types/actiongroup": ^3.4.6
-    "@react-types/shared": ^3.23.1
-    "@tabler/icons-react": ^3.10.0
-    "@types/fs-extra": ^11.0.4
-    clsx: ^2.0.0
-    colorjs.io: ^0.5.2
-    eslint-plugin-storybook: ^0.6.10
-    lodash: "*"
-    react-aria-components: ^1.2.1
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
   linkType: soft
 
@@ -8473,19 +8473,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/tracing@npm:^6.2.4":
-  version: 6.2.4
-  resolution: "@sentry/tracing@npm:6.2.4"
-  dependencies:
-    "@sentry/hub": 6.2.4
-    "@sentry/minimal": 6.2.4
-    "@sentry/types": 6.2.4
-    "@sentry/utils": 6.2.4
-    tslib: ^1.9.3
-  checksum: 74fb1cf110e10fda9b5eac1c7e0eb92204311d336bcd30642a33fde3a3a0fd73ed8d13ea62e744059adf6bb84d638ec5a35e8d2b40af2f5ff3131c0fb70017a5
-  languageName: node
-  linkType: hard
-
 "@sentry/types@npm:6.2.4":
   version: 6.2.4
   resolution: "@sentry/types@npm:6.2.4"
@@ -13163,6 +13150,8 @@ __metadata:
   dependencies:
     "@appsmith/ads": "workspace:^"
     "@appsmith/ads-old": "workspace:^"
+    "@appsmith/wds": "workspace:^"
+    "@appsmith/wds-theming": "workspace:^"
     "@aws-sdk/client-s3": ^3.622.0
     "@aws-sdk/lib-storage": ^3.622.0
     "@babel/helper-create-regexp-features-plugin": ^7.18.6
@@ -13176,8 +13165,6 @@ __metadata:
     "@craco/craco": ^7.0.0
     "@cypress/grep": ^4.0.1
     "@design-system/storybook": "workspace:^"
-    "@design-system/theming": "workspace:^"
-    "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
     "@faker-js/faker": ^7.4.0
     "@floating-ui/dom": ^1.6.4
@@ -13204,7 +13191,6 @@ __metadata:
     "@react-types/shared": ^3.23.0
     "@redux-saga/testing-utils": ^1.1.5
     "@sentry/react": ^6.2.4
-    "@sentry/tracing": ^6.2.4
     "@sentry/webpack-plugin": ^1.18.9
     "@shared/ast": "workspace:^"
     "@shared/dsl": "workspace:^"
@@ -18045,8 +18031,8 @@ __metadata:
   linkType: hard
 
 "elliptic@npm:^6.5.3, elliptic@npm:^6.5.4":
-  version: 6.5.4
-  resolution: "elliptic@npm:6.5.4"
+  version: 6.5.7
+  resolution: "elliptic@npm:6.5.7"
   dependencies:
     bn.js: ^4.11.9
     brorand: ^1.1.0
@@ -18055,7 +18041,7 @@ __metadata:
     inherits: ^2.0.4
     minimalistic-assert: ^1.0.1
     minimalistic-crypto-utils: ^1.0.1
-  checksum: d56d21fd04e97869f7ffcc92e18903b9f67f2d4637a23c860492fbbff5a3155fd9ca0184ce0c865dd6eb2487d234ce9551335c021c376cd2d3b7cb749c7d10f4
+  checksum: af0ffddffdbc2fea4eeec74388cd73e62ed5a0eac6711568fb28071566319785df529c968b0bf1250ba4bc628e074b2d64c54a633e034aa6f0c6b152ceb49ab8
   languageName: node
   linkType: hard
 

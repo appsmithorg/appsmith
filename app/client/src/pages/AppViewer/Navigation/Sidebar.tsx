@@ -197,7 +197,6 @@ export function Sidebar(props: SidebarProps) {
               key={page.pageId}
             >
               <MenuItem
-                isMinimal={isMinimal}
                 key={page.pageId}
                 navigationSetting={
                   currentApplicationDetails?.applicationDetail
