@@ -1,13 +1,11 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
-import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -34,9 +32,10 @@ import java.util.stream.Collectors;
 public class OAuth2 extends AuthenticationDTO {
 
     public enum Type {
-        @JsonProperty(Authentication.CLIENT_CREDENTIALS)
+        // We are facing issues in the release DB where the object is not respecting the JsonProperty annotation
+        // @JsonProperty(Authentication.CLIENT_CREDENTIALS)
         CLIENT_CREDENTIALS,
-        @JsonProperty(Authentication.AUTHORIZATION_CODE)
+        // @JsonProperty(Authentication.AUTHORIZATION_CODE)
         AUTHORIZATION_CODE
     }
 
