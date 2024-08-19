@@ -12,6 +12,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.TransactionHandlerDTO;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CustomJSLibRepository;
@@ -25,8 +26,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -52,15 +51,6 @@ public class TransactionHandlerCEImpl implements TransactionHandlerCE {
     private final ActionCollectionRepository actionCollectionRepository;
 
     private final TransactionTemplate transactionTemplate;
-
-    private List<Datasource> datasourceList = new ArrayList<>();
-    private List<DatasourceStorage> datasourceStorageList = new ArrayList<>();
-    private List<Theme> themeList = new ArrayList<>();
-    private List<NewPage> newPageList = new ArrayList<>();
-    private List<ActionCollection> actionCollectionList = new ArrayList<>();
-    private List<NewAction> actionList = new ArrayList<>();
-    private final Application[] application = {new Application()};
-    private List<CustomJSLib> customJSLibList = new ArrayList<>();
 
     public void saveDatasourceToDb(Datasource datasource) {
         datasourceRepository.save(datasource);
@@ -129,44 +119,50 @@ public class TransactionHandlerCEImpl implements TransactionHandlerCE {
     @Override
     public Mono<Void> cleanUpDatabase(Map<String, TransactionAspect.DBOps> entityMap) {
         // Extract all the entities into their respective lists
-        populateEntityData(entityMap);
-
-        return processEntitiesAndUpdateDBState(entityMap);
+        TransactionHandlerDTO transactionHandlerDTO = new TransactionHandlerDTO();
+        return populateEntityData(entityMap, transactionHandlerDTO)
+                .then(Mono.defer(() -> processEntitiesAndUpdateDBState(entityMap, transactionHandlerDTO)));
     }
 
     @Override
-    public Mono<Void> processEntitiesAndUpdateDBState(Map<String, TransactionAspect.DBOps> entityMap) {
+    public Mono<Void> processEntitiesAndUpdateDBState(
+            Map<String, TransactionAspect.DBOps> entityMap, TransactionHandlerDTO transactionHandlerDTO) {
         return asMonoDirect(() -> {
                     transactionTemplate.executeWithoutResult(transactionStatus -> {
-                        for (Datasource datasource : datasourceList) {
+                        for (Datasource datasource : transactionHandlerDTO.getDatasourceList()) {
                             processEntity(datasource, entityMap, this::archiveDatasource, this::saveDatasourceToDb);
                         }
-                        for (DatasourceStorage datasourceStorage : datasourceStorageList) {
+                        for (DatasourceStorage datasourceStorage : transactionHandlerDTO.getDatasourceStorageList()) {
                             processEntity(
                                     datasourceStorage,
                                     entityMap,
                                     this::archiveDatasourceStorage,
                                     this::saveDatasourceStorageToDb);
                         }
-                        for (Theme theme : themeList) {
+                        for (Theme theme : transactionHandlerDTO.getThemeList()) {
                             processEntity(theme, entityMap, this::archiveTheme, this::saveThemeToDb);
                         }
-                        processEntity(application[0], entityMap, this::archiveApplication, this::saveApplicationToDb);
-
-                        for (CustomJSLib customJSLib : customJSLibList) {
+                        if (transactionHandlerDTO.getApplication() != null) {
+                            processEntity(
+                                    transactionHandlerDTO.getApplication(),
+                                    entityMap,
+                                    this::archiveApplication,
+                                    this::saveApplicationToDb);
+                        }
+                        for (CustomJSLib customJSLib : transactionHandlerDTO.getCustomJSLibList()) {
                             processEntity(customJSLib, entityMap, this::archiveCustomJSLib, this::saveCustomJSLibToDb);
                         }
-                        for (NewPage newPage : newPageList) {
+                        for (NewPage newPage : transactionHandlerDTO.getNewPageList()) {
                             processEntity(newPage, entityMap, this::archiveNewPage, this::saveNewPageToDb);
                         }
-                        for (ActionCollection actionCollection : actionCollectionList) {
+                        for (ActionCollection actionCollection : transactionHandlerDTO.getActionCollectionList()) {
                             processEntity(
                                     actionCollection,
                                     entityMap,
                                     this::archiveActionCollection,
                                     this::saveActionCollectionToDb);
                         }
-                        for (NewAction action : actionList) {
+                        for (NewAction action : transactionHandlerDTO.getActionList()) {
                             processEntity(action, entityMap, this::archiveAction, this::saveActionToDb);
                         }
                     });
@@ -176,27 +172,32 @@ public class TransactionHandlerCEImpl implements TransactionHandlerCE {
     }
 
     @Override
-    public void populateEntityData(Map<String, TransactionAspect.DBOps> entityMap) {
-        entityMap.forEach((entityName, entity) -> {
-            Object object = entity.getEntity();
-            if (object instanceof Datasource) {
-                datasourceList.add((Datasource) object);
-            } else if (object instanceof DatasourceStorage) {
-                datasourceStorageList.add((DatasourceStorage) object);
-            } else if (object instanceof Theme) {
-                themeList.add((Theme) object);
-            } else if (object instanceof NewPage) {
-                newPageList.add((NewPage) object);
-            } else if (object instanceof ActionCollectionDTO) {
-                actionCollectionList.add((ActionCollection) object);
-            } else if (object instanceof ActionDTO) {
-                actionList.add((NewAction) object);
-            } else if (object instanceof CustomJSLib) {
-                customJSLibList.add((CustomJSLib) object);
-            } else if (object instanceof Application) {
-                application[0] = (Application) object;
-            }
-        });
+    public Mono<Void> populateEntityData(
+            Map<String, TransactionAspect.DBOps> entityMap, TransactionHandlerDTO transactionHandlerDTO) {
+        return asMonoDirect(() -> {
+                    entityMap.forEach((entityName, entity) -> {
+                        Object object = entity.getEntity();
+                        if (object instanceof Datasource) {
+                            transactionHandlerDTO.getDatasourceList().add((Datasource) object);
+                        } else if (object instanceof DatasourceStorage) {
+                            transactionHandlerDTO.getDatasourceStorageList().add((DatasourceStorage) object);
+                        } else if (object instanceof Theme) {
+                            transactionHandlerDTO.getThemeList().add((Theme) object);
+                        } else if (object instanceof NewPage) {
+                            transactionHandlerDTO.getNewPageList().add((NewPage) object);
+                        } else if (object instanceof ActionCollectionDTO) {
+                            transactionHandlerDTO.getActionCollectionList().add((ActionCollection) object);
+                        } else if (object instanceof ActionDTO) {
+                            transactionHandlerDTO.getActionList().add((NewAction) object);
+                        } else if (object instanceof CustomJSLib) {
+                            transactionHandlerDTO.getCustomJSLibList().add((CustomJSLib) object);
+                        } else if (object instanceof Application) {
+                            transactionHandlerDTO.setApplication((Application) object);
+                        }
+                    });
+                    return true;
+                })
+                .then();
     }
 
     @Override

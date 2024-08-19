@@ -168,7 +168,6 @@ public class TransactionAspect {
             // When the updateById is called with the BridgeUpdate object or
             // When the id is passed as a parameter to the method for archiveById or deleteById
             Object entityClass = createEntityTypeDomainObject(getEntityClassForBridgeUpdate(target));
-            ;
             entityData.setBaseDomain((BaseDomain) entityClass);
             entityData.getBaseDomain().setId(entityData.getId());
         }
