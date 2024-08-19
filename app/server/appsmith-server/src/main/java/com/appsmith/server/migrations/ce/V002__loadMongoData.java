@@ -148,11 +148,15 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                     }
                 }
 
-                if (columnTypes.containsKey("created_at")) {
-                    data.put("created_at", Instant.now().toString());
-                }
-                if (columnTypes.containsKey("updated_at")) {
-                    data.put("updated_at", null);
+                // Update the `created_at` and `updated_at` if migrating data from baseline data.
+                if (!isCustomerExistingDataPresent) {
+                    Instant now = Instant.now();
+                    if (columnTypes.containsKey("created_at")) {
+                        data.put("created_at", now.toString());
+                    }
+                    if (columnTypes.containsKey("updated_at")) {
+                        data.put("updated_at", now.toString());
+                    }
                 }
 
                 // Build the INSERT query to only have the columns that are present in the JSON document. This allows
