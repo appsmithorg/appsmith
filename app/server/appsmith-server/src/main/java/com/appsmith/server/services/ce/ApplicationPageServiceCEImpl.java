@@ -85,6 +85,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGES_BY_APP_ID_DB;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.MIGRATE_DSL;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
@@ -291,10 +292,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchAndBasePageId(
             String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
+        ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission())
-                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
+                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
+                        .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
+                        .tap(Micrometer.observation(observationRegistry)));
     }
 
     @Override

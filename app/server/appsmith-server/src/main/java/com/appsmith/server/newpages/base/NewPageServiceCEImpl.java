@@ -307,7 +307,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .name(getQualifiedSpanName(MARK_RECENTLY_ACCESSED_RESOURCES_PAGES, applicationMode))
                 .tap(Micrometer.observation(observationRegistry))
                 .then(Mono.fromCallable(() -> getApplicationPagesDTO(branchedApplication, newPages, viewMode))
-                        .name(getQualifiedSpanName(PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES, applicationMode)));
+                        .name(getQualifiedSpanName(PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES, applicationMode))
+                        .tap(Micrometer.observation(observationRegistry)));
     }
 
     private List<ApplicationPage> getApplicationPages(Application application, boolean viewMode) {
@@ -556,7 +557,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
 
         return this.findByBranchNameAndBasePageId(branchName, basePageId, permission)
-                .name(GET_PAGE)
+                .name(getQualifiedSpanName(GET_PAGE, mode))
                 .tap(Micrometer.observation(observationRegistry));
     }
 
