@@ -48,6 +48,7 @@ public class ApplicationPage {
     }
 
     @JsonView({Views.Internal.class, Views.Public.class})
+    @Transient
     public String getBaseId() {
         return StringUtils.hasLength(defaultPageId) ? defaultPageId : id;
     }
