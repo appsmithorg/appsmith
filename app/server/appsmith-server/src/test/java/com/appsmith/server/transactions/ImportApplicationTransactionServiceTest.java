@@ -212,6 +212,63 @@ public class ImportApplicationTransactionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void importIntoExistingApp_exceptionDuringImport_removedEntitiesRestored() {
+        // Create a git connected application
+        String uniqueString = UUID.randomUUID().toString();
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Test");
+        Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
+
+        Application destApplication = new Application();
+        destApplication.setName("App_" + uniqueString);
+        destApplication.setSlug("my-slug");
+        destApplication.setIsPublic(false);
+        destApplication.setForkingEnabled(false);
+        Mono<Application> createAppAndPageMono = applicationPageService
+                .createApplication(destApplication, createdWorkspace.getId())
+                .flatMap(application -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("Home");
+                    pageDTO.setApplicationId(application.getId());
+                    return applicationPageService.createPage(pageDTO).thenReturn(application);
+                });
+
+        Application application = createAppAndPageMono.block();
+
+        // let's create an ApplicationJSON which we'll merge with application created by createAppAndPageMono.
+        // The page names are different, hence the old ones are removed during the import
+        ApplicationJson applicationJson = createApplicationJSON(List.of("Test1", "Test2"));
+
+        Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST)));
+
+        Mono<Application> resultMono = importService
+                .importNewArtifactInWorkspaceFromJson(createdWorkspace.getId(), applicationJson)
+                .map(importableArtifact -> (Application) importableArtifact);
+
+        // Verify for the failure state
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException
+                        && error.getMessage()
+                                .contains(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(
+                                        createdWorkspace.getId(), "")))
+                .verify();
+
+        // Verify the db state after the import failed
+        Application dbApp = applicationRepository.findById(application.getId()).block();
+
+        assertThat(dbApp).isNotNull();
+        assertThat(dbApp.getPages().size()).isEqualTo(2);
+        for (ApplicationPage page : dbApp.getPages()) {
+            NewPage newPage = newPageRepository.findById(page.getId()).block();
+            assertThat(newPage).isNotNull();
+            assertThat(newPage.getUnpublishedPage().getName()).isIn("Home", "Page1");
+        }
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importIntoExistingApplication_exceptionDuringImport_dataRestoredBack() {
         // Create a git connected application
         String uniqueString = UUID.randomUUID().toString();
