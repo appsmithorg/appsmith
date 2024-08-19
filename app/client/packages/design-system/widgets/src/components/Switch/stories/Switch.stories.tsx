@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Switch, Flex } from "@design-system/widgets";
+import { Switch, Flex } from "@appsmith/wds";
 
 /**
  * Switch is a component that allows the user to select one or more options from a set.
  */
 const meta: Meta<typeof Switch> = {
   component: Switch,
-  title: "Design-system/Widgets/Switch",
+  title: "WDS/Widgets/Switch",
 };
 
 export default meta;

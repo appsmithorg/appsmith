@@ -5,9 +5,9 @@ import { getAnvilCanvasId } from "./utils";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { AnvilDetachedWidgets } from "./AnvilDetachedWidgets";
 import styled from "styled-components";
-import { APP_MAX_WIDTH } from "@design-system/theming";
+import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
 
-const appMaxWidthToCSSValue = (maxWidth: APP_MAX_WIDTH): string => {
+const appMaxWidthToCSSValue = (maxWidth: AppMaxWidth): string => {
   switch (maxWidth) {
     case APP_MAX_WIDTH.Unlimited:
       return "auto";
@@ -23,7 +23,7 @@ const appMaxWidthToCSSValue = (maxWidth: APP_MAX_WIDTH): string => {
 };
 
 const RootStyled = styled.div<{
-  maxWidth?: APP_MAX_WIDTH;
+  maxWidth?: AppMaxWidth;
 }>`
   max-width: ${({ maxWidth }) =>
     maxWidth ? `${appMaxWidthToCSSValue(maxWidth)}` : "auto"};

@@ -3,7 +3,7 @@ import type {
   SelectProps as SpectrumSelectProps,
   ValidationResult,
 } from "react-aria-components";
-import type { IconProps, SIZES } from "@design-system/widgets";
+import type { IconProps, SIZES } from "@appsmith/wds";
 
 export interface SelectProps<T extends object>
   extends Omit<SpectrumSelectProps<T>, "slot"> {

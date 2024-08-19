@@ -1,7 +1,7 @@
 import React from "react";
 import { isNil } from "lodash";
-import { TextInput } from "@design-system/widgets";
-import { Icon, TextArea } from "@design-system/widgets";
+import { TextInput } from "@appsmith/wds";
+import { Icon, TextArea } from "@appsmith/wds";
 
 import { INPUT_TYPES } from "../constants";
 import type { InputComponentProps } from "./types";

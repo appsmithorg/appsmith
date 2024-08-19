@@ -3,14 +3,7 @@ import React, { useCallback, memo } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import {
-  Flex,
-  Icon,
-  IconButton,
-  Menu,
-  MenuTrigger,
-  Text,
-} from "@design-system/widgets";
+import { Flex, Icon, IconButton, Menu, MenuTrigger, Text } from "@appsmith/wds";
 
 interface HeaderProps {
   canFreezeColumn?: boolean;

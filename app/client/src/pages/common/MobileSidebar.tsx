@@ -62,7 +62,7 @@ const UserNameSection = styled.div`
 
 const StyledMenuItem = styled(MenuItem)`
   svg,
-  .cs-icon svg path {
+  .ads-v2-icon svg path {
     width: 18px;
     height: 18px;
     fill: var(--ads-v2-color-fg);

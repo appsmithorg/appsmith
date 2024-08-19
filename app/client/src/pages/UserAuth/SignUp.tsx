@@ -39,9 +39,6 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { SIGNUP_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import { connect, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 
 import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "ee/constants/forms";
 import { getAppsmithConfigs } from "ee/configs";
@@ -261,9 +258,6 @@ export function SignUp(props: SignUpFormProps) {
                 AnalyticsUtil.logEvent("SIGNUP_CLICK", {
                   signupMethod: "EMAIL",
                 });
-                PerformanceTracker.startTracking(
-                  PerformanceTransactionName.SIGN_UP,
-                );
               }}
               size="md"
               type="submit"

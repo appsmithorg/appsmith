@@ -12,7 +12,7 @@ import {
   methodsConfig,
 } from "../config";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Button, MenuTrigger, Menu } from "@design-system/widgets";
+import { Button, MenuTrigger, Menu } from "@appsmith/wds";
 import { isArray, orderBy } from "lodash";
 import type { MenuButtonWidgetProps, MenuItem } from "./types";
 import {

@@ -17,9 +17,6 @@ import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
 import type { AIEditorContext } from "ee/components/editorComponents/GPT";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import history, { NavigationMethod } from "utils/history";
 import type { Plugin } from "api/PluginApi";
 import { EDIT, createMessage } from "ee/constants/messages";
@@ -224,9 +221,7 @@ export function Command(props: {
     (event) => {
       event.stopPropagation();
       if (!props.url) return;
-      PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
-        url: props.url,
-      });
+
       history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
       AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", props.eventParams || {});
     },
