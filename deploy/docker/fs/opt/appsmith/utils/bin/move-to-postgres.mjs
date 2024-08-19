@@ -1,3 +1,11 @@
+/**
+ * Moves data from MongoDB to Postgres.
+ *
+ * @param {string} mongoDbUrl - The URL of the MongoDB.
+ * @param {string} mongoDumpFile - The path to the MongoDB dump file.
+ * @param {boolean} isBaselineMode - Flag indicating whether the script is running in baseline mode.
+ * @returns {Promise<void>} - A promise that resolves when the data migration is complete.
+ */
 import {spawn} from "child_process";
 import {MongoClient} from "mongodb";
 import * as fs from "node:fs";
@@ -48,7 +56,9 @@ const mongoClient = await new MongoClient(mongoDbUrl);
 mongoClient.on("error", console.error);
 const mongoDb = mongoClient.db();
 
-fs.mkdirSync(EXPORT_ROOT, {recursive: true});
+// Make sure EXPORT_ROOT directory is empty
+fs.rmSync(EXPORT_ROOT, { recursive: true, force: true });
+fs.mkdirSync(EXPORT_ROOT, { recursive: true });
 
 const filters = {};
 
@@ -63,23 +73,25 @@ if (isBaselineMode) {
   };
 }
 
-for await (const {name: collectionName} of mongoDb.listCollections({}, {nameOnly: true})) {
+const collectionNames = await mongoDb.listCollections({}, { nameOnly: true }).toArray();
+const sortedCollectionNames = collectionNames.map(collection => collection.name).sort();
+
+for await (const collectionName of sortedCollectionNames) {
+
   console.log("Collection:", collectionName);
   if (isBaselineMode && collectionName.startsWith("mongock")) {
     continue;
   }
   let outFile = null;
   for await (const doc of mongoDb.collection(collectionName).find(filters[collectionName])) {
-    // TODO(Shri): Should we cleanup nested `ObjectId`s, like all over `doc`?
-    doc.id = doc._id.toString();
-    delete doc._id;
-    delete doc.policies;
 
     // Skip archived objects as they are not migrated during the Mongock migration which may end up failing for the
     // constraints in the Postgres DB.
     if (isArchivedObject(doc)) {
       continue;
     }
+    transformFields(doc);
+    delete doc.policies;
 
     if (outFile == null) {
       // Don't create the file unless there's data to write.
@@ -107,7 +119,7 @@ function extractValueFromArg(arg) {
 }
 
 function isArchivedObject(doc) {
-  return doc.deleted === true || doc.isDeleted != null;
+  return doc.deleted === true || doc.deletedAt != null;
 }
 
 function toJsonSortedKeys(obj) {
@@ -126,4 +138,22 @@ function replacer(key, value) {
         return sorted
       }, {}) :
     value;
+}
+
+/**
+ * Method to transform the data in the object to be compatible with Postgres.
+ * Updates:
+ * 1. Changes the _id field to id, and removes the _id field.
+ * @param {Document} obj - The object to transform.
+ * @returns {void} - No return value.
+ */
+function transformFields(obj) {
+  for (const key in obj) {
+    if (key === "_id") {  // Change the _id field to id
+      obj.id = obj._id.toString();
+      delete obj._id;
+    } else if (typeof obj[key] === "object") {
+      transformFields(obj[key]);
+    }
+  }
 }
