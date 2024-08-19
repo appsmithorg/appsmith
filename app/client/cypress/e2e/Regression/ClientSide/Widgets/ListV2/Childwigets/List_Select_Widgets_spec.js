@@ -149,7 +149,7 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       .first()
       .should("have.text", `undefined_undefined_true_false`);
 
-    cy.get("selectbutton.btn.cancel").should("not.exist");
+    cy.get(commonlocators.selectClearButton).should("not.exist");
   });
 
   it("3. Select Widgets onOptionChange", function () {

@@ -11,6 +11,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Select widget tests",
@@ -297,7 +298,7 @@ describe(
       agHelper.AssertExistingToggleState("Required", "false");
       propPane.TogglePropertyState("Required", "On");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.FORM));
-      cy.get("selectbutton.btn.cancel").should("not.exist");
+      cy.get(commonlocators.selectClearButton).should("not.exist");
     });
   },
 );
