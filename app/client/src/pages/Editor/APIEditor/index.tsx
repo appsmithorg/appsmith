@@ -29,9 +29,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { ApiEditorContextProvider } from "./ApiEditorContext";
 import type { PaginationField } from "api/ActionAPI";
 import { get, keyBy } from "lodash";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
@@ -140,12 +137,6 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
       const pluginName = plugins.find((plugin) => plugin.id === pluginId)?.name;
-      PerformanceTracker.startTracking(
-        PerformanceTransactionName.RUN_API_CLICK,
-        {
-          apiId: action?.id,
-        },
-      );
       AnalyticsUtil.logEvent("RUN_API_CLICK", {
         apiName,
         apiID: action?.id,

@@ -6,7 +6,7 @@ import {
   BUTTON_VARIANTS,
   COLORS,
   SIZES,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   itemList,
@@ -21,7 +21,7 @@ import {
  */
 const meta: Meta<typeof InlineButtons> = {
   component: InlineButtons,
-  title: "Design-system/Widgets/InlineButtons",
+  title: "WDS/Widgets/InlineButtons",
 };
 
 export default meta;
