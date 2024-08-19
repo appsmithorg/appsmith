@@ -43,7 +43,6 @@ export class AnvilSnapshot {
       comparisonMethod: "ssim",
       failureThreshold: 0.03,
       failureThresholdType: "percent",
-      customDiffConfig: { threshold: 0.1 },
       allowSizeMismatch: true,
       capture: 'viewport',
     });
