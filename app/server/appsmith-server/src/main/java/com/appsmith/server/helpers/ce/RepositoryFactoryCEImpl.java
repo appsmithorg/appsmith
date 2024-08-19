@@ -23,7 +23,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,16 +49,15 @@ public class RepositoryFactoryCEImpl implements RepositoryFactoryCE {
 
     @PostConstruct
     public void init() {
-        final Map<Class<?>, AppsmithRepository<?>> map = new HashMap<>();
-        map.put(Datasource.class, datasourceRepository);
-        map.put(DatasourceStorage.class, datasourceStorageRepository);
-        map.put(Theme.class, themeRepository);
-        map.put(CustomJSLib.class, customJSLibRepository);
-        map.put(Application.class, applicationRepository);
-        map.put(NewPage.class, newPageRepository);
-        map.put(NewAction.class, newActionRepository);
-        map.put(ActionCollection.class, actionCollectionRepository);
-        repoByEntityClass = Collections.unmodifiableMap(map);
+        repoByEntityClass = new HashMap<>();
+        repoByEntityClass.put(Datasource.class, datasourceRepository);
+        repoByEntityClass.put(DatasourceStorage.class, datasourceStorageRepository);
+        repoByEntityClass.put(Theme.class, themeRepository);
+        repoByEntityClass.put(CustomJSLib.class, customJSLibRepository);
+        repoByEntityClass.put(Application.class, applicationRepository);
+        repoByEntityClass.put(NewPage.class, newPageRepository);
+        repoByEntityClass.put(NewAction.class, newActionRepository);
+        repoByEntityClass.put(ActionCollection.class, actionCollectionRepository);
     }
 
     @Override
