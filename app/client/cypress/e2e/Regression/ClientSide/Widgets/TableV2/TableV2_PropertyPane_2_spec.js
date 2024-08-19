@@ -1,11 +1,10 @@
 import {
-  entityExplorer,
-  table,
-  propPane,
   agHelper,
   deployMode,
   draggableWidgets,
   locators,
+  propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -136,11 +135,11 @@ describe(
       // Update cell with row : 1, column : orderAmount
 
       table.EditTableCell(1, 4, -1, false);
-      cy.get(".bp3-popover-content").contains("Invalid input");
+      cy.get(locators._popoverToolTip).contains("Invalid input");
       table.UpdateTableCell(1, 4, 0);
-      cy.get(".bp3-popover-content").contains("Invalid input");
+      cy.get(locators._popoverToolTip).contains("Invalid input");
       table.UpdateTableCell(1, 4, 3);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       // Check if currentRow works
       propPane.NavigateBackToPropertyPane();
@@ -154,13 +153,13 @@ describe(
 
       // Update cell with row : 0, column : orderAmount. The min is set to 7 (i.e value of cell in id column)
       table.EditTableCell(1, 4, 8, false);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       table.UpdateTableCell(1, 4, -1);
-      cy.get(".bp3-popover-content").contains("Row at index 1 is not valid");
+      cy.get(locators._popoverToolTip).contains("Row at index 1 is not valid");
 
       table.UpdateTableCell(1, 4, 8);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       propPane.UpdatePropertyFieldValue(
         "Error message",
@@ -168,7 +167,7 @@ describe(
       );
 
       table.EditTableCell(1, 4, 1, false);
-      cy.get(".bp3-popover-content").contains("Row with id 2 is not valid");
+      cy.get(locators._popoverToolTip).contains("Row with id 2 is not valid");
 
       cy.discardTableCellValue(4, 1);
       table.DiscardEditRow(1, 5);
@@ -176,7 +175,7 @@ describe(
       // Sort the id column and ensure that `currentRow` is correctly evaluated
       table.SortColumn("id", "descending");
       table.EditTableCell(1, 4, 1, false);
-      cy.get(".bp3-popover-content").contains("Row with id 24 is not valid");
+      cy.get(locators._popoverToolTip).contains("Row with id 24 is not valid");
 
       cy.discardTableCellValue(4, 1);
       table.SortColumn("id", "ascending");
@@ -194,18 +193,18 @@ describe(
       cy.get(".t--evaluatedPopup-error").should("not.exist");
       table.EditTableCell(1, 4, 3, false);
 
-      cy.get(".bp3-popover-content").contains("Invalid input");
+      cy.get(locators._popoverToolTip).contains("Invalid input");
       table.UpdateTableCell(1, 4, 12);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       // Check for currentRow property on Regex field
       propPane.UpdatePropertyFieldValue("Regex", "{{currentRow.id}}");
       table.EditTableCell(1, 4, 20, false);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(1, 4, 8);
-      cy.get(".bp3-popover-content").contains("Invalid input");
+      cy.get(locators._popoverToolTip).contains("Invalid input");
       table.UpdateTableCell(1, 4, 20);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       cy.discardTableCellValue(4, 1);
       table.DiscardEditRow(1, 5);
@@ -214,10 +213,10 @@ describe(
       table.SortColumn("id", "descending");
 
       table.EditTableCell(1, 4, 10, false);
-      cy.get(".bp3-popover-content").contains("Invalid input");
+      cy.get(locators._popoverToolTip).contains("Invalid input");
 
       table.UpdateTableCell(1, 4, 24);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       propPane.UpdatePropertyFieldValue("Regex", "");
 
@@ -229,52 +228,60 @@ describe(
       // #region Required
       propPane.EnterJSContext("Required", "{{currentIndex == 1}}");
       table.EditTableCell(1, 4, "", false);
-      cy.get(".bp3-popover-content").contains("This field is required");
+      cy.get(locators._popoverToolTip).contains(
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+      );
       table.UpdateTableCell(1, 4, 1, true);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       // Value isn't required in Row Index 2
       table.EditTableCell(2, 4, "", false);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(2, 4, "11");
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(2, 4, "", true);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       table.DiscardEditRow(2, 5);
       // Check for Required property using currentRow, row with index 1 has id 2
       propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 2}}");
 
       table.EditTableCell(1, 4, "", false);
-      cy.get(".bp3-popover-content").contains("This field is required");
+      cy.get(locators._popoverToolTip).contains(
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+      );
       table.UpdateTableCell(1, 4, 1);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(1, 4, "");
-      cy.get(".bp3-popover-content").contains("This field is required");
+      cy.get(locators._popoverToolTip).contains(
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+      );
 
       table.UpdateTableCell(1, 4, "1", true);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       // Value isn't required in Row Index 2
       table.EditTableCell(2, 4, "", false);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(2, 4, 10);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(2, 4, "", true);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       table.DiscardEditRow(2, 5);
 
       // Sort the id column and ensure that `currentRow` is correctly evaluated
       table.SortColumn("id", "descending");
       table.EditTableCell(1, 4, "", false);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(1, 4, 10);
-      cy.get(".bp3-popover-content").should("not.exist");
+      cy.get(locators._popoverToolTip).should("not.exist");
 
       propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 24}}");
       table.EditTableCell(1, 4, "");
-      cy.get(".bp3-popover-content").contains("This field is required");
+      cy.get(locators._popoverToolTip).contains(
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+      );
 
       cy.discardTableCellValue(4, 1);
       table.DiscardEditRow(1, 5);
