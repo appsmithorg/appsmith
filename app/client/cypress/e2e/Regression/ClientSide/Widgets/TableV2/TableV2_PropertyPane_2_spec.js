@@ -229,7 +229,7 @@ describe(
       propPane.EnterJSContext("Required", "{{currentIndex == 1}}");
       table.EditTableCell(1, 4, "", false);
       cy.get(locators._popoverToolTip).contains(
-        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE(),
       );
       table.UpdateTableCell(1, 4, 1, true);
       cy.get(locators._popoverToolTip).should("not.exist");
@@ -248,13 +248,13 @@ describe(
 
       table.EditTableCell(1, 4, "", false);
       cy.get(locators._popoverToolTip).contains(
-        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE(),
       );
       table.UpdateTableCell(1, 4, 1);
       cy.get(locators._popoverToolTip).should("not.exist");
       table.UpdateTableCell(1, 4, "");
       cy.get(locators._popoverToolTip).contains(
-        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE(),
       );
 
       table.UpdateTableCell(1, 4, "1", true);
@@ -280,7 +280,7 @@ describe(
       propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 24}}");
       table.EditTableCell(1, 4, "");
       cy.get(locators._popoverToolTip).contains(
-        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE,
+        Cypress.env("MESSAGES").FIELD_REQUIRED_MESSAGE(),
       );
 
       cy.discardTableCellValue(4, 1);
