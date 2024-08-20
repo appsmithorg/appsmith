@@ -7,7 +7,6 @@ import type {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  ReplayReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -31,6 +30,7 @@ import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "../constants/AppsmithActionConstants/ActionConstants";
+import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -550,7 +550,7 @@ export function undoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayReduxActionTypes.UNDO,
+      operation: ReplayOperation.UNDO,
     },
   };
 }
@@ -559,7 +559,7 @@ export function redoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayReduxActionTypes.REDO,
+      operation: ReplayOperation.REDO,
     },
   };
 }

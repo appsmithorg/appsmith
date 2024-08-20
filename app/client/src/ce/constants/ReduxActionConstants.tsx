@@ -510,7 +510,13 @@ const ErrorManagementActionTypes = {
   SAFE_CRASH_APPSMITH_REQUEST: "SAFE_CRASH_APPSMITH_REQUEST",
 };
 
+const WidgetReflowActionTypes = {
+  STOP_REFLOW: "STOP_REFLOW",
+  REFLOW_MOVE: "REFLOW_MOVE",
+};
+
 const WidgetCanvasActionTypes = {
+  ...WidgetReflowActionTypes,
   INIT_CANVAS_LAYOUT: "INIT_CANVAS_LAYOUT",
   START_CANVAS_SELECTION_FROM_EDITOR: "START_CANVAS_SELECTION_FROM_EDITOR",
   STOP_CANVAS_SELECTION_FROM_EDITOR: "STOP_CANVAS_SELECTION_FROM_EDITOR",
@@ -1295,7 +1301,8 @@ export const ReduxActionTypes = {
   ...WorkspaceActionTypes,
 } as const;
 
-export type ReduxActionType = keyof typeof ReduxActionTypes;
+export type ReduxActionType =
+  (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes];
 
 export const ReduxActionErrorTypes = {
   ...ActionActionErrorTypes,
@@ -1325,20 +1332,18 @@ export const ReduxActionErrorTypes = {
   ...WorkspaceActionErrorTypes,
 };
 
+export type ReduxActionErrorType =
+  (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
+
+export interface ReduxAction<T> {
+  type: ReduxActionType | ReduxActionErrorType;
+  payload: T;
+}
+
 export const ReduxFormActionTypes = {
   VALUE_CHANGE: "@@redux-form/CHANGE",
   ARRAY_REMOVE: "@@redux-form/ARRAY_REMOVE",
   ARRAY_PUSH: "@@redux-form/ARRAY_PUSH",
-};
-
-export enum ReplayReduxActionTypes {
-  UNDO = "undo",
-  REDO = "redo",
-}
-
-export const ReflowReduxActionTypes = {
-  STOP_REFLOW: "STOP_REFLOW",
-  REFLOW_MOVE: "REFLOW_MOVE",
 };
 
 export const WidgetReduxActionTypes: { [key: string]: string } = {
@@ -1353,13 +1358,6 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
 
-export type ReduxActionErrorType =
-  (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
-
-export interface ReduxAction<T> {
-  type: ReduxActionType | ReduxActionErrorType;
-  payload: T;
-}
 export interface BufferedReduxAction<T> extends ReduxAction<T> {
   affectedJSObjects: AffectedJSObjects;
 }
