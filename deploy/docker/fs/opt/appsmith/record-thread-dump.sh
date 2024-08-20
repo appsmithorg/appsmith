@@ -9,7 +9,7 @@ arg=${1:-}
 
 # Set the location based on the argument
 if [ "$arg" == "preStop" ]; then
-  location=/appsmith-stacks/heap_dumps/preStop/$(date "+%Y_%m_%d_%H_%S");
+  location=/appsmith-stacks/heap_dumps/preStop/${HOSTNAME}/$(date "+%Y_%m_%d_%H_%S");
 elif [ "$arg" == "adHoc" ]; then
   location=/appsmith-stacks/heap_dumps/ad-hoc/${HOSTNAME}/thread-profile/$(date "+%Y_%m_%d_%H_%S");
 else
