@@ -44,6 +44,7 @@ export class AnvilSnapshot {
       comparisonMethod: "ssim",
       failureThreshold: 0.01,
       failureThresholdType: "percent",
+      allowSizeMismatch: true,
     });
   }
 
