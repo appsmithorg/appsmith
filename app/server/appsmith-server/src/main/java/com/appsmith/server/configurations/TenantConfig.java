@@ -20,8 +20,8 @@ public class TenantConfig {
     // Bean to cleanup the cache and update the default tenant policies on every server restart. This will make sure
     // cache will be updated if we update the tenant via migrations.
     @Bean
-    public Mono<Void> cleanupAndUpdateRefreshDefaultTenantPolicies() {
-        return tenantService
+    public void cleanupAndUpdateRefreshDefaultTenantPolicies() {
+        tenantService
                 .getDefaultTenantId()
                 .flatMap(cacheableRepositoryHelper::evictCachedTenant)
                 .then(tenantService.getDefaultTenant())
@@ -32,6 +32,6 @@ public class TenantConfig {
                     }
                     return Mono.just(tenant);
                 })
-                .then();
+                .subscribe();
     }
 }
