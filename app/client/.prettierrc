@@ -12,8 +12,8 @@
 	"importOrder": [
 		"^react$",
 		"^react-dom$",
-		"^@appsmith/.*$",
 		"<THIRD_PARTY_MODULES>",
+		"^@appsmith/.*$",
 		"^[./]"
 	],
 	"importOrderSeparation": true,
