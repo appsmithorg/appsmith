@@ -3,6 +3,7 @@ package com.appsmith.external.converters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.gson.JsonDeserializationContext;
@@ -50,7 +51,15 @@ public class HttpMethodConverter implements JsonSerializer<HttpMethod>, JsonDese
         @Override
         public HttpMethod deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
                 throws IOException {
-            return HttpMethod.valueOf(deserializationContext.readValue(jsonParser, String.class));
+            JsonNode value = deserializationContext.readValue(jsonParser, JsonNode.class);
+            // Custom handling is required because while migrating data from MongoDB this field is stored as:
+            // => "httpMethod": {"name": "GET"}
+            // But when stored via pg server we are storing the enum string:
+            // => "httpMethod": "GET"
+            if (value.has("name")) {
+                return HttpMethod.valueOf(value.get("name").asText());
+            }
+            return HttpMethod.valueOf(value.asText());
         }
     }
 }
