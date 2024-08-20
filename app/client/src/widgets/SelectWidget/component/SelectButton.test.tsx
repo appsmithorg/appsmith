@@ -4,7 +4,7 @@ import { fireEvent, render } from "@testing-library/react";
 
 import type { SelectButtonProps } from "./SelectButton";
 import SelectButton from "./SelectButton";
-import commonlocators from "../../../../cypress/locators/commonlocators.json";
+import { CommonLocators } from "../../../../cypress/support/Objects/CommonLocators";
 
 // It is necessary to make a mock of the Icon component as the error falls due to React.lazy in importIconImpl
 jest.mock("@design-system/widgets-old", () => {
@@ -31,6 +31,8 @@ const defaultProps: SelectButtonProps = {
 const renderComponent = (props: SelectButtonProps = defaultProps) => {
   return render(<SelectButton {...props} />);
 };
+
+const locators = new CommonLocators();
 
 describe("SelectButton", () => {
   it("should not fire click event when disabled", () => {
@@ -66,7 +68,7 @@ describe("SelectButton", () => {
       isRequired: true,
     });
     expect(
-      container.querySelector(commonlocators.selectClearButton),
+      container.querySelector(locators._selectClearButton_dataTestId),
     ).toBeNull();
   });
 
@@ -76,7 +78,7 @@ describe("SelectButton", () => {
       isRequired: false,
     });
     expect(
-      container.querySelector(commonlocators.selectClearButton),
+      container.querySelector(locators._selectClearButton_dataTestId),
     ).not.toBeNull();
   });
 });
