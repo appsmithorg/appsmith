@@ -33,9 +33,9 @@ public class ModifiedResources {
      */
     public boolean isResourceUpdated(String resourceType, String resourceName) {
         return StringUtils.isEmpty(resourceType)
-                || isAllModified
-                || (!CollectionUtils.isEmpty(modifiedResourceMap.get(resourceType))
-                        && modifiedResourceMap.get(resourceType).contains(resourceName));
+                && (isAllModified
+                        || (!CollectionUtils.isEmpty(modifiedResourceMap.get(resourceType))
+                                && modifiedResourceMap.get(resourceType).contains(resourceName)));
     }
 
     /**
