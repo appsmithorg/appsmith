@@ -32,7 +32,7 @@ public class ModifiedResources {
      * @return true if modified, false otherwise
      */
     public boolean isResourceUpdated(String resourceType, String resourceName) {
-        return StringUtils.isEmpty(resourceType)
+        return StringUtils.isNotEmpty(resourceType)
                 && (isAllModified
                         || (!CollectionUtils.isEmpty(modifiedResourceMap.get(resourceType))
                                 && modifiedResourceMap.get(resourceType).contains(resourceName)));
