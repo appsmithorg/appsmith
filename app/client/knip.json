@@ -8,6 +8,7 @@
     "**/*.stories.tsx",
     "packages/rts/build.js",
     "packages/design-system/ads/src/Documentation/**",
-    "src/components/designSystems/blueprintjs/**"
+    "src/components/designSystems/blueprintjs/**",
+    "packages/design-system/ads/plopfile.mjs"
   ]
 }
