@@ -12,6 +12,9 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import { CommonLocators } from "../../../../../support/Objects/CommonLocators";
+
+const locators = new CommonLocators();
 
 describe(
   "Select widget tests",
@@ -298,11 +301,7 @@ describe(
       agHelper.AssertExistingToggleState("Required", "false");
       propPane.TogglePropertyState("Required", "On");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.FORM));
-      const cancelButton = commonlocators.selectClearButton
-        .split("=")[1]
-        .replace("']", "")
-        .replace("'", "");
-      cy.get(cancelButton).should("not.exist");
+      cy.get(locators._selectClearButton_testId).should("not.exist");
     });
   },
 );
