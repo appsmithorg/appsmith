@@ -5,7 +5,9 @@ const prompt = require("prompt-sync")();
 
 function isContainerRunning(containerName) {
   try {
-    const output = execSync(`docker ps --filter "name=^/${containerName}$" --format '{{.Names}}'`);
+    const output = execSync(
+      `docker ps --filter "name=^/${containerName}$" --format '{{.Names}}'`,
+    );
     return output.length > 0;
   } catch (error) {
     return false;
@@ -30,64 +32,74 @@ function checkDockerCompose() {
     execSync("docker-compose --version", { stdio: "ignore" });
     return true;
   } catch (error) {
-    console.error("ERROR: docker-compose is not installed. Please install Docker Compose.");
+    console.error(
+      "ERROR: docker-compose is not installed. Please install Docker Compose.",
+    );
     process.exit(1);
   }
 }
 
 async function runLocalServer() {
   try {
-
     let user_input = prompt(
-      `Do you wish to continue without setting up the local server with docker? (yes/no): `
+      `Do you wish to continue without setting up the local server with docker? (yes/no): `,
     );
     user_input = (user_input || "").trim().toLowerCase();
-    
+
     if (user_input === "yes" || user_input === "y") {
-        console.log("INFO", "Continuing without setting up local backend docker based server.");
+      console.log(
+        "INFO",
+        "Continuing without setting up local backend docker based server.",
+      );
     } else {
-        // Adjust the path to point to the correct directory
-        const dockerDir = path.join(__dirname, "../../../../deploy/docker");
+      // Adjust the path to point to the correct directory
+      const dockerDir = path.join(__dirname, "../../../../deploy/docker");
 
-        if (!existsSync(dockerDir)) {
-          console.error(`ERROR: Directory ${dockerDir} does not exist.`);
-          process.exit(1); // Exit if the directory is missing
-        }
+      if (!existsSync(dockerDir)) {
+        console.error(`ERROR: Directory ${dockerDir} does not exist.`);
+        process.exit(1); // Exit if the directory is missing
+      }
 
-        await checkDockerCompose(); // Ensure Docker Compose is available
+      await checkDockerCompose(); // Ensure Docker Compose is available
 
-        console.log("INFO: Starting local server using Docker Compose...");
-        execSync(`cd ${dockerDir} && pwd && docker-compose up -d`, { stdio: "inherit" });
+      console.log("INFO: Starting local server using Docker Compose...");
+      execSync(`cd ${dockerDir} && pwd && docker-compose up -d`, {
+        stdio: "inherit",
+      });
 
-        // Wait for the services to be fully up and running
-        let servicesRunning = false;
-        const maxRetries = 30;
-        const retryInterval = 7000; // 7 seconds
+      // Wait for the services to be fully up and running
+      let servicesRunning = false;
+      const maxRetries = 30;
+      const retryInterval = 7000; // 7 seconds
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          try {
-            const { stdout } = await execCommand("docker-compose ps", { cwd: dockerDir });
-            if (stdout.includes("Up")) {
-              servicesRunning = true;
-              break;
-            }
-          } catch (error) {
-            console.error("ERROR: Error checking service status:", error.message);
-            process.exit(1); // Exit if checking service status fails
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const { stdout } = await execCommand("docker-compose ps", {
+            cwd: dockerDir,
+          });
+          if (stdout.includes("Up")) {
+            servicesRunning = true;
+            break;
           }
-          console.log(`INFO: Waiting for services to be fully up and running... (attempt ${attempt}/${maxRetries})`);
-          await new Promise(resolve => setTimeout(resolve, retryInterval));
+        } catch (error) {
+          console.error("ERROR: Error checking service status:", error.message);
+          process.exit(1); // Exit if checking service status fails
         }
-        if (servicesRunning) {
-          console.log("INFO: Local server is up and running.");
-          return true;
-        } else {
-          console.error("ERROR: Services did not become available within the expected time.");
-          process.exit(1); // Exit if services are not up
-        }
+        console.log(
+          `INFO: Waiting for services to be fully up and running... (attempt ${attempt}/${maxRetries})`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, retryInterval));
+      }
+      if (servicesRunning) {
+        console.log("INFO: Local server is up and running.");
+        return true;
+      } else {
+        console.error(
+          "ERROR: Services did not become available within the expected time.",
+        );
+        process.exit(1); // Exit if services are not up
+      }
     }
-
-    
   } catch (error) {
     console.error("ERROR: Error starting local server:", error.message);
     process.exit(1); // Exit if starting local server fails
