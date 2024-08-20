@@ -7,9 +7,6 @@ const commonlocators = require("../../../../../../locators/commonlocators.json")
 const formWidgetsPage = require("../../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const widgetLocators = require("../../../../../../locators/Widgets.json");
-import { CommonLocators } from "../../../../../../support/Objects/CommonLocators";
-
-const locators = new CommonLocators();
 
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
@@ -152,7 +149,7 @@ describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       .first()
       .should("have.text", `undefined_undefined_true_false`);
 
-    cy.get(locators._selectClearButton_dataTestId).should("not.exist");
+    cy.get(_.locators._selectClearButton_dataTestId).should("not.exist");
   });
 
   it("3. Select Widgets onOptionChange", function () {
