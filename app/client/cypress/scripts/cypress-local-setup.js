@@ -3,7 +3,7 @@ const { existsSync, readFileSync, writeFileSync } = require("fs");
 const path = require("path");
 const prompt = require("prompt-sync")();
 
-async function isContainerRunning(containerName) {
+function isContainerRunning(containerName) {
   try {
     const output = execSync(
       `docker ps --filter "name=^/${containerName}$" --format '{{.Names}}'`,
@@ -15,7 +15,7 @@ async function isContainerRunning(containerName) {
 }
 
 // Helper function to execute commands and return a Promise
-async function execCommand(command, options) {
+function execCommand(command, options) {
   return new Promise((resolve, reject) => {
     exec(command, options, (error, stdout, stderr) => {
       if (error) {
@@ -27,7 +27,7 @@ async function execCommand(command, options) {
   });
 }
 
-async function checkDockerCompose() {
+function checkDockerCompose() {
   try {
     execSync("docker-compose --version", { stdio: "ignore" });
     return true;
@@ -187,7 +187,7 @@ async function checkIfAppsmithIsRunning(baseUrl) {
   }
 }
 
-async function getBaseUrl(repoRoot) {
+function getBaseUrl(repoRoot) {
   try {
     const cypressConfig = readFileSync(`${repoRoot}/cypress.config.ts`, "utf8");
     const baseUrlMatch = cypressConfig.match(/baseUrl\s*:\s*"([^"]+)"/);
@@ -215,7 +215,7 @@ async function getBaseUrl(repoRoot) {
   }
 }
 
-async function ensureCypressEnvFileExists(repoRoot) {
+function ensureCypressEnvFileExists(repoRoot) {
   // Check if cypress.env.json file exists. If not, create it.
   const filePath = `${repoRoot}/cypress.env.json`;
   if (!existsSync(filePath)) {
