@@ -15,7 +15,7 @@ function isContainerRunning(containerName) {
 }
 
 // Helper function to execute commands and return a Promise
-function execCommand(command, options) {
+async function execCommand(command, options) {
   return new Promise((resolve, reject) => {
     exec(command, options, (error, stdout, stderr) => {
       if (error) {
