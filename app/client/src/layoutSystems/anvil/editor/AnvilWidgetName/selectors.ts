@@ -4,10 +4,7 @@ import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { createSelector } from "reselect";
 import { getIsDragging } from "selectors/widgetDragSelectors";
-import {
-  getAnvilHighlightShown,
-  getAnvilSpaceDistributionStatus,
-} from "layoutSystems/anvil/integrations/selectors";
+import { getAnvilHighlightShown } from "layoutSystems/anvil/integrations/selectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 
@@ -61,16 +58,15 @@ export function shouldSelectOrFocus(widgetId: string) {
     getAnvilHighlightShown,
     isWidgetSelected(widgetId),
     isWidgetFocused(widgetId),
-    getAnvilSpaceDistributionStatus,
     (
       isEditorOpen,
       isDragging,
       highlightShown,
       isWidgetSelected,
       isWidgetFocused,
-      isDistributingSpace,
     ) => {
-      const baseCondition = isEditorOpen && !isDragging && !isDistributingSpace;
+      const baseCondition = isEditorOpen && !isDragging;
+
       let onCanvasUIState: NameComponentStates = "none";
       if (baseCondition) {
         if (isWidgetSelected) onCanvasUIState = "select";
