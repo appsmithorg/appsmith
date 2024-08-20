@@ -11,10 +11,6 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
-const commonlocators = require("../../../../../locators/commonlocators.json");
-import { CommonLocators } from "../../../../../support/Objects/CommonLocators";
-
-const locators = new CommonLocators();
 
 describe(
   "Select widget tests",
