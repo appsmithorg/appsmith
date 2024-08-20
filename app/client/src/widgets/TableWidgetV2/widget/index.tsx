@@ -2654,31 +2654,29 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     value: string,
     onSubmit?: string,
   ) => {
-    if (this.isColumnCellValid(alias)) {
-      const { commitBatchMetaUpdates } = this.props;
+    const { commitBatchMetaUpdates } = this.props;
 
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-        [alias]: value,
+    this.pushTransientTableDataActionsUpdates({
+      [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
+      [alias]: value,
+    });
+
+    if (onSubmit && this.props.editableCell?.column) {
+      //since onSubmit is truthy this makes action truthy as well, so we can push this event
+      this.pushOnColumnEvent({
+        rowIndex: rowIndex,
+        action: onSubmit,
+        triggerPropertyName: "onSubmit",
+        eventType: EventType.ON_SUBMIT,
+        row: {
+          ...this.props.filteredTableData[rowIndex],
+          [this.props.editableCell.column]: value,
+        },
       });
-
-      if (onSubmit && this.props.editableCell?.column) {
-        //since onSubmit is truthy this makes action truthy as well, so we can push this event
-        this.pushOnColumnEvent({
-          rowIndex: rowIndex,
-          action: onSubmit,
-          triggerPropertyName: "onSubmit",
-          eventType: EventType.ON_SUBMIT,
-          row: {
-            ...this.props.filteredTableData[rowIndex],
-            [this.props.editableCell.column]: value,
-          },
-        });
-      }
-
-      commitBatchMetaUpdates();
-      this.clearEditableCell();
     }
+
+    commitBatchMetaUpdates();
+    this.clearEditableCell();
   };
   pushClearEditableCellsUpdates = () => {
     const { pushBatchMetaUpdates } = this.props;
