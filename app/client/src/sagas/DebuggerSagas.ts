@@ -16,7 +16,6 @@ import type {
   LogObject,
 } from "entities/AppsmithConsole";
 import { LOG_CATEGORY } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import {
   all,
   call,
@@ -28,25 +27,14 @@ import {
 } from "redux-saga/effects";
 import { findIndex, get, isEmpty, isMatch, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import {
-  getAction,
-  getPlugin,
-  getJSCollection,
-  getAppMode,
-} from "ee/selectors/entitiesSelector";
+import { getAction, getAppMode } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
-import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getConfigTree } from "selectors/dataTreeSelectors";
 import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { getWidget } from "./selectors";
-import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
@@ -309,7 +297,7 @@ function* logDebuggerErrorAnalyticsSaga(
 ): unknown {
   try {
     const payload = analyticsPayload;
-    const currentPageId: string | undefined = yield select(getCurrentPageId);
+    // const currentPageId: string | undefined = yield select(getCurrentPageId);
     const { source } = payload;
     const activeEditorField: ReturnType<typeof getActiveEditorField> =
       yield select(getActiveEditorField);
@@ -327,82 +315,82 @@ function* logDebuggerErrorAnalyticsSaga(
       }
       return;
     }
-    if (payload.entityType === ENTITY_TYPE.WIDGET) {
-      const widget: WidgetProps | undefined = yield select(
-        getWidget,
-        payload.entityId,
-      );
-      const widgetType = widget?.type || payload?.analytics?.widgetType || "";
-      const propertyPath = `${widgetType}.${payload.propertyPath}`;
-
-      // Sending widget type for widgets
-      AnalyticsUtil.logEvent(
-        payload.eventName,
-        {
-          entityType: widgetType,
-          propertyPath,
-          errorId: payload.errorId,
-          errorMessages: payload.errorMessages,
-          pageId: currentPageId,
-          errorMessage: payload.errorMessage,
-          errorType: payload.errorType,
-          appMode: payload.appMode,
-        },
-        AnalyticsEventType.error,
-      );
-    } else if (payload.entityType === ENTITY_TYPE.ACTION) {
-      const action: Action | undefined = yield select(
-        getAction,
-        payload.entityId,
-      );
-      const pluginId = action?.pluginId || payload?.analytics?.pluginId || "";
-      const plugin: Plugin = yield select(getPlugin, pluginId);
-      const pluginName = plugin?.name.replace(/ /g, "");
-      let propertyPath = `${pluginName}`;
-
-      if (payload.propertyPath) {
-        propertyPath += `.${payload.propertyPath}`;
-      }
-
-      // Sending plugin name for actions
-      AnalyticsUtil.logEvent(
-        payload.eventName,
-        {
-          entityType: pluginName,
-          propertyPath,
-          errorId: payload.errorId,
-          errorMessages: payload.errorMessages,
-          pageId: currentPageId,
-          errorMessage: payload.errorMessage,
-          errorType: payload.errorType,
-          errorSubType: payload.errorSubType,
-          appMode: payload.appMode,
-        },
-        AnalyticsEventType.error,
-      );
-    } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
-      const action: JSCollection = yield select(
-        getJSCollection,
-        payload.entityId,
-      );
-      if (!action) return;
-      const plugin: Plugin = yield select(getPlugin, action.pluginId);
-      const pluginName = plugin?.name?.replace(/ /g, "");
-
-      // Sending plugin name for actions
-      AnalyticsUtil.logEvent(
-        payload.eventName,
-        {
-          entityType: pluginName,
-          errorId: payload.errorId,
-          propertyPath: payload.propertyPath,
-          errorMessages: payload.errorMessages,
-          pageId: currentPageId,
-          appMode: payload.appMode,
-        },
-        AnalyticsEventType.error,
-      );
-    }
+    // if (payload.entityType === ENTITY_TYPE.WIDGET) {
+    //   const widget: WidgetProps | undefined = yield select(
+    //     getWidget,
+    //     payload.entityId,
+    //   );
+    //   const widgetType = widget?.type || payload?.analytics?.widgetType || "";
+    //   const propertyPath = `${widgetType}.${payload.propertyPath}`;
+    //
+    //   // Sending widget type for widgets
+    //   AnalyticsUtil.logEvent(
+    //     payload.eventName,
+    //     {
+    //       entityType: widgetType,
+    //       propertyPath,
+    //       errorId: payload.errorId,
+    //       errorMessages: payload.errorMessages,
+    //       pageId: currentPageId,
+    //       errorMessage: payload.errorMessage,
+    //       errorType: payload.errorType,
+    //       appMode: payload.appMode,
+    //     },
+    //     AnalyticsEventType.error,
+    //   );
+    // } else if (payload.entityType === ENTITY_TYPE.ACTION) {
+    //   const action: Action | undefined = yield select(
+    //     getAction,
+    //     payload.entityId,
+    //   );
+    //   const pluginId = action?.pluginId || payload?.analytics?.pluginId || "";
+    //   const plugin: Plugin = yield select(getPlugin, pluginId);
+    //   const pluginName = plugin?.name.replace(/ /g, "");
+    //   let propertyPath = `${pluginName}`;
+    //
+    //   if (payload.propertyPath) {
+    //     propertyPath += `.${payload.propertyPath}`;
+    //   }
+    //
+    //   // Sending plugin name for actions
+    //   AnalyticsUtil.logEvent(
+    //     payload.eventName,
+    //     {
+    //       entityType: pluginName,
+    //       propertyPath,
+    //       errorId: payload.errorId,
+    //       errorMessages: payload.errorMessages,
+    //       pageId: currentPageId,
+    //       errorMessage: payload.errorMessage,
+    //       errorType: payload.errorType,
+    //       errorSubType: payload.errorSubType,
+    //       appMode: payload.appMode,
+    //     },
+    //     AnalyticsEventType.error,
+    //   );
+    // } else if (payload.entityType === ENTITY_TYPE.JSACTION) {
+    //   const action: JSCollection = yield select(
+    //     getJSCollection,
+    //     payload.entityId,
+    //   );
+    //   if (!action) return;
+    //   const plugin: Plugin = yield select(getPlugin, action.pluginId);
+    //   const pluginName = plugin?.name?.replace(/ /g, "");
+    //
+    //   // Sending plugin name for actions
+    //   AnalyticsUtil.logEvent(
+    //     payload.eventName,
+    //     {
+    //       entityType: pluginName,
+    //       errorId: payload.errorId,
+    //       propertyPath: payload.propertyPath,
+    //       errorMessages: payload.errorMessages,
+    //       pageId: currentPageId,
+    //       appMode: payload.appMode,
+    //     },
+    //     AnalyticsEventType.error,
+    //   );
+    // }
   } catch (e) {
     log.error(e);
   }
@@ -763,26 +751,26 @@ function* activeFieldDebuggerErrorHandler(
   if (latestSourceDebuggerError && initialSourceDebuggerError) {
     const latestErrorMessages = latestSourceDebuggerError.messages || [];
     const initialErrorMessages = initialSourceDebuggerError.messages || [];
-    yield all(
-      initialErrorMessages.map((initialErrorMessage) => {
-        const exists = findIndex(latestErrorMessages, (latestErrorMessage) => {
-          return isMatch(latestErrorMessage, initialErrorMessage);
-        });
-
-        if (exists < 0) {
-          return put({
-            type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
-            payload: {
-              ...sourceMetaData,
-              ...envMetaData,
-              eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-              errorMessage: initialErrorMessage.message,
-              errorId: generateErrorId(initialSourceDebuggerError),
-            },
-          });
-        }
-      }),
-    );
+    // yield all(
+    //   initialErrorMessages.map((initialErrorMessage) => {
+    //     const exists = findIndex(latestErrorMessages, (latestErrorMessage) => {
+    //       return isMatch(latestErrorMessage, initialErrorMessage);
+    //     });
+    //
+    //     if (exists < 0) {
+    //       return put({
+    //         type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
+    //         payload: {
+    //           ...sourceMetaData,
+    //           ...envMetaData,
+    //           eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+    //           errorMessage: initialErrorMessage.message,
+    //           errorId: generateErrorId(initialSourceDebuggerError),
+    //         },
+    //       });
+    //     }
+    //   }),
+    // );
     yield all(
       latestErrorMessages.map((latestErrorMessage) => {
         const exists = findIndex(

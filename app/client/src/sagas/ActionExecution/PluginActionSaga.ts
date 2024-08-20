@@ -637,7 +637,7 @@ export default function* executePluginActionTriggerSaga(
       );
     }
   } else {
-    AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", actionExecutionAnalytics);
+    // AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", actionExecutionAnalytics);
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
       text: "Executed successfully from widget request",
@@ -1208,26 +1208,26 @@ function* executePageLoadAction(
           : ActionExecutionContext.PAGE_LOAD,
       });
     } else {
-      AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
-        type: pageAction.pluginType,
-        name: actionName,
-        pageId: pageId,
-        appMode: appMode,
-        appId: currentApp.id,
-        onPageLoad: true,
-        appName: currentApp.name,
-        environmentId: currentEnvDetails.id,
-        environmentName: currentEnvDetails.name,
-        isExampleApp: currentApp.appIsExample,
-        pluginName: plugin?.name,
-        datasourceId: datasourceId,
-        isMock: !!datasource?.isMock,
-        actionId: pageAction?.id,
-        inputParams: 0,
-        source: !!actionExecutionContext
-          ? actionExecutionContext
-          : ActionExecutionContext.PAGE_LOAD,
-      });
+      // AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
+      //   type: pageAction.pluginType,
+      //   name: actionName,
+      //   pageId: pageId,
+      //   appMode: appMode,
+      //   appId: currentApp.id,
+      //   onPageLoad: true,
+      //   appName: currentApp.name,
+      //   environmentId: currentEnvDetails.id,
+      //   environmentName: currentEnvDetails.name,
+      //   isExampleApp: currentApp.appIsExample,
+      //   pluginName: plugin?.name,
+      //   datasourceId: datasourceId,
+      //   isMock: !!datasource?.isMock,
+      //   actionId: pageAction?.id,
+      //   inputParams: 0,
+      //   source: !!actionExecutionContext
+      //     ? actionExecutionContext
+      //     : ActionExecutionContext.PAGE_LOAD,
+      // });
 
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
