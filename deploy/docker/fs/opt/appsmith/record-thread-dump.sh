@@ -7,4 +7,4 @@ set -o noglob
 
 location=/appsmith-stacks/heap_dumps/ad-hoc/$(date "+%Y_%m_%d_%H_%S")/thread-profile;
 mkdir -p $location; 
-jcmd $(pgrep -f -- "-jar\sserver.jar") Thread.print > $location/trace-${HOSTNAME}.log
+jstack $(pgrep -f -- "-jar\sserver.jar") > $location/trace-${HOSTNAME}.log
