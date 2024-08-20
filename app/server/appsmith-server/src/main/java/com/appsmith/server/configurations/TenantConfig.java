@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -26,7 +27,7 @@ public class TenantConfig implements ApplicationListener<ApplicationStartedEvent
     // As we have mocked the TenantService in the tests, we had to manually evict the cache and save the object to DB
     private Mono<Tenant> cleanupAndUpdateRefreshDefaultTenantPolicies() {
         log.debug("Cleaning up and updating default tenant policies on server startup");
-        return tenantRepository.findBySlug("default").flatMap(tenant -> {
+        return tenantRepository.findBySlug(FieldName.DEFAULT).flatMap(tenant -> {
             if (CollectionUtils.isNullOrEmpty(tenant.getPolicyMap())) {
                 tenant.setPolicyMap(policySetToMap(tenant.getPolicies()));
                 return cachableRepositoryHelper
