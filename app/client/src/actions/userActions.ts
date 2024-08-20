@@ -2,7 +2,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { UpdateUserRequest } from "ee/api/UserApi";
+import type { UpdateUserRequest, VerifyTokenRequest } from "ee/api/UserApi";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   ProductAlert,
@@ -28,6 +28,15 @@ export const logoutUserError = (error: any) => ({
   payload: {
     error,
   },
+});
+
+export const verifyInviteSuccess = () => ({
+  type: ReduxActionTypes.VERIFY_INVITE_SUCCESS,
+});
+
+export const verifyInvite = (payload: VerifyTokenRequest) => ({
+  type: ReduxActionTypes.VERIFY_INVITE_INIT,
+  payload,
 });
 
 // TODO: Fix this the next time the file is edited

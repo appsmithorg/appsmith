@@ -30,6 +30,8 @@ import {
 import {
   logoutUserSuccess,
   logoutUserError,
+  verifyInviteSuccess,
+  verifyInviteError,
   invitedUserSignupError,
   invitedUserSignupSuccess,
   fetchFeatureFlagsSuccess,
@@ -445,6 +447,20 @@ export function* verifyResetPasswordTokenSaga(
     yield put({
       type: ReduxActionErrorTypes.RESET_PASSWORD_VERIFY_TOKEN_ERROR,
     });
+  }
+}
+
+export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
+  try {
+    const request: VerifyTokenRequest = action.payload;
+    const response: ApiResponse = yield call(UserApi.verifyUserInvite, request);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put(verifyInviteSuccess());
+    }
+  } catch (error) {
+    log.error(error);
+    yield put(verifyInviteError(error));
   }
 }
 

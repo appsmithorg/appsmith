@@ -361,6 +361,8 @@ const UserAuthActionTypes = {
   FETCH_USER_SUCCESS: "FETCH_USER_SUCCESS",
   LOGOUT_USER_INIT: "LOGOUT_USER_INIT",
   LOGOUT_USER_SUCCESS: "LOGOUT_USER_SUCCESS",
+  VERIFY_INVITE_INIT: "VERIFY_INVITE_INIT",
+  VERIFY_INVITE_SUCCESS: "VERIFY_INVITE_SUCCESS",
   INVITED_USER_SIGNUP_INIT: "INVITED_USER_SIGNUP_INIT",
   INVITED_USER_SIGNUP_SUCCESS: "INVITED_USER_SIGNUP_SUCCESS",
   SAAS_GET_OAUTH_ACCESS_TOKEN: "SAAS_GET_OAUTH_ACCESS_TOKEN",
@@ -1361,6 +1363,7 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
 export interface BufferedReduxAction<T> extends ReduxAction<T> {
   affectedJSObjects: AffectedJSObjects;
 }
+
 export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
