@@ -140,12 +140,12 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class})
     Documentation documentation;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView({Views.Public.class, FromRequest.class})
     Instant deletedAt = null;
 
     @Deprecated
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView({Views.Public.class, FromRequest.class})
     Instant archivedAt = null;
 
@@ -160,7 +160,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     protected Instant createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     protected Instant updatedAt;
 

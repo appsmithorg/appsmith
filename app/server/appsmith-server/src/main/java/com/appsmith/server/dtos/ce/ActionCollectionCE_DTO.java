@@ -70,7 +70,7 @@ public class ActionCollectionCE_DTO {
     @JsonView({Views.Public.class, Git.class})
     PluginType pluginType;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant deletedAt;
 
