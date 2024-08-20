@@ -5,6 +5,18 @@ set -o pipefail
 set -o nounset
 set -o noglob
 
-location=/appsmith-stacks/heap_dumps/ad-hoc/$(date "+%Y_%m_%d_%H_%S")/heap-profile;
-mkdir -p $location; 
-jcmd $(pgrep -f -- "-jar\sserver.jar") GC.heap_dump filename=$location/${HOSTNAME}.log
+arg=${1:-}
+
+# Set the location based on the argument
+if [ "$arg" == "preStop" ]; then
+  location=/appsmith-stacks/heap_dumps/processdumps/$(date "+%Y_%m_%d_%H_%S")
+elif [ "$arg" == "adHoc" ]; then
+  location=/appsmith-stacks/heap_dumps/ad-hoc/${HOSTNAME}/heap-profile/$(date "+%Y_%m_%d_%H_%S")
+else
+  echo "Invalid argument. Use 'preStop' or 'adHoc'."
+  exit 1
+fi
+
+echo "Thread dump saved to: $location.log"
+# mkdir -p $location; 
+# jcmd $(pgrep -f -- "-jar\sserver.jar") GC.heap_dump $location.log
