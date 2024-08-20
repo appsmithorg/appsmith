@@ -6,6 +6,7 @@ import com.appsmith.server.services.TenantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 import static com.appsmith.external.models.BaseDomain.policySetToMap;
 
@@ -19,17 +20,18 @@ public class TenantConfig {
     // Bean to cleanup the cache and update the default tenant policies on every server restart. This will make sure
     // cache will be updated if we update the tenant via migrations.
     @Bean
-    public void cleanupAndUpdateRefreshDefaultTenantPolicies() {
-        tenantService
+    public Mono<Void> cleanupAndUpdateRefreshDefaultTenantPolicies() {
+        return tenantService
                 .getDefaultTenantId()
                 .flatMap(cacheableRepositoryHelper::evictCachedTenant)
                 .then(tenantService.getDefaultTenant())
                 .flatMap(tenant -> {
                     if (CollectionUtils.isNullOrEmpty(tenant.getPolicyMap())) {
                         tenant.setPolicyMap(policySetToMap(tenant.getPolicies()));
+                        return tenantService.save(tenant);
                     }
-                    return tenantService.save(tenant);
+                    return Mono.just(tenant);
                 })
-                .subscribe();
+                .then();
     }
 }
