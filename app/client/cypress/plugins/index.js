@@ -7,7 +7,7 @@ const cypressLogToOutput = require("cypress-log-to-output");
 const installLogsPrinter = require("cypress-terminal-report/src/installLogsPrinter");
 const {
   addMatchImageSnapshotPlugin,
-} = require("cypress-image-snapshot/plugin");
+} = require("@emerson-eps/cypress-image-snapshot/plugin");
 const { tagify } = require("cypress-tags");
 const { cypressHooks } = require("../scripts/cypress-hooks");
 const { dynamicSplit } = require("../scripts/cypress-split-dynamic");

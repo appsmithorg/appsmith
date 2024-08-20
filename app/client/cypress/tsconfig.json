@@ -32,5 +32,9 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["cypress", "node", "cypress-tags", "cypress-real-events"]
   },
-  "include": ["./", "../packages/rts/src/version.js"]
+  "include": [
+    "./",
+    "../packages/rts/src/version.js",
+    "@emerson-eps/cypress-image-snapshot"
+  ]
 }

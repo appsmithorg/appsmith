@@ -19,7 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
+} = require("@emerson-eps/cypress-image-snapshot/command");
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
