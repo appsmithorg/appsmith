@@ -144,6 +144,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
     return (
       <FieldWrapper
+        className="uqi-input-text"
         data-testid={configProperty}
         style={customStyles || {}}
         width={width || ""}
