@@ -29,6 +29,7 @@ const FlexWrapper = styled.div`
   display: flex;
   width: fit-content;
   margin-right: 5px;
+  min-height: 21px;
 
   & .t--js-toggle {
     margin-bottom: 0px;

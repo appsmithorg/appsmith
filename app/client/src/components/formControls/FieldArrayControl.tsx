@@ -77,7 +77,7 @@ function NestedComponents(props: any) {
         props.fields.length > 0 &&
         props.fields.map((field: string, index: number) => {
           return (
-            <SecondaryBox key={index}>
+            <SecondaryBox className="array-control-secondary-box" key={index}>
               {/* TODO: Fix this the next time the file is edited */}
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {props.schema.map((sch: any, idx: number) => {
