@@ -139,6 +139,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().byId(id).permission(permission, currentUser).one();
     }
 
+    public Optional<T> getById(String id) {
+        return queryBuilder().byId(id).one();
+    }
+
     @Transactional
     @Modifying
     public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission, User currentUser) {

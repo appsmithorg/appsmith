@@ -14,6 +14,14 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Optional<T> findById(String id, AclPermission permission, User currentUser);
 
+    /**
+     * This method is used to find a domain by its ID without checking for permissions. This method should be used
+     * when the caller is sure that the permissions have already been checked.
+     * @param id ID of the domain to be found
+     * @return Domain with the given ID if it exists, empty otherwise
+     */
+    Optional<T> getById(String id);
+
     Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
 
     int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);

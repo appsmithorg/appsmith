@@ -4727,7 +4727,7 @@ public class ImportServiceTests {
                 .cache();
 
         StepVerifier.create(resultMonoWithoutDiscardOperation.flatMap(application -> Mono.zip(
-                        Mono.just(application),
+                        applicationRepository.findById(application.getId()),
                         newPageService
                                 .findByApplicationId(application.getId(), MANAGE_PAGES, false)
                                 .collectList())))

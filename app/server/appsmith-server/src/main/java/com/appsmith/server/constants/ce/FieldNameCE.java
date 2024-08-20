@@ -205,4 +205,13 @@ public class FieldNameCE {
     public static final String ARTIFACT_ID = "artifactId";
     public static final String BODY = "body";
     public static final String PERMISSION_GROUPS = "permissionGroups";
+
+    public static final String CREATE = "save";
+
+    public static final String TRANSACTION_CONTEXT = "transactionContext";
+
+    public static final String FIND = "find";
+    public static final String ARCHIVE = "archive";
+
+    public static final String DELETE = "delete";
 }
