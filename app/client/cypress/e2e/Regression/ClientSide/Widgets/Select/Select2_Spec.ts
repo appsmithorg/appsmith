@@ -298,7 +298,11 @@ describe(
       agHelper.AssertExistingToggleState("Required", "false");
       propPane.TogglePropertyState("Required", "On");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.FORM));
-      cy.get(commonlocators.selectClearButton).should("not.exist");
+      const cancelButton = commonlocators.selectClearButton
+        .split("=")[1]
+        .replace("']", "")
+        .replace("'", "");
+      cy.get(cancelButton).should("not.exist");
     });
   },
 );
