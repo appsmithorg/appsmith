@@ -16,15 +16,6 @@ import type { NavigationProps } from "./constants";
 
 export function TopInline(props: NavigationProps) {
   const { currentApplicationDetails, pages } = props;
-  // const selectedTheme = useSelector(getSelectedAppTheme);
-  // const navColorStyle =
-  //   currentApplicationDetails?.applicationDetail?.navigationSetting?.colorStyle ||
-  //   NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
-  // const primaryColor = get(
-  //   selectedTheme,
-  //   "properties.colors.primaryColor",
-  //   "inherit",
-  // );
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");

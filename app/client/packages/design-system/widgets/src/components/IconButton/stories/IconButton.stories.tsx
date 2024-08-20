@@ -14,7 +14,7 @@ import {
  */
 const meta: Meta<typeof IconButton> = {
   component: IconButton,
-  title: "Design-system/Widgets/IconButton",
+  title: "WDS/Widgets/IconButton",
 };
 
 export default meta;

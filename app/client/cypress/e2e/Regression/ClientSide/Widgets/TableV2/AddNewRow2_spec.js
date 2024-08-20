@@ -87,6 +87,18 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
     _.propPane.UpdatePropertyFieldValue("Max", "");
 
+    // check that date isRequired validation is working
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("Date").click();
+    cy.wait("@updateLayout");
+    cy.enterTableCellValue(0, 0, "");
+    cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
+
+    // revert to Number for remainder of tests
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("Number").click();
+    cy.wait("@updateLayout");
+
     cy.get(".t--discard-new-row").click({ force: true });
   });
 

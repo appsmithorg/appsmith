@@ -12,7 +12,7 @@ import { getTypographyByKey } from "../constants/typography";
 
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ReactComponent as ProfileImagePlaceholder } from "../assets/icons/others/profile-placeholder.svg";
-import Icon, { IconSize } from "../Icon";
+import { Spinner } from "@appsmith/ads";
 
 interface Props {
   onChange: (file: File) => void;
@@ -241,7 +241,7 @@ export default function DisplayImageUpload({
         <Suspense
           fallback={
             <SpinnerContainer>
-              <Icon name={"loader"} size={IconSize.XL} />
+              <Spinner size="lg" />
             </SpinnerContainer>
           }
         >
