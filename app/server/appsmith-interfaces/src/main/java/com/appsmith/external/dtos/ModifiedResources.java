@@ -1,6 +1,7 @@
 package com.appsmith.external.dtos;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
@@ -31,7 +32,8 @@ public class ModifiedResources {
      * @return true if modified, false otherwise
      */
     public boolean isResourceUpdated(String resourceType, String resourceName) {
-        return isAllModified
+        return StringUtils.isEmpty(resourceType)
+                || isAllModified
                 || (!CollectionUtils.isEmpty(modifiedResourceMap.get(resourceType))
                         && modifiedResourceMap.get(resourceType).contains(resourceName));
     }
