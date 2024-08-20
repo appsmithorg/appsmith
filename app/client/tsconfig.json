@@ -34,6 +34,6 @@
     "noFallthroughCasesInSwitch": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["./src/**/*", "./packages", "@emerson-eps/cypress-image-snapshot"],
+  "include": ["./src/**/*", "./packages"],
   "exclude": ["./packages/rts", "**/node_modules", "**/.*/"]
 }
