@@ -1,10 +1,12 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.TenantService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
 
@@ -12,26 +14,26 @@ import static com.appsmith.external.models.BaseDomain.policySetToMap;
 
 @Configuration
 @RequiredArgsConstructor
-public class TenantConfig {
+@Slf4j
+public class TenantConfig implements ApplicationListener<ApplicationStartedEvent> {
 
     private final TenantService tenantService;
-    private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    // Bean to cleanup the cache and update the default tenant policies on every server restart. This will make sure
-    // cache will be updated if we update the tenant via migrations.
-    @Bean
-    public void cleanupAndUpdateRefreshDefaultTenantPolicies() {
-        tenantService
-                .getDefaultTenantId()
-                .flatMap(cacheableRepositoryHelper::evictCachedTenant)
-                .then(tenantService.getDefaultTenant())
-                .flatMap(tenant -> {
-                    if (CollectionUtils.isNullOrEmpty(tenant.getPolicyMap())) {
-                        tenant.setPolicyMap(policySetToMap(tenant.getPolicies()));
-                        return tenantService.save(tenant);
-                    }
-                    return Mono.just(tenant);
-                })
-                .subscribe();
+    // Method to cleanup the cache and update the default tenant policies if the policyMap is empty. This will make sure
+    // cache will be updated if we update the tenant via startup DB migrations.
+    public Mono<Tenant> cleanupAndUpdateRefreshDefaultTenantPolicies() {
+        log.debug("Cleaning up and updating default tenant policies on server startup");
+        return tenantService.getDefaultTenant().flatMap(tenant -> {
+            if (CollectionUtils.isNullOrEmpty(tenant.getPolicyMap())) {
+                tenant.setPolicyMap(policySetToMap(tenant.getPolicies()));
+                return tenantService.save(tenant);
+            }
+            return Mono.just(tenant);
+        });
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationStartedEvent event) {
+        cleanupAndUpdateRefreshDefaultTenantPolicies().block();
     }
 }
