@@ -23,6 +23,7 @@ public class TenantConfig implements ApplicationListener<ApplicationStartedEvent
 
     // Method to cleanup the cache and update the default tenant policies if the policyMap is empty. This will make sure
     // cache will be updated if we update the tenant via startup DB migrations.
+    // As we have mocked the TenantService in the tests, we had to manually evict the cache and save the object to DB
     private Mono<Tenant> cleanupAndUpdateRefreshDefaultTenantPolicies() {
         log.debug("Cleaning up and updating default tenant policies on server startup");
         return tenantRepository.findBySlug("default").flatMap(tenant -> {
