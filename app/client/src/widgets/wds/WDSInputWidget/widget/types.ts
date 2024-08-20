@@ -1,6 +1,6 @@
 import type { InputComponentProps } from "../component/types";
 import type { BaseInputWidgetProps } from "../../WDSBaseInputWidget";
-import type { IconProps } from "@design-system/widgets";
+import type { IconProps } from "@appsmith/wds";
 
 export interface InputWidgetProps extends BaseInputWidgetProps {
   defaultText?: string | number;
