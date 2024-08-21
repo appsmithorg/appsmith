@@ -76,6 +76,16 @@ export function optionsCustomValidation(
         break;
       }
 
+      if (!label && !value) {
+        _isValid = false;
+        message = {
+          name: "ValidationError",
+          message:
+            "Both Name and Value can't be empty",
+        };
+        break;
+      }
+
       //Check if the required field "label" is present:
       if (!label) {
         _isValid = false;
