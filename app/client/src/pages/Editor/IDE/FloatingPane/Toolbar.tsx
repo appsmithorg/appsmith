@@ -21,7 +21,7 @@ const Toolbar = () => {
   return (
     <Flex
       alignItems="center"
-      flexDirection="column"
+      flexDirection="row"
       justifyContent="space-between"
       paddingBottom="spaces-3"
       width={"256px"}

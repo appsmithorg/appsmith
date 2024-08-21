@@ -67,7 +67,8 @@ const StyledBinndingWrapper = styled.div<{
   align-items: center;
   background: ${({ isMiniPaneVisible }) =>
     isMiniPaneVisible ? Colors.JAFFA_DARK : ""};
-  & svg > g {
+
+  & svg > g > path {
     fill: #fff;
   }
 
