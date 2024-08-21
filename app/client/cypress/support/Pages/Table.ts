@@ -827,4 +827,16 @@ export class Table {
       .GetText(this._listActivePage(version), "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
   }
+
+  public DiscardEditRow(row: number, col: number, verify = true) {
+    /*
+     * Why not get it with text `Discard`?
+     * We've tried using selector: `[data-colindex="${col}"][data-rowindex="${row}"] button span:contains('Discard')` and this dosn't work, making this spec fail.
+     */
+    const selector = `${this._tableRow(row, col, "v2")} button`;
+
+    cy.get(selector).eq(1).should("be.enabled");
+    this.agHelper.GetHoverNClick(selector, 1, true);
+    verify && cy.get(selector).eq(1).should("be.disabled");
+  }
 }

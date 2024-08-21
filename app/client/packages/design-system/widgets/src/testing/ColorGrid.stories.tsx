@@ -4,7 +4,7 @@ import { ColorGrid } from "./ColorGrid";
 
 const meta: Meta<typeof ColorGrid> = {
   component: ColorGrid,
-  title: "Testing/ColorGrid",
+  title: "WDS/Testing/ColorGrid",
   args: {
     source: "oklch",
     size: "small",

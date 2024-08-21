@@ -1,5 +1,5 @@
 export enum Classes {
-  ICON = "cs-icon",
+  ICON = "ads-v2-icon",
   APP_ICON = "cs-app-icon",
   TEXT = "cs-text",
   BP3_POPOVER_ARROW_BORDER = "bp3-popover-arrow-border",

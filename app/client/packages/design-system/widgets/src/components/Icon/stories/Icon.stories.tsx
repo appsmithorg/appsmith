@@ -7,7 +7,7 @@ import { Flex, Icon, ICONS, SIZES } from "@appsmith/wds";
  */
 const meta: Meta<typeof Icon> = {
   component: Icon,
-  title: "Design-system/Widgets/Icon",
+  title: "WDS/Widgets/Icon",
 };
 
 export default meta;
