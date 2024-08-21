@@ -15,7 +15,7 @@ import {
  */
 const meta: Meta<typeof TextInput> = {
   component: TextInput,
-  title: "Design-system/Widgets/TextInput",
+  title: "WDS/Widgets/TextInput",
 };
 
 export default meta;

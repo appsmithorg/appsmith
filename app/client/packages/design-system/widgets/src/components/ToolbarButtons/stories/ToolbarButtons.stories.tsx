@@ -21,7 +21,7 @@ import {
  */
 const meta: Meta<typeof ToolbarButtons> = {
   component: ToolbarButtons,
-  title: "Design-system/Widgets/ToolbarButtons",
+  title: "WDS/Widgets/ToolbarButtons",
 };
 
 export default meta;
