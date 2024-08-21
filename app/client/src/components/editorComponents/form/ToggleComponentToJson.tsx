@@ -76,7 +76,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
       content={!!configPropertyPathJsonValue && JS_TOGGLE_DISABLED_MESSAGE}
       isDisabled={!configPropertyPathJsonValue}
     >
-      <span>
+      <span className="flex items-center justify-center h-[16px]">
         <StyledToggleButton
           data-testid={`t--${props.configProperty}-JS`}
           icon="js-toggle-v2"
