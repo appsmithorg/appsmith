@@ -1176,7 +1176,7 @@ Cypress.Commands.add("validateEvaluatedValue", (value) => {
 // });
 
 addMatchImageSnapshotCommand({
-  failureThreshold: 0.15, // threshold for entire image
+  failureThreshold: 0.01, // threshold for entire image
   failureThresholdType: "percent",
 });
 
