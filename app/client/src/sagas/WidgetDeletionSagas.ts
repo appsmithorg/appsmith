@@ -255,6 +255,15 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         parentId,
       );
 
+      if (widget.hasMetaWidgets) {
+        yield put({
+          type: ReduxActionTypes.DELETE_META_WIDGETS,
+          payload: {
+            creatorIds: [widgetId],
+          },
+        });
+      }
+
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         const layoutSystemType: LayoutSystemTypes =
