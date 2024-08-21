@@ -16,7 +16,7 @@ describe(
       _.table.AddSampleTableData();
     });
 
-    it.only("1. should check that select column is available in the column dropdown options", () => {
+    it("1. should check that select column is available in the column dropdown options", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
 
@@ -31,7 +31,7 @@ describe(
       cy.get(".t--property-pane-section-collapse-events").should("exist");
     });
 
-    it.only("2. should check that select column returns value if no option is provided", () => {
+    it("2. should check that select column returns value if no option is provided", () => {
       featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.readTableV2data(0, 0).then((val) => {
         expect(val).to.equal("#1");
