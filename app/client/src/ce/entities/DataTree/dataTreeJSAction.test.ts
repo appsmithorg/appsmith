@@ -1,5 +1,5 @@
 import { PluginType } from "entities/Action";
-import { generateDataTreeJSAction } from "./dataTreeJSAction";
+import { generateDataTreeJSAction } from "@appsmith/evaluation";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 describe("generateDataTreeJSAction", () => {
@@ -192,7 +192,7 @@ describe("generateDataTreeJSAction", () => {
         myVar2: "SMART_SUBSTITUTE",
       },
     };
-    const resultData = generateDataTreeJSAction(jsCollection);
+    const resultData = generateDataTreeJSAction(jsCollection.config);
     expect(resultData.unEvalEntity).toStrictEqual(expectedData);
     expect(resultData.configEntity).toStrictEqual(expectedConfig);
   });
@@ -390,7 +390,7 @@ describe("generateDataTreeJSAction", () => {
       },
     };
 
-    const result = generateDataTreeJSAction(jsCollection);
+    const result = generateDataTreeJSAction(jsCollection.config);
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
   });

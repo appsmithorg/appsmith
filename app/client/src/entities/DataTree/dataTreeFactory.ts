@@ -9,7 +9,6 @@ import type {
   DataTreeSeed,
   AppsmithEntity,
   EntityTypeValue,
-  JSActionEntityConfig,
 } from "ee/entities/DataTree/types";
 import type {
   unEvalAndConfigTree,
@@ -23,7 +22,7 @@ import {
   startNestedSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
-import { generateDataTreeJSAction } from "ee/entities/DataTree/dataTreeJSAction";
+import { generateDataTreeJSAction } from "@appsmith/evaluation";
 export class DataTreeFactory {
   static create({
     actions,
@@ -70,7 +69,9 @@ export class DataTreeFactory {
     );
 
     jsActions.forEach((js) => {
-      const { configEntity, unEvalEntity } = generateDataTreeJSAction(js);
+      const { configEntity, unEvalEntity } = generateDataTreeJSAction(
+        js.config,
+      );
       dataTree[js.config.name] = unEvalEntity;
       configTree[js.config.name] = configEntity;
     });

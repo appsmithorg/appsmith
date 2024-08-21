@@ -86,7 +86,10 @@ export interface JSActionEntityConfig extends EntityConfig {
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   variables?: Array<string>;
   dependencyMap: DependencyMap;
-  pluginType: PluginType.JS;
+  // Should PluginType be moved to a types package so that it can be reused ??
+  // This property is only referenced in getEntityPayloadInfo where it resolved to  PluginType | string;
+  // If the fallback type is string why do we need to assert the PluginType?
+  pluginType: string;
   name: string;
   ENTITY_TYPE: typeof ENTITY_TYPE.JSACTION;
   actionId: string;

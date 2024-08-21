@@ -1,63 +1,66 @@
 import { EvaluationSubstitutionType, type DependencyMap } from "../common";
 import { ENTITY_TYPE } from "./ee";
 
-export const generateDataTreeJSAction = (js: {
-  isLoading: boolean;
-  config: {
-    id: string;
+interface JSConfig {
+  id: string;
+  name: string;
+  pluginType: "JS";
+  body?: string;
+  actions?: Array<{
     name: string;
-    pluginType: string;
-    body?: string;
-    actions?: Array<{
-      name: string;
-      confirmBeforeExecute?: boolean;
-      actionConfiguration?: {
-        jsArguments?: {
-          name: string;
-          value: unknown;
-        }[];
-      };
-    }>;
-    variables?: Array<{
-      name: string;
-      value: {
+    confirmBeforeExecute?: boolean;
+    actionConfiguration?: {
+      jsArguments?: {
         name: string;
         value: unknown;
-      };
-    }>;
-  };
-  data?: Record<string, unknown>;
-  isExecuting?: Record<string, boolean>;
-  activeJSActionId?: string;
-  // Existence of parse errors for each action (updates after execution)
-  isDirty?: Record<string, boolean>;
-}): {
-  unEvalEntity: Record<string, unknown> & {
-    ENTITY_TYPE: ENTITY_TYPE.JSACTION;
-    actionId: string;
-    body?: string;
-  };
-  configEntity: {
-    actionId: string;
-    meta: Record<
-      string,
-      {
-        arguments: {
-          name: string;
-          value: unknown;
-        }[];
-        confirmBeforeExecute: boolean;
-      }
-    >;
+      }[];
+    };
+  }>;
+  variables?: {
     name: string;
-    pluginType: string;
-    ENTITY_TYPE: ENTITY_TYPE.JSACTION;
-    bindingPaths: Record<string, EvaluationSubstitutionType>;
-    reactivePaths: Record<string, EvaluationSubstitutionType>;
-    dynamicBindingPathList: Array<{ key: string }>;
-    variables: string[];
-    dependencyMap: DependencyMap;
-  };
+    value: {
+      name: string;
+      value: unknown;
+    };
+  }[];
+}
+
+type JSUnEvalEntity = Record<string, unknown> & {
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  actionId: string;
+  body?: string;
+};
+
+interface JSConfigEntity {
+  meta: Record<
+    string,
+    {
+      arguments: {
+        name: string;
+        value: unknown;
+      }[];
+      confirmBeforeExecute: boolean;
+    }
+  >;
+  dynamicBindingPathList: Array<{ key: string }>;
+  bindingPaths: Record<string, EvaluationSubstitutionType>;
+  reactivePaths: Record<string, EvaluationSubstitutionType>;
+  variables: string[];
+  dependencyMap: DependencyMap;
+  pluginType: "JS";
+  name: string;
+  ENTITY_TYPE: ENTITY_TYPE.JSACTION;
+  actionId: string;
+  moduleId?: string;
+  moduleInstanceId?: string;
+  isPublic?: boolean;
+}
+
+export const generateDataTreeJSAction = (
+  jsConfig: JSConfig,
+): {
+  unEvalEntity: JSUnEvalEntity;
+  configEntity: JSConfigEntity;
 } => {
   const meta: Record<
     string,
@@ -74,12 +77,13 @@ export const generateDataTreeJSAction = (js: {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const variableList: Record<string, any> = {};
-  const variables = js.config?.variables;
+
+  const { actions, body, id, name, pluginType, variables } = jsConfig;
   const listVariables: Array<string> = [];
   dynamicBindingPathList.push({ key: "body" });
 
   const removeThisReference =
-    js.config.body && js.config.body.replace(/this\./g, `${js.config.name}.`);
+    body && body.replace(/this\./g, `${jsConfig.name}.`);
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
   if (variables) {
@@ -93,7 +97,6 @@ export const generateDataTreeJSAction = (js: {
   }
   const dependencyMap: DependencyMap = {};
   dependencyMap["body"] = [];
-  const actions = js.config.actions;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionsData: Record<string, any> = {};
@@ -101,7 +104,7 @@ export const generateDataTreeJSAction = (js: {
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
       meta[action.name] = {
-        arguments: action.actionConfiguration?.jsArguments || [],
+        arguments: action.actionConfiguration?.jsArguments ?? [],
         confirmBeforeExecute: !!action.confirmBeforeExecute,
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
@@ -114,19 +117,20 @@ export const generateDataTreeJSAction = (js: {
       };
     }
   }
+
   return {
     unEvalEntity: {
       ...variableList,
       ...actionsData,
       body: removeThisReference,
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-      actionId: js.config.id,
+      actionId: id,
     },
     configEntity: {
-      actionId: js.config.id,
+      actionId: id,
       meta: meta,
-      name: js.config.name,
-      pluginType: js.config.pluginType,
+      name,
+      pluginType,
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
       reactivePaths: { ...bindingPaths },
