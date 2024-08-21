@@ -25,7 +25,6 @@ app/client/src/widgets/wds/* @appsmithorg/wds-team @appsmithorg/anvil-team
 
 # Anvil-team
 app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
-app/client/src/widgets/anvil/* @appsmithorg/anvil-team
 
 # App viewers pod
 app/client/src/widgets/* @appsmithorg/app-viewers

@@ -1,3 +1,5 @@
+import { getCanvasClassName } from "utils/generators";
+
 export const anvilWidgets = {
   SECTION_WIDGET: "SECTION_WIDGET",
   ZONE_WIDGET: "ZONE_WIDGET",
@@ -29,8 +31,6 @@ export const DEFAULT_WIDGET_ON_CANVAS_UI = {
   focusColorCSSVar: "--on-canvas-ui-widget-selection",
   disableParentSelection: false,
 };
-
-import { getCanvasClassName } from "utils/generators";
 
 export const WDS_V2_WIDGET_MAP = {
   BUTTON_WIDGET: "WDS_BUTTON_WIDGET",
