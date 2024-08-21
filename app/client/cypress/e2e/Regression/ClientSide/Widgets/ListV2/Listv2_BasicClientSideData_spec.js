@@ -36,9 +36,12 @@ describe(
       _.agHelper.SaveLocalStorageCache();
     });
 
-    it("1. Test drag and drop of list widget", () => {
+    it.only("1. Test drag and drop of list widget", () => {
       // to avoid such issues in future: https://github.com/appsmithorg/appsmith/issues/35578
       cy.dragAndDropToCanvas("listwidgetv2", { x: 200, y: 200 });
+      _.debuggerHelper.AssertErrorCount(0);
+
+      _.agHelper.DeleteEntityNAssert("List1");
       _.debuggerHelper.AssertErrorCount(0);
     });
 
