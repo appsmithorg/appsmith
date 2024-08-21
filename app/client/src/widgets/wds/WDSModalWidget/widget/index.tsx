@@ -8,7 +8,7 @@ import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ModalBody } from "@appsmith/wds";
-import { WDS_MODAL_WIDGET_CLASSNAME } from "../../constants";
+import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
@@ -21,7 +21,7 @@ import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalL
 import styles from "./styles.module.css";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { AnvilDataAttributes } from "../../constants";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";

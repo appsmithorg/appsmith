@@ -35,7 +35,7 @@ import { call } from "redux-saga/effects";
 import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 import { SectionColumns } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
 
-class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
+class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
 
   static getConfig(): WidgetBaseConfiguration {
@@ -153,8 +153,8 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   }
 }
 
-export interface ZoneWidgetProps extends ContainerWidgetProps<WidgetProps> {
+export interface WDSZoneWidgetProps extends ContainerWidgetProps<WidgetProps> {
   layout: LayoutProps[];
 }
 
-export default ZoneWidget;
+export default WDSZoneWidget;

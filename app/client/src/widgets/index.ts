@@ -73,8 +73,8 @@ import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
 import { WDSMenuButtonWidget } from "./wds/WDSMenuButtonWidget";
 import CustomWidget from "./CustomWidget";
-import { SectionWidget } from "./wds/SectionWidget";
-import { ZoneWidget } from "./wds/ZoneWidget";
+import { WDSSectionWidget } from "./wds/WDSSectionWidget";
+import { WDSZoneWidget } from "./wds/WDSZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 import { WDSModalWidget } from "./wds/WDSModalWidget";
@@ -165,8 +165,8 @@ const WDSWidgets = [
   WDSRadioGroupWidget,
   WDSMenuButtonWidget,
   CustomWidget,
-  SectionWidget,
-  ZoneWidget,
+  WDSSectionWidget,
+  WDSZoneWidget,
   WDSParagraphWidget,
   WDSHeadingWidget,
   WDSModalWidget,

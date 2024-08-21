@@ -35,7 +35,7 @@ import type {
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
 
-class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
+class WDSSectionWidget extends BaseWidget<WDSSectionWidgetProps, WidgetState> {
   static type = anvilWidgets.SECTION_WIDGET;
 
   static getConfig(): WidgetBaseConfiguration {
@@ -152,8 +152,9 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 }
 
-export interface SectionWidgetProps extends ContainerWidgetProps<WidgetProps> {
+export interface WDSSectionWidgetProps
+  extends ContainerWidgetProps<WidgetProps> {
   layout: LayoutProps[];
 }
 
-export default SectionWidget;
+export default WDSSectionWidget;
