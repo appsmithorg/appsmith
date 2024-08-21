@@ -15,5 +15,3 @@ export function* requestModalConfirmationSaga(payload: ModalInfo) {
 
   return !!accept;
 }
-
-export default requestModalConfirmationSaga;
