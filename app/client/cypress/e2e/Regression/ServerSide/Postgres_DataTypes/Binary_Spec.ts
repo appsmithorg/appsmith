@@ -76,36 +76,35 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
   });
 
-  //Timing out a lot in CI, hence skipped, Insert verified also in next case
-  // it.skip("3. Inserting record - binarytype", () => {
-  //   imageNameToUpload = "Datatypes/Bridge.jpg";
-  //   // entityExplorer.SelectEntityByName("Page1");
-  //   // deployMode.DeployApp();
-  //   // table.WaitForTableEmpty(); //asserting table is empty before inserting!
-  //   agHelper.ClickButton("Run InsertQuery");
-  //   agHelper.AssertElementVisibility(locators._modal);
+  it("3. Inserting record - binarytype", () => {
+    imageNameToUpload = "Datatypes/Bridge.jpg";
+    // entityExplorer.SelectEntityByName("Page1");
+    // deployMode.DeployApp();
+    // table.WaitForTableEmpty(); //asserting table is empty before inserting!
+    agHelper.ClickButton("Run InsertQuery");
+    agHelper.AssertElementVisibility(locators._modal);
 
-  //   agHelper.ClickButton("Select New Image");
-  //   agHelper.UploadFile(imageNameToUpload);
+    agHelper.ClickButton("Select New Image");
+    agHelper.UploadFile(imageNameToUpload);
 
-  //   agHelper.ClickButton("Insert");
-  //   agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-  //   agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-  //   agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
-  //   table.WaitUntilTableLoad();
-  //   agHelper.Sleep(3000); //some more time for all rows with images to be populated
-  //   table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-  //     expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
-  //   });
-  //   table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
-  //     expect($cellData).to.eq("Bridge.jpg");
-  //   });
-  //   table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
-  //     table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
-  //       expect($oldimage).to.eq($newimage);
-  //     });
-  //   });
-  // });
+    agHelper.ClickButton("Insert");
+    agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
+    agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
+    table.WaitUntilTableLoad();
+    agHelper.Sleep(3000); //some more time for all rows with images to be populated
+    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+      expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
+    });
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
+      expect($cellData).to.eq("Bridge.jpg");
+    });
+    table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
+      table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
+        expect($oldimage).to.eq($newimage);
+      });
+    });
+  });
 
   it("4. Inserting another record - binarytype", () => {
     imageNameToUpload = "Datatypes/Georgia.jpeg";
