@@ -22,9 +22,9 @@ import BaseWidget from "widgets/BaseWidget";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { ContainerComponent } from "widgets/anvil/Container";
+import { ContainerComponent } from "widgets/wds/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { Elevations, anvilWidgets } from "widgets/anvil/constants";
+import { Elevations, anvilWidgets } from "widgets/wds/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,

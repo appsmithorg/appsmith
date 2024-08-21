@@ -6,8 +6,8 @@ import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { expectSaga } from "redux-saga-test-plan";
 import { getWidgets } from "sagas/selectors";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { SectionWidget } from "widgets/wds/SectionWidget";
+import { ZoneWidget } from "widgets/wds/ZoneWidget";
 import { WDSButtonWidget } from "widgets/wds/WDSButtonWidget";
 import {
   getCanvasWidth,

@@ -15,7 +15,7 @@ import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
 import { getWidgets } from "sagas/selectors";
 import { useMemo } from "react";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { ZoneWidget } from "widgets/wds/ZoneWidget";
 import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
 
 interface AnvilDnDListenerStatesProps {

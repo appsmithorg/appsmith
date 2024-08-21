@@ -17,15 +17,15 @@ import {
   propertyPaneStyle,
   methodsConfig,
   autocompleteConfig,
-} from "./config";
+} from "../config";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import BaseWidget from "widgets/BaseWidget";
 import type { ReactNode } from "react";
 import React from "react";
-import { ContainerComponent } from "widgets/anvil/Container";
+import { ContainerComponent } from "widgets/wds/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { Elevations, anvilWidgets } from "widgets/anvil/constants";
+import { Elevations, anvilWidgets } from "widgets/wds/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
