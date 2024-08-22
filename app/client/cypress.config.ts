@@ -24,7 +24,7 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "https://release.app.appsmith.com/",
+    baseUrl: "https://dev.appsmith.com/",
     env: {
       USERNAME: "xxxx",
       PASSWORD: "xxx",

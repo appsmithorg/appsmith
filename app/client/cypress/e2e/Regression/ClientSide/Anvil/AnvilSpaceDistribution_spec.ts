@@ -182,7 +182,7 @@ describe(
       cy.get(zone1Selector).should(
         "have.css",
         "outline-color",
-        "transparent",
+        "rgba(0, 0, 0, 0)",
       );
       // outline color of section while distributing space should not be transparent
       cy.get(section1Selector).should(
