@@ -1,4 +1,3 @@
-import type { Page } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { initEditorAction } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";
@@ -12,6 +11,7 @@ import type { AppState } from "ee/reducers";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import type { Page } from "entities/Page";
 
 const pageId = "0123456789abcdef00000000";
 

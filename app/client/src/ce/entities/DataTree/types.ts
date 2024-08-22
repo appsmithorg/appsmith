@@ -5,7 +5,7 @@ import type { ActionConfig, PluginType } from "entities/Action";
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";

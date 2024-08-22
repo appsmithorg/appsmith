@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import clsx from "classnames";
 import { ToggleButton } from "../ToggleButton";
 
 import { Group } from "./ToggleButtonGroup.styles";
@@ -6,6 +7,7 @@ import type {
   ToggleGroupOption,
   ToggleGroupProps,
 } from "./ToggleButtonGroup.types";
+import { ToggleGroupClassName } from "./ToggleButtonGroup.constants";
 
 // eslint-disable-next-line react/display-name
 export const ToggleButtonGroup = React.forwardRef<
@@ -14,7 +16,7 @@ export const ToggleButtonGroup = React.forwardRef<
 >((props, ref) => {
   const toggleRefs: Array<HTMLButtonElement | null> = [];
 
-  const { onClick, options, values } = props;
+  const { className, onClick, options, values } = props;
 
   const valueSet = new Set(values);
   let firstValueIndex = 0;
@@ -63,6 +65,7 @@ export const ToggleButtonGroup = React.forwardRef<
 
   return (
     <Group
+      className={clsx(ToggleGroupClassName, className)}
       onBlur={() => setFocusedIndex(firstValueIndex)}
       ref={ref}
       role="tablist"

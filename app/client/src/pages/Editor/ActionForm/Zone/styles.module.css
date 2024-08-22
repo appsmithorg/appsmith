@@ -3,18 +3,55 @@
   gap: var(--ads-v2-spaces-4);
   width: 100%;
   box-sizing: border-box;
-}
 
-.zone[data-layout="double-column"] {
-  grid-template-columns: repeat(2, minmax(260px, 1fr));
-}
+  &[data-layout="double_column"] {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
 
-.zone[data-layout="single-column"] {
-  grid-template-columns: 1fr;
+  &[data-layout="single_column"] {
+    grid-template-columns: 1fr;
+  }
+
+  /*
+   This section can be removed once the condition abouve each is resolved
+  */
+  /*  1. Margin is removed from FieldWrapper component in FormRender file */
+  & :global(.uqi-form-wrapper) {
+    margin: 0;
+  }
+  /* DropdownControl default width is removed */
+  & :global(.uqi-dropdown-select) {
+    width: unset !important;
+  }
+  /* InputTexctControl min,max and width removed */
+  & :global(.uqi-input-text) {
+    width: unset !important;
+    min-width: unset !important;
+    max-width: unset !important;
+  }
+  /* FieldArrayControl hardcoded width is removed */
+  & :global(.t--form-control-ARRAY_FIELD) {
+    & :global(.t--form-control-QUERY_DYNAMIC_INPUT_TEXT) > div {
+      width: unset !important;
+    }
+
+    & > div {
+      width: 100% !important;
+
+      & > :global(.array-control-secondary-box) {
+        width: 100% !important;
+
+        & > div {
+          flex: 1;
+        }
+      }
+    }
+  }
+  /* Removable section ends here */
 }
 
 @container uqi-section (max-width: 531px) {
-  .zone[data-layout="double-column"] {
+  .zone[data-layout="double_column"] {
     grid-template-columns: 1fr;
   }
 }

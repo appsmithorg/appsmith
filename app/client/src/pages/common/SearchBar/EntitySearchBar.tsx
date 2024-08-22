@@ -22,7 +22,7 @@ import HomepageHeaderAction from "pages/common/SearchBar/HomepageHeaderAction";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import MobileSideBar from "pages/common/MobileSidebar";
 import { resetSearchEntity, searchEntities } from "ee/actions/workspaceActions";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { viewerURL } from "ee/RouteBuilder";
 import {
   getIsFetchingEntities,
