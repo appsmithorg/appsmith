@@ -1,12 +1,8 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import type ReplayEntity from "entities/Replay";
-import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
-import { isEmpty } from "lodash";
-import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
-import type { JSUpdate } from "utils/JSPaneUtils";
-import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
+import {
+  newWebWorkerSpanData,
+  profileFn,
+} from "UITelemetry/generateWebWorkerTraces";
 import { makeEntityConfigsAsObjProperties } from "ee/workers/Evaluation/dataTreeUtils";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
@@ -14,29 +10,34 @@ import {
   CrashingError,
   getSafeToRenderDataTree,
 } from "ee/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import type ReplayEntity from "entities/Replay";
+import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
+import { isEmpty } from "lodash";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
+import { MessageType, sendMessage } from "utils/MessageUtil";
+import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+
+import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
+import DataStore from "../dataStore";
+import { errorModifier } from "../errorModifier";
+import { clearAllIntervals } from "../fns/overrides/interval";
+import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import {
+  generateOptimisedUpdatesAndSetPrevState,
+  uniqueOrderUpdatePaths,
+} from "../helpers";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
 } from "../types";
-import { clearAllIntervals } from "../fns/overrides/interval";
-import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
-import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
-import { errorModifier } from "../errorModifier";
-import {
-  generateOptimisedUpdatesAndSetPrevState,
-  uniqueOrderUpdatePaths,
-} from "../helpers";
-import DataStore from "../dataStore";
-import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
-import { MessageType, sendMessage } from "utils/MessageUtil";
-import {
-  profileFn,
-  newWebWorkerSpanData,
-} from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

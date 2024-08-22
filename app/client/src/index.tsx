@@ -1,34 +1,37 @@
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
-import "./preload-route-chunks";
-
 import React from "react";
-import "./wdyr";
+
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import "./index.css";
-import "@appsmith/ads-old/src/themes/default/index.css";
-import "@appsmith/ads/src/__theme__/default/index.css";
-import { ThemeProvider } from "styled-components";
-import { appInitializer } from "utils/AppUtils";
-import store, { runSagaMiddleware } from "./store";
-import { LayersContext, Layers } from "constants/Layers";
-import AppRouter from "ee/AppRouter";
+
+import { PageViewEvent } from "@newrelic/browser-agent/features/page_view_event";
+import { PageViewTiming } from "@newrelic/browser-agent/features/page_view_timing";
+import { Agent } from "@newrelic/browser-agent/loaders/agent";
 import * as Sentry from "@sentry/react";
-import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { connect } from "react-redux";
+import { Layers, LayersContext } from "constants/Layers";
+import AppRouter from "ee/AppRouter";
+import { getAppsmithConfigs } from "ee/configs";
 import type { AppState } from "ee/reducers";
-import { Toast } from "@appsmith/ads";
-import "./assets/styles/index.css";
-import "./polyfills";
 import GlobalStyles from "globalStyles";
 // enable autofreeze only in development
 import { setAutoFreeze } from "immer";
-import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
-import { getAppsmithConfigs } from "ee/configs";
-import { PageViewTiming } from "@newrelic/browser-agent/features/page_view_timing";
-import { PageViewEvent } from "@newrelic/browser-agent/features/page_view_event";
-import { Agent } from "@newrelic/browser-agent/loaders/agent";
+import { Provider } from "react-redux";
+import { connect } from "react-redux";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { appInitializer } from "utils/AppUtils";
+
+import { Toast } from "@appsmith/ads";
+import "@appsmith/ads-old/src/themes/default/index.css";
+import "@appsmith/ads/src/__theme__/default/index.css";
+
+import AppErrorBoundary from "./AppErrorBoundry";
+import "./assets/styles/index.css";
+import "./index.css";
+import "./polyfills";
+import "./preload-route-chunks";
+import store, { runSagaMiddleware } from "./store";
+import "./wdyr";
 
 const { newRelic } = getAppsmithConfigs();
 const { enableNewRelic } = newRelic;

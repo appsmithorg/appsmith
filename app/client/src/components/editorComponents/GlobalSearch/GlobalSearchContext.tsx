@@ -1,4 +1,5 @@
 import React from "react";
+
 import type { SearchItem, SelectEvent } from "./utils";
 
 interface SearchContextType {

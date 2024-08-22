@@ -1,21 +1,24 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import type { Datasource } from "entities/Datasource";
-import DatasourceCard from "./DatasourceCard";
-import { Text, TextType } from "@appsmith/ads-old";
-import { Button } from "@appsmith/ads";
+
 import { thinScrollbar } from "constants/DefaultTheme";
-import { keyBy } from "lodash";
 import {
-  createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
+  createMessage,
 } from "ee/constants/messages";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { Datasource } from "entities/Datasource";
+import { keyBy } from "lodash";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button } from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
+
+import DatasourceCard from "./DatasourceCard";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};

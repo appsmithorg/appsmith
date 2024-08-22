@@ -1,17 +1,18 @@
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  DataTreeFunctionSortOrder,
-  PriorityOrder,
-  blockedCompletions,
-} from "./dataTypeSortRules";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
+import { AutocompleteDataType } from "./AutocompleteDataType";
 import type {
   Completion,
   DataTreeDefEntityInformation,
   TernCompletionResult,
 } from "./CodemirrorTernService";
 import { createCompletionHeader } from "./CodemirrorTernService";
-import { AutocompleteDataType } from "./AutocompleteDataType";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeFunctionSortOrder,
+  PriorityOrder,
+  blockedCompletions,
+} from "./dataTypeSortRules";
 
 interface AutocompleteRule {
   computeScore(

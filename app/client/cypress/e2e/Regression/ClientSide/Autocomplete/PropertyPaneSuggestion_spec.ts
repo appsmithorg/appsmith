@@ -1,10 +1,10 @@
 import {
   agHelper,
-  locators,
+  draggableWidgets,
   entityExplorer,
   jsEditor,
+  locators,
   propPane,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

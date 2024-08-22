@@ -1,32 +1,33 @@
-import { LabelPosition } from "components/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+
 import { AlignWidgetTypes } from "WidgetProvider/constants";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
-import CheckboxComponent from "../component";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type {
-  SnipingModeProperty,
   PropertyUpdates,
+  SnipingModeProperty,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
 
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import CheckboxComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static type = "CHECKBOX_WIDGET";

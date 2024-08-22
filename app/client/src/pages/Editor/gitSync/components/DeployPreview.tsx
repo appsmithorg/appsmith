@@ -1,20 +1,21 @@
 import React from "react";
 
-import styled from "styled-components";
+import { viewerURL } from "ee/RouteBuilder";
+import {
+  LATEST_DP_SUBTITLE,
+  LATEST_DP_TITLE,
+  createMessage,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import SuccessTick from "pages/common/SuccessTick";
 import { useSelector } from "react-redux";
 import {
   getApplicationLastDeployedAt,
   getCurrentBasePageId,
 } from "selectors/editorSelectors";
-import {
-  createMessage,
-  LATEST_DP_SUBTITLE,
-  LATEST_DP_TITLE,
-} from "ee/constants/messages";
-import SuccessTick from "pages/common/SuccessTick";
+import styled from "styled-components";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { viewerURL } from "ee/RouteBuilder";
+
 import { Link, Text } from "@appsmith/ads";
 import { importSvg } from "@appsmith/ads-old";
 

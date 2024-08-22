@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+
+import { fetchDefaultPlugins } from "actions/pluginActions";
+import {
+  getAllTemplates,
+  getTemplateFilters,
+  hideTemplatesModal,
+} from "actions/templateActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import { isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import {
   allTemplatesFiltersSelector,
   templateModalSelector,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
-import {
-  getAllTemplates,
-  getTemplateFilters,
-  hideTemplatesModal,
-} from "actions/templateActions";
-import { fetchDefaultPlugins } from "actions/pluginActions";
-import TemplateDetailedView from "./TemplateDetailedView";
-import { isEmpty } from "lodash";
-import type { AppState } from "ee/reducers";
+import styled from "styled-components";
+
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
+
 import TemplateModalHeader from "./Header";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import TemplateDetailedView from "./TemplateDetailedView";
 import TemplatesListLayoutSwitcher from "./TemplatesListLayoutSwitcher";
 
 const ModalContentWrapper = styled(ModalContent)`

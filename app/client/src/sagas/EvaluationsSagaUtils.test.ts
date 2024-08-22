@@ -1,4 +1,3 @@
-import { getAffectedJSObjectIdsFromAction } from "./EvaluationsSagaUtils";
 import {
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -7,7 +6,6 @@ import {
   moveJSCollectionSuccess,
 } from "actions/jsActionActions";
 import { updateJSCollectionBodySuccess } from "actions/jsPaneActions";
-import type { JSCollection } from "entities/JSCollection";
 import type {
   BufferedReduxAction,
   ReduxAction,
@@ -16,6 +14,9 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import type { JSCollection } from "entities/JSCollection";
+
+import { getAffectedJSObjectIdsFromAction } from "./EvaluationsSagaUtils";
 
 describe("getAffectedJSObjectIdsFromAction", () => {
   const jsObject1 = { id: "1234" } as JSCollection;

@@ -1,14 +1,16 @@
-const dispatch = jest.fn();
-
 import React from "react";
-import { Provider } from "react-redux";
-import { render } from "test/testUtils";
-import OnboardingStatusbar from "./Statusbar";
-import { getStore } from "./testUtils";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { SIGNPOSTING_STEP } from "./Utils";
+
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { Provider } from "react-redux";
 import * as onboardingSelectors from "selectors/onboardingSelectors";
+import { render } from "test/testUtils";
+
+import OnboardingStatusbar from "./Statusbar";
+import { SIGNPOSTING_STEP } from "./Utils";
+import { getStore } from "./testUtils";
+
+const dispatch = jest.fn();
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,10 +1,11 @@
 import * as React from "react";
-import type { ComponentProps } from "widgets/BaseComponent";
+
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/webcam/dist/style.css";
-import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import type { ComponentProps } from "widgets/BaseComponent";
+import { BaseButton } from "widgets/ButtonWidget/component";
 
 class FilePickerComponent extends React.Component<
   FilePickerComponentProps,

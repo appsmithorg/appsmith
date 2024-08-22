@@ -1,15 +1,26 @@
-import equal from "fast-deep-equal/es6";
 import React from "react";
 
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { AppState } from "ee/reducers";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import WidgetFactory from "WidgetProvider/factory";
 import { checkContainersForAutoHeightAction } from "actions/autoHeightActions";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import { getAppsmithConfigs } from "ee/configs";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import type { AppState } from "ee/reducers";
+import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
+import equal from "fast-deep-equal/es6";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
+import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { Positioning } from "layoutSystems/common/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import {
@@ -17,41 +28,32 @@ import {
   getWidgetEvalValues,
 } from "selectors/dataTreeSelectors";
 import {
-  computeMainContainerWidget,
-  getChildWidgets,
-  getMainCanvasProps,
-  getRenderMode,
-  getMetaWidgetChildrenStructure,
-  getMetaWidget,
-  getIsAutoLayoutMobileBreakPoint,
-  getCanvasWidth,
   combinedPreviewModeSelector,
+  computeMainContainerWidget,
+  getCanvasWidth,
+  getChildWidgets,
+  getIsAutoLayoutMobileBreakPoint,
+  getMainCanvasProps,
+  getMetaWidget,
+  getMetaWidgetChildrenStructure,
+  getRenderMode,
 } from "selectors/editorSelectors";
+import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors";
+import ConfigTreeActions from "utils/configTree";
 import {
   createCanvasWidget,
   createLoadingWidget,
   widgetErrorsFromStaticProps,
 } from "utils/widgetRenderUtils";
+
+import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
-import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
-import { Positioning } from "layoutSystems/common/utils/constants";
-import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
-import ConfigTreeActions from "utils/configTree";
-import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
-import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import { defaultAutoLayoutWidgets } from "layoutSystems/autolayout/utils/constants";
-import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSelector";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors";
-import WidgetFactory from "WidgetProvider/factory";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { WidgetProfiler } from "./BaseWidgetHOC/WidgetProfiler";
-import { getAppsmithConfigs } from "ee/configs";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
+
 const { newRelic } = getAppsmithConfigs();
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];

@@ -1,24 +1,20 @@
 import React from "react";
+
+import * as Sentry from "@sentry/react";
+import type { DSLWidget } from "WidgetProvider/constants";
+import type { ApiResponse } from "api/ApiResponses";
+import welcomeConfettiAnimationURL from "assets/lottie/welcome-confetti.json.txt";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import lazyLottie from "./lazyLottie";
-import welcomeConfettiAnimationURL from "assets/lottie/welcome-confetti.json.txt";
 import {
   DATA_TREE_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-import { get, isNil, has, uniq } from "lodash";
-import type { Workspace } from "ee/constants/workspaceConstants";
-import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
-import moment from "moment";
-import { isDynamicValue } from "./DynamicBindingUtils";
-import type { ApiResponse } from "api/ApiResponses";
-import type { DSLWidget } from "WidgetProvider/constants";
-import * as Sentry from "@sentry/react";
-import { matchPath } from "react-router";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
@@ -27,18 +23,24 @@ import {
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
-import history from "./history";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
+import { klona as clone } from "klona/full";
+import { get, has, isNil, uniq } from "lodash";
+import moment from "moment";
+import { matchPath } from "react-router";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { checkContainerScrollable } from "widgets/WidgetUtils";
 import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
-import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { klona as clone } from "klona/full";
+import { checkContainerScrollable } from "widgets/WidgetUtils";
+
+import { isDynamicValue } from "./DynamicBindingUtils";
+import history from "./history";
+import lazyLottie from "./lazyLottie";
 
 export const snapToGrid = (
   columnWidth: number,

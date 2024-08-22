@@ -1,40 +1,42 @@
 import type React from "react";
-import _, { get, some } from "lodash";
+
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig } from "entities/AppTheming";
 import equal from "fast-deep-equal/es6";
-import type { WidgetProps } from "../../BaseWidget";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { ContainerWidget } from "widgets/ContainerWidget/widget";
-import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
-import type { SetterConfig } from "entities/AppTheming";
-import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
-import { Colors } from "constants/Colors";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import _, { get, some } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { ContainerWidget } from "widgets/ContainerWidget/widget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import type { WidgetProps } from "../../BaseWidget";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { formPreset } from "layoutSystems/anvil/layoutComponents/presets/FormPreset";
-import { LayoutSystemTypes } from "layoutSystems/types";
 
 class FormWidget extends ContainerWidget {
   static type = "FORM_WIDGET";

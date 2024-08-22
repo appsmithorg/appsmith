@@ -1,6 +1,8 @@
-import { Flex } from "@appsmith/ads";
 import React from "react";
+
 import styled from "styled-components";
+
+import { Flex } from "@appsmith/ads";
 
 const Container = styled(Flex)`
   & .t--entity-item {

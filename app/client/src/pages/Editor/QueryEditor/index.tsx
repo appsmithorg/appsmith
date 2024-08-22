@@ -1,46 +1,48 @@
 import React, { useCallback, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { RouteComponentProps } from "react-router";
 
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import Editor from "./Editor";
-import history from "utils/history";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import BackToCanvas from "components/common/BackToCanvas";
-import { INTEGRATION_TABS } from "constants/routes";
-import {
-  getCurrentApplicationId,
-  getIsEditorInitialized,
-  getPagePermissions,
-} from "selectors/editorSelectors";
 import { changeQuery } from "actions/queryPaneActions";
+import BackToCanvas from "components/common/BackToCanvas";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { INTEGRATION_TABS } from "constants/routes";
+import type { QueryEditorRouteParams } from "constants/routes";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import {
   getActionByBaseId,
   getIsActionConverting,
   getPluginImages,
   getPluginSettingConfigs,
 } from "ee/selectors/entitiesSelector";
-import { integrationEditorURL } from "ee/RouteBuilder";
-import { QueryEditorContextProvider } from "./QueryEditorContext";
-import type { QueryEditorRouteParams } from "constants/routes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import Disabler from "pages/common/Disabler";
-import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
-import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
-import { Icon } from "@appsmith/ads";
-import { resolveIcon } from "../utils";
-import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
+import Disabler from "pages/common/Disabler";
+import { useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Icon } from "@appsmith/ads";
+
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
+import { resolveIcon } from "../utils";
+import Editor from "./Editor";
+import { QueryEditorContextProvider } from "./QueryEditorContext";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 

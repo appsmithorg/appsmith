@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-import AppPreview from "./AppPreview";
-import EmailPreview from "./EmailPreview";
-import LoginPreview from "./LoginPreview";
-import FaviconPreview from "./FaviconPreview";
-import NotFoundPreview from "./NotFoundPreview";
-import DashboardPreview from "./DashboardPreview";
-import type { brandColorsKeys } from "../BrandingPage";
 import { ContentBox } from "pages/AdminSettings/components";
+
+import type { brandColorsKeys } from "../BrandingPage";
+import AppPreview from "./AppPreview";
+import DashboardPreview from "./DashboardPreview";
+import EmailPreview from "./EmailPreview";
+import FaviconPreview from "./FaviconPreview";
+import LoginPreview from "./LoginPreview";
+import NotFoundPreview from "./NotFoundPreview";
 
 export interface PreviewsProps {
   shades: Record<brandColorsKeys, string>;

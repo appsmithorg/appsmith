@@ -1,11 +1,12 @@
 import React from "react";
 
 import { FileTab } from "IDE/Components/FileTab";
-import { useCurrentEditorState } from "../hooks";
 import {
   EditorEntityTab,
   EditorEntityTabState,
 } from "ee/entities/IDE/constants";
+
+import { useCurrentEditorState } from "../hooks";
 
 const AddTab = ({
   isListActive,

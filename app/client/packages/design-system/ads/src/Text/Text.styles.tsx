@@ -1,4 +1,5 @@
 import styled, { css } from "styled-components";
+
 import type { TextKind } from "./Text.types";
 
 const TypographyScales = css`

@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 
 export default styled.div<{ theme?: EditorTheme }>`

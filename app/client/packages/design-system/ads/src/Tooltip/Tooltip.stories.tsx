@@ -1,8 +1,10 @@
 import React from "react";
-import { Tooltip } from "./Tooltip";
-import { Text } from "../Text";
-import type { TooltipProps } from "./Tooltip.types";
+
 import type { StoryObj } from "@storybook/react";
+
+import { Text } from "../Text";
+import { Tooltip } from "./Tooltip";
+import type { TooltipProps } from "./Tooltip.types";
 
 export default {
   title: "ADS/Components/Tooltip",

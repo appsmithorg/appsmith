@@ -1,18 +1,20 @@
 import type { ReactNode } from "react";
 import React from "react";
-import styled from "styled-components";
-import type { ItemRenderer } from "@blueprintjs/select";
-import { Select } from "@blueprintjs/select";
+
 import type { Intent as BlueprintIntent } from "@blueprintjs/core";
 import {
   Button,
   MenuItem,
-  PopoverPosition,
   PopoverInteractionKind,
+  PopoverPosition,
 } from "@blueprintjs/core";
-import { noop } from "utils/AppsmithUtils";
-import type { Intent } from "constants/DefaultTheme";
+import type { ItemRenderer } from "@blueprintjs/select";
+import { Select } from "@blueprintjs/select";
 import type { DropdownOption } from "components/constants";
+import type { Intent } from "constants/DefaultTheme";
+import styled from "styled-components";
+import { noop } from "utils/AppsmithUtils";
+
 import { Icon } from "@appsmith/ads";
 
 export type ContextDropdownOption = DropdownOption & {

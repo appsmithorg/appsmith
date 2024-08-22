@@ -1,5 +1,6 @@
-import type { POSITION } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import type { POSITION } from "@appsmith/wds";
 
 export interface OptionProps {
   label?: string;

@@ -1,22 +1,24 @@
 import type { ReactNode, RefObject } from "react";
 import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
-import type { AppState } from "ee/reducers";
+
 import { closeTableFilterPane } from "actions/widgetActions";
 import { Colors } from "constants/Colors";
-import { getCanvasClassName } from "utils/generators";
-import { scrollCSS } from "widgets/WidgetUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
 import type { RenderMode } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useModalWidth } from "./useModalWidth";
+import type { AppState } from "ee/reducers";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type {
   Alignment,
   Positioning,
   Spacing,
 } from "layoutSystems/common/utils/constants";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { getCanvasClassName } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { scrollCSS } from "widgets/WidgetUtils";
+
+import { useModalWidth } from "./useModalWidth";
 
 const Content = styled.div<{ $scroll: boolean }>`
   overflow-x: hidden;

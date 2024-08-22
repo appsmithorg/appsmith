@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
-import { IconWrapper } from "constants/IconConstants";
+
 import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 
 interface TableActionProps {

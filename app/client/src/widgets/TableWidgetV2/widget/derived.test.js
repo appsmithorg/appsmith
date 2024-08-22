@@ -1,6 +1,7 @@
-import derivedProperty from "./derived";
-import moment from "moment";
 import _ from "lodash";
+import moment from "moment";
+
+import derivedProperty from "./derived";
 
 const samplePrimaryColumns = {
   step: {

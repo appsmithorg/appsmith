@@ -1,17 +1,17 @@
 import {
+  agHelper,
+  deployMode,
+  draggableWidgets,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
+import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-import {
-  agHelper,
-  propPane,
-  deployMode,
-  locators,
-  draggableWidgets,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Radio Widget Functionality",

@@ -1,5 +1,5 @@
 import React from "react";
-import { isEmail } from "utils/formhelpers";
+
 import type {
   AdminConfigType,
   Setting,
@@ -10,12 +10,14 @@ import {
   SettingSubtype,
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
-import BrandingBadge from "pages/AppViewer/BrandingBadge";
-import { TagInput } from "@appsmith/ads-old";
-import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
+import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
 import { formatEmbedSettings } from "pages/Applications/EmbedSnippet/Utils/utils";
+import { isEmail } from "utils/formhelpers";
+import localStorage from "utils/localStorage";
+
+import { TagInput } from "@appsmith/ads-old";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "instanceName",

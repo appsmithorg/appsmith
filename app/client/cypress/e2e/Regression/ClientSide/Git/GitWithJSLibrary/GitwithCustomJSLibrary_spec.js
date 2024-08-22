@@ -2,8 +2,8 @@ import HomePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   agHelper,
-  homePage,
   gitSync,
+  homePage,
   installer,
 } from "../../../../../support/Objects/ObjectsCore";
 import {

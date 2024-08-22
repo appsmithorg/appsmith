@@ -1,12 +1,12 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../support/Pages/EditorNavigation";
 import {
   agHelper,
   draggableWidgets,
   entityExplorer,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Table Widget V2 property pane deafult feature validation",

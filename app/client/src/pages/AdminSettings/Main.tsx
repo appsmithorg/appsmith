@@ -1,15 +1,16 @@
 import React from "react";
-import AdminConfig from "ee/pages/AdminSettings/config";
-import { Redirect, useParams } from "react-router";
-import { SettingCategories } from "ee/pages/AdminSettings/config/types";
-import SettingsForm from "pages/AdminSettings/SettingsForm";
-import { getWrapperCategory } from "ee/utils/adminSettingsHelpers";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AdminConfig from "ee/pages/AdminSettings/config";
+import { SettingCategories } from "ee/pages/AdminSettings/config/types";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
 import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
+import { getWrapperCategory } from "ee/utils/adminSettingsHelpers";
+import SettingsForm from "pages/AdminSettings/SettingsForm";
+import { useSelector } from "react-redux";
+import { Redirect, useParams } from "react-router";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const Main = () => {
   // TODO: Fix this the next time the file is edited

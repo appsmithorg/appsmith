@@ -1,6 +1,6 @@
-import type { APP_MODE } from "entities/App";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { APP_MODE } from "entities/App";
 
 export const initCurrentPage = () => {
   return {

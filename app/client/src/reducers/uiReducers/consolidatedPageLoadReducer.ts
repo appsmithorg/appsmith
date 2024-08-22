@@ -1,5 +1,5 @@
-import { createReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: ConsolidatedPageLoadState = {
   isLoading: true,

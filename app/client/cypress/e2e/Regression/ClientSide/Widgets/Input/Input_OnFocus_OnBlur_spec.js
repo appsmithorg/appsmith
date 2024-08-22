@@ -1,5 +1,6 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const inputWidgetName = "inputwidgetv2";
 const widgetInput = widgetsPage.inputWidget + " " + "input";

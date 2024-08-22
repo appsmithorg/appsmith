@@ -1,4 +1,5 @@
 import { ReflowDirection } from "reflow/reflowTypes";
+
 import { isHandleResizeAllowed } from "./ResizableUtils";
 
 describe("Resizable Utils", () => {

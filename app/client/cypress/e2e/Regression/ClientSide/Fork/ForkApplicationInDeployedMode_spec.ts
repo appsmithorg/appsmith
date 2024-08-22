@@ -1,10 +1,10 @@
+import applicationLocators from "../../../../locators/Applications.json";
 import {
   agHelper,
   appSettings,
   deployMode,
   embedSettings,
 } from "../../../../support/Objects/ObjectsCore";
-import applicationLocators from "../../../../locators/Applications.json";
 
 describe(
   "Fork application in deployed mode",

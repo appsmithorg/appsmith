@@ -1,9 +1,9 @@
-import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
-import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
-import { setEvalContext } from "workers/Evaluation/evaluate";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { setEvalContext } from "workers/Evaluation/evaluate";
 
 const dataTree: DataTree = {
   action1: {

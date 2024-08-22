@@ -1,28 +1,29 @@
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
+import ButtonWidget from "widgets/ButtonWidget/widget";
+
 import {
-  LayoutComponentTypes,
   type AnvilHighlightInfo,
   type GetDimensions,
   type LayoutComponentProps,
+  LayoutComponentTypes,
   type LayoutProps,
   type WidgetLayoutProps,
 } from "../../anvilTypes";
+import { HIGHLIGHT_SIZE } from "../../constants";
+import { registerLayoutComponents } from "../layoutUtils";
+import { getRelativeDimensions } from "./dimensionUtils";
 import {
+  type RowMetaInformation,
   checkIntersection,
   deriveRowHighlights,
   extractMetaInformation,
   getHighlightsForRow,
-  type RowMetaInformation,
 } from "./rowHighlights";
-import { HIGHLIGHT_SIZE } from "../../constants";
-import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
-import { getRelativeDimensions } from "./dimensionUtils";
-import { registerLayoutComponents } from "../layoutUtils";
-import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("rowHighlights tests", () => {
   beforeAll(() => {

@@ -1,37 +1,38 @@
-import { Alignment } from "@blueprintjs/core";
-import { compact, isArray, isNumber } from "lodash";
 import React from "react";
 
-import { LabelPosition } from "components/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TextSize } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-  isCompactMode,
-} from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
-import RadioGroupComponent from "../component";
-import type { RadioOption } from "../constants";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { Alignment } from "@blueprintjs/core";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
+import { compact, isArray, isNumber } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import RadioGroupComponent from "../component";
+import type { RadioOption } from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 /**
  * Validation rules:

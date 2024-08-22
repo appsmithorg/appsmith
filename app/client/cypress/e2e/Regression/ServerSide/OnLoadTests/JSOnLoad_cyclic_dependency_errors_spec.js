@@ -1,3 +1,9 @@
+import {
+  agHelper,
+  dataSources,
+  jsEditor,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -8,13 +14,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
 let queryName = "Query1";
-
-import {
-  agHelper,
-  jsEditor,
-  propPane,
-  dataSources,
-} from "../../../../support/Objects/ObjectsCore";
 
 /*
 Cyclic Dependency Error if occurs, Message would be shown in following 6 cases:

@@ -1,14 +1,16 @@
 import React from "react";
-import PropertyControlFactory from "./PropertyControlFactory";
+
 import type { PropertyControlPropsType } from "components/propertyControls";
 import { PropertyControls } from "components/propertyControls";
 import type { ControlProps } from "components/propertyControls/BaseControl";
 import type BaseControl from "components/propertyControls/BaseControl";
+
 import type { InteractionAnalyticsEventDetail } from "./AppsmithUtils";
 import {
-  interactionAnalyticsEvent,
   INTERACTION_ANALYTICS_EVENT,
+  interactionAnalyticsEvent,
 } from "./AppsmithUtils";
+import PropertyControlFactory from "./PropertyControlFactory";
 
 function withAnalytics(WrappedControl: typeof BaseControl) {
   return class AnalyticsHOC extends React.PureComponent<ControlProps> {

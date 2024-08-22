@@ -1,14 +1,17 @@
 import React from "react";
+
 import styled from "styled-components";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { Switch } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+import { Switch } from "@appsmith/ads";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const SwitchContainer = styled.div`
   .ads-v2-switch__label {

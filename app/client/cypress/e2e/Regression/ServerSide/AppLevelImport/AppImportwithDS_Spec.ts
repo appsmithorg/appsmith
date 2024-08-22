@@ -1,12 +1,12 @@
 import {
   agHelper,
   appSettings,
-  homePage,
   dataSources,
-  jsEditor,
   deployMode,
-  locators,
   draggableWidgets,
+  homePage,
+  jsEditor,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

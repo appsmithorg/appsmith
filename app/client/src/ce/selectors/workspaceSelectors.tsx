@@ -1,6 +1,6 @@
-import { createSelector } from "reselect";
-import type { AppState } from "ee/reducers";
 import type { Workspace, WorkspaceRole } from "ee/constants/workspaceConstants";
+import type { AppState } from "ee/reducers";
+import { createSelector } from "reselect";
 
 export const getRolesFromState = (state: AppState) => {
   return state.ui.workspaces.roles;

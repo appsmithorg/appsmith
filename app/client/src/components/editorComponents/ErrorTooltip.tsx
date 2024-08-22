@@ -1,7 +1,8 @@
 import React from "react";
+
 import { Popover } from "@blueprintjs/core";
-import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
+import styled, { createGlobalStyle } from "styled-components";
 
 const TooltipStyles = createGlobalStyle`
  .error-tooltip{

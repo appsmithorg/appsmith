@@ -4,6 +4,7 @@ import type {
   Setting,
 } from "ee/pages/AdminSettings/config/types";
 import { SettingTypes } from "ee/pages/AdminSettings/config/types";
+
 export class ConfigFactory {
   static settingsMap: Record<string, Setting> = {};
   static settings: Setting[] = [];

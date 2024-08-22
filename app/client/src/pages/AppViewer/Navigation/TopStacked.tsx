@@ -1,13 +1,15 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import MenuItemContainer from "./components/MenuItemContainer";
-import MenuItem from "./components/MenuItem";
-import useThrottledRAF from "utils/hooks/useThrottledRAF";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import useThrottledRAF from "utils/hooks/useThrottledRAF";
+
 import { Container, ScrollBtnContainer } from "./TopStacked.styled";
+import MenuItem from "./components/MenuItem";
+import MenuItemContainer from "./components/MenuItemContainer";
 import type { NavigationProps } from "./constants";
 
 export function TopStacked(props: NavigationProps) {

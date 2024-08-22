@@ -1,22 +1,24 @@
-import { isStoredDatasource } from "entities/Action";
+import { useCallback, useMemo } from "react";
+import React from "react";
+
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { keyBy } from "lodash";
-import equal from "fast-deep-equal/es6";
-import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { useMemo, useCallback } from "react";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { AppState } from "ee/reducers";
-import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getAction, getDatasource } from "ee/selectors/entitiesSelector";
-import { useSelector } from "react-redux";
 import {
   isAction,
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { doesEntityHaveErrors } from "../helpers";
-import React from "react";
+import { isStoredDatasource } from "entities/Action";
+import equal from "fast-deep-equal/es6";
+import { keyBy } from "lodash";
+import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
+import { useSelector } from "react-redux";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
+
+import { doesEntityHaveErrors } from "../helpers";
 
 export const useGetEntityInfo = (name: string) => {
   const entity = useSelector((state: AppState) => state.evaluations.tree[name]);

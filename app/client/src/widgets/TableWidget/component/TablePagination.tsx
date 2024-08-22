@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 // TODO(vikcy): Fix the banned types in this file
 import React from "react";
+
 import type { IconName } from "@blueprintjs/core";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";

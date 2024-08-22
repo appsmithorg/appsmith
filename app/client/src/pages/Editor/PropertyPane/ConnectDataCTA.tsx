@@ -1,16 +1,19 @@
 import React from "react";
-import { Button, Text } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
-import history from "utils/history";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { WidgetType } from "constants/WidgetConstants";
-import { integrationEditorURL } from "ee/RouteBuilder";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import type { WidgetType } from "constants/WidgetConstants";
+import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import styled from "styled-components";
+import history from "utils/history";
+
+import { Button, Text } from "@appsmith/ads";
+
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 
 const Container = styled.div`
   height: 75px;

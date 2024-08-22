@@ -1,14 +1,16 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { ThemeProvider } from "styled-components";
-import { lightTheme } from "selectors/themeSelectors";
-import { TemplateLayout } from ".";
-import { Router } from "react-router";
-import history from "utils/history";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { templateIdUrl } from "ee/RouteBuilder";
-import FixedHeightTemplate from "./FixedHeightTemplate";
+import { Router } from "react-router";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import history from "utils/history";
+
+import { TemplateLayout } from ".";
 import { unitTestMockTemplate } from "../test_config";
+import FixedHeightTemplate from "./FixedHeightTemplate";
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");

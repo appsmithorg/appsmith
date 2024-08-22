@@ -1,10 +1,11 @@
 import { renderHook } from "@testing-library/react-hooks";
-import { hookWrapper } from "test/testUtils";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
-import { useGetPageFocusUrl } from "./hooks";
+import { hookWrapper } from "test/testUtils";
+
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { createEditorFocusInfo } from "../../../ce/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { useGetPageFocusUrl } from "./hooks";
 
 describe("useGetPageFocusUrl", () => {
   const pages = PageFactory.buildList(4);

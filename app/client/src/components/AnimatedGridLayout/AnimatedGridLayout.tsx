@@ -1,19 +1,17 @@
-import React, { cloneElement, useLayoutEffect, type ReactElement } from "react";
+import React, { type ReactElement, cloneElement, useLayoutEffect } from "react";
 
 import { animated, useSpring } from "@react-spring/web";
 import debounce from "lodash/debounce";
 
-import { usePrevious } from "./hooks";
-import { DEFAULT_ROWS, SPRING_ANIMATION_CONFIG } from "./constants";
 import type { LayoutAreaProps } from "./components";
-
+import { DEFAULT_ROWS, SPRING_ANIMATION_CONFIG } from "./constants";
+import { usePrevious } from "./hooks";
+import type { AnimatedGridUnit } from "./types";
 import {
+  resolveAreaDimensions,
   resolveAreasVisibility,
   resolvePixelValues,
-  resolveAreaDimensions,
 } from "./utils";
-
-import type { AnimatedGridUnit } from "./types";
 
 interface AnimatedGridLayoutProps {
   /** The height of the grid layout. */

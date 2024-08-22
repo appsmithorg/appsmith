@@ -1,8 +1,9 @@
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetLayoutProps } from "../anvilTypes";
+
 import type { FlattenedWidgetProps } from "../../../../WidgetProvider/constants";
+import type { WidgetLayoutProps } from "../anvilTypes";
 
 /**
  * Check from widget configuration if the widget is a Fill widget.

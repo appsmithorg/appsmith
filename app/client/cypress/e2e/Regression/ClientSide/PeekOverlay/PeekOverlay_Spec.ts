@@ -1,12 +1,12 @@
 import {
   agHelper,
+  apiPage,
+  dataManager,
+  debuggerHelper,
   entityExplorer,
   jsEditor,
-  apiPage,
-  table,
-  debuggerHelper,
   peekOverlay,
-  dataManager,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Peek overlay", { tags: ["@tag.JS"] }, () => {

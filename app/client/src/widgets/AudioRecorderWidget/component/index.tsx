@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
-import styled from "styled-components";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
 import { Button, Icon } from "@blueprintjs/core";
+import type { ThemeProp } from "WidgetProvider/constants";
+import { Colors } from "constants/Colors";
+import { darkenHover } from "constants/DefaultTheme";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { useStopwatch } from "react-timer-hook";
+import styled from "styled-components";
 
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { darkenHover } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
-import type { ThemeProp } from "WidgetProvider/constants";
 import { importSvg } from "@appsmith/ads-old";
 
 const RecorderDefaultIcon = importSvg(

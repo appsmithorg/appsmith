@@ -1,6 +1,9 @@
-import { Option, Select } from "@appsmith/ads";
-import type { DefaultOptionType } from "rc-select/lib/Select";
 import React, { memo } from "react";
+
+import type { DefaultOptionType } from "rc-select/lib/Select";
+
+import { Option, Select } from "@appsmith/ads";
+
 import { DropdownOption } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 import { ErrorMessage, Label, SelectWrapper } from "../../styles";
 import { useColumns } from "./useColumns";

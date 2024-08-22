@@ -1,11 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import CustomComponent from "widgets/CustomWidget/component";
-import { CustomWidgetBuilderContext } from "../index";
-import { toast } from "@appsmith/ads";
-import Debugger from "./Debugger";
+
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import type { AppThemeProperties } from "entities/AppTheming";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import CustomComponent from "widgets/CustomWidget/component";
+
+import { toast } from "@appsmith/ads";
+
+import { CustomWidgetBuilderContext } from "../index";
+import Debugger from "./Debugger";
 
 export default function Preview({ width }: { width: number }) {
   const {

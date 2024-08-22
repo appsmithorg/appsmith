@@ -1,12 +1,12 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type {
   JSActionEntity,
   JSActionEntityConfig,
   MetaArgs,
 } from "ee/entities/DataTree/types";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 const reg = /this\./g;
 

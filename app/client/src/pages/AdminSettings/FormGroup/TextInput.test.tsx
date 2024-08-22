@@ -1,13 +1,15 @@
-import { render } from "test/testUtils";
 import React from "react";
+
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import type { Setting } from "ee/pages/AdminSettings/config/types";
 import {
-  SettingTypes,
   SettingSubtype,
+  SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
-import TextInput from "./TextInput";
-import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { reduxForm } from "redux-form";
+import { render } from "test/testUtils";
+
+import TextInput from "./TextInput";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

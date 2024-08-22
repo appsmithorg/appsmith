@@ -1,38 +1,41 @@
+import React, { useCallback, useEffect, useState } from "react";
+
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
+import type { ActionResponse } from "api/ActionAPI";
+import { DatasourceComponentTypes } from "api/PluginApi";
+import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
+import ErrorLogs from "components/editorComponents/Debugger/Errors";
+import Schema from "components/editorComponents/Debugger/Schema";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
-import { getErrorCount } from "selectors/debuggerSelectors";
-import { Text, TextType } from "@appsmith/ads-old";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   DEBUGGER_RESPONSE,
   createMessage,
 } from "ee/constants/messages";
-import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import Schema from "components/editorComponents/Debugger/Schema";
-import type { ActionResponse } from "api/ActionAPI";
-import { isString } from "lodash";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import type { Action } from "entities/Action";
-import QueryResponseTab from "./QueryResponseTab";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
-import { DatasourceComponentTypes } from "api/PluginApi";
-import { fetchDatasourceStructure } from "actions/datasourceActions";
+import type { Action } from "entities/Action";
+import type { SourceEntity } from "entities/AppsmithConsole";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
-import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
-import { actionResponseDisplayDataFormats } from "../utils";
+import { isString } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { getErrorCount } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import styled from "styled-components";
+
+import { Text, TextType } from "@appsmith/ads-old";
+
 import { IDEBottomView, ViewHideBehaviour } from "../../../IDE";
+import { actionResponseDisplayDataFormats } from "../utils";
+import QueryResponseTab from "./QueryResponseTab";
 
 const ResultsCount = styled.div`
   position: absolute;

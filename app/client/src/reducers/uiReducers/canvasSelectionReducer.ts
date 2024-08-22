@@ -1,8 +1,8 @@
-import { createImmerReducer } from "utils/ReducerUtils";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: CanvasSelectionState = {
   isDraggingForSelection: false,

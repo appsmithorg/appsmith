@@ -1,16 +1,16 @@
-import { createSelector } from "reselect";
-import type { AppState } from "ee/reducers";
-import { getAppsmithConfigs } from "ee/configs";
 import {
   CUSTOMER_PORTAL_URL_WITH_PARAMS,
   PRICING_PAGE_URL,
 } from "constants/ThirdPartyConstants";
+import { getAppsmithConfigs } from "ee/configs";
+import type { AppState } from "ee/reducers";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
+import { createSelector } from "reselect";
+import type { EnvTypes } from "utils/ProductRamps/RampTypes";
 import {
   PRODUCT_RAMPS_LIST,
   RAMP_FOR_ROLES,
 } from "utils/ProductRamps/RampsControlList";
-import type { EnvTypes } from "utils/ProductRamps/RampTypes";
-import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 
 const { cloudHosting, customerPortalUrl, pricingUrl } = getAppsmithConfigs();
 

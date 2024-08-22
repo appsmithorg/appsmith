@@ -1,11 +1,12 @@
 import styled, { css } from "styled-components";
+
 import {
   ButtonContentChildrenClassName,
   ButtonContentIconEndClassName,
   ButtonContentIconStartClassName,
   ButtonLoadingClassName,
 } from "./Button.constants";
-import type { ButtonSizes, ButtonKind } from "./Button.types";
+import type { ButtonKind, ButtonSizes } from "./Button.types";
 
 const Variables = css`
   --button-color-bg: var(--ads-v2-colors-action-primary-surface-default-bg);

@@ -1,10 +1,14 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+
+import { debounce } from "lodash";
+
+import { Input } from "@appsmith/ads";
 import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { TreeDropdown } from "@appsmith/ads-old";
-import { Input } from "@appsmith/ads";
-import { debounce } from "lodash";
+
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { AppsmithFunction, FieldType } from "../../constants";
+import type { SelectorViewProps } from "../../types";
 import {
   flattenOptions,
   getCodeFromMoustache,
@@ -12,7 +16,6 @@ import {
   isEmptyBlock,
 } from "../../utils";
 import { getActionInfo } from "../ActionBlockTree/utils";
-import type { SelectorViewProps } from "../../types";
 
 function filterChildren(
   options: TreeDropdownOption[],

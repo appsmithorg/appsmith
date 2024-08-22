@@ -1,15 +1,16 @@
-import http from "http";
 import express from "express";
-import { Server } from "socket.io";
+import http from "http";
 import type { LogLevelDesc } from "loglevel";
 import log from "loglevel";
-import { VERSION as buildVersion } from "./version"; // release version of the api
-import { initializeSockets } from "./sockets";
+import { Server } from "socket.io";
 
 // routes
 import ast_routes from "./routes/ast_routes";
 import dsl_routes from "./routes/dsl_routes";
 import health_check_routes from "./routes/health_check_routes";
+// release version of the api
+import { initializeSockets } from "./sockets";
+import { VERSION as buildVersion } from "./version";
 
 const RTS_BASE_PATH = "/rts";
 export const RTS_BASE_API_PATH = "/rts-api/v1";

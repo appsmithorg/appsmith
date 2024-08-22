@@ -1,9 +1,12 @@
-import { useTable, useSortBy, useExpanded } from "react-table";
 import React from "react";
+
+import { useExpanded, useSortBy, useTable } from "react-table";
 import styled from "styled-components";
+
+import { Spinner } from "@appsmith/ads";
+
 import { Classes } from "../constants/classes";
 import { typography } from "../constants/typography";
-import { Spinner } from "@appsmith/ads";
 import { importSvg } from "../utils/icon-loadables";
 
 const DownArrow = importSvg(

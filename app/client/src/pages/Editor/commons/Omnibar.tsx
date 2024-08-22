@@ -1,8 +1,9 @@
 import React, { Suspense, lazy } from "react";
-import styled from "styled-components";
-import { snipingModeSelector } from "selectors/editorSelectors";
-import { retryPromise } from "utils/AppsmithUtils";
+
 import { useSelector } from "react-redux";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { retryPromise } from "utils/AppsmithUtils";
 
 const BindingBanner = styled.div`
   position: fixed;

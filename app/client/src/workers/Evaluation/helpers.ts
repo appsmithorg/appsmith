@@ -1,7 +1,7 @@
-import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
-import type { WidgetEntity } from "ee//entities/DataTree/types";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
+import type { WidgetEntity } from "ee//entities/DataTree/types";
+import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
 import { get, isObject, set } from "lodash";

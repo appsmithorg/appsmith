@@ -1,45 +1,47 @@
 import React from "react";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { RenderMode } from "constants/WidgetConstants";
-import { GridDefaults } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import {
-  FlexLayerAlignment,
-  type Alignment,
-  type Spacing,
-  ResponsiveBehavior,
-  Positioning,
-} from "layoutSystems/common/utils/constants";
-import { generateClassName } from "utils/generators";
-import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import ModalComponent from "../component";
-import { get } from "lodash";
+
 import { IconNames } from "@blueprintjs/icons";
-import { Colors } from "constants/Colors";
-import {
-  ButtonBorderRadiusTypes,
-  ButtonVariantTypes,
-} from "components/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type {
   AutocompletionDefinitions,
   FlattenedWidgetProps,
 } from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import { DynamicHeight } from "utils/WidgetFeatures";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import WidgetFactory from "WidgetProvider/factory";
+import {
+  ButtonBorderRadiusTypes,
+  ButtonVariantTypes,
+} from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import type { RenderMode } from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { modalPreset } from "layoutSystems/autolayout/layoutComponents/presets/ModalPreset";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import {
+  type Alignment,
+  FlexLayerAlignment,
+  Positioning,
+  ResponsiveBehavior,
+  type Spacing,
+} from "layoutSystems/common/utils/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { get } from "lodash";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { generateClassName } from "utils/generators";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import ModalComponent from "../component";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "MODAL_WIDGET";

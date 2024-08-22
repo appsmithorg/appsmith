@@ -1,23 +1,23 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { WidgetSpace } from "constants/CanvasEditorConstants";
 import type { EitherMouseLocationORGridPosition } from "constants/WidgetConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import { getSlidingArenaName } from "constants/componentClassNameConstants";
+import _ from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, select } from "redux-saga/effects";
-import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { getWidget, getWidgets } from "../selectors";
-
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { WidgetSpace } from "constants/CanvasEditorConstants";
-import { getSlidingArenaName } from "constants/componentClassNameConstants";
 import { reflow } from "reflow";
 import type { PrevReflowState } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getBottomMostRow } from "reflow/reflowUtils";
+import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+
 import type {
   CopiedWidgetGroup,
   NewPastePositionVariables,
@@ -38,7 +38,7 @@ import {
   getVerticallyAdjustedPositions,
   isDropTarget,
 } from "../WidgetOperationUtils";
-import _ from "lodash";
+import { getWidget, getWidgets } from "../selectors";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.

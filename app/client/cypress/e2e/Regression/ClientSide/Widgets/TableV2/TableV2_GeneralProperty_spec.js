@@ -1,13 +1,14 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
-
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const testdata = require("../../../../../fixtures/testdata.json");
 import {
   agHelper,
   deployMode,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+
+/* eslint-disable cypress/no-unnecessary-waiting */
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const testdata = require("../../../../../fixtures/testdata.json");
 
 describe(
   "Table Widget property pane feature validation",

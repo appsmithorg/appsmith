@@ -1,28 +1,29 @@
-import { executeDatasourceQuery } from "actions/datasourceActions";
-import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { useCallback, useState } from "react";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useDispatch, useSelector } from "react-redux";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { PluginName } from "entities/Action";
-import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
-import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+
+import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { useEditorType } from "ee/hooks";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { AppState } from "ee/reducers";
-import { getPagePermissions } from "selectors/editorSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import {
+  getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { PluginName } from "entities/Action";
+import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { get } from "lodash";
-import { useEditorType } from "ee/hooks";
+import { useDispatch, useSelector } from "react-redux";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import history from "utils/history";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 interface FetchPreviewData {
   datasourceId: string;

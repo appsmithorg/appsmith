@@ -1,35 +1,35 @@
-import React, { useRef, useCallback, useEffect } from "react";
-import styled from "styled-components";
-import { NonIdealState, Classes } from "@blueprintjs/core";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useEffect, useRef } from "react";
 
-import { Colors } from "constants/Colors";
-
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { Classes, NonIdealState } from "@blueprintjs/core";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import Files from "./Files";
-import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
+import { Colors } from "constants/Colors";
 import { builderURL } from "ee/RouteBuilder";
-import history from "utils/history";
+import { fetchWorkspace } from "ee/actions/workspaceActions";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentBasePageId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { fetchWorkspace } from "ee/actions/workspaceActions";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { importSvg } from "@appsmith/ads-old";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { FilesContextProvider } from "./Files/FilesContextProvider";
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import styled from "styled-components";
+import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
-import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
+
+import { importSvg } from "@appsmith/ads-old";
+
+import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
+import Files from "./Files";
+import { FilesContextProvider } from "./Files/FilesContextProvider";
+import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),

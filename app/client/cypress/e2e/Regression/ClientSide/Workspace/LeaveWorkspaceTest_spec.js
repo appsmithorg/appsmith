@@ -1,11 +1,11 @@
 /// <reference types="Cypress" />
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import {
+  adminSettings,
   agHelper,
   assertHelper,
   homePage,
-  adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 describe(
   "Leave workspace test spec",

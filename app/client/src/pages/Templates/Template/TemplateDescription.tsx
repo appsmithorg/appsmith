@@ -1,10 +1,7 @@
-import type { Template } from "api/TemplatesApi";
 import React from "react";
-import styled from "styled-components";
-import DatasourceChip from "../DatasourceChip";
-import { Text } from "@appsmith/ads";
+
+import type { Template } from "api/TemplatesApi";
 import {
-  createMessage,
   DATASOURCES,
   FUNCTION,
   INDUSTRY,
@@ -12,7 +9,13 @@ import {
   NOTE_MESSAGE,
   OVERVIEW,
   WIDGET_USED,
+  createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
+
+import DatasourceChip from "../DatasourceChip";
 import WidgetInfo from "../WidgetInfo";
 
 export const DescriptionWrapper = styled.div`

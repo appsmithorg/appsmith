@@ -1,9 +1,11 @@
 import type { Key } from "react";
-import React, { useCallback, memo } from "react";
+import React, { memo, useCallback } from "react";
+
+import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
+
+import { Flex, Icon, IconButton, Menu, MenuTrigger, Text } from "@appsmith/wds";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
-import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import { Flex, Icon, IconButton, Menu, MenuTrigger, Text } from "@appsmith/wds";
 
 interface HeaderProps {
   canFreezeColumn?: boolean;

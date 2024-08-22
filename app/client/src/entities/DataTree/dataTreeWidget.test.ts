@@ -1,16 +1,15 @@
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  generateDataTreeWidget,
-  getSetterConfig,
-} from "entities/DataTree/dataTreeWidget";
+import WidgetFactory from "WidgetProvider/factory";
+import { RenderModes } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import WidgetFactory from "WidgetProvider/factory";
-
-import { ValidationTypes } from "constants/WidgetValidation";
-import { RenderModes } from "constants/WidgetConstants";
+import {
+  generateDataTreeWidget,
+  getSetterConfig,
+} from "entities/DataTree/dataTreeWidget";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 // const WidgetTypes = WidgetFactory.widgetTypes;
 

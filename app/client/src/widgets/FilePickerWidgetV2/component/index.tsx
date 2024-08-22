@@ -1,7 +1,8 @@
 import React from "react";
+
+import { Colors } from "constants/Colors";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import { Colors } from "constants/Colors";
 
 function FilePickerComponent(props: FilePickerComponentProps) {
   let computedLabel = props.label;

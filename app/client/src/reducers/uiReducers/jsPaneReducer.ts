@@ -1,11 +1,11 @@
-import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { createReducer } from "utils/ReducerUtils";
 
 export enum JSEditorTab {
   CODE = "CODE",

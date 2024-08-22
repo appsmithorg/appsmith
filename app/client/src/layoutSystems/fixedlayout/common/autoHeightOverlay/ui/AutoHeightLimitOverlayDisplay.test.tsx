@@ -1,8 +1,10 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import AutoHeightLimitOverlayDisplay from "./AutoHeightLimitOverlayDisplay";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
+
+import AutoHeightLimitOverlayDisplay from "./AutoHeightLimitOverlayDisplay";
 
 describe("<AutoHeightLimitOverlayDisplay />", () => {
   it("should have display none when isActive is false", () => {

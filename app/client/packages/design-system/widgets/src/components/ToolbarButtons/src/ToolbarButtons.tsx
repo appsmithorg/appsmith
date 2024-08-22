@@ -1,15 +1,18 @@
 import React, { forwardRef, useMemo } from "react";
-import { Button, Menu } from "@appsmith/wds";
+
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
-import { useListState } from "@react-stately/list";
 import { Item } from "@react-stately/collections";
+import { useListState } from "@react-stately/list";
+import type { CollectionChildren, DOMRef } from "@react-types/shared";
 import { MenuTrigger } from "react-aria-components";
+
+import { Button, Menu } from "@appsmith/wds";
+
 import { ToolbarButton } from "./ToolbarButton";
-import { useToolbarButtons } from "./useToolbarButtons";
 import styles from "./styles.module.css";
 import type { ToolbarButtonsItem, ToolbarButtonsProps } from "./types";
-import type { DOMRef, CollectionChildren } from "@react-types/shared";
+import { useToolbarButtons } from "./useToolbarButtons";
 
 interface ToolbarButtonsInnerProps<T> extends ToolbarButtonsProps<T> {
   children?: CollectionChildren<T>;

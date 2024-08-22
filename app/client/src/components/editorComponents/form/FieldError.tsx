@@ -1,6 +1,8 @@
 import React from "react";
-import styled from "styled-components";
+
 import { IntentColors } from "constants/DefaultTheme";
+import styled from "styled-components";
+
 // Note: This component is only for the input fields which donot have the
 // popover error tooltip. This is also only for Appsmith components
 // Not to be used in widgets / canvas

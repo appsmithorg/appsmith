@@ -1,5 +1,6 @@
-import type { Sizes } from "../__config__/types";
 import type { ReactNode } from "react";
+
+import type { Sizes } from "../__config__/types";
 
 export type ListSizes = Extract<Sizes, "md" | "lg">;
 

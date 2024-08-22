@@ -1,9 +1,10 @@
+import React, { useCallback } from "react";
+
 import { setPropertyPaneWidthAction } from "actions/propertyPaneActions";
 import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar";
-import React, { useCallback } from "react";
+import { CreateNewQueryModal } from "pages/Editor/IDE/RightPane/components/CreateNewQueryModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { CreateNewQueryModal } from "pages/Editor/IDE/RightPane/components/CreateNewQueryModal";
 
 /**
  * PropertyPaneWrapper

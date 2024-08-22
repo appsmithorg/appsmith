@@ -1,17 +1,19 @@
 import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Button, Text } from "@appsmith/ads";
-import styled from "styled-components";
+
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import {
   GSHEET_SPREADSHEET_LABEL,
   SCHEMA_LABEL,
   createMessage,
 } from "ee/constants/messages";
+import { getPluginPackageNameFromId } from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { getPluginPackageNameFromId } from "ee/selectors/entitiesSelector";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
+
+import { Button, Text } from "@appsmith/ads";
 
 interface Props {
   datasource?: Datasource;

@@ -1,7 +1,7 @@
-import { dataTreeEvaluator } from "./evalTree";
-import type { EvalWorkerASyncRequest } from "../types";
-import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { evaluateAndPushResponse } from "../evalTreeWithChanges";
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
+import type { EvalWorkerASyncRequest } from "../types";
+import { dataTreeEvaluator } from "./evalTree";
 
 export default async function (request: EvalWorkerASyncRequest) {
   const { data } = request;

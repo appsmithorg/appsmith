@@ -1,10 +1,11 @@
 import { PluginPackageName } from "entities/Action";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
+
 import GSheets from "./GSheets";
-import MongoDB from "./MongoDB";
-import PostgreSQL from "./PostgreSQL";
-import MySQL from "./MySQL";
 import MsSQL from "./MSSQL";
+import MongoDB from "./MongoDB";
+import MySQL from "./MySQL";
+import PostgreSQL from "./PostgreSQL";
 import Snowflake from "./Snowflake";
 
 WidgetQueryGeneratorRegistry.register(PluginPackageName.MONGO, MongoDB);

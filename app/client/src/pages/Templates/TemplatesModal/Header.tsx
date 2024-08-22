@@ -1,8 +1,9 @@
+import React from "react";
+
 import {
   ADD_PAGE_FROM_TEMPLATE_MODAL,
   createMessage,
 } from "ee/constants/messages";
-import React from "react";
 import styled from "styled-components";
 
 const BackText = styled.div<{ width?: number; hidden?: boolean }>`

@@ -1,14 +1,16 @@
 // Workers do not have access to log.error
+
 /* eslint-disable no-console */
-import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
-import {
-  syncHandlerMap,
-  asyncHandlerMap,
-  transmissionErrorHandlerMap,
-} from "./handlers";
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
+
 import { WorkerMessenger } from "./fns/utils/Messenger";
+import {
+  asyncHandlerMap,
+  syncHandlerMap,
+  transmissionErrorHandlerMap,
+} from "./handlers";
+import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "./types";
 
 //TODO: Create a more complete RPC setup in the subtree-eval branch.
 function syncRequestMessageListener(

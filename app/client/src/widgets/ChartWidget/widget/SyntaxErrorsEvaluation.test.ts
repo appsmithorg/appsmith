@@ -1,9 +1,10 @@
-import { LabelOrientation } from "../constants";
-import type { ChartWidgetProps } from ".";
-import type { ChartData } from "../constants";
-import type { WidgetError } from "widgets/BaseWidget";
-import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 import { RenderModes } from "constants/WidgetConstants";
+import type { WidgetError } from "widgets/BaseWidget";
+
+import type { ChartWidgetProps } from ".";
+import { LabelOrientation } from "../constants";
+import type { ChartData } from "../constants";
+import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
 
 describe("SyntaxErrorsEvaluation", () => {
   const seriesData1: ChartData = {

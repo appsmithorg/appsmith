@@ -1,4 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
+
 import type { POSITION } from "@appsmith/wds";
 
 export interface SwitchWidgetProps extends WidgetProps {

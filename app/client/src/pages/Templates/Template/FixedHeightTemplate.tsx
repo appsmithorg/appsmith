@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import { TemplateLayout } from "./index";
 
 const FixedHeightTemplate = styled(TemplateLayout)`

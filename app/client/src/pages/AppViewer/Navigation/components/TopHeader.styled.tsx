@@ -1,6 +1,7 @@
-import styled from "styled-components";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
+import styled from "styled-components";
+
 import {
   getMenuContainerBackgroundColor,
   getMenuItemBackgroundColorWhenActive,

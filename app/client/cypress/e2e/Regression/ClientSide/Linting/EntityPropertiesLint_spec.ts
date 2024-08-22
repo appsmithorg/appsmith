@@ -1,13 +1,13 @@
 import {
   agHelper,
-  entityExplorer,
-  jsEditor,
-  propPane,
-  entityItems,
   apiPage,
-  draggableWidgets,
-  locators,
   dataManager,
+  draggableWidgets,
+  entityExplorer,
+  entityItems,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

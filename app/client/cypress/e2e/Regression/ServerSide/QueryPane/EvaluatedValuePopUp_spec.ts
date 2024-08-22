@@ -1,5 +1,5 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
 import formControls from "../../../../locators/FormControl.json";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Ensures evaluated popup is viewable when dynamic bindings are present and draggable",

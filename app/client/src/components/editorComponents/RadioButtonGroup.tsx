@@ -1,7 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";
-import { Text, Button } from "@appsmith/ads";
-import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
+
+import { Button, Text } from "@appsmith/ads";
 
 interface RadioButtonGroupProps {
   options: RadioButtonProps[];

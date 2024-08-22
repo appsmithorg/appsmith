@@ -1,26 +1,26 @@
+import WidgetFactory from "WidgetProvider/factory";
 import {
-  type WidgetEntityConfig,
-  type JSActionEntityConfig,
-  type WidgetEntity,
   type ActionEntity,
   type AppsmithEntity,
-  type JSActionEntity,
   ENTITY_TYPE,
+  type JSActionEntity,
+  type JSActionEntityConfig,
+  type WidgetEntity,
+  type WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import type {
   ConfigTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import type { Def } from "tern";
 import type { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
-import WidgetFactory from "WidgetProvider/factory";
 import {
   addSettersToDefinitions,
+  flattenDef,
   generateJSFunctionTypeDef,
   generateTypeDef,
-  flattenDef,
 } from "utils/autocomplete/defCreatorUtils";
 
 export type EntityMap = Map<string, DataTreeDefEntityInformation>;

@@ -1,22 +1,25 @@
 import React, { useState } from "react";
-import Button from "../../AppViewerButton";
-import { Icon, Tooltip } from "@appsmith/ads";
+
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import {
+  APPLICATION_INVITE,
+  SHARE_APP,
+  createMessage,
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import type { ApplicationPayload } from "entities/Application";
+import { get } from "lodash";
+import { getApplicationNameTextColor } from "pages/AppViewer/utils";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getApplicationNameTextColor } from "pages/AppViewer/utils";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { get } from "lodash";
-import type { ApplicationPayload } from "entities/Application";
-import {
-  APPLICATION_INVITE,
-  createMessage,
-  SHARE_APP,
-} from "ee/constants/messages";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+
+import { Icon, Tooltip } from "@appsmith/ads";
+
+import Button from "../../AppViewerButton";
 
 interface ShareButtonProps {
   currentApplicationDetails?: ApplicationPayload;

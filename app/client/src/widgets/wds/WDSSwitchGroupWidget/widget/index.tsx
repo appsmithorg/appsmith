@@ -1,11 +1,13 @@
 import React from "react";
+
+import type { AnvilConfig } from "WidgetProvider/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig } from "entities/AppTheming";
 import xor from "lodash/xor";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
-import type { SetterConfig } from "entities/AppTheming";
-import type { AnvilConfig } from "WidgetProvider/constants";
+
 import { Switch, ToggleGroup } from "@appsmith/wds";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import {
   anvilConfig,
@@ -13,11 +15,11 @@ import {
   defaultsConfig,
   featuresConfig,
   metaConfig,
+  methodsConfig,
   propertyPaneContentConfig,
   settersConfig,
-  methodsConfig,
 } from "../config";
-import type { SwitchGroupWidgetProps, OptionProps } from "./types";
+import type { OptionProps, SwitchGroupWidgetProps } from "./types";
 
 class WDSSwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,

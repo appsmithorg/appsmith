@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import styled from "styled-components";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import _ from "lodash";
-import { animated, useSpring, to } from "react-spring";
+import { animated, to, useSpring } from "react-spring";
+import styled from "styled-components";
 
 export const ScrollThumb = styled(animated.div)<{
   mode?: "DARK" | "LIGHT";

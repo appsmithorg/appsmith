@@ -1,3 +1,4 @@
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../../support/Pages/EditorNavigation";
@@ -5,7 +6,7 @@ import EditorNavigation, {
 const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../../locators/FormWidgets.json");
-import * as _ from "../../../../../../support/Objects/ObjectsCore";
+
 const widgetLocators = require("../../../../../../locators/Widgets.json");
 
 const items = JSON.parse(dsl.dsl.children[0].listData);

@@ -1,23 +1,24 @@
-import { computeRowCols } from "layoutSystems/common/resizer/ResizableUtils";
-import { isHandleResizeAllowed } from "layoutSystems/common/resizer/ResizableUtils";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { Spring } from "react-spring";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { useSelector } from "react-redux";
-import type { MovementLimitMap, ReflowedSpace } from "reflow/reflowTypes";
+
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { computeRowCols } from "layoutSystems/common/resizer/ResizableUtils";
+import { isHandleResizeAllowed } from "layoutSystems/common/resizer/ResizableUtils";
 import type {
   DimensionUpdateProps,
   ResizableProps,
 } from "layoutSystems/common/resizer/common";
 import {
-  getWrapperStyle,
   RESIZE_BORDER_BUFFER,
   ResizableHandle,
   ResizeWrapper,
+  getWrapperStyle,
 } from "layoutSystems/common/resizer/common";
-import { getWidgetByID } from "sagas/selectors";
+import { useSelector } from "react-redux";
+import { Spring } from "react-spring";
+import type { MovementLimitMap, ReflowedSpace } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
+import { getWidgetByID } from "sagas/selectors";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";

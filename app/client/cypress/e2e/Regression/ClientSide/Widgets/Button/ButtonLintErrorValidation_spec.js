@@ -1,5 +1,6 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Linting warning validation with button widget",

@@ -1,12 +1,14 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
 import {
+  Button,
   Flex,
   Icon,
-  SIZES,
-  Button,
   Menu,
   MenuTrigger,
+  SIZES,
   TextInput,
 } from "@appsmith/wds";
 

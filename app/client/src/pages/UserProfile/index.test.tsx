@@ -1,19 +1,21 @@
-import "@testing-library/jest-dom/extend-expect";
 import React from "react";
+
+import "@testing-library/jest-dom/extend-expect";
 import { render } from "@testing-library/react";
-import { Provider } from "react-redux";
-import configureStore from "redux-mock-store";
-import { lightTheme } from "selectors/themeSelectors";
-import { ThemeProvider } from "styled-components";
-import { BrowserRouter as Router } from "react-router-dom";
-import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
-import UserProfile from ".";
+import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
+import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import Login from "pages/UserAuth/Login";
+import { Provider } from "react-redux";
+import { BrowserRouter as Router } from "react-router-dom";
+import configureStore from "redux-mock-store";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+
+import UserProfile from ".";
 
 const defaultStoreState = {
   ...unitTestBaseMockStore,

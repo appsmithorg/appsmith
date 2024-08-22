@@ -1,9 +1,9 @@
 import {
-  dataManager,
   agHelper,
-  jsEditor,
   apiPage,
+  dataManager,
   entityExplorer,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

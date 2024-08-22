@@ -1,26 +1,28 @@
 import React from "react";
-import { formValueSelector } from "redux-form";
-import { connect } from "react-redux";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+
 import {
-  EditorSize,
   EditorModes,
+  EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import { actionPathFromName } from "components/formControls/utils";
+import type { ControlType } from "constants/PropertyControlConstants";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { AppState } from "ee/reducers";
-import styled from "styled-components";
 import {
-  getPluginResponseTypes,
   getPluginNameFromId,
+  getPluginResponseTypes,
 } from "ee/selectors/entitiesSelector";
-import { actionPathFromName } from "components/formControls/utils";
-import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { connect } from "react-redux";
+import { formValueSelector } from "redux-form";
+import styled from "styled-components";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const Wrapper = styled.div<{ fullWidth: boolean }>`
   min-width: 380px;

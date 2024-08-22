@@ -1,33 +1,36 @@
 /* DO NOT INTRODUCE PAGE AND APPLICATION DEPENDENCIES IN THIS COMPONENT */
 import React, { useState } from "react";
-import FormTitle from "./FormTitle";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import type { Datasource } from "entities/Datasource";
+
+import { deleteDatasource } from "actions/datasourceActions";
+import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
+import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
-  CONFIRM_CONTEXT_DELETING,
   CONFIRM_CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETING,
   CONTEXT_DELETE,
   EDIT,
   createMessage,
 } from "ee/constants/messages";
+import { useEditorType } from "ee/hooks";
+import { useHeaderActions } from "ee/hooks/datasourceEditorHooks";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteDatasource } from "actions/datasourceActions";
-import { debounce } from "lodash";
-import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
-import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
-import styled from "styled-components";
-import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
-import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   DB_NOT_SUPPORTED,
   isEnvironmentConfigured,
 } from "ee/utils/Environments";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { PluginType } from "entities/Action";
-import { useEditorType } from "ee/hooks";
+import type { Datasource } from "entities/Datasource";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import { debounce } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import { useHeaderActions } from "ee/hooks/datasourceEditorHooks";
+import styled from "styled-components";
+
+import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
+
+import FormTitle from "./FormTitle";
 
 export const ActionWrapper = styled.div`
   display: flex;

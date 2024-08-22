@@ -1,40 +1,40 @@
-import "tinymce/tinymce";
-import "tinymce/icons/default";
-import "tinymce/plugins/link";
-import "tinymce/plugins/image";
-import "tinymce/plugins/table";
-import "tinymce/plugins/code";
-import "tinymce/plugins/help";
-import "tinymce/plugins/insertdatetime";
-import "tinymce/plugins/media";
-import "tinymce/plugins/advlist";
-import "tinymce/plugins/autolink";
-import "tinymce/plugins/lists";
-import "tinymce/plugins/charmap";
-import "tinymce/plugins/preview";
-import "tinymce/plugins/anchor";
-import "tinymce/plugins/searchreplace";
-import "tinymce/plugins/visualblocks";
-import "tinymce/plugins/fullscreen";
-import "tinymce/plugins/emoticons";
-import "tinymce/plugins/emoticons/js/emojis";
-import "tinymce/themes/silver";
-import "tinymce/skins/ui/oxide/skin.min.css";
-import "tinymce/models/dom";
-import "tinymce/plugins/help/js/i18n/keynav/en.js";
-import React, { useRef, useCallback, useEffect, useState } from "react";
-import styled, { createGlobalStyle } from "styled-components";
-import { Editor } from "@tinymce/tinymce-react";
-import type { LabelPosition } from "components/constants";
-import type { Alignment } from "@blueprintjs/core";
-import type { TextSize } from "constants/WidgetConstants";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // @ts-expect-error: loader types not available
 import cssVariables from "!!raw-loader!theme/wds.css";
+import type { Alignment } from "@blueprintjs/core";
+import { Editor } from "@tinymce/tinymce-react";
+import type { LabelPosition } from "components/constants";
+import type { TextSize } from "constants/WidgetConstants";
+import styled, { createGlobalStyle } from "styled-components";
+import "tinymce/icons/default";
+import "tinymce/models/dom";
+import "tinymce/plugins/advlist";
+import "tinymce/plugins/anchor";
+import "tinymce/plugins/autolink";
+import "tinymce/plugins/charmap";
+import "tinymce/plugins/code";
+import "tinymce/plugins/emoticons";
+import "tinymce/plugins/emoticons/js/emojis";
+import "tinymce/plugins/fullscreen";
+import "tinymce/plugins/help";
+import "tinymce/plugins/help/js/i18n/keynav/en.js";
+import "tinymce/plugins/image";
+import "tinymce/plugins/insertdatetime";
+import "tinymce/plugins/link";
+import "tinymce/plugins/lists";
+import "tinymce/plugins/media";
+import "tinymce/plugins/preview";
+import "tinymce/plugins/searchreplace";
+import "tinymce/plugins/table";
+import "tinymce/plugins/visualblocks";
+import "tinymce/skins/ui/oxide/skin.min.css";
+import "tinymce/themes/silver";
+import "tinymce/tinymce";
 import { isMacOs } from "utils/AppsmithUtils";
 import LabelWithTooltip, {
-  labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";
 
 const StyledRTEditor = styled.div<{

@@ -1,12 +1,12 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   RecentEntity,
   SearchCategory,
 } from "components/editorComponents/GlobalSearch/utils";
 import {
-  filterCategories,
   SEARCH_CATEGORY_ID,
+  filterCategories,
 } from "components/editorComponents/GlobalSearch/utils";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const setGlobalSearchQuery = (query: string) => ({
   type: ReduxActionTypes.SET_GLOBAL_SEARCH_QUERY,

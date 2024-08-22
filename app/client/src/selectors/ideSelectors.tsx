@@ -1,11 +1,12 @@
-import { createSelector } from "reselect";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
 import { getPageActions } from "ee/selectors/entitiesSelector";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
-import { getCurrentBasePageId } from "./editorSelectors";
-import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { get } from "lodash";
+import { createSelector } from "reselect";
+
+import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
+import { getCurrentBasePageId } from "./editorSelectors";
 
 export const getIsSideBySideEnabled = createSelector(
   selectFeatureFlags,

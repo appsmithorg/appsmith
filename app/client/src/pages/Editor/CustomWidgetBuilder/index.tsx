@@ -1,18 +1,21 @@
 import React, { useCallback, useEffect, useRef } from "react";
+
+import classNames from "classnames";
+import { tailwindLayers } from "constants/Layers";
+import Helmet from "react-helmet";
+import styled from "styled-components";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+import useLocalStorageState from "utils/hooks/useLocalStorageState";
+
+import { Spinner } from "@appsmith/ads";
+
+import Editor from "./Editor";
+import Preview from "./Preview";
+import ConnectionLost from "./connectionLost";
 import Header from "./header";
 import styles from "./styles.module.css";
-import Preview from "./Preview";
-import { Spinner } from "@appsmith/ads";
-import Editor from "./Editor";
 import type { CustomWidgetBuilderContextType } from "./types";
-import ConnectionLost from "./connectionLost";
-import Helmet from "react-helmet";
 import { useCustomBuilder } from "./useCustomBuilder";
-import { tailwindLayers } from "constants/Layers";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import styled from "styled-components";
-import classNames from "classnames";
-import useLocalStorageState from "utils/hooks/useLocalStorageState";
 
 export const CustomWidgetBuilderContext = React.createContext<
   Partial<CustomWidgetBuilderContextType>

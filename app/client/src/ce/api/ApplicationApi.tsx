@@ -1,12 +1,11 @@
-import type { ApplicationVersion } from "ee/actions/applicationActions";
-import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { EvaluationVersion } from "constants/EvalConstants";
-import type { IconNames } from "@appsmith/ads";
+import type { ApplicationVersion } from "ee/actions/applicationActions";
+import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import type { Action, BaseAction } from "entities/Action";
 import type { APP_MODE } from "entities/App";
 import type { Datasource } from "entities/Datasource";
@@ -15,6 +14,8 @@ import type {
   LayoutSystemTypes,
 } from "layoutSystems/types";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+
+import type { IconNames } from "@appsmith/ads";
 
 export interface PublishApplicationRequest {
   applicationId: string;

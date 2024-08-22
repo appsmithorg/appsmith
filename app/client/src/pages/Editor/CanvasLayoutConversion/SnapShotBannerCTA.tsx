@@ -1,34 +1,37 @@
-import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { useSnapShotForm } from "./hooks/useSnapShotForm";
-import { ConversionForm } from "./ConversionForm";
-import {
-  createMessage,
-  DISCARD_SNAPSHOT_CTA,
-  DISCARD_SNAPSHOT_HEADER,
-  USE_SNAPSHOT_CTA,
-  USE_SNAPSHOT_HEADER,
-  SNAPSHOT_BANNER_MESSAGE,
-  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
-} from "ee/constants/messages";
+
+import * as Sentry from "@sentry/react";
 import {
   setConversionStart,
   setConversionStop,
 } from "actions/autoLayoutActions";
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  Callout,
-  Text,
-} from "@appsmith/ads";
-import { getReadableSnapShotDetails } from "../../../layoutSystems/autolayout/utils/AutoLayoutUtils";
+  DISCARD_SNAPSHOT_CTA,
+  DISCARD_SNAPSHOT_HEADER,
+  SNAPSHOT_BANNER_MESSAGE,
+  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+  USE_SNAPSHOT_CTA,
+  USE_SNAPSHOT_HEADER,
+  createMessage,
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import { useDispatch, useSelector } from "react-redux";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import styled from "styled-components";
+
+import {
+  Callout,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Text,
+} from "@appsmith/ads";
+
+import { getReadableSnapShotDetails } from "../../../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { ConversionForm } from "./ConversionForm";
+import { useSnapShotForm } from "./hooks/useSnapShotForm";
 
 const BannerWrapper = styled.div`
   z-index: calc(var(--on-canvas-ui-z-index) + 1);

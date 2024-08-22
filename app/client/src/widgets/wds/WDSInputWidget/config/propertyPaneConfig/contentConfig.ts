@@ -2,13 +2,13 @@ import { InputTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
-import * as validations from "./validations";
 import {
   inputTypeUpdateHook,
   isInputTypeEmailOrPassword,
   isInputTypeSingleLineOrMultiLine,
 } from "../../widget/helper";
 import type { InputWidgetProps } from "../../widget/types";
+import * as validations from "./validations";
 
 export const propertyPaneContentConfig = [
   {

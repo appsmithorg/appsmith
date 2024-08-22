@@ -1,11 +1,11 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   dataSources,
+  deployMode,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import inputData from "../../../../support/Objects/mySqlData";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 let dsName: any, query: string;
 

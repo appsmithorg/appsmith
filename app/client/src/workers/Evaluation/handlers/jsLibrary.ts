@@ -1,7 +1,9 @@
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import difference from "lodash/difference";
+import log from "loglevel";
 import type { Def } from "tern";
 import { invalidEntityIdentifiers } from "workers/common/DependencyMap/utils";
+
 import {
   JSLibraries,
   JSLibraryAccessor,
@@ -12,7 +14,6 @@ import { resetJSLibraries } from "../../common/JSLibrary/resetJSLibraries";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";
-import log from "loglevel";
 
 declare global {
   interface WorkerGlobalScope {

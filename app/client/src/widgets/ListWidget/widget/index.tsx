@@ -1,5 +1,5 @@
-import type { PrivateWidgets } from "ee/entities/DataTree/types";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+import React from "react";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -22,6 +22,8 @@ import {
 } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { PrivateWidgets } from "ee/entities/DataTree/types";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import equal from "fast-deep-equal/es6";
 import { klona } from "klona/lite";
@@ -48,7 +50,6 @@ import {
 import log from "loglevel";
 import memoizeOne from "memoize-one";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
-import React from "react";
 import shallowEqual from "shallowequal";
 import {
   combineDynamicBindings,
@@ -60,6 +61,7 @@ import { removeFalsyEntries } from "utils/helpers";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,

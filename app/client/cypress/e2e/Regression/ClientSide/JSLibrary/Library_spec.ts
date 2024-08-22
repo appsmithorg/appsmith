@@ -1,13 +1,13 @@
 import HomePage from "../../../../locators/HomePage";
 import {
   agHelper,
-  entityExplorer,
-  jsEditor,
-  deployMode,
-  homePage,
   debuggerHelper,
-  installer,
+  deployMode,
   draggableWidgets,
+  entityExplorer,
+  homePage,
+  installer,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,

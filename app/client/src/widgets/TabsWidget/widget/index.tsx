@@ -1,46 +1,48 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  Positioning,
-} from "layoutSystems/common/utils/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { find } from "lodash";
 import React from "react";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import type { WidgetProperties } from "selectors/propertyPaneSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
-import TabsComponent from "../component";
-import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import {
-  isAutoHeightEnabledForWidget,
-  isAutoHeightEnabledForWidgetWithLimits,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import {
   GridDefaults,
   WIDGET_TAGS,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import {
+  FlexVerticalAlignment,
+  LayoutDirection,
+  Positioning,
+} from "layoutSystems/common/utils/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { find } from "lodash";
+import type { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
+
+import type { WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import TabsComponent from "../component";
+import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import derivedProperties from "./parseDerivedProperties";
 
 export function selectedTabValidation(
   value: unknown,

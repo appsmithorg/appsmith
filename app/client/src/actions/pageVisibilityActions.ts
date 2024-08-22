@@ -1,5 +1,6 @@
-import { appLevelWebsocketWriteEvent } from "./websocketActions";
 import { APP_LEVEL_SOCKET_EVENTS } from "sagas/WebsocketSagas/socketEvents";
+
+import { appLevelWebsocketWriteEvent } from "./websocketActions";
 
 export const pageVisibilityAppEvent = (visibility: DocumentVisibilityState) =>
   appLevelWebsocketWriteEvent({

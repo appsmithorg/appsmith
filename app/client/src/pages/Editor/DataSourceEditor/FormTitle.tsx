@@ -1,18 +1,19 @@
-import styled from "styled-components";
 import React, { useCallback, useEffect, useState } from "react";
-import EditableText, {
-  EditInteractionKind,
-} from "components/editorComponents/EditableText";
-import type { AppState } from "ee/reducers";
-import { getDatasource, getDatasources } from "ee/selectors/entitiesSelector";
-import { useSelector, useDispatch } from "react-redux";
-import type { Datasource } from "entities/Datasource";
-import { isNameValid } from "utils/helpers";
+
 import {
   saveDatasourceName,
   updateDatasourceName,
 } from "actions/datasourceActions";
+import EditableText, {
+  EditInteractionKind,
+} from "components/editorComponents/EditableText";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import type { AppState } from "ee/reducers";
+import { getDatasource, getDatasources } from "ee/selectors/entitiesSelector";
+import type { Datasource } from "entities/Datasource";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { isNameValid } from "utils/helpers";
 
 const Wrapper = styled.div`
   /* margin-left: 5px; */

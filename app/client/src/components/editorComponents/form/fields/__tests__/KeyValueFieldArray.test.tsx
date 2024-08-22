@@ -1,8 +1,10 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import KeyValueFieldArray from "../KeyValueFieldArray";
 import { reduxForm } from "redux-form";
 import { render } from "test/testUtils";
+
+import KeyValueFieldArray from "../KeyValueFieldArray";
 
 const initialProps = {
   name: "Headers",

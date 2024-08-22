@@ -1,9 +1,10 @@
 import React from "react";
+
 import clsx from "classnames";
 
-import type { FlexProps } from "./Flex.types";
-import { FlexClassName } from "./Flex.constants";
 import { Box } from "../Box";
+import { FlexClassName } from "./Flex.constants";
+import type { FlexProps } from "./Flex.types";
 
 function Flex({ children, className, ...rest }: FlexProps) {
   return (

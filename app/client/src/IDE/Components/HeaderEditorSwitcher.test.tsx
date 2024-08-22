@@ -1,7 +1,9 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react";
-import HeaderEditorSwitcher from "./HeaderEditorSwitcher";
+
 import "@testing-library/jest-dom";
+import { fireEvent, render } from "@testing-library/react";
+
+import HeaderEditorSwitcher from "./HeaderEditorSwitcher";
 
 describe("HeaderEditorSwitcher", () => {
   const mockOnClick = jest.fn();

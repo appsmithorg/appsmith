@@ -1,6 +1,7 @@
+import _ from "lodash";
+
 import type { PhoneInputWidgetProps } from "../../../widget/types";
 import { defaultValueValidation } from "./defaultValueValidation";
-import _ from "lodash";
 
 describe("defaultValueValidation", () => {
   let result: ReturnType<typeof defaultValueValidation>;

@@ -1,8 +1,11 @@
-import { Text } from "@appsmith/ads";
 import React from "react";
-import { getSettings } from "selectors/settingsSelectors";
+
 import { useSelector } from "react-redux";
+import { getSettings } from "selectors/settingsSelectors";
 import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
+
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 

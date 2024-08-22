@@ -1,22 +1,24 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import history from "utils/history";
+import useLocalStorageState from "utils/hooks/useLocalStorageState";
+
 import {
   CUSTOM_WIDGET_BUILDER_EVENTS,
   DEFAULT_CONTEXT_VALUE,
   LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN,
   LOCAL_STORAGE_KEYS_SELECTED_LAYOUT,
 } from "./constants";
-import history from "utils/history";
-import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import {
-  DebuggerLogType,
   type CustomWidgetBuilderContextFunctionType,
+  type CustomWidgetBuilderContextType,
   type CustomWidgetBuilderContextValueType,
   type DebuggerLog,
+  DebuggerLogType,
   type SrcDoc,
-  type CustomWidgetBuilderContextType,
 } from "./types";
 import { compileSrcDoc } from "./utility";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 let connectionTimeout: number;
 

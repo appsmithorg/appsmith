@@ -1,16 +1,17 @@
 import { Severity } from "entities/AppsmithConsole";
-import type { LintError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import {
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
 } from "plugins/Linting/constants";
+import type { LintError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+
 import { CODE_EDITOR_START_POSITION } from "./constants";
 import {
-  getKeyPositionInString,
-  getLintAnnotations,
   getAllWordOccurrences,
   getFirstNonEmptyPosition,
+  getKeyPositionInString,
+  getLintAnnotations,
 } from "./lintHelpers";
 
 describe("getAllWordOccurences()", function () {

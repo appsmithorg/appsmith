@@ -1,38 +1,41 @@
 import React from "react";
-import styled from "styled-components";
-import { connect } from "react-redux";
-import { initialize } from "redux-form";
-import {
-  getDBPlugins,
-  getPluginImages,
-  getMostPopularPlugins,
-} from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
-import { DATASOURCE_DB_FORM } from "ee/constants/forms";
+
 import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "entities/Application";
-import { getQueryParams } from "utils/URLUtils";
-import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
-import { PluginPackageName, PluginType } from "entities/Action";
-import { Spinner } from "@appsmith/ads";
 import PlusLogo from "assets/images/Plus-logo.svg";
-import {
-  createMessage,
-  CREATE_NEW_DATASOURCE_REST_API,
-} from "ee/constants/messages";
 import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
+import { DATASOURCE_DB_FORM } from "ee/constants/forms";
+import {
+  CREATE_NEW_DATASOURCE_REST_API,
+  createMessage,
+} from "ee/constants/messages";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import {
+  getDBPlugins,
+  getMostPopularPlugins,
+  getPluginImages,
+} from "ee/selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { PluginPackageName, PluginType } from "entities/Action";
+import type { ApplicationPayload } from "entities/Application";
+import { connect } from "react-redux";
+import { initialize } from "redux-form";
+import styled from "styled-components";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
+
+import { Spinner } from "@appsmith/ads";
+
+import { API_ACTION, ApiCard, CardContentWrapper } from "./NewApi";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {

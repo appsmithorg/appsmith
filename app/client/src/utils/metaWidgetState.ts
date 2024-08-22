@@ -1,5 +1,5 @@
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const metaWidgetState: MetaWidgetsReduxState = {

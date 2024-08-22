@@ -1,5 +1,11 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { Bold, ErrorMessage, SelectWrapper } from "../../styles";
+
+import {
+  DATASOURCE_DROPDOWN_OPTIONS,
+  createMessage,
+} from "ee/constants/messages";
+import styled from "styled-components";
+
 import {
   Icon,
   Menu,
@@ -11,14 +17,11 @@ import {
   SearchInput,
   Text,
 } from "@appsmith/ads";
-import { DropdownOption, LoadMoreOptions } from "./DropdownOption";
-import styled from "styled-components";
-import type { DropdownOptionType } from "../../types";
+
 import { DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW } from "../../constants";
-import {
-  createMessage,
-  DATASOURCE_DROPDOWN_OPTIONS,
-} from "ee/constants/messages";
+import { Bold, ErrorMessage, SelectWrapper } from "../../styles";
+import type { DropdownOptionType } from "../../types";
+import { DropdownOption, LoadMoreOptions } from "./DropdownOption";
 import useSource from "./useSource";
 
 const StyledDropdownTrigger = styled.div<{

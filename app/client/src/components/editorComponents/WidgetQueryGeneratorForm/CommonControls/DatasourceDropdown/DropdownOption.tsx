@@ -1,6 +1,9 @@
-import { Icon, MenuItem } from "@appsmith/ads";
 import React from "react";
+
 import styled from "styled-components";
+
+import { Icon, MenuItem } from "@appsmith/ads";
+
 import { DEFAULT_QUERY_OPTIONS_COUNTS_TO_SHOW } from "../../constants";
 
 const Container = styled.div`

@@ -2,8 +2,10 @@ import type { MutableRefObject } from "react";
 import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import type { usePopover } from "./usePopover";
+
 import type { Placement } from "@floating-ui/react";
+
+import type { usePopover } from "./usePopover";
 
 export type ContextType =
   | (ReturnType<typeof usePopover> & {

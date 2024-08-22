@@ -1,8 +1,9 @@
-import type { ApiActionConfig } from "entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "ee/constants/ApiConstants";
+import type { ApiActionConfig } from "entities/Action";
+
 import {
-  HTTP_METHOD,
   EMPTY_KEY_VALUE_PAIRS,
+  HTTP_METHOD,
   HTTP_METHODS_DEFAULT_FORMAT_TYPES,
   HTTP_PROTOCOL,
 } from "./CommonApiConstants";

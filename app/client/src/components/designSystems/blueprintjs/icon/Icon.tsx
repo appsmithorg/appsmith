@@ -1,9 +1,7 @@
 // See readme.md for why this file exists.
-
 import React, { useMemo } from "react";
-import classNames from "classnames";
+
 import type { IconProps } from "@blueprintjs/core";
-import svgImportsMap from "components/designSystems/blueprintjs/icon/svgImportsMap";
 // Below symbols must be imported directly from target files to avoid crashes
 // caused by cyclic dependencies in @blueprintjs/core.
 import {
@@ -11,6 +9,9 @@ import {
   iconClass,
   intentClass,
 } from "@blueprintjs/core/lib/esm/common/classes";
+import classNames from "classnames";
+import svgImportsMap from "components/designSystems/blueprintjs/icon/svgImportsMap";
+
 import { importSvg } from "@appsmith/ads-old";
 
 // This export must be named "IconSize" to match the exports of @blueprintjs/core/lib/esm/components/icon

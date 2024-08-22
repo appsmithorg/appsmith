@@ -1,5 +1,6 @@
 import type { Diff } from "deep-diff";
 import { get, isArray, isEmpty, set } from "lodash";
+
 export const UPDATES = "propertyUpdates";
 export const REPLAY_DELAY = 300;
 export const REPLAY_FOCUS_DELAY = 100;

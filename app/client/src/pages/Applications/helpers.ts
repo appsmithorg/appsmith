@@ -1,9 +1,9 @@
-import type { AppIconName } from "@appsmith/ads-old";
 import type { AppColorCode } from "constants/DefaultTheme";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
+import { howMuchTimeBeforeText, truncateString } from "utils/helpers";
 
-import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
+import type { AppIconName } from "@appsmith/ads-old";
 
 export interface CreateApplicationFormValues {
   applicationName: string;

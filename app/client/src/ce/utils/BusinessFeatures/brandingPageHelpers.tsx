@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-restricted-imports */
-import { default as UpgradeBanner_CE } from "ce/pages/AdminSettings/Branding/UpgradeBanner";
-import { default as UpgradeBanner_EE } from "ee/pages/AdminSettings/Branding/UpgradeBanner";
 import React from "react";
+
+import { default as UpgradeBanner_CE } from "ce/pages/AdminSettings/Branding/UpgradeBanner";
 import {
   getHtmlPageTitle as getHtmlPageTitle_CE,
   getPageTitle as getPageTitle_CE,
 } from "ce/utils";
+import { default as UpgradeBanner_EE } from "ee/pages/AdminSettings/Branding/UpgradeBanner";
 import {
   getHtmlPageTitle as getHtmlPageTitle_EE,
   getPageTitle as getPageTitle_EE,

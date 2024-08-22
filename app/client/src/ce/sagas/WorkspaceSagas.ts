@@ -1,49 +1,50 @@
-import { call, put, select } from "redux-saga/effects";
+import type { ApiResponse } from "api/ApiResponses";
+import SearchApi from "api/SearchApi";
+import { APPLICATIONS_URL } from "constants/routes";
+import type { User } from "constants/userConstants";
+import type {
+  ChangeUserRoleRequest,
+  CreateWorkspaceRequest,
+  DeleteWorkspaceUserRequest,
+  FetchAllRolesRequest,
+  FetchAllRolesResponse,
+  FetchAllUsersRequest,
+  FetchAllUsersResponse,
+  FetchWorkspaceRequest,
+  FetchWorkspaceResponse,
+  FetchWorkspacesResponse,
+  SaveWorkspaceLogo,
+  SaveWorkspaceRequest,
+} from "ee/api/WorkspaceApi";
+import WorkspaceApi from "ee/api/WorkspaceApi";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
 } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import {
-  validateResponse,
+  DELETE_WORKSPACE_SUCCESSFUL,
+  createMessage,
+} from "ee/constants/messages";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import type { SearchApiResponse } from "ee/types/ApiResponseTypes";
+import { getWorkspaceEntitiesActions } from "ee/utils/workspaceHelpers";
+import log from "loglevel";
+import { call, put, select } from "redux-saga/effects";
+import {
   callAPI,
   getResponseErrorMessage,
+  validateResponse,
 } from "sagas/ErrorSagas";
-import type {
-  SaveWorkspaceRequest,
-  FetchWorkspaceRequest,
-  FetchWorkspaceResponse,
-  CreateWorkspaceRequest,
-  FetchAllUsersResponse,
-  FetchAllUsersRequest,
-  FetchAllRolesResponse,
-  DeleteWorkspaceUserRequest,
-  ChangeUserRoleRequest,
-  FetchAllRolesRequest,
-  SaveWorkspaceLogo,
-  FetchWorkspacesResponse,
-} from "ee/api/WorkspaceApi";
-import WorkspaceApi from "ee/api/WorkspaceApi";
-import type { ApiResponse } from "api/ApiResponses";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
-import { getCurrentUser } from "selectors/usersSelectors";
-import type { Workspace } from "ee/constants/workspaceConstants";
-import history from "utils/history";
-import { APPLICATIONS_URL } from "constants/routes";
-import log from "loglevel";
-import type { User } from "constants/userConstants";
-import {
-  createMessage,
-  DELETE_WORKSPACE_SUCCESSFUL,
-} from "ee/constants/messages";
-import { toast } from "@appsmith/ads";
 import { failFastApiCalls } from "sagas/InitSagas";
-import { getWorkspaceEntitiesActions } from "ee/utils/workspaceHelpers";
-import type { SearchApiResponse } from "ee/types/ApiResponseTypes";
-import SearchApi from "api/SearchApi";
+import { getCurrentUser } from "selectors/usersSelectors";
+import history from "utils/history";
+
+import { toast } from "@appsmith/ads";
 
 export function* fetchAllWorkspacesSaga(
   action?: ReduxAction<{ workspaceId?: string; fetchEntities: boolean }>,

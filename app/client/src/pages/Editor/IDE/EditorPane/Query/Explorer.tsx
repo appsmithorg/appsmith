@@ -1,10 +1,13 @@
 import React from "react";
-import List from "./List";
-import styled from "styled-components";
-import { Flex } from "@appsmith/ads";
+
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import styled from "styled-components";
+
+import { Flex } from "@appsmith/ads";
+
+import List from "./List";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {

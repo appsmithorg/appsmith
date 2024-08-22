@@ -1,47 +1,48 @@
 import type {
-  PropertyPaneConfig,
-  PropertyPaneSectionConfig,
-} from "constants/PropertyControlConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { RenderMode } from "constants/WidgetConstants";
-import * as log from "loglevel";
-import type {
   AnvilConfig,
-  AutocompletionDefinitions,
   AutoLayoutConfig,
+  AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
   WidgetConfigProps,
   WidgetDefaultProps,
   WidgetMethods,
 } from "WidgetProvider/constants";
+import type {
+  PropertyPaneConfig,
+  PropertyPaneSectionConfig,
+} from "constants/PropertyControlConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig } from "entities/AppTheming";
+import produce from "immer";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+} from "layoutSystems/anvil/utils/paste/types";
+import { flow } from "lodash";
+import * as log from "loglevel";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call } from "redux-saga/effects";
+import { generateReactKey } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type BaseWidget from "widgets/BaseWidget";
+
 import {
+  WidgetFeaturePropertyEnhancements,
+  WidgetFeatureProps,
+} from "../../utils/WidgetFeatures";
+import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
+import { freeze, memoize } from "./decorators";
+import {
+  PropertyPaneConfigTypes,
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
   getDefaultOnCanvasUIConfig,
-  PropertyPaneConfigTypes,
 } from "./helpers";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import type BaseWidget from "widgets/BaseWidget";
-import { flow } from "lodash";
-import { generateReactKey } from "utils/generators";
-import {
-  WidgetFeaturePropertyEnhancements,
-  WidgetFeatureProps,
-} from "../../utils/WidgetFeatures";
-import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
-import type { SetterConfig } from "entities/AppTheming";
-import { freeze, memoize } from "./decorators";
-import produce from "immer";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type {
-  CopiedWidgetData,
-  PasteDestinationInfo,
-} from "layoutSystems/anvil/utils/paste/types";
-import { call } from "redux-saga/effects";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

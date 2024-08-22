@@ -1,3 +1,5 @@
+import { ApplicationVersion } from "ee/actions/applicationActions";
+
 import {
   changeInfoSinceLastCommit,
   getIsStartingWithRemoteBranches,
@@ -6,7 +8,6 @@ import {
   isValidGitRemoteUrl,
   removeSpecialChars,
 } from "./utils";
-import { ApplicationVersion } from "ee/actions/applicationActions";
 
 const validUrls = [
   "git@github.com:user/project.git",

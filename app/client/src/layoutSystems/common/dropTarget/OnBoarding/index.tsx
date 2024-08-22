@@ -1,5 +1,6 @@
-import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
 import React from "react";
+
+import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
 
 function Onboarding() {
   return (

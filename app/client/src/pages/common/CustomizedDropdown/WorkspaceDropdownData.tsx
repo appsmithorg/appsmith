@@ -1,10 +1,12 @@
 import React from "react";
-import Badge from "./Badge";
-import { Directions } from "utils/helpers";
-import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
-import type { CustomizedDropdownProps } from "./index";
+
 import type { User } from "constants/userConstants";
 import _ from "lodash";
+import { Directions } from "utils/helpers";
+
+import Badge from "./Badge";
+import { DropdownOnSelectActions, getOnSelectAction } from "./dropdownHelpers";
+import type { CustomizedDropdownProps } from "./index";
 
 export const options = (
   user: User,

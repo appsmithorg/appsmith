@@ -1,9 +1,3 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
@@ -15,7 +9,12 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { toast } from "@appsmith/ads";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
@@ -44,6 +43,8 @@ import {
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import { toast } from "@appsmith/ads";
 
 export interface WidgetMoveParams {
   widgetId: string;

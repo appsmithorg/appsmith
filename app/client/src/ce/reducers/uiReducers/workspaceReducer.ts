@@ -1,10 +1,10 @@
-import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { WorkspaceRole, Workspace } from "ee/constants/workspaceConstants";
+import type { Workspace, WorkspaceRole } from "ee/constants/workspaceConstants";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export interface WorkspaceReduxState {
   list: Workspace[];

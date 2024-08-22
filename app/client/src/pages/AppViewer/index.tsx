@@ -1,57 +1,60 @@
 import React, { useEffect } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { useDispatch } from "react-redux";
-import type { RouteComponentProps } from "react-router";
-import { withRouter } from "react-router";
-import type { AppState } from "ee/reducers";
+
+import * as Sentry from "@sentry/react";
+import { setAppViewHeaderHeight } from "actions/appViewActions";
+import { initAppViewerAction } from "actions/initActions";
+import { setupPublishedPage } from "actions/pageActions";
+import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import type {
   AppViewerRouteParams,
   BuilderRouteParams,
 } from "constants/routes";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
+import type { AppState } from "ee/reducers";
 import {
-  getIsInitialized,
+  getAppThemeSettings,
+  getCurrentApplication,
+} from "ee/selectors/applicationSelectors";
+import { getHideWatermark } from "ee/selectors/tenantSelectors";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import {
   getAppViewHeaderHeight,
+  getIsInitialized,
 } from "selectors/appViewSelectors";
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
-import AppViewerPageContainer from "./AppViewerPageContainer";
-import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
   getIsAutoLayout,
   getPageList,
 } from "selectors/editorSelectors";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { ThemeMode, getThemeDetails } from "selectors/themeSelectors";
+import styled, { ThemeProvider } from "styled-components";
 import { getSearchQuery } from "utils/helpers";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { useSelector } from "react-redux";
-import BrandingBadge from "./BrandingBadge";
-import { setAppViewHeaderHeight } from "actions/appViewActions";
-import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { setupPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
-import { getIsBranchUpdated } from "../utils";
-import { APP_MODE } from "entities/App";
-import { initAppViewerAction } from "actions/initActions";
-import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
-import HtmlTitle from "./AppViewerHtmlTitle";
-import type { ApplicationPayload } from "entities/Application";
-import {
-  getAppThemeSettings,
-  getCurrentApplication,
-} from "ee/selectors/applicationSelectors";
-import { editorInitializer } from "../../utils/editor/EditorUtils";
-import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+
 import type { FontFamily } from "@appsmith/wds-theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@appsmith/wds-theming";
-import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { getHideWatermark } from "ee/selectors/tenantSelectors";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+
+import { widgetInitialisationSuccess } from "../../actions/widgetActions";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
+import { getIsBranchUpdated } from "../utils";
+import HtmlTitle from "./AppViewerHtmlTitle";
+import AppViewerPageContainer from "./AppViewerPageContainer";
+import BrandingBadge from "./BrandingBadge";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;

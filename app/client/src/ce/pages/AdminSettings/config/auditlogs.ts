@@ -4,6 +4,7 @@ import {
   SettingCategories,
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
+
 import { AuditLogsUpgradePage } from "../../Upgrade/AuditLogsUpgradePage";
 
 export const config: AdminConfigType = {

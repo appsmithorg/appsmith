@@ -1,9 +1,10 @@
 import React from "react";
-import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import { BarType } from "../constants";
 import { isNaN } from "lodash";
+import styled from "styled-components";
+
+import { BarType } from "../constants";
 
 const ProgressBarWrapper = styled.div`
   display: flex;

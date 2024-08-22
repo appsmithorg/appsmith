@@ -1,7 +1,8 @@
 import React from "react";
-import styles from "./styles.module.css";
+
 import clsx from "clsx";
 
+import styles from "./styles.module.css";
 import type { ModalContentProps } from "./types";
 
 export const ModalContent = (props: ModalContentProps) => {

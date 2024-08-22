@@ -1,31 +1,33 @@
-import type { ButtonBorderRadius } from "components/constants";
-import Skeleton from "components/utils/Skeleton";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import React, { lazy, Suspense } from "react";
-import type ReactPlayer from "react-player";
-import { retryPromise } from "utils/AppsmithUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
+import React, { Suspense, lazy } from "react";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type { ButtonBorderRadius } from "components/constants";
+import Skeleton from "components/utils/Skeleton";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import type ReactPlayer from "react-player";
+import { retryPromise } from "utils/AppsmithUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const VideoComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

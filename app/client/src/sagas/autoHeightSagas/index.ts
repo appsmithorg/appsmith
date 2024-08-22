@@ -1,5 +1,6 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   all,
   call,
@@ -8,6 +9,8 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+
 import {
   batchCallsToUpdateWidgetAutoHeightSaga,
   callEvalWithoutReplay,
@@ -15,8 +18,6 @@ import {
 import { dynamicallyUpdateContainersSaga } from "./containers";
 import { generateTreeForAutoHeightComputations } from "./layoutTree";
 import { updateWidgetAutoHeightSaga } from "./widgets";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 // Auto height actions must be computed only in FIXED layout
 // We can avoid these types of checks once we change the architecture of layout specific sagas.

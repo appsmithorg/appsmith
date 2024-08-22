@@ -1,32 +1,35 @@
 import type { ReactNode, RefObject } from "react";
 import React, {
-  useEffect,
-  useRef,
   forwardRef,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
 } from "react";
-import styled, { css } from "styled-components";
-import { Colors } from "constants/Colors";
-import CollapseToggle from "./CollapseToggle";
-import EntityName from "./Name";
-import AddButton from "./AddButton";
-import Collapse from "./Collapse";
-import {
-  useEntityUpdateState,
-  useEntityEditState,
-} from "ee/pages/Editor/Explorer/hooks";
+
 import { Classes } from "@blueprintjs/core";
+import { setEntityCollapsibleState } from "actions/editorContextActions";
+import classNames from "classnames";
+import { Colors } from "constants/Colors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { EXPLORER_BETA_ENTITY, createMessage } from "ee/constants/messages";
+import {
+  useEntityEditState,
+  useEntityUpdateState,
+} from "ee/pages/Editor/Explorer/hooks";
+import type { AppState } from "ee/reducers";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
-import useClick from "utils/hooks/useClick";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
-import type { AppState } from "ee/reducers";
-import { setEntityCollapsibleState } from "actions/editorContextActions";
-import { Tooltip, Tag, Spinner } from "@appsmith/ads";
-import { createMessage, EXPLORER_BETA_ENTITY } from "ee/constants/messages";
-import classNames from "classnames";
+import styled, { css } from "styled-components";
+import useClick from "utils/hooks/useClick";
+
+import { Spinner, Tag, Tooltip } from "@appsmith/ads";
+
+import AddButton from "./AddButton";
+import Collapse from "./Collapse";
+import CollapseToggle from "./CollapseToggle";
+import EntityName from "./Name";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",

@@ -1,56 +1,56 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { InputComponentProps } from "../component";
-import InputComponent from "../component";
+
+import { ICON_NAMES } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
-  createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
+  createMessage,
 } from "ee/constants/messages";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { ICON_NAMES } from "WidgetProvider/constants";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import BaseInputWidget from "widgets/BaseInputWidget";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { isNil, isNumber, merge, toString } from "lodash";
-import derivedProperties from "./parsedDerivedProperties";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { mergeWidgetConfig } from "utils/helpers";
+import BaseInputWidget from "widgets/BaseInputWidget";
 import {
   InputTypes,
   NumberInputStepButtonPosition,
 } from "widgets/BaseInputWidget/constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import {
-  isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
-import { LabelPosition } from "components/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { DynamicHeight } from "utils/WidgetFeatures";
 
+import type { InputComponentProps } from "../component";
+import InputComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
+import derivedProperties from "./parsedDerivedProperties";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited

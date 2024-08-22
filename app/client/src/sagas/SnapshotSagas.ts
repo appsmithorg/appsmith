@@ -6,17 +6,18 @@ import type { ApiResponse } from "api/ApiResponses";
 import ApplicationApi from "ee/api/ApplicationApi";
 import type { PageDefaultMeta } from "ee/api/ApplicationApi";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import log from "loglevel";
 import type { SnapshotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getLogToSentryFromResponse } from "utils/helpers";
-import { validateResponse } from "./ErrorSagas";
-import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getLogToSentryFromResponse } from "utils/helpers";
+
+import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
+import { validateResponse } from "./ErrorSagas";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {

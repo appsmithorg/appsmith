@@ -1,8 +1,10 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import AutoHeightLimitHandleLabel from "./AutoHeightLimitHandleLabel";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
+
+import AutoHeightLimitHandleLabel from "./AutoHeightLimitHandleLabel";
 
 describe("<AutoHeightLimitHandleLabel />", () => {
   it("should have display none when isActive is false", () => {

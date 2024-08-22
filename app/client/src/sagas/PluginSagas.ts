@@ -1,13 +1,25 @@
-import { all, takeEvery, call, put, select } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
+  fetchPluginFormConfigError,
+  fetchPluginFormConfigSuccess,
+  fetchPluginFormConfigsSuccess,
+} from "actions/pluginActions";
+import type { ApiResponse } from "api/ApiResponses";
 import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import PluginsApi from "api/PluginApi";
-import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import type { Plugin } from "api/PluginApi";
+import PluginApi from "api/PluginApi";
+import {
+  defaultActionDependenciesConfig,
+  defaultActionEditorConfigs,
+  defaultActionSettings,
+  defaultDatasourceFormButtonConfig,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import {
   getActions,
   getDatasources,
@@ -15,34 +27,23 @@ import {
   getPluginForm,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import type { Datasource } from "entities/Datasource";
-import type { Plugin } from "api/PluginApi";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import {
-  fetchPluginFormConfigsSuccess,
-  fetchPluginFormConfigSuccess,
-  fetchPluginFormConfigError,
-} from "actions/pluginActions";
-import {
-  defaultActionDependenciesConfig,
-  defaultActionEditorConfigs,
-  defaultActionSettings,
-  defaultDatasourceFormButtonConfig,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import type { ApiResponse } from "api/ApiResponses";
-import PluginApi from "api/PluginApi";
-import log from "loglevel";
-import {
+  PluginType,
   getAppsmithAIPlugin,
   getGraphQLPlugin,
-  PluginType,
 } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import log from "loglevel";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
 import type {
+  FormDatasourceButtonConfigs,
+  FormDependencyConfigs,
   FormEditorConfigs,
   FormSettingsConfigs,
-  FormDependencyConfigs,
-  FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
-import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchPluginsSaga(

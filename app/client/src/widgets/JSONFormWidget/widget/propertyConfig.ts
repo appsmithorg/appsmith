@@ -1,23 +1,24 @@
 import { Alignment } from "@blueprintjs/core";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
+import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
+import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { createMessage } from "ee/constants/messages";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+
 import type { JSONFormWidgetProps } from ".";
 import { FieldType, ROOT_SCHEMA_KEY } from "../constants";
-import { ComputedSchemaStatus, computeSchema } from "./helper";
-import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   JSON_FORM_CONNECT_BUTTON_TEXT,
   SUCCESSFULL_BINDING_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "ee/constants/messages";
-import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
-import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
+import { ComputedSchemaStatus, computeSchema } from "./helper";
+import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 
 const MAX_NESTING_LEVEL = 5;
 

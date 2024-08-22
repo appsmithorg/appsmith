@@ -1,46 +1,48 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
+import { Card } from "@blueprintjs/core";
+import { APPLICATIONS_URL } from "constants/routes";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import {
-  getAllRoles,
-  getWorkspaceLoadingStates,
-  getFetchedWorkspaces,
-} from "ee/selectors/workspaceSelectors";
-import type { RouteComponentProps } from "react-router";
-import { useHistory } from "react-router";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { HighlightText, Table } from "@appsmith/ads-old";
-import {
-  fetchUsersForWorkspace,
-  fetchRolesForWorkspace,
-  fetchWorkspace,
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
+  fetchRolesForWorkspace,
+  fetchUsersForWorkspace,
+  fetchWorkspace,
 } from "ee/actions/workspaceActions";
-import type { SelectOptionProps } from "@appsmith/ads";
-import { Avatar, Button, Option, Select, Text } from "@appsmith/ads";
-import styled from "styled-components";
-import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
-import { useMediaQuery } from "react-responsive";
-import { Card } from "@blueprintjs/core";
-import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import type { WorkspaceUser } from "ee/constants/workspaceConstants";
 import {
-  createMessage,
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
+  createMessage,
 } from "ee/constants/messages";
-import { APPLICATIONS_URL } from "constants/routes";
-import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
-import { getInitials } from "utils/AppsmithUtils";
+import type { WorkspaceUser } from "ee/constants/workspaceConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { CustomRolesRamp } from "ee/pages/workspace/InviteUsersForm";
 import { showProductRamps } from "ee/selectors/rampSelectors";
-import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getAllUsersOfWorkspace,
   selectedWorkspaceLoadingStates,
 } from "ee/selectors/selectedWorkspaceSelectors";
+import {
+  getAllRoles,
+  getFetchedWorkspaces,
+  getWorkspaceLoadingStates,
+} from "ee/selectors/workspaceSelectors";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
+import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
+import { useDispatch, useSelector } from "react-redux";
+import { useMediaQuery } from "react-responsive";
+import type { RouteComponentProps } from "react-router";
+import { useHistory } from "react-router";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+import { getInitials } from "utils/AppsmithUtils";
+import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Avatar, Button, Option, Select, Text } from "@appsmith/ads";
+import { HighlightText, Table } from "@appsmith/ads-old";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;

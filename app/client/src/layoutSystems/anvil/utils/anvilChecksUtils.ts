@@ -1,14 +1,15 @@
-import { call, put, select } from "redux-saga/effects";
-import { updateAndSaveLayout } from "actions/pageActions";
-import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { updateAndSaveLayout } from "actions/pageActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { anvilWidgets } from "widgets/anvil/constants";
 import {
   updateSectionWithDefaultSpaceDistribution,
   updateSectionsDistributedSpace,
 } from "layoutSystems/anvil/sectionSpaceDistributor/utils/spaceRedistributionSagaUtils";
+import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call, put, select } from "redux-saga/effects";
+import { anvilWidgets } from "widgets/anvil/constants";
+
 import { getIsAnvilLayout } from "../integrations/selectors";
 
 export function* updateAndSaveAnvilLayout(

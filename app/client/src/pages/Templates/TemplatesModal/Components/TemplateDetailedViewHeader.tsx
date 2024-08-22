@@ -1,6 +1,8 @@
-import { TEMPLATES_BACK_BUTTON, createMessage } from "ee/constants/messages";
-import { Link, Text } from "@appsmith/ads";
 import React from "react";
+
+import { TEMPLATES_BACK_BUTTON, createMessage } from "ee/constants/messages";
+
+import { Link, Text } from "@appsmith/ads";
 
 interface Props {
   onBackPress: () => void;

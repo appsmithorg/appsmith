@@ -1,19 +1,20 @@
 import React from "react";
+
 import { Checkbox, Classes } from "@blueprintjs/core";
-import styled, { css, keyframes, createGlobalStyle } from "styled-components";
-import { Colors } from "constants/Colors";
 import {
-  LabelPosition,
-  LABEL_MARGIN_OLD_SELECT,
-  SELECT_DEFAULT_HEIGHT,
-} from "components/constants";
-import {
-  labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
   multiSelectInputContainerStyles,
 } from "@design-system/widgets-old";
-import { lightenColor } from "widgets/WidgetUtils";
 import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
+import {
+  LABEL_MARGIN_OLD_SELECT,
+  LabelPosition,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
+import { Colors } from "constants/Colors";
+import styled, { createGlobalStyle, css, keyframes } from "styled-components";
+import { lightenColor } from "widgets/WidgetUtils";
 
 const Input = styled.input`
   height: 0;

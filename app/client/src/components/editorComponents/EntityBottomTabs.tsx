@@ -1,10 +1,13 @@
 import React from "react";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
-import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
-import styled from "styled-components";
-import { LIST_HEADER_HEIGHT, FOOTER_MARGIN } from "./Debugger/DebuggerLogs";
 import type { RefObject } from "react";
+
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import styled from "styled-components";
+
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
+
+import { FOOTER_MARGIN, LIST_HEADER_HEIGHT } from "./Debugger/DebuggerLogs";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 
 const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;

@@ -1,15 +1,18 @@
 import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
-import FormControl from "pages/Editor/FormControl";
-import { Classes } from "@appsmith/ads-old";
-import styled from "styled-components";
-import { FieldArray, getFormValues } from "redux-form";
-import type { ControlProps } from "./BaseControl";
+
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
-import { SortingSubComponent } from "./utils";
 import { get, isArray } from "lodash";
+import FormControl from "pages/Editor/FormControl";
+import { useSelector } from "react-redux";
+import { FieldArray, getFormValues } from "redux-form";
+import styled from "styled-components";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
+
 import { Button } from "@appsmith/ads";
+import { Classes } from "@appsmith/ads-old";
+
+import type { ControlProps } from "./BaseControl";
+import { SortingSubComponent } from "./utils";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {

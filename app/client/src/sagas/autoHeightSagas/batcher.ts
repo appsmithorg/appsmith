@@ -1,7 +1,7 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UpdateWidgetAutoHeightPayload } from "actions/autoHeightActions";
 import { updateAndSaveLayout } from "actions/pageActions";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";

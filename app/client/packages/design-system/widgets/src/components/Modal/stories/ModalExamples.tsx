@@ -1,15 +1,17 @@
 import React, { useRef, useState } from "react";
+
+// Since the Modal is rendered at the root of the Provider, we need to add Unstyled as a wrapper
+// so that Storybook does not break styles.
+import { Unstyled } from "@storybook/blocks";
+
 import {
-  ToolbarButtons,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
+  ToolbarButtons,
 } from "@appsmith/wds";
-// Since the Modal is rendered at the root of the Provider, we need to add Unstyled as a wrapper
-// so that Storybook does not break styles.
-import { Unstyled } from "@storybook/blocks";
 
 const fakeSubmit = async () => {
   return new Promise<void>((resolve) =>

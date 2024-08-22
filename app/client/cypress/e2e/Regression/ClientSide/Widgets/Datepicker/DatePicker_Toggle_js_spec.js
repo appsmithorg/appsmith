@@ -1,6 +1,7 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "DatePicker",

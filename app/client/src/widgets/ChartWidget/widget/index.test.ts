@@ -1,9 +1,10 @@
+import { RenderModes } from "constants/WidgetConstants";
+
 import { emptyChartData } from ".";
 import ChartWidget from ".";
-import { LabelOrientation } from "../constants";
 import type { ChartWidgetProps } from ".";
+import { LabelOrientation } from "../constants";
 import type { ChartData } from "../constants";
-import { RenderModes } from "constants/WidgetConstants";
 
 describe("emptyChartData", () => {
   const seriesData1: ChartData = {

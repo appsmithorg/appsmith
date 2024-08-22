@@ -1,7 +1,9 @@
 import React from "react";
-import { Select, Option } from "@appsmith/ads";
+
 import type { AppTheme } from "entities/AppTheming";
 import styled from "styled-components";
+
+import { Option, Select } from "@appsmith/ads";
 
 interface ThemeFontControlProps {
   theme: AppTheme;

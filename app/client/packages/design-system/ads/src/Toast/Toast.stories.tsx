@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { Toast, toast } from "./Toast";
 import type { ToastProps } from "./Toast.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Toast",

@@ -1,9 +1,12 @@
-import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { isEmail } from "utils/formhelpers";
 import type { Dispatch } from "react";
+
+import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { isNil, omitBy } from "lodash";
+import {
+  ADMIN_SETTINGS_EMAIL_WARNING,
+  createMessage,
+} from "ee/constants/messages";
 import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
 import {
   CategoryType,
@@ -11,10 +14,8 @@ import {
   SettingSubtype,
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
-import {
-  ADMIN_SETTINGS_EMAIL_WARNING,
-  createMessage,
-} from "ee/constants/messages";
+import { isNil, omitBy } from "lodash";
+import { isEmail } from "utils/formhelpers";
 
 export const config: AdminConfigType = {
   icon: "mail-line",

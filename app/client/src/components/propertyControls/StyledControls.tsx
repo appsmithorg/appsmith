@@ -1,8 +1,10 @@
 import * as React from "react";
-import styled from "styled-components";
+
 import type { ContainerOrientation } from "constants/WidgetConstants";
-import { Input, Icon } from "@appsmith/ads";
+import styled from "styled-components";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+
+import { Icon, Input } from "@appsmith/ads";
 
 interface ControlWrapperProps {
   orientation?: ContainerOrientation;

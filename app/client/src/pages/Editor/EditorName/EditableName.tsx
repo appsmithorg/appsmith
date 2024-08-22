@@ -1,7 +1,7 @@
 import React from "react";
 
-import styled from "styled-components";
 import type { noop } from "lodash";
+import styled from "styled-components";
 
 import type {
   CommonComponentProps,

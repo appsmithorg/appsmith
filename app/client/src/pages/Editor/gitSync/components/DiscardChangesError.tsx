@@ -1,6 +1,8 @@
 import React from "react";
+
 import type { GitErrorType } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
+
 import { Callout } from "@appsmith/ads";
 import type { CalloutProps } from "@appsmith/ads";
 

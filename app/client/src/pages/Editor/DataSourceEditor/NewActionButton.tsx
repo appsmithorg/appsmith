@@ -1,30 +1,32 @@
 import React, { useCallback, useState } from "react";
+
+import { createNewQueryAction } from "actions/apiPaneActions";
+import {
+  ERROR_ADD_API_INVALID_URL,
+  NEW_AI_BUTTON_TEXT,
+  NEW_API_BUTTON_TEXT,
+  NEW_QUERY_BUTTON_TEXT,
+  createMessage,
+} from "ee/constants/messages";
+import { getSelectedTableName } from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import { PluginType } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
+
 import {
   Button,
   Menu,
   MenuContent,
   MenuItem,
-  MenuTrigger,
-  toast,
-  Text,
   MenuSeparator,
+  MenuTrigger,
   Tag,
+  Text,
+  toast,
 } from "@appsmith/ads";
-import {
-  createMessage,
-  ERROR_ADD_API_INVALID_URL,
-  NEW_AI_BUTTON_TEXT,
-  NEW_API_BUTTON_TEXT,
-  NEW_QUERY_BUTTON_TEXT,
-} from "ee/constants/messages";
-import { createNewQueryAction } from "actions/apiPaneActions";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
-import type { Datasource } from "entities/Datasource";
-import type { EventLocation } from "ee/utils/analyticsUtilTypes";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { getSelectedTableName } from "ee/selectors/entitiesSelector";
 
 interface NewActionButtonProps {
   datasource?: Datasource;

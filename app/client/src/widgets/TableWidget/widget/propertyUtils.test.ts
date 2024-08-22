@@ -1,8 +1,9 @@
+import _ from "lodash";
+
 import {
   defaultSelectedRowValidation,
   updateIconNameHook,
 } from "./propertyUtils";
-import _ from "lodash";
 
 const tableWProps = {
   multiRowSelection: false,

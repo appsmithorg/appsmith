@@ -1,19 +1,22 @@
-import {
-  UI_ELEMENT_PANEL_SEARCH_TEXT,
-  WIDGET_PANEL_EMPTY_MESSAGE,
-  createMessage,
-} from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { Flex, SearchInput, Text } from "@appsmith/ads";
+import {
+  UI_ELEMENT_PANEL_SEARCH_TEXT,
+  WIDGET_PANEL_EMPTY_MESSAGE,
+  createMessage,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import { Flex, SearchInput, Text } from "@appsmith/ads";
+
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";

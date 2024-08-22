@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+
+import { debounce } from "lodash";
 import styled from "styled-components";
-import { ControlWrapper, InputGroup } from "./StyledControls";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import { generateReactKey } from "utils/generators";
+
 import type { SegmentedControlOption } from "@appsmith/ads";
 import { Button } from "@appsmith/ads";
-import { generateReactKey } from "utils/generators";
-import { debounce } from "lodash";
-import { getNextEntityName } from "utils/AppsmithUtils";
+
+import { ControlWrapper, InputGroup } from "./StyledControls";
 
 function updateOptionLabel<T>(
   options: Array<T>,

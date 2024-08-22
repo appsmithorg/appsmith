@@ -1,6 +1,7 @@
-import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import { CurrencyTypeOptions } from "constants/Currency";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
 import { isNil } from "lodash";
+
 import type { CurrencyInputWidgetProps } from "./types";
 
 export function getCountryCodeFromCurrencyCode(

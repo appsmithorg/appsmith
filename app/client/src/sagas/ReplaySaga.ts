@@ -1,3 +1,54 @@
+import * as Sentry from "@sentry/react";
+import {
+  setAppThemingModeStackAction,
+  updateSelectedAppThemeAction,
+} from "actions/appThemingActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { startFormEvaluations } from "actions/evaluationActions";
+import { updateJSCollectionBody } from "actions/jsPaneActions";
+import { setActionProperty, updateAction } from "actions/pluginActionActions";
+import { closePropertyPane } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { Plugin } from "api/PluginApi";
+import { UIComponentTypes } from "api/PluginApi";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  API_EDITOR_FORM_NAME,
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+  QUERY_EDITOR_FORM_NAME,
+} from "ee/constants/forms";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import {
+  getDatasource,
+  getEditorConfig,
+  getPluginForm,
+  getPlugins,
+  getSettingConfig,
+} from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Action } from "entities/Action";
+import {
+  isAIAction,
+  isAPIAction,
+  isQueryAction,
+  isSaaSAction,
+} from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import type { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
+import type { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
+import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
+import { REPLAY_FOCUS_DELAY, findFieldInfo } from "entities/Replay/replayUtils";
+import { createBrowserHistory } from "history";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import _, { isEmpty } from "lodash";
+import log from "loglevel";
+import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
+import { initialize } from "redux-form";
 import {
   all,
   call,
@@ -7,18 +58,16 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-
-import * as Sentry from "@sentry/react";
-import log from "loglevel";
-
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { AppThemingMode } from "selectors/appThemingSelectors";
+import {
+  getCurrentApplicationId,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
-import { closePropertyPane } from "actions/widgetActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
   expandAccordion,
@@ -27,62 +76,12 @@ import {
   scrollWidgetIntoView,
   switchTab,
 } from "utils/replayHelpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  getCurrentApplicationId,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
-import { findFieldInfo, REPLAY_FOCUS_DELAY } from "entities/Replay/replayUtils";
-import { setActionProperty, updateAction } from "actions/pluginActionActions";
-import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
-import { updateJSCollectionBody } from "actions/jsPaneActions";
+
 import {
   updateReplayEntitySaga,
   workerComputeUndoRedo,
 } from "./EvaluationsSaga";
-import { createBrowserHistory } from "history";
-import {
-  getDatasource,
-  getEditorConfig,
-  getPluginForm,
-  getPlugins,
-  getSettingConfig,
-} from "ee/selectors/entitiesSelector";
-import type { Action } from "entities/Action";
-import {
-  isAIAction,
-  isAPIAction,
-  isQueryAction,
-  isSaaSAction,
-} from "entities/Action";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import _, { isEmpty } from "lodash";
-import type { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { Datasource } from "entities/Datasource";
-import { initialize } from "redux-form";
-import {
-  API_EDITOR_FORM_NAME,
-  DATASOURCE_DB_FORM,
-  DATASOURCE_REST_API_FORM,
-  QUERY_EDITOR_FORM_NAME,
-} from "ee/constants/forms";
-import type { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
-import {
-  setAppThemingModeStackAction,
-  updateSelectedAppThemeAction,
-} from "actions/appThemingActions";
-import { AppThemingMode } from "selectors/appThemingSelectors";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { startFormEvaluations } from "actions/evaluationActions";
-import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
-import type { Plugin } from "api/PluginApi";
-import { UIComponentTypes } from "api/PluginApi";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
+import { getEntityInCurrentPath } from "./RecentEntitiesSagas";
 
 export interface UndoRedoPayload {
   operation: ReplayOperation;

@@ -1,11 +1,12 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   deployMode,
   locators,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Table Widget property pane feature validation",

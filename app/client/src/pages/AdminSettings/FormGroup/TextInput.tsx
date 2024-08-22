@@ -1,6 +1,8 @@
+import React from "react";
+
 import FormTextField from "components/utils/ReduxFormTextField";
 import { createMessage } from "ee/constants/messages";
-import React from "react";
+
 import { FormGroup, type SettingComponentProps } from "./Common";
 
 export default function TextInput({ setting }: SettingComponentProps) {

@@ -1,12 +1,15 @@
-import type { SelectorViewProps } from "../../types";
+import React from "react";
+
+import { PopoverPosition } from "@blueprintjs/core";
 import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
+
 import type { Setter } from "@appsmith/ads-old";
 import { TreeDropdown } from "@appsmith/ads-old";
-import { PopoverPosition } from "@blueprintjs/core";
-import React from "react";
+
+import type { SelectorViewProps } from "../../types";
 
 export function SelectorView(props: SelectorViewProps) {
   return (

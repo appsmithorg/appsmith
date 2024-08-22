@@ -1,13 +1,14 @@
 import React, { useCallback } from "react";
-import { Button, Flex, Text } from "@appsmith/ads";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
 
-import history from "utils/history";
-import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import { widgetListURL } from "ee/RouteBuilder";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
+import { useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import styled from "styled-components";
+import history from "utils/history";
+
+import { Button, Flex, Text } from "@appsmith/ads";
 
 const Container = styled(Flex)`
   padding-right: var(--ads-v2-spaces-2);

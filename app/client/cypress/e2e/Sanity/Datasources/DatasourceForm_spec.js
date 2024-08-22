@@ -1,16 +1,16 @@
 import {
+  agHelper,
+  apiPage,
+  dataSources,
+  entityExplorer,
+  locators,
+} from "../../../support/Objects/ObjectsCore";
+import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../fixtures/testdata.json");
-import {
-  agHelper,
-  entityExplorer,
-  apiPage,
-  locators,
-  dataSources,
-} from "../../../support/Objects/ObjectsCore";
 
 describe(
   "Datasource form related tests",

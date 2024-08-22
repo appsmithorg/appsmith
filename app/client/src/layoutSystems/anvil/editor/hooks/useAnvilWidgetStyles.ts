@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from "react";
-import { isWidgetSelected } from "selectors/widgetSelectors";
-import { useSelector } from "react-redux";
-import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
+
 import type { AppState } from "ee/reducers";
+import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
+import { useSelector } from "react-redux";
 import { getIsNewWidgetBeingDragged } from "sagas/selectors";
+import { isWidgetSelected } from "selectors/widgetSelectors";
 import { AnvilDataAttributes } from "widgets/anvil/constants";
 
 export const useAnvilWidgetStyles = (

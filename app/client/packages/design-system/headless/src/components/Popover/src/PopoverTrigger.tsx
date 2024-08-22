@@ -1,9 +1,10 @@
-import { isValidElement, forwardRef, cloneElement } from "react";
-import { useMergeRefs } from "@floating-ui/react";
-import { usePopoverContext } from "./PopoverContext";
-
-import type { ButtonProps } from "react-aria-components";
+import { cloneElement, forwardRef, isValidElement } from "react";
 import type { AriaAttributes, Ref } from "react";
+
+import { useMergeRefs } from "@floating-ui/react";
+import type { ButtonProps } from "react-aria-components";
+
+import { usePopoverContext } from "./PopoverContext";
 import type { PopoverTriggerProps } from "./types";
 
 const _PopoverTrigger = (

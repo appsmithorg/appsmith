@@ -1,13 +1,15 @@
-import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
-import { EditorEntityTab, EditorState } from "ee/entities/IDE/constants";
+import React from "react";
+
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
+import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
+import { EditorEntityTab, EditorState } from "ee/entities/IDE/constants";
 import "jest-styled-components";
-import React from "react";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
+
 import Onboarding from ".";
 import { unitTestBaseMockStore } from "../unitTestUtils";
 

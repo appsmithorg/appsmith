@@ -1,11 +1,11 @@
 import {
-  HTTP_PROTOCOL_INPUT_PLACEHOLDER,
-  createMessage,
-} from "ee/constants/messages";
-import {
   HTTP_PROTOCOL,
   HTTP_PROTOCOL_VERSIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
+import {
+  HTTP_PROTOCOL_INPUT_PLACEHOLDER,
+  createMessage,
+} from "ee/constants/messages";
 
 export default [
   {

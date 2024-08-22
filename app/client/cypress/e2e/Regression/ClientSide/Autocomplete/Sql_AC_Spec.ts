@@ -1,7 +1,7 @@
 import {
   agHelper,
-  locators,
   dataSources,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;

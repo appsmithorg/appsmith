@@ -1,9 +1,11 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+
 import "@testing-library/jest-dom";
-import WidgetsExport from "./WidgetsExport";
-import { ThemeProvider } from "styled-components";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+
+import WidgetsExport from "./WidgetsExport";
 import {
   getAllWidgetIds,
   mockTblUserInfoWidgetId,

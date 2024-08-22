@@ -1,10 +1,10 @@
+import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import { getEntityPeekData } from "ee/utils/FilterInternalProperties/getEntityPeekData";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export const filterInternalProperties = (
   objectName: string,

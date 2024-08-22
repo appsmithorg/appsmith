@@ -1,6 +1,7 @@
-import { COLORS } from "@appsmith/wds";
 import { ValidationTypes } from "constants/WidgetValidation";
 import capitalize from "lodash/capitalize";
+
+import { COLORS } from "@appsmith/wds";
 
 export const propertyPaneContentConfig = [
   {

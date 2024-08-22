@@ -1,27 +1,13 @@
+import type React from "react";
+import { useEffect, useMemo, useRef } from "react";
+
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { debounce, isEmpty, throttle } from "lodash";
-import type React from "react";
-import { useEffect, useMemo, useRef } from "react";
-import type {
-  MovementLimitMap,
-  ReflowedSpaceMap,
-  SpaceMap,
-} from "reflow/reflowTypes";
-import { ReflowDirection } from "reflow/reflowTypes";
-import { getNearestParentCanvas } from "utils/generators";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import type { ReflowInterface } from "utils/hooks/useReflow";
-import { useReflow } from "utils/hooks/useReflow";
-import {
-  getDraggingSpacesFromBlocks,
-  getMousePositionsOnCanvas,
-  noCollision,
-} from "utils/WidgetPropsUtils";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import {
   getEdgeDirection,
   getMoveDirection,
@@ -30,13 +16,29 @@ import {
   modifyDrawingRectangles,
   updateRectanglesPostReflow,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
+import { debounce, isEmpty, throttle } from "lodash";
+import { useSelector } from "react-redux";
+import type {
+  MovementLimitMap,
+  ReflowedSpaceMap,
+  SpaceMap,
+} from "reflow/reflowTypes";
+import { ReflowDirection } from "reflow/reflowTypes";
+import { getDragDetails } from "sagas/selectors";
+import {
+  getDraggingSpacesFromBlocks,
+  getMousePositionsOnCanvas,
+  noCollision,
+} from "utils/WidgetPropsUtils";
+import { getNearestParentCanvas } from "utils/generators";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import type { ReflowInterface } from "utils/hooks/useReflow";
+import { useReflow } from "utils/hooks/useReflow";
+
 import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
+import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
-import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
-import { useSelector } from "react-redux";
-import { getDragDetails } from "sagas/selectors";
 
 /**
  * useCanvasDragging hook is utilized to handle all drag and drop related functions that are required to give user the sense of dragging and dropping while moving a widget on canvas

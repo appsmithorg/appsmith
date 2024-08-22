@@ -1,7 +1,7 @@
 import type {
-  TabsContentProps,
   TabsListProps as RadixTabsListProps,
   TabsProps as RadixTabsProps,
+  TabsContentProps,
   TabsTriggerProps,
 } from "@radix-ui/react-tabs";
 

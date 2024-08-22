@@ -1,6 +1,8 @@
 import React from "react";
+
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import Skeleton from "widgets/Skeleton";
+
 import { AnvilErrorBoundary } from "./AnvilErrorBoundary";
 
 export const AnvilWidgetComponent = (props: BaseWidgetProps) => {

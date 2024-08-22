@@ -1,5 +1,5 @@
-import { createImmerReducer } from "utils/ReducerUtils";
-import type { ApplicationPayload } from "entities/Application";
+import type { UpdateApplicationRequest } from "ee/api/ApplicationApi";
+import type { Package } from "ee/constants/PackageConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -10,8 +10,8 @@ import type {
   WorkspaceUser,
   WorkspaceUserRoles,
 } from "ee/constants/workspaceConstants";
-import type { Package } from "ee/constants/PackageConstants";
-import type { UpdateApplicationRequest } from "ee/api/ApplicationApi";
+import type { ApplicationPayload } from "entities/Application";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export interface SelectedWorkspaceReduxState {
   workspace: Workspace;

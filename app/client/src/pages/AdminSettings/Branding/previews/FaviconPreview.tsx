@@ -1,8 +1,11 @@
 import React from "react";
-import PreviewBox from "./PreviewBox";
-import { Icon, Text } from "@appsmith/ads";
-import type { PreviewsProps } from ".";
+
 import { ContentBox } from "pages/AdminSettings/components";
+
+import { Icon, Text } from "@appsmith/ads";
+
+import type { PreviewsProps } from ".";
+import PreviewBox from "./PreviewBox";
 
 const FaviconPreview = (props: PreviewsProps) => {
   const { favicon, shades } = props;

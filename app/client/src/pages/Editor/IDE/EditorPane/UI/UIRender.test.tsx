@@ -1,17 +1,18 @@
 import React from "react";
-import { Route } from "react-router-dom";
-import { render } from "test/testUtils";
-import IDE from "pages/Editor/IDE/index";
+
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import IDE from "pages/Editor/IDE/index";
+import { Route } from "react-router-dom";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
-import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
-import { UpdatedEditor } from "test/testMockedWidgets";
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { UpdatedEditor } from "test/testMockedWidgets";
+import { render } from "test/testUtils";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,

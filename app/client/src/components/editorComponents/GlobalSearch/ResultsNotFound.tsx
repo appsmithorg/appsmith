@@ -1,12 +1,14 @@
 import React from "react";
-import styled from "styled-components";
+
 import NoSearchDataImage from "assets/images/no_search_data.png";
+import { DISCORD_URL } from "constants/ThirdPartyConstants";
 import { NO_SEARCH_DATA_TEXT } from "ee/constants/messages";
-import { getTypographyByKey } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+import styled from "styled-components";
+
+import { getTypographyByKey } from "@appsmith/ads-old";
 import { importSvg } from "@appsmith/ads-old";
-import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
 const DiscordIcon = importSvg(
   async () => import("assets/icons/help/discord.svg"),

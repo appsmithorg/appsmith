@@ -1,11 +1,12 @@
-import styled, { css } from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
+import { thinScrollbar } from "constants/DefaultTheme";
+import styled, { css } from "styled-components";
+
 import {
   JS_OBJECT_HOTKEYS_CLASSNAME,
   RUN_GUTTER_CLASSNAME,
   RUN_GUTTER_ID,
 } from "./constants";
-import { thinScrollbar } from "constants/DefaultTheme";
 
 export const CodeEditorWithGutterStyles = css`
   .${RUN_GUTTER_ID} {

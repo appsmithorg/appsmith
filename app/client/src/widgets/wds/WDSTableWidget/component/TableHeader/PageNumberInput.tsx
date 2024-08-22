@@ -1,7 +1,9 @@
-import { Keys } from "@blueprintjs/core";
-import { TextInput } from "@appsmith/wds";
 import React, { useCallback, useEffect, useState } from "react";
+
+import { Keys } from "@blueprintjs/core";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+
+import { TextInput } from "@appsmith/wds";
 
 const MIN_PAGE_COUNT = 1;
 

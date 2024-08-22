@@ -1,10 +1,11 @@
-import * as echarts from "echarts";
-import countryDetails from "./countryDetails";
-import { MapTypes } from "../constants";
-import { geoAlbers, geoAzimuthalEqualArea, geoMercator } from "d3-geo";
-import log from "loglevel";
 import * as Sentry from "@sentry/react";
+import { geoAlbers, geoAzimuthalEqualArea, geoMercator } from "d3-geo";
+import * as echarts from "echarts";
+import log from "loglevel";
 import { retryPromise } from "utils/AppsmithUtils";
+
+import { MapTypes } from "../constants";
+import countryDetails from "./countryDetails";
 
 interface GeoSpecialAreas {
   [areaName: string]: {

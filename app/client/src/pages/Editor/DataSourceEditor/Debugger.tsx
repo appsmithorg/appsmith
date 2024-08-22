@@ -1,29 +1,31 @@
 import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
-import {
-  createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
-  INSPECT_ENTITY,
-} from "ee/constants/messages";
+
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
 import {
   setDebuggerSelectedTab,
   setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
-import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import Errors from "components/editorComponents/Debugger/Errors";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
+import Errors from "components/editorComponents/Debugger/Errors";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
+import {
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+  createMessage,
+} from "ee/constants/messages";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getDebuggerSelectedTab,
   getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
+import styled from "styled-components";
+
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
-import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 export const ResizerMainContainer = styled.div`
   display: flex;

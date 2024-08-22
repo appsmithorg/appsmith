@@ -1,13 +1,29 @@
 import React from "react";
+
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
-  DemoImage,
-  FieldContainer,
-  FieldControl,
-  FieldQuestion,
-  WellContainer,
-  WellTitle,
-  WellTitleContainer,
-} from "./styles";
+  CHOOSE_A_GIT_PROVIDER_STEP,
+  CHOOSE_GIT_PROVIDER_QUESTION,
+  HOW_TO_CREATE_EMPTY_REPO,
+  IMPORT_APP_IF_NOT_EMPTY,
+  IS_EMPTY_REPO_QUESTION,
+  I_HAVE_EXISTING_REPO,
+  NEED_EMPTY_REPO_MESSAGE,
+  createMessage,
+} from "ee/constants/messages";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
+import { GitSyncModalTab } from "entities/GitSync";
+import noop from "lodash/noop";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled from "styled-components";
+import history from "utils/history";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+
 import {
   Callout,
   Checkbox,
@@ -19,30 +35,17 @@ import {
   RadioGroup,
   Text,
 } from "@appsmith/ads";
-import styled from "styled-components";
+
 import { GIT_DEMO_GIF } from "./constants";
-import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab } from "entities/GitSync";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import history from "utils/history";
-import noop from "lodash/noop";
-import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import {
-  CHOOSE_A_GIT_PROVIDER_STEP,
-  CHOOSE_GIT_PROVIDER_QUESTION,
-  HOW_TO_CREATE_EMPTY_REPO,
-  IMPORT_APP_IF_NOT_EMPTY,
-  IS_EMPTY_REPO_QUESTION,
-  I_HAVE_EXISTING_REPO,
-  NEED_EMPTY_REPO_MESSAGE,
-  createMessage,
-} from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+  DemoImage,
+  FieldContainer,
+  FieldControl,
+  FieldQuestion,
+  WellContainer,
+  WellTitle,
+  WellTitleContainer,
+} from "./styles";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;

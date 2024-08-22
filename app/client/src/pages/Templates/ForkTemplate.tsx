@@ -1,5 +1,20 @@
 import type { ReactNode } from "react";
 import React, { useState } from "react";
+
+import { importTemplateToWorkspace } from "actions/templateActions";
+import {
+  CANCEL,
+  CHOOSE_WHERE_TO_FORK,
+  FORK_TEMPLATE,
+  SELECT_WORKSPACE,
+  createMessage,
+} from "ee/constants/messages";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getForkableWorkspaces,
+  isImportingTemplateSelector,
+} from "selectors/templatesSelectors";
+
 import {
   Button,
   Modal,
@@ -9,19 +24,6 @@ import {
   ModalHeader,
   Select,
 } from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getForkableWorkspaces,
-  isImportingTemplateSelector,
-} from "selectors/templatesSelectors";
-import { importTemplateToWorkspace } from "actions/templateActions";
-import {
-  CANCEL,
-  CHOOSE_WHERE_TO_FORK,
-  createMessage,
-  FORK_TEMPLATE,
-  SELECT_WORKSPACE,
-} from "ee/constants/messages";
 
 interface ForkTemplateProps {
   children?: ReactNode;

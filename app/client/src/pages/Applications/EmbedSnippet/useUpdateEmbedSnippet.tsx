@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { viewerURL } from "ee/RouteBuilder";
+import { updateApplication } from "ee/actions/applicationActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { IN_APP_EMBED_SETTING, createMessage } from "ee/constants/messages";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import debounce from "lodash/debounce";
 import { useDispatch, useSelector } from "react-redux";
 import { getDefaultBasePageId } from "sagas/selectors";
 import { getSettings } from "selectors/settingsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import debounce from "lodash/debounce";
-import { updateApplication } from "ee/actions/applicationActions";
-import { viewerURL } from "ee/RouteBuilder";
-import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+
 import { AppsmithFrameAncestorsSetting } from "./Constants/constants";
 import { formatEmbedSettings } from "./Utils/utils";
 

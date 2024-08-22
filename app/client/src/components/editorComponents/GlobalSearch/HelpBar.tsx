@@ -1,16 +1,19 @@
 import React from "react";
-import styled from "styled-components";
-import { connect, useSelector } from "react-redux";
-import { getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
-import { Icon } from "@appsmith/ads";
+
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { modText } from "utils/helpers";
-import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { connect, useSelector } from "react-redux";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import styled from "styled-components";
+import { modText } from "utils/helpers";
+
+import { Icon } from "@appsmith/ads";
+import { Text, TextType, getTypographyByKey } from "@appsmith/ads-old";
+
+import { SEARCH_CATEGORY_ID, filterCategories } from "./utils";
 
 const StyledHelpBar = styled.button<{ isSideBySideFlagEnabled?: boolean }>`
   padding: 0 var(--ads-v2-spaces-3);

@@ -1,9 +1,5 @@
 import React from "react";
-import { isString } from "lodash";
 
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -11,20 +7,25 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { isString } from "lodash";
 import styled from "styled-components";
-import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import type { Schema, SchemaItem } from "widgets/JSONFormWidget/constants";
 import {
   ARRAY_ITEM_KEY,
   DataType,
   FIELD_TYPE_TO_POTENTIAL_DATA,
-  getBindingTemplate,
   ROOT_SCHEMA_KEY,
+  getBindingTemplate,
 } from "widgets/JSONFormWidget/constants";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
-import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import { StyledDynamicInput } from "./StyledControls";
 
 const PromptMessage = styled.span`
   line-height: 17px;

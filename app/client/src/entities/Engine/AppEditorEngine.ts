@@ -1,15 +1,23 @@
+import type { Span } from "@opentelemetry/api";
+import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import {
+  fetchAppThemesAction,
+  fetchSelectedAppThemeAction,
+} from "actions/appThemingActions";
 import { fetchMockDatasources } from "actions/datasourceActions";
 import {
+  fetchBranchesInit,
   fetchGitProtectedBranchesInit,
   fetchGitStatusInit,
+  getGitMetadataInitAction,
   remoteUrlInputValue,
   resetPullMergeStatus,
-  fetchBranchesInit,
   triggerAutocommitInitAction,
-  getGitMetadataInitAction,
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
+import { fetchJSCollections } from "actions/jsActionActions";
 import {
   fetchAllPageEntityCompletion,
   setupPageAction,
@@ -19,13 +27,28 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
-import type { ApplicationPayload } from "entities/Application";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { addBranchParam } from "constants/routes";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { addBranchParam } from "constants/routes";
+import { getPageDependencyActions } from "ee/entities/Engine/actionHelpers";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
+import {
+  waitForFetchUserSuccess,
+  waitForSegmentInit,
+} from "ee/sagas/userSagas";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import {
+  type DependentFeatureFlags,
+  getFeatureFlagsForEngine,
+} from "ee/selectors/engineSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import type { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
 import { call, fork, put, select, spawn } from "redux-saga/effects";
 import type { EditConsolidatedApi } from "sagas/InitSagas";
 import {
@@ -34,40 +57,18 @@ import {
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import history from "utils/history";
+import { getAIPromptTriggered } from "utils/storage";
+
 import type { AppEnginePayload } from ".";
 import AppEngine, {
   ActionsNotFoundError,
   PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from ".";
-import { fetchJSLibraries } from "actions/JSLibraryActions";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import {
-  waitForSegmentInit,
-  waitForFetchUserSuccess,
-} from "ee/sagas/userSagas";
-import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
-import { getPageDependencyActions } from "ee/entities/Engine/actionHelpers";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import {
-  getFeatureFlagsForEngine,
-  type DependentFeatureFlags,
-} from "ee/selectors/engineSelectors";
-import { fetchJSCollections } from "actions/jsActionActions";
-import {
-  fetchAppThemesAction,
-  fetchSelectedAppThemeAction,
-} from "actions/appThemingActions";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {

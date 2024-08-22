@@ -1,5 +1,6 @@
 import CodeMirror from "codemirror";
 import { getPlatformOS } from "utils/helpers";
+
 import type { TEditorModes } from "../EditorConfig";
 import { EditorModes } from "../EditorConfig";
 import { isSqlMode } from "../sql/config";

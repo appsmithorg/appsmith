@@ -1,3 +1,4 @@
+import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
 import {
   agHelper,
   assertHelper,
@@ -12,12 +13,11 @@ import {
   table,
 } from "../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../support/Pages/DataSources";
-import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
-import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
 import EditorNavigation, {
   EntityType,
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
+import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 

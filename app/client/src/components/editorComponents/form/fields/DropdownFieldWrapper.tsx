@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+
 import type { SelectOptionProps } from "@appsmith/ads";
-import { Select, Option } from "@appsmith/ads";
+import { Option, Select } from "@appsmith/ads";
 
 type DropdownFieldWrapperProps = SelectOptionProps & { placeholder?: string };
 

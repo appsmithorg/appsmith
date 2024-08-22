@@ -1,11 +1,13 @@
 import React from "react";
+
+import { EditorEntityTab } from "ee/entities/IDE/constants";
 import styled from "styled-components";
+
 import { Flex } from "@appsmith/ads";
 
-import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
-import ListQuery from "../EditorPane/Query/List";
 import ListJSObjects from "../EditorPane/JS/List";
+import ListQuery from "../EditorPane/Query/List";
+import { useCurrentEditorState } from "../hooks";
 
 const ListContainer = styled(Flex)`
   & .t--entity-item {

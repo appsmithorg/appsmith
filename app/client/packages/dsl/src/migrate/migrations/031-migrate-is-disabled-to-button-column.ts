@@ -1,5 +1,6 @@
-import type { ColumnProperties, DSLWidget } from "../types";
 import isEmpty from "lodash/isEmpty";
+
+import type { ColumnProperties, DSLWidget } from "../types";
 
 const addIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
   if (currentDSL.type === "TABLE_WIDGET") {

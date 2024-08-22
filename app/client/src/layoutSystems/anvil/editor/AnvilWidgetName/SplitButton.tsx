@@ -1,7 +1,9 @@
 import React from "react";
+
 import styled from "styled-components";
-import { UpArrowSVG } from "./UpArrowIcon";
+
 import { ErrorSVG } from "./ErrorIcon";
+import { UpArrowSVG } from "./UpArrowIcon";
 
 const SplitButtonWrapper = styled.div<{
   $BGCSSVar: string;

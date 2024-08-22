@@ -1,9 +1,11 @@
 import React from "react";
 
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { Button } from "@appsmith/ads";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button } from "@appsmith/ads";
-import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface OnButtonClickProps {
   props: ControlProps;

@@ -1,27 +1,27 @@
-import type { FocusState } from "reducers/uiReducers/focusHistoryReducer";
-import type { StrictEffect } from "redux-saga/effects";
-import { call, put, select } from "redux-saga/effects";
-import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
+import {
+  removeFocusHistory,
+  storeFocusHistory,
+} from "actions/focusHistoryActions";
+import type { Plugin } from "api/PluginApi";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
+import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
+import type { Action } from "entities/Action";
+import type { FocusElementConfig } from "navigation/FocusElements";
+import { FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
   FocusEntity,
   FocusStoreHierarchy,
   identifyEntityFromPath,
 } from "navigation/FocusEntity";
-import type { FocusElementConfig } from "navigation/FocusElements";
-import { FocusElementConfigType } from "navigation/FocusElements";
-import {
-  removeFocusHistory,
-  storeFocusHistory,
-} from "actions/focusHistoryActions";
-import type { AppsmithLocationState } from "utils/history";
-import type { Action } from "entities/Action";
-import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
+import type { FocusState } from "reducers/uiReducers/focusHistoryReducer";
+import type { StrictEffect } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
+import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
+import type { AppsmithLocationState } from "utils/history";
 
 export interface FocusPath {
   key: string;

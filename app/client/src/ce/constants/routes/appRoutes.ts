@@ -1,7 +1,6 @@
 // Leaving this require here. The path-to-regexp module has a commonJS version and an ESM one.
 // We are loading the correct one with the typings with our compilerOptions property "moduleResolution" set to "node". Ref: https://stackoverflow.com/questions/59013618/unable-to-find-module-path-to-regexp
 // All solutions from closed issues on their repo have been tried. Ref: https://github.com/pillarjs/path-to-regexp/issues/193
-
 import { matchPath } from "react-router";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

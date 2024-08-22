@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
+
 import "codemirror/mode/htmlmixed/htmlmixed";
-import type { ContentProps } from "./types";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -8,11 +8,14 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import styles from "./styles.module.css";
-import { Spinner } from "@appsmith/ads";
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+
+import { Spinner } from "@appsmith/ads";
+
+import { CustomWidgetBuilderContext } from "../..";
+import styles from "./styles.module.css";
+import type { ContentProps } from "./types";
 
 export default function HTMLEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);

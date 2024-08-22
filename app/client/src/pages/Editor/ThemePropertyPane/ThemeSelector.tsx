@@ -1,16 +1,18 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 
+import { setAppThemingModeStackAction } from "actions/appThemingActions";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getAppThemes,
   getAppThemingStack,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
-import { ThemeCard } from "./ThemeCard";
-import { SettingSection } from "./SettingSection";
-import { setAppThemingModeStackAction } from "actions/appThemingActions";
 import styled from "styled-components";
+
 import { Link } from "@appsmith/ads";
+
+import { SettingSection } from "./SettingSection";
+import { ThemeCard } from "./ThemeCard";
 
 const Title = styled.h3`
   color: var(--ads-v2-color-fg-emphasis);

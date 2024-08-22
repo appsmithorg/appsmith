@@ -1,11 +1,12 @@
 import { fork } from "redux-saga/effects";
-import anvilDraggingSagas from "./anvilDraggingSagas";
+
 import LayoutElementPositionsSaga from "./LayoutElementPositionsSaga";
-import anvilSectionSagas from "./sectionSagas";
+import anvilDraggingSagas from "./anvilDraggingSagas";
 import anvilSpaceDistributionSagas from "./anvilSpaceDistributionSagas";
+import anvilWidgetAdditionSagas from "./anvilWidgetAdditionSagas";
 import anvilWidgetSelectionSaga from "./anvilWidgetSelectionSaga";
 import pasteSagas from "./pasteSagas";
-import anvilWidgetAdditionSagas from "./anvilWidgetAdditionSagas";
+import anvilSectionSagas from "./sectionSagas";
 
 export default function* anvilSagas() {
   yield fork(LayoutElementPositionsSaga);

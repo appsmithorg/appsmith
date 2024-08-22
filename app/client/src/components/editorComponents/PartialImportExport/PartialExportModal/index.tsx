@@ -1,15 +1,26 @@
-import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
-import { getPartialImportExportLoadingState } from "ee/selectors/applicationSelectors";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { selectFilesForExplorer } from "ce/selectors/entitiesSelector";
-import {
-  selectLibrariesForExplorer,
-  selectWidgetsForCurrentPage,
-} from "ee/selectors/entitiesSelector";
+import React, { useEffect, useMemo, useState } from "react";
+
 import {
   openPartialExportModal,
   partialExportWidgets,
 } from "actions/widgetActions";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { selectFilesForExplorer } from "ce/selectors/entitiesSelector";
+import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
+import { useAppWideAndOtherDatasource } from "ee/pages/Editor/Explorer/hooks";
+import { getPartialImportExportLoadingState } from "ee/selectors/applicationSelectors";
+import {
+  selectLibrariesForExplorer,
+  selectWidgetsForCurrentPage,
+} from "ee/selectors/entitiesSelector";
+import { ControlIcons } from "icons/ControlIcons";
+import { MenuIcons } from "icons/MenuIcons";
+import { useDispatch, useSelector } from "react-redux";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type { PartialExportParams } from "sagas/PartialImportExportSagas";
+import { getCurrentPageName } from "selectors/editorSelectors";
+import type { JSLibrary } from "workers/common/JSLibrary";
+
 import {
   Button,
   Collapsible,
@@ -22,15 +33,7 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import { ControlIcons } from "icons/ControlIcons";
-import { MenuIcons } from "icons/MenuIcons";
-import { useAppWideAndOtherDatasource } from "ee/pages/Editor/Explorer/hooks";
-import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import type { PartialExportParams } from "sagas/PartialImportExportSagas";
-import { getCurrentPageName } from "selectors/editorSelectors";
-import type { JSLibrary } from "workers/common/JSLibrary";
+
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import { Bar, ScrollableSection } from "./StyledSheet";

@@ -1,8 +1,10 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
-import { Table } from "./Table";
-import { Tooltip } from "../Tooltip";
 import type { ColumnType } from "rc-table/lib/interface";
+
+import { Tooltip } from "../Tooltip";
+import { Table } from "./Table";
 
 export default {
   title: "ADS/Components/Table",

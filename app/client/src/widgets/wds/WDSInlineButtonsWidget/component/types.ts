@@ -1,6 +1,8 @@
-import type { InlineButtonsProps, InlineButtonsItem } from "@appsmith/wds";
-import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+
+import type { InlineButtonsItem, InlineButtonsProps } from "@appsmith/wds";
+
+import type { ButtonsList } from "../widget/types";
 
 export interface InlineButtonsComponentProps
   extends InlineButtonsProps<InlineButtonsItem> {

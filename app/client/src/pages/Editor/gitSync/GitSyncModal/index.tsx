@@ -1,4 +1,5 @@
 import React from "react";
+
 import GitSyncModalV2 from "./GitSyncModalV2";
 
 interface GitSyncModalProps {

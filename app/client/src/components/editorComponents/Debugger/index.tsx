@@ -1,9 +1,12 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import DebuggerTabs from "./DebuggerTabs";
+
 import { setErrorCount } from "actions/debuggerActions";
+import { useDispatch, useSelector } from "react-redux";
 import { getMessageCount, showDebuggerFlag } from "selectors/debuggerSelectors";
+
 import { Button, Tooltip } from "@appsmith/ads";
+
+import DebuggerTabs from "./DebuggerTabs";
 import useDebuggerTriggerClick from "./hooks/useDebuggerTriggerClick";
 
 function Debugger() {

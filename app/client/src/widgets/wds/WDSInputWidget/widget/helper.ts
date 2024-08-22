@@ -1,16 +1,15 @@
-import { isNil, isNumber } from "lodash";
-
 import {
-  createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
+  createMessage,
 } from "ee/constants/messages";
-import type { InputType } from "../component/types";
+import { isNil, isNumber } from "lodash";
 import type { WidgetProps } from "widgets/BaseWidget";
 
+import type { InputType } from "../component/types";
 import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps, Validation } from "./types";
 

@@ -1,12 +1,13 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   dataManager,
   deployMode,
 } from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
+const publish = require("../../../../../locators/publishWidgetspage.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "Image Widget Functionality",

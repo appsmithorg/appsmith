@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { Input } from "./Input";
 import type { InputProps } from "./Input.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Input",

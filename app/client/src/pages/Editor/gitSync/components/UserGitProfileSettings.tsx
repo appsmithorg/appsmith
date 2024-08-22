@@ -1,5 +1,5 @@
-import React, { useCallback, useState, useMemo } from "react";
-import { Space } from "./StyledComponents";
+import React, { useCallback, useMemo, useState } from "react";
+
 import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
@@ -9,14 +9,17 @@ import {
   USE_DEFAULT_CONFIGURATION,
   createMessage,
 } from "ee/constants/messages";
-import styled from "styled-components";
-import { emailValidator } from "@appsmith/ads-old";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
 import { Checkbox, Input, Text } from "@appsmith/ads";
+import { emailValidator } from "@appsmith/ads-old";
+
+import { Space } from "./StyledComponents";
 
 const InputContainer = styled.div`
   display: flex;

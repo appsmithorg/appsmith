@@ -1,6 +1,6 @@
-import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export interface AutoHeightUIStatePayload {
   isAutoHeightWithLimitsChanging: boolean;

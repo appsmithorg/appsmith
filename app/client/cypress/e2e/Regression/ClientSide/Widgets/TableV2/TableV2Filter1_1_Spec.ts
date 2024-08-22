@@ -1,12 +1,12 @@
 import {
-  entityExplorer,
-  propPane,
-  deployMode,
-  table,
-  assertHelper,
-  locators,
-  draggableWidgets,
   agHelper,
+  assertHelper,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(

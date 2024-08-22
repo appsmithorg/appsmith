@@ -1,5 +1,7 @@
-import type { ToolbarButtonsProps, ToolbarButtonsItem } from "@appsmith/wds";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+
+import type { ToolbarButtonsItem, ToolbarButtonsProps } from "@appsmith/wds";
+
 import type { ButtonsList } from "../widget/types";
 
 export interface ToolbarButtonsComponentProps

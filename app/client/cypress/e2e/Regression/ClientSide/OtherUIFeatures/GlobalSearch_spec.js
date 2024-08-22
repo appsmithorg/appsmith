@@ -1,4 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
   AppSidebarButton,
@@ -11,7 +12,6 @@ const dsl = require("../../../../fixtures/MultipleWidgetDsl.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("GlobalSearch", function () {
   before(() => {

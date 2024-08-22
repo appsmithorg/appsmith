@@ -1,11 +1,13 @@
-import { Form } from "@storybook/components";
 import React, { useCallback } from "react";
-import { Flex, Text } from "@appsmith/wds";
-import { ColorControl, BooleanControl, RangeControl } from "@storybook/blocks";
-import { FONT_METRICS } from "@appsmith/wds-theming";
-import styled from "styled-components";
-import { debounce } from "lodash";
+
+import { BooleanControl, ColorControl, RangeControl } from "@storybook/blocks";
+import { Form } from "@storybook/components";
 import { AddonPanel } from "@storybook/components";
+import { debounce } from "lodash";
+import styled from "styled-components";
+
+import { Flex, Text } from "@appsmith/wds";
+import { FONT_METRICS } from "@appsmith/wds-theming";
 
 const StyledSelect = styled(Form.Select)`
   appearance: none;

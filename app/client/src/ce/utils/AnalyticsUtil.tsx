@@ -1,12 +1,12 @@
 // Events
-import * as log from "loglevel";
-import smartlookClient from "smartlook-client";
-import { getAppsmithConfigs } from "ee/configs";
 import * as Sentry from "@sentry/react";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { sha256 } from "js-sha256";
+import { getAppsmithConfigs } from "ee/configs";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
+import { sha256 } from "js-sha256";
+import * as log from "loglevel";
+import smartlookClient from "smartlook-client";
 
 export function getUserSource() {
   const { cloudHosting, segment } = getAppsmithConfigs();

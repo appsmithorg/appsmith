@@ -1,11 +1,13 @@
-import React, { useCallback, useState, useRef, useEffect } from "react";
-import styled from "styled-components";
-import _ from "lodash";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import {
-  StyledIcon,
-  StyledActionContainer,
   InputGroup,
+  StyledActionContainer,
+  StyledIcon,
 } from "components/propertyControls/StyledControls";
+import _ from "lodash";
+import styled from "styled-components";
+
 import { Button, Checkbox } from "@appsmith/ads";
 
 const ItemWrapper = styled.div`

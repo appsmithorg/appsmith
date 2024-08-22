@@ -1,8 +1,8 @@
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import type {
   EventType,
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 
 export default class ExecutionMetaData {
   private static triggerMeta?: TriggerMeta;

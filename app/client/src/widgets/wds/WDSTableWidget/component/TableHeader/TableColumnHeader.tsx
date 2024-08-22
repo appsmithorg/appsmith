@@ -1,12 +1,15 @@
-import { Checkbox } from "@appsmith/wds";
 import React, { memo } from "react";
+
+import type { Row as ReactTableRowType } from "react-table";
 import { getDragHandlers } from "widgets/wds/WDSTableWidget/widget/utilities";
-import { HeaderCell } from "../cellComponents/HeaderCell";
+
+import { Checkbox } from "@appsmith/wds";
+
 import type { ReactTableColumnProps } from "../Constants";
 import { CheckboxState, StickyType } from "../Constants";
-import type { Row as ReactTableRowType } from "react-table";
-import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { CellCheckboxWrapper } from "../TableStyledWrappers";
+import { renderEmptyRows } from "../cellComponents/EmptyCell";
+import { HeaderCell } from "../cellComponents/HeaderCell";
 
 export interface TableColumnHeaderProps {
   enableDrag: () => void;

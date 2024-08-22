@@ -1,26 +1,24 @@
 import React from "react";
-import styled from "styled-components";
-import tinycolor from "tinycolor2";
 
 import type { IButtonProps } from "@blueprintjs/core";
-import { Button, Alignment } from "@blueprintjs/core";
+import { Alignment, Button } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-
-import type { Theme } from "constants/DefaultTheme";
-
-import _ from "lodash";
+import type { ThemeProp } from "WidgetProvider/constants";
 import type {
   ButtonBorderRadius,
   ButtonStyleType,
   ButtonVariant,
 } from "components/constants";
 import {
-  ButtonStyleTypes,
-  ButtonBoxShadowTypes,
   ButtonBorderRadiusTypes,
+  ButtonBoxShadowTypes,
+  ButtonStyleTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { Theme } from "constants/DefaultTheme";
+import _ from "lodash";
+import styled from "styled-components";
+import tinycolor from "tinycolor2";
 
 const getCustomTextColor = (
   theme: Theme,

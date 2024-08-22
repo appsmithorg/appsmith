@@ -1,31 +1,32 @@
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import type { AnvilNewWidgetsPayload } from "../../actions/actionTypes";
-import { AnvilReduxActionTypes } from "../../actions/actionTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  type ReduxAction,
+  ReduxActionErrorTypes,
+} from "ee/constants/ReduxActionConstants";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import type {
   AnvilHighlightInfo,
   WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import {
-  ReduxActionErrorTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { getMainCanvasLastRowHighlight } from "../anvilDraggingSagas/helpers";
-import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getWidgets } from "sagas/selectors";
+import { addWidgetsToPreset } from "layoutSystems/anvil/utils/layouts/update/additionUtils";
 import {
   addDetachedWidgetToMainCanvas,
   addWidgetsToMainCanvasLayout,
 } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
 import { addWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import log from "loglevel";
-import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
-import { addWidgetsToPreset } from "layoutSystems/anvil/utils/layouts/update/additionUtils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidgets } from "sagas/selectors";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
+
+import type { AnvilNewWidgetsPayload } from "../../actions/actionTypes";
+import { AnvilReduxActionTypes } from "../../actions/actionTypes";
+import { getMainCanvasLastRowHighlight } from "../anvilDraggingSagas/helpers";
 import { addNewAnvilWidgetToDSL } from "./helpers";
 
 // The suggested widget functionality allows users to bind data from the Query pane

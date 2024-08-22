@@ -1,41 +1,42 @@
-import type { Position } from "codemirror";
-import type { LintError } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint } from "jshint";
-import type { LintError as JSHintError } from "jshint";
-import { get, isEmpty, isNumber, keys } from "lodash";
 import type {
-  MemberExpressionData,
   AssignmentExpressionData,
   CallExpressionData,
   MemberCallExpressionData,
+  MemberExpressionData,
 } from "@shared/ast";
 import {
   extractExpressionsFromCode,
   isIdentifierNode,
   isLiteralNode,
 } from "@shared/ast";
+import { isMemberExpressionNode } from "@shared/ast/src";
+import { generate } from "astring";
+import type { Position } from "codemirror";
+import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
+import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
+import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
+import { JSHINT as jshint } from "jshint";
+import type { LintError as JSHintError } from "jshint";
+import { get, isEmpty, isNumber, keys } from "lodash";
+import { last } from "lodash";
+import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { EvaluationScriptType } from "workers/Evaluation/evaluate";
 import { EvaluationScripts, ScriptTemplate } from "workers/Evaluation/evaluate";
+import setters from "workers/Evaluation/setters";
+import { JSLibraries } from "workers/common/JSLibrary";
+
 import {
-  asyncActionInSyncFieldLintMessage,
-  CustomLintErrorCode,
   CUSTOM_LINT_ERRORS,
+  CustomLintErrorCode,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   IGNORED_LINT_ERRORS,
-  lintOptions,
   SUPPORTED_WEB_APIS,
+  asyncActionInSyncFieldLintMessage,
+  lintOptions,
 } from "../constants";
 import type { getLintingErrorsProps } from "../types";
-import { JSLibraries } from "workers/common/JSLibrary";
 import getLintSeverity from "./getLintSeverity";
-import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
-import { last } from "lodash";
-import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
-import setters from "workers/Evaluation/setters";
-import { isMemberExpressionNode } from "@shared/ast/src";
-import { generate } from "astring";
-import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 

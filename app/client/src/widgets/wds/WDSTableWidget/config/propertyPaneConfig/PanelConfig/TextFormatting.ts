@@ -1,10 +1,11 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+
 import {
   hideByColumnType,
   showByColumnType,
 } from "../../../widget/propertyUtils";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 
 export default {
   sectionName: "Text formatting",

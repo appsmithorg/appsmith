@@ -1,17 +1,17 @@
 import type {
-  Span,
   Attributes,
-  TimeInput,
+  Span,
   SpanOptions,
+  TimeInput,
 } from "@opentelemetry/api";
 import { SpanKind } from "@opentelemetry/api";
 import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
-import { deviceType, browserName, browserVersion } from "react-device-detect";
-import { APP_MODE } from "entities/App";
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
-import nanoid from "nanoid";
+import { APP_MODE } from "entities/App";
 import memoizeOne from "memoize-one";
+import nanoid from "nanoid";
+import { browserName, browserVersion, deviceType } from "react-device-detect";
 
 const GENERATOR_TRACE = "generator-tracer";
 

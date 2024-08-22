@@ -1,15 +1,16 @@
 import React, { useEffect } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody } from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
 
+import { setShowQueryCreateNewModal } from "actions/ideActions";
 import { CREATE_A_NEW_ITEM, createMessage } from "ee/constants/messages";
-import GroupedList from "pages/Editor/IDE/EditorPane/components/GroupedList";
 import {
   useAddQueryListItems,
   useGroupedAddQueryOperations,
 } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import GroupedList from "pages/Editor/IDE/EditorPane/components/GroupedList";
+import { useDispatch, useSelector } from "react-redux";
 import { getShowCreateNewModal } from "selectors/ideSelectors";
-import { setShowQueryCreateNewModal } from "actions/ideActions";
+
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
 
 const CreateNewQueryModal: React.FC = () => {
   const dispatch = useDispatch();

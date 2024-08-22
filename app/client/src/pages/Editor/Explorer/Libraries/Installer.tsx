@@ -5,22 +5,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled from "styled-components";
-import {
-  Button,
-  Icon,
-  toast,
-  Text,
-  Input,
-  Link,
-  Spinner,
-  Divider,
-  Avatar,
-  Callout,
-  Tooltip,
-} from "@appsmith/ads";
+
+import { installLibraryInit } from "actions/JSLibraryActions";
+import classNames from "classnames";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
-import { useDispatch, useSelector } from "react-redux";
+import type { AppState } from "ee/reducers";
 import {
   selectInstallationStatus,
   selectInstalledLibraries,
@@ -28,14 +17,27 @@ import {
   selectQueuedLibraries,
   selectStatusForURL,
 } from "ee/selectors/entitiesSelector";
-import { InstallState } from "reducers/uiReducers/libraryReducer";
-import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { AppState } from "ee/reducers";
-import { installLibraryInit } from "actions/JSLibraryActions";
-import classNames from "classnames";
-import type { JSLibrary } from "workers/common/JSLibrary";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
+import { useDispatch, useSelector } from "react-redux";
+import { InstallState } from "reducers/uiReducers/libraryReducer";
+import styled from "styled-components";
+import type { JSLibrary } from "workers/common/JSLibrary";
+
+import {
+  Avatar,
+  Button,
+  Callout,
+  Divider,
+  Icon,
+  Input,
+  Link,
+  Spinner,
+  Text,
+  Tooltip,
+  toast,
+} from "@appsmith/ads";
 
 const Wrapper = styled.div`
   display: flex;

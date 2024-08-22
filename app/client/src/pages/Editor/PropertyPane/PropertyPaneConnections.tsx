@@ -1,37 +1,39 @@
-import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
-import styled from "styled-components";
-import type { AppState } from "ee/reducers";
-import { useDispatch, useSelector } from "react-redux";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { isAction, isWidget } from "ee/workers/Evaluation/evaluationUtils";
-import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
-import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
+import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
+
+import { showDebugger } from "actions/debuggerActions";
+import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import {
   doesEntityHaveErrors,
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
-import { getFilteredErrors } from "selectors/debuggerSelectors";
-import type { Log } from "entities/AppsmithConsole";
+import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
+import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { showDebugger } from "actions/debuggerActions";
+import type { AppState } from "ee/reducers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
-import {
-  interactionAnalyticsEvent,
-  INTERACTION_ANALYTICS_EVENT,
-} from "utils/AppsmithUtils";
+import { isAction, isWidget } from "ee/workers/Evaluation/evaluationUtils";
+import type { Log } from "entities/AppsmithConsole";
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
+import styled from "styled-components";
+import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
+import {
+  INTERACTION_ANALYTICS_EVENT,
+  interactionAnalyticsEvent,
+} from "utils/AppsmithUtils";
+
 import type { TooltipPlacement } from "@appsmith/ads";
 import {
   Button,
   Menu,
   MenuContent,
-  MenuTrigger,
   MenuItem,
   MenuSeparator,
+  MenuTrigger,
   Text,
   Tooltip,
 } from "@appsmith/ads";

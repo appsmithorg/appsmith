@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 import { useEffect, useRef } from "react";
+
 import { getNearestParentCanvas } from "utils/generators";
 import { getScrollByPixels } from "utils/helpers";
 

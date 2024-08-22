@@ -1,16 +1,16 @@
-import type { Datasource } from "entities/Datasource";
-import { AuthenticationStatus } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
+import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import {
-  createMessage,
   GSHEET_AUTHORISED_FILE_IDS_KEY,
   GSHEET_AUTHORIZATION_ERROR,
   GSHEET_FILES_NOT_SELECTED,
+  createMessage,
 } from "ee/constants/messages";
-import { getDatasourcePropertyValue } from "utils/editorContextUtils";
-import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { AuthenticationStatus } from "entities/Datasource";
 import { get } from "lodash";
+import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 
 /**
  * Returns true if :

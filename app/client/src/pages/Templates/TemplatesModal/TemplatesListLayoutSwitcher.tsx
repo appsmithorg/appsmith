@@ -1,9 +1,12 @@
-import type { EventName } from "ee/utils/analyticsUtilTypes";
+import React, { useMemo } from "react";
+
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER } from "constants/TemplatesConstants";
-import { Flex } from "@appsmith/ads";
-import React, { useMemo } from "react";
+import type { EventName } from "ee/utils/analyticsUtilTypes";
 import styled from "styled-components";
+
+import { Flex } from "@appsmith/ads";
+
 import TemplatesLayoutWithFilters from "../TemplatesLayoutWithFilters";
 
 interface Props {

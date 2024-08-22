@@ -1,12 +1,11 @@
+import formControls from "../../../locators/FormControl.json";
 import {
   agHelper,
+  assertHelper,
+  dataSources,
   entityExplorer,
   entityItems,
-  dataSources,
-  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
-let dsName: any;
-import formControls from "../../../locators/FormControl.json";
 import {
   AppSidebar,
   AppSidebarButton,
@@ -14,6 +13,8 @@ import {
   PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
+
+let dsName: any;
 
 describe(
   "Validate Mock Query Active Ds querying & count",

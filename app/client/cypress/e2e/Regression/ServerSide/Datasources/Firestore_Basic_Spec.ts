@@ -1,11 +1,11 @@
 import {
   agHelper,
-  entityExplorer,
   dataSources,
-  entityItems,
   deployMode,
-  locators,
   draggableWidgets,
+  entityExplorer,
+  entityItems,
+  locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";

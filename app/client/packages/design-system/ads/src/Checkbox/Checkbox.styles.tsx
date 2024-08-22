@@ -1,4 +1,5 @@
 import styled, { css } from "styled-components";
+
 import { CheckboxClassNameSquare } from "./Checkbox.constants";
 
 const Variables = css`

@@ -1,10 +1,10 @@
 import {
   agHelper,
-  locators,
   apiPage,
   dataManager,
   dataSources,
   entityItems,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Abort Action Execution", { tags: ["@tag.Datasource"] }, function () {

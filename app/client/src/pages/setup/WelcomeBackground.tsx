@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import styled from "styled-components";
 
 const StyledImageBanner = styled.div`
   width: 50%;

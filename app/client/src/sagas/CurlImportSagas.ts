@@ -1,20 +1,20 @@
-import { takeLatest, put, all, select } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import { validateResponse } from "sagas/ErrorSagas";
+import type { ApiResponse } from "api/ApiResponses";
 import type { CurlImportRequest } from "api/ImportApi";
 import CurlImportApi from "api/ImportApi";
-import type { ApiResponse } from "api/ApiResponses";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import transformCurlImport from "transformers/CurlImportTransformer";
-import history from "utils/history";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { apiEditorIdURL } from "ee/RouteBuilder";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { all, put, select, takeLatest } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
+import transformCurlImport from "transformers/CurlImportTransformer";
+import history from "utils/history";
 
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { contextId, contextType, name, type } = action.payload;

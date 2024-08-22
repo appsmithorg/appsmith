@@ -1,11 +1,12 @@
+import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import { call, put } from "redux-saga/effects";
+
+import { logActionExecutionError } from "./errorUtils";
 import {
   extractGeoLocation,
   getCurrentLocationSaga,
   getUserLocation,
 } from "./geolocationSaga";
-import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
-import { logActionExecutionError } from "./errorUtils";
 
 const mockFn = jest.fn();
 

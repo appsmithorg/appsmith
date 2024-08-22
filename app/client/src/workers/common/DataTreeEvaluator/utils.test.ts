@@ -1,12 +1,13 @@
 import type { JSActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
-import { getOnlyAffectedJSObjects, getIsNewWidgetAdded } from "./utils";
-import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import {
+  type DataTreeDiff,
   DataTreeDiffEvent,
   getAllPathsBasedOnDiffPaths,
-  type DataTreeDiff,
 } from "ee/workers/Evaluation/evaluationUtils";
+import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
+
+import { getIsNewWidgetAdded, getOnlyAffectedJSObjects } from "./utils";
 
 describe("getOnlyAffectedJSObjects", () => {
   const dataTree = {

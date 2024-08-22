@@ -1,8 +1,9 @@
-import { get, isEmpty } from "lodash";
-
 import type { PanelConfig } from "constants/PropertyControlConstants";
+import { get, isEmpty } from "lodash";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";
 import { FieldType } from "widgets/JSONFormWidget/constants";
+
+import type { JSONFormWidgetProps } from "..";
 import type { HiddenFnParams } from "./helper";
 import { getSchemaItem, isFieldTypeArrayOrObject } from "./helper";
 import {
@@ -17,7 +18,6 @@ import {
   SELECT_PROPERTIES,
   SWITCH_PROPERTIES,
 } from "./properties";
-import type { JSONFormWidgetProps } from "..";
 
 function generatePanelPropertyConfig(
   nestingLevel: number,

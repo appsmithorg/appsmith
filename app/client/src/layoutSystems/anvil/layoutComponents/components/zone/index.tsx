@@ -1,10 +1,12 @@
 import React from "react";
+
 import {
   LayoutComponentTypes,
   type LayoutProps,
   type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { isLargeWidget } from "layoutSystems/anvil/utils/widgetUtils";
+
 import AlignedLayoutColumn from "../AlignedLayoutColumn";
 import { ZoneColumn } from "./ZoneColumn";
 

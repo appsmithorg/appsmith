@@ -1,34 +1,50 @@
 import React, { useCallback, useState } from "react";
-import {
-  Flex,
-  Tooltip,
-  Divider,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  Tabs,
-  TabsList,
-  Tab,
-  TabPanel,
-  Button,
-  Link,
-} from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
-import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
-import styled from "styled-components";
 
+import { IDEHeader, IDEHeaderTitle } from "IDE";
+import { showConnectGitModal } from "actions/gitSyncActions";
+import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
+import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
+import type { NavigationSetting } from "constants/AppConstants";
+import { APPLICATIONS_URL } from "constants/routes";
+import { viewerURL } from "ee/RouteBuilder";
+import {
+  publishApplication,
+  updateApplication,
+} from "ee/actions/applicationActions";
+import { getAppsmithConfigs } from "ee/configs";
 import {
   APPLICATION_INVITE,
   COMMUNITY_TEMPLATES,
-  createMessage,
   DEPLOY_BUTTON_TOOLTIP,
   DEPLOY_MENU_OPTION,
-  IN_APP_EMBED_SETTING,
-  INVITE_TAB,
   HEADER_TITLES,
+  INVITE_TAB,
+  IN_APP_EMBED_SETTING,
+  createMessage,
 } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { EditorState } from "ee/entities/IDE/constants";
+import {
+  getApplicationList,
+  getCurrentApplication,
+  getIsErroredSavingAppName,
+  getIsSavingAppName,
+} from "ee/selectors/applicationSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
+import type { Page } from "entities/Page";
+import CommunityTemplatesPublishInfo from "pages/Editor/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
+import PublishCommunityTemplateModal from "pages/Editor/CommunityTemplates/Modals/PublishCommunityTemplate";
 import EditorName from "pages/Editor/EditorName";
+import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
+import { EditorShareButton } from "pages/Editor/EditorShareButton";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import { Omnibar } from "pages/Editor/commons/Omnibar";
+import { useHref } from "pages/Editor/utils";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -38,45 +54,31 @@ import {
   getPageSavingError,
 } from "selectors/editorSelectors";
 import {
-  getApplicationList,
-  getCurrentApplication,
-  getIsErroredSavingAppName,
-  getIsSavingAppName,
-} from "ee/selectors/applicationSelectors";
-import {
-  publishApplication,
-  updateApplication,
-} from "ee/actions/applicationActions";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { Omnibar } from "pages/Editor/commons/Omnibar";
-import ToggleModeButton from "pages/Editor/ToggleModeButton";
-import { EditorShareButton } from "pages/Editor/EditorShareButton";
-import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
-import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
-import CommunityTemplatesPublishInfo from "pages/Editor/CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
-import PublishCommunityTemplateModal from "pages/Editor/CommunityTemplates/Modals/PublishCommunityTemplate";
-import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getAppsmithConfigs } from "ee/configs";
-import {
   getIsGitConnected,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
-import { showConnectGitModal } from "actions/gitSyncActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { NavigationSetting } from "constants/AppConstants";
-import { useHref } from "pages/Editor/utils";
-import { viewerURL } from "ee/RouteBuilder";
-import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
-import { EditorTitle } from "./EditorTitle";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { EditorState } from "ee/entities/IDE/constants";
-import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
-import type { Page } from "entities/Page";
-import { IDEHeader, IDEHeaderTitle } from "IDE";
-import { APPLICATIONS_URL } from "constants/routes";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import {
+  Button,
+  Divider,
+  Flex,
+  Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsList,
+  Tooltip,
+} from "@appsmith/ads";
+import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
+
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
+import { EditorTitle } from "./EditorTitle";
 
 const StyledDivider = styled(Divider)`
   height: 50%;

@@ -1,14 +1,16 @@
 import React from "react";
+
+import { Colors } from "constants/Colors";
+import { thinScrollbar } from "constants/DefaultTheme";
+import { templateIdUrl } from "ee/RouteBuilder";
+import { TEMPLATES, createMessage } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { Classes, Text, TextType } from "@appsmith/ads-old";
 import history from "utils/history";
-import { thinScrollbar } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
-import { createMessage, TEMPLATES } from "ee/constants/messages";
-import { templateIdUrl } from "ee/RouteBuilder";
+
+import { Classes, Text, TextType } from "@appsmith/ads-old";
 
 const Wrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;

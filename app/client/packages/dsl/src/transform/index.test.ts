@@ -1,5 +1,5 @@
-import { nestDSL, flattenDSL } from "./lib";
 import { ROOT_CONTAINER_WIDGET_ID } from "./constants";
+import { flattenDSL, nestDSL } from "./lib";
 
 describe("Test #1 - Check export types & constant values", () => {
   it("nestDSL is a function", () => {

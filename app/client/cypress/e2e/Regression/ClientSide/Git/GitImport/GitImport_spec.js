@@ -1,11 +1,6 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePageLocators from "../../../../../locators/HomePage";
 import reconnectDatasourceModal from "../../../../../locators/ReconnectLocators";
-const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
-const jsObject = "JSObject1";
-let newBranch = "feat/temp";
-const mainBranch = "master";
-let repoName, newWorkspaceName;
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   agHelper,
   dataSources,
@@ -20,6 +15,12 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
+
+const datasourceEditor = require("../../../../../locators/DatasourcesEditor.json");
+const jsObject = "JSObject1";
+let newBranch = "feat/temp";
+const mainBranch = "master";
+let repoName, newWorkspaceName;
 
 describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {

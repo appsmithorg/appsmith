@@ -1,11 +1,12 @@
+import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SectionColumns, ZoneMinColumnWidth } from "../constants";
-import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
+
+import { SectionColumns, ZoneMinColumnWidth } from "../constants";
 
 /**
  * Redistributes space among zones in a section while preserving column ratios.

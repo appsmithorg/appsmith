@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 
-import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { StyledButton } from "widgets/IconButtonWidget/component";
+
 import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
-import { StyledButton } from "widgets/IconButtonWidget/component";
 
 interface RenderIconButtonProps extends BaseCellComponentProps {
   isSelected: boolean;

@@ -1,10 +1,10 @@
+import { WIDGET } from "../../../../locators/WidgetLocators";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetLocators = require("../../../../locators/Widgets.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import { WIDGET } from "../../../../locators/WidgetLocators";
 
 describe("Widget error state", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

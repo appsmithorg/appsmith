@@ -1,12 +1,10 @@
 import React from "react";
-import { Field } from "redux-form";
+
 // // Codemirror GraphQL plugins
 import "codemirror-graphql/hint";
 import "codemirror-graphql/info";
 import "codemirror-graphql/jump";
 import "codemirror-graphql/mode";
-
-import QueryWrapper from "./QueryWrapperWithCSS";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
@@ -14,9 +12,13 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import styled from "styled-components";
-import { Text, TextType } from "@appsmith/ads-old";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { Field } from "redux-form";
+import styled from "styled-components";
+
+import { Text, TextType } from "@appsmith/ads-old";
+
+import QueryWrapper from "./QueryWrapperWithCSS";
 
 const QueryHeader = styled.div`
   display: flex;

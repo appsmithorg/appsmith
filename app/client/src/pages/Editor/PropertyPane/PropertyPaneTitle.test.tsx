@@ -1,12 +1,14 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import { ThemeProvider } from "styled-components";
 import { render } from "@testing-library/react";
-import PropertyPaneTitle from "./PropertyPaneTitle";
 import userEvent from "@testing-library/user-event";
-import { lightTheme } from "selectors/themeSelectors";
 import { Provider } from "react-redux";
+import { lightTheme } from "selectors/themeSelectors";
 import store from "store";
+import { ThemeProvider } from "styled-components";
+
+import PropertyPaneTitle from "./PropertyPaneTitle";
 
 describe("<PropertyPaneTitle />", () => {
   it("should focus when f2 is pressed", async () => {

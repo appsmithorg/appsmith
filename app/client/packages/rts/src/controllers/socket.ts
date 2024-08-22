@@ -1,15 +1,15 @@
-import type { Server, Socket } from "socket.io";
-import { tryAuth } from "@middlewares/socket-auth";
 import {
-  START_EDIT_EVENT_NAME,
+  EDITORS_EVENT_NAME,
   LEAVE_EDIT_EVENT_NAME,
   MOUSE_POINTER_EVENT_NAME,
   PAGE_EDIT_NAMESPACE,
   PAGE_ROOM_PREFIX,
-  EDITORS_EVENT_NAME,
+  START_EDIT_EVENT_NAME,
 } from "@constants/socket";
-import type { Policy, MousePointerEvent } from "@utils/models";
+import { tryAuth } from "@middlewares/socket-auth";
+import type { MousePointerEvent, Policy } from "@utils/models";
 import { AppUser, CurrentEditorsEvent } from "@utils/models";
+import type { Server, Socket } from "socket.io";
 
 function subscribeToEditEvents(socket: Socket, appRoomPrefix: string) {
   socket.on(START_EDIT_EVENT_NAME, (resourceId) => {

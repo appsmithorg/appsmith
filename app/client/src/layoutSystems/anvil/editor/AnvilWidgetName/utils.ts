@@ -9,8 +9,9 @@ import {
   shift,
 } from "@floating-ui/dom";
 import WidgetFactory from "WidgetProvider/factory";
-import type { NameComponentStates } from "./types";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+
+import type { NameComponentStates } from "./types";
 
 /**
  * @param boundaryEl Element that acts as the boundaries for the overflow computations.

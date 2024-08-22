@@ -1,15 +1,15 @@
 import React, { useCallback } from "react";
 import type { ReactNode } from "react";
 
-import styled from "styled-components";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { getColorWithOpacity } from "constants/DefaultTheme";
-import { snipingModeSelector } from "selectors/editorSelectors";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { Layers } from "constants/Layers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
+import { getColorWithOpacity } from "constants/DefaultTheme";
+import { Layers } from "constants/Layers";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import { useDispatch, useSelector } from "react-redux";
+import { snipingModeSelector } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
   position: absolute;

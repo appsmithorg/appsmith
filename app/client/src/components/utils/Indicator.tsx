@@ -1,7 +1,7 @@
-import type { LazyAnimationItem } from "utils/lazyLottie";
-import lazyLottie from "utils/lazyLottie";
 import indicatorAnimationURL from "assets/lottie/guided-tour-indicator.json.txt";
 import log from "loglevel";
+import type { LazyAnimationItem } from "utils/lazyLottie";
+import lazyLottie from "utils/lazyLottie";
 
 // data-guided-tour-id - used for the rectangular highlight
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element

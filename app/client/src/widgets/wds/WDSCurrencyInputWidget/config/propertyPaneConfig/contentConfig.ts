@@ -2,8 +2,8 @@ import { CurrencyTypeOptions } from "constants/Currency";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
-import * as validations from "./validations";
 import { countryToFlag } from "../../widget/helpers";
+import * as validations from "./validations";
 
 export const propertyPaneContentConfig = [
   {

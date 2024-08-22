@@ -1,8 +1,9 @@
 import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../../support/Pages/PageList";
+
 const testdata = require("../../../../../fixtures/testdata.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import PageList from "../../../../../support/Pages/PageList";
 
 const demoTableData = `
 {{

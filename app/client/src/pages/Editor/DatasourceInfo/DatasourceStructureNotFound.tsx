@@ -1,17 +1,19 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
-import { Text, Button } from "@appsmith/ads";
+
 import type { APIResponseError } from "api/ApiResponses";
+import { DatasourceEditEntryPoints } from "constants/Datasource";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { EDIT_DATASOURCE, createMessage } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { DatasourceEditEntryPoints } from "constants/Datasource";
-import history from "utils/history";
-import { getQueryParams } from "utils/URLUtils";
-import { datasourcesEditorIdURL } from "ee/RouteBuilder";
-import { omit } from "lodash";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { DatasourceStructureContext } from "entities/Datasource";
+import { omit } from "lodash";
+import { useSelector } from "react-redux";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { getQueryParams } from "utils/URLUtils";
+import history from "utils/history";
+
+import { Button, Text } from "@appsmith/ads";
 
 export interface Props {
   error: APIResponseError | { message: string } | undefined;

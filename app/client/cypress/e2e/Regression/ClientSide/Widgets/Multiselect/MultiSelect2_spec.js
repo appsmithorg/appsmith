@@ -1,16 +1,16 @@
+import data from "../../../../../fixtures/TestDataSet1.json";
+import {
+  PROPERTY_SELECTOR,
+  getWidgetSelector,
+} from "../../../../../locators/WidgetLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 /// <reference types="Cypress" />
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-import data from "../../../../../fixtures/TestDataSet1.json";
-
-import {
-  PROPERTY_SELECTOR,
-  getWidgetSelector,
-} from "../../../../../locators/WidgetLocators";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "MultiSelect Widget Functionality",

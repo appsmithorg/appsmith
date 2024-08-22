@@ -1,20 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Button, Divider, Text, Tooltip } from "@appsmith/ads";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getCanvasWidgets,
-  getPageActions,
-  getSavedDatasources,
-} from "ee/selectors/entitiesSelector";
-import { INTEGRATION_TABS } from "constants/routes";
-import {
-  getApplicationLastDeployedAt,
-  getCurrentApplicationId,
-  getCurrentBasePageId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import history from "utils/history";
+
 import {
   setSignpostingOverlay,
   showSignpostingModal,
@@ -22,39 +7,58 @@ import {
   signpostingMarkAllRead,
   toggleInOnboardingWidgetSelection,
 } from "actions/onboardingActions";
+import { bindDataOnCanvas } from "actions/pluginActionActions";
+import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
+import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
+import classNames from "classnames";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { INTEGRATION_TABS } from "constants/routes";
+import { builderURL, integrationEditorURL } from "ee/RouteBuilder";
+import { getAppsmithConfigs } from "ee/configs";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  ONBOARDING_CHECKLIST_ACTIONS,
+  ONBOARDING_CHECKLIST_ADD_WIDGETS,
+  ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE,
+  ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET,
+  ONBOARDING_CHECKLIST_CREATE_A_QUERY,
+  ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS,
+  ONBOARDING_CHECKLIST_HEADER,
+  SIGNPOSTING_POPUP_SUBTITLE,
+  SIGNPOSTING_SUCCESS_POPUP,
+  SIGNPOSTING_TOOLTIP,
+  createMessage,
+} from "ee/constants/messages";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+import {
+  getCanvasWidgets,
+  getPageActions,
+  getSavedDatasources,
+} from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Datasource } from "entities/Datasource";
+import { useDispatch, useSelector } from "react-redux";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  getApplicationLastDeployedAt,
+  getCurrentApplicationId,
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import {
   getFirstTimeUserOnboardingComplete,
   getSignpostingStepStateByStep,
   isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { bindDataOnCanvas } from "actions/pluginActionActions";
-import {
-  ONBOARDING_CHECKLIST_ACTIONS,
-  ONBOARDING_CHECKLIST_HEADER,
-  ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE,
-  ONBOARDING_CHECKLIST_CREATE_A_QUERY,
-  ONBOARDING_CHECKLIST_ADD_WIDGETS,
-  ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET,
-  ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS,
-  createMessage,
-  SIGNPOSTING_POPUP_SUBTITLE,
-  SIGNPOSTING_SUCCESS_POPUP,
-  SIGNPOSTING_TOOLTIP,
-} from "ee/constants/messages";
-import type { Datasource } from "entities/Datasource";
-import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { SIGNPOSTING_STEP } from "./Utils";
-import { builderURL, integrationEditorURL } from "ee/RouteBuilder";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import classNames from "classnames";
+import styled from "styled-components";
+import history from "utils/history";
 import lazyLottie from "utils/lazyLottie";
-import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
-import { getAppsmithConfigs } from "ee/configs";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+
+import { Button, Divider, Text, Tooltip } from "@appsmith/ads";
+
+import { SIGNPOSTING_STEP } from "./Utils";
+
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledDivider = styled(Divider)`

@@ -1,16 +1,17 @@
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import { isEmpty } from "lodash";
 import type { LintError } from "utils/DynamicBindingUtils";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
-import { CustomLintErrorCode, CUSTOM_LINT_ERRORS } from "../constants";
 import type {
   TJSFunctionPropertyState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
+
+import { CUSTOM_LINT_ERRORS, CustomLintErrorCode } from "../constants";
 import { globalData } from "../globalData";
 import getLintSeverity from "./getLintSeverity";
 import lintJSProperty from "./lintJSProperty";
-import { isEmpty } from "lodash";
 
 export default function lintJSObjectProperty(
   jsPropertyFullName: string,

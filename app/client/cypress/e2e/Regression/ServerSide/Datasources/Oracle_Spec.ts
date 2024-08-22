@@ -1,22 +1,22 @@
 import {
   agHelper,
-  dataSources,
-  propPane,
+  apiPage,
   dataManager,
-  locators,
-  entityExplorer,
+  dataSources,
   deployMode,
   draggableWidgets,
-  table,
+  entityExplorer,
   entityItems,
-  apiPage,
   jsEditor,
+  locators,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 

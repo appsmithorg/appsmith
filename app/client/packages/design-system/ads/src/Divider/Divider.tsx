@@ -1,6 +1,7 @@
 import React from "react";
-import type { DividerProps } from "./Divider.types";
+
 import { StyledDivider } from "./Divider.styles";
+import type { DividerProps } from "./Divider.types";
 
 /**
  * A Divider is used to separate content into distinct sections.

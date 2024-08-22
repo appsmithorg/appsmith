@@ -1,19 +1,18 @@
 import type { ReactNode } from "react";
 import React from "react";
 
-import type { TextSize } from "constants/WidgetConstants";
-import { countOccurrences } from "workers/Evaluation/helpers";
-
-import { ValidationTypes } from "constants/WidgetValidation";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
+import type { TextSize } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";
+import { countOccurrences } from "workers/Evaluation/helpers";
+
 import type { TextAlign } from "../component";
 import TextComponent from "../component";
 import { OverflowTypes } from "../constants";

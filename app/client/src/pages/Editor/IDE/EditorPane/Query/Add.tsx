@@ -1,21 +1,23 @@
 import React, { useState } from "react";
-import { Flex, SearchInput } from "@appsmith/ads";
 
-import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import SegmentAddHeader from "../components/SegmentAddHeader";
-import GroupedList from "../components/GroupedList";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import {
   useAddQueryListItems,
   useGroupedAddQueryOperations,
   useQueryAdd,
 } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { fuzzySearchInObjectItems } from "../utils";
-import type { GroupedListProps } from "../components/types";
-import { EmptySearchResult } from "../components/EmptySearchResult";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
+
+import { Flex, SearchInput } from "@appsmith/ads";
 import type { FlexProps } from "@appsmith/ads";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+
+import { EmptySearchResult } from "../components/EmptySearchResult";
+import GroupedList from "../components/GroupedList";
+import SegmentAddHeader from "../components/SegmentAddHeader";
+import type { GroupedListProps } from "../components/types";
+import { fuzzySearchInObjectItems } from "../utils";
 
 const AddQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");

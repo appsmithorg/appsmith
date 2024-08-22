@@ -1,24 +1,27 @@
+import type { ReactElement } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
+
+import { refreshDatasourceStructure } from "actions/datasourceActions";
 import {
-  createMessage,
   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
   SCHEMA_NOT_AVAILABLE,
   TABLE_NOT_FOUND,
+  createMessage,
 } from "ee/constants/messages";
-import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
-import { DatasourceStructureContext } from "entities/Datasource";
-import type { ReactElement } from "react";
-import React, { memo, useCallback, useEffect, useState } from "react";
-import DatasourceStructure from "./DatasourceStructure";
-import { Button, Flex, SearchInput, Text } from "@appsmith/ads";
-import { getIsFetchingDatasourceStructure } from "ee/selectors/entitiesSelector";
-import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
-import ItemLoadingIndicator from "./ItemLoadingIndicator";
-import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
+import { getIsFetchingDatasourceStructure } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
+import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
+import { useDispatch, useSelector } from "react-redux";
+
+import { Button, Flex, SearchInput, Text } from "@appsmith/ads";
+
+import DatasourceStructure from "./DatasourceStructure";
+import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
-import { refreshDatasourceStructure } from "actions/datasourceActions";
 
 interface Props {
   datasourceId: string;

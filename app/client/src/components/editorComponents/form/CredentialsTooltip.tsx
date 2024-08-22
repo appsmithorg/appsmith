@@ -1,7 +1,9 @@
 import React from "react";
+
 import { Popover, PopoverInteractionKind } from "@blueprintjs/core";
-import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
+import styled, { createGlobalStyle } from "styled-components";
+
 import { Icon } from "@appsmith/ads";
 
 const CredentialTooltipWrapper = styled.div`

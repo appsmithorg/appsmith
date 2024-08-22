@@ -1,11 +1,11 @@
 import {
-  entityExplorer,
-  propPane,
-  draggableWidgets,
   agHelper,
   deployMode,
-  locators,
+  draggableWidgets,
+  entityExplorer,
   jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe("Reset widget action", { tags: ["@tag.Widget"] }, () => {

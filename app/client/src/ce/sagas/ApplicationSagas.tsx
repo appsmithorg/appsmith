@@ -1,8 +1,49 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+  fetchDatasources,
+  setUnconfiguredDatasourcesDuringImport,
+} from "actions/datasourceActions";
+import { setCanvasCardsState } from "actions/editorActions";
+import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
+import { safeCrashAppRequest } from "actions/errorActions";
+import type { SetDefaultPageActionPayload } from "actions/pageActions";
+import { resetApplicationWidgets } from "actions/pageActions";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import {
+  reconnectAppLevelWebsocket,
+  reconnectPageLevelWebsocket,
+} from "actions/websocketActions";
+import type { ApiResponse } from "api/ApiResponses";
+import DatasourcesApi from "api/DatasourcesApi";
+import PageApi from "api/PageApi";
+import { getConfigInitialValues } from "components/formControls/utils";
+import {
+  defaultNavigationSetting,
+  keysOfNavigationSetting,
+} from "constants/AppConstants";
+import type { AppColorCode } from "constants/DefaultTheme";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import {
+  ApplicationVersion,
+  deleteApplicationNavigationLogoSuccessAction,
+  fetchAllApplicationsOfWorkspace,
+  fetchApplication,
+  importApplicationSuccess,
+  initDatasourceConnectionDuringImportSuccess,
+  resetCurrentApplication,
+  setDefaultApplicationPageSuccess,
+  setIsReconnectingDatasourcesModalOpen,
+  setPageIdForImport,
+  setWorkspaceIdForImport,
+  showReconnectDatasourceModal,
+  updateApplicationNavigationLogoSuccessAction,
+  updateApplicationNavigationSettingAction,
+  updateApplicationThemeSettingAction,
+  updateCurrentApplicationEmbedSetting,
+  updateCurrentApplicationForkingEnabled,
+  updateCurrentApplicationIcon,
+} from "ee/actions/applicationActions";
 import type {
   ApplicationPagePayload,
   ApplicationResponsePayload,
@@ -26,100 +67,57 @@ import type {
   UploadNavigationLogoRequest,
 } from "ee/api/ApplicationApi";
 import ApplicationApi from "ee/api/ApplicationApi";
-import { all, call, put, select, take } from "redux-saga/effects";
-
-import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
-import type { ApiResponse } from "api/ApiResponses";
-import history from "utils/history";
-import type { AppState } from "ee/reducers";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ApplicationVersion,
-  deleteApplicationNavigationLogoSuccessAction,
-  fetchApplication,
-  importApplicationSuccess,
-  initDatasourceConnectionDuringImportSuccess,
-  resetCurrentApplication,
-  setDefaultApplicationPageSuccess,
-  setIsReconnectingDatasourcesModalOpen,
-  setPageIdForImport,
-  setWorkspaceIdForImport,
-  showReconnectDatasourceModal,
-  updateApplicationNavigationLogoSuccessAction,
-  updateApplicationNavigationSettingAction,
-  updateCurrentApplicationEmbedSetting,
-  updateCurrentApplicationIcon,
-  updateCurrentApplicationForkingEnabled,
-  updateApplicationThemeSettingAction,
-  fetchAllApplicationsOfWorkspace,
-} from "ee/actions/applicationActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import {
-  createMessage,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
   IMPORT_APP_SUCCESSFUL,
+  createMessage,
 } from "ee/constants/messages";
-import { APP_MODE } from "entities/App";
 import type { Workspace } from "ee/constants/workspaceConstants";
-import type { AppColorCode } from "constants/DefaultTheme";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
+import { getPageList, getPluginForm } from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import {
+  getApplicationsOfWorkspace,
+  getCurrentWorkspaceId,
+} from "ee/selectors/selectedWorkspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import type { Datasource } from "entities/Datasource";
+import type { Page } from "entities/Page";
+import equal from "fast-deep-equal";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { isEmpty, merge } from "lodash";
+import { all, call, put, select, take } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
+import { failFastApiCalls } from "sagas/InitSagas";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
+import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
   getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-
+import { getCurrentUser } from "selectors/usersSelectors";
+import history from "utils/history";
 import {
   deleteRecentAppEntities,
   getEnableStartSignposting,
 } from "utils/storage";
-import {
-  reconnectAppLevelWebsocket,
-  reconnectPageLevelWebsocket,
-} from "actions/websocketActions";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 
-import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import {
-  fetchDatasources,
-  setUnconfiguredDatasourcesDuringImport,
-} from "actions/datasourceActions";
-import { failFastApiCalls } from "sagas/InitSagas";
-import type { Datasource } from "entities/Datasource";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
-import PageApi from "api/PageApi";
-import { isEmpty, merge } from "lodash";
-import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { getPageList, getPluginForm } from "ee/selectors/entitiesSelector";
-import { getConfigInitialValues } from "components/formControls/utils";
-import DatasourcesApi from "api/DatasourcesApi";
-import type { SetDefaultPageActionPayload } from "actions/pageActions";
-import { resetApplicationWidgets } from "actions/pageActions";
-import { setCanvasCardsState } from "actions/editorActions";
 import { toast } from "@appsmith/ads";
-import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { ERROR_CODES } from "ee/constants/ApiConstants";
-import { safeCrashAppRequest } from "actions/errorActions";
 import type { IconNames } from "@appsmith/ads";
-import {
-  defaultNavigationSetting,
-  keysOfNavigationSetting,
-} from "constants/AppConstants";
-import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import {
-  getApplicationsOfWorkspace,
-  getCurrentWorkspaceId,
-} from "ee/selectors/selectedWorkspaceSelectors";
-import equal from "fast-deep-equal";
-import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-import type { Page } from "entities/Page";
-import type { ApplicationPayload } from "entities/Application";
 
 export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
   const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];

@@ -1,4 +1,5 @@
-import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../../support/Objects/ObjectsCore";
+
 describe("Switch datasource", { tags: ["@tag.Datasource"] }, function () {
   let dsName_1, dsName_2, MongoDB;
   beforeEach(() => {

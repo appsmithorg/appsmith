@@ -1,7 +1,38 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+import { setEntityCollapsibleState } from "actions/editorContextActions";
+import { generateTemplateToUpdatePage } from "actions/pageActions";
+import {
+  DATASOURCE_GENERATE_PAGE_BUTTON,
+  GSHEET_SEARCH_PLACEHOLDER,
+  createMessage,
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { useEditorType } from "ee/hooks";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getDatasource } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import {
+  getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { isEmpty } from "lodash";
+import Table from "pages/Editor/QueryEditor/Table";
 import { useDispatch, useSelector } from "react-redux";
-import type { DropdownOption } from "@appsmith/ads-old";
+import {
+  getCurrentApplicationId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import { Button, SearchInput } from "@appsmith/ads";
+import type { DropdownOption } from "@appsmith/ads-old";
+
+import Entity from "../Explorer/Entity";
 import {
   useSheetData,
   useSheetsList,
@@ -9,28 +40,9 @@ import {
 } from "../GeneratePage/components/GeneratePageForm/hooks";
 import type { DropdownOptions } from "../GeneratePage/components/constants";
 import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
-import { isEmpty } from "lodash";
-import Table from "pages/Editor/QueryEditor/Table";
-import {
-  getCurrentApplicationId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { generateTemplateToUpdatePage } from "actions/pageActions";
-import {
-  createMessage,
-  DATASOURCE_GENERATE_PAGE_BUTTON,
-  GSHEET_SEARCH_PLACEHOLDER,
-} from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
-import { getDatasource } from "ee/selectors/entitiesSelector";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import DatasourceField from "./DatasourceField";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import RenderInterimDataState from "./RenderInterimDataState";
 import {
   ButtonContainer,
@@ -43,15 +55,6 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
-import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import Entity from "../Explorer/Entity";
-import DatasourceField from "./DatasourceField";
-import { setEntityCollapsibleState } from "actions/editorContextActions";
-import ItemLoadingIndicator from "./ItemLoadingIndicator";
-import { useEditorType } from "ee/hooks";
-import history from "utils/history";
-import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   datasourceId: string;

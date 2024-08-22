@@ -1,5 +1,6 @@
 import homePage from "../../../../locators/HomePage";
 import { agHelper } from "../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Update Application", () => {

@@ -1,20 +1,21 @@
 import React, { forwardRef } from "react";
+
 import clsx from "classnames";
 
-import { StyledButton, ButtonContent } from "./Button.styles";
-import type { ButtonProps } from "./Button.types";
-import { useDOMRef } from "../__hooks__/useDomRef";
 import { Icon } from "../Icon";
+import { Spinner } from "../Spinner";
+import { useDOMRef } from "../__hooks__/useDomRef";
 import {
   ButtonClassName,
+  ButtonContentChildrenClassName,
+  ButtonContentClassName,
+  ButtonContentIconEndClassName,
+  ButtonContentIconStartClassName,
   ButtonLoadingClassName,
   ButtonLoadingIconClassName,
-  ButtonContentClassName,
-  ButtonContentChildrenClassName,
-  ButtonContentIconStartClassName,
-  ButtonContentIconEndClassName,
 } from "./Button.constants";
-import { Spinner } from "../Spinner";
+import { ButtonContent, StyledButton } from "./Button.styles";
+import type { ButtonProps } from "./Button.types";
 
 /**
  * TODO:

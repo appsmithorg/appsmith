@@ -1,8 +1,8 @@
 import {
   agHelper,
-  locators,
-  deployMode,
   appSettings,
+  deployMode,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,

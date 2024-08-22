@@ -1,43 +1,45 @@
 import React, { useCallback, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { RouteComponentProps } from "react-router";
 
+import { deleteAction, runAction } from "actions/pluginActionActions";
+import type { PaginationField } from "api/ActionAPI";
+import BackToCanvas from "components/common/BackToCanvas";
+import type { APIEditorRouteParams } from "constants/routes";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import {
   getIsActionConverting,
   getPageList,
   getPluginSettingConfigs,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import { deleteAction, runAction } from "actions/pluginActionActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import Editor from "./Editor";
-import BackToCanvas from "components/common/BackToCanvas";
-import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import {
-  getIsEditorInitialized,
-  getPagePermissions,
-} from "selectors/editorSelectors";
 import { getActionByBaseId } from "ee/selectors/entitiesSelector";
-import type { APIEditorRouteParams } from "constants/routes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { ApiEditorContextProvider } from "./ApiEditorContext";
-import type { PaginationField } from "api/ActionAPI";
 import { get, keyBy } from "lodash";
-import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
-import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
-import { Icon } from "@appsmith/ads";
-import { resolveIcon } from "../utils";
-import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
+import { useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import {
+  getIsEditorInitialized,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Icon } from "@appsmith/ads";
+
+import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
+import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
+import { resolveIcon } from "../utils";
+import { ApiEditorContextProvider } from "./ApiEditorContext";
+import Editor from "./Editor";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 

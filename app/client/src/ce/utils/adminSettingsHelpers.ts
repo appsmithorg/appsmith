@@ -1,10 +1,10 @@
+import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
+import type { User } from "constants/userConstants";
 import { tenantConfigConnection } from "ee/constants/tenantConstants";
 import type {
   AdminConfigType,
   Category,
 } from "ee/pages/AdminSettings/config/types";
-import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
-import type { User } from "constants/userConstants";
 
 /* settings is the updated & unsaved settings on Admin settings page */
 export const saveAllowed = (

@@ -1,11 +1,13 @@
 import React from "react";
-import styled from "styled-components";
-import { importSvg } from "@appsmith/ads-old";
-import { Text } from "@appsmith/ads";
+
 import {
-  createMessage,
   DATASOURCE_BLANK_STATE_MESSAGE,
+  createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
+import { importSvg } from "@appsmith/ads-old";
 
 const Container = styled.div`
   height: 100%;

@@ -1,12 +1,12 @@
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router";
-
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import {
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
 } from "ee/selectors/applicationSelectors";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
+
 import { useIsMobileDevice } from "./useDeviceDetect";
 
 export const useAppViewerSidebarProperties = () => {

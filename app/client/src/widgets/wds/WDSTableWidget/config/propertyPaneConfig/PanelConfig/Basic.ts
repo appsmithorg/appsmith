@@ -1,11 +1,12 @@
+import { IconNames } from "@blueprintjs/icons";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes, ICON_NAMES } from "widgets/wds/WDSTableWidget/constants";
+
 import {
   hideByColumnType,
   updateIconAlignment,
 } from "../../../widget/propertyUtils";
-import { IconNames } from "@blueprintjs/icons";
 
 export default {
   sectionName: "Basic",

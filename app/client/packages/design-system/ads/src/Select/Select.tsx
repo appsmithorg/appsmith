@@ -1,14 +1,15 @@
 import React from "react";
-import RCSelect, { Option as RCOption } from "rc-select";
+
 import clsx from "classnames";
-import "./rc-styles.css";
-import "./styles.css";
+import RCSelect, { Option as RCOption } from "rc-select";
 
 import { Icon } from "../Icon";
-import { SelectClassName, SelectDropdownClassName } from "./Select.constants";
-import { Tag } from "../Tag";
-import type { SelectProps } from "./Select.types";
 import { Spinner } from "../Spinner";
+import { Tag } from "../Tag";
+import { SelectClassName, SelectDropdownClassName } from "./Select.constants";
+import type { SelectProps } from "./Select.types";
+import "./rc-styles.css";
+import "./styles.css";
 
 /*
   TODO:

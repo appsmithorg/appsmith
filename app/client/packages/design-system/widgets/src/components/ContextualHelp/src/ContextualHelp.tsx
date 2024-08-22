@@ -1,6 +1,7 @@
 import React from "react";
-import { Tooltip } from "../../Tooltip";
+
 import { IconButton } from "../../IconButton";
+import { Tooltip } from "../../Tooltip";
 import type { ContextualProps } from "./types";
 
 const _ContextualHelp = (props: ContextualProps) => {

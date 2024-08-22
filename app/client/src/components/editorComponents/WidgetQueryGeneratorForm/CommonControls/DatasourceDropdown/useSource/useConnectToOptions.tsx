@@ -1,33 +1,35 @@
 import React, { useContext, useMemo } from "react";
-import { useSelector } from "react-redux";
+
+import WidgetFactory from "WidgetProvider/factory";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
+import type { Module } from "ee/constants/ModuleConstants";
+import type {
+  ModuleInstanceData,
+  ModuleInstanceDataState,
+} from "ee/constants/ModuleInstanceConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import type {
+  ActionData,
+  ActionDataState,
+} from "ee/reducers/entityReducers/actionsReducer";
 import {
   getCurrentActions,
   getCurrentPageWidgets,
   getPluginIdPackageNamesMap,
   getQueryModuleInstances,
 } from "ee/selectors/entitiesSelector";
-import WidgetFactory from "WidgetProvider/factory";
-import { DatasourceImage, ImageWrapper } from "../../../styles";
-import { getDatatype } from "utils/AppsmithUtils";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { DropdownOptionType } from "../../../types";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
-import { PluginPackageName } from "entities/Action";
-import type {
-  ActionData,
-  ActionDataState,
-} from "ee/reducers/entityReducers/actionsReducer";
-import type {
-  ModuleInstanceData,
-  ModuleInstanceDataState,
-} from "ee/constants/ModuleInstanceConstants";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { AppState } from "ee/reducers";
-import type { Module } from "ee/constants/ModuleConstants";
 import { getAllModules } from "ee/selectors/modulesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { PluginPackageName } from "entities/Action";
 import { getModuleIcon } from "pages/Editor/utils";
+import { useSelector } from "react-redux";
+import { getDatatype } from "utils/AppsmithUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { DatasourceImage, ImageWrapper } from "../../../styles";
+import type { DropdownOptionType } from "../../../types";
 
 enum SortingWeights {
   alphabetical = 1,

@@ -1,25 +1,25 @@
 import type {
-  WidgetEntity as TWidgetEntity,
-  AppsmithEntity as TAppsmithEntity,
   DataTreeEntityConfig,
-  WidgetEntityConfig as TWidgetEntityConfig,
-  JSActionEntity as TJSActionEntity,
   ActionEntity as TActionEntity,
   ActionEntityConfig as TActionEntityConfig,
+  AppsmithEntity as TAppsmithEntity,
+  JSActionEntity as TJSActionEntity,
   JSActionEntityConfig as TJSActionEntityConfig,
+  WidgetEntity as TWidgetEntity,
+  WidgetEntityConfig as TWidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type { EntityClassLoader } from "plugins/Linting/lib/entity/EntityTree";
 import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
-import { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
-import { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
-import { AppsmithEntity } from "plugins/Linting/lib/entity/AppsmithEntity";
-import { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 import {
   isAction,
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
+import { AppsmithEntity } from "plugins/Linting/lib/entity/AppsmithEntity";
+import type { EntityClassLoader } from "plugins/Linting/lib/entity/EntityTree";
+import { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
+import { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 
 export default class EntityFactory {
   static getEntity<

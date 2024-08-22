@@ -1,5 +1,4 @@
 // See readme.md for why this file exists.
-
 // Note: using type-only imports here to avoid circular dependencies between
 // this file and BlueprintJS icon components. (The circular dependency
 // may be created because this module replaces BlueprintJS's icon implementation.)

@@ -1,11 +1,13 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "react-aria-components";
+
 import {
+  TooltipContent,
   TooltipRoot,
   TooltipTrigger,
-  TooltipContent,
 } from "@appsmith/wds-headless";
-import { Button } from "react-aria-components";
 
 /**
  * A tooltip is a small pop-up that appears when a user places their cursor over an element such as a link or button. Tooltips can be used to provide users with additional information about an element without having to clutter up the UI with additional text.

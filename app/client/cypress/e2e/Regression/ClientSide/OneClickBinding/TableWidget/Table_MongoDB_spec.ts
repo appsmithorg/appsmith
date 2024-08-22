@@ -1,16 +1,16 @@
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import {
   agHelper,
-  entityExplorer,
-  dataSources,
-  table,
-  draggableWidgets,
   assertHelper,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
-import { OneClickBinding } from "../spec_utility";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 

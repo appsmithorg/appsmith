@@ -1,4 +1,5 @@
 import { DatasourceConnectionMode } from "entities/Datasource";
+
 import GSheets from ".";
 
 describe("GSheets WidgetQueryGenerator", () => {

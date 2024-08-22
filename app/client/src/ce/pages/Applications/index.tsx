@@ -1,3 +1,27 @@
+import React, {
+  Component,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { resetEditorRequest } from "actions/initActions";
+import { setHeaderMeta } from "actions/themeActions";
+import { leaveWorkspace } from "actions/userActions";
+import NoSearchImage from "assets/images/NoSearchResult.svg";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import {
+  thinScrollbar,
+  truncateTextUsingEllipsis,
+} from "constants/DefaultTheme";
+import { Indices } from "constants/Layers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import type { User } from "constants/userConstants";
 import { updateApplication } from "ee/actions/applicationActions";
 import {
   deleteWorkspace,
@@ -7,21 +31,32 @@ import {
   saveWorkspace,
 } from "ee/actions/workspaceActions";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
+import { getAppsmithConfigs } from "ee/configs";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   ANVIL_APPLICATIONS,
   APPLICATIONS,
   CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE,
   CREATE_A_NEW_WORKSPACE,
-  createMessage,
   FIXED_APPLICATIONS,
   INVITE_USERS_PLACEHOLDER,
   NEW_APPLICATION_CARD_LIST_ZERO_STATE,
   NO_APPS_FOUND,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
+  createMessage,
 } from "ee/constants/messages";
-import type { ApplicationPayload } from "entities/Application";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import ApplicationCardList from "ee/pages/Applications/ApplicationCardList";
+import CreateNewAppsOption from "ee/pages/Applications/CreateNewAppsOption";
+import PackageCardList from "ee/pages/Applications/PackageCardList";
+import ResourceListLoader from "ee/pages/Applications/ResourceListLoader";
+import WorkflowCardList from "ee/pages/Applications/WorkflowCardList";
+import WorkspaceAction from "ee/pages/Applications/WorkspaceAction";
+import WorkspaceMenu from "ee/pages/Applications/WorkspaceMenu";
+import { usePackage } from "ee/pages/Applications/helpers";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
 import type { AppState } from "ee/reducers";
 import type { creatingApplicationMap } from "ee/reducers/uiReducers/applicationsReducer";
@@ -33,61 +68,6 @@ import {
   getIsCreatingApplication,
   getIsDeletingApplication,
 } from "ee/selectors/applicationSelectors";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import { leaveWorkspace } from "actions/userActions";
-import NoSearchImage from "assets/images/NoSearchResult.svg";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import {
-  thinScrollbar,
-  truncateTextUsingEllipsis,
-} from "constants/DefaultTheme";
-import type { User } from "constants/userConstants";
-import {
-  Button,
-  Icon,
-  Text as NewText,
-  Option,
-  Select,
-  Tooltip,
-  Tag,
-} from "@appsmith/ads";
-import {
-  AppIconCollection,
-  Classes,
-  MenuItem as ListItem,
-  Text,
-  TextType,
-} from "@appsmith/ads-old";
-import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
-import PageWrapper from "pages/common/PageWrapper";
-import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
-import React, {
-  Component,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
-import MediaQuery from "react-responsive";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
-import { getCurrentUser } from "selectors/usersSelectors";
-import styled, { ThemeContext } from "styled-components";
-import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-
-import { getAppsmithConfigs } from "ee/configs";
-import type { Workspace } from "ee/constants/workspaceConstants";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import ApplicationCardList from "ee/pages/Applications/ApplicationCardList";
-import CreateNewAppsOption from "ee/pages/Applications/CreateNewAppsOption";
-import { usePackage } from "ee/pages/Applications/helpers";
-import PackageCardList from "ee/pages/Applications/PackageCardList";
-import ResourceListLoader from "ee/pages/Applications/ResourceListLoader";
-import WorkflowCardList from "ee/pages/Applications/WorkflowCardList";
-import WorkspaceAction from "ee/pages/Applications/WorkspaceAction";
-import WorkspaceMenu from "ee/pages/Applications/WorkspaceMenu";
 import { getIsReconnectingDatasourcesModalOpen } from "ee/selectors/entitiesSelector";
 import { allowManageEnvironmentAccessForUser } from "ee/selectors/environmentSelectors";
 import { getPackagesList } from "ee/selectors/packageSelectors";
@@ -107,32 +87,54 @@ import {
   getIsFetchingWorkspaces,
   getIsSavingWorkspaceInfo,
 } from "ee/selectors/workspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getHasCreateWorkspacePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import {
+  PERMISSION_TYPE,
   hasCreateNewAppPermission,
   hasDeleteWorkspacePermission,
   hasManageWorkspaceEnvironmentPermission,
   isPermitted,
-  PERMISSION_TYPE,
 } from "ee/utils/permissionHelpers";
-import { resetEditorRequest } from "actions/initActions";
-import { setHeaderMeta } from "actions/themeActions";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
-import { Indices } from "constants/Layers";
-import ImportModal from "pages/common/ImportModal";
-import SharedUserList from "pages/common/SharedUserList";
+import type { ApplicationPayload } from "entities/Application";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import ImportModal from "pages/common/ImportModal";
+import PageWrapper from "pages/common/PageWrapper";
+import SharedUserList from "pages/common/SharedUserList";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import { connect, useDispatch, useSelector } from "react-redux";
+import MediaQuery from "react-responsive";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled, { ThemeContext } from "styled-components";
+import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import {
+  Button,
+  Icon,
+  Text as NewText,
+  Option,
+  Select,
+  Tag,
+  Tooltip,
+} from "@appsmith/ads";
+import {
+  AppIconCollection,
+  Classes,
+  MenuItem as ListItem,
+  Text,
+  TextType,
+} from "@appsmith/ads-old";
+
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 

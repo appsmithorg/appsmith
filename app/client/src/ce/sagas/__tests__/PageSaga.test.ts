@@ -1,15 +1,16 @@
+import {
+  type SetupPageActionPayload,
+  type SetupPublishedPageActionPayload,
+  fetchPageAction,
+  fetchPublishedPageAction,
+} from "actions/pageActions";
+import type { FetchPageResponse } from "api/PageApi";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { testSaga } from "redux-saga-test-plan";
+
 import { setupPageSaga, setupPublishedPageSaga } from "../PageSagas";
 import mockResponse from "./mockConsolidatedApiResponse.json";
-import type { FetchPageResponse } from "api/PageApi";
-import {
-  fetchPageAction,
-  fetchPublishedPageAction,
-  type SetupPageActionPayload,
-  type SetupPublishedPageActionPayload,
-} from "actions/pageActions";
 
 describe("ce/PageSaga", () => {
   it("should put setupPageSaga with pageWithMigratedDsl", () => {

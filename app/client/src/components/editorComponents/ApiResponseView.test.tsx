@@ -1,14 +1,16 @@
 import React from "react";
-import { render } from "@testing-library/react";
-import ApiResponseView from "./ApiResponseView";
-import configureStore from "redux-mock-store";
-import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
-import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
-import { lightTheme } from "selectors/themeSelectors";
-import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+
 import "@testing-library/jest-dom/extend-expect";
+import { render } from "@testing-library/react";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
+import { Provider } from "react-redux";
+import { BrowserRouter as Router } from "react-router-dom";
+import configureStore from "redux-mock-store";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+
+import ApiResponseView from "./ApiResponseView";
 
 jest.mock("./EntityBottomTabs", () => ({
   __esModule: true,

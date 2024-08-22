@@ -1,5 +1,6 @@
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import { apiPage, assertHelper } from "../../../../support/Objects/ObjectsCore";
+
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("1. Test curl import flow for POST action with JSON body", function () {

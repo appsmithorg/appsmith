@@ -1,17 +1,19 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import React from "react";
 import { useCallback } from "react";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
+
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { isValidLicense } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
+import { requiresAuth } from "pages/UserAuth/requiresAuthHOC";
 import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
-import { Spinner } from "@appsmith/ads";
-import { isValidLicense } from "ee/selectors/tenantSelectors";
-import { redirectUserAfterSignup } from "ee/utils/signupHelpers";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
 import { setUserSignedUpFlag } from "utils/storage";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import { Spinner } from "@appsmith/ads";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();

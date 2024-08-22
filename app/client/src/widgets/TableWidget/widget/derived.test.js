@@ -1,6 +1,8 @@
-import derivedProperty from "./derived";
-import moment from "moment";
 import _ from "lodash";
+import moment from "moment";
+
+import derivedProperty from "./derived";
+
 describe("Validates Derived Properties", () => {
   it("validates columns generation function for empty values", () => {
     const { getTableColumns } = derivedProperty;

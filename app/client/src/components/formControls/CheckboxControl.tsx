@@ -1,11 +1,14 @@
 import React from "react";
-import type { CheckboxProps } from "@appsmith/ads";
-import { Checkbox } from "@appsmith/ads";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
+
+import type { CheckboxProps } from "@appsmith/ads";
+import { Checkbox } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 class CheckboxControl extends BaseControl<CheckboxControlProps> {
   getControlType(): ControlType {

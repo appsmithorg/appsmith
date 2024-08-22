@@ -1,14 +1,15 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../support/Pages/EditorNavigation";
-
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   assertHelper,
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;

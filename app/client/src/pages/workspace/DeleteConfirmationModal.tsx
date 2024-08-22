@@ -1,17 +1,19 @@
 import React from "react";
+
+import {
+  DELETE_CONFIRMATION_MODAL_SUBTITLE,
+  DELETE_CONFIRMATION_MODAL_TITLE,
+} from "ee/constants/messages";
+
 import {
   Button,
   Modal,
   ModalBody,
   ModalContent,
-  ModalHeader,
   ModalFooter,
+  ModalHeader,
   Text,
 } from "@appsmith/ads";
-import {
-  DELETE_CONFIRMATION_MODAL_TITLE,
-  DELETE_CONFIRMATION_MODAL_SUBTITLE,
-} from "ee/constants/messages";
 
 interface DeleteConfirmationProps {
   userToBeDeleted: {

@@ -1,8 +1,9 @@
-import { Layers } from "constants/Layers";
 import type { RefObject } from "react";
-import React, { useState, useEffect } from "react";
-import styled, { css } from "styled-components";
+import React, { useEffect, useState } from "react";
+
+import { Layers } from "constants/Layers";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import styled, { css } from "styled-components";
 
 export const ResizerCSS = css`
   width: 100%;

@@ -1,14 +1,15 @@
-import { BaseQueryGenerator } from "../BaseQueryGenerator";
+import { DatasourceConnectionMode } from "entities/Datasource";
+import without from "lodash/without";
 import { formatDialect, mysql } from "sql-formatter";
+import { removeSpecialChars } from "utils/helpers";
+
+import { BaseQueryGenerator } from "../BaseQueryGenerator";
 import type {
   ActionConfigurationSQL,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
 } from "../types";
 import { QUERY_TYPE } from "../types";
-import { removeSpecialChars } from "utils/helpers";
-import without from "lodash/without";
-import { DatasourceConnectionMode } from "entities/Datasource";
 
 export default abstract class MySQL extends BaseQueryGenerator {
   private static buildSelect(

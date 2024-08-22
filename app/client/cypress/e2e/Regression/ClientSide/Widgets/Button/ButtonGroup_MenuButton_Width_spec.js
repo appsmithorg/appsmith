@@ -1,5 +1,6 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import { agHelper } from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "In a button group widget, menu button width",

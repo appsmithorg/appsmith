@@ -1,11 +1,12 @@
-import { put } from "redux-saga/effects";
-import { PAGE_LEVEL_SOCKET_EVENTS } from "./socketEvents";
+import * as Sentry from "@sentry/react";
 import {
+  collabConcurrentPageEditorsData,
   collabSetEditorsPointersData,
   collabUnsetEditorsPointersData,
-  collabConcurrentPageEditorsData,
 } from "actions/appCollabActions";
-import * as Sentry from "@sentry/react";
+import { put } from "redux-saga/effects";
+
+import { PAGE_LEVEL_SOCKET_EVENTS } from "./socketEvents";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

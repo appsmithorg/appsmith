@@ -1,6 +1,7 @@
-import reducer from "./pageWidgetsReducer";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentRowBinding } from "widgets/TableWidget/constants";
+
+import reducer from "./pageWidgetsReducer";
 
 const pageWidgetUIInitialState = {
   "60783f9204a08773573ed1d2": {

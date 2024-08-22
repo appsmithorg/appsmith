@@ -1,11 +1,12 @@
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import JSObjectCollection from "../Collection";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import TriggerEmitter, {
   jsVariableUpdatesHandlerWrapper,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";
+
+import JSObjectCollection from "../Collection";
 
 jest.mock("../../evalTreeWithChanges.ts", () => {
   return {

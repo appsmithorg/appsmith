@@ -1,5 +1,7 @@
 import React from "react";
+
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
+
 export function DefaultWorkspacePage() {
   return (
     <Centered>

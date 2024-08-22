@@ -1,3 +1,4 @@
+import { JS_ACTIONS } from "ee/actions/evaluationActionsList";
 import type {
   BufferedReduxAction,
   ReduxAction,
@@ -6,9 +7,8 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { JS_ACTIONS } from "ee/actions/evaluationActionsList";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import type { JSCollection } from "entities/JSCollection";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 export function getAffectedJSObjectIdsFromJSAction(
   action: ReduxAction<unknown> | BufferedReduxAction<unknown>,

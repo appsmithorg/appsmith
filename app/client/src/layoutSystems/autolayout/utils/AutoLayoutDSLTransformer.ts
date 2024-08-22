@@ -1,5 +1,6 @@
 import type { DSLWidget } from "WidgetProvider/constants";
 import convertDSLtoAutoAndUpdatePositions from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
+
 import { checkIsDSLAutoLayout } from "./AutoLayoutUtils";
 
 /**

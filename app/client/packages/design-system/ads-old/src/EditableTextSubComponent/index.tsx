@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+
 import {
-  EditableText as BlueprintEditableText,
   Classes as BlueprintClasses,
+  EditableText as BlueprintEditableText,
 } from "@blueprintjs/core";
-import styled from "styled-components";
 import type { noop } from "lodash";
+import styled from "styled-components";
+
 import { Spinner } from "@appsmith/ads";
+
 import { Text, TextType } from "../index";
 import type { CommonComponentProps } from "../types/common";
 

@@ -1,20 +1,10 @@
 import React, { useEffect, useState } from "react";
+
 import clsx from "classnames";
 
-import type { ListItemProps, ListProps } from "./List.types";
-import {
-  ContentTextWrapper,
-  DescriptionWrapper,
-  EndIconWrapper,
-  InlineDescriptionWrapper,
-  StyledList,
-  StyledListItem,
-  TooltipTextWrapper,
-  Wrapper,
-} from "./List.styles";
+import { Button } from "../Button";
 import type { TextProps } from "../Text";
 import { Text } from "../Text";
-import { Button } from "../Button";
 import { Tooltip } from "../Tooltip";
 import {
   ListClassName,
@@ -25,6 +15,17 @@ import {
   ListItemTitleClassName,
   ListItemWrapperClassName,
 } from "./List.constants";
+import {
+  ContentTextWrapper,
+  DescriptionWrapper,
+  EndIconWrapper,
+  InlineDescriptionWrapper,
+  StyledList,
+  StyledListItem,
+  TooltipTextWrapper,
+  Wrapper,
+} from "./List.styles";
+import type { ListItemProps, ListProps } from "./List.types";
 
 function List({ className, items, ...rest }: ListProps) {
   return (

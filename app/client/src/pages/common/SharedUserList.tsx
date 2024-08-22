@@ -1,11 +1,13 @@
 import React from "react";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
-import { AvatarGroup } from "@appsmith/ads";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { getAllUsersOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+
+import { AvatarGroup } from "@appsmith/ads";
 
 const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;

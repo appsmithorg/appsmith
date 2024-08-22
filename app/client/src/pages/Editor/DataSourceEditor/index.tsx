@@ -1,76 +1,20 @@
 import React from "react";
-import { connect } from "react-redux";
+
 import {
-  getFormInitialValues,
-  getFormValues,
-  initialize,
-  isDirty,
-  reset,
-} from "redux-form";
-import type { AppState } from "ee/reducers";
-import { get, isEmpty, isEqual, isNil, memoize, merge } from "lodash";
-import {
-  getPluginImages,
-  getDatasource,
-  getPlugin,
-  getDatasourceFormButtonConfig,
-} from "ee/selectors/entitiesSelector";
-import {
-  switchDatasource,
-  setDatasourceViewMode,
-  removeTempDatasource,
+  createTempDatasourceFromForm,
+  datasourceDiscardAction,
   deleteTempDSFromDraft,
+  initializeDatasourceFormDefaults,
+  removeTempDatasource,
+  resetDefaultKeyValPairFlag,
+  setDatasourceViewMode,
+  setDatasourceViewModeFlag,
+  switchDatasource,
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
-  createTempDatasourceFromForm,
-  resetDefaultKeyValPairFlag,
-  initializeDatasourceFormDefaults,
-  datasourceDiscardAction,
-  setDatasourceViewModeFlag,
 } from "actions/datasourceActions";
-import {
-  DATASOURCE_DB_FORM,
-  DATASOURCE_REST_API_FORM,
-} from "ee/constants/forms";
-import DataSourceEditorForm from "./DBForm";
-import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
-import type { Datasource, DatasourceStorage } from "entities/Datasource";
-import { ToastMessageType } from "entities/Datasource";
-import type { RouteComponentProps } from "react-router";
-import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { DatasourceComponentTypes } from "api/PluginApi";
-import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
-import {
-  getCurrentApplicationId,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
-import { saasEditorDatasourceIdURL } from "ee/RouteBuilder";
-import {
-  createMessage,
-  REST_API_AUTHORIZATION_APPSMITH_ERROR,
-  REST_API_AUTHORIZATION_FAILED,
-  REST_API_AUTHORIZATION_SUCCESSFUL,
-  SAVE_BUTTON_TEXT,
-  TEST_DATASOURCE_ERROR,
-  TEST_DATASOURCE_SUCCESS,
-} from "ee/constants/messages";
-import { isDatasourceInViewMode } from "selectors/ui";
-import { getQueryParams } from "utils/URLUtils";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
-
-import { toast, Callout } from "@appsmith/ads";
-import styled from "styled-components";
-import {
-  isDatasourceAuthorizedForQueryCreation,
-  isEnabledForPreviewData,
-} from "utils/editorContextUtils";
-import Debugger, {
-  ResizerContentContainer,
-  ResizerMainContainer,
-} from "./Debugger";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import DatasourceAuth from "pages/common/datasourceAuth";
+import type { ControlProps } from "components/formControls/BaseControl";
 import {
   getConfigInitialValues,
   getIsFormDirty,
@@ -79,31 +23,88 @@ import {
   normalizeValues,
   validate,
 } from "components/formControls/utils";
-import type { ControlProps } from "components/formControls/BaseControl";
-import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
-import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
-import { DSFormHeader } from "./DSFormHeader";
-import type { PluginType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
-import DSDataFilter from "ee/components/DSDataFilter";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { saasEditorDatasourceIdURL } from "ee/RouteBuilder";
+import { setCurrentEditingEnvironmentID } from "ee/actions/environmentAction";
 import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";
-import { isStorageEnvironmentCreated } from "ee/utils/Environments";
-import type { CalloutKind } from "@appsmith/ads";
+import DSDataFilter from "ee/components/DSDataFilter";
+import {
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+} from "ee/constants/forms";
+import {
+  REST_API_AUTHORIZATION_APPSMITH_ERROR,
+  REST_API_AUTHORIZATION_FAILED,
+  REST_API_AUTHORIZATION_SUCCESSFUL,
+  SAVE_BUTTON_TEXT,
+  TEST_DATASOURCE_ERROR,
+  TEST_DATASOURCE_SUCCESS,
+  createMessage,
+} from "ee/constants/messages";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
-
+import type { AppState } from "ee/reducers";
+import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
+import {
+  getDatasource,
+  getDatasourceFormButtonConfig,
+  getPlugin,
+  getPluginImages,
+} from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { setCurrentEditingEnvironmentID } from "ee/actions/environmentAction";
-import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
-import { isGACEnabled } from "ee/utils/planHelpers";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
-import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
+import { isStorageEnvironmentCreated } from "ee/utils/Environments";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import type { PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
+import type { Datasource, DatasourceStorage } from "entities/Datasource";
+import { ToastMessageType } from "entities/Datasource";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import { get, isEmpty, isEqual, isNil, memoize, merge } from "lodash";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import DatasourceAuth from "pages/common/datasourceAuth";
+import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import {
+  getFormInitialValues,
+  getFormValues,
+  initialize,
+  isDirty,
+  reset,
+} from "redux-form";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import {
+  getCurrentApplicationId,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
-import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
+import { isDatasourceInViewMode } from "selectors/ui";
+import styled from "styled-components";
+import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
+import { getQueryParams } from "utils/URLUtils";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isEnabledForPreviewData,
+} from "utils/editorContextUtils";
+
+import { Callout, toast } from "@appsmith/ads";
+import type { CalloutKind } from "@appsmith/ads";
+
+import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
+import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
+import DataSourceEditorForm from "./DBForm";
+import { DSFormHeader } from "./DSFormHeader";
+import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "./Debugger";
+import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
+import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;

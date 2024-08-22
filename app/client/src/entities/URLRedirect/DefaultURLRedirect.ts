@@ -1,10 +1,11 @@
-import { ApplicationVersion } from "ee/actions/applicationActions";
-import type { ApplicationPayload } from "entities/Application";
-import { APP_MODE } from "entities/App";
-import { select } from "redux-saga/effects";
 import { builderURL } from "ee/RouteBuilder";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import { select } from "redux-saga/effects";
 import { isURLDeprecated } from "utils/helpers";
+
 import URLRedirect from ".";
 
 export default class DefaultURLRedirect extends URLRedirect {

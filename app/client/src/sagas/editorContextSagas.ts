@@ -1,17 +1,16 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   setPanelPropertySectionState,
   setPanelSelectedPropertyTabIndex,
   setWidgetPropertySectionState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-
 import type { CodeEditorFocusState } from "actions/editorContextActions";
 import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { all, put, takeLatest } from "redux-saga/effects";
 

@@ -1,8 +1,9 @@
 import React, { createContext, useMemo } from "react";
 
 import type { RenderMode } from "constants/WidgetConstants";
-import type { Action, JSONFormWidgetState } from "./widget";
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
+
+import type { Action, JSONFormWidgetState } from "./widget";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

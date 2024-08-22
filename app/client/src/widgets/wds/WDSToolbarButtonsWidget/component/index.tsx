@@ -1,11 +1,14 @@
 import type { Key } from "react";
 import React, { useMemo, useState } from "react";
+
+import { sortBy } from "lodash";
+
 import { ToolbarButtons } from "@appsmith/wds";
+
 import type {
   ToolbarButtonsComponentProps,
   ToolbarButtonsItemComponentProps,
 } from "./types";
-import { sortBy } from "lodash";
 
 export const ToolbarButtonsComponent = (
   props: ToolbarButtonsComponentProps,

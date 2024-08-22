@@ -1,34 +1,36 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { createGlobalStyle } from "styled-components";
+
 import type {
-  IconName,
-  PopoverPosition,
   IPopoverSharedProps,
+  IconName,
   MaybeElement,
+  PopoverPosition,
 } from "@blueprintjs/core";
 import {
-  Popover,
   Classes,
-  PopoverInteractionKind,
   Icon,
+  Popover,
+  PopoverInteractionKind,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import { MenuIcons } from "icons/MenuIcons";
-import type { Intent } from "constants/DefaultTheme";
-import { IntentColors } from "constants/DefaultTheme";
-import type { Direction } from "utils/helpers";
-import { Directions } from "utils/helpers";
-import { getDirectionBased } from "./dropdownHelpers";
-import { Skin } from "constants/DefaultTheme";
-import {
-  Option,
-  DropdownContentSection,
-  DropdownContent,
-  DropdownTrigger,
-} from "./StyledComponents";
 import type { ButtonProps } from "components/editorComponents/Button";
 import Button from "components/editorComponents/Button";
+import type { Intent } from "constants/DefaultTheme";
+import { IntentColors } from "constants/DefaultTheme";
+import { Skin } from "constants/DefaultTheme";
+import { MenuIcons } from "icons/MenuIcons";
+import { createGlobalStyle } from "styled-components";
+import type { Direction } from "utils/helpers";
+import { Directions } from "utils/helpers";
+
+import {
+  DropdownContent,
+  DropdownContentSection,
+  DropdownTrigger,
+  Option,
+} from "./StyledComponents";
+import { getDirectionBased } from "./dropdownHelpers";
 
 export interface CustomizedDropdownOptionSection {
   isSticky?: boolean;

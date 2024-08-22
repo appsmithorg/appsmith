@@ -1,7 +1,7 @@
 import {
   agHelper,
-  locators,
   jsEditor,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

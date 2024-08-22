@@ -1,17 +1,19 @@
 import React, { memo, useCallback, useEffect } from "react";
-import styled from "styled-components";
+
+import { LayersContext } from "constants/Layers";
 import { GridDefaults } from "constants/WidgetConstants";
+import styled from "styled-components";
+
+import type { AutoHeightOverlayContainerProps } from ".";
 import AutoHeightLimitHandleGroup from "./AutoHeightLimitHandleGroup";
-import AutoHeightLimitOverlayDisplay from "./ui/AutoHeightLimitOverlayDisplay";
 import {
   useAutoHeightOverlayUIStateActions,
   useDragCallbacksForHandles,
   useHoverState,
   usePositionedStyles,
 } from "./hooks";
-import { LayersContext } from "constants/Layers";
 import { useAutoHeightLimitsState } from "./store";
-import type { AutoHeightOverlayContainerProps } from ".";
+import AutoHeightLimitOverlayDisplay from "./ui/AutoHeightLimitOverlayDisplay";
 
 interface StyledAutoHeightOverlayProps {
   layerIndex: number;

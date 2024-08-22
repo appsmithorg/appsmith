@@ -1,3 +1,11 @@
+import * as Sentry from "@sentry/react";
+import type {
+  FetchPageResponse,
+  PageLayout,
+  SavePageResponse,
+  UpdatePageRequest,
+  UpdatePageResponse,
+} from "api/PageApi";
 import type { WidgetType } from "constants/WidgetConstants";
 import type {
   AnyReduxAction,
@@ -9,28 +17,21 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
-import type {
-  FetchPageResponse,
-  PageLayout,
-  SavePageResponse,
-  UpdatePageRequest,
-  UpdatePageResponse,
-} from "api/PageApi";
-import type { UrlDataState } from "reducers/entityReducers/appReducer";
-import type { APP_MODE } from "entities/App";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { APP_MODE } from "entities/App";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import * as Sentry from "@sentry/react";
+import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
+import type { UrlDataState } from "reducers/entityReducers/appReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+
 import type { DSLWidget } from "../WidgetProvider/constants";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "../constants/AppsmithActionConstants/ActionConstants";
-import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 
 export interface FetchPageListPayload {
   applicationId: string;

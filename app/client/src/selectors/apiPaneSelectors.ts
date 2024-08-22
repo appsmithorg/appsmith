@@ -1,5 +1,6 @@
 import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
+
 import { combinedPreviewModeSelector } from "./editorSelectors";
 
 type GetFormData = (

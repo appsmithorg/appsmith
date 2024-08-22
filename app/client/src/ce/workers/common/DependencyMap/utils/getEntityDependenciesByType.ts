@@ -1,22 +1,22 @@
+import type {
+  ActionEntity,
+  ActionEntityConfig,
+  DataTreeEntityConfig,
+  JSActionEntity,
+  JSActionEntityConfig,
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "ee/entities/DataTree/types";
+import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
 import {
   addWidgetPropertyDependencies,
   getEntityNameAndPropertyPath,
   isATriggerPath,
 } from "ee/workers/Evaluation/evaluationUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type {
-  ActionEntity,
-  ActionEntityConfig,
-  JSActionEntity,
-  JSActionEntityConfig,
-  DataTreeEntityConfig,
-  WidgetEntity,
-  WidgetEntityConfig,
-} from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { find, union } from "lodash";
 import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
-import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
 import { getDependencyFromEntityPath } from "workers/common/DependencyMap/utils/getEntityDependencies";
 
 export const getDependencies = {

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 
-import Marker from "./Marker";
 import type { MapComponentProps } from ".";
+import Marker from "./Marker";
 
 type ClustererProps = {
   map?: google.maps.Map;

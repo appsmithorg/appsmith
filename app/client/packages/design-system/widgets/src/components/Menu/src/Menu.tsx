@@ -1,14 +1,17 @@
 import React from "react";
-import { Icon, listItemStyles, Popover, Text } from "@appsmith/wds";
+
+import type { Key } from "@react-types/shared";
 import {
   Menu as HeadlessMenu,
   MenuItem,
   Separator,
   SubmenuTrigger,
 } from "react-aria-components";
+
+import { Icon, Popover, Text, listItemStyles } from "@appsmith/wds";
+
 import styles from "./styles.module.css";
-import type { MenuProps, MenuItemProps } from "./types";
-import type { Key } from "@react-types/shared";
+import type { MenuItemProps, MenuProps } from "./types";
 
 export const Menu = (props: MenuProps) => {
   const { hasSubmenu = false } = props;

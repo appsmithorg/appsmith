@@ -1,3 +1,8 @@
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
@@ -6,11 +11,6 @@ import {
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
-import {
-  agHelper,
-  entityExplorer,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Test Suite to validate copy/paste table Widget V2",

@@ -1,10 +1,13 @@
 import React, { useCallback } from "react";
-import { IconWrapper } from "constants/IconConstants";
-import { Colors } from "constants/Colors";
-import styled from "styled-components";
+
 import Tooltip from "components/editorComponents/Tooltip";
-import { TooltipContentWrapper } from "../../TableStyledWrappers";
+import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
+import styled from "styled-components";
+
 import { importSvg } from "@appsmith/ads-old";
+
+import { TooltipContentWrapper } from "../../TableStyledWrappers";
 
 const FilterIcon = importSvg(
   async () => import("assets/icons/control/filter-icon.svg"),

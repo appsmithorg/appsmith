@@ -1,3 +1,4 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -6,7 +7,6 @@ import EditorNavigation, {
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const iconAlignmentProperty = ".t--property-control-position";
 

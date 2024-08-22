@@ -1,4 +1,5 @@
 import type { ToastOptions } from "react-toastify";
+
 import type { ButtonProps } from "../Button/Button.types";
 import type { Kind } from "../__config__/types";
 

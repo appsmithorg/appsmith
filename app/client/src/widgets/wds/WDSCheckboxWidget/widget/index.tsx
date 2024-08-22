@@ -1,14 +1,16 @@
 import React from "react";
-import { Checkbox } from "@appsmith/wds";
-import type { SetterConfig } from "entities/AppTheming";
+
+import type { AnvilConfig } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig } from "entities/AppTheming";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/BaseWidget";
+
+import { Checkbox } from "@appsmith/wds";
 
 import * as config from "./../config";
-import BaseWidget from "widgets/BaseWidget";
 import type { CheckboxWidgetProps } from "./types";
-import type { WidgetState } from "widgets/BaseWidget";
-import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static type = "WDS_CHECKBOX_WIDGET";

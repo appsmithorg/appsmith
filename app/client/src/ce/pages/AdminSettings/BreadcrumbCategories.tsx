@@ -1,6 +1,6 @@
 import { APPLICATIONS_URL } from "constants/routes";
-import { SettingCategories } from "ee/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
+import { SettingCategories } from "ee/pages/AdminSettings/config/types";
 
 export const BreadcrumbCategories = {
   HOMEPAGE: {

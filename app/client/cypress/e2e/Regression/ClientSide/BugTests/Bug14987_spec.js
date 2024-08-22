@@ -1,9 +1,10 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
 import {
-  dataSources,
   agHelper,
+  dataSources,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+
+const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe(
   "Verify setting tab form controls not to have tooltip and tooltip (underline) styles",

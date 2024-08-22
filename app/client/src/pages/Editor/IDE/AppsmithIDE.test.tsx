@@ -1,10 +1,13 @@
-import type { AppState } from "ee/reducers";
-import { all } from "@redux-saga/core/effects";
-import lodash from "lodash";
 import React from "react";
+
+import { all } from "@redux-saga/core/effects";
+import type { AppState } from "ee/reducers";
+import lodash from "lodash";
+import * as useCanvasWidthAutoResize from "pages/hooks";
 import { MemoryRouter } from "react-router-dom";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as utilities from "selectors/editorSelectors";
+import * as uiSelectors from "selectors/ui";
 import store from "store";
 import {
   buildChildren,
@@ -22,10 +25,9 @@ import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import * as useCanvasWidthAutoResize from "pages/hooks";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
+
 import GlobalHotKeys from "../GlobalHotKeys";
-import * as uiSelectors from "selectors/ui";
 
 const pageId = "0123456789abcdef00000000";
 

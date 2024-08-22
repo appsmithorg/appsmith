@@ -1,5 +1,6 @@
-import { tailwindLayers } from "constants/Layers";
 import React from "react";
+
+import { tailwindLayers } from "constants/Layers";
 import styled from "styled-components";
 import type { CallbackResponseType } from "utils/hooks/useResize";
 import useResize, { DIRECTION } from "utils/hooks/useResize";

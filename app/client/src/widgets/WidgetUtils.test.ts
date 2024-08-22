@@ -1,37 +1,38 @@
+import type { PropertyUpdates } from "WidgetProvider/constants";
 import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { PropertyUpdates } from "WidgetProvider/constants";
 import {
   RenderModes,
   TextSizes,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import { remove } from "lodash";
-import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import type { WidgetProps } from "./BaseWidget";
+import { ThemeMode, getTheme } from "selectors/themeSelectors";
+
 import { rgbaMigrationConstantV56 } from "../WidgetProvider/constants";
+import type { WidgetProps } from "./BaseWidget";
 import {
   borderRadiusUtility,
-  replaceRgbaMigrationConstant,
   boxShadowMigration,
   boxShadowUtility,
-  fontSizeUtility,
-  lightenColor,
   composePropertyUpdateHook,
-  sanitizeKey,
-  shouldUpdateWidgetHeightAutomatically,
-  isAutoHeightEnabledForWidget,
-  isAutoHeightEnabledForWidgetWithLimits,
+  fontSizeUtility,
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
   isCompactMode,
+  lightenColor,
+  replaceRgbaMigrationConstant,
+  sanitizeKey,
+  shouldUpdateWidgetHeightAutomatically,
 } from "./WidgetUtils";
 import {
-  getCustomTextColor,
   getCustomBackgroundColor,
   getCustomHoverColor,
+  getCustomTextColor,
 } from "./WidgetUtils";
 
 const tableWidgetProps = {

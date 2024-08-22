@@ -1,13 +1,14 @@
-import { createReducer } from "utils/ReducerUtils";
+import type { ActionResponse } from "api/ActionAPI";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { omit } from "lodash";
 import type { Action } from "entities/Action";
-import type { ActionResponse } from "api/ActionAPI";
+import { omit } from "lodash";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { createReducer } from "utils/ReducerUtils";
+
 import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
 
 export const initialState: QueryPaneReduxState = {

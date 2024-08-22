@@ -1,4 +1,4 @@
-import { PluginPackageName, PluginName } from "entities/Action";
+import { PluginName, PluginPackageName } from "entities/Action";
 
 export const QUERY_BODY_FIELDS = [
   "actionConfiguration.body",

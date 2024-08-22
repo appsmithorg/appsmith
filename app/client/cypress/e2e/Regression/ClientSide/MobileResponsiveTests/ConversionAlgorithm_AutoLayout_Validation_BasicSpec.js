@@ -1,9 +1,9 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgets = require("../../../../locators/Widgets.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let testHeight;
 

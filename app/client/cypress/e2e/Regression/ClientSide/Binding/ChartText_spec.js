@@ -1,3 +1,4 @@
+import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -5,7 +6,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Text-Chart Binding Functionality",

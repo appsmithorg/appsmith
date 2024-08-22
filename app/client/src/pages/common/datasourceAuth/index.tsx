@@ -1,20 +1,18 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+
 import {
-  testDatasource,
-  updateDatasource,
-  redirectAuthorizationCode,
-  getOAuthAccessToken,
   createDatasourceFromForm,
+  getOAuthAccessToken,
+  redirectAuthorizationCode,
+  testDatasource,
   toggleSaveActionFlag,
+  updateDatasource,
   updateDatasourceAuthState,
 } from "actions/datasourceActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useLocation, useHistory } from "react-router";
-import type { Datasource } from "entities/Datasource";
-import { AuthType, AuthenticationStatus } from "entities/Datasource";
+import { resetCurrentPluginIdForCreateNewApp } from "actions/onboardingActions";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import {
   CANCEL,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
@@ -25,24 +23,28 @@ import {
   TEST_BUTTON_TEXT,
   createMessage,
 } from "ee/constants/messages";
-import { Button, toast } from "@appsmith/ads";
+import { useParentEntityDetailsFromParams } from "ee/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { PluginType } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import type { ClientCredentials } from "entities/Datasource/RestAPIForm";
 import {
-  GrantType,
   type ApiDatasourceForm,
+  GrantType,
 } from "entities/Datasource/RestAPIForm";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { integrationEditorURL } from "ee/RouteBuilder";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled from "styled-components";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
-import type { PluginType } from "entities/Action";
-import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { resetCurrentPluginIdForCreateNewApp } from "actions/onboardingActions";
-import { useParentEntityDetailsFromParams } from "ee/entities/Engine/actionHelpers";
+
+import { Button, toast } from "@appsmith/ads";
 
 interface Props {
   datasource: Datasource;

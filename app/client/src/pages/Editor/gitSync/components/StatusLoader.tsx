@@ -1,6 +1,8 @@
 import React from "react";
-import styled from "styled-components";
+
 import SpinnerLoader from "pages/common/SpinnerLoader";
+import styled from "styled-components";
+
 import { Text } from "@appsmith/ads";
 
 const LoaderWrapper = styled.div`

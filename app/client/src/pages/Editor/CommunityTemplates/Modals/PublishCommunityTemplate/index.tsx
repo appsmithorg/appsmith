@@ -1,4 +1,7 @@
+import React from "react";
+
 import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
+
 import {
   Modal,
   ModalBody,
@@ -6,7 +9,7 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import React from "react";
+
 import CommunityTemplateForm from "./CommunityTemplateForm";
 import { PublishPageHeaderContainer } from "./StyledComponents";
 

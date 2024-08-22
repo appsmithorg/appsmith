@@ -1,22 +1,25 @@
 import React, { useState } from "react";
+
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import type { Page } from "entities/Page";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Icon } from "@appsmith/ads";
-import MenuText from "./MenuText";
-import {
-  StyledMenuDropdownContainer,
-  StyledMenuItemInDropdown,
-  StyleMoreDropdownButton,
-} from "./MoreDropdownButton.styled";
-import type { Page } from "entities/Page";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { NavigationMethod } from "utils/history";
+
+import { Icon } from "@appsmith/ads";
+
+import MenuText from "./MenuText";
+import {
+  StyleMoreDropdownButton,
+  StyledMenuDropdownContainer,
+  StyledMenuItemInDropdown,
+} from "./MoreDropdownButton.styled";
 
 interface MoreDropdownButtonProps {
   navigationSetting?: NavigationSetting;

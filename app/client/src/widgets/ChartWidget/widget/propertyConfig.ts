@@ -1,12 +1,13 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { WidgetProps } from "widgets/BaseWidget";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
+
 import {
   CUSTOM_CHART_TYPES,
-  LabelOrientation,
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
+  LabelOrientation,
 } from "../constants";
-import type { WidgetProps } from "widgets/BaseWidget";
 
 export const isLabelOrientationApplicableFor = (chartType: string) =>
   LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);

@@ -1,6 +1,7 @@
 import { klona } from "klona";
-import type { DSLWidget } from "../types";
+
 import { migrateChildStylesheetFromDynamicBindingPathList } from "../migrations/070-migrate-child-stylesheet-from-dynamic-binding-path-list";
+import type { DSLWidget } from "../types";
 
 const inputDSL1 = {
   widgetName: "MainContainer",

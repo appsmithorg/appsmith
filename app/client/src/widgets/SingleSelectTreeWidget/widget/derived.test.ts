@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { flat } from "widgets/WidgetUtils";
+
 import derivedProperty from "./derived";
 
 const options = [

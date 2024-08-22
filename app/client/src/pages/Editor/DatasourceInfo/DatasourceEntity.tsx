@@ -1,24 +1,26 @@
 import React, { useCallback } from "react";
-import type { Datasource } from "entities/Datasource";
-import type { Plugin } from "api/PluginApi";
-import DataSourceContextMenu from "../Explorer/Datasources/DataSourceContextMenu";
-import { getPluginIcon } from "../Explorer/ExplorerIcons";
-import { getQueryIdFromURL } from "ee/pages/Editor/Explorer/helpers";
-import Entity, { EntityClassNames } from "../Explorer/Entity";
-import history, { NavigationMethod } from "utils/history";
+
 import { updateDatasourceName } from "actions/datasourceActions";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { isStoredDatasource, PluginType } from "entities/Action";
-import { getAction } from "ee/selectors/entitiesSelector";
+import type { Plugin } from "api/PluginApi";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
 } from "ee/RouteBuilder";
+import { getQueryIdFromURL } from "ee/pages/Editor/Explorer/helpers";
+import type { AppState } from "ee/reducers";
+import { getAction } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useLocation } from "react-router";
+import { PluginType, isStoredDatasource } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
 import omit from "lodash/omit";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
 import { getQueryParams } from "utils/URLUtils";
+import history, { NavigationMethod } from "utils/history";
+
+import DataSourceContextMenu from "../Explorer/Datasources/DataSourceContextMenu";
+import Entity, { EntityClassNames } from "../Explorer/Entity";
+import { getPluginIcon } from "../Explorer/ExplorerIcons";
 
 interface ExplorerDatasourceEntityProps {
   plugin: Plugin;

@@ -1,7 +1,9 @@
 import React from "react";
+
+import { PropertyPaneSectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/propertyPane/PropertyPaneSectionSpaceDistributor";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { PropertyPaneSectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/propertyPane/PropertyPaneSectionSpaceDistributor";
 
 export interface SectionSplitterControlProps extends ControlProps {}
 

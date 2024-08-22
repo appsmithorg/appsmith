@@ -1,12 +1,34 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+
+import WidgetFactory from "WidgetProvider/factory";
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import {
+  getFillWidgetLengthForLayer,
+  getLayerIndexOfWidget,
+} from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   isHandleResizeAllowed,
   isResizingDisabled,
 } from "layoutSystems/common/resizer/ResizableUtils";
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { GridDefaults, WIDGET_PADDING } from "constants/WidgetConstants";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties } from "react";
+import {
+  RESIZE_BORDER_BUFFER,
+  ResizableHandle,
+  ResizeWrapper,
+  getWrapperStyle,
+} from "layoutSystems/common/resizer/common";
+import type {
+  DimensionUpdateProps,
+  ResizableProps,
+} from "layoutSystems/common/resizer/common";
+import {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import { isFunction } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { Spring } from "react-spring";
 import type {
@@ -15,35 +37,14 @@ import type {
   ReflowedSpaceMap,
 } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
-import {
-  ResizableHandle,
-  RESIZE_BORDER_BUFFER,
-  ResizeWrapper,
-  getWrapperStyle,
-} from "layoutSystems/common/resizer/common";
-import type {
-  DimensionUpdateProps,
-  ResizableProps,
-} from "layoutSystems/common/resizer/common";
 import { getWidget, getWidgets } from "sagas/selectors";
 import {
   getContainerOccupiedSpacesSelectorWhileResizing,
   getDimensionMap,
 } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import {
-  getFillWidgetLengthForLayer,
-  getLayerIndexOfWidget,
-} from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import {
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
-import { useReflow } from "utils/hooks/useReflow";
-import WidgetFactory from "WidgetProvider/factory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
-import { isFunction } from "lodash";
-import type { AppState } from "ee/reducers";
+import { useReflow } from "utils/hooks/useReflow";
 
 /**
  * AutoLayoutResizable

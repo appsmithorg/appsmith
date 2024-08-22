@@ -1,18 +1,21 @@
 import React from "react";
+
 import styled from "styled-components";
-import type { InfoBlockProps } from "./InfoBlock";
-import { InfoBlock } from "./InfoBlock";
+
 import type { CalloutKind, SegmentedControlOption } from "@appsmith/ads";
 import {
   Button,
-  SegmentedControl,
-  Spinner,
   Callout,
   Icon,
+  SegmentedControl,
+  Spinner,
   Text,
 } from "@appsmith/ads";
+
 import type { ConversionCompleteLayoutProps } from "./ConversionCompleteLayout";
 import { ConversionCompleteLayout } from "./ConversionCompleteLayout";
+import type { InfoBlockProps } from "./InfoBlock";
+import { InfoBlock } from "./InfoBlock";
 
 const SnapshotContainer = styled.div`
   height: 3.5rem;

@@ -1,3 +1,7 @@
+import React, { useEffect, useMemo, useState } from "react";
+
+import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
+import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 import {
   APPSMITH_ENTERPRISE,
   BRANCH_PROTECTION,
@@ -6,10 +10,9 @@ import {
   UPDATE,
   createMessage,
 } from "ee/constants/messages";
-import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
-import { Button, Link, Option, Select, Text } from "@appsmith/ads";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { xor } from "lodash";
-import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getDefaultGitBranchName,
@@ -19,11 +22,11 @@ import {
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useAppsmithEnterpriseLink } from "./hooks";
+
+import { Button, Link, Option, Select, Text } from "@appsmith/ads";
+
 import { REMOTE_BRANCH_PREFIX } from "../../constants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
+import { useAppsmithEnterpriseLink } from "./hooks";
 
 const Container = styled.div`
   padding-top: 16px;

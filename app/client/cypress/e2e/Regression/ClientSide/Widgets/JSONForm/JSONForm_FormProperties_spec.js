@@ -1,3 +1,10 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -12,13 +19,6 @@ const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const submitButtonStylesSection =
   ".t--property-pane-section-submitbuttonstyles";
-import {
-  agHelper,
-  deployMode,
-  entityExplorer,
-  propPane,
-  locators,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "JSON Form Widget Form Bindings",

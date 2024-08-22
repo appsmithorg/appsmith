@@ -1,23 +1,22 @@
-import { find, toPath, union } from "lodash";
-import type { EvalError } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { extractIdentifierInfoFromCode } from "@shared/ast";
+import {
+  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
+  JAVASCRIPT_KEYWORDS,
+} from "constants/WidgetValidation";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
   isJSActionConfig,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-
-import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import {
-  DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
-  JAVASCRIPT_KEYWORDS,
-} from "constants/WidgetValidation";
+import { find, toPath, union } from "lodash";
+import type { EvalError } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}

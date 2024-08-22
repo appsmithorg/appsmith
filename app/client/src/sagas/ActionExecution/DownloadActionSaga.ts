@@ -1,11 +1,12 @@
-import { getType, Types } from "utils/TypeHelpers";
-import downloadjs from "downloadjs";
-import AppsmithConsole from "utils/AppsmithConsole";
 import Axios from "axios";
+import downloadjs from "downloadjs";
 import { TriggerFailureError } from "sagas/ActionExecution/errorUtils";
-import { isBase64String, isUrlString } from "./downloadActionUtils";
+import AppsmithConsole from "utils/AppsmithConsole";
 import { isBlobUrl } from "utils/AppsmithUtils";
+import { Types, getType } from "utils/TypeHelpers";
 import type { TDownloadDescription } from "workers/Evaluation/fns/download";
+
+import { isBase64String, isUrlString } from "./downloadActionUtils";
 
 function downloadBlobURL(url: string, name: string) {
   const ele = document.createElement("a");

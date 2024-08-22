@@ -1,15 +1,21 @@
 import React, {
   createRef,
+  memo,
   useCallback,
   useEffect,
   useState,
-  memo,
 } from "react";
-import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
 
+import { Menu, MenuItem, Tooltip } from "@blueprintjs/core";
+import { Popover2 } from "@blueprintjs/popover2";
+import { MenuDivider } from "@design-system/widgets-old";
+import { importRemixIcon, importSvg } from "@design-system/widgets-old";
 import { Colors } from "constants/Colors";
-import styled from "styled-components";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { ControlIcons } from "icons/ControlIcons";
+import styled from "styled-components";
+import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
+
 import type { CellAlignment } from "../Constants";
 import {
   HEADER_MENU_PORTAL_CLASS,
@@ -20,11 +26,6 @@ import {
   StickyType,
 } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
-import { isColumnTypeEditable } from "widgets/TableWidgetV2/widget/utilities";
-import { Popover2 } from "@blueprintjs/popover2";
-import { MenuDivider } from "@design-system/widgets-old";
-import { importRemixIcon, importSvg } from "@design-system/widgets-old";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const Check = importRemixIcon(
   async () => import("remixicon-react/CheckFillIcon"),

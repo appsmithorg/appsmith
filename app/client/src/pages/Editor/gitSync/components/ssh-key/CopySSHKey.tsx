@@ -1,7 +1,10 @@
-import { TooltipWrapper, IconContainer } from "./StyledComponents";
-import { COPY_SSH_KEY, createMessage } from "ee/constants/messages";
 import React from "react";
+
+import { COPY_SSH_KEY, createMessage } from "ee/constants/messages";
+
 import { Button, Icon, Tooltip } from "@appsmith/ads";
+
+import { IconContainer, TooltipWrapper } from "./StyledComponents";
 
 function getCopiedSuccessIcon() {
   return (

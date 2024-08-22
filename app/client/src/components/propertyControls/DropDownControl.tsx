@@ -1,13 +1,16 @@
 import React from "react";
-import styled from "styled-components";
-import { Option, Select, Text, Icon } from "@appsmith/ads";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+
 import { isNil } from "lodash";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import styled from "styled-components";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+
+import { Icon, Option, Select, Text } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import { getValidationErrorForProperty } from "./utils";
 
 const FlagWrapper = styled.span`

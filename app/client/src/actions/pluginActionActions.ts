@@ -1,4 +1,8 @@
+import type { OtlpSpan } from "UITelemetry/generateTraces";
+import { batchAction } from "actions/batchActions";
 import type { ActionResponse, PaginationField } from "api/ActionAPI";
+import type { ApiResponse } from "api/ApiResponses";
+import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   type AnyReduxAction,
   type EvaluationReduxAction,
@@ -6,15 +10,11 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { JSUpdate } from "utils/JSPaneUtils";
 import type { Action, ActionViewMode } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
-import { batchAction } from "actions/batchActions";
-import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
-import type { ApiResponse } from "api/ApiResponses";
 import type { JSCollection } from "entities/JSCollection";
+import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import type { JSUpdate } from "utils/JSPaneUtils";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {

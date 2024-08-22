@@ -1,14 +1,14 @@
-import { put, select } from "redux-saga/effects";
-import { getAppStoreName } from "constants/AppConstants";
-import localStorage from "utils/localStorage";
 import { updateAppStore } from "actions/pageActions";
-import AppsmithConsole from "utils/AppsmithConsole";
+import { getAppStoreName } from "constants/AppConstants";
 import { getAppStoreData } from "ee/selectors/entitiesSelector";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import type { AppStoreState } from "reducers/entityReducers/appReducer";
-import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import moment from "moment";
+import type { AppStoreState } from "reducers/entityReducers/appReducer";
+import { put, select } from "redux-saga/effects";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
+import localStorage from "utils/localStorage";
 import type {
   TClearStoreDescription,
   TRemoveValueDescription,

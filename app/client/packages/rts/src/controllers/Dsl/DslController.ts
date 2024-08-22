@@ -1,6 +1,6 @@
-import type { Response, Request } from "express";
 import BaseController from "@controllers/BaseController";
 import { latestDSLVersion, migrateDSLToLatest } from "@services/DslService";
+import type { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 export default class DSLController extends BaseController {

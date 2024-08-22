@@ -1,4 +1,5 @@
 import type React from "react";
+
 import type { Sizes } from "../__config__/types";
 
 // Button types

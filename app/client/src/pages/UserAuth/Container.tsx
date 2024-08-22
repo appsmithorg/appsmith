@@ -1,12 +1,13 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
+import { getAppsmithConfigs } from "ee/configs";
 import { getTenantConfig } from "ee/selectors/tenantSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import LeftSideContent from "./LeftSideContent";
-import { getAppsmithConfigs } from "ee/configs";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+
+import LeftSideContent from "./LeftSideContent";
 
 interface ContainerProps {
   title: string;

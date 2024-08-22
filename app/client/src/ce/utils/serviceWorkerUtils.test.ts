@@ -1,16 +1,17 @@
+import { Mutex } from "async-mutex";
 import { APP_MODE } from "entities/App";
+import { Request as NFRequest, Response as NFResponse } from "node-fetch";
+
 import type { TApplicationParams } from "./serviceWorkerUtils";
 import {
+  PrefetchApiService,
+  getApplicationParamsFromUrl,
+  getConsolidatedApiPrefetchRequest,
+  getPrefetchRequests,
+  getSearchQuery,
   matchBuilderPath,
   matchViewerPath,
-  getSearchQuery,
-  getConsolidatedApiPrefetchRequest,
-  getApplicationParamsFromUrl,
-  getPrefetchRequests,
-  PrefetchApiService,
 } from "./serviceWorkerUtils";
-import { Mutex } from "async-mutex";
-import { Request as NFRequest, Response as NFResponse } from "node-fetch";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,7 +1,9 @@
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
-import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
+import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+
+import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
+
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";

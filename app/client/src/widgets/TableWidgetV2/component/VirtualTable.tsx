@@ -1,15 +1,17 @@
 import React from "react";
+
 import type {
+  Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
-  Row as ReactTableRowType,
 } from "react-table";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+
 import type { ReactTableColumnProps, TableSizes } from "./Constants";
+import { TableBody } from "./TableBody";
 import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
 import VirtualTableInnerElement from "./header/VirtualTableInnerElement";
-import { TableBody } from "./TableBody";
 
 type VirtualTableProps = TableColumnHeaderProps & {
   getTableBodyProps(

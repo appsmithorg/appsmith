@@ -1,13 +1,15 @@
 import React from "react";
+
+import { useArgs } from "@storybook/preview-api";
+import type { StoryObj } from "@storybook/react";
+
+import { Text } from "../Text";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
 } from "./Collapsible";
-import { Text } from "../Text";
-import { useArgs } from "@storybook/preview-api";
 import { ARROW_POSITIONS, type CollapsibleProps } from "./Collapsible.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Collapsible",

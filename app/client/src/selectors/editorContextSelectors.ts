@@ -1,5 +1,5 @@
-import type { AppState } from "ee/reducers";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
 import type {
   CodeEditorHistory,
   CursorPosition,
@@ -8,8 +8,8 @@ import type {
   PropertyPanelState,
 } from "ee/reducers/uiReducers/editorContextReducer";
 import { isSubEntities } from "ee/reducers/uiReducers/editorContextReducer";
-import { createSelector } from "reselect";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { createSelector } from "reselect";
 
 export const getFocusableInputField = (state: AppState) =>
   state.ui.editorContext.focusedInputField;

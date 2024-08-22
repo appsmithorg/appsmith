@@ -9,9 +9,9 @@ import {
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(

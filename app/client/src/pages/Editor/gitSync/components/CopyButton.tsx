@@ -1,9 +1,11 @@
 import type { CSSProperties } from "react";
 import React, { useRef, useState } from "react";
-import { Button, Icon, Tooltip } from "@appsmith/ads";
-import styled from "styled-components";
+
 import copy from "copy-to-clipboard";
 import noop from "lodash/noop";
+import styled from "styled-components";
+
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 
 export const TooltipWrapper = styled.div`
   display: flex;

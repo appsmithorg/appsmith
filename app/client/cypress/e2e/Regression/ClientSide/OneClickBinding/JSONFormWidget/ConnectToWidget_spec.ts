@@ -1,5 +1,4 @@
 import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import { OneClickBinding } from "../spec_utility";
 import {
   agHelper,
   assertHelper,
@@ -7,13 +6,14 @@ import {
   draggableWidgets,
   entityExplorer,
   locators,
-  table,
   propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
+import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 

@@ -1,5 +1,6 @@
-import app, { RTS_BASE_API_PATH } from "../server";
 import supertest from "supertest";
+
+import app, { RTS_BASE_API_PATH } from "../server";
 
 const singleScript = {
   script:

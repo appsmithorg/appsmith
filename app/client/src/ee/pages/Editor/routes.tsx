@@ -1,7 +1,8 @@
 import React from "react";
+
+import CE_EditorRoutes from "ce/pages/Editor/routes";
 import { Switch, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import CE_EditorRoutes from "ce/pages/Editor/routes";
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;

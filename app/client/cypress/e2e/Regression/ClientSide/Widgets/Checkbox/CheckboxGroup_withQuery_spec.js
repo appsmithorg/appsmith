@@ -1,10 +1,10 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
   AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const publish = require("../../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Checkbox Group Widget Functionality",

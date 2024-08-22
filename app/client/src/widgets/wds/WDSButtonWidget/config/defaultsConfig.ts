@@ -1,10 +1,11 @@
 import { RecaptchaTypes } from "components/constants";
-import { COLORS, BUTTON_VARIANTS, objectKeys } from "@appsmith/wds";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
 } from "ee/constants/messages";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+
+import { BUTTON_VARIANTS, COLORS, objectKeys } from "@appsmith/wds";
 
 export const defaultsConfig = {
   animateLoading: true,

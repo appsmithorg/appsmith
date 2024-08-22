@@ -1,16 +1,9 @@
 import React from "react";
-import {
-  ACTION_EDITOR_REFRESH,
-  createMessage,
-  INVALID_FORM_CONFIGURATION,
-  UNEXPECTED_ERROR,
-} from "ee/constants/messages";
+
 import { Tag } from "@blueprintjs/core";
-import styled from "styled-components";
-import { UIComponentTypes } from "api/PluginApi";
-import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
+import { UIComponentTypes } from "api/PluginApi";
+import type { ControlProps } from "components/formControls/BaseControl";
 import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
@@ -19,12 +12,22 @@ import {
   modifySectionConfig,
   updateEvaluatedSectionConfig,
 } from "components/formControls/utils";
-import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
-import FormControl from "../FormControl";
-import type { ControlProps } from "components/formControls/BaseControl";
-import { Spinner } from "@appsmith/ads";
+import {
+  ACTION_EDITOR_REFRESH,
+  INVALID_FORM_CONFIGURATION,
+  UNEXPECTED_ERROR,
+  createMessage,
+} from "ee/constants/messages";
 import type { QueryAction, SaaSAction } from "entities/Action";
+import log from "loglevel";
+import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
+import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
+import styled from "styled-components";
+
+import { Spinner } from "@appsmith/ads";
+
 import { Section, Zone } from "../ActionForm";
+import FormControl from "../FormControl";
 
 interface Props {
   // TODO: Fix this the next time the file is edited

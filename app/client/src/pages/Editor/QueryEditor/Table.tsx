@@ -1,18 +1,17 @@
 import React from "react";
-import styled, { useTheme } from "styled-components";
-import { FixedSizeList } from "react-window";
-import { useTable, useBlockLayout, useResizeColumns } from "react-table";
 
-import { scrollbarWidth } from "utils/helpers";
-import { getType, Types } from "utils/TypeHelpers";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
-
+import type { Theme } from "constants/DefaultTheme";
+import { isArray, uniqueId } from "lodash";
+import { useBlockLayout, useResizeColumns, useTable } from "react-table";
+import { FixedSizeList } from "react-window";
+import styled, { useTheme } from "styled-components";
+import { Types, getType } from "utils/TypeHelpers";
+import { scrollbarWidth } from "utils/helpers";
+import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 // TODO(abhinav): The following two imports are from the table widget's component
 // We need to decouple the platform stuff from the widget stuff
 import { CellWrapper } from "widgets/TableWidget/component/TableStyledWrappers";
-import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import { isArray, uniqueId } from "lodash";
-import type { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
   // TODO: Fix this the next time the file is edited

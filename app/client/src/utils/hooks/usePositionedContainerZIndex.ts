@@ -1,9 +1,9 @@
-import { Layers } from "constants/Layers";
-
 import { useMemo } from "react";
+
+import { Layers } from "constants/Layers";
 import type { AppState } from "ee/reducers";
-import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
+import { isWidgetSelected } from "selectors/widgetSelectors";
 
 export const usePositionedContainerZIndex = (
   droppableWidget: boolean,

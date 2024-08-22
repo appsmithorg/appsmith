@@ -1,15 +1,7 @@
 import React, { useMemo } from "react";
-import {
-  activeGitSettingsModalTabSelector,
-  isGitSettingsModalOpenSelector,
-} from "selectors/gitSyncSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
-import styled from "styled-components";
-import Menu from "../Menu";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
+import GitSettingsCDTab from "ee/components/gitComponents/GitSettingsCDTab";
 import {
   BRANCH,
   CONTINUOUS_DELIVERY,
@@ -17,13 +9,23 @@ import {
   SETTINGS_GIT,
   createMessage,
 } from "ee/constants/messages";
-import TabGeneral from "./TabGeneral";
-import TabBranch from "./TabBranch";
-import GitSettingsCDTab from "ee/components/gitComponents/GitSettingsCDTab";
+import { useDispatch, useSelector } from "react-redux";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import {
+  activeGitSettingsModalTabSelector,
+  isGitSettingsModalOpenSelector,
+} from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
+
+import Menu from "../Menu";
 import {
   useHasManageDefaultBranchPermission,
   useHasManageProtectedBranchesPermission,
 } from "../hooks/gitPermissionHooks";
+import TabBranch from "./TabBranch";
+import TabGeneral from "./TabGeneral";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {

@@ -1,21 +1,24 @@
 import React from "react";
+
+import * as Sentry from "@sentry/react";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import includes from "lodash/includes";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
+import map from "lodash/map";
+import orderBy from "lodash/orderBy";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import { useDispatch } from "react-redux";
+
+import { Button, Tag } from "@appsmith/ads";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type {
   BaseItemProps as DroppableItem,
   RenderComponentProps,
 } from "./DraggableListComponent";
-import orderBy from "lodash/orderBy";
-import isString from "lodash/isString";
-import isUndefined from "lodash/isUndefined";
-import includes from "lodash/includes";
-import map from "lodash/map";
-import * as Sentry from "@sentry/react";
-import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button, Tag } from "@appsmith/ads";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

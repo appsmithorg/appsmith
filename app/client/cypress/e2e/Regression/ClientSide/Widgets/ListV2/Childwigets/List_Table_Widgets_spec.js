@@ -1,4 +1,5 @@
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
+
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;

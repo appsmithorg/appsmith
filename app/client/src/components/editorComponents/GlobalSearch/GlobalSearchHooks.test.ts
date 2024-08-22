@@ -1,5 +1,6 @@
-import { useFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
 import type { Datasource } from "entities/Datasource";
+
+import { useFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
 import { SEARCH_ITEM_TYPES } from "./utils";
 
 describe("getFilteredAndSortedFileOperations", () => {

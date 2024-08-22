@@ -1,5 +1,6 @@
 import type { DSLWidget } from "WidgetProvider/constants";
 import { generateReactKey } from "utils/generators";
+
 import { LayoutComponentTypes } from "./anvilTypes";
 
 /**

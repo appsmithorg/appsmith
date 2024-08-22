@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+
+import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
 import Resizer, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/styledComponents";
-import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
+import styled from "styled-components";
+
 import { Button } from "@appsmith/ads";
 
 const VIEW_MIN_HEIGHT = 38;

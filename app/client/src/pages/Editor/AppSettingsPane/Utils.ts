@@ -1,5 +1,5 @@
-import { APP_MODE } from "entities/App";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { APP_MODE } from "entities/App";
 import { splitPathPreview } from "utils/helpers";
 
 export const getUrlPreview = (

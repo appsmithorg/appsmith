@@ -1,21 +1,23 @@
 import React, { useMemo } from "react";
-import type { RouteComponentProps } from "react-router-dom";
-import { Link, withRouter } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { getIsFetchingPage } from "selectors/appViewSelectors";
-import styled from "styled-components";
-import type { AppViewerRouteParams } from "constants/routes";
-import { theme } from "constants/DefaultTheme";
+
 import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import AppPage from "./AppPage";
-import { getCanvasWidth, getCurrentPageName } from "selectors/editorSelectors";
-import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
+import { theme } from "constants/DefaultTheme";
+import type { AppViewerRouteParams } from "constants/routes";
 import { builderURL } from "ee/RouteBuilder";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
 import equal from "fast-deep-equal/es6";
+import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
+import { useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
+import { getIsFetchingPage } from "selectors/appViewSelectors";
+import { getCanvasWidth, getCurrentPageName } from "selectors/editorSelectors";
+import styled from "styled-components";
+
+import AppPage from "./AppPage";
 
 const Section = styled.section`
   height: 100%;

@@ -1,6 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-/* eslint-disable cypress/no-assigning-return-values */
 
+/* eslint-disable cypress/no-assigning-return-values */
+import { ObjectsRegistry } from "../support/Objects/Registry";
+import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
+import { EntityItems } from "./Pages/AssertHelper";
 import PageList from "./Pages/PageList";
 
 require("cy-verify-downloads").addCustomCommand();
@@ -13,9 +16,6 @@ const formWidgetsPage = require("../locators/FormWidgets.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
-import { ObjectsRegistry } from "../support/Objects/Registry";
-import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
-import { EntityItems } from "./Pages/AssertHelper";
 
 let pageidcopy = " ";
 

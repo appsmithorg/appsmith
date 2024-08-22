@@ -1,12 +1,15 @@
 import React from "react";
-import styled from "styled-components";
+
 import {
-  createMessage,
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
   OPEN_REPO,
+  createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
+
 import { Button, Callout } from "@appsmith/ads";
+
 import { Space } from "./StyledComponents";
 
 const Row = styled.div`

@@ -1,12 +1,12 @@
+import apiEditor from "../../../../locators/ApiEditor";
+import appPage from "../../../../locators/CMSApplocators";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import appPage from "../../../../locators/CMSApplocators";
-import apiEditor from "../../../../locators/ApiEditor";
-import { apiPage } from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel request body", { tags: ["@tag.Datasource"] }, function () {
   it("1. Check whether the default content-type changes on changing method types and remains unchanged on switching to GET", function () {

@@ -1,25 +1,27 @@
 import React, { memo, useCallback, useMemo } from "react";
+
+import { updateWidgetName } from "actions/propertyPaneActions";
+import type { WidgetType } from "constants/WidgetConstants";
+import { builderURL } from "ee/RouteBuilder";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
+import { NavigationMethod } from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import type { WidgetProps } from "widgets/BaseWidget";
+
 import WidgetFactory from "../../../../WidgetProvider/factory";
 import Entity, { EntityClassNames } from "../Entity";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
-import { useSelector } from "react-redux";
 import WidgetContextMenu from "./WidgetContextMenu";
-import { updateWidgetName } from "actions/propertyPaneActions";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { builderURL } from "ee/RouteBuilder";
-import { useLocation } from "react-router";
-import { getPagePermissions } from "selectors/editorSelectors";
-import { NavigationMethod } from "utils/history";
-import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { useNavigateToWidget } from "./useNavigateToWidget";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
 

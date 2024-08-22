@@ -1,10 +1,13 @@
 import React from "react";
+
 import { createPortal } from "react-dom";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
-import { AnvilDragPreviewComponent } from "./AnvilDragPreviewComponent";
+
 import WidgetFactory from "WidgetProvider/factory";
+import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
 import memoize from "micro-memoize";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+
+import { AnvilDragPreviewComponent } from "./AnvilDragPreviewComponent";
 
 interface DragPreviewConfig {
   displayName: string;

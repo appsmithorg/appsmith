@@ -1,15 +1,17 @@
 import React from "react";
-import { Directions } from "utils/helpers";
-import type { Action } from "entities/Action";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { getLightningMenuOptions } from "./helpers";
-import { LightningMenuTrigger } from "./LightningMenuTrigger";
-import { useActions, useWidgets, usePageId } from "./hooks";
+
 import type { Skin, Theme } from "constants/DefaultTheme";
-import { useDispatch } from "react-redux";
-import { useTheme } from "styled-components";
+import type { Action } from "entities/Action";
 import type { CustomizedDropdownProps } from "pages/common/CustomizedDropdown";
 import CustomizedDropdown from "pages/common/CustomizedDropdown";
+import { useDispatch } from "react-redux";
+import { useTheme } from "styled-components";
+import { Directions } from "utils/helpers";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { LightningMenuTrigger } from "./LightningMenuTrigger";
+import { getLightningMenuOptions } from "./helpers";
+import { useActions, usePageId, useWidgets } from "./hooks";
 
 const lightningMenuOptions = (
   skin: Skin,

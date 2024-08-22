@@ -1,26 +1,28 @@
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { get } from "lodash";
-import { useHref } from "pages/Editor/utils";
 import React from "react";
-import { useSelector } from "react-redux";
-import { builderURL } from "ee/RouteBuilder";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import MobileNavToggle from "./MobileNavToggle";
-import ApplicationName from "./ApplicationName";
-import ShareButton from "./ShareButton";
-import HeaderRightItemContainer from "./HeaderRightItemContainer";
-import PrimaryCTA from "pages/AppViewer/PrimaryCTA";
+
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import ProfileDropdown from "pages/common/ProfileDropdown";
-import TopStacked from "../TopStacked";
-import { HeaderRow, StyledNav } from "./TopHeader.styled";
-import TopInline from "../TopInline";
+import { builderURL } from "ee/RouteBuilder";
 import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
+import { get } from "lodash";
+import PrimaryCTA from "pages/AppViewer/PrimaryCTA";
+import { useHref } from "pages/Editor/utils";
+import ProfileDropdown from "pages/common/ProfileDropdown";
+import { useSelector } from "react-redux";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+
+import TopInline from "../TopInline";
+import TopStacked from "../TopStacked";
+import ApplicationName from "./ApplicationName";
 import BackToAppsButton from "./BackToAppsButton";
+import HeaderRightItemContainer from "./HeaderRightItemContainer";
+import MobileNavToggle from "./MobileNavToggle";
+import ShareButton from "./ShareButton";
+import { HeaderRow, StyledNav } from "./TopHeader.styled";
 
 interface TopHeaderProps {
   currentApplicationDetails?: ApplicationPayload;

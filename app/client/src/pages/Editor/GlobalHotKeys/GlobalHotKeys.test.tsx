@@ -1,16 +1,19 @@
 import React from "react";
 
-import {
-  createMessage,
-  SAVE_HOTKEY_TOASTER_MESSAGE,
-} from "ee/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toast } from "@appsmith/ads";
+import * as widgetActions from "actions/widgetActions";
+import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  SAVE_HOTKEY_TOASTER_MESSAGE,
+  createMessage,
+} from "ee/constants/messages";
 import { MemoryRouter } from "react-router-dom";
-import * as utilities from "selectors/editorSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as utilities from "selectors/editorSelectors";
+import * as uiSelectors from "selectors/ui";
 import store, { runSagaMiddleware } from "store";
 import {
   buildChildren,
@@ -18,23 +21,22 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import { sagasToRunForTests } from "test/sagas";
 import {
-  dispatchTestKeyboardEventWithCode,
   MockApplication,
+  MockPageDSL,
+  dispatchTestKeyboardEventWithCode,
   mockCreateCanvasWidget,
   mockGetWidgetEvalValues,
-  MockPageDSL,
   useMockDsl,
 } from "test/testCommon";
 import { MockCanvas } from "test/testMockedWidgets";
 import { act, fireEvent, render, waitFor } from "test/testUtils";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
+
+import { Toast } from "@appsmith/ads";
+
+import { NavigationMethod } from "../../../utils/history";
 import IDE from "../IDE";
 import GlobalHotKeys from "./GlobalHotKeys";
-import * as widgetSelectionsActions from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import * as widgetActions from "actions/widgetActions";
-import * as uiSelectors from "selectors/ui";
-import { NavigationMethod } from "../../../utils/history";
 
 jest.mock("constants/routes", () => {
   return {

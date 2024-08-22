@@ -1,6 +1,7 @@
 import type { EntityItem } from "ee/entities/IDE/constants";
-import { groupAndSortEntitySegmentList } from "./appIDESelectors";
 import { PluginType } from "entities/Action";
+
+import { groupAndSortEntitySegmentList } from "./appIDESelectors";
 
 describe("groupAndSortEntitySegmentList", () => {
   it("should group and sort entity segment list alphabetically", () => {

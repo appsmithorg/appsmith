@@ -1,3 +1,4 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -6,7 +7,6 @@ import EditorNavigation, {
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Modal Widget Functionality",

@@ -1,11 +1,14 @@
 import type { Key } from "react";
 import React, { useState } from "react";
+
+import { sortBy } from "lodash";
+
 import { InlineButtons } from "@appsmith/wds";
+
 import type {
   InlineButtonsComponentProps,
   InlineButtonsItemComponentProps,
 } from "./types";
-import { sortBy } from "lodash";
 
 export const InlineButtonsComponent = (props: InlineButtonsComponentProps) => {
   const [loadingButtonIds, setLoadingButtonIds] = useState<

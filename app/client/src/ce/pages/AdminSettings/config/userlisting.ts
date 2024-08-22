@@ -4,6 +4,7 @@ import {
   SettingCategories,
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
+
 import { AccessControlUpgradePage } from "../../Upgrade/AccessControlUpgradePage";
 
 export const config: AdminConfigType = {

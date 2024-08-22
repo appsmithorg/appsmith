@@ -1,38 +1,4 @@
-import type {
-  ReduxAction,
-  ReduxActionWithCallbacks,
-} from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import {
-  actionChannel,
-  call,
-  cancel,
-  cancelled,
-  delay,
-  fork,
-  put,
-  select,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
 import type { TakeableChannel } from "@redux-saga/core";
-import type {
-  GitAutocommitProgressResponse,
-  GitTriggerAutocommitResponse,
-  MergeBranchPayload,
-  MergeStatusPayload,
-} from "api/GitSyncAPI";
-import GitSyncAPI, { AutocommitResponseEnum } from "api/GitSyncAPI";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getCurrentBasePageId,
-  getCurrentBaseApplicationId,
-} from "selectors/editorSelectors";
-import { validateResponse } from "./ErrorSagas";
 import type {
   ConnectToGitReduxAction,
   GenerateSSHKeyPairReduxAction,
@@ -42,14 +8,14 @@ import type {
   GitStatusParams,
 } from "actions/gitSyncActions";
 import {
-  fetchGitProtectedBranchesInit,
-  clearCommitSuccessfulState,
-  setShowBranchPopupAction,
-  stopAutocommitProgressPollingAction,
-  startAutocommitProgressPollingAction,
-  setAutocommitProgressAction,
   autoCommitProgressErrorAction,
+  clearCommitSuccessfulState,
+  fetchGitProtectedBranchesInit,
   resetAutocommitProgressAction,
+  setAutocommitProgressAction,
+  setShowBranchPopupAction,
+  startAutocommitProgressPollingAction,
+  stopAutocommitProgressPollingAction,
   triggerAutocommitErrorAction,
   triggerAutocommitSuccessAction,
 } from "actions/gitSyncActions";
@@ -85,58 +51,91 @@ import {
   switchGitBranchInit,
   updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
-
-import { showReconnectDatasourceModal } from "ee/actions/applicationActions";
-
+import { initEditorAction } from "actions/initActions";
+import { fetchPageAction } from "actions/pageActions";
 import type { ApiResponse } from "api/ApiResponses";
-import type { GitConfig } from "entities/GitSync";
-import { GitSyncModalTab } from "entities/GitSync";
+import type {
+  GitAutocommitProgressResponse,
+  GitTriggerAutocommitResponse,
+  MergeBranchPayload,
+  MergeStatusPayload,
+} from "api/GitSyncAPI";
+import GitSyncAPI, { AutocommitResponseEnum } from "api/GitSyncAPI";
+import GIT_ERROR_CODES from "constants/GitErrorCodes";
+import { GIT_BRANCH_QUERY_KEY, addBranchParam } from "constants/routes";
+import { builderURL } from "ee/RouteBuilder";
+import { showReconnectDatasourceModal } from "ee/actions/applicationActions";
+import type {
+  ReduxAction,
+  ReduxActionWithCallbacks,
+} from "ee/constants/ReduxActionConstants";
 import {
-  getCurrentApplication,
-  getWorkspaceIdForImport,
-} from "ee/selectors/applicationSelectors";
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import {
   AUTOCOMMIT_DISABLED_TOAST,
   AUTOCOMMIT_ENABLED_TOAST,
-  createMessage,
   DELETE_BRANCH_SUCCESS,
   DISCARD_SUCCESS,
   ERROR_GIT_AUTH_FAIL,
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
-  PROTECT_BRANCH_SUCCESS,
   IMPORT_APP_SUCCESSFUL,
+  PROTECT_BRANCH_SUCCESS,
+  createMessage,
 } from "ee/constants/messages";
-
-import history from "utils/history";
-import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
+import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
+import {
+  getCurrentApplication,
+  getWorkspaceIdForImport,
+} from "ee/selectors/applicationSelectors";
+import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import type { Action } from "entities/Action";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import type { GitConfig } from "entities/GitSync";
+import { GitSyncModalTab } from "entities/GitSync";
+import { log } from "loglevel";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import type {
+  GitDiscardResponse,
+  GitMetadata,
+} from "reducers/uiReducers/gitSyncReducer";
+import {
+  actionChannel,
+  call,
+  cancel,
+  cancelled,
+  delay,
+  fork,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
+import {
+  getCurrentApplicationId,
+  getCurrentBaseApplicationId,
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
   getGitMetadataSelector,
 } from "selectors/gitSyncSelectors";
-import { initEditorAction } from "actions/initActions";
-import { fetchPageAction } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
-import type { Workspace } from "ee/constants/workspaceConstants";
-import { log } from "loglevel";
-import GIT_ERROR_CODES from "constants/GitErrorCodes";
-import { builderURL } from "ee/RouteBuilder";
-import { APP_MODE } from "entities/App";
-import type {
-  GitDiscardResponse,
-  GitMetadata,
-} from "reducers/uiReducers/gitSyncReducer";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
-import type { Action } from "entities/Action";
-import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
+import history from "utils/history";
+
 import { toast } from "@appsmith/ads";
-import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { ApplicationPayload } from "entities/Application";
+
+import { validateResponse } from "./ErrorSagas";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};

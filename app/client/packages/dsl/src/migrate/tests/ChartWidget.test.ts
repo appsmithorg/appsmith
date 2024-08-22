@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { migrateDefaultValuesForCustomEChart } from "../migrations/085-migrate-default-values-for-custom-echart";
-import { migrateAddShowHideDataPointLabels } from "../migrations/083-migrate-add-show-hide-data-point-labels";
 import { migrateChartWidgetLabelOrientationStaggerOption } from "../migrations/082-migrate-chart-widget-label-orientation-stagger-option";
-import type { DSLWidget } from "../types";
+import { migrateAddShowHideDataPointLabels } from "../migrations/083-migrate-add-show-hide-data-point-labels";
+import { migrateDefaultValuesForCustomEChart } from "../migrations/085-migrate-default-values-for-custom-echart";
 import { migrateChartwidgetCustomEchartConfig } from "../migrations/087-migrate-chart-widget-customechartdata";
+import type { DSLWidget } from "../types";
 
 type ChartWidgetProps = any;
 

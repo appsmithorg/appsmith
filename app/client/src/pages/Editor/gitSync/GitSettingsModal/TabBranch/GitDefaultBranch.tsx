@@ -1,3 +1,6 @@
+import React, { useEffect, useMemo, useState } from "react";
+
+import { updateGitDefaultBranch } from "actions/gitSyncActions";
 import {
   APPSMITH_ENTERPRISE,
   DEFAULT_BRANCH,
@@ -5,16 +8,16 @@ import {
   UPDATE,
   createMessage,
 } from "ee/constants/messages";
-import { updateGitDefaultBranch } from "actions/gitSyncActions";
-import { Button, Link, Option, Select, Text } from "@appsmith/ads";
-import React, { useEffect, useMemo, useState } from "react";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { getGitBranches } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+
+import { Button, Link, Option, Select, Text } from "@appsmith/ads";
+
 import { useAppsmithEnterpriseLink } from "./hooks";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const Container = styled.div`
   padding-top: 8px;

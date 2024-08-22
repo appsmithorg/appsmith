@@ -1,5 +1,6 @@
-import { ConditionFunctions } from "./Constants";
 import moment from "moment";
+
+import { ConditionFunctions } from "./Constants";
 
 describe("ConditionFunctions Constants", () => {
   it("works as expected for isExactly", () => {

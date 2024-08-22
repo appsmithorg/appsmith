@@ -1,9 +1,10 @@
-import { useSelector } from "react-redux";
 import { useCallback, useEffect, useRef } from "react";
+
+import { useSelector } from "react-redux";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 import { handleTab } from "./handleTab";
 import { CANVAS_WIDGET } from "./tabbable";
-import { getIsAutoLayout } from "selectors/canvasSelectors";
 
 function useWidgetFocus(): (instance: HTMLElement | null) => void {
   const ref = useRef<HTMLElement | null>();

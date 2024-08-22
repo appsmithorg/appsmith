@@ -1,6 +1,13 @@
-import { get, set } from "lodash";
 import { klona } from "klona";
+import { get, set } from "lodash";
 
+import type { Schema, SchemaItem } from "./constants";
+import {
+  ARRAY_ITEM_KEY,
+  DataType,
+  FieldType,
+  ROOT_SCHEMA_KEY,
+} from "./constants";
 import SchemaParser, {
   applyPositions,
   checkIfArrayAndSubDataTypeChanged,
@@ -19,13 +26,6 @@ import testData, {
   schemaItemFactory,
   schemaItemStyles,
 } from "./schemaTestData";
-import type { Schema, SchemaItem } from "./constants";
-import {
-  ARRAY_ITEM_KEY,
-  DataType,
-  FieldType,
-  ROOT_SCHEMA_KEY,
-} from "./constants";
 
 const widgetName = "JSONForm1";
 const BASE_PATH = `schema.${ROOT_SCHEMA_KEY}`;

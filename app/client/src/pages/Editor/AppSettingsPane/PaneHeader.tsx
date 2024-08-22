@@ -1,6 +1,7 @@
 import React from "react";
-import styled from "styled-components";
+
 import { APP_SETTINGS_PANE_HEADER } from "ee/constants/messages";
+import styled from "styled-components";
 
 const StyledHeader = styled.div`
   height: 48px;

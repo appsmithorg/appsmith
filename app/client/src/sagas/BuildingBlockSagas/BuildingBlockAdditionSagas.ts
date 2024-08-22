@@ -1,48 +1,89 @@
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import type { WidgetAddChild } from "actions/pageActions";
+import { runAction } from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { ApiResponse } from "api/ApiResponses";
+import type { Template } from "api/TemplatesApi";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { builderURL } from "ee/RouteBuilder";
+import ApplicationApi, {
+  type ImportBuildingBlockToApplicationRequest,
+  type ImportBuildingBlockToApplicationResponse,
+} from "ee/api/ApplicationApi";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import { getJSCollection } from "ee/selectors/entitiesSelector";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { JSCollection } from "entities/JSCollection";
+import { nextAvailableRowInContainer } from "entities/Widget/utils";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { cloneDeep, isString } from "lodash";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { all, call, put, select, take } from "redux-saga/effects";
+import { race } from "redux-saga/effects";
+import type { GridProps, SpaceMap } from "reflow/reflowTypes";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
   getCurrentBasePageId,
   getCurrentPageId,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getTemplatesSelector } from "selectors/templatesSelectors";
+import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import { generateReactKey } from "utils/generators";
-import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import { getWidgets, getWidgetsMeta } from "../selectors";
-
-import { builderURL } from "ee/RouteBuilder";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { nextAvailableRowInContainer } from "entities/Widget/utils";
-import type { GridProps, SpaceMap } from "reflow/reflowTypes";
-import { getDataTree } from "selectors/dataTreeSelectors";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
+import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+
+import {
+  addNewlyAddedActionsToRedux,
+  saveBuildingBlockWidgetsToStore,
+  updateWidgetsNameInNewQueries,
+} from ".";
 import {
   addChildToPastedFlexLayers,
   getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
 } from "../../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
+import { validateResponse } from "../ErrorSagas";
+import {
+  getNewPositions,
+  handleJSONFormPropertiesListedInDynamicBindingPath,
+  handleWidgetDynamicBindingPathList,
+  handleWidgetDynamicPropertyPathList,
+  handleWidgetDynamicTriggerPathList,
+} from "../PasteWidgetUtils";
+import { postPageAdditionSaga } from "../TemplatesSagas";
+import { addChildSaga } from "../WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "../WidgetBlueprintSagas";
+import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import type { CopiedWidgetGroup } from "../WidgetOperationUtils";
 import {
   getBoundaryWidgetsFromCopiedGroups,
@@ -51,51 +92,8 @@ import {
   handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
 } from "../WidgetOperationUtils";
-
-import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import {
-  getNewPositions,
-  handleWidgetDynamicBindingPathList,
-  handleWidgetDynamicPropertyPathList,
-  handleWidgetDynamicTriggerPathList,
-  handleJSONFormPropertiesListedInDynamicBindingPath,
-} from "../PasteWidgetUtils";
-
-import ApplicationApi, {
-  type ImportBuildingBlockToApplicationRequest,
-  type ImportBuildingBlockToApplicationResponse,
-} from "ee/api/ApplicationApi";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import type { WidgetAddChild } from "actions/pageActions";
-import { runAction } from "actions/pluginActionActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ApiResponse } from "api/ApiResponses";
-import type { Template } from "api/TemplatesApi";
-import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
-import type { JSCollection } from "entities/JSCollection";
-import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { race } from "redux-saga/effects";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getTemplatesSelector } from "selectors/templatesSelectors";
-import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import {
-  addNewlyAddedActionsToRedux,
-  saveBuildingBlockWidgetsToStore,
-  updateWidgetsNameInNewQueries,
-} from ".";
-import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
-import { validateResponse } from "../ErrorSagas";
-import { postPageAdditionSaga } from "../TemplatesSagas";
-import { addChildSaga } from "../WidgetAdditionSagas";
-import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
+import { getWidgets, getWidgetsMeta } from "../selectors";
 import { getDragDetails, getWidgetByName } from "../selectors";
-import { getJSCollection } from "ee/selectors/entitiesSelector";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);

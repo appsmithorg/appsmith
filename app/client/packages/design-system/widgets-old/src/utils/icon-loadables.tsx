@@ -1,11 +1,11 @@
 // IMPORTANT: please keep this file in sync with packages/design-system-old/src/utils/icon-loadables.tsx.
-
 import React, { Suspense } from "react";
-import type {
-  RemixiconReactIconProps,
-  RemixiconReactIconComponentType,
-} from "remixicon-react";
+
 import * as log from "loglevel";
+import type {
+  RemixiconReactIconComponentType,
+  RemixiconReactIconProps,
+} from "remixicon-react";
 
 function IconLoadFailFallback(props: any) {
   return <svg {...props} />;

@@ -1,46 +1,48 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
+
+import { Classes } from "@blueprintjs/core";
+import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
+import fastdom from "fastdom";
 import { reduce } from "lodash";
 import type { Row as ReactTableRowType } from "react-table";
 import {
-  useTable,
-  usePagination,
   useBlockLayout,
+  usePagination,
   useResizeColumns,
   useRowSelect,
+  useTable,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import {
-  TableWrapper,
-  TableHeaderWrapper,
-  TableHeaderInnerWrapper,
-} from "./TableStyledWrappers";
-import TableHeader from "./header";
-import { Classes } from "@blueprintjs/core";
-import type {
-  ReactTableColumnProps,
-  ReactTableFilter,
-  CompactMode,
-  AddNewRowActions,
-  StickyType,
-} from "./Constants";
-import {
-  TABLE_SIZES,
-  CompactModeTypes,
-  TABLE_SCROLLBAR_HEIGHT,
-} from "./Constants";
-import { Colors } from "constants/Colors";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { EditableCell, TableVariant } from "../constants";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
-import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
-import StaticTable from "./StaticTable";
-import VirtualTable from "./VirtualTable";
-import fastdom from "fastdom";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+
+import type { EditableCell, TableVariant } from "../constants";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
-import { createMessage, CONNECT_BUTTON_TEXT } from "ee/constants/messages";
+import type {
+  AddNewRowActions,
+  CompactMode,
+  ReactTableColumnProps,
+  ReactTableFilter,
+  StickyType,
+} from "./Constants";
+import {
+  CompactModeTypes,
+  TABLE_SCROLLBAR_HEIGHT,
+  TABLE_SIZES,
+} from "./Constants";
+import StaticTable from "./StaticTable";
+import {
+  TableHeaderInnerWrapper,
+  TableHeaderWrapper,
+  TableWrapper,
+} from "./TableStyledWrappers";
+import VirtualTable from "./VirtualTable";
+import TableHeader from "./header";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";

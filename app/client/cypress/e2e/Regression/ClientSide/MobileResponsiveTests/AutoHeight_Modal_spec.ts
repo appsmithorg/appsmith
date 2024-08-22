@@ -4,16 +4,16 @@ import {
   ROW_GAP,
 } from "../../../../../src/layoutSystems/common/utils/constants";
 import {
+  getWidgetSelector,
+  modalWidgetSelector,
+} from "../../../../locators/WidgetLocators";
+import {
   agHelper,
   autoLayout,
   draggableWidgets,
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import {
-  getWidgetSelector,
-  modalWidgetSelector,
-} from "../../../../locators/WidgetLocators";
 
 let childHeight = 0;
 let containerHeight = 0;

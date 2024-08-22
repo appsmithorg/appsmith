@@ -1,8 +1,9 @@
-import Api from "./Api";
-import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
-import type { Datasource } from "entities/Datasource";
+import type { AxiosPromise } from "axios";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { Datasource } from "entities/Datasource";
+
+import Api from "./Api";
 
 class OAuthApi extends Api {
   static url = "v1/saas";

@@ -1,6 +1,7 @@
-import { debounce } from "lodash";
 import type { TextareaHTMLAttributes } from "react";
 import React, { useEffect, useLayoutEffect, useRef } from "react";
+
+import { debounce } from "lodash";
 import styled from "styled-components";
 import useComposedRef from "utils/UseComposeRef";
 

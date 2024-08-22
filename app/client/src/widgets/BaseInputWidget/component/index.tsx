@@ -1,38 +1,38 @@
 import type { MutableRefObject } from "react";
 import React from "react";
-import styled from "styled-components";
-import type { Alignment, Intent, IconName, IRef } from "@blueprintjs/core";
+
+import type { Alignment, IRef, IconName, Intent } from "@blueprintjs/core";
 import {
-  NumericInput,
-  InputGroup,
   Classes,
   ControlGroup,
+  InputGroup,
+  NumericInput,
   Tag,
 } from "@blueprintjs/core";
-import _, { isNil } from "lodash";
-
-import type { ComponentProps } from "widgets/BaseComponent";
-import { Colors } from "constants/Colors";
-import {
-  createMessage,
-  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "ee/constants/messages";
-import type { NumberInputStepButtonPosition } from "../constants";
-import { InputTypes } from "../constants";
-
+import { Icon } from "@design-system/widgets-old";
+import { LabelPosition } from "components/constants";
+import AutoResizeTextArea from "components/editorComponents/AutoResizeTextArea";
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { Icon } from "@design-system/widgets-old";
-import type { InputType } from "widgets/InputWidget/constants";
+import { Colors } from "constants/Colors";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
-import { LabelPosition } from "components/constants";
+import {
+  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+  createMessage,
+} from "ee/constants/messages";
+import _, { isNil } from "lodash";
+import styled from "styled-components";
+import { getLocale } from "utils/helpers";
+import type { ComponentProps } from "widgets/BaseComponent";
+import type { InputType } from "widgets/InputWidget/constants";
 import { lightenColor } from "widgets/WidgetUtils";
 import LabelWithTooltip, {
-  labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";
-import { getLocale } from "utils/helpers";
-import AutoResizeTextArea from "components/editorComponents/AutoResizeTextArea";
+
+import type { NumberInputStepButtonPosition } from "../constants";
+import { InputTypes } from "../constants";
 import { checkInputTypeText } from "../utils";
 
 /**

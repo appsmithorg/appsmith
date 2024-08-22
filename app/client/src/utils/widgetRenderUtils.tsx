@@ -1,26 +1,27 @@
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import type {
-  WidgetEntity,
-  WidgetEntityConfig,
-} from "ee/entities/DataTree/types";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { pick } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
-import WidgetFactory from "../WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetError } from "widgets/BaseWidget";
+import type {
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { pick } from "lodash";
 import { get } from "lodash";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { DataTreeError } from "utils/DynamicBindingUtils";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetError } from "widgets/BaseWidget";
+
+import WidgetFactory from "../WidgetProvider/factory";
 
 export const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,

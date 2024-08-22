@@ -1,15 +1,16 @@
 import React from "react";
-import CurlImportForm from "pages/Editor/CurlImport/CurlImportForm";
-import ModalControls from "pages/Editor/CurlImport/ModalControls";
-import { curlImportSubmitHandler } from "pages/Editor/CurlImport/helpers";
-import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { getNewEntityName } from "ee/selectors/entitiesSelector";
-import { DEFAULT_PREFIX } from "sagas/ActionSagas";
+
 import {
   ActionParentEntityType,
   CreateNewActionKey,
 } from "ee/entities/Engine/actionHelpers";
+import { getNewEntityName } from "ee/selectors/entitiesSelector";
+import CurlImportForm from "pages/Editor/CurlImport/CurlImportForm";
+import ModalControls from "pages/Editor/CurlImport/ModalControls";
+import { curlImportSubmitHandler } from "pages/Editor/CurlImport/helpers";
+import { useSelector } from "react-redux";
+import { DEFAULT_PREFIX } from "sagas/ActionSagas";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const AppCURLImportModal = () => {
   const pageId = useSelector(getCurrentPageId);

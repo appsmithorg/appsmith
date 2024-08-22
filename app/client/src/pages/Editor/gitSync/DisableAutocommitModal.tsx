@@ -1,12 +1,21 @@
+import React from "react";
+
 import {
-  toggleAutocommitEnabledInit,
   setIsAutocommitModalOpen,
+  toggleAutocommitEnabledInit,
 } from "actions/gitSyncActions";
 import {
   AUTOCOMMIT_CONFIRM_DISABLE_MESSAGE,
   AUTOCOMMIT_DISABLE,
   createMessage,
 } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getIsAutocommitModalOpen,
+  getIsAutocommitToggling,
+} from "selectors/gitSyncSelectors";
+
 import {
   Button,
   Callout,
@@ -17,13 +26,6 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  getIsAutocommitModalOpen,
-  getIsAutocommitToggling,
-} from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 function DisableAutocommitModal() {
   const isAutocommitModalOpen = useSelector(getIsAutocommitModalOpen);

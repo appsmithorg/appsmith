@@ -1,8 +1,8 @@
-import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { TreeNode } from "utils/autoHeight/constants";
 import { xor } from "lodash";
+import { createImmerReducer } from "utils/ReducerUtils";
+import type { TreeNode } from "utils/autoHeight/constants";
 
 export interface AutoHeightLayoutTreePayload {
   tree: Record<string, TreeNode>;

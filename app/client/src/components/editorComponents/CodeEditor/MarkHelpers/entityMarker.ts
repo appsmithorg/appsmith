@@ -2,6 +2,7 @@ import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
+
 import type { MarkHelper } from "../EditorConfig";
 
 export const NAVIGATE_TO_ATTRIBUTE = "data-navigate-to";

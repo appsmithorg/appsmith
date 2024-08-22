@@ -1,6 +1,7 @@
-import styled from "styled-components";
-import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import React from "react";
+
+import ErrorBoundary from "components/editorComponents/ErrorBoundry";
+import styled from "styled-components";
 
 const RetryLink = styled.span`
   color: ${(props) => props.theme.colors.primaryDarkest};

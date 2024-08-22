@@ -1,10 +1,10 @@
+import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators.js";
 import {
   agHelper,
   homePage,
   locators,
   templates,
 } from "../../../../support/Objects/ObjectsCore";
-import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators.js";
 
 describe(
   "Create new application from template",

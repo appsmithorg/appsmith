@@ -1,4 +1,67 @@
+import * as Sentry from "@sentry/react";
+import {
+  endSpan,
+  startNestedSpan,
+  startRootSpan,
+} from "UITelemetry/generateTraces";
+import { getCurrentUser } from "actions/authActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { deleteErrorLog } from "actions/debuggerActions";
+import { setPreviewModeAction } from "actions/editorActions";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import { resetRecentEntities } from "actions/globalSearchActions";
+import {
+  initAppViewerAction,
+  initEditorAction,
+  resetEditorSuccess,
+} from "actions/initActions";
+import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
+import { resetSnipingMode } from "actions/propertyPaneActions";
+import {
+  fetchFeatureFlagsInit,
+  fetchProductAlertInit,
+} from "actions/userActions";
+import type { ApiResponse } from "api/ApiResponses";
+import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
+import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
+import type { Plugin, PluginFormPayload } from "api/PluginApi";
+import { resetCurrentApplication } from "ee/actions/applicationActions";
+import { getCurrentTenant } from "ee/actions/tenantActions";
+import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
+import type {
+  ApplicationPagePayload,
+  FetchApplicationResponse,
+} from "ee/api/ApplicationApi";
+import type {
+  ReduxAction,
+  ReduxActionWithoutPayload,
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import {
+  isEditorPath,
+  isViewerPath,
+  matchEditorPath,
+} from "ee/pages/Editor/Explorer/helpers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Action, ActionViewMode } from "entities/Action";
+import type { AppTheme } from "entities/AppTheming";
+import type { ApplicationPayload } from "entities/Application";
+import type { Datasource } from "entities/Datasource";
+import type { AppEnginePayload } from "entities/Engine";
+import { PageNotFoundError } from "entities/Engine";
+import type AppEngine from "entities/Engine";
+import { AppEngineApiError } from "entities/Engine";
+import AppEngineFactory from "entities/Engine/factory";
+import type { JSCollection } from "entities/JSCollection";
+import type { Page } from "entities/Page";
 import { get, identity, pickBy } from "lodash";
+import log from "loglevel";
+import type { ProductAlert } from "reducers/uiReducers/usersReducer";
 import {
   all,
   call,
@@ -12,84 +75,20 @@ import {
   takeLatest,
   takeLeading,
 } from "redux-saga/effects";
-import type {
-  ReduxAction,
-  ReduxActionWithoutPayload,
-} from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
-import { resetCurrentApplication } from "ee/actions/applicationActions";
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
-import { resetRecentEntities } from "actions/globalSearchActions";
-
-import {
-  initAppViewerAction,
-  initEditorAction,
-  resetEditorSuccess,
-} from "actions/initActions";
+import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
+import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import {
   getCurrentPageId,
   getIsEditorInitialized,
   getIsWidgetConfigBuilt,
   selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
-import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
-import { setPreviewModeAction } from "actions/editorActions";
-import type { AppEnginePayload } from "entities/Engine";
-import { PageNotFoundError } from "entities/Engine";
-import type AppEngine from "entities/Engine";
-import { AppEngineApiError } from "entities/Engine";
-import AppEngineFactory from "entities/Engine/factory";
-import type {
-  ApplicationPagePayload,
-  FetchApplicationResponse,
-} from "ee/api/ApplicationApi";
 import { getSearchQuery, updateSlugNamesInURL } from "utils/helpers";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { safeCrashAppRequest } from "../actions/errorActions";
-import { resetSnipingMode } from "actions/propertyPaneActions";
-import {
-  setExplorerActiveAction,
-  setExplorerPinnedAction,
-} from "actions/explorerActions";
-import {
-  isEditorPath,
-  isViewerPath,
-  matchEditorPath,
-} from "ee/pages/Editor/Explorer/helpers";
-import { APP_MODE } from "../entities/App";
-import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import { deleteErrorLog } from "actions/debuggerActions";
-import { getCurrentUser } from "actions/authActions";
 
-import { getCurrentTenant } from "ee/actions/tenantActions";
-import {
-  fetchFeatureFlagsInit,
-  fetchProductAlertInit,
-} from "actions/userActions";
+import { safeCrashAppRequest } from "../actions/errorActions";
+import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
+import { APP_MODE } from "../entities/App";
 import { embedRedirectURL, validateResponse } from "./ErrorSagas";
-import type { ApiResponse } from "api/ApiResponses";
-import type { ProductAlert } from "reducers/uiReducers/usersReducer";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import type { Action, ActionViewMode } from "entities/Action";
-import type { JSCollection } from "entities/JSCollection";
-import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
-import type { AppTheme } from "entities/AppTheming";
-import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
-import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
-import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
-import {
-  endSpan,
-  startNestedSpan,
-  startRootSpan,
-} from "UITelemetry/generateTraces";
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,

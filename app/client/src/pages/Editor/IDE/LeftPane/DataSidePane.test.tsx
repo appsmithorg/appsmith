@@ -1,12 +1,14 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
 import { screen } from "@testing-library/react";
-import DataSidePane from "./DataSidePane";
-import { datasourceFactory } from "test/factories/DatasourceFactory";
-import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { PostgresFactory } from "test/factories/Actions/Postgres";
 import type { AppState } from "ee/reducers";
+import { PostgresFactory } from "test/factories/Actions/Postgres";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { datasourceFactory } from "test/factories/DatasourceFactory";
 import { render } from "test/testUtils";
+
+import DataSidePane from "./DataSidePane";
 
 const productsDS = datasourceFactory().build({
   name: "Products",

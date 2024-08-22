@@ -1,3 +1,4 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -5,7 +6,6 @@ import EditorNavigation, {
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dayjs = require("dayjs");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Switch Widget within Form widget Functionality",

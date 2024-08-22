@@ -1,5 +1,5 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { DEFAULT_COLUMN_NAME } from "../../../../../support/Constants";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "tests bug 20663 TypeError: Cannot read properties of undefined",

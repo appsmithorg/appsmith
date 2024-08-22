@@ -1,8 +1,9 @@
-import {
-  asyncActionInSyncFieldLintMessage,
-  WARNING_LINT_ERRORS,
-} from "../constants";
 import { Severity } from "entities/AppsmithConsole";
+
+import {
+  WARNING_LINT_ERRORS,
+  asyncActionInSyncFieldLintMessage,
+} from "../constants";
 
 export default function getLintSeverity(
   code: string,

@@ -1,21 +1,24 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+
+import { toggleExpandErrorLogItem } from "actions/debuggerActions";
+import type { PluginErrorDetails } from "api/ActionAPI";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
-import styled from "styled-components";
-import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { PluginErrorDetails } from "api/ActionAPI";
-import LogCollapseData from "./components/LogCollapseData";
-import LogAdditionalInfo from "./components/LogAdditionalInfo";
-import LogEntityLink from "./components/LogEntityLink";
-import LogTimeStamp from "./components/LogTimeStamp";
-import { getLogIcon } from "../helpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import moment from "moment";
-import LogHelper from "./components/LogHelper";
-import { toggleExpandErrorLogItem } from "actions/debuggerActions";
+import { useDispatch } from "react-redux";
+import styled from "styled-components";
+
 import { Button, Icon } from "@appsmith/ads";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
+
+import { getLogIcon } from "../helpers";
+import LogAdditionalInfo from "./components/LogAdditionalInfo";
+import LogCollapseData from "./components/LogCollapseData";
+import LogEntityLink from "./components/LogEntityLink";
+import LogHelper from "./components/LogHelper";
+import LogTimeStamp from "./components/LogTimeStamp";
 
 const InnerWrapper = styled.div`
   display: flex;

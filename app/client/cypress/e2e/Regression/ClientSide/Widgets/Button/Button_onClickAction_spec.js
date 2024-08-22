@@ -1,10 +1,3 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../support/Pages/EditorNavigation";
-
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const publishPage = require("../../../../../locators/publishWidgetspage.json");
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 import {
   agHelper,
   dataSources,
@@ -13,6 +6,13 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const publishPage = require("../../../../../locators/publishWidgetspage.json");
+const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 
 describe(
   "Button Widget Functionality",

@@ -1,7 +1,9 @@
 import type React from "react";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
+
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { RadioOptionProps } from "pages/AdminSettings/FormGroup/Radio";
+
 import type { CalloutKind, SelectOptionProps } from "@appsmith/ads";
 
 type ControlType = {

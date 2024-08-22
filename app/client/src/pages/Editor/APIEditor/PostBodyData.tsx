@@ -1,16 +1,7 @@
 import React from "react";
-import { connect } from "react-redux";
-import styled from "styled-components";
-import { formValueSelector } from "redux-form";
-import {
-  POST_BODY_FORMAT_OPTIONS,
-  POST_BODY_FORMAT_TITLES,
-} from "constants/ApiEditorConstants/CommonApiConstants";
-import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
-import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { AppState } from "ee/reducers";
-import FIELD_VALUES from "constants/FieldExpectedValue";
+
+import { updateBodyContentType } from "actions/apiPaneActions";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
@@ -18,12 +9,23 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes } from "@appsmith/ads-old";
-import { updateBodyContentType } from "actions/apiPaneActions";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
+import {
+  POST_BODY_FORMAT_OPTIONS,
+  POST_BODY_FORMAT_TITLES,
+} from "constants/ApiEditorConstants/CommonApiConstants";
+import FIELD_VALUES from "constants/FieldExpectedValue";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
+import { API_PANE_NO_BODY, createMessage } from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import { connect } from "react-redux";
+import { formValueSelector } from "redux-form";
+import styled from "styled-components";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
-import { Select, Option } from "@appsmith/ads";
+
+import { Option, Select } from "@appsmith/ads";
+import { Classes } from "@appsmith/ads-old";
 
 const PostBodyContainer = styled.div`
   display: flex;

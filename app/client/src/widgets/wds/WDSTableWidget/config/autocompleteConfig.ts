@@ -1,13 +1,14 @@
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import {
-  generateTypeDef,
   type ExtraDef,
+  generateTypeDef,
 } from "utils/autocomplete/defCreatorUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import {
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   type TableWidgetProps,
 } from "../constants";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { WDSTableWidget } from "../widget";
 
 export const autocompleteConfig = (() => {

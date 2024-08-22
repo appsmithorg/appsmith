@@ -1,5 +1,4 @@
 import { INTERCEPT } from "../../../../fixtures/variables";
-
 import {
   agHelper,
   appSettings,

@@ -1,11 +1,12 @@
 import React, { useCallback, useContext } from "react";
-import styled from "styled-components";
-import { Link } from "@appsmith/ads";
 
-import history from "utils/history";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { BACK_TO_CANVAS, createMessage } from "ee/constants/messages";
 import { builderURL } from "ee/RouteBuilder";
+import { BACK_TO_CANVAS, createMessage } from "ee/constants/messages";
+import styled from "styled-components";
+import history from "utils/history";
+
+import { Link } from "@appsmith/ads";
 
 const BackToCanvasLink = styled(Link)`
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;

@@ -5,32 +5,38 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled, { css } from "styled-components";
+
 import { Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
-import Webcam from "react-webcam";
-import { useStopwatch } from "react-timer-hook";
-import type { FullScreenHandle } from "react-full-screen";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
-import log from "loglevel";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-
+import type { ThemeProp } from "WidgetProvider/constants";
 import type { ButtonBorderRadius, ButtonVariant } from "components/constants";
 import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
+import { Colors } from "constants/Colors";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import log from "loglevel";
+import type { FullScreenHandle } from "react-full-screen";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { useSelector } from "react-redux";
+import { useStopwatch } from "react-timer-hook";
+import Webcam from "react-webcam";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
-import { useSelector } from "react-redux";
-import { Colors } from "constants/Colors";
+import styled, { css } from "styled-components";
 import {
+  PLATFORM_OS,
   getBrowserInfo,
   getPlatformOS,
   getSupportedMimeTypes,
-  PLATFORM_OS,
 } from "utils/helpers";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
+import { importSvg } from "@appsmith/ads-old";
+
+import { getVideoConstraints } from "../../utils";
 import type {
   CameraMode,
   DeviceType,
@@ -43,11 +49,6 @@ import {
   MediaCaptureActionTypes,
   MediaCaptureStatusTypes,
 } from "../constants";
-import type { ThemeProp } from "WidgetProvider/constants";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { importSvg } from "@appsmith/ads-old";
-import { getVideoConstraints } from "../../utils";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const CameraOfflineIcon = importSvg(
   async () => import("assets/icons/widget/camera/camera-offline.svg"),

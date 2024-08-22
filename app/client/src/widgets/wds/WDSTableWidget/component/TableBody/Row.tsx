@@ -1,12 +1,15 @@
-import { Checkbox } from "@appsmith/wds";
 import type { CSSProperties, Key } from "react";
 import React, { useContext } from "react";
+
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
-import { CellCheckboxWrapper } from "../TableStyledWrappers";
-import { TableBodyContext } from "./context";
-import { renderEmptyRows } from "../cellComponents/EmptyCell";
+
+import { Checkbox } from "@appsmith/wds";
+
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
+import { CellCheckboxWrapper } from "../TableStyledWrappers";
+import { renderEmptyRows } from "../cellComponents/EmptyCell";
+import { TableBodyContext } from "./context";
 
 interface RowType {
   className?: string;

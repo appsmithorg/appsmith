@@ -1,6 +1,7 @@
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { LayoutComponentTypes } from "../../anvilTypes";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+
+import { LayoutComponentTypes } from "../../anvilTypes";
 
 export function generateMockDataWithSectionAndZone() {
   const mockWidgetId = "widget-mock";

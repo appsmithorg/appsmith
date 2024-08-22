@@ -1,7 +1,9 @@
-import React, { lazy, Suspense } from "react";
+import React, { Suspense, lazy } from "react";
+
 import { render } from "@testing-library/react";
-import { IconCollection } from "./Icon.provider";
+
 import { IconClassName } from "./Icon.constants";
+import { IconCollection } from "./Icon.provider";
 
 describe("Icon Component", () => {
   // this workaround to retroactively make Icon a default export is required because

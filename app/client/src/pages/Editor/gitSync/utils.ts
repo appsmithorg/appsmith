@@ -1,8 +1,8 @@
-import type { ApplicationPayload } from "entities/Application";
 import {
   CHANGES_SINCE_LAST_DEPLOYMENT,
   createMessage,
 } from "ee/constants/messages";
+import type { ApplicationPayload } from "entities/Application";
 
 export const getIsStartingWithRemoteBranches = (
   local: string,

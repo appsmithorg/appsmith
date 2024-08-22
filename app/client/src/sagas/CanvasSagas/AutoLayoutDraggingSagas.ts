@@ -1,21 +1,15 @@
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { LayoutDirection } from "layoutSystems/common/utils/constants";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
-import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgets, getWidgetsMeta } from "sagas/selectors";
-import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   addNewLayer,
   createFlexLayer,
@@ -23,15 +17,21 @@ import {
   updateExistingLayer,
   updateRelationships,
 } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import { updatePositionsOfParentAndSiblings } from "layoutSystems/autolayout/utils/positionUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { LayoutDirection } from "layoutSystems/common/utils/constants";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
+import log from "loglevel";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
+import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{

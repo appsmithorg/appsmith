@@ -1,15 +1,17 @@
 import React from "react";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
+
 import { getPluginImages } from "ee/selectors/entitiesSelector";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import _ from "lodash";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+
+import { Icon, Tooltip } from "@appsmith/ads";
 import type {
   DropdownOption,
   RenderDropdownOptionType,
 } from "@appsmith/ads-old";
 import { Classes, Text, TextType } from "@appsmith/ads-old";
-import _ from "lodash";
-import { Tooltip, Icon } from "@appsmith/ads";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
 

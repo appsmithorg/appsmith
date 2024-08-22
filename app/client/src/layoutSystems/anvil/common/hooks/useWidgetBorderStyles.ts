@@ -1,5 +1,5 @@
-import type { AppState } from "ee/reducers";
 import WidgetFactory from "WidgetProvider/factory";
+import type { AppState } from "ee/reducers";
 import { getWidgetErrorCount } from "layoutSystems/anvil/editor/AnvilWidgetName/selectors";
 import {
   getAnvilHighlightShown,

@@ -1,22 +1,22 @@
+import {
+  agHelper,
+  apiPage,
+  dataManager,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import {
-  agHelper,
-  locators,
-  apiPage,
-  dataManager,
-  entityExplorer,
-  draggableWidgets,
-  propPane,
-  table,
-} from "../../../../support/Objects/ObjectsCore";
-import PageList from "../../../../support/Pages/PageList";
 
 describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
   beforeEach(() => {

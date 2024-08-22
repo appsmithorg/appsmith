@@ -1,6 +1,8 @@
-import { Flex, Icon, Text } from "@appsmith/ads";
 import React from "react";
+
 import styled from "styled-components";
+
+import { Flex, Icon, Text } from "@appsmith/ads";
 
 interface HeaderEditorSwitcherProps {
   prefix: string;

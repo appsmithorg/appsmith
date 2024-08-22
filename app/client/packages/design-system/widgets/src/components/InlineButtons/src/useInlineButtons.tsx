@@ -1,15 +1,16 @@
-import { createFocusManager } from "@react-aria/focus";
-import { useCallback, type RefObject, useMemo } from "react";
-import type { ListState } from "@react-stately/list";
-import type { DOMAttributes, FocusableElement } from "@react-types/shared";
-import type { ORIENTATION } from "../../../shared/orientation";
+import { type RefObject, useCallback, useMemo } from "react";
 
-import type { InlineButtonsProps } from "./types";
+import { createFocusManager } from "@react-aria/focus";
 import {
   useLayoutEffect,
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
+import type { ListState } from "@react-stately/list";
+import type { DOMAttributes, FocusableElement } from "@react-types/shared";
+
+import type { ORIENTATION } from "../../../shared/orientation";
+import type { InlineButtonsProps } from "./types";
 
 export interface InlineButtonsAria {
   inlineButtonsProps: DOMAttributes;

@@ -1,8 +1,11 @@
-import { BranchListItem } from "./BranchListItem";
-import { getIsActiveItem } from "../utils";
 import React from "react";
-import { createMessage, LOCAL_BRANCHES } from "ee/constants/messages";
+
+import { LOCAL_BRANCHES, createMessage } from "ee/constants/messages";
+
 import { Text } from "@appsmith/ads";
+
+import { getIsActiveItem } from "../utils";
+import { BranchListItem } from "./BranchListItem";
 
 /**
  * LocalBranchList: returns a list of local branches

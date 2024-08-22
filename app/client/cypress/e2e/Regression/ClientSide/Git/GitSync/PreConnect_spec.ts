@@ -1,6 +1,6 @@
 import homePage from "../../../../../locators/HomePage";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Pre git connection spec:", { tags: ["@tag.Git"] }, function () {
   it("1. Deploy menu at the application dropdown menu", () => {

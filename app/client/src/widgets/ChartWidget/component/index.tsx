@@ -1,36 +1,37 @@
 import React from "react";
-import styled from "styled-components";
-import * as echarts from "echarts";
+
 import { invisible } from "constants/DefaultTheme";
+import * as echarts from "echarts";
 import { getAppsmithConfigs } from "ee/configs";
+import type { AppState } from "ee/reducers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import equal from "fast-deep-equal/es6";
+import log from "loglevel";
+import { connect } from "react-redux";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import styled from "styled-components";
+import type { WidgetPositionProps } from "widgets/BaseWidget";
+
 import type {
-  ChartType,
-  CustomFusionChartConfig,
   AllChartData,
   ChartSelectedDataPoint,
+  ChartType,
+  CustomFusionChartConfig,
   LabelOrientation,
 } from "../constants";
-
-import log from "loglevel";
-import equal from "fast-deep-equal/es6";
-import type { WidgetPositionProps } from "widgets/BaseWidget";
 import { ChartErrorComponent } from "./ChartErrorComponent";
+import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 import { dataClickCallbackHelper, isBasicEChart } from "./helpers";
 import {
-  parseOnDataPointClickParams,
+  chartOptions,
   isCustomEChart,
   isCustomFusionChart,
-  chartOptions,
+  parseOnDataPointClickParams,
 } from "./helpers";
 
-import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
-import type { AppState } from "ee/reducers";
-import { connect } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires

@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Select, Option } from "./Select";
-import { Icon } from "../Icon";
-import { Checkbox } from "../Checkbox";
-import type { SelectProps } from "./Select.types";
+
 import type { StoryObj } from "@storybook/react";
+
+import { Checkbox } from "../Checkbox";
+import { Icon } from "../Icon";
+import { Option, Select } from "./Select";
+import type { SelectProps } from "./Select.types";
 
 export default {
   title: "ADS/Components/Select",

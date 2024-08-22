@@ -1,8 +1,9 @@
+import React from "react";
+
 import { Colors } from "constants/Colors";
+import styled from "styled-components";
 
 import { Button } from "@appsmith/ads";
-import React from "react";
-import styled from "styled-components";
 
 const Wrapper = styled.div`
   position: absolute;

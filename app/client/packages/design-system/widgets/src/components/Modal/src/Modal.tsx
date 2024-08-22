@@ -1,8 +1,11 @@
 import React from "react";
+
+import clsx from "clsx";
+
 import { Popover, PopoverModalContent } from "@appsmith/wds-headless";
+
 import styles from "./styles.module.css";
 import type { ModalProps } from "./types";
-import clsx from "clsx";
 
 export const Modal = (props: ModalProps) => {
   const {

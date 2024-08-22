@@ -1,11 +1,15 @@
+import { LabelPosition } from "components/constants";
+import { RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { AlignmentInfo, Row } from "../../autolayout/utils/types";
-import { RenderModes } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+
+import type { AlignmentInfo, Row } from "../../autolayout/utils/types";
+import * as utils from "./flexWidgetUtils";
 import {
   extractAlignmentInfo,
   getAlignmentSizeInfo,
@@ -16,9 +20,6 @@ import {
   placeWrappedWidgets,
   updateWidgetPositions,
 } from "./positionUtils";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { LabelPosition } from "components/constants";
-import * as utils from "./flexWidgetUtils";
 import type { FlexLayer } from "./types";
 
 describe("test PositionUtils methods", () => {

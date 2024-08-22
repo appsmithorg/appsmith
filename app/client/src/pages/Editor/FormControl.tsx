@@ -1,36 +1,37 @@
 import React, { memo, useEffect, useMemo, useState } from "react";
+
+import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
 import type { ControlProps } from "components/formControls/BaseControl";
 import {
+  ViewTypes,
   getViewType,
   isHidden,
-  ViewTypes,
 } from "components/formControls/utils";
-import { useSelector, shallowEqual, useDispatch } from "react-redux";
-import { getFormValues, change } from "redux-form";
-import FormControlFactory from "utils/formControl/FormControlFactory";
-
-import type { AppState } from "ee/reducers";
-import type { Action } from "entities/Action";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { getConfigErrors } from "selectors/formSelectors";
-import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
-import FormConfig from "./FormConfig";
+import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
 import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
-import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
-import history from "utils/history";
+import type { AppState } from "ee/reducers";
 import {
   getAction,
   getDatasourceStructureById,
   getPluginNameFromId,
   getPluginTemplates,
 } from "ee/selectors/entitiesSelector";
-import { get } from "lodash";
-import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
-import TemplateMenu from "./QueryEditor/TemplateMenu";
-import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
-import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import { getCurrentEditingEnvironmentId } from "ee/selectors/environmentSelectors";
+import type { Action } from "entities/Action";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
+import { get } from "lodash";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { change, getFormValues } from "redux-form";
+import { getConfigErrors } from "selectors/formSelectors";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
+import FormControlFactory from "utils/formControl/FormControlFactory";
+import history from "utils/history";
+
+import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
+import FormConfig from "./FormConfig";
+import TemplateMenu from "./QueryEditor/TemplateMenu";
 
 export interface FormControlProps {
   config: ControlProps;

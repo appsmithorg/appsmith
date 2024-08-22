@@ -1,19 +1,20 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { ThemeProvider } from "styled-components";
-import { Router } from "react-router";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { templateIdUrl } from "ee/RouteBuilder";
+import { Router } from "react-router";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import history from "utils/history";
 
 import BuildingBlock from ".";
-import history from "utils/history";
-import { lightTheme } from "selectors/themeSelectors";
 import { BUILDING_BLOCK_THUMBNAIL_ALT_TEXT } from "../constants";
 import {
-  unitTestMockBuildingBlock,
-  MOCK_BUILDING_BLOCK_TITLE,
   MOCK_BUILDING_BLOCK_DESCRIPTION,
   MOCK_BUILDING_BLOCK_ID,
+  MOCK_BUILDING_BLOCK_TITLE,
+  unitTestMockBuildingBlock,
 } from "../test_config";
 
 jest.mock("react-redux", () => {

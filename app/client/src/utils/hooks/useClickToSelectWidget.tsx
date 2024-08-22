@@ -1,21 +1,23 @@
-import equal from "fast-deep-equal/es6";
 import type { ReactNode } from "react";
 import React, { useCallback } from "react";
+
+import equal from "fast-deep-equal/es6";
 import { useSelector } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
-  isWidgetFocused,
   isResizingOrDragging,
+  isWidgetFocused,
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
 import styled from "styled-components";
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { useWidgetSelection } from "./useWidgetSelection";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
 import { NavigationMethod } from "../history";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { useWidgetSelection } from "./useWidgetSelection";
 
 const ContentWrapper = styled.div`
   width: 100%;

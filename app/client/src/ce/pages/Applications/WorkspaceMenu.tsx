@@ -1,5 +1,13 @@
 import React from "react";
+
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { ManageEnvironmentsMenu } from "ee/pages/Applications/ManageEnvironmentsMenu";
+import {
+  DropdownOnSelectActions,
+  getOnSelectAction,
+} from "pages/common/CustomizedDropdown/dropdownHelpers";
 import styled from "styled-components";
+
 import { Button, Icon, Menu, MenuContent, MenuTrigger } from "@appsmith/ads";
 import {
   EditInteractionKind,
@@ -7,12 +15,6 @@ import {
   SavingState,
   notEmptyValidator,
 } from "@appsmith/ads-old";
-import type { Workspace } from "ee/constants/workspaceConstants";
-import {
-  DropdownOnSelectActions,
-  getOnSelectAction,
-} from "pages/common/CustomizedDropdown/dropdownHelpers";
-import { ManageEnvironmentsMenu } from "ee/pages/Applications/ManageEnvironmentsMenu";
 
 interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;

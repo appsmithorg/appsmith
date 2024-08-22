@@ -1,32 +1,33 @@
-import React, { useState, useEffect } from "react";
-import styled from "styled-components";
-import { connect, useDispatch } from "react-redux";
-import type { AppState } from "ee/reducers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  Button,
-  Text,
-  Modal,
-  ModalContent,
-  ModalBody,
-  ModalFooter,
-} from "@appsmith/ads";
-import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
-import { setCrudInfoModalData } from "actions/crudInfoModalActions";
+import React, { useEffect, useState } from "react";
 
-import type { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
+import { setCrudInfoModalData } from "actions/crudInfoModalActions";
+import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
-import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import SuccessTick from "pages/common/SuccessTick";
+import { connect, useDispatch } from "react-redux";
+import type { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
+import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
+import styled from "styled-components";
+
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  Text,
+} from "@appsmith/ads";
 import {
   ProgressiveImage,
   Container as ProgressiveImageContainer,
 } from "@appsmith/ads-old";
-import SuccessTick from "pages/common/SuccessTick";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 interface Props {
   crudInfoModalOpen: boolean;

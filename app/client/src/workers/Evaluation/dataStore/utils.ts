@@ -1,7 +1,8 @@
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import type { TDataStore } from ".";
 import { isAction, isJSAction } from "ee/workers/Evaluation/evaluationUtils";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, isEmpty, set } from "lodash";
+
+import type { TDataStore } from ".";
 
 export function updateTreeWithData(tree: DataTree, dataStore: TDataStore) {
   if (isEmpty(dataStore)) return;

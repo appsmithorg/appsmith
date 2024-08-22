@@ -1,9 +1,10 @@
 import React from "react";
+
+import { DropWidgetsHereMessage } from "layoutSystems/anvil/common/messages";
 import { useSelector } from "react-redux";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getDragDetails, getWidgetByID } from "sagas/selectors";
 import styled from "styled-components";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { DropWidgetsHereMessage } from "layoutSystems/anvil/common/messages";
 
 export const EMPTY_MODAL_PADDING = 4;
 

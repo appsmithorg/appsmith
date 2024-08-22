@@ -1,18 +1,18 @@
 // Check if user is updating the app when toast is shown
 // Check how many times does the user see a toast before updating
-
-import { toast } from "@appsmith/ads";
-import {
-  createMessage,
-  INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
-} from "ee/constants/messages";
 import type { AppVersionData } from "ee/configs/types";
+import {
+  INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
+  createMessage,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getVersionUpdateState,
   removeVersionUpdateState,
   setVersionUpdateState,
 } from "utils/storage";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import { toast } from "@appsmith/ads";
 
 enum UpdateStateEvent {
   PROMPT_SHOWN = "PROMPT_SHOWN",

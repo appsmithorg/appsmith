@@ -1,5 +1,6 @@
-import { Icon } from "../Icon";
 import styled from "styled-components";
+
+import { Icon } from "../Icon";
 
 export const StyledCollapsibleContainer = styled.div`
   display: flex;

@@ -1,15 +1,15 @@
 import kebabCase from "lodash/kebabCase";
-import { DarkModeTheme, LightModeTheme } from "../../color";
 
+import { DarkModeTheme, LightModeTheme } from "../../color";
 import type { ColorMode, ColorTypes } from "../../color";
 import type {
+  FontFamily,
+  IconStyle,
   ThemeToken,
   TokenObj,
   TokenSource,
   TokenType,
-  FontFamily,
   Typography,
-  IconStyle,
 } from "./types";
 
 export class TokensAccessor {

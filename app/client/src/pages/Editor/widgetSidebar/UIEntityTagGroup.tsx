@@ -1,9 +1,16 @@
+import React from "react";
+
 import type { WidgetTags } from "constants/WidgetConstants";
 import {
   SUGGESTED_WIDGETS_ORDER,
   WIDGET_TAGS,
   initialEntityCountForExplorerTag,
 } from "constants/WidgetConstants";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { sortBy } from "lodash";
+import styled from "styled-components";
+import type { WidgetCardProps } from "widgets/BaseWidget";
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -11,12 +18,8 @@ import {
   Spinner,
   Text,
 } from "@appsmith/ads";
-import { sortBy } from "lodash";
-import React from "react";
-import type { WidgetCardProps } from "widgets/BaseWidget";
+
 import SeeMoreButton from "./SeeMoreButton";
-import styled from "styled-components";
-import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import WidgetCard from "./WidgetCard";
 
 const LoadingWrapper = styled.div`

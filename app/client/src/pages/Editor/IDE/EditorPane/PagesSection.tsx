@@ -1,25 +1,26 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Text } from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router";
 
-import { selectAllPages } from "ee/selectors/entitiesSelector";
-import type { Page } from "entities/Page";
-import { getHasCreatePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
+import { IDEHeaderDropdown } from "IDE";
 import { createNewPageFromEntities } from "actions/pageActions";
-import AddPageContextMenu from "pages/Editor/Explorer/Pages/AddPageContextMenu";
-import { getNextEntityName } from "utils/AppsmithUtils";
+import { PAGE_ENTITY_NAME } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { selectAllPages } from "ee/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getHasCreatePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { Page } from "entities/Page";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import AddPageContextMenu from "pages/Editor/Explorer/Pages/AddPageContextMenu";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
-import { IDEHeaderDropdown } from "IDE";
-import { PAGE_ENTITY_NAME } from "ee/constants/messages";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Text } from "@appsmith/ads";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();

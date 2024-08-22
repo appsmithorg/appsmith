@@ -1,15 +1,18 @@
+import React, { useMemo } from "react";
+
 import { getPlugins } from "ee/selectors/entitiesSelector";
+import type { Datasource } from "entities/Datasource";
+import { keyBy } from "lodash";
+import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { useSelector } from "react-redux";
+
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
   Text,
 } from "@appsmith/ads";
-import type { Datasource } from "entities/Datasource";
-import { keyBy } from "lodash";
-import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+
 import EntityCheckboxSelector from "./EntityCheckboxSelector";
 
 interface Props {

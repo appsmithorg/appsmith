@@ -1,6 +1,6 @@
 /*Huge thanks to @tobiasahlin at http://tobiasahlin.com/spinkit/ */
-
 import React from "react";
+
 import styled from "styled-components";
 
 const Spinner = styled.div`

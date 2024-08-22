@@ -1,8 +1,9 @@
-import { getInstanceId } from "ee/selectors/tenantSelectors";
-import { useSelector } from "react-redux";
-import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
 import { useMemo } from "react";
+
+import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { getUserSource } from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
 
 export const useAppsmithEnterpriseLink = (feature: string) => {
   const instanceId = useSelector(getInstanceId);

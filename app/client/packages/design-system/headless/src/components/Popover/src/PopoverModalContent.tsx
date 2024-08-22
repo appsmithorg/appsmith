@@ -1,14 +1,15 @@
 import React, { forwardRef, useEffect, useState } from "react";
+import type { Ref } from "react";
+
 import {
   FloatingFocusManager,
+  FloatingOverlay,
   FloatingPortal,
   useMergeRefs,
-  FloatingOverlay,
   useTransitionStatus,
 } from "@floating-ui/react";
-import { usePopoverContext } from "./PopoverContext";
 
-import type { Ref } from "react";
+import { usePopoverContext } from "./PopoverContext";
 import type { PopoverModalContentProps } from "./types";
 
 const setAriaAttrs = (

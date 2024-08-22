@@ -1,9 +1,10 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { snipingModeSelector } from "selectors/editorSelectors";
+
 import { showPropertyPane } from "actions/propertyPaneActions";
 import { closePropertyPane } from "actions/widgetActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { useDispatch, useSelector } from "react-redux";
+import { snipingModeSelector } from "selectors/editorSelectors";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();

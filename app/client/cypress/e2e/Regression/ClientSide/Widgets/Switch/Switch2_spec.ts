@@ -1,3 +1,5 @@
+import widgets from "../../../../../locators/Widgets.json";
+import commonloc from "../../../../../locators/commonlocators.json";
 import {
   agHelper,
   deployMode,
@@ -7,9 +9,6 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import widgets from "../../../../../locators/Widgets.json";
-import commonloc from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

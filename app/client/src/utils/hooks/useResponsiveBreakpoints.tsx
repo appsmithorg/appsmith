@@ -1,4 +1,5 @@
 import React from "react";
+
 // Find the matching breakpoint knowing the width
 function findBreakPoint(breakpoints: Record<string, number>[], width: number) {
   const breakpointIndex = breakpoints

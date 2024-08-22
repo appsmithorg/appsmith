@@ -1,16 +1,17 @@
-import {
-  createMessage,
-  FETCHING_TEMPLATES,
-  FORKING_TEMPLATE,
-} from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import React, { useEffect, useRef, useState } from "react";
+
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
 } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
 import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
-import React, { useEffect, useRef, useState } from "react";
+import {
+  FETCHING_TEMPLATES,
+  FORKING_TEMPLATE,
+  createMessage,
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { generatePath, matchPath } from "react-router";
 import {
@@ -20,6 +21,7 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import { isURLDeprecated, trimQueryString } from "utils/helpers";
+
 import SimilarTemplates from "../Template/SimilarTemplates";
 import TemplateDescription from "../Template/TemplateDescription";
 import { IframeTopBar, IframeWrapper } from "../TemplateView";

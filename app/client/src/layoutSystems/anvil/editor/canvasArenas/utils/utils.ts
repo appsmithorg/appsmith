@@ -1,15 +1,16 @@
-import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import WidgetFactory from "WidgetProvider/factory";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import WidgetFactory from "WidgetProvider/factory";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { AnvilDraggedWidgetTypesEnum } from "../types";
-import { anvilWidgets } from "widgets/anvil/constants";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { anvilWidgets } from "widgets/anvil/constants";
+
+import { AnvilDraggedWidgetTypesEnum } from "../types";
 
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.

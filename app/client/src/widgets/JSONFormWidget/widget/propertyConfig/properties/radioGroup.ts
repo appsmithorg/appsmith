@@ -4,8 +4,9 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
+
 import type { HiddenFnParams } from "../helper";
-import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import { getAutocompleteProperties, getSchemaItem } from "../helper";
 
 /**
  * Alias function is used to test the optionsCustomValidation separately

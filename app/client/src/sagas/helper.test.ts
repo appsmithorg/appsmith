@@ -1,15 +1,14 @@
 /**
  * @jest-environment jsdom
  */
-
-import { TextEncoder, TextDecoder } from "util";
-
-Object.assign(global, { TextDecoder, TextEncoder });
 import {
-  enhanceRequestPayloadWithEventData,
   cleanValuesInObjectForHashing,
+  enhanceRequestPayloadWithEventData,
   generateHashFromString,
 } from "sagas/helper";
+import { TextDecoder, TextEncoder } from "util";
+
+Object.assign(global, { TextDecoder, TextEncoder });
 
 describe("tests the redux saga helper functions", () => {
   it("tests the enhanceRequestPayloadWithEventData function", () => {

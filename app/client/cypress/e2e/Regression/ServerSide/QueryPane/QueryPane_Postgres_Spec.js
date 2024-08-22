@@ -1,20 +1,20 @@
+import {
+  agHelper,
+  assertHelper,
+  dataSources,
+  entityExplorer,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import {
-  dataSources,
-  entityExplorer,
-  agHelper,
-  entityItems,
-  assertHelper,
-} from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 

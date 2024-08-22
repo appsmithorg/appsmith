@@ -1,4 +1,4 @@
-const widgets = require("../../../../../locators/Widgets.json");
+import { progressWidgetProgress } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
   deployMode,
@@ -7,7 +7,8 @@ import {
   fakerHelper,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-import { progressWidgetProgress } from "../../../../../locators/WidgetLocators";
+
+const widgets = require("../../../../../locators/Widgets.json");
 
 describe(
   "Progress Widget",

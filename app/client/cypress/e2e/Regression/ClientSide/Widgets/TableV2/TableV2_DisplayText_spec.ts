@@ -1,9 +1,9 @@
 import {
-  table,
-  entityExplorer,
-  propPane,
   agHelper,
   assertHelper,
+  entityExplorer,
+  propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

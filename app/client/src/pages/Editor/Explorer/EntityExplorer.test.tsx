@@ -1,18 +1,20 @@
-import { act, fireEvent, render } from "test/testUtils";
+import React from "react";
+
+import * as widgetSelectionsActions from "actions/widgetSelectionActions";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import * as explorerSelector from "selectors/explorerSelector";
+import { runSagaMiddleware } from "store";
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import React from "react";
 import { MockPageDSL } from "test/testCommon";
-import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
-import { runSagaMiddleware } from "store";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import * as explorerSelector from "selectors/explorerSelector";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import * as widgetSelectionsActions from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { act, fireEvent, render } from "test/testUtils";
 import { NavigationMethod } from "utils/history";
+
 import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
 
 jest.useFakeTimers();

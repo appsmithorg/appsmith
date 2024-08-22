@@ -1,13 +1,14 @@
-import { InlineEditingSaveOptions } from "../constants";
 import {
   BlueprintOperationTypes,
   type WidgetDefaultProps,
 } from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { DEFAULT_DATA } from "../constants/data";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { InlineEditingSaveOptions } from "../constants";
+import { DEFAULT_DATA } from "../constants/data";
 
 export const defaultsConfig = {
   responsiveBehavior: ResponsiveBehavior.Fill,

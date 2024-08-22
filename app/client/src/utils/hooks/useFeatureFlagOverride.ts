@@ -1,10 +1,11 @@
-import type { FeatureFlag } from "ee/entities/FeatureFlag";
+import { useEffect } from "react";
+
 import {
   setFeatureFlagOverridesAction,
   updateFeatureFlagOverrideAction,
 } from "actions/featureFlagActions";
+import type { FeatureFlag } from "ee/entities/FeatureFlag";
 import { isBoolean } from "lodash";
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import {

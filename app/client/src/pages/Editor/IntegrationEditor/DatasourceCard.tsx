@@ -1,62 +1,65 @@
-import type { Datasource } from "entities/Datasource";
-import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { debounce, isEmpty } from "lodash";
-import { useDispatch, useSelector } from "react-redux";
-import CollapseComponent from "components/utils/CollapseComponent";
-import {
-  getPluginImages,
-  getCurrentActions,
-} from "ee/selectors/entitiesSelector";
-import styled from "styled-components";
-import type { AppState } from "ee/reducers";
-import history from "utils/history";
-import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
-import { getQueryParams } from "utils/URLUtils";
-import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
+
 import { deleteDatasource } from "actions/datasourceActions";
-import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import NewActionButton from "../DataSourceEditor/NewActionButton";
+import CollapseComponent from "components/utils/CollapseComponent";
+import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
+import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   saasEditorDatasourceIdURL,
 } from "ee/RouteBuilder";
 import {
-  CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
-  createMessage,
   CONFIRM_CONTEXT_DELETING,
+  CONTEXT_DELETE,
   GENERATE_NEW_PAGE_BUTTON_TEXT,
   RECONNECT_BUTTON_TEXT,
+  createMessage,
 } from "ee/constants/messages";
-import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
-import {
-  getCurrentBasePageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
-import { DatasourceEditEntryPoints } from "constants/Datasource";
-import {
-  isEnvironmentConfigured,
-  doesAnyDsConfigExist,
-  DB_NOT_SUPPORTED,
-} from "ee/utils/Environments";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { useEditorType } from "ee/hooks";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import {
+  getCurrentActions,
+  getPluginImages,
+} from "ee/selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getHasCreatePagePermission,
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
   hasCreateDSActionPermissionInApp,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "ee/hooks";
+import {
+  DB_NOT_SUPPORTED,
+  doesAnyDsConfigExist,
+  isEnvironmentConfigured,
+} from "ee/utils/Environments";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { PluginType, isStoredDatasource } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { debounce, isEmpty } from "lodash";
+import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCurrentBasePageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import styled from "styled-components";
+import { getQueryParams } from "utils/URLUtils";
+import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
+
+import NewActionButton from "../DataSourceEditor/NewActionButton";
 
 const Wrapper = styled.div`
   padding: 15px;

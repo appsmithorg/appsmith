@@ -1,10 +1,12 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+
 import "@testing-library/jest-dom";
-import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { lightTheme } from "selectors/themeSelectors";
-import { mockAppDSProps, mockDataBaseProps } from "./unitTestUtils";
 import { ThemeProvider } from "styled-components";
+
+import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
+import { mockAppDSProps, mockDataBaseProps } from "./unitTestUtils";
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");

@@ -1,11 +1,11 @@
-import { useSelector } from "react-redux";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import {
   hasConnectToGitPermission,
-  hasManageProtectedBranchesPermission,
-  hasManageDefaultBranchPermission,
   hasManageAutoCommitPermission,
+  hasManageDefaultBranchPermission,
+  hasManageProtectedBranchesPermission,
 } from "ee/utils/permissionHelpers";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { useSelector } from "react-redux";
 
 export const useHasConnectToGitPermission = () => {
   const currentApplication = useSelector(getCurrentApplication);

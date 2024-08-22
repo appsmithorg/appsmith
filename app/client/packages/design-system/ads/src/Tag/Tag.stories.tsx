@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { Tag } from "./Tag";
 import type { TagProps } from "./Tag.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Tag",

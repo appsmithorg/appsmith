@@ -1,23 +1,10 @@
 import React from "react";
+
 import * as RadixMenu from "@radix-ui/react-dropdown-menu";
 import clsx from "classnames";
 
-import {
-  StyledMenuContent,
-  StyledMenuItem,
-  StyledMenuGroupname,
-  StyledMenuSubContent,
-  StyledMenuSubTrigger,
-  StyledMenuSeparator,
-} from "./Menu.styles";
-import type {
-  MenuContentProps,
-  MenuItemContentProps,
-  MenuItemProps,
-  MenuProps,
-  MenuSubContentProps,
-  MenuSubTriggerProps,
-} from "./Menu.types";
+import { Icon } from "../Icon";
+import { Text } from "../Text";
 import {
   MenuClassName,
   MenuItemChildrenClassName,
@@ -28,8 +15,22 @@ import {
   SIDE_OFFSET,
   SubMenuClassName,
 } from "./Menu.constants";
-import { Icon } from "../Icon";
-import { Text } from "../Text";
+import {
+  StyledMenuContent,
+  StyledMenuGroupname,
+  StyledMenuItem,
+  StyledMenuSeparator,
+  StyledMenuSubContent,
+  StyledMenuSubTrigger,
+} from "./Menu.styles";
+import type {
+  MenuContentProps,
+  MenuItemContentProps,
+  MenuItemProps,
+  MenuProps,
+  MenuSubContentProps,
+  MenuSubTriggerProps,
+} from "./Menu.types";
 
 function MenuContent({
   children,

@@ -1,6 +1,8 @@
 import localStorage from "utils/localStorage";
-import { GridDefaults } from "./WidgetConstants";
+
 import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
+
+import { GridDefaults } from "./WidgetConstants";
 
 export const CANVAS_DEFAULT_MIN_HEIGHT_PX = 380;
 export const CANVAS_DEFAULT_MIN_ROWS = Math.ceil(

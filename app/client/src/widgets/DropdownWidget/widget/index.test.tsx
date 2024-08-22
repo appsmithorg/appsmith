@@ -1,15 +1,15 @@
+import React from "react";
+
+import "@testing-library/jest-dom";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { dark, theme } from "constants/DefaultTheme";
-import React from "react";
+import { RenderModes } from "constants/WidgetConstants";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import { ThemeProvider } from "styled-components";
+
 import type { DropdownWidgetProps } from "./";
 import DropdownWidget from "./";
-
-import "@testing-library/jest-dom";
-
-import { RenderModes } from "constants/WidgetConstants";
 
 describe("<DropdownWidget />", () => {
   const initialState = {

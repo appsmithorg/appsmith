@@ -1,8 +1,11 @@
-import { Tooltip } from "@blueprintjs/core";
-import { importSvg } from "@appsmith/ads-old";
 import React, { createRef, useEffect, useState } from "react";
+
+import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+
+import { importSvg } from "@appsmith/ads-old";
+
 import type { CellAlignment, VerticalAlignment } from "../Constants";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 

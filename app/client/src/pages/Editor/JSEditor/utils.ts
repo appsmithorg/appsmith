@@ -1,26 +1,28 @@
-import type { Node } from "acorn";
-import { parse } from "acorn";
-import { ancestor } from "acorn-walk";
-import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
-import type { JSAction, JSCollection } from "entities/JSCollection";
-import {
-  RUN_GUTTER_CLASSNAME,
-  RUN_GUTTER_ID,
-  NO_FUNCTION_DROPDOWN_OPTION,
-} from "./constants";
-import type { DropdownOption } from "@appsmith/ads-old";
-import { find, memoize } from "lodash";
 import type { PropertyNode } from "@shared/ast";
 import {
-  isLiteralNode,
-  isPropertyNode,
   ECMA_VERSION,
   NodeTypes,
   SourceType,
+  isLiteralNode,
+  isPropertyNode,
 } from "@shared/ast";
-import type { EventLocation } from "ee/utils/analyticsUtilTypes";
-import log from "loglevel";
+import type { Node } from "acorn";
+import { parse } from "acorn";
+import { ancestor } from "acorn-walk";
 import type CodeMirror from "codemirror";
+import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import type { JSAction, JSCollection } from "entities/JSCollection";
+import { find, memoize } from "lodash";
+import log from "loglevel";
+
+import type { DropdownOption } from "@appsmith/ads-old";
+
+import {
+  NO_FUNCTION_DROPDOWN_OPTION,
+  RUN_GUTTER_CLASSNAME,
+  RUN_GUTTER_ID,
+} from "./constants";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;

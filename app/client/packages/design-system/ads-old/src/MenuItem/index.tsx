@@ -1,14 +1,17 @@
 import type { ReactNode, Ref } from "react";
 import React, { forwardRef } from "react";
-import type { CommonComponentProps } from "../types/common";
-import { Classes } from "../constants/classes";
-import styled from "styled-components";
-import type { IconNames } from "@appsmith/ads";
-import { Icon } from "@appsmith/ads";
-import TooltipComponent from "../Tooltip";
-import Text, { TextType, FontWeight } from "../Text";
+
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import styled from "styled-components";
+
+import type { IconNames } from "@appsmith/ads";
+import { Icon } from "@appsmith/ads";
+
+import Text, { FontWeight, TextType } from "../Text";
+import TooltipComponent from "../Tooltip";
+import { Classes } from "../constants/classes";
+import type { CommonComponentProps } from "../types/common";
 
 export type MenuItemProps = CommonComponentProps & {
   icon?: IconNames;

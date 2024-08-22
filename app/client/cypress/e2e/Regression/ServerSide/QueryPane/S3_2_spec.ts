@@ -1,7 +1,6 @@
 /// <reference types="Cypress" />
-
-import generatePage from "../../../../locators/GeneratePage.json";
 import formControls from "../../../../locators/FormControl.json";
+import generatePage from "../../../../locators/GeneratePage.json";
 import {
   agHelper,
   assertHelper,

@@ -1,15 +1,17 @@
 import * as React from "react";
 
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
-import { SegmentedControl, Tooltip } from "@appsmith/ads";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+import { SegmentedControl, Tooltip } from "@appsmith/ads";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;

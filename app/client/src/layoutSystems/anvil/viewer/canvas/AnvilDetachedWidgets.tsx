@@ -1,7 +1,8 @@
+import React from "react";
+
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useDetachedChildren } from "layoutSystems/anvil/common/hooks/detachedWidgetHooks";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
-import React from "react";
 import { useSelector } from "react-redux";
 import { getRenderMode } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";

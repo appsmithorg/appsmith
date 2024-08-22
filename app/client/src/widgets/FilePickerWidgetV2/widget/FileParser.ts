@@ -1,5 +1,6 @@
-import FileDataTypes from "../constants";
 import * as XLSX from "xlsx";
+
+import FileDataTypes from "../constants";
 
 interface ExcelSheetData {
   name: string;

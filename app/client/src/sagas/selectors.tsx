@@ -1,21 +1,21 @@
+import type { Plugin } from "api/PluginApi";
+import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
+import type { WidgetType } from "constants/WidgetConstants";
+import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 import type { AppState } from "ee/reducers";
-import { createSelector } from "reselect";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import { getActions, getPlugins } from "ee/selectors/entitiesSelector";
+import type { Page } from "entities/Page";
+import _, { defaults, omit } from "lodash";
 import memoize from "proxy-memoize";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetProps } from "widgets/BaseWidget";
-import _, { defaults, omit } from "lodash";
-import type { WidgetType } from "constants/WidgetConstants";
-import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import type { Page } from "entities/Page";
-import { getActions, getPlugins } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { createSelector } from "reselect";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;

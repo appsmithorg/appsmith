@@ -1,4 +1,3 @@
-import history, { NavigationMethod } from "utils/history";
 import {
   builderURL,
   datasourcesEditorIdURL,
@@ -7,6 +6,8 @@ import {
 import { PluginType } from "entities/Action";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
+import history, { NavigationMethod } from "utils/history";
+
 import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils";
 
 export function setSelectedDatasource(id?: string) {

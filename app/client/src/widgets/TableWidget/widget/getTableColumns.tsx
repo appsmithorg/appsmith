@@ -1,4 +1,5 @@
 import { isBoolean, isObject } from "lodash";
+
 import type {
   CellLayoutProperties,
   ColumnProperties,

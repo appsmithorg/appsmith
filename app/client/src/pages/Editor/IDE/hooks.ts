@@ -1,4 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
+
+import { closeJSActionTab } from "actions/jsActionActions";
+import { closeQueryActionTab } from "actions/pluginActionActions";
+import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
+import {
+  APP_SIDEBAR_WIDTH,
+  DEFAULT_EXPLORER_PANE_WIDTH,
+  SPLIT_SCREEN_RATIO,
+} from "constants/AppConstants";
+import {
+  builderURL,
+  jsCollectionListURL,
+  queryListURL,
+  widgetListURL,
+} from "ee/RouteBuilder";
 import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
@@ -6,37 +21,24 @@ import {
   EditorState,
   EditorViewMode,
 } from "ee/entities/IDE/constants";
-import { useLocation } from "react-router";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useDispatch, useSelector } from "react-redux";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import history, { NavigationMethod } from "utils/history";
-import {
-  builderURL,
-  jsCollectionListURL,
-  queryListURL,
-  widgetListURL,
-} from "ee/RouteBuilder";
-import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import {
-  APP_SIDEBAR_WIDTH,
-  DEFAULT_EXPLORER_PANE_WIDTH,
-  SPLIT_SCREEN_RATIO,
-} from "constants/AppConstants";
-import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
-import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
+import { createEditorFocusInfoKey } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { TabSelectors } from "./EditorTabs/constants";
-import { createEditorFocusInfoKey } from "ee/navigation/FocusStrategy/AppIDEFocusStrategy";
 import { FocusElement } from "navigation/FocusElements";
-import { closeJSActionTab } from "actions/jsActionActions";
-import { closeQueryActionTab } from "actions/pluginActionActions";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { getCurrentEntityInfo } from "../utils";
+import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
+import history, { NavigationMethod } from "utils/history";
+
 import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
+import { getCurrentEntityInfo } from "../utils";
+import { TabSelectors } from "./EditorTabs/constants";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);

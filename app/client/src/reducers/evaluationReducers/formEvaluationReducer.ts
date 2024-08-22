@@ -1,8 +1,8 @@
-import { createReducer } from "utils/ReducerUtils";
+import type { FetchPageActionPayload } from "actions/pageActions";
+import type { FormConfigType } from "components/formControls/BaseControl";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { FormConfigType } from "components/formControls/BaseControl";
-import type { FetchPageActionPayload } from "actions/pageActions";
+import { createReducer } from "utils/ReducerUtils";
 
 // Type for the object that will store the dynamic values for each component
 export interface DynamicValues {

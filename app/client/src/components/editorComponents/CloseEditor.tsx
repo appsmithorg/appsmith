@@ -1,20 +1,23 @@
 import React from "react";
+
 import { INTEGRATION_TABS } from "constants/routes";
-import { getQueryParams } from "utils/URLUtils";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
   generateTemplateFormURL,
   integrationEditorURL,
   widgetListURL,
 } from "ee/RouteBuilder";
-import { useSelector } from "react-redux";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Link } from "@appsmith/ads";
+import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import styled from "styled-components";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getQueryParams } from "utils/URLUtils";
+
+import { Link } from "@appsmith/ads";
+
 import type { AppsmithLocationState } from "../../utils/history";
 import { NavigationMethod } from "../../utils/history";
-import { useHistory } from "react-router-dom";
 
 const StyledLink = styled(Link)`
   margin: var(--ads-v2-spaces-7) 0 0 var(--ads-v2-spaces-7);

@@ -1,18 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+
 import type { DropTargetMonitor } from "react-dnd";
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
+import styled from "styled-components";
+
 import { Button } from "@appsmith/ads";
 import type { IconNames } from "@appsmith/ads";
 import { Icon } from "@appsmith/ads";
-import Text, { TextType } from "../Text";
 import { toast } from "@appsmith/ads";
+
+import Text, { TextType } from "../Text";
 import TooltipComponent from "../Tooltip";
 import {
-  createMessage,
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
+  createMessage,
 } from "../constants/messages";
 import { importSvg } from "../utils/icon-loadables";
 

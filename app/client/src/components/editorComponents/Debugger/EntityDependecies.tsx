@@ -1,26 +1,29 @@
 /* eslint-disable prefer-const */
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import styled from "styled-components";
-import { Classes, getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
+
 import InspectElement from "assets/images/InspectElement.svg";
+import { thinScrollbar } from "constants/DefaultTheme";
 import {
-  createMessage,
   INCOMING_ENTITIES,
   INSPECT_ENTITY_BLANK_STATE,
   NO_INCOMING_ENTITIES,
   NO_OUTGOING_ENTITIES,
   OUTGOING_ENTITIES,
+  createMessage,
 } from "ee/constants/messages";
-import { getDependenciesFromInverseDependencies } from "./helpers";
-import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+
 import { Button, Icon, Tooltip } from "@appsmith/ads";
+import { Classes, Text, TextType, getTypographyByKey } from "@appsmith/ads-old";
 import { importSvg } from "@appsmith/ads-old";
+
+import { getDependenciesFromInverseDependencies } from "./helpers";
+import { useEntityLink, useSelectedEntity } from "./hooks/debuggerHooks";
+import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 
 const LongArrowSVG = importSvg(
   async () => import("assets/images/long-arrow-right.svg"),

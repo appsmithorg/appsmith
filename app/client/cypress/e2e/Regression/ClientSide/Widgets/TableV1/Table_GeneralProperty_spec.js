@@ -1,9 +1,10 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 /* eslint-disable cypress/no-unnecessary-waiting */
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget property pane feature validation",

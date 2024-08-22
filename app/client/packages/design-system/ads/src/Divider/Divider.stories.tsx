@@ -1,8 +1,10 @@
 import React from "react";
-import { Divider } from "./Divider";
-import styled from "styled-components";
-import type { DividerProps } from "./Divider.types";
+
 import type { StoryObj } from "@storybook/react";
+import styled from "styled-components";
+
+import { Divider } from "./Divider";
+import type { DividerProps } from "./Divider.types";
 
 export default {
   title: "ADS/Components/Divider",

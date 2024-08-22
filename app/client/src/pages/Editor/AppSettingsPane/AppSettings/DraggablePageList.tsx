@@ -1,13 +1,15 @@
-import { setPageOrder } from "actions/pageActions";
-import styled from "styled-components";
-import type { Page } from "entities/Page";
-// import classNames from "classnames";
-import { DraggableList } from "@appsmith/ads-old";
-import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
+
+import { setPageOrder } from "actions/pageActions";
+import type { Page } from "entities/Page";
+import { MenuIcons } from "icons/MenuIcons";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled from "styled-components";
+
 import { Flex, Icon } from "@appsmith/ads";
+// import classNames from "classnames";
+import { DraggableList } from "@appsmith/ads-old";
 
 const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 const PageIcon = MenuIcons.PAGE_ICON;

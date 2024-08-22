@@ -1,12 +1,14 @@
 import React from "react";
-import styled from "styled-components";
-import { Flex, Text } from "@appsmith/ads";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
-  createMessage,
   DATASOURCE_SECURELY_TITLE,
+  createMessage,
 } from "ee/constants/messages";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import styled from "styled-components";
+
+import { Flex, Text } from "@appsmith/ads";
 
 const Wrapper = styled(Flex)`
   background: var(--ads-v2-color-blue-100);

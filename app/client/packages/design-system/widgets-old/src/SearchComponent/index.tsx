@@ -1,7 +1,9 @@
 import React from "react";
-import styled from "styled-components";
+
 import { InputGroup } from "@blueprintjs/core";
 import { debounce } from "lodash";
+import styled from "styled-components";
+
 import { importSvg } from "../utils/icon-loadables";
 
 const CrossIcon = importSvg(

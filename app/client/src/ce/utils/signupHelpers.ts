@@ -3,22 +3,22 @@ import {
   setCurrentApplicationIdForCreateNewApp,
 } from "actions/onboardingActions";
 import {
-  SIGNUP_SUCCESS_URL,
+  APPLICATIONS_URL,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  SIGNUP_SUCCESS_URL,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
-  APPLICATIONS_URL,
 } from "constants/routes";
-import { error } from "loglevel";
-import { matchPath } from "react-router";
-import { getIsSafeRedirectURL } from "utils/helpers";
-import history from "utils/history";
 import type {
   SocialLoginButtonProps,
   SocialLoginType,
 } from "ee/constants/SocialLogin";
 import { SocialLoginButtonPropsList } from "ee/constants/SocialLogin";
+import { error } from "loglevel";
+import { matchPath } from "react-router";
+import { getIsSafeRedirectURL } from "utils/helpers";
+import history from "utils/history";
 
 export const redirectUserAfterSignup = (
   redirectUrl: string,

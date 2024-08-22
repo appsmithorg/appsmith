@@ -1,12 +1,13 @@
-import DropTargetComponent from "layoutSystems/common/dropTarget/DropTargetComponent";
-import type { DropTargetComponentProps } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import type { ReactNode } from "react";
 import { memo } from "react";
 import React from "react";
+
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import DropTargetComponent from "layoutSystems/common/dropTarget/DropTargetComponent";
+import type { DropTargetComponentProps } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import { useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import type { AppState } from "ee/reducers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 interface DropTargetComponentWrapperProps {
   dropTargetProps: DropTargetComponentProps;

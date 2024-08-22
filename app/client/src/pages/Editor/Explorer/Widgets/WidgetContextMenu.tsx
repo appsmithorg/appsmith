@@ -1,15 +1,17 @@
 import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
+import WidgetFactory from "WidgetProvider/factory";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import type { AppState } from "ee/reducers";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import WidgetFactory from "WidgetProvider/factory";
+import type { AppState } from "ee/reducers";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import { useDispatch, useSelector } from "react-redux";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function WidgetContextMenu(props: {

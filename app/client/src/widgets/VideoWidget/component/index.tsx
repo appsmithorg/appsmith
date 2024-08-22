@@ -1,8 +1,10 @@
-import ReactPlayer from "react-player";
 import type { Ref } from "react";
 import React from "react";
+
+import { ENTER_VIDEO_URL, createMessage } from "ee/constants/messages";
+import ReactPlayer from "react-player";
 import styled from "styled-components";
-import { createMessage, ENTER_VIDEO_URL } from "ee/constants/messages";
+
 export interface VideoComponentProps {
   url?: string;
   autoPlay?: boolean;

@@ -1,7 +1,10 @@
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import {
   generateAlignedRowMock,
   generateLayoutComponentMock,
 } from "mocks/layoutComponents/layoutComponentMock";
+import ButtonWidget from "widgets/ButtonWidget/widget";
+
 import type {
   LayoutComponentProps,
   LayoutProps,
@@ -15,8 +18,6 @@ import {
   deleteWidgetFromLayout,
   deleteWidgetFromPreset,
 } from "./deletionUtils";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("Layouts - deletionUtils tests", () => {
   beforeAll(() => {

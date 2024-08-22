@@ -1,33 +1,36 @@
-import React, { useEffect, useRef, useContext, useMemo } from "react";
-import { useSelector } from "react-redux";
-import type { Hit as IHit } from "react-instantsearch-core";
-import styled, { css } from "styled-components";
-import { getTypographyByKey } from "@appsmith/ads-old";
-import Highlight from "./Highlight";
-import ActionLink, { StyledActionLink } from "./ActionLink";
-import scrollIntoView from "scroll-into-view-if-needed";
-import type { SearchItem, SearchCategory } from "./utils";
+import React, { useContext, useEffect, useMemo, useRef } from "react";
+
+import type { AppState } from "ee/reducers";
+import { PluginType } from "entities/Action";
+import { keyBy, noop } from "lodash";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
-  getItemType,
-  getItemTitle,
-  SEARCH_ITEM_TYPES,
-  comboHelpText,
-} from "./utils";
-import SearchContext from "./GlobalSearchContext";
-import {
+  EntityIcon,
+  JsFileIconV2,
   getPluginIcon,
   homePageIcon,
   pageIcon,
-  EntityIcon,
-  JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { AppState } from "ee/reducers";
-import { keyBy, noop } from "lodash";
-import { getPageList } from "selectors/editorSelectors";
-import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import type { Hit as IHit } from "react-instantsearch-core";
+import { useSelector } from "react-redux";
+import scrollIntoView from "scroll-into-view-if-needed";
+import { getPageList } from "selectors/editorSelectors";
+import styled, { css } from "styled-components";
+
 import { Text } from "@appsmith/ads";
+import { getTypographyByKey } from "@appsmith/ads-old";
+
+import ActionLink, { StyledActionLink } from "./ActionLink";
+import SearchContext from "./GlobalSearchContext";
+import Highlight from "./Highlight";
+import type { SearchCategory, SearchItem } from "./utils";
+import {
+  SEARCH_ITEM_TYPES,
+  comboHelpText,
+  getItemTitle,
+  getItemType,
+} from "./utils";
 
 const overflowCSS = css`
   overflow: hidden;

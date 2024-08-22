@@ -1,15 +1,17 @@
 import type { SyntheticEvent } from "react";
-import React, { memo, useRef, useCallback, useEffect } from "react";
-import _debounce from "lodash/debounce";
-import styled from "styled-components";
-import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
-import { BlankState } from "../helpers";
-import { createMessage, NO_ERRORS } from "ee/constants/messages";
-import { thinScrollbar } from "constants/DefaultTheme";
-import type { Log } from "entities/AppsmithConsole";
+import React, { memo, useCallback, useEffect, useRef } from "react";
+
 import { setResponsePaneScrollPosition } from "actions/debuggerActions";
+import { thinScrollbar } from "constants/DefaultTheme";
+import { NO_ERRORS, createMessage } from "ee/constants/messages";
+import type { Log } from "entities/AppsmithConsole";
+import _debounce from "lodash/debounce";
 import { useDispatch, useSelector } from "react-redux";
 import { getScrollPosition } from "selectors/debuggerSelectors";
+import styled from "styled-components";
+
+import { BlankState } from "../helpers";
+import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;

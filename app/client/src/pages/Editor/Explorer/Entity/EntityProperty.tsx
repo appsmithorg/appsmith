@@ -1,20 +1,23 @@
 import type { MutableRefObject } from "react";
 import React, { memo, useCallback, useRef } from "react";
-import styled from "styled-components";
+
+import { Collapse } from "@blueprintjs/core";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import HighlightedCode, {
   SYNTAX_HIGHLIGHTING_SUPPORTED_LANGUAGES,
 } from "components/editorComponents/HighlightedCode";
-import { Collapse } from "@blueprintjs/core";
-import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import useClipboard from "utils/hooks/useClipboard";
 import { Skin } from "constants/DefaultTheme";
-import { EntityClassNames } from ".";
-import { Tooltip, Icon } from "@appsmith/ads";
 import { COPY_ELEMENT, createMessage } from "ee/constants/messages";
-import CollapseToggle from "./CollapseToggle";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { EntityProperty as EntityPropertyType } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import styled from "styled-components";
+import useClipboard from "utils/hooks/useClipboard";
+
+import { Icon, Tooltip } from "@appsmith/ads";
+
+import { EntityClassNames } from ".";
+import CollapseToggle from "./CollapseToggle";
 
 const Wrapper = styled.div`
   &&&& {

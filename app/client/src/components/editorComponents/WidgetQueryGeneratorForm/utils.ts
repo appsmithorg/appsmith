@@ -1,6 +1,6 @@
+import type { DatasourceStorage } from "entities/Datasource";
 import { isNumber } from "lodash";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
-import type { DatasourceStorage } from "entities/Datasource";
 
 export const getSheetUrl = (sheetId: string): string =>
   `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0`;

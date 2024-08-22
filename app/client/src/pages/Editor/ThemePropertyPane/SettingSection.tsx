@@ -1,8 +1,10 @@
-import * as Sentry from "@sentry/react";
 import type { ComponentPropsWithoutRef } from "react";
 import React, { useState } from "react";
+
 import { Collapse } from "@blueprintjs/core";
+import * as Sentry from "@sentry/react";
 import styled from "styled-components";
+
 import { Icon } from "@appsmith/ads";
 
 const SettingsWrapper = styled.div`

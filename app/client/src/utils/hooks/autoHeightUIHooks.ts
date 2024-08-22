@@ -1,6 +1,7 @@
+import { useCallback } from "react";
+
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
-import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export const useAutoHeightUIState = () => {

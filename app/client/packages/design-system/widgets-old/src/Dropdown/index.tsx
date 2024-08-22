@@ -1,23 +1,25 @@
 import type { ReactElement } from "react";
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import type { IconName } from "../Icon";
-import Icon, { IconSize } from "../Icon";
-import type { CommonComponentProps } from "../types/common";
-import { SubTextPosition, DSEventTypes, emitDSEvent } from "../types/common";
-import { Classes, replayHighlightClass } from "../constants/classes";
-import type { TextProps } from "../Text";
-import Text, { TextType } from "../Text";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import type { PopperBoundary } from "@blueprintjs/core";
 import { Popover, Position } from "@blueprintjs/core";
-import { typography } from "../constants/typography";
+import { debounce, isArray } from "lodash";
 import styled from "styled-components";
+
+import type { IconName } from "../Icon";
+import Icon, { IconSize } from "../Icon";
+import SegmentHeader from "../ListSegmentHeader";
 import SearchComponent from "../SearchComponent";
 import Spinner from "../Spinner";
+import type { TextProps } from "../Text";
+import Text, { TextType } from "../Text";
 import Tooltip from "../Tooltip";
-import SegmentHeader from "../ListSegmentHeader";
-import { debounce, isArray } from "lodash";
-import "./styles.css";
+import { Classes, replayHighlightClass } from "../constants/classes";
+import { typography } from "../constants/typography";
+import type { CommonComponentProps } from "../types/common";
+import { DSEventTypes, SubTextPosition, emitDSEvent } from "../types/common";
 import { importSvg } from "../utils/icon-loadables";
+import "./styles.css";
 
 const Check = importSvg(
   async () => import("../assets/icons/control/checkmark.svg"),

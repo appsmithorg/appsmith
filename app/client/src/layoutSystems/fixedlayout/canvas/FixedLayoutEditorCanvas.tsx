@@ -1,20 +1,22 @@
+import React, { useMemo } from "react";
+
+import type { DSLWidget } from "WidgetProvider/constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
-import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
-import React, { useMemo } from "react";
+import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/CanvasSelectionArena";
+import { compact, sortBy } from "lodash";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
+
+import { AnalyticsWrapper } from "../../common/AnalyticsWrapper";
 import { DropTargetComponentWrapper } from "../../common/dropTarget/DropTargetComponentWrapper";
 import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
-import { compact, sortBy } from "lodash";
-import { Positioning } from "layoutSystems/common/utils/constants";
-import type { DSLWidget } from "WidgetProvider/constants";
-import { AnalyticsWrapper } from "../../common/AnalyticsWrapper";
 
 export type CanvasProps = DSLWidget;
 /**

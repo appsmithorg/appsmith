@@ -1,7 +1,9 @@
-import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { Icon, Text } from "@appsmith/ads";
 import React, { useCallback } from "react";
+
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
+
+import { Icon, Text } from "@appsmith/ads";
 
 const PublishedInfo = () => {
   const getItem = useCallback(

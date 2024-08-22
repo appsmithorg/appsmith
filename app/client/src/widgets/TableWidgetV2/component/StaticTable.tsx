@@ -1,17 +1,19 @@
 import React from "react";
+
 import type {
+  Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
-  Row as ReactTableRowType,
 } from "react-table";
 import type { ReactElementType } from "react-window";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+
 import type { ReactTableColumnProps, TableSizes } from "./Constants";
 import { MULTISELECT_CHECKBOX_WIDTH, TABLE_SCROLLBAR_WIDTH } from "./Constants";
+import { TableBody } from "./TableBody";
 import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
 import TableColumnHeader from "./header/TableColumnHeader";
-import { TableBody } from "./TableBody";
 
 type StaticTableProps = TableColumnHeaderProps & {
   getTableBodyProps(

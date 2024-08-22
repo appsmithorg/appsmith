@@ -2,9 +2,10 @@ import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { InlineEditingSaveOptions } from "widgets/wds/WDSTableWidget/constants";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+
 import {
   tableDataValidation,
   uniqueColumnNameValidation,

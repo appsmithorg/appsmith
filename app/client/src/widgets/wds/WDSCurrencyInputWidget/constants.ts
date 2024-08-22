@@ -1,4 +1,5 @@
 import { CurrencyTypeOptions } from "constants/Currency";
+
 import { countryToFlag } from "./widget/helpers";
 
 const getCurrencyOptions = () => {

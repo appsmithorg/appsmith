@@ -1,5 +1,6 @@
-const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 
 describe(
   "Image Widget Functionality with base64",

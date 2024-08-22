@@ -1,4 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const widgets = require("../../../../../locators/Widgets.json");
 
 describe(

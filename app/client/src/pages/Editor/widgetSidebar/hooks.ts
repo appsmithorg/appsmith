@@ -1,16 +1,18 @@
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { useEffect, useMemo, useState } from "react";
+
 import { getAllTemplates } from "actions/templateActions";
 import type { WidgetTags } from "constants/WidgetConstants";
-import { useEffect, useMemo, useState } from "react";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetCards } from "selectors/editorSelectors";
+import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
 import {
   getBuildingBlockExplorerCards,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import { groupWidgetCardsByTags } from "../utils";
-import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
 
 /**
  * Custom hook for managing UI explorer items including widgets and building blocks.

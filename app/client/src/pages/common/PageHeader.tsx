@@ -1,23 +1,25 @@
 import React, { useEffect } from "react";
-import { useRouteMatch } from "react-router-dom";
-import { connect, useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
-import styled from "styled-components";
-import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "ee/reducers";
-import type { User } from "constants/userConstants";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+
+import { updateFeatureFlagOverrideAction } from "actions/featureFlagActions";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
+import StyledHeader from "components/designSystems/appsmith/StyledHeader";
+import type { User } from "constants/userConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
 import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
 import { Banner } from "ee/utils/licenseHelpers";
-import bootIntercom from "utils/bootIntercom";
-import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
-import { Switch, Tooltip } from "@appsmith/ads";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { useRouteMatch } from "react-router-dom";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+import bootIntercom from "utils/bootIntercom";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { setFeatureFlagOverrideValues } from "utils/storage";
-import { updateFeatureFlagOverrideAction } from "actions/featureFlagActions";
+
+import { Switch, Tooltip } from "@appsmith/ads";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;

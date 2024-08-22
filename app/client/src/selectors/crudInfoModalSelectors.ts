@@ -1,9 +1,9 @@
 import type { AppState } from "ee/reducers";
-import { createSelector } from "reselect";
 import type {
   CrudInfoModalReduxState,
   GenerateCRUDSuccessInfoData,
 } from "reducers/uiReducers/crudInfoModalReducer";
+import { createSelector } from "reselect";
 
 export interface CrudInfoModalData {
   crudInfoModalOpen: boolean;

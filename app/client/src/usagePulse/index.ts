@@ -1,23 +1,24 @@
-import {
-  getAppViewerPageIdFromPath,
-  isEditorPath,
-  isViewerPath,
-} from "ee/pages/Editor/Explorer/helpers";
-import { fetchWithRetry, getUsagePulsePayload } from "./utils";
+import PageApi from "api/PageApi";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import { PULSE_INTERVAL as PULSE_INTERVAL_CE } from "ce/constants/UsagePulse";
 import {
   PULSE_API_ENDPOINT,
   PULSE_API_MAX_RETRY_COUNT,
   PULSE_API_RETRY_TIMEOUT,
   USER_ACTIVITY_LISTENER_EVENTS,
 } from "ee/constants/UsagePulse";
-import PageApi from "api/PageApi";
-import { APP_MODE } from "entities/App";
-import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import { PULSE_INTERVAL as PULSE_INTERVAL_CE } from "ce/constants/UsagePulse";
 import { PULSE_INTERVAL as PULSE_INTERVAL_EE } from "ee/constants/UsagePulse";
-import store from "store";
+import {
+  getAppViewerPageIdFromPath,
+  isEditorPath,
+  isViewerPath,
+} from "ee/pages/Editor/Explorer/helpers";
+import { APP_MODE } from "entities/App";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import store from "store";
+import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
+
+import { fetchWithRetry, getUsagePulsePayload } from "./utils";
 
 class UsagePulse {
   static userAnonymousId: string | undefined;

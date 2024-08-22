@@ -1,7 +1,7 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Action } from "entities/Action";
 import type { QueryPaneDebuggerState } from "ee/reducers/uiReducers/queryPaneReducer";
+import type { Action } from "entities/Action";
 
 export interface ChangeQueryPayload {
   baseQueryId: string;

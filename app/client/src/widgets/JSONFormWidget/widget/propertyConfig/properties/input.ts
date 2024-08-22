@@ -1,14 +1,15 @@
+import { ICON_NAMES } from "WidgetProvider/constants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import { FieldType, INPUT_TYPES } from "widgets/JSONFormWidget/constants";
-import type { HiddenFnParams } from "../helper";
-import { getAutocompleteProperties, getSchemaItem } from "../helper";
 import type { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
 import { ISDCodeDropdownOptions } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
+
 import type { JSONFormWidgetProps } from "../..";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { ICON_NAMES } from "WidgetProvider/constants";
+import type { HiddenFnParams } from "../helper";
+import { getAutocompleteProperties, getSchemaItem } from "../helper";
 
 function defaultValueValidation(
   // TODO: Fix this the next time the file is edited

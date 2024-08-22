@@ -1,12 +1,8 @@
-import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
-import {
-  addWidgetsToTemplate,
-  getAffectedLayout,
-  prepareWidgetsForAddition,
-  updateAffectedLayout,
-} from "./additionUtils";
-import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
+import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
+import ButtonWidget from "widgets/ButtonWidget/widget";
+
 import type {
   AnvilHighlightInfo,
   LayoutComponentProps,
@@ -14,7 +10,12 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { extractWidgetIdsFromLayoutProps } from "../layoutUtils";
-import ButtonWidget from "widgets/ButtonWidget/widget";
+import {
+  addWidgetsToTemplate,
+  getAffectedLayout,
+  prepareWidgetsForAddition,
+  updateAffectedLayout,
+} from "./additionUtils";
 
 describe("Layouts - additionUtils tests", () => {
   describe("getAffectedLayout", () => {

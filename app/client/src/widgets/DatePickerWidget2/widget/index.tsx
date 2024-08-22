@@ -1,42 +1,42 @@
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TextSize } from "constants/WidgetConstants";
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import DatePickerComponent from "../component";
-
-import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-  isCompactMode,
-} from "widgets/WidgetUtils";
-import type { DatePickerType } from "../constants";
-import { TimePrecision } from "../constants";
-import { DateFormatOptions } from "./constants";
-import derivedProperties from "./parseDerivedProperties";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import moment from "moment";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import moment from "moment";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+
+import DatePickerComponent from "../component";
+import type { DatePickerType } from "../constants";
+import { TimePrecision } from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { DateFormatOptions } from "./constants";
+import derivedProperties from "./parseDerivedProperties";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

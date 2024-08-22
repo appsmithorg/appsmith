@@ -1,27 +1,29 @@
-import React, { useState, useEffect, useRef } from "react";
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+
 import classNames from "classnames";
-import PrimaryCTA from "./PrimaryCTA";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import BrandingBadge from "./BrandingBadgeMobile";
-import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
-import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
-import { useHref } from "pages/Editor/utils";
-import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { trimQueryString } from "utils/helpers";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { get } from "lodash";
-import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
-import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
-import ShareButton from "./Navigation/components/ShareButton";
-import BackToAppsButton from "./Navigation/components/BackToAppsButton";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getHideWatermark } from "ee/selectors/tenantSelectors";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
+import { get } from "lodash";
+import { useHref } from "pages/Editor/utils";
+import { useSelector } from "react-redux";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
+import { trimQueryString } from "utils/helpers";
+import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
+
+import BrandingBadge from "./BrandingBadgeMobile";
+import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
+import BackToAppsButton from "./Navigation/components/BackToAppsButton";
+import ShareButton from "./Navigation/components/ShareButton";
+import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
+import PrimaryCTA from "./PrimaryCTA";
 
 interface NavigationProps {
   isOpen?: boolean;

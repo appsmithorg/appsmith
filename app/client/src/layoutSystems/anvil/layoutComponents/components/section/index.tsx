@@ -1,14 +1,16 @@
 import React from "react";
+
+import { SectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/SectionSpaceDistributor";
 import {
   LayoutComponentTypes,
-  type WidgetLayoutProps,
   type LayoutProps,
+  type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
+import { anvilWidgets } from "widgets/anvil/constants";
+
+import type { FlexLayoutProps } from "../FlexLayout";
 import WidgetRow from "../WidgetRow";
 import { SectionRow } from "./SectionRow";
-import type { FlexLayoutProps } from "../FlexLayout";
-import { anvilWidgets } from "widgets/anvil/constants";
-import { SectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/SectionSpaceDistributor";
 
 class Section extends WidgetRow {
   static type: LayoutComponentTypes = LayoutComponentTypes.SECTION;

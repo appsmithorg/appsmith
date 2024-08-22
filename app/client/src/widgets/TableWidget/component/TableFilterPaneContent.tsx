@@ -1,22 +1,24 @@
-import React, { useEffect, useCallback } from "react";
-import styled from "styled-components";
+import React, { useCallback, useEffect } from "react";
+
 import { Classes } from "@blueprintjs/core";
+import { Icon, IconSize } from "@design-system/widgets-old";
+import Button from "components/editorComponents/Button";
 import { Colors } from "constants/Colors";
+import {
+  TABLE_FILTER_COLUMN_TYPE_CALLOUT,
+  createMessage,
+} from "ee/constants/messages";
+import { ControlIcons } from "icons/ControlIcons";
+import styled from "styled-components";
+
+import CascadeFields from "./CascadeFields";
 import type {
+  Operator,
   ReactTableColumnProps,
   ReactTableFilter,
-  Operator,
 } from "./Constants";
 import { OperatorTypes } from "./Constants";
 import type { DropdownOption } from "./TableFilters";
-import Button from "components/editorComponents/Button";
-import CascadeFields from "./CascadeFields";
-import {
-  createMessage,
-  TABLE_FILTER_COLUMN_TYPE_CALLOUT,
-} from "ee/constants/messages";
-import { ControlIcons } from "icons/ControlIcons";
-import { Icon, IconSize } from "@design-system/widgets-old";
 
 const StyledPlusCircleIcon = styled(ControlIcons.ADD_CIRCLE_CONTROL)`
   padding: 0;

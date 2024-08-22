@@ -1,7 +1,9 @@
 import React, { useMemo } from "react";
+
 import styled from "styled-components";
-import type { CommonComponentProps } from "../types/common";
+
 import { Classes } from "../constants/classes";
+import type { CommonComponentProps } from "../types/common";
 import { importRemixIcon, importSvg } from "../utils/icon-loadables";
 
 const BagIcon = importSvg(

@@ -1,30 +1,31 @@
 import React from "react";
-import log from "loglevel";
+
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import { NO_FIELDS_ADDED, createMessage } from "ee/constants/messages";
 import { klona } from "klona";
 import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
-
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import log from "loglevel";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import styled from "styled-components";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import type { Schema } from "widgets/JSONFormWidget/constants";
+import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
+import {
+  extraSpace,
+  itemHeight,
+  noOfItemsToDisplay,
+} from "widgets/JSONFormWidget/constants";
 import SchemaParser, {
   getKeysFromSchema,
 } from "widgets/JSONFormWidget/schemaParser";
-import type { Schema } from "widgets/JSONFormWidget/constants";
-import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
-import { Button, Text } from "@appsmith/ads";
-import type { BaseItemProps } from "./DraggableListComponent";
-import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { InputText } from "./InputTextControl";
 import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
-import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-import styled from "styled-components";
-import { NO_FIELDS_ADDED, createMessage } from "ee/constants/messages";
 
-import {
-  itemHeight,
-  noOfItemsToDisplay,
-  extraSpace,
-} from "widgets/JSONFormWidget/constants";
+import { Button, Text } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { BaseItemProps } from "./DraggableListComponent";
+import { InputText } from "./InputTextControl";
 
 type DroppableItem = BaseItemProps & {
   index: number;

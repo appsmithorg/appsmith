@@ -1,3 +1,8 @@
+import {
+  agHelper,
+  appSettings,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -7,11 +12,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-import {
-  agHelper,
-  appSettings,
-  deployMode,
-} from "../../../../support/Objects/ObjectsCore";
 
 const containerShadowElement = `${widgetsPage.containerWidget}`;
 

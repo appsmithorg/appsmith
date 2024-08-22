@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { MenuIcons } from "icons/MenuIcons";
+
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import styled from "styled-components";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
-import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
-import { Icon } from "@appsmith/ads";
+import { FOREIGN_KEY, PRIMARY_KEY } from "constants/DatasourceEditorConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { MenuIcons } from "icons/MenuIcons";
+import styled from "styled-components";
+
+import { Icon } from "@appsmith/ads";
 import { importSvg } from "@appsmith/ads-old";
 
 const ApiIcon = importSvg(

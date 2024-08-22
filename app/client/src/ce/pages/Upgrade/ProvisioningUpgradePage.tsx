@@ -1,20 +1,22 @@
 import React from "react";
-import type { Carousel, Header } from "./types";
-import UpgradePage from "./UpgradePage";
-import ProvisionDeprovisionUsersImage from "assets/images/upgrade/provisioning/provision-deprovision-users.svg";
+
 import AutoGroupSyncImage from "assets/images/upgrade/provisioning/auto-group-sync.svg";
+import ProvisionDeprovisionUsersImage from "assets/images/upgrade/provisioning/provision-deprovision-users.svg";
 import {
   AUTO_GROUP_SYNC,
   AUTO_GROUP_SYNC_DETAIL1,
-  createMessage,
-  PROVISION_DEPROVISION_USERS,
-  PROVISION_DEPROVISION_USERS_DETAIL1,
   PROVISIONING_UPGRADE_PAGE_FOOTER,
   PROVISIONING_UPGRADE_PAGE_SUB_HEADING,
+  PROVISION_DEPROVISION_USERS,
+  PROVISION_DEPROVISION_USERS_DETAIL1,
   USER_PROVISIONING_FOR_ENTERPRISES,
+  createMessage,
 } from "ee/constants/messages";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
+
+import UpgradePage from "./UpgradePage";
+import type { Carousel, Header } from "./types";
 
 export function ProvisioningUpgradePage() {
   const { onUpgrade } = useOnUpgrade({

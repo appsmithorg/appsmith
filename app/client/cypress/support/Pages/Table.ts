@@ -1,5 +1,5 @@
-import { ObjectsRegistry } from "../Objects/Registry";
 import sampleTableData from "../../fixtures/Table/sampleTableData.json";
+import { ObjectsRegistry } from "../Objects/Registry";
 
 const path = require("path");
 

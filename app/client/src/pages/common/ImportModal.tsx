@@ -1,24 +1,28 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useEffect } from "react";
-import styled, { useTheme, css } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import type { Theme } from "constants/DefaultTheme";
 import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
-  createMessage,
   IMPORT_APP_FROM_FILE_MESSAGE,
   IMPORT_APP_FROM_FILE_TITLE,
   IMPORT_APP_FROM_GIT_MESSAGE,
   IMPORT_APP_FROM_GIT_TITLE,
   IMPORT_FROM_GIT_DISABLED_IN_ANVIL,
   UPLOADING_JSON,
+  createMessage,
 } from "ee/constants/messages";
-import { FilePickerV2, FileType } from "@appsmith/ads-old";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab } from "entities/GitSync";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import useMessages from "ee/hooks/importModal/useMessages";
+import useMethods from "ee/hooks/importModal/useMethods";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { Theme } from "constants/DefaultTheme";
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import { useDispatch, useSelector } from "react-redux";
+import styled, { css, useTheme } from "styled-components";
+
 import {
   Callout,
   Icon,
@@ -27,9 +31,7 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import useMessages from "ee/hooks/importModal/useMessages";
-import useMethods from "ee/hooks/importModal/useMethods";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import { FilePickerV2, FileType } from "@appsmith/ads-old";
 
 const TextWrapper = styled.div`
   padding: 0;

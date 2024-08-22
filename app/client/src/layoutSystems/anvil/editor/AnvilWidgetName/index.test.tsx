@@ -1,11 +1,13 @@
-import { render, screen, act } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import React from "react";
+
+import "@testing-library/jest-dom";
+import { act, render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { AnvilWidgetName } from ".";
 import store from "store";
-import { getWidgetNameComponentStyleProps } from "./utils";
+
+import { AnvilWidgetName } from ".";
 import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
+import { getWidgetNameComponentStyleProps } from "./utils";
 
 /* Mock Redux */
 jest.mock("react-redux");

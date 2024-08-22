@@ -1,9 +1,11 @@
 import React from "react";
-import styled from "styled-components";
-import { TextType, Text } from "@appsmith/ads-old";
+
 import { Colors } from "constants/Colors";
-import { createMessage, EDITOR_HEADER } from "ee/constants/messages";
+import { EDITOR_HEADER, createMessage } from "ee/constants/messages";
+import styled from "styled-components";
+
 import { Icon, Spinner } from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
 
 const SaveStatusContainer = styled.div`
   align-items: center;

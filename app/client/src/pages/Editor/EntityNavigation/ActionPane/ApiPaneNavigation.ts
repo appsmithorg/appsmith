@@ -1,10 +1,11 @@
+import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
+import { isNumber } from "lodash";
 import { call, delay, put } from "redux-saga/effects";
+
+import { NAVIGATION_DELAY } from "../costants";
 import type { EntityInfo, IApiPaneNavigationConfig } from "../types";
 import { ActionPaneNavigation } from "./exports";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
-import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
-import { NAVIGATION_DELAY } from "../costants";
-import { isNumber } from "lodash";
 
 export default class ApiPaneNavigation extends ActionPaneNavigation {
   constructor(entityInfo: EntityInfo) {

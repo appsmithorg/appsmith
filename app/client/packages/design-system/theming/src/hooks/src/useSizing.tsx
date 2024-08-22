@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { calculateScales } from "./calculateScales";
 
 import type { TokenObj, TokenScaleConfig } from "../../token";
+import { calculateScales } from "./calculateScales";
 
 export const getSizing = (
   sizing: TokenScaleConfig,

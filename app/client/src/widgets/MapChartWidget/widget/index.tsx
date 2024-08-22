@@ -1,14 +1,31 @@
 import React, { Suspense, lazy } from "react";
+
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "WidgetProvider/constants";
+import Skeleton from "components/utils/Skeleton";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import type { MapType } from "../component/types";
 import type { MapColorObject } from "../constants";
 import {
+  MapTypes,
   dataSetForAfrica,
   dataSetForAsia,
   dataSetForEurope,
@@ -18,24 +35,9 @@ import {
   dataSetForUSA,
   dataSetForWorld,
   dataSetForWorldWithAntarctica,
-  MapTypes,
 } from "../constants";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  WidgetCallout,
-} from "WidgetProvider/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import Skeleton from "components/utils/Skeleton";
-import type { MapType } from "../component/types";
 
 const MapChartComponent = lazy(async () =>
   retryPromise(

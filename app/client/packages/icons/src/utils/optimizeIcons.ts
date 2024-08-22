@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-
-import type { PathLike } from "fs";
 import fg from "fast-glob";
+import type { PathLike } from "fs";
 import fs from "fs-extra";
 import { optimize } from "svgo";
 

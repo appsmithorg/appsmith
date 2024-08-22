@@ -1,34 +1,36 @@
 import { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useParams } from "react-router";
-import type { Log } from "entities/AppsmithConsole";
+
+import { jsCollectionIdURL } from "ee/RouteBuilder";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { AppState } from "ee/reducers";
-import { getWidget } from "sagas/selectors";
-import {
-  getCurrentApplicationId,
-  getCurrentBasePageId,
-} from "selectors/editorSelectors";
 import {
   getAction,
   getActionByBaseId,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
-import { getLastSelectedWidget } from "selectors/ui";
-import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
   isAction,
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import history, { NavigationMethod } from "utils/history";
-import { jsCollectionIdURL } from "ee/RouteBuilder";
-import store from "store";
 import { PluginType } from "entities/Action";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
+import type { Log } from "entities/AppsmithConsole";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router";
+import { getWidget } from "sagas/selectors";
+import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentBasePageId,
+} from "selectors/editorSelectors";
+import { getLastSelectedWidget } from "selectors/ui";
+import store from "store";
+import history, { NavigationMethod } from "utils/history";
+
+import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

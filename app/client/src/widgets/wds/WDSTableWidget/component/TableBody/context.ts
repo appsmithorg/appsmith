@@ -1,12 +1,13 @@
+import React from "react";
+
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
-import React from "react";
 
-import type { HeaderComponentProps } from "../Table";
 import type { ReactTableColumnProps } from "../Constants";
+import type { HeaderComponentProps } from "../Table";
 
 export type TableBodyContextType = {
   accentColor: string;

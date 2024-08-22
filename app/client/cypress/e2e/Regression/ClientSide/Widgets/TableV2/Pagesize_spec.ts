@@ -1,5 +1,5 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../../support/Pages/PageList";
 
 describe(

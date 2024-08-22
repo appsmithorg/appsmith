@@ -1,4 +1,5 @@
 import { Colors } from "constants/Colors";
+
 import type { ChartComponentProps } from ".";
 import type { ChartData } from "../constants";
 import { LabelOrientation } from "../constants";

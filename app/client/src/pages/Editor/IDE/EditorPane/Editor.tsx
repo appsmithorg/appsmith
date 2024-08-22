@@ -1,16 +1,19 @@
 import React from "react";
-import { Flex } from "@appsmith/ads";
-import { Switch, useRouteMatch } from "react-router";
+
 import { SentryRoute } from "ee/AppRouter";
+import { EditorEntityTab } from "ee/entities/IDE/constants";
 import {
   jsSegmentRoutes,
   querySegmentRoutes,
 } from "ee/pages/Editor/IDE/EditorPane/constants";
-import { JSEditorPane } from "./JS";
-import { QueryEditor } from "./Query";
+import { Switch, useRouteMatch } from "react-router";
+
+import { Flex } from "@appsmith/ads";
+
 import EditorTabs from "../EditorTabs";
 import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
+import { JSEditorPane } from "./JS";
+import { QueryEditor } from "./Query";
 
 const Editor = () => {
   const { path } = useRouteMatch();

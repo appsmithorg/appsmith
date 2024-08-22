@@ -1,19 +1,20 @@
 import React, { useCallback, useContext, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
+import { fetchGheetColumns } from "actions/datasourceActions";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import {
   Bold,
   Label,
 } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
-import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
-import { fetchGheetColumns } from "actions/datasourceActions";
+import type { AppState } from "ee/reducers";
+import { getDatasource } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
 import {
   getGsheetsSheets,
   getisFetchingGsheetsSheets,
 } from "selectors/datasourceSelectors";
-import { getDatasource } from "ee/selectors/entitiesSelector";
-import type { AppState } from "ee/reducers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getWidget } from "sagas/selectors";
 
 export function useSheets() {
   const dispatch = useDispatch();

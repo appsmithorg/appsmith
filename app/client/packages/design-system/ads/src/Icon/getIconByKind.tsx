@@ -1,6 +1,7 @@
 import React from "react";
-import { Icon } from "./Icon";
+
 import type { Kind } from "../__config__/types";
+import { Icon } from "./Icon";
 
 export function getIconByKind(kind: Kind) {
   switch (kind) {

@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
 import { AppSidebar, AppSidebarButton, PageLeftPane } from "./EditorNavigation";
+
 const exportedPropertiesToUIEntitiesMap = {
   jsObjects: "actionCollectionList",
   datasources: "datasourceList",

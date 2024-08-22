@@ -1,8 +1,8 @@
-import { createGlobalStyle } from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Classes as PopoverClasses } from "@blueprintjs/popover2";
-import { Layers } from "constants/Layers";
 import { Colors } from "constants/Colors";
+import { Layers } from "constants/Layers";
+import { createGlobalStyle } from "styled-components";
 
 export const PopoverStyles = createGlobalStyle`
   .${Classes.POPOVER}, .${PopoverClasses.POPOVER2} {

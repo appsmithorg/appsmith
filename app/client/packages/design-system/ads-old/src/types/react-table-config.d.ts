@@ -1,7 +1,6 @@
 // TODO: This file should thoeretically be in the ~/typings folder, and not here in ~/src/types, but react-table isn't
 //  picking the types up when it's in the former place, despite having a correctly configured typeRoot in the tsconfig.
 //  Figure out why.
-
 import type {
   UseColumnOrderInstanceProps,
   UseColumnOrderState,

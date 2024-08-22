@@ -1,7 +1,9 @@
 import React from "react";
-import { Flex } from "./Flex";
-import { Text } from "../Text";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
+import { Text } from "../Text";
+import { Flex } from "./Flex";
 
 export default {
   title: "ADS/Components/Flex",

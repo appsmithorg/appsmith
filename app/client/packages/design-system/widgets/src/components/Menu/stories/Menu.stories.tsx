@@ -1,6 +1,9 @@
 import React from "react";
-import { Button, Menu, MenuTrigger } from "@appsmith/wds";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
+import { Button, Menu, MenuTrigger } from "@appsmith/wds";
+
 import { menuItems, submenusItems, submenusItemsWithIcons } from "./menuData";
 
 /**

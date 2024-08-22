@@ -1,33 +1,36 @@
 import React, { useEffect, useMemo } from "react";
-import { Space } from "../../components/StyledComponents";
+
 import {
-  AUTHOR_EMAIL_ONLY,
+  fetchGlobalGitConfigInit,
+  fetchLocalGitConfigInit,
+  updateLocalGitConfigInit,
+} from "actions/gitSyncActions";
+import {
   AUTHOR_EMAIL_CANNOT_BE_EMPTY,
-  AUTHOR_NAME_ONLY,
+  AUTHOR_EMAIL_ONLY,
   AUTHOR_NAME_CANNOT_BE_EMPTY,
+  AUTHOR_NAME_ONLY,
   FORM_VALIDATION_INVALID_EMAIL,
   GIT_USER_SETTINGS_TITLE,
   UPDATE,
   USE_DEFAULT_CONFIGURATION,
   createMessage,
 } from "ee/constants/messages";
-import styled, { keyframes } from "styled-components";
-import { Button, Input, Switch, Text } from "@appsmith/ads";
-import {
-  getGlobalGitConfig,
-  getLocalGitConfig,
-  getIsFetchingGlobalGitConfig,
-  getIsFetchingLocalGitConfig,
-} from "selectors/gitSyncSelectors";
-import { useDispatch, useSelector } from "react-redux";
+import { omit } from "lodash";
 import type { SubmitHandler } from "react-hook-form";
 import { Controller, useForm } from "react-hook-form";
-import { omit } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchGlobalGitConfigInit,
-  fetchLocalGitConfigInit,
-  updateLocalGitConfigInit,
-} from "actions/gitSyncActions";
+  getGlobalGitConfig,
+  getIsFetchingGlobalGitConfig,
+  getIsFetchingLocalGitConfig,
+  getLocalGitConfig,
+} from "selectors/gitSyncSelectors";
+import styled, { keyframes } from "styled-components";
+
+import { Button, Input, Switch, Text } from "@appsmith/ads";
+
+import { Space } from "../../components/StyledComponents";
 
 const Container = styled.div`
   padding-top: 8px;

@@ -1,18 +1,19 @@
+import type { Module } from "ee/constants/ModuleConstants";
 import type {
-  PropertyOverrideDependency,
-  OverridingPropertyPaths,
-  WidgetEntity,
   ActionEntity,
   JSActionEntity,
+  OverridingPropertyPaths,
+  PropertyOverrideDependency,
+  WidgetEntity,
 } from "ee/entities/DataTree/types";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { OverridingPropertyType } from "ee/entities/DataTree/types";
 import {
   isAction,
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { Module } from "ee/constants/ModuleConstants";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+
 interface SetOverridingPropertyParams {
   key: string;
   value: string;

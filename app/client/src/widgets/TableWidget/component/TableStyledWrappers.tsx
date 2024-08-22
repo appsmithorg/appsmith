@@ -1,19 +1,20 @@
-import styled, { css } from "styled-components";
-import type {
-  TableSizes,
-  CellLayoutProperties,
-  CellAlignment,
-} from "./Constants";
+import { Classes } from "@blueprintjs/core";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import styled, { css } from "styled-components";
 import {
+  darkenColor,
   fontSizeUtility,
   lightenColor,
-  darkenColor,
 } from "widgets/WidgetUtils";
-import { FontStyleTypes } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
+
+import type {
+  CellAlignment,
+  CellLayoutProperties,
+  TableSizes,
+} from "./Constants";
 
 export const TableWrapper = styled.div<{
   width: number;

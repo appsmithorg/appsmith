@@ -1,8 +1,8 @@
 import React from "react";
-import { usePopover } from "./usePopover";
-import { PopoverContext } from "./PopoverContext";
 
+import { PopoverContext } from "./PopoverContext";
 import type { PopoverProps } from "./types";
+import { usePopover } from "./usePopover";
 
 export const Popover = (props: PopoverProps) => {
   const { children, modal = false, ...rest } = props;

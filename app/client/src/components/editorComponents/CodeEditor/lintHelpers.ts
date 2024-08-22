@@ -1,20 +1,22 @@
-import { last, isNumber, isEmpty } from "lodash";
 import type { Annotation, Position } from "codemirror";
-import type { LintError } from "utils/DynamicBindingUtils";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { Severity } from "entities/AppsmithConsole";
-import {
-  CODE_EDITOR_START_POSITION,
-  LintTooltipDirection,
-  VALID_JS_OBJECT_BINDING_POSITION,
-} from "./constants";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { isEmpty, isNumber, last } from "lodash";
 import {
   CUSTOM_LINT_ERRORS,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
 } from "plugins/Linting/constants";
+import type { LintError } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+
+import {
+  CODE_EDITOR_START_POSITION,
+  LintTooltipDirection,
+  VALID_JS_OBJECT_BINDING_POSITION,
+} from "./constants";
+
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,

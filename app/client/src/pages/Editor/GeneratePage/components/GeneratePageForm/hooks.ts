@@ -1,15 +1,18 @@
-import { useEffect, useState, useCallback } from "react";
-import type { DropdownOptions } from "../constants";
-import type { Datasource } from "entities/Datasource";
-import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
-import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
+import { useCallback, useEffect, useState } from "react";
+
 import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceActions";
 import { executeDatasourceQuery } from "actions/datasourceActions";
-import type { DropdownOption } from "@appsmith/ads-old";
-import { useDispatch, useSelector } from "react-redux";
-import { PluginPackageName } from "entities/Action";
+import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { PluginPackageName } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { useDispatch, useSelector } from "react-redux";
+
+import type { DropdownOption } from "@appsmith/ads-old";
+
+import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
+import type { DropdownOptions } from "../constants";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {

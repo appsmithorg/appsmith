@@ -1,29 +1,32 @@
 import React, { useContext, useMemo } from "react";
 import type { ReactNode } from "react";
-import { get, omit } from "lodash";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
+
 import { Classes } from "@blueprintjs/core";
-import { ModalResizable } from "layoutSystems/common/resizer/ModalResizable";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ModalResizable } from "layoutSystems/common/resizer/ModalResizable";
+import { get, omit } from "lodash";
+import { useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
+import {
+  combinedPreviewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { useModalWidth } from "widgets/ModalWidget/component/useModalWidth";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+
+import { getWidgetSelectionBlock } from "../../../selectors/ui";
+import type { UIElementSize } from "./ResizableUtils";
 import {
   BottomHandleStyles,
   LeftHandleStyles,
   RightHandleStyles,
   TopHandleStyles,
 } from "./ResizeStyledComponents";
-import type { UIElementSize } from "./ResizableUtils";
-import { useModalWidth } from "widgets/ModalWidget/component/useModalWidth";
-import {
-  combinedPreviewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
-import { getWidgetSelectionBlock } from "../../../selectors/ui";
+
 const minSize = 100;
 
 /**

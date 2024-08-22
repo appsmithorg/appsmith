@@ -1,4 +1,5 @@
-import type { AppState } from "ee/reducers";
+import React, { memo, useContext, useMemo } from "react";
+
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -8,46 +9,20 @@ import {
   GridDefaults,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
-import { get, omit } from "lodash";
-import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import React, { memo, useContext, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { AutoLayoutResizable } from "layoutSystems/autolayout/common/resizer/AutoLayoutResizable";
-import { FixedLayoutResizable } from "layoutSystems/fixedlayout/common/resizer/FixedLayoutResizable";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getIsAutoLayout } from "selectors/canvasSelectors";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import {
-  combinedPreviewModeSelector,
-  snipingModeSelector,
-} from "selectors/editorSelectors";
-import {
-  getParentToOpenSelector,
-  isWidgetFocused,
-  isCurrentWidgetLastSelected,
-  isMultiSelectedWidget,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { AutoLayoutResizable } from "layoutSystems/autolayout/common/resizer/AutoLayoutResizable";
 import {
   getWidgetHeight,
   getWidgetWidth,
 } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import type { UIElementSize } from "layoutSystems/common/resizer/ResizableUtils";
 import {
-  useShowPropertyPane,
-  useShowTableFilterPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
-import { WidgetOperations } from "widgets/BaseWidget";
-import { getSnapColumns } from "utils/WidgetPropsUtils";
-import {
-  isAutoHeightEnabledForWidget,
-  isAutoHeightEnabledForWidgetWithLimits,
-} from "widgets/WidgetUtils";
-import { DropTargetContext } from "../dropTarget/DropTargetComponent";
+  computeFinalAutoLayoutRowCols,
+  computeFinalRowCols,
+} from "layoutSystems/common/resizer/ResizableUtils";
 import {
   BottomHandleStyles,
   BottomLeftHandleStyles,
@@ -59,16 +34,43 @@ import {
   TopRightHandleStyles,
   VisibilityContainer,
 } from "layoutSystems/common/resizer/ResizeStyledComponents";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { UIElementSize } from "layoutSystems/common/resizer/ResizableUtils";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { FixedLayoutResizable } from "layoutSystems/fixedlayout/common/resizer/FixedLayoutResizable";
+import { get, omit } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
 import {
-  computeFinalRowCols,
-  computeFinalAutoLayoutRowCols,
-} from "layoutSystems/common/resizer/ResizableUtils";
+  combinedPreviewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import {
   getAltBlockWidgetSelection,
   getWidgetSelectionBlock,
 } from "selectors/ui";
+import {
+  getParentToOpenSelector,
+  isCurrentWidgetLastSelected,
+  isMultiSelectedWidget,
+  isWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
+import { getSnapColumns } from "utils/WidgetPropsUtils";
+import {
+  useShowPropertyPane,
+  useShowTableFilterPane,
+  useWidgetDragResize,
+} from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
+import { WidgetOperations } from "widgets/BaseWidget";
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
+
+import { DropTargetContext } from "../dropTarget/DropTargetComponent";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;

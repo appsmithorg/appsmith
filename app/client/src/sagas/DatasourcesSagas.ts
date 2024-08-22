@@ -1,58 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
-import {
-  change,
-  getFormInitialValues,
-  getFormValues,
-  initialize,
-  isValid,
-} from "redux-form";
-import { get, isEmpty, merge, omit, partition, set } from "lodash";
-import equal from "fast-deep-equal/es6";
 import type {
-  ReduxAction,
-  ReduxActionWithCallbacks,
-  ReduxActionWithMeta,
-} from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-  ReduxFormActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import {
-  getCurrentApplicationId,
-  getCurrentBasePageId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import type { DatasourceGroupByPluginCategory } from "ee/selectors/entitiesSelector";
-import {
-  getDatasource,
-  getDatasourceActionRouteInfo,
-  getDatasourceDraft,
-  getDatasources,
-  getDatasourcesGroupedByPluginCategory,
-  getDatasourcesUsedInApplicationByActions,
-  getEditorConfig,
-  getEntityExplorerDatasources,
-  getGenerateCRUDEnabledPluginMap,
-  getPlugin,
-  getPluginByPackageName,
-  getPluginForm,
-  getPluginPackageFromDatasourceId,
-  PluginCategory,
-} from "ee/selectors/entitiesSelector";
-import type {
-  executeDatasourceQueryReduxAction,
   UpdateDatasourceSuccessAction,
+  executeDatasourceQueryReduxAction,
 } from "actions/datasourceActions";
 import {
   addMockDatasourceToWorkspace,
@@ -67,9 +16,103 @@ import {
   updateDatasourceAuthState,
   updateDatasourceSuccess,
 } from "actions/datasourceActions";
+import { updateReplayEntity } from "actions/pageActions";
+import { setActionProperty } from "actions/pluginActionActions";
+import { fetchPluginFormConfig } from "actions/pluginActions";
 import type { ApiResponse } from "api/ApiResponses";
+import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import DatasourcesApi from "api/DatasourcesApi";
+import OAuthApi from "api/OAuthApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import { getConfigInitialValues } from "components/formControls/utils";
+import {
+  DATASOURCE_NAME_DEFAULT_PREFIX,
+  GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
+  GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+import {
+  INTEGRATION_TABS,
+  RESPONSE_STATUS,
+  SHOW_FILE_PICKER_KEY,
+} from "constants/routes";
+import {
+  apiEditorIdURL,
+  datasourcesEditorIdURL,
+  generateTemplateFormURL,
+  integrationEditorURL,
+  saasEditorDatasourceIdURL,
+} from "ee/RouteBuilder";
+import { getDefaultEnvId } from "ee/api/ApiUtils";
+import type {
+  ReduxAction,
+  ReduxActionWithCallbacks,
+  ReduxActionWithMeta,
+} from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  ReduxFormActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import {
+  API_EDITOR_FORM_NAME,
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+} from "ee/constants/forms";
+import {
+  DATASOURCE_CREATE,
+  DATASOURCE_DELETE,
+  DATASOURCE_SCHEMA_NOT_AVAILABLE,
+  DATASOURCE_UPDATE,
+  DATASOURCE_VALID,
+  FILES_NOT_SELECTED_EVENT,
+  GSHEET_AUTHORISED_FILE_IDS_KEY,
+  OAUTH_APPSMITH_TOKEN_NOT_FOUND,
+  OAUTH_AUTHORIZATION_APPSMITH_ERROR,
+  OAUTH_AUTHORIZATION_FAILED,
+  OAUTH_AUTHORIZATION_SUCCESSFUL,
+  createMessage,
+} from "ee/constants/messages";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { AppState } from "ee/reducers";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplication,
+  getCurrentApplicationIdForCreateNewApp,
+  getWorkspaceIdForImport,
+} from "ee/selectors/applicationSelectors";
+import type { DatasourceGroupByPluginCategory } from "ee/selectors/entitiesSelector";
+import {
+  PluginCategory,
+  getDatasource,
+  getDatasourceActionRouteInfo,
+  getDatasourceDraft,
+  getDatasources,
+  getDatasourcesGroupedByPluginCategory,
+  getDatasourcesUsedInApplicationByActions,
+  getEditorConfig,
+  getEntityExplorerDatasources,
+  getGenerateCRUDEnabledPluginMap,
+  getPlugin,
+  getPluginByPackageName,
+  getPluginForm,
+  getPluginPackageFromDatasourceId,
+} from "ee/selectors/entitiesSelector";
+import {
+  getCurrentEditingEnvironmentId,
+  getCurrentEnvironmentDetails,
+  isEnvironmentFetching,
+} from "ee/selectors/environmentSelectors";
+import { getCurrentModuleId } from "ee/selectors/modulesSelector";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { PluginPackageName, PluginType } from "entities/Action";
+import type { ApplicationPayload } from "entities/Application";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type {
   Datasource,
   DatasourceStorage,
@@ -82,101 +125,60 @@ import {
   FilePickerActionStatus,
   ToastMessageType,
 } from "entities/Datasource";
-import {
-  INTEGRATION_TABS,
-  RESPONSE_STATUS,
-  SHOW_FILE_PICKER_KEY,
-} from "constants/routes";
-import history from "utils/history";
-import {
-  API_EDITOR_FORM_NAME,
-  DATASOURCE_DB_FORM,
-  DATASOURCE_REST_API_FORM,
-} from "ee/constants/forms";
-import { validateResponse } from "./ErrorSagas";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { GetFormData } from "selectors/formSelectors";
-import { getFormData } from "selectors/formSelectors";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getConfigInitialValues } from "components/formControls/utils";
-import { setActionProperty } from "actions/pluginActionActions";
-import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
-import {
-  createMessage,
-  DATASOURCE_CREATE,
-  DATASOURCE_DELETE,
-  DATASOURCE_SCHEMA_NOT_AVAILABLE,
-  DATASOURCE_UPDATE,
-  DATASOURCE_VALID,
-  FILES_NOT_SELECTED_EVENT,
-  GSHEET_AUTHORISED_FILE_IDS_KEY,
-  OAUTH_APPSMITH_TOKEN_NOT_FOUND,
-  OAUTH_AUTHORIZATION_APPSMITH_ERROR,
-  OAUTH_AUTHORIZATION_FAILED,
-  OAUTH_AUTHORIZATION_SUCCESSFUL,
-} from "ee/constants/messages";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import localStorage from "utils/localStorage";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona/lite";
+import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
-import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginPackageName, PluginType } from "entities/Action";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { getQueryParams } from "utils/URLUtils";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { shouldBeDefined, trimQueryString } from "utils/helpers";
-import { updateReplayEntity } from "actions/pageActions";
-import OAuthApi from "api/OAuthApi";
-import type { AppState } from "ee/reducers";
-import {
-  getApplicationByIdFromWorkspaces,
-  getCurrentApplication,
-  getCurrentApplicationIdForCreateNewApp,
-  getWorkspaceIdForImport,
-} from "ee/selectors/applicationSelectors";
-import {
-  apiEditorIdURL,
-  datasourcesEditorIdURL,
-  generateTemplateFormURL,
-  integrationEditorURL,
-  saasEditorDatasourceIdURL,
-} from "ee/RouteBuilder";
-import {
-  DATASOURCE_NAME_DEFAULT_PREFIX,
-  GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
-  GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE,
-  TEMP_DATASOURCE_ID,
-} from "constants/Datasource";
-import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
-import { toast } from "@appsmith/ads";
-import { fetchPluginFormConfig } from "actions/pluginActions";
-import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
+import { addClassToDocumentRoot } from "pages/utils";
+import {
+  change,
+  getFormInitialValues,
+  getFormValues,
+  initialize,
+  isValid,
+} from "redux-form";
+import {
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
+import {
+  getCurrentApplicationId,
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import type { GetFormData } from "selectors/formSelectors";
+import { getFormData } from "selectors/formSelectors";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getQueryParams } from "utils/URLUtils";
 import {
   getFormDiffPaths,
   getFormName,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
-import { getDefaultEnvId } from "ee/api/ApiUtils";
-import { klona } from "klona/lite";
-import {
-  getCurrentEditingEnvironmentId,
-  getCurrentEnvironmentDetails,
-  isEnvironmentFetching,
-} from "ee/selectors/environmentSelectors";
-import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import FocusRetention from "./FocusRetentionSaga";
+import { shouldBeDefined, trimQueryString } from "utils/helpers";
+import history from "utils/history";
+import localStorage from "utils/localStorage";
+
+import { toast } from "@appsmith/ads";
+
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
-import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+import { validateResponse } from "./ErrorSagas";
+import FocusRetention from "./FocusRetentionSaga";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
-import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
-import { getCurrentModuleId } from "ee/selectors/modulesSelector";
-import type { ApplicationPayload } from "entities/Application";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<

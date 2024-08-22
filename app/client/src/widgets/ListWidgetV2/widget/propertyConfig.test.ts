@@ -1,11 +1,11 @@
+import type { ValidationResponse } from "constants/WidgetValidation";
 import _ from "lodash";
 
+import type { ListWidgetProps } from ".";
 import {
   defaultSelectedItemValidation,
   primaryColumnValidation,
 } from "./propertyConfig";
-import type { ListWidgetProps } from ".";
-import type { ValidationResponse } from "constants/WidgetValidation";
 
 describe(".primaryColumnValidation", () => {
   it("validates uniqueness of values with valid input", () => {

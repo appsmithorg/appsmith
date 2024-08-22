@@ -1,10 +1,6 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
-import { useRouteMatch } from "react-router";
-import ApiEditor from "pages/Editor/APIEditor";
-import QueryEditor from "pages/Editor/QueryEditor";
-import JSEditor from "pages/Editor/JSEditor";
-import GeneratePage from "pages/Editor/GeneratePage";
+
+import * as Sentry from "@sentry/react";
 import {
   API_EDITOR_ID_PATH,
   BUILDER_CHECKLIST_PATH,
@@ -13,11 +9,16 @@ import {
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
-import * as Sentry from "@sentry/react";
-import { SaaSEditorRoutes } from "pages/Editor/SaaSEditor/routes";
+import ApiEditor from "pages/Editor/APIEditor";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
-import { DatasourceEditorRoutes } from "pages/routes";
+import GeneratePage from "pages/Editor/GeneratePage";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import JSEditor from "pages/Editor/JSEditor";
+import QueryEditor from "pages/Editor/QueryEditor";
+import { SaaSEditorRoutes } from "pages/Editor/SaaSEditor/routes";
+import { DatasourceEditorRoutes } from "pages/routes";
+import { useRouteMatch } from "react-router";
+import { Route, Switch } from "react-router-dom";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

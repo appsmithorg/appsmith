@@ -1,28 +1,39 @@
 import React, { useEffect, useRef, useState } from "react";
+
+import {
+  clearCommitErrorState,
+  clearCommitSuccessfulState,
+  clearDiscardErrorState,
+  commitToRepoInit,
+  discardChanges,
+  gitPullInit,
+} from "actions/gitSyncActions";
+import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import {
   ARE_YOU_SURE,
+  COMMITTING_AND_PUSHING_CHANGES,
   COMMIT_AND_PUSH,
   COMMIT_TO,
-  COMMITTING_AND_PUSHING_CHANGES,
-  createMessage,
-  DISCARD_CHANGES,
   DISCARDING_AND_PULLING_CHANGES,
+  DISCARD_CHANGES,
   FETCH_GIT_STATUS,
   GIT_NO_UPDATED_TOOLTIP,
   GIT_UPSTREAM_CHANGES,
   PULL_CHANGES,
   READ_DOCUMENTATION,
+  createMessage,
 } from "ee/constants/messages";
-import styled from "styled-components";
 import {
-  Button,
-  Callout,
-  Input,
-  ModalBody,
-  ModalFooter,
-  Text,
-  Tooltip,
-} from "@appsmith/ads";
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+} from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
+import { useDispatch, useSelector } from "react-redux";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import {
   getConflictFoundDocUrlDeploy,
   getGitCommitAndPushError,
@@ -36,38 +47,28 @@ import {
   getPullFailed,
   getUpstreamErrorDocUrl,
 } from "selectors/gitSyncSelectors";
-import { useDispatch, useSelector } from "react-redux";
-
-import {
-  getCurrentAppGitMetaData,
-  getCurrentApplication,
-} from "ee/selectors/applicationSelectors";
-import DeployPreview from "../components/DeployPreview";
-import {
-  clearCommitErrorState,
-  clearCommitSuccessfulState,
-  clearDiscardErrorState,
-  commitToRepoInit,
-  discardChanges,
-  gitPullInit,
-} from "actions/gitSyncActions";
-import StatusLoader from "../components/StatusLoader";
-import Statusbar, {
-  StatusbarWrapper,
-} from "pages/Editor/gitSync/components/Statusbar";
-import GitChangesList from "../components/GitChangesList";
-import ConflictInfo from "../components/ConflictInfo";
-
+import styled from "styled-components";
 import { isEllipsisActive, isMacOrIOS } from "utils/helpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
-import GIT_ERROR_CODES from "constants/GitErrorCodes";
-import { Container, Space } from "../components/StyledComponents";
-import DiscardChangesWarning from "../components/DiscardChangesWarning";
-import { changeInfoSinceLastCommit } from "../utils";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import PushFailedWarning from "../components/PushFailedWarning";
+
+import {
+  Button,
+  Callout,
+  Input,
+  ModalBody,
+  ModalFooter,
+  Text,
+  Tooltip,
+} from "@appsmith/ads";
+
+import ConflictInfo from "../components/ConflictInfo";
+import DeployPreview from "../components/DeployPreview";
 import DiscardFailedWarning from "../components/DiscardChangesError";
+import DiscardChangesWarning from "../components/DiscardChangesWarning";
+import GitChangesList from "../components/GitChangesList";
+import PushFailedWarning from "../components/PushFailedWarning";
+import StatusLoader from "../components/StatusLoader";
+import { Container, Space } from "../components/StyledComponents";
+import { changeInfoSinceLastCommit } from "../utils";
 
 const Section = styled.div`
   margin-top: 0;

@@ -1,7 +1,9 @@
+import React from "react";
+
 import { IconWrapper } from "constants/IconConstants";
 import type { WidgetType } from "constants/WidgetConstants";
-import React from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
+
 import { ENTITY_ICON_SIZE } from "../ExplorerIcons";
 
 function WidgetIcon(props: {

@@ -1,14 +1,16 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+
 import "@testing-library/jest-dom";
-import { PartialExportModal } from "./index";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
+import { Provider } from "react-redux";
+import configureStore from "redux-mock-store";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
-import configureStore from "redux-mock-store";
-import { Provider } from "react-redux";
+
+import { PartialExportModal } from "./index";
 import { defaultAppState } from "./unitTestUtils";
-import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 interface TestEntityResetProps {
   entityTitle: string;

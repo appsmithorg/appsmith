@@ -1,7 +1,5 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { StyledDynamicInput } from "./StyledControls";
+
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -9,14 +7,18 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import styled from "styled-components";
-import { isString } from "utils/helpers";
-import { JSToString, stringToJS } from "./utils";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import styled from "styled-components";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { isString } from "utils/helpers";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import { StyledDynamicInput } from "./StyledControls";
+import { JSToString, stringToJS } from "./utils";
 
 const PromptMessage = styled.span`
   line-height: 17px;

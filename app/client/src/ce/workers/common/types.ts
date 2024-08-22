@@ -1,5 +1,5 @@
-import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
+import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 
 export enum AppsmithWorkers {
   LINT_WORKER = "LINT_WORKER",

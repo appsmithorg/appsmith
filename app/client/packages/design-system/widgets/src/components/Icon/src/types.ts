@@ -1,6 +1,7 @@
 import type { AriaLabelingProps, DOMProps } from "@react-types/shared";
-import type { ICONS } from "./icons";
+
 import type { COLORS, SIZES } from "../../../shared";
+import type { ICONS } from "./icons";
 
 export interface IconProps extends DOMProps, AriaLabelingProps {
   /** Size of the icon

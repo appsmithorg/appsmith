@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from "react";
+
 import { clamp } from "lodash-es";
-import { useDrag } from "react-use-gesture";
-import { useSprings, animated, to } from "react-spring";
-import styled from "styled-components";
 import debounce from "lodash/debounce";
 import get from "lodash/get";
+import { animated, to, useSprings } from "react-spring";
+import { useDrag } from "react-use-gesture";
+import styled from "styled-components";
 
 interface SpringStyleProps {
   down: boolean;

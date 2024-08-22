@@ -1,22 +1,23 @@
-import { useLocation } from "react-router";
-import { DEBUGGER_TAB_KEYS } from "../helpers";
+import { setApiPaneDebuggerState } from "actions/apiPaneActions";
 import { setCanvasDebuggerState } from "actions/debuggerActions";
+import { setJsPaneDebuggerState } from "actions/jsPaneActions";
+import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import type { AppState } from "ee/reducers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { setJsPaneDebuggerState } from "actions/jsPaneActions";
-import { setApiPaneDebuggerState } from "actions/apiPaneActions";
-import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
-import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
 import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import { EditorViewMode } from "ee/entities/IDE/constants";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
-import type { AppState } from "ee/reducers";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+
+import { DEBUGGER_TAB_KEYS } from "../helpers";
 
 interface Config {
   set: (

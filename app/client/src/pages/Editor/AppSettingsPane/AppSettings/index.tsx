@@ -1,21 +1,11 @@
-import type { Page } from "entities/Page";
-import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
-import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { selectAllPages } from "ee/selectors/entitiesSelector";
-import styled from "styled-components";
-import GeneralSettings from "./GeneralSettings";
-import type { SectionHeaderProps } from "./SectionHeader";
-import SectionHeader from "./SectionHeader";
-import DraggablePageList from "./DraggablePageList";
-import PageSettings from "./PageSettings";
-import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
+
+import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
+import { Colors } from "constants/Colors";
 import {
   APP_NAVIGATION_SETTING,
-  createMessage,
-  GENERAL_SETTINGS_SECTION_HEADER,
   GENERAL_SETTINGS_SECTION_CONTENT_HEADER,
+  GENERAL_SETTINGS_SECTION_HEADER,
   GENERAL_SETTINGS_SECTION_HEADER_DESC,
   IN_APP_EMBED_SETTING,
   PAGE_SETTINGS_SECTION_CONTENT_HEADER,
@@ -23,15 +13,28 @@ import {
   THEME_SETTINGS_SECTION_HEADER,
   THEME_SETTINGS_SECTION_HEADER_DESC,
   UPDATE_VIA_IMPORT_SETTING,
+  createMessage,
 } from "ee/constants/messages";
-import { Colors } from "constants/Colors";
-import EmbedSettings from "./EmbedSettings";
-import NavigationSettings from "./NavigationSettings";
-import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
+import { selectAllPages } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Divider } from "@appsmith/ads";
-import { ImportAppSettings } from "./ImportAppSettings";
+import type { Page } from "entities/Page";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
+import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
+import { useDispatch, useSelector } from "react-redux";
+import { getAppSettingsPane } from "selectors/appSettingsPaneSelectors";
+import styled from "styled-components";
+
+import { Divider } from "@appsmith/ads";
+
+import DraggablePageList from "./DraggablePageList";
+import EmbedSettings from "./EmbedSettings";
+import GeneralSettings from "./GeneralSettings";
+import { ImportAppSettings } from "./ImportAppSettings";
+import NavigationSettings from "./NavigationSettings";
+import PageSettings from "./PageSettings";
+import type { SectionHeaderProps } from "./SectionHeader";
+import SectionHeader from "./SectionHeader";
 
 export enum AppSettingsTabs {
   General,

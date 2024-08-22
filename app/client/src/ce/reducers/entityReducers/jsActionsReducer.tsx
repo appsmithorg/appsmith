@@ -1,13 +1,13 @@
-import { createReducer } from "utils/ReducerUtils";
-import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { set, keyBy, findIndex, unset } from "lodash";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import produce from "immer";
 import { klona } from "klona";
+import { findIndex, keyBy, set, unset } from "lodash";
+import { createReducer } from "utils/ReducerUtils";
 
 export const initialState: JSCollectionDataState = [];
 

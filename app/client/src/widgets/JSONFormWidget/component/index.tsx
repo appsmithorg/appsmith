@@ -1,26 +1,27 @@
 import type { PropsWithChildren } from "react";
 import React, { Fragment } from "react";
-import styled from "styled-components";
-import { Text } from "@blueprintjs/core";
 
-import Form from "./Form";
+import { Text } from "@blueprintjs/core";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
-import type { Schema } from "../constants";
-import { FIELD_MAP, MAX_ALLOWED_FIELDS, ROOT_SCHEMA_KEY } from "../constants";
-import { FormContextProvider } from "../FormContext";
-import { isEmpty, pick } from "lodash";
 import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
-import type { Action, JSONFormWidgetState } from "../widget";
+import { createMessage } from "ee/constants/messages";
+import { isEmpty, pick } from "lodash";
+import styled from "styled-components";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+
+import { FormContextProvider } from "../FormContext";
+import type { Schema } from "../constants";
+import { FIELD_MAP, MAX_ALLOWED_FIELDS, ROOT_SCHEMA_KEY } from "../constants";
 import {
   JSON_FORM_CONNECT_BUTTON_TEXT,
   JSON_FORM_CONNECT_OVERLAY_TEXT,
 } from "../constants/messages";
-import { createMessage } from "ee/constants/messages";
+import type { Action, JSONFormWidgetState } from "../widget";
+import Form from "./Form";
 
 interface StyledContainerProps {
   backgroundColor?: string;

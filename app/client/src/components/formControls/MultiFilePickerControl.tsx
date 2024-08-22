@@ -1,23 +1,26 @@
 import * as React from "react";
-import { useState, useEffect } from "react";
-import styled from "styled-components";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { Field, getFormValues } from "redux-form";
-import { Button, Tag, Text, toast } from "@appsmith/ads";
-import type { AppState } from "ee/reducers";
-import type { Datasource } from "entities/Datasource";
-import type { Action } from "entities/Action";
-import { connect } from "react-redux";
+import { useEffect, useState } from "react";
+
 import PluginsApi from "api/PluginApi";
 import type { Plugin } from "api/PluginApi";
-import { get, isArray } from "lodash";
-import { formatFileSize } from "./utils";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import type { ControlType } from "constants/PropertyControlConstants";
+import type { AppState } from "ee/reducers";
 import { getPlugin } from "ee/selectors/entitiesSelector";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Action } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { get, isArray } from "lodash";
+import { connect } from "react-redux";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field, getFormValues } from "redux-form";
+import styled from "styled-components";
+
+import { Button, Tag, Text, toast } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import { formatFileSize } from "./utils";
 
 const HiddenFileInput = styled.input`
   visibility: hidden;

@@ -1,20 +1,23 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { NumberInput } from "@appsmith/ads";
+
+import type { AppState } from "ee/reducers";
+import { updateZoneCountAction } from "layoutSystems/anvil/integrations/actions/sectionActions";
+import {
+  MAX_ZONE_COUNT,
+  MIN_ZONE_COUNT,
+} from "layoutSystems/anvil/utils/constants";
+import { useDispatch, useSelector } from "react-redux";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
-import { useDispatch, useSelector } from "react-redux";
-import { updateZoneCountAction } from "layoutSystems/anvil/integrations/actions/sectionActions";
-import {
-  MAX_ZONE_COUNT,
-  MIN_ZONE_COUNT,
-} from "layoutSystems/anvil/utils/constants";
-import type { AppState } from "ee/reducers";
+
+import { NumberInput } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const ZoneNumInput = React.forwardRef(
   (

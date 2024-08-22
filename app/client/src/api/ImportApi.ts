@@ -1,7 +1,8 @@
-import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
+import type { AxiosPromise } from "axios";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+
+import type { ApiResponse } from "./ApiResponses";
 
 export interface CurlImportRequest {
   type: string;

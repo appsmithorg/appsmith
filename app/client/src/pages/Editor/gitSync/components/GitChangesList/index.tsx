@@ -1,14 +1,17 @@
 import React from "react";
-import styled from "styled-components";
+
 import { useSelector } from "react-redux";
 import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
 import { Callout } from "@appsmith/ads";
+
 import { ExpandableChange, ExpandableChangeKind } from "./ExpandableChange";
-import StaticChange, { StaticChangeKind } from "./StaticChange";
 import PageChanges from "./PageChanges";
+import StaticChange, { StaticChangeKind } from "./StaticChange";
 
 const CalloutContainer = styled.div`
   margin-top: 16px;

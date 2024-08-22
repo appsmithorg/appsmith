@@ -1,35 +1,37 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import Entity from "./Entity";
+
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
   ADD_DATASOURCE_BUTTON,
-  createMessage,
   CREATE_DATASOURCE_TOOLTIP,
   EMPTY_DATASOURCE_BUTTON_TEXT,
   EMPTY_DATASOURCE_MAIN_TEXT,
+  createMessage,
 } from "ee/constants/messages";
-import styled from "styled-components";
-import { Icon, Button } from "@appsmith/ads";
-import { AddEntity, EmptyComponent } from "./common";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-
-import type { AppState } from "ee/reducers";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import {
-  getHasCreateDatasourcePermission,
-  getHasManageDatasourcePermission,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useDatasourceIdFromURL } from "ee/pages/Editor/Explorer/helpers";
 import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
 } from "ee/pages/Editor/Explorer/hooks";
+import type { AppState } from "ee/reducers";
 import { getPlugins } from "ee/selectors/entitiesSelector";
-import { keyBy } from "lodash";
-import { useDatasourceIdFromURL } from "ee/pages/Editor/Explorer/helpers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import {
+  getHasCreateDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { Datasource } from "entities/Datasource";
+import { keyBy } from "lodash";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, Icon } from "@appsmith/ads";
+
 import ExplorerDatasourceEntity from "../DatasourceInfo/DatasourceEntity";
+import Entity from "./Entity";
+import { AddEntity, EmptyComponent } from "./common";
 
 interface DatasourcesProps {
   isDatasourcesOpen: boolean | null;

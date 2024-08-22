@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode, Ref } from "react";
 import React, { useMemo } from "react";
-import type { BaseStyle } from "widgets/BaseWidget";
+
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import type { WidgetType } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -8,20 +9,20 @@ import {
   PositionTypes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import { generateClassName } from "utils/generators";
-import styled from "styled-components";
-import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
-import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
+import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
+import equal from "fast-deep-equal";
 import { useSelector } from "react-redux";
 import {
   getIsReflowEffectedSelector,
   getReflowSelector,
 } from "selectors/widgetReflowSelectors";
-import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
-import equal from "fast-deep-equal";
-import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import styled from "styled-components";
+import { generateClassName } from "utils/generators";
+import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { useHoverToFocusWidget } from "utils/hooks/useHoverToFocusWidget";
+import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
+import type { BaseStyle } from "widgets/BaseWidget";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;

@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/react";
-import classNames from "classnames";
 import React, {
   memo,
   useCallback,
@@ -8,21 +6,24 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
+import * as Sentry from "@sentry/react";
 import { updateExplorerWidthAction } from "actions/explorerActions";
+import classNames from "classnames";
+import { SIDEBAR_ID } from "constants/Explorer";
+import { tailwindLayers } from "constants/Layers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import moment from "moment";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getExplorerActive,
   getExplorerWidth,
 } from "selectors/explorerSelector";
-import { tailwindLayers } from "constants/Layers";
-import { Tooltip } from "@appsmith/ads";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { SIDEBAR_ID } from "constants/Explorer";
 import styled from "styled-components";
-import moment from "moment";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+
+import { Tooltip } from "@appsmith/ads";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>

@@ -1,20 +1,24 @@
-import type { AppState } from "ee/reducers";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+
 import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
 } from "actions/canvasSelectionActions";
+import { theme } from "constants/DefaultTheme";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   getSlidingArenaName,
   getStickyCanvasName,
 } from "constants/componentClassNameConstants";
-import { theme } from "constants/DefaultTheme";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { throttle } from "lodash";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getIsAutoLayout,
@@ -27,9 +31,7 @@ import {
 } from "selectors/editorSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
-import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+
 import { getWidgetSelectionBlock } from "../../../../selectors/ui";
 
 export interface SelectedArenaDimensions {

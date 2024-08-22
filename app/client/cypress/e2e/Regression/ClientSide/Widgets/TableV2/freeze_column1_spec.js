@@ -1,6 +1,6 @@
 import {
-  getWidgetSelector,
   PROPERTY_SELECTOR,
+  getWidgetSelector,
 } from "../../../../../locators/WidgetLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

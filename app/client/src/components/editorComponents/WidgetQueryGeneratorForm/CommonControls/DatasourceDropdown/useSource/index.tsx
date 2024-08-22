@@ -1,22 +1,24 @@
 import React, { useContext, useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
-import { getPluginImages } from "ee/selectors/entitiesSelector";
-import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getWidget } from "sagas/selectors";
-import type { AppState } from "ee/reducers";
+
 import {
-  createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,
+  createMessage,
 } from "ee/constants/messages";
-import type { DropdownOptionType } from "../../../types";
-import useDatasourceOptions from "./useDatasourceOptions";
-import useConnectToOptions from "./useConnectToOptions";
-import useOtherOptions from "./useOtherOptions";
-import { DropdownOption } from "../DropdownOption";
-import { Placeholder } from "../../../styles";
+import type { AppState } from "ee/reducers";
+import { getPluginImages } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
+import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
+
 import { WidgetQueryGeneratorFormContext } from "../../../index";
+import { Placeholder } from "../../../styles";
+import type { DropdownOptionType } from "../../../types";
+import { DropdownOption } from "../DropdownOption";
 import { DROPDOWN_VARIANT } from "../types";
+import useConnectToOptions from "./useConnectToOptions";
+import useDatasourceOptions from "./useDatasourceOptions";
+import useOtherOptions from "./useOtherOptions";
 
 function filterOption(option: DropdownOptionType, searchText: string) {
   return (

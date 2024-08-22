@@ -1,7 +1,7 @@
-import { race, put, take } from "redux-saga/effects";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { showActionConfirmationModal } from "actions/pluginActionActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+import { put, race, take } from "redux-saga/effects";
 
 export function* requestModalConfirmationSaga(payload: ModalInfo) {
   yield put(showActionConfirmationModal(payload));

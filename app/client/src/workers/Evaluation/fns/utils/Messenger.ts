@@ -3,6 +3,7 @@ import { WorkerErrorTypes } from "ee/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { getErrorMessage } from "workers/Evaluation/errorModifier";
+
 type TPromiseResponse =
   | {
       // TODO: Fix this the next time the file is edited

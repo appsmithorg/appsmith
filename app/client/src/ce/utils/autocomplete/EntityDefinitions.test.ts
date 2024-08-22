@@ -1,7 +1,7 @@
-import { PluginType } from "entities/Action";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { getPropsForJSActionEntity } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import type { JSActionEntity } from "ee/entities/DataTree/types";
+import { getPropsForJSActionEntity } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { PluginType } from "entities/Action";
 
 const jsObject: JSCollectionData = {
   isLoading: false,

@@ -1,10 +1,9 @@
-import styled from "styled-components";
 import { Alignment, Checkbox as BlueprintCheckbox } from "@blueprintjs/core";
+import DisabledIndeterminate from "assets/icons/widget/checkbox//disabled-indeterminate-icon.svg";
 import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
 import DisabledCheckIcon from "assets/icons/widget/checkbox/disabledcheck-icon.svg";
 import IndeterminateIcon from "assets/icons/widget/checkbox/indeterminate-icon.svg";
-import DisabledIndeterminate from "assets/icons/widget/checkbox//disabled-indeterminate-icon.svg";
-
+import styled from "styled-components";
 import { darkenColor } from "widgets/WidgetUtils";
 
 interface StyledCheckboxProps {

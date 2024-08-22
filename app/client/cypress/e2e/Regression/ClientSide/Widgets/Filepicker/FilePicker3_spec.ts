@@ -1,8 +1,8 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
   deployMode,
+  entityExplorer,
+  locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {

@@ -1,5 +1,5 @@
-import type { LoDashStatic } from "lodash";
 import type { ValidationResponse } from "constants/WidgetValidation";
+import type { LoDashStatic } from "lodash";
 
 import type { CurrencyInputWidgetProps } from "../../../widget/types";
 

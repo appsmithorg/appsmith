@@ -4,6 +4,7 @@ import type {
   LabelOrientation,
   LongestLabelParams,
 } from "widgets/ChartWidget/constants";
+
 import type { EChartElementLayoutParams } from "./EChartsElementVisibilityCalculator";
 import { EChartElementVisibilityCalculator } from "./EChartsElementVisibilityCalculator";
 import { EChartsXAxisLayoutBuilder } from "./EChartsXAxisLayoutBuilder";

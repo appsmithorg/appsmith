@@ -1,13 +1,15 @@
+import { useCallback } from "react";
+
 import { GridDefaults } from "constants/WidgetConstants";
 import {
   addNewAnvilWidgetAction,
   moveAnvilWidgets,
 } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
-import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
 import { anvilWidgets } from "widgets/anvil/constants";
+
+import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
 
 export const useAnvilWidgetDrop = (
   canvasId: string,

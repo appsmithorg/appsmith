@@ -1,7 +1,10 @@
 import React from "react";
+
 import styled from "styled-components";
-import StatusLoader from "./StatusLoader";
+
 import { Icon, Text } from "@appsmith/ads";
+
+import StatusLoader from "./StatusLoader";
 
 const Flex = styled.div`
   display: flex;

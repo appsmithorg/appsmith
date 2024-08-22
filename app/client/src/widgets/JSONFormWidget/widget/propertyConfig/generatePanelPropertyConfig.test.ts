@@ -1,4 +1,5 @@
 import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+
 import generatePanelPropertyConfig from "./generatePanelPropertyConfig";
 
 describe(".generatePanelPropertyConfig", () => {

@@ -1,4 +1,3 @@
-import { merge } from "lodash";
 import type {
   PropertyUpdates,
   SnipingModeProperty,
@@ -7,9 +6,10 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { TableIcon, TableThumbnail } from "appsmith-icons";
+import { merge } from "lodash";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const methodsConfig = {
   IconCmp: TableIcon,

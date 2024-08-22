@@ -1,7 +1,9 @@
 import React from "react";
+
+import { Button } from "@appsmith/ads";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button } from "@appsmith/ads";
 
 class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
   constructor(props: OpenConfigPanelControlProps) {

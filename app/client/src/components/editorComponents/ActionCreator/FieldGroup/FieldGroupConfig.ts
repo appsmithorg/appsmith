@@ -1,26 +1,27 @@
-import { AppsmithFunction, FieldType } from "../constants";
 import {
   CLEAR_INTERVAL,
   CLEAR_STORE,
   CLOSE_MODAL,
   COPY_TO_CLIPBOARD,
-  createMessage,
   DOWNLOAD,
   EXECUTE_A_QUERY,
   EXECUTE_JS_FUNCTION,
   GET_GEO_LOCATION,
   NAVIGATE_TO,
   NO_ACTION,
-  SHOW_MODAL,
   POST_MESSAGE,
   REMOVE_VALUE,
   RESET_WIDGET,
   SET_INTERVAL,
   SHOW_ALERT,
+  SHOW_MODAL,
   STOP_WATCH_GEO_LOCATION,
   STORE_VALUE,
   WATCH_GEO_LOCATION,
+  createMessage,
 } from "ee/constants/messages";
+
+import { AppsmithFunction, FieldType } from "../constants";
 import type { FieldGroupConfig } from "../types";
 
 export const FIELD_GROUP_CONFIG: FieldGroupConfig = {

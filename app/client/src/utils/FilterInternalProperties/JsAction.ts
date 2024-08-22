@@ -1,6 +1,6 @@
 import type { JSActionEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
 export const getJsActionPeekData = (
   jsAction: JSCollectionData,

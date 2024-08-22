@@ -1,13 +1,14 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-/* eslint-disable cypress/no-assigning-return-values */
 
+/* eslint-disable cypress/no-assigning-return-values */
+import homePage from "../locators/HomePage";
+import gitSyncLocators from "../locators/gitSyncLocators";
+import { ObjectsRegistry } from "./Objects/Registry";
 import { AppSidebar } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-import gitSyncLocators from "../locators/gitSyncLocators";
-import homePage from "../locators/HomePage";
-import { ObjectsRegistry } from "./Objects/Registry";
+
 const gitSync = ObjectsRegistry.GitSync;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const dataManager = ObjectsRegistry.DataManager;

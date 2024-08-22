@@ -1,17 +1,17 @@
 /// <reference types="Cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
+import oneClickBindingLocator from "../../locators/OneClickBindingLocator";
 import {
-  homePage,
-  gsheetHelper,
-  dataSources,
   agHelper,
+  dataSources,
+  draggableWidgets,
   entityExplorer,
+  gsheetHelper,
+  homePage,
   propPane,
   table,
-  draggableWidgets,
 } from "../../support/Objects/ObjectsCore";
 import { Widgets } from "../../support/Pages/DataSources";
-import oneClickBindingLocator from "../../locators/OneClickBindingLocator";
 import {
   PageLeftPane,
   PagePaneSegment,

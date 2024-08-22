@@ -1,10 +1,13 @@
-export * from "ce/pages/common/AppHeader";
-import { Routes as CE_Routes } from "ce/pages/common/AppHeader";
 import React from "react";
+
 import ReactDOM from "react-dom";
+
+import { Routes as CE_Routes } from "ce/pages/common/AppHeader";
 import { Switch } from "react-router";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
+
+export * from "ce/pages/common/AppHeader";
 
 type Props = RouteComponentProps;
 

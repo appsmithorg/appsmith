@@ -1,18 +1,19 @@
-import type { Log } from "entities/AppsmithConsole";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
+import type { AppState } from "ee/reducers";
+import {
+  isWidget,
+  shouldSuppressDebuggerError,
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { Log } from "entities/AppsmithConsole";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
-import type { AppState } from "ee/reducers";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
-import {
-  shouldSuppressDebuggerError,
-  isWidget,
-} from "ee/workers/Evaluation/evaluationUtils";
+
 import { getDataTree } from "./dataTreeSelectors";
 import { combinedPreviewModeSelector } from "./editorSelectors";
-import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
 
 interface ErrorObejct {
   [k: string]: Log;

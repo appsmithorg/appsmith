@@ -1,17 +1,17 @@
-import styled from "styled-components";
-import { Select, MultiSelect } from "@blueprintjs/select";
 import {
-  Switch,
-  InputGroup,
   Button,
   Classes,
-  Popover,
+  InputGroup,
   MenuItem,
+  Popover,
+  Switch,
 } from "@blueprintjs/core";
-import type { DropdownOption } from "components/constants";
-import type { ContainerOrientation } from "constants/WidgetConstants";
 import { DateInput } from "@blueprintjs/datetime";
+import { MultiSelect, Select } from "@blueprintjs/select";
+import type { DropdownOption } from "components/constants";
 import { Colors } from "constants/Colors";
+import type { ContainerOrientation } from "constants/WidgetConstants";
+import styled from "styled-components";
 
 interface ControlWrapperProps {
   orientation?: ContainerOrientation;

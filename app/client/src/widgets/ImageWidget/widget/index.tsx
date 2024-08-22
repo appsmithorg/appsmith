@@ -1,24 +1,25 @@
-import { RenderModes } from "constants/WidgetConstants";
 import * as React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import ImageComponent from "../component";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { RenderModes } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import ImageComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   constructor(props: ImageWidgetProps) {

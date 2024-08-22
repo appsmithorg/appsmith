@@ -1,4 +1,5 @@
 import styled, { keyframes } from "styled-components";
+
 import { SpinnerIconClassName } from "./Spinner.constants";
 
 const spin = keyframes`

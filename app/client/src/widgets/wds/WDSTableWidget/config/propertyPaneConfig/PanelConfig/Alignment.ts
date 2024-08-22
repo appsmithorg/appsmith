@@ -1,6 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+
 import { hideByColumnType } from "../../../widget/propertyUtils";
 
 export default {

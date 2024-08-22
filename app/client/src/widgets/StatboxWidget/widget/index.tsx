@@ -1,37 +1,38 @@
-import { ContainerWidget } from "widgets/ContainerWidget/widget";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import {
-  FlexVerticalAlignment,
-  Positioning,
-} from "layoutSystems/common/utils/constants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { statBoxPreset } from "layoutSystems/anvil/layoutComponents/presets/StatboxPreset";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import {
+  FlexVerticalAlignment,
+  Positioning,
+} from "layoutSystems/common/utils/constants";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import get from "lodash/get";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { statBoxPreset } from "layoutSystems/anvil/layoutComponents/presets/StatboxPreset";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { ContainerWidget } from "widgets/ContainerWidget/widget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 class StatboxWidget extends ContainerWidget {
   static type = "STATBOX_WIDGET";

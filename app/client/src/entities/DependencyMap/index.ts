@@ -1,6 +1,6 @@
+import { sort } from "fast-sort";
 import { difference } from "lodash";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
-import { sort } from "fast-sort";
 
 export type TDependencies = Map<string, Set<string>>;
 export default class DependencyMap {

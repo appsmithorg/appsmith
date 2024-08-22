@@ -1,12 +1,13 @@
-import type { AppState } from "ee/reducers";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { get, set } from "lodash";
 import { useSelector } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { select } from "redux-saga/effects";
-import WidgetFactory from "WidgetProvider/factory";
+
 import { getWidgets } from "./selectors";
 
 /*

@@ -1,18 +1,17 @@
-import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
-  AppSidebar,
-  PageLeftPane,
-} from "../../../../support/Pages/EditorNavigation";
-
-const testdata = require("../../../../fixtures/testdata.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-
 import {
   agHelper,
   entityExplorer,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
+  EntityType,
+  PageLeftPane,
+} from "../../../../support/Pages/EditorNavigation";
+
+const testdata = require("../../../../fixtures/testdata.json");
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 describe(
   "API Panel Test Functionality",

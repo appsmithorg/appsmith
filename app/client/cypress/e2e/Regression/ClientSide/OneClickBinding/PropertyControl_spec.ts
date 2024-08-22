@@ -1,3 +1,4 @@
+import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import {
   agHelper,
   apiPage,
@@ -6,13 +7,12 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import { expandLoadMoreOptions, OneClickBinding } from "./spec_utility";
-import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import { OneClickBinding, expandLoadMoreOptions } from "./spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 

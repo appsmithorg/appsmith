@@ -1,18 +1,18 @@
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { ENTITY_TYPE, type AppsmithEntity } from "ee/entities/DataTree/types";
-import _ from "lodash";
-import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import type { Def } from "tern";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { type AppsmithEntity, ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type {
   ActionEntity,
   ActionEntityConfig,
   DataTreeEntityConfig,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { eeAppsmithAutocompleteDefs } from "ee/utils/autocomplete/helpers";
+import _ from "lodash";
+import type { Def } from "tern";
+import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 
 export const entityDefinitions = {
   APPSMITH: (entity: AppsmithEntity, extraDefsToDefine: ExtraDef) => {

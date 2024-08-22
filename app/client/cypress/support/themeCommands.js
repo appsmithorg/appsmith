@@ -1,3 +1,5 @@
+import { ObjectsRegistry } from "../support/Objects/Registry";
+
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 /* Contains all methods related to Workspace features*/
@@ -5,7 +7,6 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const themelocator = require("../locators/ThemeLocators.json");
-import { ObjectsRegistry } from "../support/Objects/Registry";
 
 const theme = ObjectsRegistry.ThemeSettings;
 

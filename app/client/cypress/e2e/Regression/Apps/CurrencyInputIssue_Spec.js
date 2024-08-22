@@ -1,5 +1,6 @@
-import { homePage, agHelper } from "../../../support/Objects/ObjectsCore";
 import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
+import { agHelper, homePage } from "../../../support/Objects/ObjectsCore";
+
 const themelocators = require("../../../locators/ThemeLocators.json");
 
 const widgetName = "currencyinputwidget";

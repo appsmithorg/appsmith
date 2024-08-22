@@ -1,9 +1,11 @@
-import { Button, Flex, Tooltip } from "@appsmith/ads";
 import React from "react";
+
+import { DOCUMENTATION_TOOLTIP, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { createMessage, DOCUMENTATION_TOOLTIP } from "ee/constants/messages";
+
+import { Button, Flex, Tooltip } from "@appsmith/ads";
 
 const MutedText = styled.span`
   opacity: 70%;

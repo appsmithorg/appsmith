@@ -1,5 +1,5 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 import widgets from "../../../../../locators/Widgets.json";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Form reset functionality",

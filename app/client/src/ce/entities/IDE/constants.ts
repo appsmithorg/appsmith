@@ -1,3 +1,6 @@
+import type { ComponentType, ReactNode } from "react";
+
+import type { IDESidebarButton } from "IDE";
 import {
   ADD_PATH,
   API_EDITOR_ID_ADD_PATH,
@@ -14,14 +17,12 @@ import {
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "ee/constants/routes/appRoutes";
+import type { PluginType } from "entities/Action";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
-import type { PluginType } from "entities/Action";
-import type { ComponentType, ReactNode } from "react";
-import type { IDESidebarButton } from "IDE";
 
 export enum EditorState {
   DATA = "DATA",

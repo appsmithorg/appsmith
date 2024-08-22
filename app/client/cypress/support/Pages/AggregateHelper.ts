@@ -1,11 +1,13 @@
+import type CodeMirror from "codemirror";
 import "cypress-wait-until";
 import { v4 as uuidv4 } from "uuid";
+
 import { ObjectsRegistry } from "../Objects/Registry";
-import type CodeMirror from "codemirror";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigator from "./EditorNavigation";
 import { EntityType } from "./EditorNavigation";
+
 import ClickOptions = Cypress.ClickOptions;
 
 type ElementType = string | JQuery<HTMLElement>;

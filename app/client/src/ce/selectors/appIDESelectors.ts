@@ -1,12 +1,12 @@
-import { groupBy, keyBy, sortBy } from "lodash";
-import { createSelector } from "reselect";
 import type { EntityItem } from "ee/entities/IDE/constants";
+import type { AppState } from "ee/reducers";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
 } from "ee/selectors/entitiesSelector";
+import { groupBy, keyBy, sortBy } from "lodash";
+import { createSelector } from "reselect";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
-import type { AppState } from "ee/reducers";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";

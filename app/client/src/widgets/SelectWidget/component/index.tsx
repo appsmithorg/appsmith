@@ -1,31 +1,33 @@
 import React from "react";
-import type { ComponentProps } from "widgets/BaseComponent";
+
 import type { Alignment } from "@blueprintjs/core";
 import { Classes } from "@blueprintjs/core";
-import type { DropdownOption } from "../constants";
 import type {
   IItemListRendererProps,
   IItemRendererProps,
 } from "@blueprintjs/select";
-import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
-import equal from "fast-deep-equal/es6";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
-import { FixedSizeList } from "react-window";
+import type { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import equal from "fast-deep-equal/es6";
+import { debounce, findIndex, isEmpty, isNil, isNumber } from "lodash";
+import { FixedSizeList } from "react-window";
+import type { ComponentProps } from "widgets/BaseComponent";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+
+import { labelMargin } from "../../WidgetUtils";
+import type { DropdownOption } from "../constants";
+import SelectButton from "./SelectButton";
 import {
-  StyledControlGroup,
-  StyledSingleDropDown,
-  DropdownStyles,
   DropdownContainer,
+  DropdownStyles,
   MenuItem,
   RTLStyleContainer,
+  StyledControlGroup,
+  StyledSingleDropDown,
 } from "./index.styled";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import type { LabelPosition } from "components/constants";
-import SelectButton from "./SelectButton";
-import { labelMargin } from "../../WidgetUtils";
-import LabelWithTooltip from "widgets/components/LabelWithTooltip";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const DEBOUNCE_TIMEOUT = 800;
 const ITEM_SIZE = 40;

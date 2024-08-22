@@ -1,10 +1,11 @@
+import reconnectDatasourceLocators from "../../../../../locators/ReconnectLocators.js";
 import {
   agHelper,
   templates,
 } from "../../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../../support/Pages/PageList";
+
 const templateLocators = require("../../../../../locators/TemplatesLocators.json");
-import reconnectDatasourceLocators from "../../../../../locators/ReconnectLocators.js";
 
 describe(
   "Bug 17276 - Templates modal filtering",

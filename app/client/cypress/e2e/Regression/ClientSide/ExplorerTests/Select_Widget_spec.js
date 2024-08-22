@@ -1,10 +1,11 @@
-import commonLocators from "../../../../locators/commonlocators.json";
 import widgets from "../../../../locators/Widgets.json";
-const widgetLocators = require("../../../../locators/Widgets.json");
+import commonLocators from "../../../../locators/commonlocators.json";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+
+const widgetLocators = require("../../../../locators/Widgets.json");
 
 describe("Explorer hidden widget Selection", { tags: ["@tag.IDE"] }, () => {
   before(() => {

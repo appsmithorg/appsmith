@@ -1,5 +1,6 @@
 import type { ChangeEvent } from "react";
 import React from "react";
+
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
@@ -8,6 +9,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+
 import LazyCodeEditor from "./LazyCodeEditor";
 
 interface Props {

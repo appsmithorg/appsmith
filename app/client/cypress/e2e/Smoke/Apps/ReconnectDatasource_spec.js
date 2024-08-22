@@ -1,8 +1,8 @@
 import homePageLocators from "../../../locators/HomePage";
 import {
-  homePage,
-  dataSources,
   agHelper,
+  dataSources,
+  homePage,
 } from "../../../support/Objects/ObjectsCore";
 
 describe(

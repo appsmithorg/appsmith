@@ -1,7 +1,8 @@
+import testdata from "../../../../../fixtures/testdata.json";
 import {
   agHelper,
-  draggableWidgets,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   homePage,
   locators,
@@ -9,7 +10,6 @@ import {
   theme,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
-import testdata from "../../../../../fixtures/testdata.json";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

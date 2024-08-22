@@ -1,15 +1,16 @@
-import { PluginType } from "entities/Action";
 import type {
-  WidgetEntity,
   ActionEntity,
   JSActionEntity,
+  WidgetEntity,
 } from "ee/entities/DataTree/types";
+import { PluginType } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,
   getEntityDependantPaths,
   groupAndFilterDependantsMap,
 } from "utils/WidgetLoadingStateUtils";
+
 import WidgetFactory from "../WidgetProvider/factory";
 
 const JS_object_tree: JSActionEntity = {

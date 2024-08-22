@@ -1,4 +1,5 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
 import {
   render,
@@ -6,10 +7,11 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import IconSelectControl from "./IconSelectControl";
 import userEvent from "@testing-library/user-event";
-import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { noop } from "lodash";
+
+import IconSelectControl from "./IconSelectControl";
 
 const requiredParams = {
   evaluatedValue: undefined,

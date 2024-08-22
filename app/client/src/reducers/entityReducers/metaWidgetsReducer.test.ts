@@ -1,12 +1,13 @@
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { metaWidgetState } from "utils/metaWidgetState";
+
 import type { MetaWidgetsReduxState } from "./metaWidgetsReducer";
 import reducer, {
   initialState as reducerInitialState,
 } from "./metaWidgetsReducer";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { metaWidgetState } from "utils/metaWidgetState";
 import { nestedMetaWidgetInitialState } from "./testData/metaWidgetReducer";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 const modifiedState: MetaWidgetsReduxState = {
   baowuczcgg: {

@@ -1,17 +1,20 @@
 import type { MutableRefObject } from "react";
 import { useState } from "react";
 import React, { useEffect, useRef } from "react";
-import ReactJson from "react-json-view";
-import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
-import { componentWillAppendToBody } from "react-append-to-body";
-import _, { debounce } from "lodash";
+
 import { zIndexLayers } from "constants/CanvasEditorConstants";
-import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
-import { Divider } from "@appsmith/ads";
+import { getJSCollections } from "ee/selectors/entitiesSelector";
+import _, { debounce } from "lodash";
+import { componentWillAppendToBody } from "react-append-to-body";
+import ReactJson from "react-json-view";
 import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
-import { getJSCollections } from "ee/selectors/entitiesSelector";
+
+import { Divider } from "@appsmith/ads";
+
+import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
+import { JsonWrapper, reactJsonProps } from "./JsonWrapper";
 
 export interface PeekOverlayStateProps {
   objectName: string;

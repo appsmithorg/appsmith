@@ -1,10 +1,11 @@
-import PropertyPaneNavigation from "./PropertyPane";
-import ActionPaneNavigation from "./ActionPane";
-import type { EntityInfo } from "./types";
-import { call } from "redux-saga/effects";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type PaneNavigation from "./PaneNavigation";
+import { call } from "redux-saga/effects";
+
+import ActionPaneNavigation from "./ActionPane";
 import JSObjectsPaneNavigation from "./JSObjectsPane";
+import type PaneNavigation from "./PaneNavigation";
+import PropertyPaneNavigation from "./PropertyPane";
+import type { EntityInfo } from "./types";
 
 export default class EntityNavigationFactory {
   static *create(entityInfo: EntityInfo) {

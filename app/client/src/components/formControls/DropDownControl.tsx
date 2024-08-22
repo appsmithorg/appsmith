@@ -1,23 +1,26 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import styled from "styled-components";
+
 import type { ControlType } from "constants/PropertyControlConstants";
+import type { AppState } from "ee/reducers";
+import type { Action } from "entities/Action";
 import { get, isEmpty, isNil } from "lodash";
+import { connect } from "react-redux";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
+import { getDynamicFetchedValues } from "selectors/formSelectors";
+import styled from "styled-components";
 import {
   FormDataPaths,
-  matchExact,
   MATCH_ACTION_CONFIG_PROPERTY,
+  matchExact,
 } from "workers/Evaluation/formEval";
-import type { Action } from "entities/Action";
+
 import type { SelectOptionProps } from "@appsmith/ads";
 import { Icon, Option, Select } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const DropdownSelect = styled.div<{
   width: string;

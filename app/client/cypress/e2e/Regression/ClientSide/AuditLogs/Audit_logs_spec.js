@@ -1,9 +1,9 @@
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import {
-  agHelper,
-  adminSettings as adminSettingsHelper,
-} from "../../../../support/Objects/ObjectsCore";
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import adminsSettings from "../../../../locators/AdminsSettings";
+import {
+  adminSettings as adminSettingsHelper,
+  agHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 const Header = {
   Heading: "[data-testid='t--header-heading-container']",

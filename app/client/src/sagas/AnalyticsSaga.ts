@@ -1,39 +1,37 @@
-import {
-  ReduxActionTypes,
-  type ReduxActionType,
-} from "ee/constants/ReduxActionConstants";
-import type { Action } from "entities/Action";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  RequestPayloadAnalyticsPath,
-  cleanValuesInObjectForHashing,
-  generateHashFromString,
-} from "./helper";
-import get from "lodash/get";
-import log from "loglevel";
-import { all, put, select, takeEvery } from "redux-saga/effects";
-import { getIdeCanvasSideBySideHoverState } from "selectors/ideSelectors";
-
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import type { routeChanged } from "actions/focusHistoryActions";
 import {
   recordAnalyticsForSideBySideNavigation,
   recordAnalyticsForSideBySideWidgetHover,
   resetAnalyticsForSideBySideHover,
 } from "actions/ideActions";
-
-import type { routeChanged } from "actions/focusHistoryActions";
-import { NavigationMethod } from "utils/history";
-import { getIDEViewMode } from "selectors/ideSelectors";
-
+import type { focusWidget } from "actions/widgetActions";
 import {
   JS_COLLECTION_EDITOR_PATH,
   QUERIES_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_BASE_PATH,
 } from "constants/routes";
-import type { focusWidget } from "actions/widgetActions";
+import {
+  type ReduxActionType,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Action } from "entities/Action";
+import get from "lodash/get";
+import log from "loglevel";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { getCurrentEntityInfo, isInSideBySideEditor } from "pages/Editor/utils";
+import { all, put, select, takeEvery } from "redux-saga/effects";
+import { getIdeCanvasSideBySideHoverState } from "selectors/ideSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { NavigationMethod } from "utils/history";
+
+import {
+  RequestPayloadAnalyticsPath,
+  cleanValuesInObjectForHashing,
+  generateHashFromString,
+} from "./helper";
 
 export function* sendAnalyticsEventSaga(
   type: ReduxActionType,

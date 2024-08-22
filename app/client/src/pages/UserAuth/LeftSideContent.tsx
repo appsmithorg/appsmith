@@ -1,7 +1,9 @@
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 import React from "react";
-import styled from "styled-components";
+
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import styled from "styled-components";
+
 import { Avatar } from "@appsmith/ads";
 
 const Wrapper = styled.div`

@@ -1,21 +1,24 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { APP_NAVIGATION_SETTING, createMessage } from "ee/constants/messages";
+
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { updateApplication } from "ee/actions/applicationActions";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
+import { APP_NAVIGATION_SETTING, createMessage } from "ee/constants/messages";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import equal from "fast-deep-equal";
 import _, { debounce, isEmpty, isPlainObject } from "lodash";
+import LogoInput from "pages/Editor/NavigationSettings/LogoInput";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
+import { Spinner } from "@appsmith/ads";
+
 import ButtonGroupSetting from "./ButtonGroupSetting";
 import ColorStyleIcon from "./ColorStyleIcon";
 import SwitchSetting from "./SwitchSetting";
-import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
-import equal from "fast-deep-equal";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplication } from "ee/actions/applicationActions";
-import { Spinner } from "@appsmith/ads";
-import LogoInput from "pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 export type UpdateSetting = (
   key: keyof NavigationSetting,

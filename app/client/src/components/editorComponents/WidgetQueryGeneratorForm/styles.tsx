@@ -1,5 +1,7 @@
-import { Button } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
+
 import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 
 export const Wrapper = styled.div``;

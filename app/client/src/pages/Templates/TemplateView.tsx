@@ -1,30 +1,32 @@
 import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
+
 import { Classes } from "@blueprintjs/core";
-import { useParams } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import {
+  getSimilarTemplatesInit,
+  getTemplateInformation,
+} from "actions/templateActions";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
+import { Colors } from "constants/Colors";
+import { TEMPLATES_PATH } from "constants/routes";
+import { templateIdUrl } from "ee/RouteBuilder";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
 import {
   getActiveTemplateSelector,
   getForkableWorkspaces,
   isFetchingTemplateSelector,
 } from "selectors/templatesSelectors";
-import {
-  getSimilarTemplatesInit,
-  getTemplateInformation,
-} from "actions/templateActions";
-import type { AppState } from "ee/reducers";
-import history from "utils/history";
-import { TEMPLATES_PATH } from "constants/routes";
-import { Colors } from "constants/Colors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import TemplateDescription from "./Template/TemplateDescription";
-import SimilarTemplates from "./Template/SimilarTemplates";
-import { templateIdUrl } from "ee/RouteBuilder";
-import TemplateViewHeader from "./TemplateViewHeader";
+import styled from "styled-components";
 import { registerEditorWidgets } from "utils/editor/EditorUtils";
+import history from "utils/history";
+
+import SimilarTemplates from "./Template/SimilarTemplates";
+import TemplateDescription from "./Template/TemplateDescription";
+import TemplateViewHeader from "./TemplateViewHeader";
 
 const Wrapper = styled.div`
   overflow: auto;

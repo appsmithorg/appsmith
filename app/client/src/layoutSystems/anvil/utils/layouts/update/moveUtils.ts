@@ -1,13 +1,14 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
+
 import type {
   AnvilHighlightInfo,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { deleteWidgetFromPreset } from "./deletionUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
 import { addWidgetsToPreset } from "./additionUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { deleteWidgetFromPreset } from "./deletionUtils";
 
 /**
  * Update widgets relationship upon movement.

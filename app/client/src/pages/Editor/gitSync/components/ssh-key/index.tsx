@@ -1,12 +1,28 @@
+import React, { useCallback, useState } from "react";
+
+import type { SSHKeyType } from "actions/gitSyncActions";
 import {
-  createMessage,
   SSH_KEY,
   SSH_KEY_GENERATED,
+  createMessage,
 } from "ee/constants/messages";
-import React, { useCallback, useState } from "react";
-import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Space } from "pages/Editor/gitSync/components/StyledComponents";
+
+import {
+  Button,
+  Icon,
+  Menu,
+  MenuContent,
+  MenuGroupName,
+  MenuItem,
+  MenuTrigger,
+  Text,
+  toast,
+} from "@appsmith/ads";
+
 import { useSSHKeyPair } from "../../hooks";
+import { CopySSHKey } from "./CopySSHKey";
 import {
   DeployedKeyContainer,
   FlexRow,
@@ -14,22 +30,9 @@ import {
   KeyType,
   MoreMenuWrapper,
 } from "./StyledComponents";
-import { CopySSHKey } from "./CopySSHKey";
 import { supportedKeyTypeList } from "./SupportedKeyTypeList";
-import getNotificationBanner from "./getNotificationBanner";
 import { getConfirmMenuItem } from "./getConfirmMenuItem";
-import type { SSHKeyType } from "actions/gitSyncActions";
-import {
-  Button,
-  toast,
-  Menu,
-  MenuTrigger,
-  MenuItem,
-  MenuContent,
-  Text,
-  Icon,
-  MenuGroupName,
-} from "@appsmith/ads";
+import getNotificationBanner from "./getNotificationBanner";
 
 interface KeysProps {
   copyToClipboard: () => void;

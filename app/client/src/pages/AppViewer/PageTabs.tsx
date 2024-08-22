@@ -1,24 +1,27 @@
-import React, { useRef, useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import styled from "styled-components";
-import { get } from "lodash";
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
-import { isEllipsisActive, trimQueryString } from "utils/helpers";
-import { getTypographyByKey, TooltipComponent } from "@appsmith/ads-old";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { useSelector } from "react-redux";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { useHref } from "pages/Editor/utils";
-import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import {
-  getMenuItemBackgroundColorWhenActive,
-  getMenuItemBackgroundColorOnHover,
-  getMenuItemTextColor,
-} from "./utils";
+import React, { useEffect, useRef, useState } from "react";
+
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
+import { get } from "lodash";
+import { useHref } from "pages/Editor/utils";
+import { useSelector } from "react-redux";
+import { NavLink, useLocation } from "react-router-dom";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import styled from "styled-components";
+import { isEllipsisActive, trimQueryString } from "utils/helpers";
+
+import { TooltipComponent, getTypographyByKey } from "@appsmith/ads-old";
+
+import {
+  getMenuItemBackgroundColorOnHover,
+  getMenuItemBackgroundColorWhenActive,
+  getMenuItemTextColor,
+} from "./utils";
 
 const PageTab = styled(NavLink)<{
   primaryColor: string;

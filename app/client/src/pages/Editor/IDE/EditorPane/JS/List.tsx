@@ -1,28 +1,30 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { Flex, Text } from "@appsmith/ads";
-import styled from "styled-components";
 
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
+import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
+import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
 import { selectJSSegmentEditorList } from "ee/selectors/appIDESelectors";
-import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import { useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
+import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
-import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
-import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
-import { BlankState } from "./BlankState";
+
+import { Flex, Text } from "@appsmith/ads";
+
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
-import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
-import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { fuzzySearchInObjectItems } from "../utils";
+import { BlankState } from "./BlankState";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {

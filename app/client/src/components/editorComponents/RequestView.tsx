@@ -1,8 +1,9 @@
+import React, { useState } from "react";
+
 import type { ITreeNode } from "@blueprintjs/core";
 import { Classes, Tree } from "@blueprintjs/core";
-import React, { useState } from "react";
-import styled from "styled-components";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
+import styled from "styled-components";
 
 const StyledKey = styled.span`
   font-family: ${(props) => props.theme.fonts.text};

@@ -1,10 +1,12 @@
 import React from "react";
-import styles from "./styles.module.css";
+
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+
 import Collapsible from "./collapsible";
+import Events from "./events";
 import Help from "./help";
 import LiveModel from "./liveModel";
-import Events from "./events";
-import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import styles from "./styles.module.css";
 
 export default function References() {
   return (

@@ -1,4 +1,5 @@
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+
 import { getMovementMap } from "./reflowHelpers";
 import type {
   BlockSpace,
@@ -15,22 +16,22 @@ import type {
 } from "./reflowTypes";
 import { ReflowDirection } from "./reflowTypes";
 import {
+  buildArrayToCollisionMap,
   changeExitContainerDirection,
   filterCommonSpaces,
-  buildArrayToCollisionMap,
   getAccessor,
+  getCalculatedDirection,
   getCollidingSpaceMap,
   getDelta,
   getMaxSpaceAttributes,
   getModifiedOccupiedSpacesMap,
+  getOrientationAccessor,
   getOrientationAccessors,
   getShouldReflow,
-  getSpacesMapFromArray,
-  getSortedOccupiedSpaces,
-  getSortedNewPositions,
   getSortedCollidingSpaces,
-  getCalculatedDirection,
-  getOrientationAccessor,
+  getSortedNewPositions,
+  getSortedOccupiedSpaces,
+  getSpacesMapFromArray,
   initializeMovementLimitMap,
   verifyMovementLimits,
 } from "./reflowUtils";

@@ -1,4 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const themelocators = require("../../../../../locators/ThemeLocators.json");
 
 const widgetName = "currencyinputwidget";

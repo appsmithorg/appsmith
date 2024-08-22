@@ -1,7 +1,10 @@
-import styled from "styled-components";
 import React from "react";
-import type { HeaderProps } from "./types";
+
+import styled from "styled-components";
+
 import { Text } from "@appsmith/ads";
+
+import type { HeaderProps } from "./types";
 
 export const HeaderContainer = styled.div`
   padding: 32px 32px 20px;

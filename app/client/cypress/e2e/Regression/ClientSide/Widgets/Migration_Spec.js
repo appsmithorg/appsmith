@@ -1,16 +1,15 @@
 /// <reference types="Cypress" />
-
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
-
-const widgetsPage = require("../../../../locators/Widgets.json");
 import homePage from "../../../../locators/HomePage";
 import {
   agHelper,
   homePage as homePageHelpers,
   table,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {

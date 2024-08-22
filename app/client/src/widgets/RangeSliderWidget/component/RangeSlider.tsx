@@ -1,22 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import throttle from "lodash/throttle";
 
-import LabelWithTooltip from "widgets/components/LabelWithTooltip";
-import type { LabelPosition } from "components/constants";
 import type { Alignment } from "@blueprintjs/core";
+import type { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
+import throttle from "lodash/throttle";
+import { SliderContainer } from "widgets/NumberSliderWidget/component/Container";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+
+import { SliderRoot } from "../../NumberSliderWidget/component/SilderRoot";
+import { Thumb } from "../../NumberSliderWidget/component/Thumb";
+import { Track } from "../../NumberSliderWidget/component/Track";
 import { useMove } from "../../NumberSliderWidget/use-move";
 import type { SliderSizes } from "../../NumberSliderWidget/utils";
 import {
+  getChangeValue,
   getClientPosition,
   getPosition,
-  getChangeValue,
   getSliderStyles,
 } from "../../NumberSliderWidget/utils";
-import { Thumb } from "../../NumberSliderWidget/component/Thumb";
-import { Track } from "../../NumberSliderWidget/component/Track";
-import { SliderRoot } from "../../NumberSliderWidget/component/SilderRoot";
-import { SliderContainer } from "widgets/NumberSliderWidget/component/Container";
 
 type Value = [number, number];
 

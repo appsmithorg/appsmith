@@ -1,5 +1,5 @@
-import { FIELD_GROUP_CONFIG } from "./FieldGroupConfig";
 import { AppsmithFunction, FieldType } from "../constants";
+import { FIELD_GROUP_CONFIG } from "./FieldGroupConfig";
 
 describe("Test Field Group Config", () => {
   const cases = [

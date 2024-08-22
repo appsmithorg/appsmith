@@ -1,9 +1,9 @@
-import { createReducer } from "utils/ReducerUtils";
 import {
   type ReduxAction,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { ReflowedSpaceMap } from "reflow/reflowTypes";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: widgetReflow = {
   isReflowing: false,

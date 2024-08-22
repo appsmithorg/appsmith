@@ -1,19 +1,20 @@
+import React from "react";
+import type { CSSProperties, ReactNode } from "react";
+
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { Colors } from "constants/Colors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
-import React from "react";
-import type { CSSProperties, ReactNode } from "react";
+import type {
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import memoize from "micro-memoize";
 import { animated } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import type { GridProps, ReflowDirection } from "reflow/reflowTypes";
 import type { StyledComponent } from "styled-components";
 import styled from "styled-components";
-import type {
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
-import memoize from "micro-memoize";
 
 const resizeBorderPadding = 1;
 const resizeBorder = 1;

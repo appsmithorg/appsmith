@@ -1,12 +1,12 @@
-import { createReducer } from "utils/ReducerUtils";
+import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { createReducer } from "utils/ReducerUtils";
 
 export const initialState: ApiPaneReduxState = {
   isCreating: false,

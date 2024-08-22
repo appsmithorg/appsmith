@@ -1,13 +1,14 @@
 import React from "react";
-import { noop } from "lodash";
 import { useRef, useState } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
 
 import {
-  GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
+  GOOGLE_RECAPTCHA_KEY_ERROR,
   createMessage,
 } from "ee/constants/messages";
+import { noop } from "lodash";
+import ReCAPTCHA from "react-google-recaptcha";
+
 import type { RecaptchaProps } from "./useRecaptcha";
 
 export type RecaptchaV2Props = RecaptchaProps;

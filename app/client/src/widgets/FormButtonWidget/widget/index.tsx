@@ -1,3 +1,5 @@
+import React from "react";
+
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type {
@@ -22,13 +24,13 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
-import React from "react";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import ButtonWidget from "widgets/ButtonWidget";
 import type { ButtonType } from "widgets/ButtonWidget/component";
 import ButtonComponent from "widgets/ButtonWidget/component";
 import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import IconSVG from "../icon.svg";
 
 class FormButtonWidget extends ButtonWidget {

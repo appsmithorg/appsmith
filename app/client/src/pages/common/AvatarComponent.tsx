@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Avatar } from "@appsmith/ads";
 
 export interface AvatarProps {

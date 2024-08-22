@@ -1,15 +1,15 @@
 import { Mutex } from "async-mutex";
+import {
+  BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_CUSTOM_PATH,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
+} from "ee/constants/routes/appRoutes";
 import { APP_MODE } from "entities/App";
 import type { Match, TokensToRegexpOptions } from "path-to-regexp";
 import { match } from "path-to-regexp";
-import {
-  BUILDER_PATH,
-  BUILDER_CUSTOM_PATH,
-  VIEWER_PATH,
-  VIEWER_CUSTOM_PATH,
-  BUILDER_PATH_DEPRECATED,
-  VIEWER_PATH_DEPRECATED,
-} from "ee/constants/routes/appRoutes";
 
 interface TMatchResult {
   basePageId?: string;

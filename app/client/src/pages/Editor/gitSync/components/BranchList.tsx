@@ -1,7 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey } from "@appsmith/ads-old";
-import styled, { useTheme } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 
 import {
   createNewBranchInit,
@@ -9,47 +6,49 @@ import {
   fetchGitProtectedBranchesInit,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
-import {
-  getCurrentGitBranch,
-  getDefaultGitBranchName,
-  getFetchingBranches,
-  getGitBranches,
-  getGitBranchNames,
-  getIsGetProtectedBranchesLoading,
-  getProtectedBranchesSelector,
-} from "selectors/gitSyncSelectors";
-
 import Skeleton from "components/utils/Skeleton";
-
-import scrollIntoView from "scroll-into-view-if-needed";
-
-import BranchListHotkeys from "./BranchListHotkeys";
+import type { Theme } from "constants/DefaultTheme";
 import {
-  createMessage,
   FIND_OR_CREATE_A_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
+  createMessage,
 } from "ee/constants/messages";
-import {
-  Icon,
-  Spinner,
-  Tooltip,
-  Button,
-  SearchInput,
-  Text,
-} from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { get } from "lodash";
 import {
   isLocalBranch,
   isRemoteBranch,
   removeSpecialChars,
 } from "pages/Editor/gitSync/utils";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import scrollIntoView from "scroll-into-view-if-needed";
+import {
+  getCurrentGitBranch,
+  getDefaultGitBranchName,
+  getFetchingBranches,
+  getGitBranchNames,
+  getGitBranches,
+  getIsGetProtectedBranchesLoading,
+  getProtectedBranchesSelector,
+} from "selectors/gitSyncSelectors";
+import styled, { useTheme } from "styled-components";
+
+import {
+  Button,
+  Icon,
+  SearchInput,
+  Spinner,
+  Text,
+  Tooltip,
+} from "@appsmith/ads";
+import { getTypographyByKey } from "@appsmith/ads-old";
+
 import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
+import BranchListHotkeys from "./BranchListHotkeys";
 import { BranchListItemContainer } from "./BranchListItemContainer";
-import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
-import type { Theme } from "constants/DefaultTheme";
+import { RemoteBranchList } from "./RemoteBranchList";
 import { Space } from "./StyledComponents";
 
 const ListContainer = styled.div`

@@ -1,9 +1,9 @@
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
 const shortName = "shortName";

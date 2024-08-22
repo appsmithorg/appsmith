@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
+
+import clsx from "classnames";
 import { useOverlayScrollbars } from "overlayscrollbars-react";
 import type { UseOverlayScrollbarsParams } from "overlayscrollbars-react";
-import clsx from "classnames";
-
 import "overlayscrollbars/overlayscrollbars.css";
-import "./styles.css";
 
 import type { ScrollAreaProps } from "./ScrollArea.types";
+import "./styles.css";
 
 function ScrollArea(props: ScrollAreaProps) {
   const ref = useRef<HTMLDivElement>(null);

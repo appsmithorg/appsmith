@@ -1,3 +1,8 @@
+import React, { useMemo } from "react";
+
+import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import styled from "styled-components";
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -5,10 +10,8 @@ import {
   Icon,
   Text,
 } from "@appsmith/ads";
-import React, { useMemo } from "react";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+
 import { ExpandableChange, ExpandableChangeKind } from "./ExpandableChange";
-import styled from "styled-components";
 
 const TitleText = styled(Text)`
   font-weight: 500;

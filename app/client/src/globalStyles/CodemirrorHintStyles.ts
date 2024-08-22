@@ -1,10 +1,10 @@
-import { createGlobalStyle } from "styled-components";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { Theme } from "constants/DefaultTheme";
 import {
   CodeEditorColors,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "components/editorComponents/CodeEditor/constants";
+import type { Theme } from "constants/DefaultTheme";
+import { createGlobalStyle } from "styled-components";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;

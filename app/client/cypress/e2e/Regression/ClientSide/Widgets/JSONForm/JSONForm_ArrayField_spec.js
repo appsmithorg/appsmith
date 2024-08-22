@@ -1,3 +1,10 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -8,13 +15,6 @@ const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;
 const addButton = ".t--jsonformfield-array-add-btn";
 const deleteButton = ".t--jsonformfield-array-delete-btn";
-import {
-  agHelper,
-  deployMode,
-  entityExplorer,
-  propPane,
-  locators,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "JSON Form Widget Array Field",

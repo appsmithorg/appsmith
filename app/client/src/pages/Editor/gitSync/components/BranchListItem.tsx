@@ -1,15 +1,18 @@
 import React, { useEffect } from "react";
-import scrollIntoView from "scroll-into-view-if-needed";
-import { BranchListItemContainer } from "./BranchListItemContainer";
-import DefaultTag from "./DefaultTag";
-import { useHover } from "../hooks";
-import BranchMoreMenu from "./BranchMoreMenu";
-import { Tooltip, Text, Spinner } from "@appsmith/ads";
-import { isEllipsisActive } from "utils/helpers";
+
 import { useSelector } from "react-redux";
+import scrollIntoView from "scroll-into-view-if-needed";
 import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+import { isEllipsisActive } from "utils/helpers";
+
+import { Spinner, Text, Tooltip } from "@appsmith/ads";
 import { importRemixIcon } from "@appsmith/ads-old";
+
+import { useHover } from "../hooks";
+import { BranchListItemContainer } from "./BranchListItemContainer";
+import BranchMoreMenu from "./BranchMoreMenu";
+import DefaultTag from "./DefaultTag";
 
 const ProtectedIcon = importRemixIcon(
   async () => import("remixicon-react/ShieldKeyholeLineIcon"),

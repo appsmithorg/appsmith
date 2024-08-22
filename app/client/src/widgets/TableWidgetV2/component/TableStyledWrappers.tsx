@@ -1,32 +1,33 @@
-import styled, { css } from "styled-components";
-import type {
-  TableSizes,
-  CellLayoutProperties,
-  CellAlignment,
-  VerticalAlignment,
-  ImageSize,
-} from "./Constants";
-import {
-  JUSTIFY_CONTENT,
-  ALIGN_ITEMS,
-  IMAGE_HORIZONTAL_ALIGN,
-  IMAGE_VERTICAL_ALIGN,
-  TEXT_ALIGN,
-  TABLE_SIZES,
-  ImageSizes,
-  MULTISELECT_CHECKBOX_WIDTH,
-  TABLE_SCROLLBAR_HEIGHT,
-  TABLE_SCROLLBAR_WIDTH,
-} from "./Constants";
+import { Classes } from "@blueprintjs/core";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
-import { lightenColor, darkenColor } from "widgets/WidgetUtils";
+import { Layers } from "constants/Layers";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
+import styled, { css } from "styled-components";
+import { darkenColor, lightenColor } from "widgets/WidgetUtils";
+
 import type { TableVariant } from "../constants";
 import { TableVariantTypes } from "../constants";
-import { Layers } from "constants/Layers";
+import type {
+  CellAlignment,
+  CellLayoutProperties,
+  ImageSize,
+  TableSizes,
+  VerticalAlignment,
+} from "./Constants";
+import {
+  ALIGN_ITEMS,
+  IMAGE_HORIZONTAL_ALIGN,
+  IMAGE_VERTICAL_ALIGN,
+  ImageSizes,
+  JUSTIFY_CONTENT,
+  MULTISELECT_CHECKBOX_WIDTH,
+  TABLE_SCROLLBAR_HEIGHT,
+  TABLE_SCROLLBAR_WIDTH,
+  TABLE_SIZES,
+  TEXT_ALIGN,
+} from "./Constants";
 
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";

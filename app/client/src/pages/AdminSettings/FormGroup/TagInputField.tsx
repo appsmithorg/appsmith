@@ -1,10 +1,13 @@
 import React from "react";
-import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
-import { Field } from "redux-form";
-import { TagInput } from "@appsmith/ads-old";
-import { FormGroup } from "./Common";
+
 import type { Intent } from "constants/DefaultTheme";
 import type { Setting } from "ee/pages/AdminSettings/config/types";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
+
+import { TagInput } from "@appsmith/ads-old";
+
+import { FormGroup } from "./Common";
 
 const renderComponent = (
   componentProps: TagListFieldProps & {

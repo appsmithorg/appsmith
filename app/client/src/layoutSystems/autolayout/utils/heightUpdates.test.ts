@@ -1,10 +1,10 @@
-import { updateWidgetPositions } from "./positionUtils";
-import * as utils from "./flexWidgetUtils";
 import {
   MAIN_CONTAINER_WIDGET_WITH_BUTTON,
   buttonData,
 } from "./data/heightTestData";
 import { EMPTY_TABS_DATA, TABS_DATA } from "./data/tabsData";
+import * as utils from "./flexWidgetUtils";
+import { updateWidgetPositions } from "./positionUtils";
 
 describe("auto-layout: heightUpdates", () => {
   beforeEach(() => {

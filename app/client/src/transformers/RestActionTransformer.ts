@@ -1,11 +1,11 @@
 import {
-  HTTP_METHOD,
   CONTENT_TYPE_HEADER_KEY,
+  HTTP_METHOD,
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import type { ApiAction } from "entities/Action";
+import cloneDeep from "lodash/cloneDeep";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
-import cloneDeep from "lodash/cloneDeep";
 import {
   getDynamicStringSegments,
   isDynamicValue,

@@ -1,4 +1,5 @@
-import type { IconSizes, IconNames } from "@appsmith/ads";
+import type { IconNames, IconSizes } from "@appsmith/ads";
+
 import type { SubTextPosition } from "../types/common";
 
 export type DropdownOnSelect = (

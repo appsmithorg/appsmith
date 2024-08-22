@@ -1,6 +1,8 @@
+import React from "react";
+
 import type { CSSProperties } from "styled-components";
 import styled from "styled-components";
-import React from "react";
+
 import { importSvg } from "@appsmith/ads-old";
 
 const CheckmarkSvg = importSvg(async () => import("assets/svg/checkmark.svg"));

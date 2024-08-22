@@ -1,12 +1,15 @@
 import React from "react";
+
 import {
-  createMessage,
   GSHEET_DATA_LOADING,
   GSHEET_SHEET_LOADING,
   GSHEET_SPREADSHEET_LOADING,
   LOADING_SCHEMA,
+  createMessage,
 } from "ee/constants/messages";
+
 import { Spinner, Text } from "@appsmith/ads";
+
 import { MessageWrapper } from "./SchemaViewModeCSS";
 
 type LoadingItemType = "SPREADSHEET" | "SHEET" | "DATA" | "SCHEMA";

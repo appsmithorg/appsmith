@@ -1,10 +1,3 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-  WidgetReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
 import {
   BlueprintOperationTypes,
@@ -18,7 +11,13 @@ import {
   BUILDING_BLOCK_EXPLORER_TYPE,
   RenderModes,
 } from "constants/WidgetConstants";
-import { toast } from "@appsmith/ads";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
@@ -43,7 +42,11 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { generateReactKey } from "utils/generators";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import { toast } from "@appsmith/ads";
+
 import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintBeforeOperations,
@@ -52,7 +55,6 @@ import {
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
-import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

@@ -1,5 +1,6 @@
-import type { Branch } from "entities/GitSync";
 import { useEffect, useState } from "react";
+
+import type { Branch } from "entities/GitSync";
 
 /**
  * useFilteredBranches: returns list of branchName: string

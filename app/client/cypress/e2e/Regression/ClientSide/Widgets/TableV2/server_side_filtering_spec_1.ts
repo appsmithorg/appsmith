@@ -1,3 +1,5 @@
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   dataSources,
@@ -7,12 +9,10 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
-import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import { expandLoadMoreOptions } from "../../OneClickBinding/spec_utility";
 
 const ALERT_SUCCESS_MSG = "Table data filtered";
 

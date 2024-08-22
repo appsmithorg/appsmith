@@ -1,14 +1,15 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
+
 import clsx from "classnames";
 
-import type { NumberInputProps } from "./NumberInput.types";
-import { StyledNumberInput } from "./NumberInput.styles";
-import { NumberInputClassName } from "./NumberInput.constants";
-import { useDOMRef } from "../__hooks__/useDomRef";
 import {
   InputEndIconDisabledClassName,
   InputStartIconDisabledClassName,
 } from "../Input/Input.constants";
+import { useDOMRef } from "../__hooks__/useDomRef";
+import { NumberInputClassName } from "./NumberInput.constants";
+import { StyledNumberInput } from "./NumberInput.styles";
+import type { NumberInputProps } from "./NumberInput.types";
 
 /**
  * TODO: Number input should actually use input type number.

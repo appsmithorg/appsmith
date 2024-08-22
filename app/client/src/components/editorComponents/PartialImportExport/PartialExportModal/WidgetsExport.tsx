@@ -1,7 +1,10 @@
-import { Checkbox, Text } from "@appsmith/ads";
-import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import React from "react";
+
+import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+
+import { Checkbox, Text } from "@appsmith/ads";
+
 import {
   CheckBoxGrid,
   CheckboxContainer,

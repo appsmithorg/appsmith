@@ -1,6 +1,6 @@
-import express from "express";
 import HealthCheckController from "@controllers/healthCheck/HealthCheckController";
 import { Validator } from "@middlewares/Validator";
+import express from "express";
 
 const router = express.Router();
 const healthCheckController = new HealthCheckController();

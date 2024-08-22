@@ -1,12 +1,15 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "react-aria-components";
+
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
   PopoverModalContent,
+  PopoverTrigger,
 } from "@appsmith/wds-headless";
-import { Button } from "react-aria-components";
+
 import { ControlledPopover as ControlledPopoverExample } from "./ControlledPopover";
 
 /**

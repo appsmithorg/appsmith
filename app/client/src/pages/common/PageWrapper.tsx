@@ -1,15 +1,16 @@
 import type { ReactNode } from "react";
 import React, { useMemo } from "react";
-import { Helmet } from "react-helmet";
-import styled from "styled-components";
-import {
-  getPageTitle,
-  getHTMLPageTitle,
-} from "ee/utils/BusinessFeatures/brandingPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import {
+  getHTMLPageTitle,
+  getPageTitle,
+} from "ee/utils/BusinessFeatures/brandingPageHelpers";
+import { Helmet } from "react-helmet";
 import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export const Wrapper = styled.section<{ isFixed?: boolean }>`
   ${(props) =>

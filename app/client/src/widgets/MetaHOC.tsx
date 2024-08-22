@@ -1,17 +1,20 @@
 import React from "react";
-import type { WidgetProps } from "./BaseWidget";
-import { debounce, fromPairs, isEmpty } from "lodash";
+
+import WidgetFactory from "WidgetProvider/factory";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { AppState } from "ee/reducers";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { debounce, fromPairs, isEmpty } from "lodash";
+import { error } from "loglevel";
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
-import type { AppState } from "ee/reducers";
-import { error } from "loglevel";
-import WidgetFactory from "WidgetProvider/factory";
+import AppsmithConsole from "utils/AppsmithConsole";
+
+import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
+
 export type pushAction = (
   propertyName: string | batchUpdateWidgetMetaPropertyType,
   propertyValue?: unknown,

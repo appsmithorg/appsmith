@@ -1,11 +1,10 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
   const apiName = "Table1";

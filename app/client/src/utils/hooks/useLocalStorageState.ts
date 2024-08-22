@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+
 import { LocalStorage } from "utils/localStorage";
 
 const localStorage = new LocalStorage();

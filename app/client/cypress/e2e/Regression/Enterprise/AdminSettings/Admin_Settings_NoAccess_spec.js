@@ -1,10 +1,11 @@
-const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import adminsSettings from "../../../../locators/AdminsSettings";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import {
-  agHelper,
   adminSettings as adminSettingsHelper,
+  agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+
+const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 
 describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   beforeEach(() => {

@@ -1,3 +1,6 @@
+import type { ReactNode } from "react";
+import React from "react";
+
 import type {
   AnvilConfig,
   AutoLayoutConfig,
@@ -8,32 +11,31 @@ import type {
 } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import {
-  anvilConfig,
-  baseConfig,
-  defaultConfig,
-  propertyPaneContent,
-  propertyPaneStyle,
-  methodsConfig,
-  autocompleteConfig,
-} from "./config";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import BaseWidget from "widgets/BaseWidget";
-import type { ReactNode } from "react";
-import React from "react";
-import { ContainerComponent } from "widgets/anvil/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { Elevations, anvilWidgets } from "widgets/anvil/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
   PastePayload,
 } from "layoutSystems/anvil/utils/paste/types";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
-import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { ContainerComponent } from "widgets/anvil/Container";
+import { Elevations, anvilWidgets } from "widgets/anvil/constants";
+
+import {
+  anvilConfig,
+  autocompleteConfig,
+  baseConfig,
+  defaultConfig,
+  methodsConfig,
+  propertyPaneContent,
+  propertyPaneStyle,
+} from "./config";
 
 class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   static type = anvilWidgets.SECTION_WIDGET;

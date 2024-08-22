@@ -1,14 +1,14 @@
-import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   RecentEntity,
   SearchCategory,
 } from "components/editorComponents/GlobalSearch/utils";
 import {
-  filterCategories,
   SEARCH_CATEGORY_ID,
+  filterCategories,
 } from "components/editorComponents/GlobalSearch/utils";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: GlobalSearchReduxState = {
   query: "", // used to prefill when opened via contextual help links

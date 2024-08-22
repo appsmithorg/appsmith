@@ -1,22 +1,24 @@
 import React, { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
+import { Condition, IDESidebar } from "IDE";
 import { builderURL } from "ee/RouteBuilder";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import history, { NavigationMethod } from "utils/history";
-import { useCurrentAppState } from "./hooks";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
-import { IDESidebar, Condition } from "IDE";
+import {
+  EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
+  createMessage,
+} from "ee/constants/messages";
 import {
   BottomButtons,
   EditorState,
   TopButtons,
 } from "ee/entities/IDE/constants";
 import { getDatasources } from "ee/selectors/entitiesSelector";
-import {
-  createMessage,
-  EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
-} from "ee/constants/messages";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import history, { NavigationMethod } from "utils/history";
+
+import { useCurrentAppState } from "./hooks";
 
 function Sidebar() {
   const dispatch = useDispatch();

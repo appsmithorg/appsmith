@@ -1,15 +1,17 @@
 import React from "react";
-import { render } from "@testing-library/react";
-import configureStore from "redux-mock-store";
-import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
-import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
-import { lightTheme } from "selectors/themeSelectors";
-import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+
 import "@testing-library/jest-dom/extend-expect";
-import QueryDebuggerTabs from "./QueryDebuggerTabs";
+import { render } from "@testing-library/react";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
+import { Provider } from "react-redux";
+import { BrowserRouter as Router } from "react-router-dom";
+import configureStore from "redux-mock-store";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+
+import QueryDebuggerTabs from "./QueryDebuggerTabs";
 
 const mockStore = configureStore([]);
 

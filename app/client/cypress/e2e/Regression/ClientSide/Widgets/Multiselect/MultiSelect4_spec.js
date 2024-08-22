@@ -1,9 +1,10 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import OneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 

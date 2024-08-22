@@ -1,29 +1,29 @@
 import type React from "react";
 import { useCallback, useMemo } from "react";
+
+import type { ThemeProp } from "WidgetProvider/constants";
+import { Colors } from "constants/Colors";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { APPLICATIONS_URL } from "constants/routes";
+import { getAppsmithConfigs } from "ee/configs";
+import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import {
+  PERMISSION_TYPE,
+  hasDeleteApplicationPermission,
+  isPermitted,
+} from "ee/utils/permissionHelpers";
+import type { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
-import type { noop } from "lodash";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
+import { toast } from "@appsmith/ads";
 
 import type { MenuItemData } from "./NavigationMenuItem";
 import { MenuTypes } from "./types";
-import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
-
-import {
-  hasDeleteApplicationPermission,
-  isPermitted,
-  PERMISSION_TYPE,
-} from "ee/utils/permissionHelpers";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { Colors } from "constants/Colors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "@appsmith/ads";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { getAppsmithConfigs } from "ee/configs";
-import { getCurrentUser } from "selectors/usersSelectors";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 

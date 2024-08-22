@@ -1,11 +1,13 @@
 import React, { memo } from "react";
+
+import { Tooltip } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
+import styled from "styled-components";
+import CheckboxComponent from "widgets/CheckboxWidget/component/index";
+
 import type { BaseCellComponentProps, CellAlignment } from "../Constants";
 import { ALIGN_ITEMS, JUSTIFY_CONTENT } from "../Constants";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
-import CheckboxComponent from "widgets/CheckboxWidget/component/index";
-import { LabelPosition } from "components/constants";
-import styled from "styled-components";
-import { Tooltip } from "@blueprintjs/core";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;

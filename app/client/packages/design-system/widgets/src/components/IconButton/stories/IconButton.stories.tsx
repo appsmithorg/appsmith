@@ -1,11 +1,13 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
 import {
+  BUTTON_VARIANTS,
+  COLORS,
   Flex,
   IconButton,
   SIZES,
-  BUTTON_VARIANTS,
-  COLORS,
   objectKeys,
 } from "@appsmith/wds";
 

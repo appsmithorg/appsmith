@@ -1,10 +1,11 @@
 import React from "react";
 
+import { Button, Tooltip } from "@appsmith/wds";
+import type { ButtonProps } from "@appsmith/wds";
+
 import { Container } from "./Container";
 import { useRecaptcha } from "./useRecaptcha";
 import type { UseRecaptchaProps } from "./useRecaptcha";
-import { Button, Tooltip } from "@appsmith/wds";
-import type { ButtonProps } from "@appsmith/wds";
 
 export interface ButtonComponentProps extends ButtonProps {
   text?: string;

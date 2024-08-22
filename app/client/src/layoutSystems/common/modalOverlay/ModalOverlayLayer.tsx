@@ -1,15 +1,17 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { Classes, Overlay } from "@blueprintjs/core";
 import React, { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import styled from "styled-components";
-import { Layers } from "constants/Layers";
+
+import { Classes, Overlay } from "@blueprintjs/core";
 import { theme } from "constants/DefaultTheme";
+import { Layers } from "constants/Layers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
+import styled from "styled-components";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
+
 const Container = styled.div<{
   width?: number;
   height?: number;

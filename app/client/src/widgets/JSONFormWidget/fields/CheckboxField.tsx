@@ -1,23 +1,24 @@
 import React, { useCallback, useContext, useMemo } from "react";
-import styled from "styled-components";
-import { useController } from "react-hook-form";
 
+import type { AlignWidget } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { useController } from "react-hook-form";
+import styled from "styled-components";
 import CheckboxComponent from "widgets/CheckboxWidget/component";
+
 import FormContext from "../FormContext";
 import Field from "../component/Field";
-import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import type { AlignWidget } from "WidgetProvider/constants";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Colors } from "constants/Colors";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import { LabelPosition } from "components/constants";
+import useEvents from "./useBlurAndFocusEvents";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 
 type CheckboxComponentProps = FieldComponentBaseProps &
   FieldEventProps & {

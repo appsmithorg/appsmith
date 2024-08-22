@@ -1,13 +1,13 @@
-import { noop } from "lodash";
-
 import {
-  GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
+  GOOGLE_RECAPTCHA_KEY_ERROR,
   createMessage,
 } from "ee/constants/messages";
+import { noop } from "lodash";
+import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
+
 import type { ButtonComponentProps } from ".";
 import type { RecaptchaProps } from "./useRecaptcha";
-import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 type RecaptchaV3Props = RecaptchaProps;
 

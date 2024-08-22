@@ -1,7 +1,7 @@
 import {
+  agHelper,
   propPane,
   table,
-  agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const totalRows = 100;

@@ -1,30 +1,32 @@
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { useCallback, useEffect, useRef } from "react";
+
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getMouseSpeedTrackingCallback,
-  getPropertyPaneZoneId,
-  computePropsForSpaceDistribution,
-  resetCSSOnZones,
-  resetDistributionHandleCSS,
-  getPropertyPaneDistributionHandleId,
-  convertFlexGrowToFlexBasis,
-  convertFlexGrowToFlexBasisForPropPane,
-} from "./utils/spaceDistributionEditorUtils";
-import { PropPaneDistributionHandleCustomEvent } from "./constants";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
+import {
+  startAnvilSpaceDistributionAction,
+  stopAnvilSpaceDistributionAction,
+  updateSpaceDistributionAction,
+} from "./actions";
+import { PropPaneDistributionHandleCustomEvent } from "./constants";
 import {
   type SpaceDistributionZoneDomCollection,
   updateWidgetCSSOnHandleMove,
   updateWidgetCSSOnMinimumLimit,
 } from "./utils/onMouseMoveUtils";
 import {
-  startAnvilSpaceDistributionAction,
-  stopAnvilSpaceDistributionAction,
-  updateSpaceDistributionAction,
-} from "./actions";
+  computePropsForSpaceDistribution,
+  convertFlexGrowToFlexBasis,
+  convertFlexGrowToFlexBasisForPropPane,
+  getMouseSpeedTrackingCallback,
+  getPropertyPaneDistributionHandleId,
+  getPropertyPaneZoneId,
+  resetCSSOnZones,
+  resetDistributionHandleCSS,
+} from "./utils/spaceDistributionEditorUtils";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;

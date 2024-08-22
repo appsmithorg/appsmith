@@ -1,8 +1,9 @@
+import { isJSObject, isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, set } from "lodash";
-import { isJSObject, isWidget } from "ee/workers/Evaluation/evaluationUtils";
-import type { DependencyMap } from "./DynamicBindingUtils";
+
 import WidgetFactory from "../WidgetProvider/factory";
+import type { DependencyMap } from "./DynamicBindingUtils";
 
 type GroupedDependencyMap = Record<string, DependencyMap>;
 

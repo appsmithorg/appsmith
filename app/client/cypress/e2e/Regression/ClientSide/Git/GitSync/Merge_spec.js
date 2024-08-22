@@ -1,5 +1,5 @@
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import commonLocators from "../../../../../locators/commonlocators.json";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;

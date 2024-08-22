@@ -1,9 +1,10 @@
 import React from "react";
-import styles from "./styles.module.css";
-import WidgetName from "./widgetName";
+
+import { CodeTemplates } from "./CodeTemplates";
 import LayoutControls from "./layoutControls";
 import ReferenceTrigger from "./referenceTrigger";
-import { CodeTemplates } from "./CodeTemplates";
+import styles from "./styles.module.css";
+import WidgetName from "./widgetName";
 
 export default function Header() {
   return (

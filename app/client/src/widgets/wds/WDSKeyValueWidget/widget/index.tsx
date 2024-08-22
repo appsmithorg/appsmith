@@ -1,5 +1,5 @@
-import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 import { KeyValueIcon, KeyValueThumbnail } from "appsmith-icons";
+import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 
 class WDSKeyValueWidget extends WDSInputWidget {
   static type = "WDS_KEY_VALUE_WIDGET";

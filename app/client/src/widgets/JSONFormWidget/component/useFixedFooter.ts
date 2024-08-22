@@ -1,5 +1,6 @@
-import { throttle } from "lodash";
 import { useLayoutEffect, useRef } from "react";
+
+import { throttle } from "lodash";
 
 interface UseFixedFooterProps {
   fixedFooter: boolean;

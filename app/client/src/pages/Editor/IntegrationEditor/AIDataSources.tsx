@@ -1,12 +1,13 @@
 import React from "react";
+
+import { createTempDatasourceFromForm } from "actions/datasourceActions";
+import type { Plugin } from "api/PluginApi";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { PluginType } from "entities/Action";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { createTempDatasourceFromForm } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
-import type { Plugin } from "api/PluginApi";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginType } from "entities/Action";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 export const StyledContainer = styled.div`
   flex: 1;

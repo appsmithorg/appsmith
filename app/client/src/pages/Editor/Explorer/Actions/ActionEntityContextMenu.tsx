@@ -1,38 +1,39 @@
+import React, { useCallback, useContext, useState } from "react";
+
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   copyActionRequest,
   deleteAction,
   moveActionRequest,
 } from "actions/pluginActionActions";
-import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { noop } from "lodash";
-import React, { useCallback, useContext, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
-import history from "utils/history";
+import { builderURL } from "ee/RouteBuilder";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
+  CONFIRM_CONTEXT_DELETE,
   CONTEXT_COPY,
   CONTEXT_DELETE,
-  CONFIRM_CONTEXT_DELETE,
-  CONTEXT_RENAME,
   CONTEXT_MOVE,
   CONTEXT_NO_PAGE,
+  CONTEXT_RENAME,
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "ee/constants/messages";
-import { builderURL } from "ee/RouteBuilder";
-
+import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
+import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
+import { PluginType } from "entities/Action";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { noop } from "lodash";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import { useDispatch, useSelector } from "react-redux";
+import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
+import history from "utils/history";
+
 import {
   ActionEntityContextMenuItemsEnum,
   FilesContext,
 } from "../Files/FilesContextProvider";
-import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
-import { PluginType } from "entities/Action";
-import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 
 interface EntityContextMenuProps {
   id: string;

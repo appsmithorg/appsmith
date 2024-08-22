@@ -1,5 +1,5 @@
-import { getSearchQuery } from "utils/helpers";
 import type { Location } from "history";
+import { getSearchQuery } from "utils/helpers";
 
 export const getIsBranchUpdated = (
   prevLocation: Location<unknown>,

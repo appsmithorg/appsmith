@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
-import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import styled, { ThemeContext } from "styled-components";
+
 import { Colors } from "constants/Colors";
+import styled, { ThemeContext } from "styled-components";
+import { getInitialsAndColorCode } from "utils/AppsmithUtils";
+
 import { Avatar } from "@appsmith/ads";
 
 export const Profile = styled.div<{ backgroundColor?: string; size?: number }>`

@@ -1,10 +1,12 @@
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import React, { useCallback, useMemo } from "react";
+
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import SelectComponent from "widgets/SelectWidget/component";
 import type { DropdownOption } from "widgets/SelectWidget/constants";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
+
 import type { BaseCellComponentProps } from "../Constants";
 import {
   EDITABLE_CELL_PADDING_OFFSET,

@@ -1,3 +1,9 @@
+import {
+  agHelper,
+  deployMode,
+  propPane,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -7,12 +13,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import {
-  agHelper,
-  propPane,
-  deployMode,
-  table,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget and Navigate to functionality validation",

@@ -1,4 +1,5 @@
 import os from "os";
+
 import util from "./util";
 
 export async function cypressHooks(

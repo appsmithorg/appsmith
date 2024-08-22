@@ -1,6 +1,7 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
-import { doesLayoutRenderWidgets } from "./typeUtils";
+
 import type { LayoutComponentProps } from "../anvilTypes";
+import { doesLayoutRenderWidgets } from "./typeUtils";
 
 describe("Layouts - typeUtils tests", () => {
   describe("doesLayoutRenderWidgets", () => {

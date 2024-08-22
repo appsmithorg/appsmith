@@ -1,8 +1,3 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
 import type {
   ClonePageSuccessPayload,
   DeletePageActionPayload,
@@ -12,10 +7,15 @@ import type {
   UpdatePageErrorPayload,
 } from "actions/pageActions";
 import type { UpdatePageResponse } from "api/PageApi";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { sortBy } from "lodash";
 import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
-import type { Page } from "entities/Page";
 
 const initialState: PageListReduxState = {
   pages: [],

@@ -1,10 +1,11 @@
-const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 import {
   agHelper,
   deployMode,
   draggableWidgets,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 Cypress.Commands.add("setSharedUrl", (url) => {
   Cypress.sharedStore = { url };

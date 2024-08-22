@@ -1,7 +1,8 @@
 import React from "react";
-import { TableBodyContext } from "./context";
+
 import { StaticTableBody } from "./StaticTableBody";
 import type { StaticTableProps } from "./StaticTableBody";
+import { TableBodyContext } from "./context";
 import type { TableBodyContextType } from "./context";
 
 export const TableBody = (

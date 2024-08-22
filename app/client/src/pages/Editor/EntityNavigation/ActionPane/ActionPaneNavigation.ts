@@ -1,19 +1,20 @@
-import type { Action } from "entities/Action";
-import type { EntityInfo } from "../types";
+import { setFocusableInputField } from "actions/editorContextActions";
+import type { Plugin } from "api/PluginApi";
 import {
   getAction,
   getPlugin,
   getSettingConfig,
 } from "ee/selectors/entitiesSelector";
-import { call, delay, put, select } from "redux-saga/effects";
-import PaneNavigation from "../PaneNavigation";
-import type { Plugin } from "api/PluginApi";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import type { Action } from "entities/Action";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import history from "utils/history";
-import { NAVIGATION_DELAY } from "../costants";
-import { setFocusableInputField } from "actions/editorContextActions";
+import { call, delay, put, select } from "redux-saga/effects";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import history from "utils/history";
+
+import PaneNavigation from "../PaneNavigation";
+import { NAVIGATION_DELAY } from "../costants";
+import type { EntityInfo } from "../types";
 
 export default class ActionPaneNavigation extends PaneNavigation {
   action!: Action;

@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
+
+import type { AriaRadioProps } from "@react-aria/radio";
 import type { RadioGroupProps as StatelyRadioGroupProps } from "@react-stately/radio";
 import type { Orientation } from "@react-types/shared";
-import type { AriaRadioProps } from "@react-aria/radio";
 
 export type RadioProps = {
   value: string;

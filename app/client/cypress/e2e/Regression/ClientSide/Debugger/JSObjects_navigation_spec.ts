@@ -1,9 +1,9 @@
 import {
-  jsEditor,
   agHelper,
-  entityExplorer,
   debuggerHelper,
+  entityExplorer,
   entityItems,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 

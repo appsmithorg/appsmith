@@ -1,14 +1,15 @@
 import React from "react";
-import styled from "styled-components";
-import tinycolor from "tinycolor2";
+
+import Button from "components/editorComponents/Button";
 import type { Intent } from "constants/DefaultTheme";
 import {
   BlueprintButtonIntentsCSS,
-  IntentIcons,
   IntentColors,
+  IntentIcons,
   getColorWithOpacity,
 } from "constants/DefaultTheme";
-import Button from "components/editorComponents/Button";
+import styled from "styled-components";
+import tinycolor from "tinycolor2";
 
 export interface MessageAction {
   url?: string;

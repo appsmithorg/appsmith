@@ -1,11 +1,13 @@
 import React from "react";
-import {
-  TYPOGRAPHY_VARIANTS,
-  TYPOGRAPHY_FONT_WEIGHTS,
-} from "@appsmith/wds-theming";
-import { Text, COLORS } from "@appsmith/wds";
+
 import { StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
+
+import { COLORS, Text } from "@appsmith/wds";
+import {
+  TYPOGRAPHY_FONT_WEIGHTS,
+  TYPOGRAPHY_VARIANTS,
+} from "@appsmith/wds-theming";
 
 const meta: Meta<typeof Text> = {
   component: Text,

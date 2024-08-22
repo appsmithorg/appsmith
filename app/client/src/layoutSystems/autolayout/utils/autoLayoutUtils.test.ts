@@ -1,8 +1,11 @@
-import type { AlignmentColumnData } from "../../autolayout/utils/types";
+import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+
+import type { AlignmentColumnData } from "../../autolayout/utils/types";
+import { FlexLayerAlignment } from "../../common/utils/constants";
 import {
   getAlignmentMarginInfo,
   getCanvasDimensions,
@@ -13,8 +16,6 @@ import {
   updateFlexLayersOnDelete,
 } from "./AutoLayoutUtils";
 import { data, dataForgetCanvasDimensions } from "./testData";
-import { FlexLayerAlignment } from "../../common/utils/constants";
-import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 import type { FlexLayer, LayerChild } from "./types";
 
 describe("test AutoLayoutUtils methods", () => {

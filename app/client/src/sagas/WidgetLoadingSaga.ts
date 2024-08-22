@@ -1,22 +1,22 @@
-import type { DependencyMap } from "utils/DynamicBindingUtils";
-import { call, fork, put, select, take } from "redux-saga/effects";
-import {
-  getEvaluationInverseDependencyMap,
-  getDataTree,
-} from "selectors/dataTreeSelectors";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { getActions } from "ee/selectors/entitiesSelector";
-import type {
-  ActionData,
-  ActionDataState,
-} from "ee/reducers/entityReducers/actionsReducer";
+import * as Sentry from "@sentry/react";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import type {
+  ActionData,
+  ActionDataState,
+} from "ee/reducers/entityReducers/actionsReducer";
+import { getActions } from "ee/selectors/entitiesSelector";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
+import { call, fork, put, select, take } from "redux-saga/effects";
+import {
+  getDataTree,
+  getEvaluationInverseDependencyMap,
+} from "selectors/dataTreeSelectors";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";
 
 const actionExecutionRequestActions = [

@@ -1,8 +1,8 @@
-import { createReducer } from "utils/ReducerUtils";
+import type { User } from "constants/userConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { User } from "constants/userConstants";
 import type { APP_MODE } from "entities/App";
+import { createReducer } from "utils/ReducerUtils";
 
 export interface AuthUserState {
   username: string;

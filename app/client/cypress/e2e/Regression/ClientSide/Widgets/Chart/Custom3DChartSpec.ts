@@ -3,6 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+
 const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");
 
 describe(

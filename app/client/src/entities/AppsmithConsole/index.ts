@@ -1,12 +1,13 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import type LOG_TYPE from "./logtype";
-import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import type { PluginType } from "entities/Action";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type {
   ENTITY_TYPE,
   PLATFORM_ERROR,
 } from "ee/entities/AppsmithConsole/utils";
+import type { PluginType } from "entities/Action";
+import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+
+import type LOG_TYPE from "./logtype";
 
 export type Methods =
   | "log"

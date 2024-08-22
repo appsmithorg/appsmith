@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from "react";
+
 import {
-  DemoImage,
-  ErrorCallout,
-  FieldContainer,
-  WellContainer,
-  WellText,
-  WellTitle,
-  WellTitleContainer,
-} from "./styles";
+  ADD_DEPLOY_KEY_STEP_TITLE,
+  CONSENT_ADDED_DEPLOY_KEY,
+  COPY_SSH_KEY,
+  ERROR_SSH_KEY_MISCONF_MESSAGE,
+  ERROR_SSH_KEY_MISCONF_TITLE,
+  HOW_TO_ADD_DEPLOY_KEY,
+  READ_DOCS,
+  createMessage,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import noop from "lodash/noop";
+import { useSelector } from "react-redux";
+import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
 import {
   Button,
   Checkbox,
@@ -21,25 +29,20 @@ import {
   Text,
   toast,
 } from "@appsmith/ads";
-import styled from "styled-components";
+
 import { CopyButton } from "../../components/CopyButton";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  ADD_DEPLOY_KEY_STEP_TITLE,
-  CONSENT_ADDED_DEPLOY_KEY,
-  COPY_SSH_KEY,
-  ERROR_SSH_KEY_MISCONF_MESSAGE,
-  ERROR_SSH_KEY_MISCONF_TITLE,
-  HOW_TO_ADD_DEPLOY_KEY,
-  READ_DOCS,
-  createMessage,
-} from "ee/constants/messages";
 import { useSSHKeyPair } from "../../hooks";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
-import noop from "lodash/noop";
-import { useSelector } from "react-redux";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
+import {
+  DemoImage,
+  ErrorCallout,
+  FieldContainer,
+  WellContainer,
+  WellText,
+  WellTitle,
+  WellTitleContainer,
+} from "./styles";
 
 export const DeployedKeyContainer = styled.div`
   height: 36px;

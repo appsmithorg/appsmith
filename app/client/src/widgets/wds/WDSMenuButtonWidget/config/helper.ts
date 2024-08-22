@@ -1,5 +1,6 @@
-import type { MenuButtonWidgetProps } from "../widget/types";
 import { isArray } from "lodash";
+
+import type { MenuButtonWidgetProps } from "../widget/types";
 
 export const updateMenuItemsSource = (
   props: MenuButtonWidgetProps,

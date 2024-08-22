@@ -3,13 +3,13 @@ import type { Property } from "entities/Action";
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import type {
   ApiDatasourceForm,
+  ApiKey,
   Authentication,
   AuthorizationCode,
+  Basic,
+  BearerToken,
   ClientCredentials,
   Oauth2Common,
-  Basic,
-  ApiKey,
-  BearerToken,
   SSL,
 } from "entities/Datasource/RestAPIForm";
 import { AuthType, GrantType, SSLType } from "entities/Datasource/RestAPIForm";

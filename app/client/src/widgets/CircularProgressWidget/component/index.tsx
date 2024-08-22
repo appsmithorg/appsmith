@@ -1,15 +1,16 @@
 import * as React from "react";
-import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
+import styled from "styled-components";
+
 import {
   MAX_VALUE,
   STROKE_WIDTH,
-  VIEWBOX_WIDTH,
-  VIEWBOX_HEIGHT,
-  VIEWBOX_HEIGHT_HALF,
   VIEWBOX_CENTER_X,
   VIEWBOX_CENTER_Y,
+  VIEWBOX_HEIGHT,
+  VIEWBOX_HEIGHT_HALF,
+  VIEWBOX_WIDTH,
 } from "../constants";
 
 export interface CircularProgressComponentProps {

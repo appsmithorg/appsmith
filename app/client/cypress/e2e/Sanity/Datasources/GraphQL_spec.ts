@@ -1,12 +1,12 @@
 import {
   agHelper,
-  entityItems,
   apiPage,
-  dataSources,
-  locators,
-  dataManager,
-  propPane,
   assertHelper,
+  dataManager,
+  dataSources,
+  entityItems,
+  locators,
+  propPane,
 } from "../../../support/Objects/ObjectsCore";
 
 let datasourceName = "GraphQL_DS";

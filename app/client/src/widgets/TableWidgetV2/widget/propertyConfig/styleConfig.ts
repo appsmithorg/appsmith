@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+
 import { updateColumnStyles } from "../propertyUtils";
 
 export default [

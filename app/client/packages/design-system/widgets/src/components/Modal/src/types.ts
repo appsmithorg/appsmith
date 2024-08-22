@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
+
 import type {
   PopoverModalContentProps,
   PopoverProps,
 } from "@appsmith/wds-headless";
-import type { ReactNode } from "react";
 
 export interface ModalProps
   extends Pick<

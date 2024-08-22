@@ -1,28 +1,29 @@
 import { setLintingErrors } from "actions/lintingActions";
+import { getAppsmithConfigs } from "ee/configs";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { APP_MODE } from "entities/App";
-import { call, put, select, takeEvery } from "redux-saga/effects";
-import { getAppMode } from "ee/selectors/entitiesSelector";
-import type { JSLibrary } from "workers/common/JSLibrary";
-import { logLatestLintPropertyErrors } from "./PostLintingSagas";
-import { getAppsmithConfigs } from "ee/configs";
 import type { AppState } from "ee/reducers";
-import type { LintError } from "utils/DynamicBindingUtils";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "entities/App";
 import { get, set, uniq } from "lodash";
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import log from "loglevel";
+import { Linter } from "plugins/Linting/Linter";
 import type {
   LintTreeRequestPayload,
   LintTreeResponse,
   LintTreeSagaRequestData,
 } from "plugins/Linting/types";
+import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
+import { call, put, select, takeEvery } from "redux-saga/effects";
 import type { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
-import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
-import { Linter } from "plugins/Linting/Linter";
-import log from "loglevel";
+import type { LintError } from "utils/DynamicBindingUtils";
+import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import type { JSLibrary } from "workers/common/JSLibrary";
+
+import { logLatestLintPropertyErrors } from "./PostLintingSagas";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 

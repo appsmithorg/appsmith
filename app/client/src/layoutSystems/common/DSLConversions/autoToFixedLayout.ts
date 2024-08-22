@@ -1,24 +1,24 @@
-import { nestDSL, flattenDSL } from "@shared/dsl";
+import { flattenDSL, nestDSL } from "@shared/dsl";
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   GridDefaults,
-  layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
+  layoutConfigurations,
 } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
-import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
 } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { Positioning } from "layoutSystems/common/utils/constants";
 import {
-  getTopRow,
   getBottomRow,
   getLeftColumn,
   getRightColumn,
+  getTopRow,
 } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { DSLWidget } from "WidgetProvider/constants";
+import { Positioning } from "layoutSystems/common/utils/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import { HORIZONTAL_RESIZE_MIN_LIMIT } from "reflow/reflowTypes";
 
 const deletedResponsiveProperties = [
   "mobileLeftColumn",

@@ -1,16 +1,17 @@
-import { filterInternalProperties } from "..";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import type {
   DataTreeEntityConfig,
   DataTreeEntityObject,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
-import InputWidget from "widgets/InputWidgetV2";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import {
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
+import InputWidget from "widgets/InputWidgetV2";
+
+import { filterInternalProperties } from "..";
 
 describe("filterInternalProperties tests", () => {
   beforeAll(() => {

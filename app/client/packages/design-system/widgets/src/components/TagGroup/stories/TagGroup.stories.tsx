@@ -1,6 +1,9 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
-import { TagGroup, Tag } from "@appsmith/wds";
+
+import { Tag, TagGroup } from "@appsmith/wds";
+
 import type { TagGroupProps } from "../src/TagGroup";
 
 /**

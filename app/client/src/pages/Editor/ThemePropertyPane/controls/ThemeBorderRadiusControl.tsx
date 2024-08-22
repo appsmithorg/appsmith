@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 
-import type { AppTheme } from "entities/AppTheming";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
+import type { AppTheme } from "entities/AppTheming";
+
 import {
   SegmentedControl,
   type SegmentedControlOption,

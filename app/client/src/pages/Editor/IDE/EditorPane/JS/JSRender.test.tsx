@@ -1,14 +1,15 @@
-import localStorage from "utils/localStorage";
-import { render } from "test/testUtils";
-import { Route } from "react-router-dom";
-import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
-import IDE from "pages/Editor/IDE/index";
 import React from "react";
-import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
-import { PageFactory } from "test/factories/PageFactory";
+import IDE from "pages/Editor/IDE/index";
+import { Route } from "react-router-dom";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { PageFactory } from "test/factories/PageFactory";
+import { render } from "test/testUtils";
+import localStorage from "utils/localStorage";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,

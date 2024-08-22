@@ -1,26 +1,27 @@
+import type { Plugin } from "api/PluginApi";
 import CodeMirror from "codemirror";
 import type {
   FieldEntityInformation,
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { generateQuickCommands } from "./generateQuickCommands";
-import type { Datasource } from "entities/Datasource";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import log from "loglevel";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   checkIfCursorInsideBinding,
   shouldShowSlashCommandMenu,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import type { SlashCommandPayload } from "entities/Action";
+import { getAIContext } from "ee/components/editorComponents/GPT/trigger";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { SlashCommandPayload } from "entities/Action";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { Datasource } from "entities/Datasource";
+import log from "loglevel";
 import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
-import { getAIContext } from "ee/components/editorComponents/GPT/trigger";
-import type { Plugin } from "api/PluginApi";
+import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
+
+import { generateQuickCommands } from "./generateQuickCommands";
 
 export const getShowHintOptions = (
   list: CommandsCompletion[],

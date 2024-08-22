@@ -4,11 +4,12 @@ import {
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
 import { getAccessor } from "reflow/reflowUtils";
+
 import {
   getCollisionTree,
-  getMovementMap,
-  getModifiedArgumentsForCollisionTree,
   getHorizontalSpaceMovement,
+  getModifiedArgumentsForCollisionTree,
+  getMovementMap,
   getVerticalSpaceMovement,
 } from "../reflowHelpers";
 

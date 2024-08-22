@@ -1,15 +1,14 @@
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import {
   agHelper,
-  entityExplorer,
-  entityItems,
-  jsEditor,
-  gitSync,
   dataSources,
   draggableWidgets,
+  entityExplorer,
+  entityItems,
+  gitSync,
+  jsEditor,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,

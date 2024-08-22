@@ -1,11 +1,13 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
+
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
-import { useAnvilDnDEventCallbacks } from "./useAnvilDnDEventCallbacks";
-import { removeDisallowDroppingsUI } from "../utils/utils";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
+
 import { DETACHED_WIDGET_MOUSE_MOVE_EVENT } from "../../hooks/useAnvilDetachedWidgetsDnD";
+import { removeDisallowDroppingsUI } from "../utils/utils";
+import { useAnvilDnDEventCallbacks } from "./useAnvilDnDEventCallbacks";
 
 /**
  * Hook to handle Anvil DnD events

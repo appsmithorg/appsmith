@@ -1,26 +1,29 @@
 import React, { useContext } from "react";
+
+import type { Plugin } from "api/PluginApi";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import { Button } from "@appsmith/ads";
-import { StyledFormRow } from "./EditorJSONtoForm";
-import styled from "styled-components";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  getHasExecuteActionPermission,
-  getHasManageActionPermission,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
-import { useSelector } from "react-redux";
+import type { AppState } from "ee/reducers";
 import {
   getActionByBaseId,
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
-import { QueryEditorContext } from "./QueryEditorContext";
-import type { Plugin } from "api/PluginApi";
+import {
+  getHasExecuteActionPermission,
+  getHasManageActionPermission,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { Datasource } from "entities/Datasource";
-import type { AppState } from "ee/reducers";
-import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button } from "@appsmith/ads";
+
 import DatasourceSelector from "./DatasourceSelector";
+import { StyledFormRow } from "./EditorJSONtoForm";
+import { QueryEditorContext } from "./QueryEditorContext";
 
 const NameWrapper = styled.div`
   display: flex;

@@ -1,11 +1,12 @@
-import type { AppState } from "ee/reducers";
+import { useEffect, useRef } from "react";
+
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import type {
   OccupiedSpace,
   WidgetSpace,
 } from "constants/CanvasEditorConstants";
+import type { AppState } from "ee/reducers";
 import { isEmpty, throttle } from "lodash";
-import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { reflow } from "reflow";
 import type {

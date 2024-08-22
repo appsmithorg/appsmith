@@ -1,5 +1,7 @@
-import { Checkbox } from "@appsmith/ads";
 import React from "react";
+
+import { Checkbox } from "@appsmith/ads";
+
 import { CheckBoxGrid, CheckboxWrapper } from "./StyledSheet";
 
 interface Props {

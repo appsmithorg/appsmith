@@ -1,8 +1,8 @@
 import type {
+  AppsmithEntity,
   DataTreeEntityConfig,
   DataTreeEntityObject,
   UnEvalTreeEntityObject,
-  AppsmithEntity,
 } from "ee/entities/DataTree/types";
 
 export interface unEvalAndConfigTree {

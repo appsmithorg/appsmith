@@ -1,27 +1,27 @@
-import { promisify } from "./utils/Promisify";
-
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import {
-  canvasWidgets,
-  dataTreeEvaluator,
-  canvasWidgetsMeta,
-  metaWidgetsCache,
-} from "../handlers/evalTree";
-import _ from "lodash";
 import type {
-  WidgetEntityConfig,
   WidgetEntity,
+  WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
 import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
-import { klona } from "klona";
-import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import evaluateSync, { setEvalContext } from "../evaluate";
-import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
-import type { MetaState } from "reducers/entityReducers/metaReducer";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { klona } from "klona";
+import _ from "lodash";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaState } from "reducers/entityReducers/metaReducer";
+import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { validateAndParseWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
+
+import evaluateSync, { setEvalContext } from "../evaluate";
+import {
+  canvasWidgets,
+  canvasWidgetsMeta,
+  dataTreeEvaluator,
+  metaWidgetsCache,
+} from "../handlers/evalTree";
+import { promisify } from "./utils/Promisify";
 
 function resetWidgetFnDescriptor(
   widgetName: string,

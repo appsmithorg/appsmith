@@ -1,6 +1,7 @@
 import type { Node } from "acorn";
 import { parse } from "acorn";
 import { simple } from "acorn-walk";
+
 import type { SourceType } from "../constants/ast";
 import { ECMA_VERSION } from "../constants/ast";
 import { getExpressionStringAtPos, isPositionWithinNode } from "./utils";

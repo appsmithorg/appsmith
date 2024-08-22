@@ -1,7 +1,10 @@
 import React from "react";
+
 import { unmountComponentAtNode } from "react-dom";
-import { render } from "test/testUtils";
+
 import "@testing-library/jest-dom";
+import { render } from "test/testUtils";
+
 import { GeneralSettings } from "../General";
 
 // TODO: Fix this the next time the file is edited

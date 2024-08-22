@@ -1,9 +1,11 @@
-import React, { useDispatch } from "react-redux";
-import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 import { useCallback } from "react";
+
 import { navigateToEntity } from "actions/editorActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import React, { useDispatch } from "react-redux";
+
+import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 
 export default function JSCollectionLink(props: EntityLinkProps) {
   const dispatch = useDispatch();

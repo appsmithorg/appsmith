@@ -1,13 +1,15 @@
 import React, { forwardRef } from "react";
+
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
-import { useListState } from "@react-stately/list";
-import { InlineButton } from "./InlineButton";
-import { useInlineButtons } from "./useInlineButtons";
 import { Item } from "@react-stately/collections";
-import styles from "./styles.module.css";
+import { useListState } from "@react-stately/list";
 import type { CollectionChildren, DOMRef } from "@react-types/shared";
+
+import { InlineButton } from "./InlineButton";
+import styles from "./styles.module.css";
 import type { InlineButtonsItem, InlineButtonsProps } from "./types";
+import { useInlineButtons } from "./useInlineButtons";
 
 interface InlineButtonsInnerProps<T> extends InlineButtonsProps<T> {
   children?: CollectionChildren<T>;

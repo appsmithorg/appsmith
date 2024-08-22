@@ -1,21 +1,22 @@
-import { dataTreeEvaluator } from "./handlers/evalTree";
-import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import { makeEntityConfigsAsObjProperties } from "ee/workers/Evaluation/dataTreeUtils";
-import type {
-  EvalTreeResponseData,
-  EvalWorkerSyncRequest,
-  UpdateTreeResponse,
-} from "./types";
-import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
+import { MessageType, sendMessage } from "utils/MessageUtil";
+import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+
+import { dataTreeEvaluator } from "./handlers/evalTree";
 import {
   generateOptimisedUpdatesAndSetPrevState,
   getNewDataTreeUpdates,
   uniqueOrderUpdatePaths,
 } from "./helpers";
-import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
-import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import type {
+  EvalTreeResponseData,
+  EvalWorkerSyncRequest,
+  UpdateTreeResponse,
+} from "./types";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({
   updates: "[]",

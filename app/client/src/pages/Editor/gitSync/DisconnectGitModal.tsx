@@ -1,16 +1,29 @@
 import React, { useCallback, useState } from "react";
-import {
-  getDisconnectDocUrl,
-  getDisconnectingGitApplication,
-  getIsDisconnectGitModalOpen,
-} from "selectors/gitSyncSelectors";
-import { useDispatch, useSelector } from "react-redux";
+
 import {
   revokeGit,
   setDisconnectingGitApplication,
   setGitSettingsModalOpenAction,
   setIsDisconnectGitModalOpen,
 } from "actions/gitSyncActions";
+import {
+  APPLICATION_NAME,
+  GIT_REVOKE_ACCESS,
+  GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
+  GO_BACK,
+  NONE_REVERSIBLE_MESSAGE,
+  REVOKE,
+  createMessage,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import {
+  getDisconnectDocUrl,
+  getDisconnectingGitApplication,
+  getIsDisconnectGitModalOpen,
+} from "selectors/gitSyncSelectors";
+
 import {
   Button,
   Callout,
@@ -22,18 +35,8 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import {
-  APPLICATION_NAME,
-  createMessage,
-  GIT_REVOKE_ACCESS,
-  GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
-  GO_BACK,
-  NONE_REVERSIBLE_MESSAGE,
-  REVOKE,
-} from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { Space } from "./components/StyledComponents";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
 function DisconnectGitModal() {
   const dispatch = useDispatch();

@@ -1,3 +1,7 @@
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetLocators = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
@@ -8,9 +12,6 @@ const {
   entityExplorer,
   propPane,
 } = require("../../../../support/Objects/ObjectsCore");
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

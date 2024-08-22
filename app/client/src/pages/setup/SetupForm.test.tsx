@@ -1,8 +1,10 @@
-import { fireEvent, render, screen } from "test/testUtils";
 import React from "react";
+
 import "@testing-library/jest-dom";
-import SetupForm from "./SetupForm";
 import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "test/testUtils";
+
+import SetupForm from "./SetupForm";
 
 function renderComponent() {
   return render(<SetupForm />);

@@ -1,4 +1,4 @@
-import { createMessage, ERROR_MESSAGE_NAME_EMPTY } from "../constants/messages";
+import { ERROR_MESSAGE_NAME_EMPTY, createMessage } from "../constants/messages";
 
 export function notEmptyValidator(value: string) {
   const isValid = !!value;

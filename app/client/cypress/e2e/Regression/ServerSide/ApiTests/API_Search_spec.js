@@ -1,9 +1,9 @@
 import ApiEditor from "../../../../locators/ApiEditor";
 import {
-  entityExplorer,
   apiPage,
-  entityItems,
   dataSources,
+  entityExplorer,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,

@@ -1,11 +1,11 @@
 import { initialEntityCountForExplorerTag } from "../../../../../src/constants/WidgetConstants";
+import explorerLocators from "../../../../locators/explorerlocators.json";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
-  entityExplorer,
   agHelper,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
-import explorerLocators from "../../../../locators/explorerlocators.json";
 
 const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
   "Building Blocks"

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Statusbar } from "@appsmith/ads-old";
-import styled from "styled-components";
+
 import {
   AUTOCOMMIT_IN_PROGRESS_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
+
+import { Statusbar } from "@appsmith/ads-old";
 
 interface AutocommitStatusbarProps {
   completed: boolean;

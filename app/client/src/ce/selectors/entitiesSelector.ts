@@ -1,10 +1,40 @@
+import type { ActionResponse } from "api/ActionAPI";
+import type {
+  DefaultPlugin,
+  GenerateCRUDEnabledPluginMap,
+  Plugin,
+} from "api/PluginApi";
+import ImageAlt from "assets/images/placeholder-image.svg";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { Module } from "ee/constants/ModuleConstants";
+import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
+import type { EntityItem } from "ee/entities/IDE/constants";
+import type { ExplorerFileEntity } from "ee/pages/Editor/Explorer/helpers";
 import type { AppState } from "ee/reducers";
 import type {
   ActionData,
   ActionDataState,
 } from "ee/reducers/entityReducers/actionsReducer";
-import type { ActionResponse } from "api/ActionAPI";
-import { createSelector } from "reselect";
+import type {
+  JSCollectionData,
+  JSCollectionDataState,
+} from "ee/reducers/entityReducers/jsActionsReducer";
+import {
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
+} from "ee/selectors/workflowSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import type { Action } from "entities/Action";
+import {
+  PluginPackageName,
+  PluginType,
+  isStoredDatasource,
+} from "entities/Action";
+import { APP_MODE } from "entities/App";
 import type {
   Datasource,
   DatasourceStructure,
@@ -14,57 +44,26 @@ import {
   isEmbeddedAIDataSource,
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
-import type { Action } from "entities/Action";
-import {
-  isStoredDatasource,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
-import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
-import ImageAlt from "assets/images/placeholder-image.svg";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { AppStoreState } from "reducers/entityReducers/appReducer";
-import type {
-  JSCollectionData,
-  JSCollectionDataState,
-} from "ee/reducers/entityReducers/jsActionsReducer";
-import type {
-  DefaultPlugin,
-  GenerateCRUDEnabledPluginMap,
-  Plugin,
-} from "api/PluginApi";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import { APP_MODE } from "entities/App";
-import type { ExplorerFileEntity } from "ee/pages/Editor/Explorer/helpers";
-import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
+import {
+  ActionUrlIcon,
+  JsFileIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
+import type { AppStoreState } from "reducers/entityReducers/appReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { InstallState } from "reducers/uiReducers/libraryReducer";
+import { getFormValues } from "redux-form";
+import { createSelector } from "reselect";
+import { getNextEntityName } from "utils/AppsmithUtils";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-
-import { InstallState } from "reducers/uiReducers/libraryReducer";
-import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { JSLibrary } from "workers/common/JSLibrary";
-import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
-import { getFormValues } from "redux-form";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { Module } from "ee/constants/ModuleConstants";
-import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
-import {
-  getCurrentWorkflowActions,
-  getCurrentWorkflowJSActions,
-} from "ee/selectors/workflowSelectors";
-import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
-import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import type { EntityItem } from "ee/entities/IDE/constants";
-import {
-  ActionUrlIcon,
-  JsFileIconV2,
-} from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 export enum GROUP_TYPES {
   API = "APIs",
@@ -109,7 +108,7 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
   getPlugins,
   (datasources, plugins): DatasourceGroupByPluginCategory => {
     const groupedPlugins = keyBy(plugins, "id");
-    return <DatasourceGroupByPluginCategory>groupBy(datasources, (d) => {
+    return groupBy(datasources, (d) => {
       const plugin = groupedPlugins[d.pluginId];
       if (
         plugin.type === PluginType.SAAS ||
@@ -121,7 +120,7 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
       if (plugin.type === PluginType.DB) return PluginCategory.Databases;
       if (plugin.type === PluginType.API) return PluginCategory.APIs;
       return PluginCategory.Others;
-    });
+    }) as DatasourceGroupByPluginCategory;
   },
 );
 

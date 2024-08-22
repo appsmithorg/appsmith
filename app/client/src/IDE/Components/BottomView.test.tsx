@@ -1,10 +1,12 @@
 import React from "react";
-import { act, fireEvent, render } from "@testing-library/react";
-import BottomView from "./BottomView";
-import { ViewHideBehaviour } from "../Interfaces/View";
-import { noop } from "lodash";
+
 import "@testing-library/jest-dom";
+import { act, fireEvent, render } from "@testing-library/react";
 import "jest-styled-components";
+import { noop } from "lodash";
+
+import { ViewHideBehaviour } from "../Interfaces/View";
+import BottomView from "./BottomView";
 
 describe("BottomView", () => {
   describe("ViewHideBehaviour.COLLAPSE", () => {

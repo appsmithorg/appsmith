@@ -1,25 +1,26 @@
-import {
-  defaultAffectedJSObjects,
-  evalQueueBuffer,
-  evaluateTreeSaga,
-  evalWorker,
-} from "./EvaluationsSaga";
-import { expectSaga } from "redux-saga-test-plan";
-import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
-import { select } from "redux-saga/effects";
-import { getMetaWidgets, getWidgets, getWidgetsMeta } from "./selectors";
+import { createJSCollectionSuccess } from "actions/jsActionActions";
+import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
 import { getAllActionValidationConfig } from "ee//selectors/entitiesSelector";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import * as log from "loglevel";
-
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
-import { createJSCollectionSuccess } from "actions/jsActionActions";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
+import * as log from "loglevel";
+import { expectSaga } from "redux-saga-test-plan";
+import { select } from "redux-saga/effects";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+
+import {
+  defaultAffectedJSObjects,
+  evalQueueBuffer,
+  evalWorker,
+  evaluateTreeSaga,
+} from "./EvaluationsSaga";
+import { getMetaWidgets, getWidgets, getWidgetsMeta } from "./selectors";
+
 jest.mock("loglevel");
 
 describe("evaluateTreeSaga", () => {

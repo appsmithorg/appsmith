@@ -1,24 +1,26 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import { validateResponse, type ErrorActionPayload } from "./ErrorSagas";
-import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { toast } from "@appsmith/ads";
+import type { PublishCommunityTemplatePayload } from "actions/communityTemplateActions";
+import type { ApiResponse } from "api/ApiResponses";
 import type {
   PublishCommunityTemplateRequest,
   PublishCommunityTemplateResponse,
 } from "api/TemplatesApi";
 import TemplatesAPI from "api/TemplatesApi";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { UpdateUserRequest } from "ee/api/UserApi";
 import UserApi from "ee/api/UserApi";
-import type { PublishCommunityTemplatePayload } from "actions/communityTemplateActions";
-import type { ApiResponse } from "api/ApiResponses";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
+import { toast } from "@appsmith/ads";
+
+import { type ErrorActionPayload, validateResponse } from "./ErrorSagas";
 
 const isAirgappedInstance = isAirgapped();
 

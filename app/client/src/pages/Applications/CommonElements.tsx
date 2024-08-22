@@ -1,7 +1,9 @@
 import React from "react";
-import styled from "styled-components";
-import { Text } from "@appsmith/ads";
+
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
 
 type ResourceHeadingProps = React.PropsWithChildren<{
   isLoading?: boolean;

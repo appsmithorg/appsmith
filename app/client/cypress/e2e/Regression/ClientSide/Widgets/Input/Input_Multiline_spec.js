@@ -1,10 +1,11 @@
+import homePage from "../../../../../locators/HomePage";
+import {
+  PROPERTY_SELECTOR,
+  WIDGET,
+} from "../../../../../locators/WidgetLocators";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import {
-  WIDGET,
-  PROPERTY_SELECTOR,
-} from "../../../../../locators/WidgetLocators";
-import homePage from "../../../../../locators/HomePage";
 
 describe(
   "Input Widget Multiline feature",

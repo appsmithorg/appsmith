@@ -1,5 +1,7 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
 import { ColorGrid } from "./ColorGrid";
 
 const meta: Meta<typeof ColorGrid> = {

@@ -1,8 +1,8 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { ApiPaneDebuggerState } from "ee/reducers/uiReducers/apiPaneReducer";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { SlashCommandPayload } from "entities/Action";
-import type { ApiPaneDebuggerState } from "ee/reducers/uiReducers/apiPaneReducer";
 
 export const changeApi = (
   id: string,

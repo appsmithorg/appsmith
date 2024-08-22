@@ -1,19 +1,19 @@
+import {
+  agHelper,
+  deployMode,
+  propPane,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import {
-  agHelper,
-  propPane,
-  deployMode,
-  table,
-} from "../../../../support/Objects/ObjectsCore";
-import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Table Widget V2 and Navigate to functionality validation",

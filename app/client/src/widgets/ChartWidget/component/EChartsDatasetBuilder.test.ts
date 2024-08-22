@@ -1,5 +1,5 @@
-import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 import type { ChartData, ChartType } from "../constants";
+import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 
 describe("EChartsConfigurationBuilder", () => {
   describe("filteredChartData", () => {

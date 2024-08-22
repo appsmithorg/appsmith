@@ -2,6 +2,7 @@ import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
 } from "widgets/WidgetUtils";
+
 import {
   formatCurrencyNumber,
   limitDecimalValue,

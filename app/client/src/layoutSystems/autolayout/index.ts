@@ -1,18 +1,19 @@
+import type { AutoDimensionOptions } from "WidgetProvider/constants";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { getAutoLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
+import {
+  getAutoDimensionsConfig,
+  getAutoLayoutWidgetConfig,
+} from "layoutSystems/common/utils/commonUtils";
+import type { CanvasProps } from "layoutSystems/fixedlayout/canvas/FixedLayoutEditorCanvas";
+import type { LayoutSystem } from "layoutSystems/types";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorCanvas } from "./canvas/AutoLayoutEditorCanvas";
 import { AutoLayoutViewerCanvas } from "./canvas/AutoLayoutViewerCanvas";
 import { AutoLayoutEditorWrapper } from "./editor/AutoLayoutEditorWrapper";
 import { AutoLayoutViewerWrapper } from "./viewer/AutoLayoutViewerWrapper";
-import { getAutoLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
-import type { LayoutSystem } from "layoutSystems/types";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import type { CanvasProps } from "layoutSystems/fixedlayout/canvas/FixedLayoutEditorCanvas";
-import {
-  getAutoDimensionsConfig,
-  getAutoLayoutWidgetConfig,
-} from "layoutSystems/common/utils/commonUtils";
-import type { AutoDimensionOptions } from "WidgetProvider/constants";
 
 /**
  * getAutoLayoutDimensionsConfig

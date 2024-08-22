@@ -1,6 +1,7 @@
+import produce from "immer";
+
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
 import { ObjectsRegistry } from "./Registry";
-import produce from "immer";
 
 const defaultFlags = {
   release_side_by_side_ide_enabled: true,

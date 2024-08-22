@@ -1,17 +1,20 @@
 import React from "react";
-import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
-import { DebuggerTrigger } from "components/editorComponents/Debugger";
-import HelpButton from "pages/Editor/HelpButton";
-import ManualUpgrades from "./ManualUpgrades";
-import { Button } from "@appsmith/ads";
-import SwitchEnvironment from "ee/components/SwitchEnvironment";
-import { Container, Wrapper } from "./components";
-import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useDispatch } from "react-redux";
+
 import { softRefreshActions } from "actions/pluginActionActions";
+import { DebuggerTrigger } from "components/editorComponents/Debugger";
+import SwitchEnvironment from "ee/components/SwitchEnvironment";
 import { START_SWITCH_ENVIRONMENT } from "ee/constants/messages";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import HelpButton from "pages/Editor/HelpButton";
+import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
+import { Button } from "@appsmith/ads";
+
+import ManualUpgrades from "./ManualUpgrades";
+import { Container, Wrapper } from "./components";
 
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   const appId = useSelector(getCurrentApplicationId) || "";

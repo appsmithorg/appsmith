@@ -1,8 +1,9 @@
 import styled from "styled-components";
-import type { CommonComponentProps } from "../types/common";
+
+import { Classes } from "../constants/classes";
 import type { TypographyKeys } from "../constants/typography";
 import { typography } from "../constants/typography";
-import { Classes } from "../constants/classes";
+import type { CommonComponentProps } from "../types/common";
 
 export enum TextType {
   P0 = "p0",

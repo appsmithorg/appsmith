@@ -1,7 +1,9 @@
-import { Classes } from "../constants/classes";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+
 import styled from "styled-components";
+
 import Text, { TextType } from "../Text";
+import { Classes } from "../constants/classes";
 import type { CommonComponentProps } from "../types/common";
 
 type SwitchProps = CommonComponentProps & {

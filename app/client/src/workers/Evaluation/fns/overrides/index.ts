@@ -1,9 +1,9 @@
-import { setInterval, clearInterval } from "./interval";
-import { setTimeout, clearTimeout } from "./timeout";
-import { fetch } from "./fetch";
 import { addFn } from "../utils/fnGuard";
 import userLogs from "./console";
+import { fetch } from "./fetch";
+import { clearInterval, setInterval } from "./interval";
 import initLocalStorage from "./localStorage";
+import { clearTimeout, setTimeout } from "./timeout";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

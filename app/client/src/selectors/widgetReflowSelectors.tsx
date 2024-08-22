@@ -1,6 +1,7 @@
 import type { AppState } from "ee/reducers";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { createSelector } from "reselect";
+
 import { getIsResizing } from "./widgetSelectors";
 
 export const getReflow = (state: AppState): widgetReflow =>

@@ -1,5 +1,6 @@
-import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import styled from "styled-components";
+
 import { Link, Text } from "@appsmith/ads";
 
 export const Wrapper = styled.div`

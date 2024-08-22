@@ -1,51 +1,54 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
-import type { RouteComponentProps } from "react-router";
-import { withRouter } from "react-router";
-import styled from "styled-components";
-import { every, includes } from "lodash";
-import type { AppState } from "ee/reducers";
+
+import { setJsPaneDebuggerState } from "actions/jsPaneActions";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import type { JSEditorRouteParams } from "constants/routes";
+import JSRemoteExecutionView from "ee/components/JSRemoteExecutionView";
 import {
-  createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   DEBUGGER_RESPONSE,
   EXECUTING_FUNCTION,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
+  createMessage,
 } from "ee/constants/messages";
-import type { EditorTheme } from "./CodeEditor/EditorConfig";
-import DebuggerLogs from "./Debugger/DebuggerLogs";
-import type { JSAction } from "entities/JSCollection";
-import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Flex, Text } from "@appsmith/ads";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import type { AppState } from "ee/reducers";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
-import type { BottomTab } from "./EntityBottomTabs";
-import EntityBottomTabs from "./EntityBottomTabs";
-import { getIsSavingEntity } from "selectors/editorSelectors";
-import { getJSResponseViewState } from "./utils";
+import { isBrowserExecutionAllowed } from "ee/utils/actionExecutionUtils";
+import type { Log, SourceEntity } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { JSAction } from "entities/JSCollection";
+import { every, includes } from "lodash";
+import { connect, useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { withRouter } from "react-router";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
+import { getIsSavingEntity } from "selectors/editorSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import styled from "styled-components";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+
+import { Flex, Text } from "@appsmith/ads";
+
+import { IDEBottomView, ViewHideBehaviour } from "../../IDE";
 import {
   NoResponse,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
 } from "./ApiResponseView";
+import type { EditorTheme } from "./CodeEditor/EditorConfig";
+import DebuggerLogs from "./Debugger/DebuggerLogs";
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { Log, SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
-import { setJsPaneDebuggerState } from "actions/jsPaneActions";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
 import ErrorLogs from "./Debugger/Errors";
-import { isBrowserExecutionAllowed } from "ee/utils/actionExecutionUtils";
-import JSRemoteExecutionView from "ee/components/JSRemoteExecutionView";
-import { IDEBottomView, ViewHideBehaviour } from "../../IDE";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import type { BottomTab } from "./EntityBottomTabs";
+import EntityBottomTabs from "./EntityBottomTabs";
+import { getJSResponseViewState } from "./utils";
 
 const ResponseTabWrapper = styled.div`
   display: flex;

@@ -1,3 +1,9 @@
+import {
+  agHelper,
+  apiPage,
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -5,12 +11,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-  apiPage,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Test Create Api and Bind to Table widget",

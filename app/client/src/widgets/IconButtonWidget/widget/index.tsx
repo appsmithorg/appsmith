@@ -1,27 +1,26 @@
-import type { IconName } from "@blueprintjs/icons";
 import React from "react";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-
+import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
-import type { ButtonVariant } from "components/constants";
-import { ButtonVariantTypes } from "components/constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import IconButtonComponent from "../component";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type { ButtonVariant } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import IconButtonComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const ICON_BUTTON_SIZE_IN_AUTOLAYOUT = 32;
 

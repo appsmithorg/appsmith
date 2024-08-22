@@ -1,12 +1,14 @@
 import React from "react";
+
+import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
+import { lightTheme } from "selectors/themeSelectors";
 import { testStore } from "store";
 import { ThemeProvider } from "styled-components";
-import { lightTheme } from "selectors/themeSelectors";
-import { render } from "@testing-library/react";
-import ActionTree from "./ActionTree";
-import type { TActionBlock } from "../../types";
+
 import { APPSMITH_GLOBAL_FUNCTIONS } from "../../constants";
+import type { TActionBlock } from "../../types";
+import ActionTree from "./ActionTree";
 
 describe("tests for Action Tree in Action Selector", () => {
   const store = testStore({});

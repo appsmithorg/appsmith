@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
+
+import { updateProductAlertConfig } from "actions/userActions";
+import { I_UNDERSTAND, LEARN_MORE, createMessage } from "ee/constants/messages";
+import { setMessageConfig } from "ee/sagas/userSagas";
+import moment from "moment/moment";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
-import { Callout, Text } from "@appsmith/ads";
 import type {
   ProductAlertConfig,
   ProductAlertState,
 } from "reducers/uiReducers/usersReducer";
-import { setMessageConfig } from "ee/sagas/userSagas";
-import type { CalloutLinkProps } from "@appsmith/ads";
-import moment from "moment/moment";
-import { createMessage, I_UNDERSTAND, LEARN_MORE } from "ee/constants/messages";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import { updateProductAlertConfig } from "actions/userActions";
 import { getIsUserLoggedIn } from "selectors/usersSelectors";
+import styled from "styled-components";
+
+import { Callout, Text } from "@appsmith/ads";
+import type { CalloutLinkProps } from "@appsmith/ads";
 
 const AlertContainer = styled.div`
   position: absolute;

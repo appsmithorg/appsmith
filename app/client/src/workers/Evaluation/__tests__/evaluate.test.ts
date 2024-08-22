@@ -1,16 +1,17 @@
+import { RenderModes } from "constants/WidgetConstants";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { get } from "lodash";
 import evaluate, {
   createEvaluationContext,
   evaluateAsync,
 } from "workers/Evaluation/evaluate";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { RenderModes } from "constants/WidgetConstants";
-import setupEvalEnv from "../handlers/setupEvalEnv";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
-import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
+
 import { convertAllDataTypesToString } from "../errorModifier";
-import { get } from "lodash";
+import setupEvalEnv from "../handlers/setupEvalEnv";
 
 describe("evaluateSync", () => {
   const widget: WidgetEntity = {

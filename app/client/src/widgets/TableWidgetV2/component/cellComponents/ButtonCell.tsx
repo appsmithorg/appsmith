@@ -1,11 +1,12 @@
 import React, { memo } from "react";
 
-import { CellWrapper } from "../TableStyledWrappers";
+import styled from "styled-components";
+import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+
 import type { BaseCellComponentProps } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
+import { CellWrapper } from "../TableStyledWrappers";
 import { Button } from "./Button";
-import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
-import styled from "styled-components";
 
 const StyledButton = styled(Button)<{ compactMode: string }>`
   max-height: ${(props) => TABLE_SIZES[props.compactMode].ROW_HEIGHT}px;

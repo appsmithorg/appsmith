@@ -13,6 +13,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import type { CircularProgressComponentProps } from "../component";
 import CircularProgressComponent from "../component";
 import IconSVG from "../icon.svg";

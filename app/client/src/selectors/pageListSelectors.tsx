@@ -1,7 +1,6 @@
 import type { AppState } from "ee/reducers";
-import { createSelector } from "reselect";
-
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import { createSelector } from "reselect";
 
 const getPageListState = (state: AppState) => state.entities.pageList;
 

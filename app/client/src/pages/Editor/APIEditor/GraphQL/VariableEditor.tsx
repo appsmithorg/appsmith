@@ -1,4 +1,5 @@
 import React from "react";
+
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
@@ -6,10 +7,11 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import styled from "styled-components";
-import { Text, TextType } from "@appsmith/ads-old";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import styled from "styled-components";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+
+import { Text, TextType } from "@appsmith/ads-old";
 
 const VariableWrapper = styled.div`
   display: flex;

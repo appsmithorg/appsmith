@@ -1,9 +1,12 @@
 import React, { useCallback } from "react";
+
 import FormControl from "pages/Editor/FormControl";
-import styled from "styled-components";
 import { FieldArray } from "redux-form";
-import type { ControlProps } from "./BaseControl";
+import styled from "styled-components";
+
 import { Button } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
 
 const CenteredIconButton = styled(Button)<{
   alignSelf?: string;

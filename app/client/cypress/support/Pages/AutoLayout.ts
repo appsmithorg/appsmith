@@ -1,7 +1,7 @@
-import { ObjectsRegistry } from "../Objects/Registry";
-import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
-import { AppSidebar, AppSidebarButton } from "./EditorNavigation";
+import { WIDGET, getWidgetSelector } from "../../locators/WidgetLocators";
 import { featureFlagIntercept } from "../Objects/FeatureFlags";
+import { ObjectsRegistry } from "../Objects/Registry";
+import { AppSidebar, AppSidebarButton } from "./EditorNavigation";
 
 type FixedConversionOptions = "DESKTOP" | "MOBILE";
 

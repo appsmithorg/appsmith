@@ -1,14 +1,15 @@
 import React, { useCallback } from "react";
-import type { InjectedFormProps } from "redux-form";
-import { Form, reduxForm } from "redux-form";
+
+import FormFooter from "components/editorComponents/form/FormFooter";
+import FormGroup from "components/editorComponents/form/FormGroup";
+import FormMessage from "components/editorComponents/form/FormMessage";
+import TextField from "components/editorComponents/form/fields/TextField";
 import { CREATE_WORKSPACE_FORM_NAME } from "ee/constants/forms";
 import type { CreateWorkspaceFormValues } from "ee/pages/workspace/helpers";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
+import type { InjectedFormProps } from "redux-form";
+import { Form, reduxForm } from "redux-form";
 import { noSpaces } from "utils/formhelpers";
-import TextField from "components/editorComponents/form/fields/TextField";
-import FormGroup from "components/editorComponents/form/FormGroup";
-import FormFooter from "components/editorComponents/form/FormFooter";
-import FormMessage from "components/editorComponents/form/FormMessage";
 
 // TODO(abhinav): abstract onCancel out.
 export function CreateApplicationForm(

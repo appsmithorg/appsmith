@@ -1,10 +1,11 @@
-import React, { useState, forwardRef, useEffect } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
+
 import clsx from "classnames";
 
-import type { SearchInputProps } from "./SearchInput.types";
-import { StyledSearchInput } from "./SearchInput.styles";
-import { SearchInputClassName } from "./SearchInput.constants";
 import { useDOMRef } from "../__hooks__/useDomRef";
+import { SearchInputClassName } from "./SearchInput.constants";
+import { StyledSearchInput } from "./SearchInput.styles";
+import type { SearchInputProps } from "./SearchInput.types";
 
 const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
   (props, ref): JSX.Element => {

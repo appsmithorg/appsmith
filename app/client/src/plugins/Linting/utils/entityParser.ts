@@ -1,15 +1,15 @@
-import type {
-  DataTreeEntityConfig,
-  JSActionEntityConfig,
-  JSActionEntity as TJSActionEntity,
-} from "ee/entities/DataTree/types";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
 import type { JSVarProperty } from "@shared/ast";
 import type { JSFunctionProperty } from "@shared/ast";
+import type {
+  DataTreeEntityConfig,
+  JSActionEntityConfig,
+  JSActionEntity as TJSActionEntity,
+} from "ee/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { uniq } from "lodash";
 import { validJSBodyRegex } from "workers/Evaluation/JSObject";
 

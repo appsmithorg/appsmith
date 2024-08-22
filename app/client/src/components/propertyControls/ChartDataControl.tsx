@@ -1,9 +1,5 @@
 import React from "react";
-import { get, isString } from "lodash";
-import styled from "styled-components";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { ControlWrapper } from "./StyledControls";
+
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -11,14 +7,21 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Button } from "@appsmith/ads";
-import type { AllChartData, ChartData } from "widgets/ChartWidget/constants";
-import { generateReactKey } from "utils/generators";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import ColorPickerComponent from "./ColorPickerComponentV2";
-import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { get, isString } from "lodash";
+import styled from "styled-components";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { generateReactKey } from "utils/generators";
+import type { AllChartData, ChartData } from "widgets/ChartWidget/constants";
+
+import { Button } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import ColorPickerComponent from "./ColorPickerComponentV2";
+import { ControlWrapper } from "./StyledControls";
 
 const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg-subtle);

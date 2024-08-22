@@ -1,11 +1,12 @@
 import type { Component, Ref } from "react";
 import React, { Suspense, forwardRef, lazy, useMemo } from "react";
+
 import { useThemeContext } from "@appsmith/wds-theming";
 
+import { FallbackIcon } from "./FallbackIcon";
 import { ICONS } from "./icons";
 import styles from "./styles.module.css";
 import type { IconProps } from "./types";
-import { FallbackIcon } from "./FallbackIcon";
 
 const _Icon = (props: IconProps, ref: Ref<Component>) => {
   const { color, filled: filledProp, name, size = "medium", ...rest } = props;

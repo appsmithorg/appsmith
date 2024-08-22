@@ -1,24 +1,26 @@
-import scrollIntoView from "scroll-into-view-if-needed";
 import {
-  modText,
-  flashElementsById,
-  isMacOrIOS,
-  flashElement,
-  shiftText,
-} from "./helpers";
-import localStorage from "./localStorage";
-import {
-  createMessage,
-  WIDGET_ADDED,
-  BULK_WIDGET_ADDED,
-  WIDGET_REMOVED,
-  BULK_WIDGET_REMOVED,
   ACTION_CONFIGURATION_CHANGED,
+  BULK_WIDGET_ADDED,
+  BULK_WIDGET_REMOVED,
+  WIDGET_ADDED,
+  WIDGET_REMOVED,
+  createMessage,
 } from "ee/constants/messages";
+import scrollIntoView from "scroll-into-view-if-needed";
+
 import { toast } from "@appsmith/ads";
+
 import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
 import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
 import store from "../store";
+import {
+  flashElement,
+  flashElementsById,
+  isMacOrIOS,
+  modText,
+  shiftText,
+} from "./helpers";
+import localStorage from "./localStorage";
 
 /**
  * process the toast for undo/redo

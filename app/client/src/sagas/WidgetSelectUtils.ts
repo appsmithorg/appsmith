@@ -1,25 +1,26 @@
-import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ee/constants/messages";
+import WidgetFactory from "WidgetProvider/factory";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { SELECT_ALL_WIDGETS_MSG, createMessage } from "ee/constants/messages";
 import { uniq } from "lodash";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
+import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
 import {
   getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
 } from "sagas/selectors";
-import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import WidgetFactory from "WidgetProvider/factory";
+
 import { toast } from "@appsmith/ads";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 
 /**
  * Selection types that are possible for widget select

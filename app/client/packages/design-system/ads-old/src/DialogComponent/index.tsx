@@ -1,9 +1,12 @@
-import type { ReactNode, PropsWithChildren } from "react";
-import React, { useState, useEffect } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
+import React, { useEffect, useState } from "react";
+
+import { Classes, Dialog } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Dialog, Classes } from "@blueprintjs/core";
+
 import type { IconNames } from "@appsmith/ads";
 import { Icon } from "@appsmith/ads";
+
 import { typography } from "../constants/typography";
 
 type DialogProps = PropsWithChildren<{

@@ -1,12 +1,14 @@
 import React from "react";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { useObserveDetachedWidget } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
+
+import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 import {
   useAddBordersToDetachedWidgets,
   useHandleDetachedWidgetSelect,
 } from "layoutSystems/anvil/common/hooks/detachedWidgetHooks";
+import { useObserveDetachedWidget } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { AnvilErrorBoundary } from "../common/widgetComponent/AnvilErrorBoundary";
-import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 import { useAnvilDetachedWidgetsDnD } from "./hooks/useAnvilDetachedWidgetsDnD";
 
 /**

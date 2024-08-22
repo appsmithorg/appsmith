@@ -3,15 +3,15 @@ import {
   ADMIN_SETTINGS_PATH,
   GEN_TEMPLATE_FORM_ROUTE,
   GEN_TEMPLATE_URL,
+  TEMPLATES_PATH,
   getViewerCustomPath,
   getViewerPath,
-  TEMPLATES_PATH,
 } from "constants/routes";
-import { APP_MODE } from "entities/App";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { URLBuilderParams } from "ee/entities/URLRedirect/URLAssembly";
-import type { Page } from "entities/Page";
+import { APP_MODE } from "entities/App";
 import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 
 export const fillPathname = (
   pathname: string,

@@ -1,6 +1,7 @@
 import React from "react";
-import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
+
 import Files from "../Files";
+import ExplorerWidgetGroup from "../Widgets/WidgetGroup";
 
 interface ExplorerPageEntityProps {
   step: number;

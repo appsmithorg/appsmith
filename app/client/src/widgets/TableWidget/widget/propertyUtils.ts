@@ -1,13 +1,14 @@
 import { Alignment } from "@blueprintjs/core";
-import type { ColumnProperties } from "../component/Constants";
-import type { TableWidgetProps } from "../constants";
+import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { IconNames } from "@blueprintjs/icons";
+
+import type { ColumnProperties } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
 
 export enum ColumnTypes {
   TEXT = "text",

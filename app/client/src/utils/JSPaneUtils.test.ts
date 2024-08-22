@@ -1,5 +1,6 @@
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
+
 import type { ParsedBody } from "./JSPaneUtils";
 import { getDifferenceInJSCollection } from "./JSPaneUtils";
 

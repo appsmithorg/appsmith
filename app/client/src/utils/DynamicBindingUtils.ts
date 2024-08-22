@@ -1,8 +1,6 @@
-import _, { get, isString } from "lodash";
+import { ViewTypes } from "components/formControls/utils";
 import { DATA_BIND_REGEX } from "constants/BindingsConstants";
-import type { Action } from "entities/Action";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { Severity } from "entities/AppsmithConsole";
+import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
 import {
   getEntityNameAndPropertyPath,
   isAction,
@@ -10,10 +8,13 @@ import {
   isTrueObject,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
+import type { Action } from "entities/Action";
+import type { Severity } from "entities/AppsmithConsole";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { getType, Types } from "./TypeHelpers";
-import { ViewTypes } from "components/formControls/utils";
+import _, { get, isString } from "lodash";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { Types, getType } from "./TypeHelpers";
 
 export type DependencyMap = Record<string, Array<string>>;
 // TODO: Fix this the next time the file is edited

@@ -1,11 +1,12 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
 import {
   agHelper,
   apiPage,
   debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Check debugger logs state when there are onPageLoad actions", function () {

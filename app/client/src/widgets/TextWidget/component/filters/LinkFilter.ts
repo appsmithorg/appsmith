@@ -1,4 +1,5 @@
 import { Filter } from "interweave";
+
 import { addHttpIfMissing } from "../helpers";
 
 class LinkFilter extends Filter {

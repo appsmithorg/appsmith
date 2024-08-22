@@ -1,10 +1,10 @@
+import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
-import { call, put, spawn, take } from "redux-saga/effects";
-import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import type { Channel } from "redux-saga";
 import { channel } from "redux-saga";
+import { call, put, spawn, take } from "redux-saga/effects";
+import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { evalWorker } from "sagas/EvaluationsSaga";
 import type {
   TGetGeoLocationDescription,

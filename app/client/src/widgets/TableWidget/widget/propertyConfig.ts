@@ -1,29 +1,30 @@
-import { get } from "lodash";
-import type { TableWidgetProps } from "../constants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { IconNames } from "@blueprintjs/icons";
 import { ButtonVariantTypes } from "components/constants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
-  updateDerivedColumnsHook,
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+  createMessage,
+} from "ee/constants/messages";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { get } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+
+import type { TableWidgetProps } from "../constants";
+import { getPrimaryColumnStylesheetValue } from "./helpers";
+import {
   ColumnTypes,
   defaultSelectedRowValidation,
-  totalRecordsCountValidation,
-  updateColumnStyles,
-  updateIconAlignmentHook,
   getBasePropertyPath,
   hideByColumnType,
-  uniqueColumnNameValidation,
   removeBoxShadowColorProp,
+  totalRecordsCountValidation,
+  uniqueColumnNameValidation,
+  updateColumnStyles,
+  updateDerivedColumnsHook,
+  updateIconAlignmentHook,
   updateIconNameHook,
 } from "./propertyUtils";
-import {
-  createMessage,
-  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
-} from "ee/constants/messages";
-import { IconNames } from "@blueprintjs/icons";
-import { getPrimaryColumnStylesheetValue } from "./helpers";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],

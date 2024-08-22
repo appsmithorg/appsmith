@@ -1,14 +1,14 @@
-import styled from "styled-components";
 import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-
 import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
+import { Colors } from "constants/Colors";
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
-import { Colors } from "constants/Colors";
+import styled from "styled-components";
+
 import { NAVIGATION_CLASSNAME } from "./MarkHelpers/entityMarker";
 
 export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";

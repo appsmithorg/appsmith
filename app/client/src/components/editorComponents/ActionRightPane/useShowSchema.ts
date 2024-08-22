@@ -1,8 +1,8 @@
+import { DatasourceComponentTypes } from "api/PluginApi";
 import {
   getPluginDatasourceComponentFromId,
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
-import { DatasourceComponentTypes } from "api/PluginApi";
 import { SCHEMALESS_PLUGINS } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import { useSelector } from "react-redux";
 

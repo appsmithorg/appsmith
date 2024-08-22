@@ -1,24 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { shallowEqual, useSelector } from "react-redux";
-import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+
 import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
 } from "ee/entities/IDE/constants";
-import FileTabs from "./FileTabs";
-import Container from "./Container";
-import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
-import { TabSelectors } from "./constants";
-import { AddButton } from "./AddButton";
-import { Announcement } from "../EditorPane/components/Announcement";
-import { useLocation } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { shallowEqual, useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+
+import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
+
+import { Announcement } from "../EditorPane/components/Announcement";
+import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
+import { AddButton } from "./AddButton";
+import { AddTab } from "./AddTab";
+import Container from "./Container";
+import FileTabs from "./FileTabs";
 import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
-import { AddTab } from "./AddTab";
+import { TabSelectors } from "./constants";
 
 const EditorTabs = () => {
   const [showListView, setShowListView] = useState(false);

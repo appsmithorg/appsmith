@@ -1,3 +1,11 @@
+import type { Span } from "@opentelemetry/api";
+import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import { fetchJSLibraries } from "actions/JSLibraryActions";
+import {
+  fetchAppThemesAction,
+  fetchSelectedAppThemeAction,
+} from "actions/appThemingActions";
+import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAllPageEntityCompletion,
   setupPublishedPage,
@@ -10,6 +18,11 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
+import {
+  waitForFetchUserSuccess,
+  waitForSegmentInit,
+} from "ee/sagas/userSagas";
 import type { APP_MODE } from "entities/App";
 import { call, put, spawn } from "redux-saga/effects";
 import type { DeployConsolidatedApi } from "sagas/InitSagas";
@@ -18,21 +31,10 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
+
 import type { AppEnginePayload } from ".";
 import AppEngine, { ActionsNotFoundError } from ".";
-import { fetchJSLibraries } from "actions/JSLibraryActions";
-import {
-  waitForSegmentInit,
-  waitForFetchUserSuccess,
-} from "ee/sagas/userSagas";
-import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
-import { fetchJSCollectionsForView } from "actions/jsActionActions";
-import {
-  fetchAppThemesAction,
-  fetchSelectedAppThemeAction,
-} from "actions/appThemingActions";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
     super(mode);

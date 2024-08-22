@@ -1,17 +1,19 @@
 import React from "react";
+
+import {
+  REMOVE_CONFIRM_BEFORE_CALLING_DESCRIPTION,
+  REMOVE_CONFIRM_BEFORE_CALLING_HEADING,
+} from "ee/constants/messages";
+
 import {
   Button,
   Modal,
   ModalBody,
   ModalContent,
-  ModalHeader,
   ModalFooter,
+  ModalHeader,
   Text,
 } from "@appsmith/ads";
-import {
-  REMOVE_CONFIRM_BEFORE_CALLING_HEADING,
-  REMOVE_CONFIRM_BEFORE_CALLING_DESCRIPTION,
-} from "ee/constants/messages";
 
 interface RemoveConfirmationProps {
   isOpen: boolean;

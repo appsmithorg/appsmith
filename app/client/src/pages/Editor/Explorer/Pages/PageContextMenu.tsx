@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
@@ -9,32 +8,35 @@ import {
   setPageAsDefault,
   updatePageAction,
 } from "actions/pageActions";
-import styled from "styled-components";
-import { Icon } from "@appsmith/ads";
+import { openPartialExportModal } from "actions/widgetActions";
+import { openPartialImportModal } from "ee/actions/applicationActions";
 import {
-  CONTEXT_RENAME,
-  CONTEXT_CLONE,
-  CONTEXT_SET_AS_HOME_PAGE,
-  CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
-  createMessage,
+  CONTEXT_CLONE,
+  CONTEXT_DELETE,
   CONTEXT_PARTIAL_EXPORT,
   CONTEXT_PARTIAL_IMPORT,
+  CONTEXT_RENAME,
+  CONTEXT_SET_AS_HOME_PAGE,
+  createMessage,
 } from "ee/constants/messages";
-import { getPageById } from "selectors/editorSelectors";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
-import ContextMenu from "pages/Editor/Explorer/ContextMenu";
-import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getHasCreatePagePermission,
   getHasDeletePagePermission,
   getHasManagePagePermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { openPartialExportModal } from "actions/widgetActions";
-import { openPartialImportModal } from "ee/actions/applicationActions";
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import { useDispatch, useSelector } from "react-redux";
+import { getPageById } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Icon } from "@appsmith/ads";
 
 const CustomLabel = styled.div`
   display: flex;

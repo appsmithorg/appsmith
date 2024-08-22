@@ -1,9 +1,10 @@
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 import type { AppState } from "ee/reducers";
-import { getCurrentPageId } from "./editorSelectors";
+import { selectQuerySegmentEditorTabs } from "ee/selectors/appIDESelectors";
+
 import type { FocusEntityInfo } from "../navigation/FocusEntity";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
-import { selectQuerySegmentEditorTabs } from "ee/selectors/appIDESelectors";
+import { getCurrentPageId } from "./editorSelectors";
 
 export const getQueryPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.queryPane.selectedConfigTabIndex;

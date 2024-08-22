@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+
 import {
-  createMessage,
   APPLICATION_IMPORT_SUCCESS,
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
+  createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
+
 import {
   Button,
   Icon,

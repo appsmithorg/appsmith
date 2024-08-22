@@ -1,4 +1,5 @@
 import { getDocViewerConfigs } from "widgets/DocumentViewerWidget/component";
+
 import { Renderers } from "../constants";
 
 describe("validate document viewer url", () => {

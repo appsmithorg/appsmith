@@ -1,6 +1,6 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
 import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
   function checkRampTextInAppSettings() {

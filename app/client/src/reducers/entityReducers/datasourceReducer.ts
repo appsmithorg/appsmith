@@ -1,8 +1,8 @@
-import { createReducer } from "utils/ReducerUtils";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type {
   Datasource,
@@ -11,10 +11,11 @@ import type {
   MockDatasource,
 } from "entities/Datasource";
 import { ToastMessageType } from "entities/Datasource";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DropdownOption } from "@appsmith/ads-old";
 import produce from "immer";
 import { assign } from "lodash";
+import { createReducer } from "utils/ReducerUtils";
+
+import type { DropdownOption } from "@appsmith/ads-old";
 
 export interface DatasourceDataState {
   list: Datasource[];

@@ -1,3 +1,7 @@
+import React from "react";
+
+import "@testing-library/jest-dom";
+import { render, screen } from "@testing-library/react";
 import {
   DATASOURCE_GENERATE_PAGE_BUTTON,
   NEW_AI_BUTTON_TEXT,
@@ -6,20 +10,19 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { getNumberOfEntitiesInCurrentPage } from "ee/selectors/entitiesSelector";
-import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
 import { PluginType } from "entities/Action";
-import { DatasourceConnectionMode, type Datasource } from "entities/Datasource";
+import { type Datasource, DatasourceConnectionMode } from "entities/Datasource";
 import { SSLType } from "entities/Datasource/RestAPIForm";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
-import React from "react";
 import { Provider, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import configureStore from "redux-mock-store";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import { DSFormHeader } from "../DataSourceEditor/DSFormHeader";
 import DatasourceViewModeSchema from "./DatasourceViewModeSchema";
 import GoogleSheetSchema from "./GoogleSheetSchema";
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 const reactRouter = require("react-router");
 

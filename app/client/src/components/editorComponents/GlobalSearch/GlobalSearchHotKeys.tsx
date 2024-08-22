@@ -1,5 +1,7 @@
 import React from "react";
+
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+
 import type { SearchItem, SelectEvent } from "./utils";
 
 interface Props {

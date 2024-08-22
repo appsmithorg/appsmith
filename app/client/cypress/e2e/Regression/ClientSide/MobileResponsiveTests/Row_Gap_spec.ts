@@ -1,8 +1,8 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
   MOBILE_ROW_GAP,
   ROW_GAP,
 } from "../../../../../src/layoutSystems/common/utils/constants";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Validating use cases for Auto Dimension",

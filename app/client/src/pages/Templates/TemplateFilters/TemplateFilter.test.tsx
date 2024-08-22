@@ -1,17 +1,18 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import configureStore from "redux-mock-store";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { Provider } from "react-redux";
+import configureStore from "redux-mock-store";
+import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 
-import TemplateFilters from "./index";
-import { lightTheme } from "selectors/themeSelectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   unitTestMockTemplate,
   unitTestMockTemplateAllFilters,
 } from "../test_config";
+import TemplateFilters from "./index";
 
 const mockStore = configureStore([]);
 

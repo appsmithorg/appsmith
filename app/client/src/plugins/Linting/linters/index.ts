@@ -1,10 +1,10 @@
-import { GracefulWorkerService } from "utils/WorkerUtil";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   LintTreeRequestPayload,
   updateJSLibraryProps,
 } from "plugins/Linting/types";
 import { LINT_WORKER_ACTIONS as LINT_ACTIONS } from "plugins/Linting/types";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 
 export interface ILinter {
   // TODO: Fix this the next time the file is edited

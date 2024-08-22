@@ -1,4 +1,4 @@
-import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
@@ -7,9 +7,9 @@ import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import InputWidget from "widgets/InputWidgetV2";
-import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+
 import {
   flattenDef,
   generateTypeDef,

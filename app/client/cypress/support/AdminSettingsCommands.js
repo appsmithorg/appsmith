@@ -1,3 +1,6 @@
+import adminSettings from "../locators/AdminsSettings";
+import { ObjectsRegistry } from "./Objects/Registry";
+
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
@@ -7,8 +10,6 @@ require("cypress-file-upload");
 const googleForm = require("../locators/GoogleForm.json");
 const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
-import adminSettings from "../locators/AdminsSettings";
-import { ObjectsRegistry } from "./Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 let adminSettingsHelper = ObjectsRegistry.AdminSettings;

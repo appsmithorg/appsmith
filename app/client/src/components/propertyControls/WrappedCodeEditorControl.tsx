@@ -1,7 +1,5 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { StyledDynamicInput } from "./StyledControls";
+
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -9,14 +7,18 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isString } from "utils/helpers";
-import { JSToString, stringToJS } from "./utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { isString } from "utils/helpers";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import { StyledDynamicInput } from "./StyledControls";
+import { JSToString, stringToJS } from "./utils";
 
 interface InputTextProp {
   label: string;

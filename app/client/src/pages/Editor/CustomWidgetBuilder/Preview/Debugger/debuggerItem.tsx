@@ -1,10 +1,13 @@
 import React from "react";
-import { Icon } from "@appsmith/ads";
-import styles from "./styles.module.css";
-import HelpDropdown from "./helpDropdown";
-import { DebuggerLogType, type DebuggerLog } from "../../types";
-import ObjectView from "./objectView";
+
 import styled from "styled-components";
+
+import { Icon } from "@appsmith/ads";
+
+import { type DebuggerLog, DebuggerLogType } from "../../types";
+import HelpDropdown from "./helpDropdown";
+import ObjectView from "./objectView";
+import styles from "./styles.module.css";
 
 const StyledSpan = styled.span<{ type: string }>`
   color: ${(props) => {

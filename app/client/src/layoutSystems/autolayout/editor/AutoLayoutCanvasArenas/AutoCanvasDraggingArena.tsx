@@ -1,10 +1,12 @@
-import type { AppState } from "ee/reducers";
 import React, { useMemo } from "react";
+
+import type { AppState } from "ee/reducers";
+import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+import type { LayoutDirection } from "layoutSystems/common/utils/constants";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
+
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
-import type { LayoutDirection } from "layoutSystems/common/utils/constants";
-import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 
 export interface AutoCanvasDraggingArenaProps {
   alignItems?: string;

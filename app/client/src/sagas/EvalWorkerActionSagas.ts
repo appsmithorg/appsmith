@@ -1,15 +1,21 @@
-import { all, call, put, select, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
-import log from "loglevel";
-import type { Channel } from "redux-saga";
-import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
 } from "ee/reducers/entityReducers/jsActionsReducer";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+import isEmpty from "lodash/isEmpty";
+import log from "loglevel";
+import type { LintTreeSagaRequestData } from "plugins/Linting/types";
+import type { Channel } from "redux-saga";
+import { all, call, put, select, spawn, take } from "redux-saga/effects";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
+import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
+import type { EvalTreeResponseData } from "workers/Evaluation/types";
+
+import { storeLogs } from "../sagas/DebuggerSagas";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";
 import {
   evalWorker,
@@ -17,12 +23,7 @@ import {
   updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
-import type { EvalTreeResponseData } from "workers/Evaluation/types";
-import isEmpty from "lodash/isEmpty";
-import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
-import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
-import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;

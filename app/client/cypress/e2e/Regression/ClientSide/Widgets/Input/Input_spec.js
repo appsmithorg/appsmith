@@ -1,7 +1,8 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Input Widget Functionality",

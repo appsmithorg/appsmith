@@ -1,11 +1,12 @@
 import type { Diff } from "deep-diff";
+import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Action } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import type { JSActionConfig } from "entities/JSCollection";
+import isEmpty from "lodash/isEmpty";
+
 import ReplayEntity from "..";
 import { pathArrayToString } from "../replayUtils";
-import type { JSActionConfig } from "entities/JSCollection";
-import type { Datasource } from "entities/Datasource";
-import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import isEmpty from "lodash/isEmpty";
 import type { Canvas } from "./ReplayCanvas";
 
 /*

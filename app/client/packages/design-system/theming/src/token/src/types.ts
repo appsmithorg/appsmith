@@ -1,16 +1,16 @@
-import arial from "@capsizecss/metrics/arial";
-import inter from "@capsizecss/metrics/inter";
-import rubik from "@capsizecss/metrics/rubik";
-import roboto from "@capsizecss/metrics/roboto";
-import ubuntu from "@capsizecss/metrics/ubuntu";
-import poppins from "@capsizecss/metrics/poppins";
-import segoeUI from "@capsizecss/metrics/segoeUI";
-import openSans from "@capsizecss/metrics/openSans";
-import notoSans from "@capsizecss/metrics/notoSans";
-import montserrat from "@capsizecss/metrics/montserrat";
-import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
 import appleSystem from "@capsizecss/metrics/appleSystem";
+import arial from "@capsizecss/metrics/arial";
 import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
+import inter from "@capsizecss/metrics/inter";
+import montserrat from "@capsizecss/metrics/montserrat";
+import notoSans from "@capsizecss/metrics/notoSans";
+import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
+import openSans from "@capsizecss/metrics/openSans";
+import poppins from "@capsizecss/metrics/poppins";
+import roboto from "@capsizecss/metrics/roboto";
+import rubik from "@capsizecss/metrics/rubik";
+import segoeUI from "@capsizecss/metrics/segoeUI";
+import ubuntu from "@capsizecss/metrics/ubuntu";
 
 import type { ColorMode, ColorTypes } from "../../color";
 

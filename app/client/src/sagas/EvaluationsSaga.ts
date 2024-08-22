@@ -1,3 +1,67 @@
+import * as Sentry from "@sentry/react";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import WidgetFactory from "WidgetProvider/factory";
+import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
+import {
+  setDependencyMap,
+  setEvaluatedTree,
+  shouldForceEval,
+  shouldLog,
+  shouldProcessAction,
+  shouldTriggerEvaluation,
+} from "actions/evaluationActions";
+import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
+import { executeJSUpdates } from "actions/pluginActionActions";
+import { fetchFeatureFlagsInit } from "actions/userActions";
+import {
+  EventType,
+  TriggerKind,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import type { EvaluationVersion } from "constants/EvalConstants";
+import {
+  EVAL_AND_LINT_REDUX_ACTIONS,
+  FIRST_EVAL_REDUX_ACTIONS,
+  getRequiresLinting,
+} from "ee/actions/evaluationActionsList";
+import { getAppsmithConfigs } from "ee/configs";
+import type {
+  AnyReduxAction,
+  EvaluationReduxAction,
+  ReduxAction,
+  ReduxActionType,
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import { executeActionTriggers } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
+import { transformTriggerEvalErrors } from "ee/sagas/helpers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import {
+  getAllActionValidationConfig,
+  getAllJSActionsData,
+} from "ee/selectors/entitiesSelector";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getIsCurrentEditorWorkflowType } from "ee/selectors/workflowSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
+import type { ActionDescription } from "ee/workers/Evaluation/fns";
+import { APP_MODE } from "entities/App";
+import type { LogObject } from "entities/AppsmithConsole";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
+import type { JSAction, JSCollection } from "entities/JSCollection";
+import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
+import { REPLAY_DELAY } from "entities/Replay/replayUtils";
+import { get, isEmpty } from "lodash";
+import log from "loglevel";
+import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { Action } from "redux";
 import type { ActionPattern, CallEffect, ForkEffect } from "redux-saga/effects";
 import {
   actionChannel,
@@ -10,43 +74,34 @@ import {
   spawn,
   take,
 } from "redux-saga/effects";
-
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-  ReduxActionType,
-  AnyReduxAction,
-} from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
-import WidgetFactory from "WidgetProvider/factory";
-import { GracefulWorkerService } from "utils/WorkerUtil";
+import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
-import log from "loglevel";
-import type { WidgetProps } from "widgets/BaseWidget";
-import * as Sentry from "@sentry/react";
-import type { Action } from "redux";
-import {
-  EVAL_AND_LINT_REDUX_ACTIONS,
-  FIRST_EVAL_REDUX_ACTIONS,
-  getRequiresLinting,
-} from "ee/actions/evaluationActionsList";
-import {
-  setDependencyMap,
-  setEvaluatedTree,
-  shouldForceEval,
-  shouldLog,
-  shouldProcessAction,
-  shouldTriggerEvaluation,
-} from "actions/evaluationActions";
+import { GracefulWorkerService } from "utils/WorkerUtil";
 import ConfigTreeActions from "utils/configTree";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type {
+  EvalTreeRequestData,
+  EvalTreeResponseData,
+} from "workers/Evaluation/types";
+import { validate } from "workers/Evaluation/validations";
+
+import { evalErrorHandler } from "./EvalErrorHandler";
+import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
+import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
+import {
+  getAffectedJSObjectIdsFromAction,
+  parseUpdatesAndDeleteUndefinedUpdates,
+} from "./EvaluationsSagaUtils";
+import type { FormEvalActionPayload } from "./FormEvaluationSaga";
+import { waitForWidgetConfigBuild } from "./InitSagas";
+import { initiateLinting, lintWorker } from "./LintingSagas";
 import {
   dynamicTriggerErrorHandler,
   handleJSFunctionExecutionErrorLog,
@@ -55,62 +110,6 @@ import {
   postEvalActionDispatcher,
   updateTernDefinitions,
 } from "./PostEvaluationSagas";
-import type { JSAction, JSCollection } from "entities/JSCollection";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
-import { get, isEmpty } from "lodash";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
-import { executeActionTriggers } from "ee/sagas/ActionExecution/ActionExecutionSagas";
-import {
-  EventType,
-  TriggerKind,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import { validate } from "workers/Evaluation/validations";
-import { REPLAY_DELAY } from "entities/Replay/replayUtils";
-import type { EvaluationVersion } from "constants/EvalConstants";
-
-import type { LogObject } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
-import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
-import type { FormEvalActionPayload } from "./FormEvaluationSaga";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
-import {
-  getAllActionValidationConfig,
-  getAllJSActionsData,
-} from "ee/selectors/entitiesSelector";
-import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
-import type {
-  ConfigTree,
-  DataTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeTypes";
-import { initiateLinting, lintWorker } from "./LintingSagas";
-import type {
-  EvalTreeRequestData,
-  EvalTreeResponseData,
-} from "workers/Evaluation/types";
-import type { ActionDescription } from "ee/workers/Evaluation/fns";
-import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { getAppsmithConfigs } from "ee/configs";
-import { executeJSUpdates } from "actions/pluginActionActions";
-import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
-import { waitForWidgetConfigBuild } from "./InitSagas";
-import { logDynamicTriggerExecution } from "ee/sagas/analyticsSaga";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { fetchFeatureFlagsInit } from "actions/userActions";
-import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
-import {
-  getAffectedJSObjectIdsFromAction,
-  parseUpdatesAndDeleteUndefinedUpdates,
-} from "./EvaluationsSagaUtils";
-import { getFeatureFlagsFetched } from "selectors/usersSelectors";
-import { getIsCurrentEditorWorkflowType } from "ee/selectors/workflowSelectors";
-import { evalErrorHandler } from "./EvalErrorHandler";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { transformTriggerEvalErrors } from "ee/sagas/helpers";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(

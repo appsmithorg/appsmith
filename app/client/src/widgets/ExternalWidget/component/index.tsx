@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import script from "!!raw-loader!./script.js";
+import css from "!!raw-loader!./reset.css";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import css from "!!raw-loader!./reset.css";
+import script from "!!raw-loader!./script.js";
+import styled from "styled-components";
 
 const StyledIframe = styled.iframe`
   width: ${(props) => props.width}px;

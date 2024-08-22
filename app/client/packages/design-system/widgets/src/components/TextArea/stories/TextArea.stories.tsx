@@ -1,6 +1,8 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
-import { TextArea, Flex } from "@appsmith/wds";
+
+import { Flex, TextArea } from "@appsmith/wds";
 
 /**
  * TextArea is a component that is similar to the native textarea element, but with a few extra features.

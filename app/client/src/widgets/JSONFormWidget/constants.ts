@@ -1,6 +1,6 @@
 import type { ControllerRenderProps } from "react-hook-form/dist/types/controller";
-
 import type { InputType } from "widgets/InputWidget/constants";
+
 import {
   ArrayField,
   CheckboxField,

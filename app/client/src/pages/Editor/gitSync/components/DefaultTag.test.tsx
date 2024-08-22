@@ -1,7 +1,9 @@
-import DefaultTag from "./DefaultTag";
-import { render, screen } from "test/testUtils";
 import React from "react";
+
 import "jest-styled-components";
+import { render, screen } from "test/testUtils";
+
+import DefaultTag from "./DefaultTag";
 
 describe("DefaultTag", () => {
   it("renders properly", async () => {

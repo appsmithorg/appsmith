@@ -1,14 +1,17 @@
-import { useWidgetBorderStyles } from "./useWidgetBorderStyles";
-import { useDispatch, useSelector } from "react-redux";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
-import log from "loglevel";
 import { useEffect, useMemo } from "react";
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
-import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
+
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
+import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
+import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import log from "loglevel";
+import { useDispatch, useSelector } from "react-redux";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+
+import { useWidgetBorderStyles } from "./useWidgetBorderStyles";
+
 /**
  * This hook is used to select and focus on a detached widget
  * As detached widgets are outside of the layout flow, we need to access the correct element in the DOM

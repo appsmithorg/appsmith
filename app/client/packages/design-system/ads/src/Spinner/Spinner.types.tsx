@@ -1,5 +1,6 @@
-import type { IconProps } from "../Icon";
 import type React from "react";
+
+import type { IconProps } from "../Icon";
 import type { Sizes } from "../__config__/types";
 
 export type SpinnerSizes = Extract<Sizes, "sm" | "md" | "lg">;

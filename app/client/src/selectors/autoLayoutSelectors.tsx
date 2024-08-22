@@ -1,17 +1,18 @@
-import type { AppState } from "ee/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
-import { createSelector } from "reselect";
-import { getCanvasAndMetaWidgets } from "sagas/selectors";
+import type { AppState } from "ee/reducers";
+import { getAlignmentColumnInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
 } from "layoutSystems/autolayout/utils/types";
-import { getAlignmentColumnInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
 import type {
   FlexLayer,
   LayerChild,
 } from "layoutSystems/autolayout/utils/types";
+import { createSelector } from "reselect";
+import { getCanvasAndMetaWidgets } from "sagas/selectors";
+
+import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
 
 export const getIsCurrentlyConvertingLayout = (state: AppState) =>
   state.ui.layoutConversion.isConverting;

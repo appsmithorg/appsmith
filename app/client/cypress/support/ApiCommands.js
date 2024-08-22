@@ -1,12 +1,14 @@
+import ApiEditor from "../locators/ApiEditor";
+import { ObjectsRegistry } from "./Objects/Registry";
+
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-import ApiEditor from "../locators/ApiEditor";
+
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
-import { ObjectsRegistry } from "./Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 let dataSources = ObjectsRegistry.DataSources;

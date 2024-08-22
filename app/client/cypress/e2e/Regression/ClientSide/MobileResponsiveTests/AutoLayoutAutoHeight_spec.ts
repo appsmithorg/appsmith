@@ -1,12 +1,12 @@
 import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
-  entityExplorer,
-  propPane,
   autoLayout,
-  draggableWidgets,
   deployMode,
+  draggableWidgets,
+  entityExplorer,
   locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

@@ -1,10 +1,16 @@
 import React from "react";
+
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
-  createMessage,
   DELETE_CONFIRMATION_MODAL_TITLE,
   DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT,
   SAVE_OR_DISCARD_DATASOURCE_WARNING,
+  createMessage,
 } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import {
   Button,
   Modal,
@@ -14,10 +20,6 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 interface SaveOrDiscardModalProps {
   isOpen: boolean;

@@ -1,9 +1,10 @@
-import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
-import { getDatasourceConnectionMode } from "./utils";
-import type { DatasourceStorage } from "entities/Datasource";
-import { PluginPackageName } from "entities/Action";
-import PostgreSQL from "WidgetQueryGenerators/PostgreSQL";
 import GSheets from "WidgetQueryGenerators/GSheets";
+import PostgreSQL from "WidgetQueryGenerators/PostgreSQL";
+import { PluginPackageName } from "entities/Action";
+import type { DatasourceStorage } from "entities/Datasource";
+import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
+
+import { getDatasourceConnectionMode } from "./utils";
 
 describe("getDatasourceConnectionMode", () => {
   beforeAll(() => {

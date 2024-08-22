@@ -1,15 +1,18 @@
-import noop from "lodash/noop";
 import type {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
 } from "ee/workers/Evaluation/evalWorkerActions";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
-import type { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
+import noop from "lodash/noop";
+
+import { evalTreeWithChanges } from "../evalTreeWithChanges";
+import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import type { EvalWorkerASyncRequest, EvalWorkerSyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";
 import {
-  evalTree,
   clearCache,
+  evalTree,
   evalTreeTransmissionErrorHandler,
 } from "./evalTree";
 import evalTrigger from "./evalTrigger";
@@ -19,10 +22,8 @@ import { redo, undo, updateReplayObject } from "./replay";
 import setupEvaluationEnvironment, {
   setEvaluationVersion,
 } from "./setupEvalEnv";
-import validateProperty from "./validateProperty";
 import updateActionData from "./updateActionData";
-import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
-import { evalTreeWithChanges } from "../evalTreeWithChanges";
+import validateProperty from "./validateProperty";
 
 const syncHandlerMap: Record<
   EVAL_WORKER_SYNC_ACTION,

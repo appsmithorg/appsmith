@@ -1,19 +1,22 @@
 import React from "react";
+
 import {
-  Popover,
   Classes,
+  Icon,
+  Popover,
   PopoverInteractionKind,
   Position,
-  Icon,
 } from "@blueprintjs/core";
+import Button from "components/editorComponents/Button";
+import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import Button from "components/editorComponents/Button";
-import type { ReactTableColumnProps } from "./Constants";
-import { TableIconWrapper } from "./TableStyledWrappers";
-import TableActionIcon from "./TableActionIcon";
+
 import { importSvg } from "@appsmith/ads-old";
+
+import type { ReactTableColumnProps } from "./Constants";
+import TableActionIcon from "./TableActionIcon";
+import { TableIconWrapper } from "./TableStyledWrappers";
 
 const VisibleIcon = importSvg(
   async () => import("assets/icons/control/columns-visibility.svg"),

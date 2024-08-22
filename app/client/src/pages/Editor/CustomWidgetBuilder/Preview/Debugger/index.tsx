@@ -1,14 +1,17 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import { Tabs, TabsList, Tab, TabPanel, Icon, Tooltip } from "@appsmith/ads";
-import DebuggerItem from "./debuggerItem";
-import styles from "./styles.module.css";
-import Counter from "./counter";
+
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
+
+import { Icon, Tab, TabPanel, Tabs, TabsList, Tooltip } from "@appsmith/ads";
+
 import { CustomWidgetBuilderContext } from "../..";
 import { DebuggerLogType } from "../../types";
 import BugIcon from "../Debugger/icon.svg";
-import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import Counter from "./counter";
+import DebuggerItem from "./debuggerItem";
+import styles from "./styles.module.css";
 
 const LOCAL_STORAGE_KEYS_IS_DEBUGGER_OPEN =
   "custom-widget-builder-context-state-is-debugger-open";

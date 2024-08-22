@@ -1,5 +1,6 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { klona } from "klona";
+
 import {
   accessNestedObjectValue,
   handleJSONFormPropertiesListedInDynamicBindingPath,

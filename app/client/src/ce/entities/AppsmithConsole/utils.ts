@@ -1,4 +1,5 @@
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+
 import type { DataTreeEntityConfig } from "../DataTree/types";
 
 export enum ENTITY_TYPE {

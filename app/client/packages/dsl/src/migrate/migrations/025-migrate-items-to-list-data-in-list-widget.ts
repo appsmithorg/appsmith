@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { DSLWidget } from "../types";
 import get from "lodash/get";
 import isString from "lodash/isString";
 import set from "lodash/set";
+
+import type { DSLWidget } from "../types";
 
 const renameKeyInObject = (object: any, key: string, newKey: string) => {
   if (object[key]) {

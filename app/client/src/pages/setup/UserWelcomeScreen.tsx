@@ -1,14 +1,16 @@
 import React, { memo, useEffect } from "react";
-import styled from "styled-components";
+
 import {
-  createMessage,
   WELCOME_BODY,
   WELCOME_HEADER,
+  createMessage,
 } from "ee/constants/messages";
-import NonSuperUserProfilingQuestions from "./NonSuperUserProfilingQuestions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import WelcomeBackground from "./WelcomeBackground";
+import styled from "styled-components";
+
+import NonSuperUserProfilingQuestions from "./NonSuperUserProfilingQuestions";
 import SetupForm from "./SetupForm";
+import WelcomeBackground from "./WelcomeBackground";
 
 const LandingPageWrapper = styled.div`
   width: 100%;

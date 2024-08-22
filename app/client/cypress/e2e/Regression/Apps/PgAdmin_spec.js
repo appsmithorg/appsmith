@@ -1,11 +1,12 @@
 import {
   agHelper,
-  deployMode,
-  dataSources,
   assertHelper,
-  locators,
+  dataSources,
+  deployMode,
   draggableWidgets,
+  locators,
 } from "../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 

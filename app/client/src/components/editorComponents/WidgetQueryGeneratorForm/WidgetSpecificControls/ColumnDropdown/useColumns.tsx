@@ -1,20 +1,22 @@
-import type { AppState } from "ee/reducers";
-import { PluginPackageName } from "entities/Action";
-import { isArray } from "lodash";
 import { useContext, useMemo } from "react";
-import { useSelector } from "react-redux";
-import {
-  getGsheetsColumns,
-  getIsFetchingGsheetsColumns,
-} from "selectors/datasourceSelectors";
+
+import type { AppState } from "ee/reducers";
 import {
   getDatasourceTableColumns,
   getDatasourceTablePrimaryColumn,
   getPluginPackageFromDatasourceId,
 } from "ee/selectors/entitiesSelector";
-import { WidgetQueryGeneratorFormContext } from "../..";
-import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
+import { PluginPackageName } from "entities/Action";
+import { isArray } from "lodash";
+import { useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
+import {
+  getGsheetsColumns,
+  getIsFetchingGsheetsColumns,
+} from "selectors/datasourceSelectors";
+import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
+
+import { WidgetQueryGeneratorFormContext } from "../..";
 import { useColumnDropdown } from "./useColumnDropdown";
 
 export function useColumns(alias: string, isSearcheable: boolean) {

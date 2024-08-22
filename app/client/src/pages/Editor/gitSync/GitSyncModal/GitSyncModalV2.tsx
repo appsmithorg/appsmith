@@ -1,4 +1,19 @@
 import React, { useCallback } from "react";
+
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
+import {
+  CONFIGURE_GIT,
+  DEPLOY,
+  IMPORT_APP,
+  MERGE,
+  createMessage,
+} from "ee/constants/messages";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { GitSyncModalTab } from "entities/GitSync";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   getActiveGitSyncModalTab,
   getIsDeploying,
@@ -6,31 +21,17 @@ import {
   getIsGitSyncModalOpen,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
-import Menu from "../Menu";
-import Deploy from "../Tabs/Deploy";
-import Merge from "../Tabs/Merge";
-
-import GitErrorPopup from "../components/GitErrorPopup";
-
-import {
-  CONFIGURE_GIT,
-  createMessage,
-  DEPLOY,
-  MERGE,
-  IMPORT_APP,
-} from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Modal, ModalContent, ModalHeader } from "@appsmith/ads";
-import GitConnectionV2 from "../Tabs/GitConnectionV2";
-import { GitSyncModalTab } from "entities/GitSync";
-import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
+
+import { Modal, ModalContent, ModalHeader } from "@appsmith/ads";
+
+import Menu from "../Menu";
+import ConnectionSuccess from "../Tabs/ConnectionSuccess";
+import Deploy from "../Tabs/Deploy";
+import GitConnectionV2 from "../Tabs/GitConnectionV2";
+import Merge from "../Tabs/Merge";
+import GitErrorPopup from "../components/GitErrorPopup";
 import ReconnectSSHError from "../components/ReconnectSSHError";
-import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledModalContent = styled(ModalContent)`
   &&& {

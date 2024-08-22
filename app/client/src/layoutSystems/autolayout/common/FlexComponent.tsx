@@ -1,21 +1,22 @@
 import type { CSSProperties } from "react";
 import React, { useCallback, useMemo } from "react";
-import styled from "styled-components";
 
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { useSelector } from "react-redux";
 import {
   combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
+import styled from "styled-components";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
+import { useHoverToFocusWidget } from "utils/hooks/useHoverToFocusWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+
 import type { FlexComponentProps } from "../../autolayout/utils/types";
-import { useHoverToFocusWidget } from "utils/hooks/useHoverToFocusWidget";
 
 const FlexWidget = styled.div`
   position: relative;

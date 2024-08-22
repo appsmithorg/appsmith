@@ -1,11 +1,11 @@
+import { FALLBACK_KEY } from "ee/constants/UsagePulse";
 import { isEditorPath } from "ee/pages/Editor/Explorer/helpers";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_MODE } from "entities/App";
 import { isNil } from "lodash";
 import nanoid from "nanoid";
-import { getAppMode } from "ee/selectors/entitiesSelector";
 import store from "store";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { FALLBACK_KEY } from "ee/constants/UsagePulse";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
 export const fetchWithRetry = (config: {

@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+
 import reducer, {
   initialState as reducerInitialState,
 } from "./canvasWidgetsReducer";

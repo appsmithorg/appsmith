@@ -1,14 +1,14 @@
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
-  draggableWidgets,
   apiPage,
+  assertHelper,
+  draggableWidgets,
+  entityExplorer,
   entityItems,
   homePage,
-  assertHelper,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

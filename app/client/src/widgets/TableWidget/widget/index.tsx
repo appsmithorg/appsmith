@@ -1,49 +1,57 @@
-import React, { lazy, Suspense } from "react";
-import log from "loglevel";
-import moment from "moment";
+import React, { Suspense, lazy } from "react";
+
+import type { IconName } from "@blueprintjs/icons";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { ButtonVariantTypes } from "components/constants";
+import Skeleton from "components/utils/Skeleton";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { RenderModes } from "constants/WidgetConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import equal from "fast-deep-equal/es6";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
+  find,
+  isArray,
+  isBoolean,
+  isEmpty,
+  isNil,
   isNumber,
   isString,
-  isNil,
-  xor,
-  without,
-  isBoolean,
-  isArray,
   sortBy,
+  without,
+  xor,
   xorWith,
-  isEmpty,
-  find,
 } from "lodash";
-import equal from "fast-deep-equal/es6";
-
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import { RenderModes } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { RenderMenuButtonProps } from "../component/TableUtilities";
-import {
-  getDefaultColumnProperties,
-  getTableStyles,
-  renderCell,
-  renderDropdown,
-  renderActions,
-  renderMenuButton,
-  renderIconButton,
-} from "../component/TableUtilities";
-import { getAllTableColumnKeys } from "../component/TableHelpers";
-import Skeleton from "components/utils/Skeleton";
+import { cloneDeep, set } from "lodash";
+import log from "loglevel";
+import moment from "moment";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import type { ReactTableFilter } from "../component/Constants";
-import { OperatorTypes } from "../component/Constants";
-import type { TableWidgetProps } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
-import { selectRowIndex, selectRowIndices } from "./utilities";
+import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import {
+  DefaultAutocompleteDefinitions,
+  borderRadiusUtility,
+  boxShadowMigration,
+} from "widgets/WidgetUtils";
 
+import type { ReactTableFilter } from "../component/Constants";
+import { OperatorTypes } from "../component/Constants";
 import type {
   ColumnProperties,
   ReactTableColumnProps,
@@ -53,32 +61,23 @@ import {
   CompactModeTypes,
   SortOrderTypes,
 } from "../component/Constants";
-import tablePropertyPaneConfig from "./propertyConfig";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { IconName } from "@blueprintjs/icons";
-import { getCellProperties } from "./getTableColumns";
-import { Colors } from "constants/Colors";
+import { getAllTableColumnKeys } from "../component/TableHelpers";
+import type { RenderMenuButtonProps } from "../component/TableUtilities";
 import {
-  borderRadiusUtility,
-  boxShadowMigration,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
-import { ButtonVariantTypes } from "components/constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
-import { cloneDeep, set } from "lodash";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { combineDynamicBindings } from "utils/DynamicBindingUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
+  getDefaultColumnProperties,
+  getTableStyles,
+  renderActions,
+  renderCell,
+  renderDropdown,
+  renderIconButton,
+  renderMenuButton,
+} from "../component/TableUtilities";
+import type { TableWidgetProps } from "../constants";
 import IconSVG from "../icon.svg";
+import { getCellProperties } from "./getTableColumns";
+import derivedProperties from "./parseDerivedProperties";
+import tablePropertyPaneConfig from "./propertyConfig";
+import { selectRowIndex, selectRowIndices } from "./utilities";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

@@ -1,6 +1,6 @@
 import type { RefObject } from "react";
-import type { TextFieldAria } from "@react-aria/textfield";
 
+import type { TextFieldAria } from "@react-aria/textfield";
 import type { PressEvents } from "@react-types/shared";
 
 import type { TextInputProps } from "../../TextInput";

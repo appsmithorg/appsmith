@@ -1,7 +1,7 @@
 import Color from "colorjs.io";
-import { ColorsAccessor } from "./ColorsAccessor";
-
 import type { ColorTypes } from "colorjs.io/types/src/color";
+
+import { ColorsAccessor } from "./ColorsAccessor";
 import type { ColorModeTheme } from "./types";
 
 export class LightModeTheme implements ColorModeTheme {

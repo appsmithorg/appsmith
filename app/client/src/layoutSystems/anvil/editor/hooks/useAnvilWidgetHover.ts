@@ -1,6 +1,7 @@
+import { useCallback, useEffect } from "react";
+
 import type { AppState } from "ee/reducers";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
-import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isWidgetFocused } from "selectors/widgetSelectors";

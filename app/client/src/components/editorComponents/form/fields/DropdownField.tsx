@@ -1,12 +1,14 @@
 import React from "react";
+
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
 import type { BaseFieldProps, WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
-import { replayHighlightClass } from "globalStyles/portals";
-import type { SelectOptionProps, SelectProps } from "@appsmith/ads";
-import { Select, Option } from "@appsmith/ads";
 import styled from "styled-components";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+
+import type { SelectOptionProps, SelectProps } from "@appsmith/ads";
+import { Option, Select } from "@appsmith/ads";
 
 const Container = styled.div`
   display: flex;

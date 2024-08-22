@@ -1,6 +1,8 @@
 import React from "react";
-import { List, ListItem, Icon } from "@appsmith/ads";
+
 import type { StoryObj } from "@storybook/react";
+
+import { Icon, List, ListItem } from "@appsmith/ads";
 import type { ListItemProps, ListProps } from "@appsmith/ads";
 
 export default {

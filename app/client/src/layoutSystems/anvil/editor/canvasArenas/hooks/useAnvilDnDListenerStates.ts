@@ -1,22 +1,24 @@
-import { useSelector } from "react-redux";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { getSelectedWidgets } from "selectors/ui";
+import { useMemo } from "react";
+
 import {
   type DraggedWidget,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
-import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
+import { useSelector } from "react-redux";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getWidgets } from "sagas/selectors";
+import { getSelectedWidgets } from "selectors/ui";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+
+import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
+import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
+import { type AnvilDragMeta, AnvilDropTargetTypesEnum } from "../types";
 import { canActivateCanvasForDraggedWidget } from "../utils/utils";
 import { useAnvilDnDCompensators } from "./useAnvilDnDCompensators";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
-import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
-import { getWidgets } from "sagas/selectors";
-import { useMemo } from "react";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
 
 interface AnvilDnDListenerStatesProps {
   anvilGlobalDragStates: AnvilGlobalDnDStates;

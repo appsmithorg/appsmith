@@ -1,8 +1,10 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
 import { MemoryRouter } from "react-router-dom";
+
 import { Callout } from "./Callout";
 import type { CalloutProps } from "./Callout.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Callout",

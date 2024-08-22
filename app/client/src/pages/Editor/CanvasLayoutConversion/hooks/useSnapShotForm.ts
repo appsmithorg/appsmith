@@ -1,7 +1,11 @@
 import {
+  setConversionStop,
+  setLayoutConversionStateAction,
+} from "actions/autoLayoutActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
   BACK,
   CANCEL_DIALOG,
-  createMessage,
   DISCARD,
   DISCARD_SNAPSHOT_TEXT,
   RESTORING_SNAPSHOT,
@@ -9,22 +13,18 @@ import {
   SNAPSHOT_TIME_FROM_MESSAGE,
   USE_SNAPSHOT,
   USE_SNAPSHOT_TEXT,
+  createMessage,
 } from "ee/constants/messages";
-import type { ConversionProps } from "../ConversionForm";
-
-import type { Dispatch } from "redux";
-import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import {
-  setConversionStop,
-  setLayoutConversionStateAction,
-} from "actions/autoLayoutActions";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
-import { commonConversionFlows } from "./CommonConversionFlows";
-import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import type { ReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { useDispatch, useSelector } from "react-redux";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
+import type { Dispatch } from "redux";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
+
+import type { ConversionProps } from "../ConversionForm";
+import { commonConversionFlows } from "./CommonConversionFlows";
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (

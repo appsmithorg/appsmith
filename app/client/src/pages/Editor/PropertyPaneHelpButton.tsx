@@ -1,13 +1,14 @@
 import React, { useCallback } from "react";
-import { useSelector, useDispatch } from "react-redux";
 
+import WidgetFactory from "WidgetProvider/factory";
 import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import WidgetFactory from "WidgetProvider/factory";
+import { useDispatch, useSelector } from "react-redux";
 import { getSelectedWidget } from "sagas/selectors";
+
 import { Icon } from "@appsmith/ads";
 
 function PropertyPaneHelpButton() {

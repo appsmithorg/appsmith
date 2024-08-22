@@ -1,6 +1,6 @@
+import { GridDefaults } from "constants/WidgetConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { GridDefaults } from "constants/WidgetConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 
 export interface UpdateWidgetAutoHeightPayload {

@@ -1,7 +1,6 @@
-import type { AxiosPromise, AxiosRequestConfig } from "axios";
-
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
+import type { AxiosPromise, AxiosRequestConfig } from "axios";
 
 export type FetchCurrentTenantConfigResponse = ApiResponse<{
   userPermissions: string[];

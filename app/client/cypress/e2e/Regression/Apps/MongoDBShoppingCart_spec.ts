@@ -1,14 +1,15 @@
-const appPage = require("../../../locators/PgAdminlocators.json");
 import {
   agHelper,
   assertHelper,
-  deployMode,
-  homePage,
-  gitSync,
   dataSources,
+  deployMode,
+  gitSync,
+  homePage,
   locators,
   table,
 } from "../../../support/Objects/ObjectsCore";
+
+const appPage = require("../../../locators/PgAdminlocators.json");
 
 describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
   let datasourceName: string, repoName: any;

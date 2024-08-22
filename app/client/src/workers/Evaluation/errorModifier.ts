@@ -1,19 +1,20 @@
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import * as Sentry from "@sentry/react";
+import { getMemberExpressionObjectFromProperty } from "@shared/ast";
 import { getAllAsyncFunctions } from "ee/workers/Evaluation/Actions";
+import { isAction } from "ee/workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "entities/App";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import type DependencyMap from "entities/DependencyMap";
+import { get, isEmpty, toPath } from "lodash";
+import log from "loglevel";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
-import type DependencyMap from "entities/DependencyMap";
 import {
   getAllAsyncJSFunctions,
   isDataField,
 } from "workers/common/DataTreeEvaluator/utils";
+
 import { jsPropertiesState } from "./JSObject/jsPropertiesState";
-import { get, isEmpty, toPath } from "lodash";
-import { APP_MODE } from "entities/App";
-import { isAction } from "ee/workers/Evaluation/evaluationUtils";
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
-import { getMemberExpressionObjectFromProperty } from "@shared/ast";
 
 interface ErrorMetaData {
   userScript: string;

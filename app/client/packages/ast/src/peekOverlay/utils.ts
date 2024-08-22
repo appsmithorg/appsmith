@@ -1,4 +1,7 @@
 import type { Node } from "acorn";
+import * as escodegen from "escodegen";
+
+import { NodeTypes } from "../constants/ast";
 import type {
   BinaryExpressionNode,
   CallExpressionNode,
@@ -17,8 +20,6 @@ import {
   isMemberExpressionNode,
   isThisExpressionNode,
 } from "../index";
-import * as escodegen from "escodegen";
-import { NodeTypes } from "../constants/ast";
 import type { PeekOverlayExpressionIdentifierOptions } from "./index";
 
 export const isPositionWithinNode = (node: Node, pos: number) =>

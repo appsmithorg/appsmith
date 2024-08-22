@@ -1,25 +1,28 @@
-import type { TextViewProps } from "../../types";
-import {
-  ControlWrapper,
-  FieldWrapper,
-} from "components/propertyControls/StyledControls";
-import { InputText } from "components/propertyControls/InputTextControl";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import React, { useEffect, useMemo, useState } from "react";
-import { getCodeFromMoustache } from "../../utils";
-import { useDispatch, useSelector } from "react-redux";
-import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
-import { generateReactKey } from "utils/generators";
+
+import { isFunctionPresent } from "@shared/ast";
 import {
   clearEvaluatedActionSelectorField,
   evaluateActionSelectorField,
 } from "actions/actionSelectorActions";
-import { isFunctionPresent } from "@shared/ast";
+import { InputText } from "components/propertyControls/InputTextControl";
+import {
+  ControlWrapper,
+  FieldWrapper,
+} from "components/propertyControls/StyledControls";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
+import { useDispatch, useSelector } from "react-redux";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { generateReactKey } from "utils/generators";
+
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
 } from "@appsmith/ads";
+
+import type { TextViewProps } from "../../types";
+import { getCodeFromMoustache } from "../../utils";
 
 export function TextView(props: TextViewProps) {
   const id = useMemo(() => generateReactKey(), []);

@@ -1,21 +1,24 @@
-import React, { useMemo, useCallback, useEffect } from "react";
-import styled from "styled-components";
-import { Classes, FontWeight, Text, TextType } from "@appsmith/ads-old";
-import history from "utils/history";
-import { TabbedViewContainer } from "./CommonEditorForm";
-import get from "lodash/get";
-import { getQueryParams } from "utils/URLUtils";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
-import { sortedDatasourcesHandler } from "./helpers";
-import { datasourcesEditorIdURL } from "ee/RouteBuilder";
+import React, { useCallback, useEffect, useMemo } from "react";
+
 import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
+import type { SuggestedWidget } from "api/ActionAPI";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import type { Datasource } from "entities/Datasource";
+import get from "lodash/get";
+import isUndefined from "lodash/isUndefined";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
-import isUndefined from "lodash/isUndefined";
+import styled from "styled-components";
+import { getQueryParams } from "utils/URLUtils";
+import history from "utils/history";
+
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "@appsmith/ads";
-import type { Datasource } from "entities/Datasource";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import type { SuggestedWidget } from "api/ActionAPI";
+import { Classes, FontWeight, Text, TextType } from "@appsmith/ads-old";
+
+import { TabbedViewContainer } from "./CommonEditorForm";
+import { sortedDatasourcesHandler } from "./helpers";
 
 interface ApiRightPaneProps {
   additionalSections?: React.ReactNode;

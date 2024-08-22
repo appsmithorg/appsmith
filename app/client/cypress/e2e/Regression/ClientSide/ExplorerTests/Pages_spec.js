@@ -3,6 +3,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+
 const locators = {
   errorPageTitle: ".t--error-page-title",
 };

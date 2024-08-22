@@ -1,21 +1,22 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
-import type { AppState } from "ee/reducers";
-
+import { useToggle } from "@mantine/hooks";
 import {
-  moveActionRequest,
   copyActionRequest,
   deleteAction,
+  moveActionRequest,
 } from "actions/pluginActionActions";
-
 import {
+  CONFIRM_CONTEXT_DELETE,
   CONTEXT_COPY,
   CONTEXT_DELETE,
-  CONFIRM_CONTEXT_DELETE,
   CONTEXT_MOVE,
   createMessage,
 } from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import { useDispatch, useSelector } from "react-redux";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
+
 import {
   Button,
   Menu,
@@ -26,8 +27,6 @@ import {
   MenuSubTrigger,
   MenuTrigger,
 } from "@appsmith/ads";
-import { useToggle } from "@mantine/hooks";
-import { convertToPageIdSelector } from "selectors/pageListSelectors";
 
 interface EntityContextMenuProps {
   id: string;

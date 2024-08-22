@@ -1,12 +1,15 @@
 import React, { useRef } from "react";
+
+import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
+import styled from "styled-components";
+import { isEllipsisActive } from "utils/helpers";
+
+import { Tooltip } from "@appsmith/ads";
+
 import {
   DATASOURCE_FIELD_ICONS_MAP,
   datasourceColumnIcon,
 } from "../Explorer/ExplorerIcons";
-import styled from "styled-components";
-import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
-import { Tooltip } from "@appsmith/ads";
-import { isEllipsisActive } from "utils/helpers";
 
 const Wrapper = styled.div<{ step: number }>`
   padding-left: ${(props) =>

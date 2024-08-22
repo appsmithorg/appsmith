@@ -1,34 +1,35 @@
-import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
-import {
-  getAllPaths,
-  DataTreeDiffEvent,
-  getEntityNameAndPropertyPath,
-  isDynamicLeaf,
-} from "ee/workers/Evaluation/evaluationUtils";
-import type {
-  WidgetEntity,
-  ActionEntity,
-  JSActionEntity,
-  DataTreeEntityObject,
-} from "ee/entities/DataTree/types";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { convertArrayToObject, extractInfoFromBindings } from "./utils";
-import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { get, isEmpty, set } from "lodash";
-import { getFixedTimeDifference } from "../DataTreeEvaluator/utils";
-import {
-  getEntityDependencies,
-  getEntityPathDependencies,
-} from "./utils/getEntityDependencies";
-import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
+import type {
+  ActionEntity,
+  DataTreeEntityObject,
+  JSActionEntity,
+  WidgetEntity,
+} from "ee/entities/DataTree/types";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import {
   getAllSetterFunctions,
   getEntitySetterFunctions,
 } from "ee/workers/Evaluation/Actions";
-import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
+import {
+  DataTreeDiffEvent,
+  getAllPaths,
+  getEntityNameAndPropertyPath,
+  isDynamicLeaf,
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import { get, isEmpty, set } from "lodash";
+import { getEntityId, getEvalErrorPath } from "utils/DynamicBindingUtils";
+import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
+
+import { getFixedTimeDifference } from "../DataTreeEvaluator/utils";
+import { convertArrayToObject, extractInfoFromBindings } from "./utils";
+import {
+  getEntityDependencies,
+  getEntityPathDependencies,
+} from "./utils/getEntityDependencies";
 
 export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,

@@ -1,29 +1,32 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
-import { Field } from "redux-form";
-import { FormBodyWrapper } from "./common";
+
+import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
+import FormTextField from "components/utils/ReduxFormTextField";
 import {
-  createMessage,
-  WELCOME_FORM_EMAIL_ID,
-  WELCOME_FORM_FIRST_NAME,
-  WELCOME_FORM_LAST_NAME,
-  WELCOME_FORM_CREATE_PASSWORD,
-  WELCOME_FORM_VERIFY_PASSWORD,
   CONTINUE,
   ONBOARDING_STATUS_GET_STARTED,
   PRODUCT_UPDATES_CONFIRMATION_LABEL,
-  WELCOME_FORM_NON_SUPER_USER_USE_CASE,
+  WELCOME_FORM_CREATE_PASSWORD,
+  WELCOME_FORM_EMAIL_ID,
+  WELCOME_FORM_FIRST_NAME,
+  WELCOME_FORM_LAST_NAME,
   WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
+  WELCOME_FORM_NON_SUPER_USER_USE_CASE,
+  WELCOME_FORM_VERIFY_PASSWORD,
+  createMessage,
 } from "ee/constants/messages";
-import FormTextField from "components/utils/ReduxFormTextField";
-import type { FormErrors, InjectedFormProps } from "redux-form";
-import { FormGroup } from "@appsmith/ads-old";
-import { Button, Checkbox } from "@appsmith/ads";
-import { proficiencyOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+import { Field } from "redux-form";
+import type { FormErrors, InjectedFormProps } from "redux-form";
+import styled from "styled-components";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
-import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
+
+import { Button, Checkbox } from "@appsmith/ads";
+import { FormGroup } from "@appsmith/ads-old";
+
 import { Space } from "./NonSuperUserProfilingQuestions";
+import { FormBodyWrapper } from "./common";
+import { proficiencyOptions, useCaseOptions } from "./constants";
 
 export interface DetailsFormValues {
   firstName?: string;

@@ -1,37 +1,38 @@
 import React, { useRef } from "react";
+
+import { Classes } from "@blueprintjs/core";
+import { ScrollIndicator } from "@design-system/widgets-old";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 import { reduce } from "lodash";
+import { Scrollbars } from "react-custom-scrollbars";
 import type { Row } from "react-table";
 import {
-  useTable,
-  usePagination,
   useBlockLayout,
+  usePagination,
   useResizeColumns,
   useRowSelect,
+  useTable,
 } from "react-table";
+
+import type {
+  CompactMode,
+  ReactTableColumnProps,
+  ReactTableFilter,
+} from "./Constants";
+import { CompactModeTypes, TABLE_SIZES } from "./Constants";
+import TableHeader from "./TableHeader";
 import {
-  TableWrapper,
-  TableHeaderWrapper,
   TableHeaderInnerWrapper,
+  TableHeaderWrapper,
+  TableWrapper,
 } from "./TableStyledWrappers";
 import {
   TableHeaderCell,
-  renderEmptyRows,
   renderCheckBoxCell,
   renderCheckBoxHeaderCell,
+  renderEmptyRows,
 } from "./TableUtilities";
-import TableHeader from "./TableHeader";
-import { Classes } from "@blueprintjs/core";
-import type {
-  ReactTableColumnProps,
-  ReactTableFilter,
-  CompactMode,
-} from "./Constants";
-import { TABLE_SIZES, CompactModeTypes } from "./Constants";
-import { Colors } from "constants/Colors";
-
-import { ScrollIndicator } from "@design-system/widgets-old";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Scrollbars } from "react-custom-scrollbars";
 
 interface TableProps {
   width: number;

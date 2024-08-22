@@ -1,14 +1,15 @@
-import type { AppState } from "ee/reducers";
-import { createSelector } from "reselect";
-import {
-  getCurrentActions,
-  getCanvasWidgets,
-} from "ee/selectors/entitiesSelector";
-import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
-import { isBoolean, intersection } from "lodash";
-import { getEvaluationInverseDependencyMap } from "./dataTreeSelectors";
-import { getNestedValue } from "pages/Editor/utils";
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
+import type { AppState } from "ee/reducers";
+import {
+  getCanvasWidgets,
+  getCurrentActions,
+} from "ee/selectors/entitiesSelector";
+import { intersection, isBoolean } from "lodash";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import { getNestedValue } from "pages/Editor/utils";
+import { createSelector } from "reselect";
+
+import { getEvaluationInverseDependencyMap } from "./dataTreeSelectors";
 
 // Signposting selectors
 

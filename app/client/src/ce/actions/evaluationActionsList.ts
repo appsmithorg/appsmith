@@ -1,13 +1,13 @@
+import { shouldTriggerLinting } from "actions/evaluationActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { union } from "lodash";
-import store from "store";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { shouldTriggerLinting } from "actions/evaluationActions";
+import { union } from "lodash";
+import store from "store";
 
 export const FIRST_EVAL_REDUX_ACTIONS = [
   // Pages

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import type { FieldGroupProps, SwitchType } from "../types";
-import { Field } from "../Field";
-import { getCodeFromMoustache, isValueValidURL } from "../utils";
-import { getFieldFromValue } from "../helpers";
+
 import { useSelector } from "react-redux";
 import { getDataTreeForActionCreator } from "sagas/selectors";
+
+import { Field } from "../Field";
+import { getFieldFromValue } from "../helpers";
+import type { FieldGroupProps, SwitchType } from "../types";
+import { getCodeFromMoustache, isValueValidURL } from "../utils";
 
 function FieldGroup(props: FieldGroupProps) {
   const { isChainedAction = false, ...otherProps } = props;

@@ -1,15 +1,17 @@
+import React, { useCallback } from "react";
+
 import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
 import { get } from "lodash";
-import React, { useCallback } from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import SnipeableComponent from "../../common/snipeable/SnipeableComponent";
 import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
-import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";
-import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
-import { FixedResizableLayer } from "../common/resizer/FixedResizableLayer";
 import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
+import { AutoHeightOverlayLayer } from "../common/autoHeight/AutoHeightOverlayLayer";
+import { FixedResizableLayer } from "../common/resizer/FixedResizableLayer";
 import { generateDragStateForFixedLayout } from "../common/utils";
+import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
 
 /**
  * FixedLayoutEditorWidgetOnion

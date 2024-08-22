@@ -1,40 +1,40 @@
-import { Alignment } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
-import Skeleton from "components/utils/Skeleton";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TextSize } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import React, { lazy, Suspense } from "react";
-import showdown from "showdown";
-import { retryPromise } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-  isCompactMode,
-} from "widgets/WidgetUtils";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
+import React, { Suspense, lazy } from "react";
 
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { Alignment } from "@blueprintjs/core";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
+import Skeleton from "components/utils/Skeleton";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import showdown from "showdown";
+import { retryPromise } from "utils/AppsmithUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",

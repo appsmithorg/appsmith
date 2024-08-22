@@ -1,4 +1,5 @@
 import type { PropertyPaneSectionConfig } from "constants/PropertyControlConstants";
+
 import { shouldSectionBeExpanded } from "./PropertyControlsGenerator";
 
 describe("Property Controls Generator", () => {

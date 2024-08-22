@@ -1,8 +1,10 @@
 import React from "react";
-import styled from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
-import { getTypographyByKey } from "@appsmith/ads-old";
+
 import { Colors } from "constants/Colors";
+import type { Theme } from "constants/DefaultTheme";
+import styled from "styled-components";
+
+import { getTypographyByKey } from "@appsmith/ads-old";
 
 interface WrapperProps {
   selected: boolean;

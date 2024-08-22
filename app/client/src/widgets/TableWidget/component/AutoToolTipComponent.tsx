@@ -1,12 +1,15 @@
 import React, { createRef, memo, useEffect, useState } from "react";
+
 import type { PopoverPosition, PopperBoundary } from "@blueprintjs/core";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
+import equal from "fast-deep-equal/es6";
+import styled from "styled-components";
+
+import { importSvg } from "@appsmith/ads-old";
+
 import type { CellLayoutProperties } from "./Constants";
 import { ColumnTypes } from "./Constants";
-import styled from "styled-components";
-import equal from "fast-deep-equal/es6";
-import { importSvg } from "@appsmith/ads-old";
+import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),

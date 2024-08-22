@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+
 import { Collapse, Icon } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import styled from "styled-components";
 
 type AccordionProps = React.PropsWithChildren<{
   backgroundColor?: string;

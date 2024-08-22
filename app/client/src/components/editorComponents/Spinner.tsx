@@ -1,4 +1,4 @@
-import { Spinner, Classes } from "@blueprintjs/core";
+import { Classes, Spinner } from "@blueprintjs/core";
 import styled from "styled-components";
 
 const StyledSpinner = styled(Spinner)`

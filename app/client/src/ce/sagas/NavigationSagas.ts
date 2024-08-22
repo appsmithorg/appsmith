@@ -1,29 +1,29 @@
-import { fork, put, select, call } from "redux-saga/effects";
+import { flushErrors } from "actions/errorActions";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import log from "loglevel";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import type { BackgroundTheme } from "sagas/ThemeSaga";
-import { changeAppBackground } from "sagas/ThemeSaga";
-import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import {
   setLastSelectedWidget,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import FocusRetention from "sagas/FocusRetentionSaga";
-import { getSafeCrash } from "selectors/errorSelectors";
-import { flushErrors } from "actions/errorActions";
-import type { NavigationMethod } from "utils/history";
-import UsagePulse from "usagePulse";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { EditorViewMode } from "ee/entities/IDE/constants";
 import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import log from "loglevel";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { call, fork, put, select } from "redux-saga/effects";
+import FocusRetention from "sagas/FocusRetentionSaga";
+import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
 import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
+import type { BackgroundTheme } from "sagas/ThemeSaga";
+import { changeAppBackground } from "sagas/ThemeSaga";
+import { getSafeCrash } from "selectors/errorSelectors";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import UsagePulse from "usagePulse";
+import type { NavigationMethod } from "utils/history";
 
 let previousPath: string;
 

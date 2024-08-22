@@ -1,19 +1,22 @@
 import React, { useEffect } from "react";
-import Container from "./Container";
-import { Button, Callout, Icon, Link, Text } from "@appsmith/ads";
+
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
-  createMessage,
   DEFAULT_ERROR_MESSAGE,
   PAGE_CLIENT_ERROR_DESCRIPTION,
   VERIFY_ERROR_ALREADY_VERIFIED_TITLE,
   VERIFY_ERROR_EXPIRED_TITLE,
   VERIFY_ERROR_MISMATCH_TITLE,
+  createMessage,
 } from "ee/constants/messages";
-import { useResendEmailVerification } from "./helpers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import { Button, Callout, Icon, Link, Text } from "@appsmith/ads";
+
+import Container from "./Container";
+import { useResendEmailVerification } from "./helpers";
 
 const Body = styled.div`
   display: flex;

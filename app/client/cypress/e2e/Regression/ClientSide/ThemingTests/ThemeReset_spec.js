@@ -1,6 +1,7 @@
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const appSettings = ObjectsRegistry.AppSettings;
 

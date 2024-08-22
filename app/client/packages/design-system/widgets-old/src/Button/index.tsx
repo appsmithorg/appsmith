@@ -1,13 +1,15 @@
 import React from "react";
+
 import _ from "lodash";
 import styled, { css } from "styled-components";
-import { Variant } from "../constants/variants";
-import type { CommonComponentProps } from "../types/common";
-import { Classes } from "../constants/classes";
+
 import type { IconName } from "../Icon";
 import Icon, { IconSize } from "../Icon";
 import Spinner from "../Spinner";
+import { Classes } from "../constants/classes";
 import { typography } from "../constants/typography";
+import { Variant } from "../constants/variants";
+import type { CommonComponentProps } from "../types/common";
 
 const smallButton = css`
   font-size: ${typography.btnSmall.fontSize}px;

@@ -1,16 +1,16 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { intersection } from "lodash";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { QueryActionConfig } from "entities/Action";
-import type { DatasourceConfiguration } from "entities/Datasource";
-import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 import {
   EVALUATE_REDUX_ACTIONS,
   EVAL_AND_LINT_REDUX_ACTIONS,
   LINT_REDUX_ACTIONS,
   LOG_REDUX_ACTIONS,
 } from "ee/actions/evaluationActionsList";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { QueryActionConfig } from "entities/Action";
+import type { DatasourceConfiguration } from "entities/Datasource";
+import { intersection } from "lodash";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 
 export const shouldTriggerEvaluation = (action: ReduxAction<unknown>) => {
   return (

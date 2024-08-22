@@ -1,14 +1,14 @@
+import type { BatchAction } from "actions/batchActions";
+import { batchAction } from "actions/batchActions";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import type { BatchAction } from "actions/batchActions";
-import { batchAction } from "actions/batchActions";
-import type { WidgetProps } from "widgets/BaseWidget";
 import type { PartialExportParams } from "sagas/PartialImportExportSagas";
-import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const widgetInitialisationSuccess = () => {
   return {

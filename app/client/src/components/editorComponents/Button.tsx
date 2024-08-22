@@ -1,21 +1,22 @@
 import React from "react";
-import type { Intent, Skin } from "constants/DefaultTheme";
-import { BlueprintButtonIntentsCSS } from "constants/DefaultTheme";
-import styled, { css } from "styled-components";
+
 import type {
   Intent as BlueprintIntent,
+  IAnchorButtonProps,
+  IButtonProps,
   IconName,
   MaybeElement,
-  IButtonProps,
-  IAnchorButtonProps,
 } from "@blueprintjs/core";
 import {
   AnchorButton as BlueprintAnchorButton,
   Button as BlueprintButton,
 } from "@blueprintjs/core";
+import type { Intent, Skin } from "constants/DefaultTheme";
+import { BlueprintButtonIntentsCSS } from "constants/DefaultTheme";
+import { omit } from "lodash";
+import styled, { css } from "styled-components";
 import type { Direction } from "utils/helpers";
 import { Directions } from "utils/helpers";
-import { omit } from "lodash";
 
 const outline = css`
   &&&&&& {

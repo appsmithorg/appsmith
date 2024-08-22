@@ -1,7 +1,9 @@
 import React from "react";
+
 import { Tooltip } from "@blueprintjs/core";
-import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import styled from "styled-components";
+
 import { Icon } from "@appsmith/ads";
 
 const StyledDeleteIcon = styled.div`

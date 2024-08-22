@@ -1,4 +1,5 @@
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+
 import { getParsedText } from "./Utilities";
 
 describe("getParsedText", () => {

@@ -1,13 +1,13 @@
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
-import {
-  entityExplorer,
-  agHelper,
-  propPane,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Binding the multiple widgets and validating default data",

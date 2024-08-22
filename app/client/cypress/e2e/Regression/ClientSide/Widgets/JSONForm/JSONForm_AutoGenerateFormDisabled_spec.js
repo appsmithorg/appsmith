@@ -1,15 +1,15 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const fieldPrefix = ".t--jsonformfield";
-import {
-  agHelper,
-  deployMode,
-  entityExplorer,
-  propPane,
-  locators,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "JSON Form Widget AutoGenerate Disabled",

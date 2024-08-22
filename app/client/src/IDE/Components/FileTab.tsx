@@ -1,9 +1,10 @@
 import React from "react";
-import styled from "styled-components";
+
 import clsx from "classnames";
+import styled from "styled-components";
+import { sanitizeString } from "utils/URLUtils";
 
 import { Flex, Icon } from "@appsmith/ads";
-import { sanitizeString } from "utils/URLUtils";
 
 interface FileTabProps {
   isActive: boolean;

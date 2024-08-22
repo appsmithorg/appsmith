@@ -1,21 +1,24 @@
 import React, { useEffect } from "react";
+
+import { setExplorerSwitchIndex } from "actions/editorContextActions";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { SegmentedControl } from "@appsmith/ads";
+import { builderURL } from "ee/RouteBuilder";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import type { AppState } from "ee/reducers";
-import { builderURL } from "ee/RouteBuilder";
+import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { trimQueryString } from "utils/helpers";
 import history from "utils/history";
-import EntityExplorer from "./EntityExplorer";
-import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
-import { setExplorerSwitchIndex } from "actions/editorContextActions";
+
+import { SegmentedControl } from "@appsmith/ads";
+
 import UIEntitySidebar from "../widgetSidebar/UIEntitySidebar";
 import { ExplorerWrapper } from "./Common/ExplorerWrapper";
+import EntityExplorer from "./EntityExplorer";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;

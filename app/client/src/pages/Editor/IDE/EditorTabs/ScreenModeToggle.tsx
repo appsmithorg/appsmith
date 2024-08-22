@@ -1,16 +1,17 @@
 import React, { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Button, Tooltip } from "@appsmith/ads";
 
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { setIdeEditorViewMode } from "actions/ideActions";
 import {
   MAXIMIZE_BUTTON_TOOLTIP,
   MINIMIZE_BUTTON_TOOLTIP,
   createMessage,
 } from "ee/constants/messages";
-import { setIdeEditorViewMode } from "actions/ideActions";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import { getIDEViewMode } from "selectors/ideSelectors";
+
+import { Button, Tooltip } from "@appsmith/ads";
 
 export const ScreenModeToggle = () => {
   const dispatch = useDispatch();

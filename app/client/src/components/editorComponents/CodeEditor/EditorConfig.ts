@@ -1,12 +1,12 @@
 import type CodeMirror from "codemirror";
+import type { WidgetType } from "constants/WidgetConstants";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { ExpectedValueExample } from "utils/validation/common";
 
 import { editorSQLModes } from "./sql/config";
-import type { WidgetType } from "constants/WidgetConstants";
 
 export const EditorModes = {
   TEXT: "text/plain",

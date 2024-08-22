@@ -1,11 +1,11 @@
+import { featureFlagIntercept } from "../../../../../../support/Objects/FeatureFlags";
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../../../support/Objects/FeatureFlags";
 
 describe(
   "Table widget - Select column type functionality",

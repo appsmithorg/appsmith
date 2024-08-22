@@ -1,26 +1,27 @@
 import type { RefObject } from "react";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { isNumber, isNil } from "lodash";
 
-import type { BaseCellComponentProps, VerticalAlignment } from "../Constants";
-import { ALIGN_ITEMS } from "../Constants";
+import * as Sentry from "@sentry/react";
+import fastdom from "fastdom";
+import { isNil, isNumber } from "lodash";
+import styled from "styled-components";
+import { getLocale } from "utils/helpers";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
+import CurrencyTypeDropdown, {
+  CurrencyDropdownOptions,
+} from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import type { EditableCell } from "widgets/TableWidgetV2/constants";
 import {
   ColumnTypes,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
+
+import type { BaseCellComponentProps, VerticalAlignment } from "../Constants";
+import { ALIGN_ITEMS } from "../Constants";
 import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
 import { BasicCell } from "./BasicCell";
 import { InlineCellEditor } from "./InlineCellEditor";
-import styled from "styled-components";
-import fastdom from "fastdom";
-import CurrencyTypeDropdown, {
-  CurrencyDropdownOptions,
-} from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
-import { getLocale } from "utils/helpers";
-import * as Sentry from "@sentry/react";
-import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;

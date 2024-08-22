@@ -1,13 +1,15 @@
-import "@testing-library/jest-dom/extend-expect";
 import React from "react";
+
+import "@testing-library/jest-dom/extend-expect";
 import { render, screen } from "@testing-library/react";
+import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { Provider } from "react-redux";
+import { BrowserRouter as Router } from "react-router-dom";
 import configureStore from "redux-mock-store";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
+
 import CreateNewAppsOption from "./CreateNewAppsOption";
-import { BrowserRouter as Router } from "react-router-dom";
-import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 
 const defaultStoreState = {
   ...unitTestBaseMockStore,

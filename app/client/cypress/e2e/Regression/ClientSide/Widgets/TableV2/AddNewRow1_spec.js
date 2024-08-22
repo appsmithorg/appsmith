@@ -3,6 +3,7 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {

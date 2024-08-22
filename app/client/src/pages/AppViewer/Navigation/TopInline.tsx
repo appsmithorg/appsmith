@@ -1,17 +1,19 @@
-import { useLocation } from "react-router-dom";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
-import MenuItem from "./components/MenuItem";
-import { Container } from "./TopInline.styled";
-import MenuItemContainer from "./components/MenuItemContainer";
-import MoreDropdownButton from "./components/MoreDropdownButton";
+
+import { throttle } from "lodash";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   combinedPreviewModeSelector,
   getCanvasWidth,
 } from "selectors/editorSelectors";
-import { useSelector } from "react-redux";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { throttle } from "lodash";
+import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
+
+import { Container } from "./TopInline.styled";
+import MenuItem from "./components/MenuItem";
+import MenuItemContainer from "./components/MenuItemContainer";
+import MoreDropdownButton from "./components/MoreDropdownButton";
 import type { NavigationProps } from "./constants";
 
 export function TopInline(props: NavigationProps) {

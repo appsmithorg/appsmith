@@ -1,7 +1,7 @@
 import type { ButtonProps as HeadlessButtonProps } from "react-aria-components";
 
-import type { IconProps } from "../../Icon";
 import type { COLORS, SIZES } from "../../../shared";
+import type { IconProps } from "../../Icon";
 
 export const BUTTON_VARIANTS = {
   filled: "Filled",

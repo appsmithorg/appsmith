@@ -1,23 +1,23 @@
 import React, { useMemo } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+
 import { Button, Position } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-
-import type { ComponentProps } from "widgets/BaseComponent";
-import type { RenderMode } from "constants/WidgetConstants";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
-import _ from "lodash";
+import { Popover2 } from "@blueprintjs/popover2";
+import type { ThemeProp } from "WidgetProvider/constants";
 import type { ButtonBorderRadius, ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import Interweave from "interweave";
+import _ from "lodash";
+import styled, { createGlobalStyle } from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
 import {
+  getComplementaryGrayscaleColor,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
-import Interweave from "interweave";
-import { Popover2 } from "@blueprintjs/popover2";
-import type { ThemeProp } from "WidgetProvider/constants";
 
 const ToolTipWrapper = styled.div`
   height: 100%;

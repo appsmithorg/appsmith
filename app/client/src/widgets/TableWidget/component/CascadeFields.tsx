@@ -1,22 +1,22 @@
-import React, { useState, useEffect, useCallback } from "react";
-import styled from "styled-components";
+import React, { useCallback, useEffect, useState } from "react";
+
 import { Icon, InputGroup } from "@blueprintjs/core";
-import { debounce } from "lodash";
-
-import CustomizedDropdown from "pages/common/CustomizedDropdown";
-import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
-import { ControlIcons } from "icons/ControlIcons";
 import { Skin } from "constants/DefaultTheme";
-import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import type { Condition, Operator, ReactTableFilter } from "./Constants";
-import { OperatorTypes, ColumnTypes } from "./Constants";
-import type { DropdownOption } from "./TableFilters";
-import { RenderOptionWrapper } from "./TableStyledWrappers";
-
+import { ControlIcons } from "icons/ControlIcons";
+import { debounce } from "lodash";
+import CustomizedDropdown from "pages/common/CustomizedDropdown";
+import styled from "styled-components";
+import { Directions } from "utils/helpers";
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
+
+import type { Condition, Operator, ReactTableFilter } from "./Constants";
+import { ColumnTypes, OperatorTypes } from "./Constants";
+import type { DropdownOption } from "./TableFilters";
+import { RenderOptionWrapper } from "./TableStyledWrappers";
 
 const StyledRemoveIcon = styled(ControlIcons.CLOSE_CIRCLE_CONTROL)`
   padding: 0;

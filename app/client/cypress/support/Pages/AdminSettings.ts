@@ -1,5 +1,5 @@
-import { ObjectsRegistry } from "../Objects/Registry";
 import { featureFlagIntercept } from "../Objects/FeatureFlags";
+import { ObjectsRegistry } from "../Objects/Registry";
 
 export class AdminSettings {
   public agHelper = ObjectsRegistry.AggregateHelper;

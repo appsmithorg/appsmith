@@ -1,13 +1,13 @@
 import { reduxBatch } from "@manaflair/redux-batch";
-import { createStore, applyMiddleware, compose } from "redux";
+import * as Sentry from "@sentry/react";
+import routeParamsMiddleware from "ee/RouteParamsMiddleware";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
 import appReducer from "ee/reducers";
-import createSagaMiddleware from "redux-saga";
 import { rootSaga } from "ee/sagas";
+import { applyMiddleware, compose, createStore } from "redux";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
-import * as Sentry from "@sentry/react";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import routeParamsMiddleware from "ee/RouteParamsMiddleware";
+import createSagaMiddleware from "redux-saga";
 
 const sagaMiddleware = createSagaMiddleware();
 const ignoredSentryActionTypes = [

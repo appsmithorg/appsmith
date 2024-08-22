@@ -1,11 +1,13 @@
-import { render, screen } from "test/testUtils";
 import React from "react";
-import { DisconnectService } from "./DisconnectService";
+
 import {
-  createMessage,
   DISCONNECT_AUTH_METHOD,
   DISCONNECT_CONFIRMATION,
+  createMessage,
 } from "ee/constants/messages";
+import { render, screen } from "test/testUtils";
+
+import { DisconnectService } from "./DisconnectService";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

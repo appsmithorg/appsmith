@@ -1,11 +1,12 @@
 import React from "react";
-import RCTooltip from "rc-tooltip";
 
-import type { TooltipProps } from "./Tooltip.types";
+import RCTooltip from "rc-tooltip";
 import "rc-tooltip/assets/bootstrap.css";
-import "./Tooltip.css";
-import { TooltipClassName } from "./Tooltip.constants";
+
 import { Text } from "../Text";
+import { TooltipClassName } from "./Tooltip.constants";
+import "./Tooltip.css";
+import type { TooltipProps } from "./Tooltip.types";
 
 function Tooltip(props: TooltipProps) {
   const { children, className, content, isDisabled = false, ...rest } = props;

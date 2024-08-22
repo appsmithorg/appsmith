@@ -1,8 +1,9 @@
 import { transform } from "@babel/standalone/";
-import type { DebuggerLogItem, SrcDoc } from "./types";
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
-import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "./constants";
 import { compileString } from "sass";
+
+import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "./constants";
+import type { DebuggerLogItem, SrcDoc } from "./types";
 
 interface CompiledResult {
   code: SrcDoc;

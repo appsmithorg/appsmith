@@ -1,58 +1,61 @@
 import React, {
-  useEffect,
-  useState,
-  useContext,
   useCallback,
+  useContext,
+  useEffect,
   useMemo,
+  useState,
 } from "react";
-import styled, { ThemeContext } from "styled-components";
-import type { ApplicationPayload } from "entities/Application";
-import {
-  hasDeleteApplicationPermission,
-  isPermitted,
-  PERMISSION_TYPE,
-} from "ee/utils/permissionHelpers";
-import {
-  getInitialsAndColorCode,
-  getApplicationIcon,
-  getRandomPaletteColor,
-} from "utils/AppsmithUtils";
-import type { AppIconName } from "@appsmith/ads-old";
-import {
-  ColorSelector,
-  EditableText,
-  EditInteractionKind,
-  IconSelector,
-  SavingState,
-} from "@appsmith/ads-old";
-import type { MenuItemProps } from "@appsmith/ads";
-import {
-  Button,
-  Menu,
-  Divider,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-} from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
+
+import { getCurrentUser } from "actions/authActions";
+import Card, { ContextMenuTrigger } from "components/common/Card";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
 } from "ee/api/ApplicationApi";
-import {
-  getIsSavingAppName,
-  getIsErroredSavingAppName,
-} from "ee/selectors/applicationSelectors";
-import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import history from "utils/history";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { toast } from "@appsmith/ads";
-import { getCurrentUser } from "actions/authActions";
-import Card, { ContextMenuTrigger } from "components/common/Card";
-import { generateEditedByText } from "./helpers";
+import {
+  getIsErroredSavingAppName,
+  getIsSavingAppName,
+} from "ee/selectors/applicationSelectors";
+import {
+  PERMISSION_TYPE,
+  hasDeleteApplicationPermission,
+  isPermitted,
+} from "ee/utils/permissionHelpers";
+import type { ApplicationPayload } from "entities/Application";
 import { noop } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import styled, { ThemeContext } from "styled-components";
+import {
+  getApplicationIcon,
+  getInitialsAndColorCode,
+  getRandomPaletteColor,
+} from "utils/AppsmithUtils";
+import history from "utils/history";
+
+import type { MenuItemProps } from "@appsmith/ads";
+import {
+  Button,
+  Divider,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "@appsmith/ads";
+import { toast } from "@appsmith/ads";
+import type { AppIconName } from "@appsmith/ads-old";
+import {
+  ColorSelector,
+  EditInteractionKind,
+  EditableText,
+  IconSelector,
+  SavingState,
+} from "@appsmith/ads-old";
+
+import ForkApplicationModal from "./ForkApplicationModal";
+import { generateEditedByText } from "./helpers";
 
 interface ApplicationCardProps {
   application: ApplicationPayload;

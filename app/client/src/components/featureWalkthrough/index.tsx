@@ -1,17 +1,20 @@
-import React, { lazy, useEffect, useState, Suspense } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
+
+import { createPortal } from "react-dom";
+
+import { hideIndicator } from "components/utils/Indicator";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+import { retryPromise } from "utils/AppsmithUtils";
+
+import { isElementVisible } from "./utils";
 import type { FeatureParams } from "./walkthroughContext";
 import { DEFAULT_DELAY } from "./walkthroughContext";
 import WalkthroughContext from "./walkthroughContext";
-import { createPortal } from "react-dom";
-import { retryPromise } from "utils/AppsmithUtils";
-import { useLocation } from "react-router-dom";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { isElementVisible } from "./utils";
-import { hideIndicator } from "components/utils/Indicator";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
 
 const WalkthroughRenderer = lazy(async () => {
   return retryPromise(

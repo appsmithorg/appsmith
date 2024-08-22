@@ -1,15 +1,15 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../support/Pages/EditorNavigation";
-
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   apiPage,
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Test Create Api and Bind to Table widget",

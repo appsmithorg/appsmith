@@ -1,8 +1,8 @@
-import { createImmerReducer } from "utils/ReducerUtils";
+import { dark, light, theme } from "constants/DefaultTheme";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { dark, light, theme } from "constants/DefaultTheme";
 import { ThemeMode } from "selectors/themeSelectors";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: ThemeState = {
   mode: ThemeMode.LIGHT,

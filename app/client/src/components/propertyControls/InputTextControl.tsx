@@ -1,7 +1,5 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { StyledDynamicInput } from "./StyledControls";
+
 import type { InputType } from "components/constants";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -12,11 +10,15 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
-import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+
+import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import { StyledDynamicInput } from "./StyledControls";
 
 export function InputText(props: {
   label: string;

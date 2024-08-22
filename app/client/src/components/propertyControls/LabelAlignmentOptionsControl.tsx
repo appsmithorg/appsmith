@@ -1,15 +1,18 @@
 import React from "react";
+
 import { Alignment } from "@blueprintjs/core";
-import type { SegmentedControlOption } from "@appsmith/ads";
-import { SegmentedControl } from "@appsmith/ads";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 export interface LabelAlignmentOptionsControlProps extends ControlProps {
   propertyValue?: Alignment;

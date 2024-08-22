@@ -1,9 +1,12 @@
 import React from "react";
+
+import type { IconName } from "@blueprintjs/core";
+import { Button, ButtonGroup, Classes } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { IconName } from "@blueprintjs/core";
-import { ButtonGroup, Button, Classes } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+
 const iconNames: string[] = Object.values({ ...IconNames });
 
 class MultiSwitchControl extends BaseControl<MultiSwitchControlProps> {

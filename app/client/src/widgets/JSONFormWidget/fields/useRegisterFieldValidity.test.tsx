@@ -1,11 +1,12 @@
 import React from "react";
+
 import { act, renderHook } from "@testing-library/react-hooks";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FormContextProvider } from "../FormContext";
+import { FieldType } from "../constants";
 import type { UseRegisterFieldValidityProps } from "./useRegisterFieldValidity";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import { FieldType } from "../constants";
 
 const initialFieldState = {
   metaInternalFieldState: {

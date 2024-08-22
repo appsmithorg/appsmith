@@ -1,5 +1,6 @@
 import { parse } from "acorn";
 import { simple } from "acorn-walk";
+
 import { addPropertiesToJSObjectCode } from ".";
 
 describe("addPropertiesToJSObjectCode", () => {

@@ -1,21 +1,22 @@
-import type { Server, Socket } from "socket.io";
-import log from "loglevel";
 import {
   APP_ROOM_PREFIX,
-  RELEASE_VERSION_EVENT_NAME,
   LEAVE_EDIT_EVENT_NAME,
   PAGE_EDIT_NAMESPACE,
   PAGE_ROOM_PREFIX,
-  ROOT_NAMESPACE,
   PAGE_VISIBILITY_EVENT_NAME,
+  RELEASE_VERSION_EVENT_NAME,
+  ROOT_NAMESPACE,
 } from "@constants/socket";
-import { VERSION as buildVersion } from "../version";
 import {
-  subscribeToEditEvents,
   onAppSocketConnected,
   onPageSocketConnected,
   sendCurrentUsers,
+  subscribeToEditEvents,
 } from "@controllers/socket";
+import log from "loglevel";
+import type { Server, Socket } from "socket.io";
+
+import { VERSION as buildVersion } from "../version";
 
 export function watchEvents(io: Server) {
   io.on("connection", (socket: Socket) => {

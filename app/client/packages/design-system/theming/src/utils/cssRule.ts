@@ -1,5 +1,6 @@
-import kebabCase from "lodash/kebabCase";
 import isObject from "lodash/isObject";
+import kebabCase from "lodash/kebabCase";
+
 import type { Theme } from "../theme";
 
 export const cssRule = (tokens: Theme) => {

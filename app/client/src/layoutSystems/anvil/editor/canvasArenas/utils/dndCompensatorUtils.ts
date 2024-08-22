@@ -1,6 +1,8 @@
-import type { Token } from "@appsmith/wds-theming";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
+
+import type { Token } from "@appsmith/wds-theming";
+
 import { EMPTY_MODAL_PADDING } from "../AnvilModalDropArena";
 
 /**

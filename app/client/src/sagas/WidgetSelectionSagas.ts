@@ -1,10 +1,3 @@
-import { widgetURL } from "ee/RouteBuilder";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import { getAppMode, getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { showModal } from "actions/widgetActions";
 import type {
   SetSelectedWidgetsPayload,
@@ -16,17 +9,27 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { widgetURL } from "ee/RouteBuilder";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import { getAppViewerPageIdFromPath } from "ee/pages/Editor/Explorer/helpers";
+import { getAppMode, getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_MODE } from "entities/App";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
+  SelectionRequestType,
   assertParentId,
   getWidgetAncestry,
   isInvalidSelectionRequest,
   pushPopWidgetSelection,
   selectAllWidgetsInCanvasSaga,
-  SelectionRequestType,
   selectMultipleWidgets,
   selectOneWidget,
   shiftSelectWidgets,
@@ -38,25 +41,23 @@ import {
   getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
+import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 import {
   getLastSelectedWidget,
   getSelectedWidgets,
   getWidgetSelectionBlock,
 } from "selectors/ui";
+import { getModalWidgetType } from "selectors/widgetSelectors";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
+
 import {
   getWidgetIdsByType,
   getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import { getModalWidgetType } from "selectors/widgetSelectors";
-import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
-import { getAppViewerPageIdFromPath } from "ee/pages/Editor/Explorer/helpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities

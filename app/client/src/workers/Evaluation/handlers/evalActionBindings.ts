@@ -1,6 +1,7 @@
-import { dataTreeEvaluator } from "./evalTree";
 import { removeFunctions } from "ee/workers/Evaluation/evaluationUtils";
+
 import type { EvalWorkerSyncRequest } from "../types";
+import { dataTreeEvaluator } from "./evalTree";
 
 export default function (request: EvalWorkerSyncRequest) {
   const { data } = request;

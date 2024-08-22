@@ -1,12 +1,12 @@
-import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import {
-  layoutConfigurations,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
 import type { UpdateCanvasLayoutPayload } from "actions/controlActions";
 import type { UpdateCanvasPayload } from "actions/pageActions";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  layoutConfigurations,
+} from "constants/WidgetConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: MainCanvasReduxState = {
   initialized: false,

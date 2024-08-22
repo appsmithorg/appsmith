@@ -1,8 +1,8 @@
 import type { ChartType } from "../constants";
 import {
-  parseOnDataPointClickParams,
   parseOnDataPointClickForCustomEChart,
   parseOnDataPointClickForCustomFusionChart,
+  parseOnDataPointClickParams,
 } from "./helpers";
 
 describe("parseOnDataPointClickParams", () => {

@@ -1,15 +1,15 @@
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { getPropertyControlTypes } from "components/propertyControls";
 import type {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import type { Stylesheet } from "entities/AppTheming";
 import type { ReduxActionType } from "ee/constants/ReduxActionConstants";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { Stylesheet } from "entities/AppTheming";
+import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();

@@ -1,4 +1,18 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
+
+import {
+  CANCEL_DIALOG,
+  COLUMN_NAME,
+  COLUMN_TYPE,
+  EDIT_FIELDS,
+  EDIT_FIELDS_DISABLED_TOOLTIP_TEXT,
+  FIELDS_CONFIGURATION,
+  SAVE_CHANGES,
+  SAVE_CHANGES_DISABLED_TOOLTIP_TEXT,
+  createMessage,
+} from "ee/constants/messages";
+import styled from "styled-components";
+
 import {
   Button,
   Checkbox,
@@ -10,22 +24,11 @@ import {
   Text,
   Tooltip,
 } from "@appsmith/ads";
-import { EditFieldsButton } from "../../styles";
-import styled from "styled-components";
+
 import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
-import {
-  CANCEL_DIALOG,
-  COLUMN_NAME,
-  COLUMN_TYPE,
-  createMessage,
-  EDIT_FIELDS,
-  EDIT_FIELDS_DISABLED_TOOLTIP_TEXT,
-  FIELDS_CONFIGURATION,
-  SAVE_CHANGES,
-  SAVE_CHANGES_DISABLED_TOOLTIP_TEXT,
-} from "ee/constants/messages";
-import EditFieldsTable from "./EditFieldsTable";
 import { WidgetQueryGeneratorFormContext } from "../../index";
+import { EditFieldsButton } from "../../styles";
+import EditFieldsTable from "./EditFieldsTable";
 
 const StyledCheckbox = styled(Checkbox)`
   input {

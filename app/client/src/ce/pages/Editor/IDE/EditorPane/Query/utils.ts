@@ -1,6 +1,3 @@
-import type { EntityItem } from "ee/entities/IDE/constants";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { FocusEntityInfo } from "navigation/FocusEntity";
 import {
   apiEditorIdURL,
   queryAddURL,
@@ -8,6 +5,9 @@ import {
   queryListURL,
   saasEditorApiIdURL,
 } from "ee/RouteBuilder";
+import type { EntityItem } from "ee/entities/IDE/constants";
+import type { FocusEntityInfo } from "navigation/FocusEntity";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 
 export const getQueryEntityItemUrl = (
   item: EntityItem,

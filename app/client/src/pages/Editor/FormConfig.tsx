@@ -1,29 +1,32 @@
 import React, { useEffect, useRef } from "react";
-import type { ControlProps } from "components/formControls/BaseControl";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+
+import { setFocusableInputField } from "actions/editorContextActions";
+import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import {
-  FormLabel,
-  FormInputHelperText,
+  FormEncrytedSection,
+  FormInfoText,
   FormInputAnchor,
   FormInputErrorText,
-  FormInfoText,
+  FormInputHelperText,
+  FormLabel,
   FormSubtitleText,
-  FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
-import type { FormControlProps } from "./FormControl";
-import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import { identifyEntityFromPath } from "navigation/FocusEntity";
+import type { ControlProps } from "components/formControls/BaseControl";
 import type { AppState } from "ee/reducers";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { useDispatch, useSelector } from "react-redux";
+import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
+import styled from "styled-components";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
-import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
-import { setFocusableInputField } from "actions/editorContextActions";
+
 import { Icon, Tooltip } from "@appsmith/ads";
+
+import type { FormControlProps } from "./FormControl";
 
 const FlexWrapper = styled.div`
   display: flex;

@@ -1,8 +1,8 @@
-import { createReducer } from "utils/ReducerUtils";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: AuthState = {
   isValidatingToken: true,

@@ -1,7 +1,9 @@
 import React from "react";
+
+import { FieldType } from "widgets/JSONFormWidget/constants";
+
 import type { OtherField } from "../../types";
 import { OneClickDropdownFieldControl as DropdownField } from "./Field/Dropdown/Dropdown";
-import { FieldType } from "widgets/JSONFormWidget/constants";
 
 /*
  *  OtherFieldComponent - this component is specific to one click binding control

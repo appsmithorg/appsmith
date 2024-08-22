@@ -1,14 +1,16 @@
 import type { ForwardedRef } from "react";
 import React, { forwardRef } from "react";
+
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import { Button as HeadlessButton } from "react-aria-components";
-import type { SIZES } from "../../../shared";
 import clsx from "clsx";
-import { Text } from "../../Text";
+import { Button as HeadlessButton } from "react-aria-components";
+
+import type { SIZES } from "../../../shared";
+import { Icon } from "../../Icon";
 import { Spinner } from "../../Spinner";
+import { Text } from "../../Text";
 import styles from "./styles.module.css";
 import type { ButtonProps } from "./types";
-import { Icon } from "../../Icon";
 
 const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
   props = useVisuallyDisabled(props);

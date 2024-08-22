@@ -1,9 +1,9 @@
-import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Datasource } from "entities/Datasource";
 import _ from "lodash";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: DatasourcePaneReduxState = {
   drafts: {},

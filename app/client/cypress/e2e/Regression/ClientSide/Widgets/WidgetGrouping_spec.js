@@ -1,5 +1,6 @@
-const dsl = require("../../../../fixtures/widgetSelection.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+
+const dsl = require("../../../../fixtures/widgetSelection.json");
 
 describe("Widget Grouping", { tags: ["@tag.Widget"] }, function () {
   before(() => {

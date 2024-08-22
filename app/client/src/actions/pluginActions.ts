@@ -1,15 +1,15 @@
+import type { ApiResponse } from "api/ApiResponses";
+import type { PluginFormPayload } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
 } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { ApiResponse } from "api/ApiResponses";
-import type { PluginFormPayload } from "api/PluginApi";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import type { Plugin } from "api/PluginApi";
 
 export const fetchPlugins = (payload?: {
   workspaceId?: string;

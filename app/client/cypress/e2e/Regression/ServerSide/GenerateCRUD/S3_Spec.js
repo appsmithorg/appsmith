@@ -1,9 +1,3 @@
-import PageList from "../../../../support/Pages/PageList";
-
-const generatePage = require("../../../../locators/GeneratePage.json");
-const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
-
 import {
   agHelper,
   dataSources,
@@ -13,6 +7,11 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
+
+const generatePage = require("../../../../locators/GeneratePage.json");
+const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe(
   "Generate New CRUD Page Inside from entity explorer",

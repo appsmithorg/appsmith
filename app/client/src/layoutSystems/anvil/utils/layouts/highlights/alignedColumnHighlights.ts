@@ -1,7 +1,9 @@
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
@@ -9,13 +11,12 @@ import type {
   LayoutProps,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
+import { deriveHighlights } from "./highlightUtils";
 import {
   getHighlightsForLayouts,
   getHighlightsForWidgets,
   getInitialHighlights,
 } from "./horizontalHighlights";
-import { deriveHighlights } from "./highlightUtils";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 /**
  * @param layoutProps | LayoutProps

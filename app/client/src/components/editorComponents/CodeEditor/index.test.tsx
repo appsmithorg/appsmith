@@ -1,19 +1,20 @@
 import React from "react";
-import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
+
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-
-import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
+import { Provider } from "react-redux";
+import { lightTheme } from "selectors/themeSelectors";
 import store from "store";
-import CodeEditor from "./index";
+import { ThemeProvider } from "styled-components";
+
 import {
+  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
-  EditorModes,
 } from "./EditorConfig";
+import CodeEditor from "./index";
 
 describe("<CodeEditor /> - Keyboard navigation", () => {
   // To avoid warning "Error: Not implemented: window.focus"

@@ -1,8 +1,8 @@
 import { locators } from "../../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "RichTextEditor Widget Validation",

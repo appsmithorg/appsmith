@@ -1,9 +1,12 @@
-import type { AppState } from "ee/reducers";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import type { AppState } from "ee/reducers";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import type {
   CanvasWidgetsReduxState,
@@ -11,13 +14,10 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "ee/selectors/entitiesSelector";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
+import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 export function* shouldWidgetsCollapse() {
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);

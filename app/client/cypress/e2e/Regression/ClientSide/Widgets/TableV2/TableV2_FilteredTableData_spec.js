@@ -1,3 +1,4 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -6,8 +7,6 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2AndTextDsl.json");
-
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget V2 Filtered Table data in autocomplete",

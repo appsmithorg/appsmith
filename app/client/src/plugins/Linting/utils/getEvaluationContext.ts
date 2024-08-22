@@ -1,6 +1,6 @@
+import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns";
 
 export function getEvaluationContext(
   unevalTree: DataTree,

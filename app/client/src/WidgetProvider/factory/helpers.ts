@@ -1,3 +1,4 @@
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
@@ -6,6 +7,9 @@ import type {
 import { ValidationTypes } from "constants/WidgetValidation";
 import { memoize } from "lodash";
 import log from "loglevel";
+import { generateReactKey } from "utils/generators";
+import { DEFAULT_WIDGET_ON_CANVAS_UI } from "widgets/anvil/constants";
+
 import type { WidgetType } from ".";
 import WidgetFactory from ".";
 import type {
@@ -16,9 +20,6 @@ import {
   PropertyPaneConfigTemplates,
   WidgetFeaturePropertyPaneEnhancements,
 } from "../../utils/WidgetFeatures";
-import { generateReactKey } from "utils/generators";
-import { DEFAULT_WIDGET_ON_CANVAS_UI } from "widgets/anvil/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export enum PropertyPaneConfigTypes {
   STYLE = "STYLE",

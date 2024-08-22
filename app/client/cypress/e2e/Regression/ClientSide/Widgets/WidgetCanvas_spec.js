@@ -1,5 +1,6 @@
-const dsl = require("../../../../fixtures/longCanvasDsl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+
+const dsl = require("../../../../fixtures/longCanvasDsl.json");
 
 describe(
   "reduce long canvas height on widget operation",

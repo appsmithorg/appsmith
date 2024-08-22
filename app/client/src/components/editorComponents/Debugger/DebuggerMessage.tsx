@@ -1,6 +1,8 @@
-import { CLICK_ON, createMessage } from "ee/constants/messages";
 import React from "react";
+
+import { CLICK_ON, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
+
 import { DebugButton } from "./DebugCTA";
 
 const StyledButton = styled(DebugButton)`

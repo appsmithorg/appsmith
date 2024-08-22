@@ -1,8 +1,20 @@
-import DataTreeEvaluator from ".";
-import { unEvalTree } from "./mockData/mockUnEvalTree";
-import { configTree } from "./mockData/mockConfigTree";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
+import type { WidgetConfiguration } from "WidgetProvider/constants";
+import {
+  EXECUTION_PARAM_KEY,
+  EXECUTION_PARAM_REFERENCE_REGEX,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EvaluationSubstitutionType,
+  type WidgetEntity,
+} from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
+import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { klona } from "klona";
+import widgets from "widgets";
+import { updateDependencyMap } from "workers/common/DependencyMap";
+
+import DataTreeEvaluator from ".";
 import {
   arrayAccessorCyclicDependency,
   arrayAccessorCyclicDependencyConfig,
@@ -11,21 +23,10 @@ import {
   nestedArrayAccessorCyclicDependency,
   nestedArrayAccessorCyclicDependencyConfig,
 } from "./mockData/NestedArrayAccessorTree";
-import { updateDependencyMap } from "workers/common/DependencyMap";
+import { configTree } from "./mockData/mockConfigTree";
+import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
-import widgets from "widgets";
-import type { WidgetConfiguration } from "WidgetProvider/constants";
-import {
-  EvaluationSubstitutionType,
-  type WidgetEntity,
-} from "ee/entities/DataTree/types";
-import {
-  EXECUTION_PARAM_KEY,
-  EXECUTION_PARAM_REFERENCE_REGEX,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
-import { klona } from "klona";
 
 const widgetConfigMap: Record<
   string,

@@ -1,12 +1,12 @@
-import type { IDEType, EditorState } from "ee/entities/IDE/constants";
-import { IDE_TYPE, IDEBasePaths } from "ee/entities/IDE/constants";
-import { matchPath } from "react-router";
-import { identifyEntityFromPath } from "navigation/FocusEntity";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
+import type { EditorState, IDEType } from "ee/entities/IDE/constants";
+import { IDEBasePaths, IDE_TYPE } from "ee/entities/IDE/constants";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { matchPath } from "react-router";
 
 export const EDITOR_PATHS = [
   BUILDER_CUSTOM_PATH,

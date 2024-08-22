@@ -1,23 +1,25 @@
+import { useCallback, useRef } from "react";
+
 import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
   HighlightPayload,
 } from "layoutSystems/anvil/utils/anvilTypes";
+import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { throttle } from "lodash";
-import { useCallback, useRef } from "react";
-import { getPositionCompensatedHighlight } from "../utils/dndCompensatorUtils";
 import { useDispatch } from "react-redux";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+
+import type { AnvilDetachedWidgetsDnDDetail } from "../../hooks/useAnvilDetachedWidgetsDnD";
+import { getPositionCompensatedHighlight } from "../utils/dndCompensatorUtils";
 import {
   getClosestHighlight,
   removeDisallowDroppingsUI,
   renderDisallowDroppingUI,
 } from "../utils/utils";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
-import type { AnvilDetachedWidgetsDnDDetail } from "../../hooks/useAnvilDetachedWidgetsDnD";
-import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
 
 export const useAnvilDnDEventCallbacks = ({
   anvilDnDListenerRef,

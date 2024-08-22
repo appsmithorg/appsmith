@@ -1,7 +1,7 @@
 import {
+  adminSettings,
   agHelper,
   homePage,
-  adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

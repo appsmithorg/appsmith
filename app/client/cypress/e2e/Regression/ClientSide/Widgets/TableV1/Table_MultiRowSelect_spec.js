@@ -1,6 +1,7 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget row multi select validation",

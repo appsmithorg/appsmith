@@ -1,13 +1,14 @@
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
-import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getFixedLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
+import type { LayoutSystem } from "layoutSystems/types";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { FixedLayoutEditorCanvas } from "./canvas/FixedLayoutEditorCanvas";
 import type { CanvasProps } from "./canvas/FixedLayoutEditorCanvas";
 import { FixedLayoutViewerCanvas } from "./canvas/FixedLayoutViewerCanvas";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import type { LayoutSystem } from "layoutSystems/types";
+import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
+import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
 
 /**
  * getLabelWidth

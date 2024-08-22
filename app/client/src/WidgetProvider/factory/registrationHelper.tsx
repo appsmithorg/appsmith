@@ -1,8 +1,10 @@
 import React from "react";
+
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import type BaseWidget from "widgets/BaseWidget";
-import WidgetFactory from ".";
 import { withBaseWidgetHOC } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
+import WidgetFactory from ".";
 
 /*
  * Function to create builder for the widgets and register them in widget factory

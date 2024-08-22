@@ -1,11 +1,12 @@
+import { get } from "lodash";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
-import { get } from "lodash";
+
 import {
   getBasePropertyPath,
-  showByColumnType,
-  hideByColumnType,
   getColumnPath,
+  hideByColumnType,
+  showByColumnType,
 } from "../../../widget/propertyUtils";
 
 export default {

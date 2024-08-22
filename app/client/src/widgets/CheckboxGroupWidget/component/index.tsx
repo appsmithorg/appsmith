@@ -1,26 +1,26 @@
 import React from "react";
-import styled from "styled-components";
-import type { Alignment } from "@blueprintjs/core";
 
+import type { Alignment } from "@blueprintjs/core";
 import { Classes } from "@blueprintjs/core";
-import type { ComponentProps } from "widgets/BaseComponent";
+import type { ThemeProp } from "WidgetProvider/constants";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
-
+import styled from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
 import {
   CheckboxLabel,
   StyledCheckbox,
 } from "widgets/CheckboxWidget/component";
+import LabelWithTooltip, {
+  LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
+} from "widgets/components/LabelWithTooltip";
+
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-  LABEL_CONTAINER_CLASS,
-} from "widgets/components/LabelWithTooltip";
-import type { ThemeProp } from "WidgetProvider/constants";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
 
 export interface InputContainerProps {
   inline?: boolean;

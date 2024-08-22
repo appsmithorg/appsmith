@@ -1,7 +1,7 @@
-import { css } from "styled-components";
-
 import { ButtonVariantTypes } from "components/constants";
+import { css } from "styled-components";
 import { getCustomHoverColor } from "widgets/WidgetUtils";
+
 import type { ButtonContainerProps } from "./DragContainer";
 
 /*

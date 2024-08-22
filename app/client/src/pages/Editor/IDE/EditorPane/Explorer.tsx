@@ -1,25 +1,28 @@
 import React from "react";
-import { Flex } from "@appsmith/ads";
-import { Switch, useRouteMatch } from "react-router";
+
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import { SentryRoute } from "ee/AppRouter";
-import {
-  jsSegmentRoutes,
-  querySegmentRoutes,
-  widgetSegmentRoutes,
-} from "ee/pages/Editor/IDE/EditorPane/constants";
-import { JSExplorer } from "./JS";
-import { QueryExplorer } from "./Query";
-import WidgetsSegment from "./UI";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import SegmentedHeader from "./components/SegmentedHeader";
-import { useSelector } from "react-redux";
-import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import {
+  jsSegmentRoutes,
+  querySegmentRoutes,
+  widgetSegmentRoutes,
+} from "ee/pages/Editor/IDE/EditorPane/constants";
+import { useSelector } from "react-redux";
+import { Switch, useRouteMatch } from "react-router";
+import { getIDEViewMode } from "selectors/ideSelectors";
+
+import { Flex } from "@appsmith/ads";
+
+import { JSExplorer } from "./JS";
+import { QueryExplorer } from "./Query";
+import WidgetsSegment from "./UI";
+import SegmentedHeader from "./components/SegmentedHeader";
 
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();

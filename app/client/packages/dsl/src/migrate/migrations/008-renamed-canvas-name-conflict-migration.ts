@@ -1,5 +1,5 @@
-import { canvasNameConflictMigration } from "./007-canvas-name-conflict-migration";
 import type { DSLWidget } from "../types";
+import { canvasNameConflictMigration } from "./007-canvas-name-conflict-migration";
 
 export const renamedCanvasNameConflictMigration = (
   currentDSL: DSLWidget,

@@ -1,24 +1,24 @@
+import type { Diff } from "deep-diff";
+import EntityFactory from "ee/plugins/Linting/lib/entity";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
+import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
-import type { Diff } from "deep-diff";
-import EntityFactory from "ee/plugins/Linting/lib/entity";
-import { PathUtils } from "plugins/Linting/utils/pathUtils";
-import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
-import type { EntityParser } from "plugins/Linting/utils/entityParser";
-import {
-  DefaultEntityParser,
-  JSLintEntityParser,
-} from "plugins/Linting/utils/entityParser";
+import { union } from "lodash";
 import type { EntityDiffGenerator } from "plugins/Linting/utils/diffGenerator";
 import {
   DefaultDiffGenerator,
   JSLintDiffGenerator,
 } from "plugins/Linting/utils/diffGenerator";
-import { union } from "lodash";
+import type { EntityParser } from "plugins/Linting/utils/entityParser";
+import {
+  DefaultEntityParser,
+  JSLintEntityParser,
+} from "plugins/Linting/utils/entityParser";
+import { PathUtils } from "plugins/Linting/utils/pathUtils";
 
 export abstract class EntityTree {
   protected tree = new Map<string, IEntity>();

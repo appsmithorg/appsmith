@@ -1,15 +1,17 @@
-import clsx from "clsx";
 import React, { forwardRef } from "react";
+
+import clsx from "clsx";
+
 import type {
-  TextAreaRef as HeadlessTextAreaRef,
   TextAreaProps as HeadlessTextAreaProps,
+  TextAreaRef as HeadlessTextAreaRef,
 } from "@appsmith/wds-headless";
 import { TextArea as HeadlessTextArea } from "@appsmith/wds-headless";
-
-import textAreaStyles from "./styles.module.css";
-import { textInputStyles, fieldStyles } from "../../../styles";
-import { ContextualHelp } from "../../ContextualHelp";
 import { getTypographyClassName } from "@appsmith/wds-theming";
+
+import { fieldStyles, textInputStyles } from "../../../styles";
+import { ContextualHelp } from "../../ContextualHelp";
+import textAreaStyles from "./styles.module.css";
 
 export interface TextAreaProps extends HeadlessTextAreaProps {
   /** loading state for the input */

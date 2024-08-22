@@ -1,10 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import styles from "./styles.module.css";
-import type { ContentProps } from "../../CodeEditors/types";
-import { Icon } from "@appsmith/ads";
-import { set } from "lodash";
+
 import classNames from "classnames";
+import { set } from "lodash";
 import { useLocalStorage } from "utils/hooks/localstorage";
+
+import { Icon } from "@appsmith/ads";
+
+import type { ContentProps } from "../../CodeEditors/types";
+import styles from "./styles.module.css";
 
 interface Row {
   title: string;

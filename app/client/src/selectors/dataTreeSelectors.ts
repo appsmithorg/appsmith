@@ -1,19 +1,27 @@
-import { createSelector } from "reselect";
+import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import type { AppState } from "ee/reducers";
 import {
-  getCurrentActions,
   getAppData,
-  getPluginDependencyConfig,
-  getPluginEditorConfigs,
+  getCurrentActions,
   getCurrentJSCollections,
-  getInputsForModule,
-  getModuleInstances,
-  getModuleInstanceEntities,
   getCurrentModuleActions,
   getCurrentModuleJSCollections,
+  getInputsForModule,
+  getModuleInstanceEntities,
+  getModuleInstances,
+  getPluginDependencyConfig,
+  getPluginEditorConfigs,
 } from "ee/selectors/entitiesSelector";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import {
+  getCurrentWorkflowActions,
+  getCurrentWorkflowJSActions,
+} from "ee/selectors/workflowSelectors";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import _, { get } from "lodash";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import { createSelector } from "reselect";
 import {
   getIsMobileBreakPoint,
   getMetaWidgets,
@@ -21,20 +29,13 @@ import {
   getWidgetsMeta,
 } from "sagas/selectors";
 import "url-search-params-polyfill";
-import { getPageList } from "./appViewSelectors";
-import type { AppState } from "ee/reducers";
-import { getSelectedAppThemeProperties } from "./appThemingSelectors";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import _, { get } from "lodash";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
-import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
+
+import { getSelectedAppThemeProperties } from "./appThemingSelectors";
+import { getPageList } from "./appViewSelectors";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
-import {
-  getCurrentWorkflowActions,
-  getCurrentWorkflowJSActions,
-} from "ee/selectors/workflowSelectors";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;

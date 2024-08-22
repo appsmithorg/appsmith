@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { fetchDatasources } from "actions/datasourceActions";
+import { fetchPageDSLs } from "actions/pageActions";
+import { fetchPlugins } from "actions/pluginActions";
+import type { Plugin } from "api/PluginApi";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -6,10 +10,6 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import type { DependentFeatureFlags } from "ee/selectors/engineSelectors";
-import { fetchDatasources } from "actions/datasourceActions";
-import { fetchPageDSLs } from "actions/pageActions";
-import { fetchPlugins } from "actions/pluginActions";
-import type { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import type { EditConsolidatedApi } from "sagas/InitSagas";

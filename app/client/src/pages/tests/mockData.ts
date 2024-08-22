@@ -1,7 +1,7 @@
-import type { ApplicationResponsePayload } from "ee/api/ApplicationApi";
-import type { Page } from "entities/Page";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UpdateCurrentPagePayload } from "actions/pageActions";
+import type { ApplicationResponsePayload } from "ee/api/ApplicationApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import store from "store";
 
 const workspaceId = "";

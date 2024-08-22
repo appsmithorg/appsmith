@@ -1,5 +1,6 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
 import adminSettings from "../../../../locators/AdminsSettings";
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {

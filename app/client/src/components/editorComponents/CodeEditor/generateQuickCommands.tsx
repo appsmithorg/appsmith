@@ -1,25 +1,29 @@
-import type { Datasource } from "entities/Datasource";
 import type { MouseEventHandler } from "react";
 import React, { useCallback } from "react";
-import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
+
 import ReactDOM from "react-dom";
+
+import type { Plugin } from "api/PluginApi";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import type { AIEditorContext } from "ee/components/editorComponents/GPT";
+import { APPSMITH_AI } from "ee/components/editorComponents/GPT/trigger";
+import { EDIT, createMessage } from "ee/constants/messages";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { Datasource } from "entities/Datasource";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import { Button, Icon } from "@appsmith/ads";
-import { APPSMITH_AI } from "ee/components/editorComponents/GPT/trigger";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
-import type { AIEditorContext } from "ee/components/editorComponents/GPT";
-import type { EntityTypeValue } from "ee/entities/DataTree/types";
+import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import history, { NavigationMethod } from "utils/history";
-import type { Plugin } from "api/PluginApi";
-import { EDIT, createMessage } from "ee/constants/messages";
+
+import { Button, Icon } from "@appsmith/ads";
+
+import BetaCard from "../BetaCard";
 import { getShowHintOptions } from "./commandsHelper";
 
 export enum Shortcuts {

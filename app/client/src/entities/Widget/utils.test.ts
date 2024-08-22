@@ -1,12 +1,13 @@
-import { getAllPathsFromPropertyConfig } from "./utils";
 import { RenderModes } from "constants/WidgetConstants";
-import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
   contentConfig,
   styleConfig,
 } from "widgets/ChartWidget/widget/propertyConfig";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ValidationTypes } from "constants/WidgetValidation";
+import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
+
+import { getAllPathsFromPropertyConfig } from "./utils";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {

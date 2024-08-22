@@ -1,9 +1,11 @@
 import React from "react";
-import styled from "styled-components";
+
 import classNames from "classnames";
 import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "../../../selectors/editorSelectors";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
+import { combinedPreviewModeSelector } from "../../../selectors/editorSelectors";
 
 interface EditorWrapperContainerProps {
   children: React.ReactNode;

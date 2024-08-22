@@ -1,12 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+
 import clsx from "classnames";
 
-import type { SegmentedControlProps } from "./SegmentedControl.types";
-import {
-  StyledSegmentedControl,
-  StyledSegment,
-  StyledControlContainer,
-} from "./SegmentedControl.styles";
 import { Icon } from "../Icon";
 import { Text } from "../Text";
 import {
@@ -18,6 +13,12 @@ import {
   SegmentedControlSegmentValueClassName,
   SegmentedControlSegmentsContainerClassName,
 } from "./SegmentedControl.constants";
+import {
+  StyledControlContainer,
+  StyledSegment,
+  StyledSegmentedControl,
+} from "./SegmentedControl.styles";
+import type { SegmentedControlProps } from "./SegmentedControl.types";
 
 /**
  * TODO: Rewrite segmented control to stop using the options={[],[]} api and start using a nested components API, to keep it in line with all the other components and how they work.

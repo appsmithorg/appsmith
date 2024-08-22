@@ -1,3 +1,9 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -6,12 +12,6 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import {
-  entityExplorer,
-  agHelper,
-  deployMode,
-  table,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget with Input Widget and Navigate to functionality validation",

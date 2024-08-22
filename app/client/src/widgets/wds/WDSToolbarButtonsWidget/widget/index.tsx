@@ -1,13 +1,15 @@
 import React from "react";
+
+import type { AnvilConfig } from "WidgetProvider/constants";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig } from "entities/AppTheming";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+
+import { ToolbarButtonsComponent } from "../component";
 import * as config from "../config";
 import type { ToolbarButtonsWidgetProps } from "./types";
-import { ToolbarButtonsComponent } from "../component";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSToolbarButtonsWidget extends BaseWidget<
   ToolbarButtonsWidgetProps,

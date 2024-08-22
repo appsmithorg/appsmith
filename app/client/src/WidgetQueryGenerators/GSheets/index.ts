@@ -1,15 +1,15 @@
-import { isEmpty, isNumber, merge } from "lodash";
 import { BaseQueryGenerator } from "WidgetQueryGenerators/BaseQueryGenerator";
 import { QUERY_TYPE } from "WidgetQueryGenerators/types";
 import type {
+  ActionConfigurationGSheets,
+  GSheetsFormData,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  GSheetsFormData,
-  ActionConfigurationGSheets,
 } from "WidgetQueryGenerators/types";
-import { removeSpecialChars } from "utils/helpers";
 import { DatasourceConnectionMode } from "entities/Datasource";
 import type { DatasourceStorage } from "entities/Datasource";
+import { isEmpty, isNumber, merge } from "lodash";
+import { removeSpecialChars } from "utils/helpers";
 
 enum COMMAND_TYPES {
   "FIND" = "FETCH_MANY",

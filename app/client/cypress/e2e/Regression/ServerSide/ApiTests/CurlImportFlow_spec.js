@@ -1,3 +1,11 @@
+import ApiEditor from "../../../../locators/ApiEditor";
+import {
+  agHelper,
+  apiPage,
+  dataManager,
+  dataSources,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -5,15 +13,6 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import ApiEditor from "../../../../locators/ApiEditor";
-
-import {
-  agHelper,
-  apiPage,
-  dataSources,
-  entityItems,
-  dataManager,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("1. Test curl import flow Run and Delete", function () {

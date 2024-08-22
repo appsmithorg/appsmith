@@ -1,14 +1,15 @@
+import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
-import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
 import { get } from "lodash";
 import { FocusEntity } from "navigation/FocusEntity";
 import { select, takeLatest } from "redux-saga/effects";
-import { getWidgets } from "./selectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+
+import { getWidgets } from "./selectors";
 
 function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
   const recentEntities = action.payload || [];

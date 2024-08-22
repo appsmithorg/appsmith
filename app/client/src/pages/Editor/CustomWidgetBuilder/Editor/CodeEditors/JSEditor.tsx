@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import type { ContentProps } from "./types";
-import styles from "./styles.module.css";
+
 import {
   CodeEditorBorder,
   EditorModes,
@@ -8,20 +7,24 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constants";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import { Severity } from "entities/AppsmithConsole";
+import { isUndefined } from "lodash";
+import type { LintError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 // import { DebuggerLogType } from "../../types";
 // import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 // import { Severity } from "entities/AppsmithConsole";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { getAppsmithScriptSchema } from "widgets/CustomWidget/component/constants";
+
 import { Spinner } from "@appsmith/ads";
-import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+
+import { CustomWidgetBuilderContext } from "../..";
 import { DebuggerLogType } from "../../types";
-import type { LintError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { Severity } from "entities/AppsmithConsole";
-import { isUndefined } from "lodash";
+import styles from "./styles.module.css";
+import type { ContentProps } from "./types";
 
 export default function JSEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);

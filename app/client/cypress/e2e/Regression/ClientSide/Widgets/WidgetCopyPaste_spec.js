@@ -1,13 +1,13 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
-import PageList from "../../../../support/Pages/PageList";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {

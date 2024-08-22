@@ -1,8 +1,6 @@
-import { Callout, Text, toast } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import styled from "styled-components";
-import { useSSHKeyPair } from "../hooks";
+
+import { fetchGitStatusInit } from "actions/gitSyncActions";
 import copy from "copy-to-clipboard";
 import {
   COPIED_SSH_KEY,
@@ -13,7 +11,12 @@ import {
   NO_COPIED_SSH_KEY,
   createMessage,
 } from "ee/constants/messages";
-import { fetchGitStatusInit } from "actions/gitSyncActions";
+import { useDispatch } from "react-redux";
+import styled from "styled-components";
+
+import { Callout, Text, toast } from "@appsmith/ads";
+
+import { useSSHKeyPair } from "../hooks";
 
 const NumberedList = styled.ol`
   list-style-type: decimal;

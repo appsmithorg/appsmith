@@ -1,15 +1,22 @@
+import { checkIfArgumentExistAtPosition, getFunctionName } from "@shared/ast";
+import { ALERT_STYLE_OPTIONS } from "ee/constants/messages";
+import { getPageList } from "ee/selectors/entitiesSelector";
+import store from "store";
+
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+
+import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import {
   AppsmithFunction,
   DEFAULT_SELECTOR_VIEW_TEXT,
   EMPTY_BINDING,
   EMPTY_BINDING_WITH_EMPTY_OBJECT,
-  FieldType,
   FILE_TYPE_OPTIONS,
+  FieldType,
   NAVIGATION_TARGET_FIELD_OPTIONS,
   RESET_CHILDREN_OPTIONS,
   ViewTypes,
 } from "../constants";
-import { ALERT_STYLE_OPTIONS } from "ee/constants/messages";
 import type {
   ActionIntegrationType,
   ActionType,
@@ -17,25 +24,20 @@ import type {
   FieldProps,
 } from "../types";
 import {
+  callBackFieldGetter,
+  callBackFieldSetter,
   enumTypeGetter,
   enumTypeSetter,
-  modalGetter,
-  modalSetter,
-  textGetter,
-  textSetter,
-  callBackFieldSetter,
-  callBackFieldGetter,
-  objectSetter,
-  paramSetter,
+  genericSetter,
   getCodeFromMoustache,
   getEvaluationVersion,
-  genericSetter,
+  modalGetter,
+  modalSetter,
+  objectSetter,
+  paramSetter,
+  textGetter,
+  textSetter,
 } from "../utils";
-import store from "store";
-import { getPageList } from "ee/selectors/entitiesSelector";
-import type { TreeDropdownOption } from "@appsmith/ads-old";
-import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
-import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
 
 export const FIELD_CONFIG: AppsmithFunctionConfigType = {
   [FieldType.ACTION_SELECTOR_FIELD]: {

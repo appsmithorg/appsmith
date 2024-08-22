@@ -1,24 +1,27 @@
 import React from "react";
-import type { SetterConfig } from "entities/AppTheming";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import {
-  metaConfig,
-  defaultsConfig,
-  autocompleteConfig,
-  propertyPaneContentConfig,
-  propertyPaneStyleConfig,
-  settersConfig,
-  methodsConfig,
-} from "../config";
+
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Button, MenuTrigger, Menu } from "@appsmith/wds";
-import { isArray, orderBy } from "lodash";
-import type { MenuButtonWidgetProps, MenuItem } from "./types";
 import {
   EventType,
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig } from "entities/AppTheming";
+import { isArray, orderBy } from "lodash";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+
+import { Button, Menu, MenuTrigger } from "@appsmith/wds";
+
+import {
+  autocompleteConfig,
+  defaultsConfig,
+  metaConfig,
+  methodsConfig,
+  propertyPaneContentConfig,
+  propertyPaneStyleConfig,
+  settersConfig,
+} from "../config";
+import type { MenuButtonWidgetProps, MenuItem } from "./types";
 
 class WDSMenuButtonWidget extends BaseWidget<
   MenuButtonWidgetProps,

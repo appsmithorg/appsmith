@@ -1,17 +1,15 @@
 import React from "react";
 
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
-import IconSVG from "../icon.svg";
-
 import ExternalComponent from "../component";
-
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
+import IconSVG from "../icon.svg";
 
 class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
   static type = "EXTERNAL_WIDGET";

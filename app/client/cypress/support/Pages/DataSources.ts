@@ -1,5 +1,7 @@
-import { ObjectsRegistry } from "../Objects/Registry";
+import datasource from "../../locators/DatasourcesEditor.json";
 import { WIDGET } from "../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../Objects/Registry";
+import { anvilLocators } from "./Anvil/Locators";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
   AppSidebar,
@@ -8,9 +10,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";
-import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
-import { anvilLocators } from "./Anvil/Locators";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",

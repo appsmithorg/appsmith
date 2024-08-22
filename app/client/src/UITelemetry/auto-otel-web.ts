@@ -1,26 +1,27 @@
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
+import type { Context, TextMapSetter } from "@opentelemetry/api";
+import { metrics } from "@opentelemetry/api";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-import { Resource } from "@opentelemetry/resources";
-import {
-  SEMRESATTRS_SERVICE_NAME,
-  SEMRESATTRS_SERVICE_VERSION,
-  SEMRESATTRS_SERVICE_INSTANCE_ID,
-} from "@opentelemetry/semantic-conventions";
-import { getAppsmithConfigs } from "ee/configs";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
+import {
+  AggregationTemporalityPreference,
+  OTLPMetricExporter,
+} from "@opentelemetry/exporter-metrics-otlp-http";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { Resource } from "@opentelemetry/resources";
 import {
   MeterProvider,
   PeriodicExportingMetricReader,
 } from "@opentelemetry/sdk-metrics";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import {
-  OTLPMetricExporter,
-  AggregationTemporalityPreference,
-} from "@opentelemetry/exporter-metrics-otlp-http";
-import type { Context, TextMapSetter } from "@opentelemetry/api";
-import { metrics } from "@opentelemetry/api";
-import { registerInstrumentations } from "@opentelemetry/instrumentation";
+  SEMRESATTRS_SERVICE_INSTANCE_ID,
+  SEMRESATTRS_SERVICE_NAME,
+  SEMRESATTRS_SERVICE_VERSION,
+} from "@opentelemetry/semantic-conventions";
+import { getAppsmithConfigs } from "ee/configs";
+
 import { PageLoadInstrumentation } from "./PageLoadInstrumentation";
 
 enum CompressionAlgorithm {

@@ -5,7 +5,6 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

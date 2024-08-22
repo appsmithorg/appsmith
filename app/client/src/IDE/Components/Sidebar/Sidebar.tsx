@@ -1,9 +1,12 @@
 import React from "react";
-import styled from "styled-components";
-import SidebarButton from "./SidebarButton";
+
 import type { EditorState } from "ee/entities/IDE/constants";
-import type { SidebarButtonProps } from "./SidebarButton/SidebarButton";
+import styled from "styled-components";
+
 import { Flex } from "@appsmith/ads";
+
+import SidebarButton from "./SidebarButton";
+import type { SidebarButtonProps } from "./SidebarButton/SidebarButton";
 
 const Container = styled(Flex)`
   width: 50px;

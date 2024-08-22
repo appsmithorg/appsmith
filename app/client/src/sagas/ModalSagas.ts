@@ -1,16 +1,13 @@
-import {
-  all,
-  call,
-  delay,
-  put,
-  select,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
-
-import { generateReactKey } from "utils/generators";
+import WidgetFactory from "WidgetProvider/factory";
+import { updateWidgetMetaPropAndEval } from "actions/metaActions";
 import type { ModalWidgetResize, WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
+import {
+  closePropertyPane,
+  focusWidget,
+  showModal,
+} from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -21,7 +18,27 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-
+import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "layoutSystems/common/utils/constants";
+import { flatten } from "lodash";
+import log from "loglevel";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  all,
+  call,
+  delay,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   getWidget,
   getWidgetByName,
@@ -30,34 +47,17 @@ import {
   getWidgets,
   getWidgetsMeta,
 } from "sagas/selectors";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import { updateWidgetMetaPropAndEval } from "actions/metaActions";
-import {
-  closePropertyPane,
-  focusWidget,
-  showModal,
-} from "actions/widgetActions";
-import log from "loglevel";
-import { flatten } from "lodash";
-import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "./WidgetSelectUtils";
-import { toast } from "@appsmith/ads";
 import { getIsAutoLayout } from "selectors/editorSelectors";
-import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
-import {
-  FlexLayerAlignment,
-  LayoutDirection,
-} from "layoutSystems/common/utils/constants";
-import { getModalWidgetType } from "selectors/widgetSelectors";
-import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { getWidgetSelectionBlock } from "selectors/ui";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getModalWidgetType } from "selectors/widgetSelectors";
+import { generateReactKey } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { toast } from "@appsmith/ads";
+
 import { showPropertyPane } from "../actions/propertyPaneActions";
+import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

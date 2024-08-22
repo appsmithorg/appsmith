@@ -1,20 +1,21 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
+import classNames from "classnames";
 import BottomBar from "components/BottomBar";
+import { tailwindLayers } from "constants/Layers";
+import Sidebar from "pages/Editor/IDE/Sidebar";
+import { useSelector } from "react-redux";
 import {
   combinedPreviewModeSelector,
   previewModeSelector,
 } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
+
 import EditorWrapperContainer from "../commons/EditorWrapperContainer";
-import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "./LeftPane";
 import MainPane from "./MainPane";
-import RightPane from "./RightPane";
-import classNames from "classnames";
-import { tailwindLayers } from "constants/Layers";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import ProtectedCallout from "./ProtectedCallout";
+import RightPane from "./RightPane";
 
 /**
  * OldName: MainContainer

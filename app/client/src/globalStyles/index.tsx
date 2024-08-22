@@ -1,11 +1,13 @@
 import React from "react";
-import { TooltipStyles } from "./tooltip";
-import { PopoverStyles } from "./popover";
-import { UppyStyles } from "./uppy";
-import { PortalStyles } from "./portals";
-import { DialogStyles } from "./dialogs";
-import { CodemirrorHintStyles } from "./CodemirrorHintStyles";
+
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+
+import { CodemirrorHintStyles } from "./CodemirrorHintStyles";
+import { DialogStyles } from "./dialogs";
+import { PopoverStyles } from "./popover";
+import { PortalStyles } from "./portals";
+import { TooltipStyles } from "./tooltip";
+import { UppyStyles } from "./uppy";
 
 export default function GlobalStyles() {
   return (

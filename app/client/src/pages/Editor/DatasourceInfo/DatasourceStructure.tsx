@@ -1,27 +1,30 @@
 import React, { memo, useMemo, useRef, useState } from "react";
+
+import type { Plugin } from "api/PluginApi";
+import { SIDEBAR_ID } from "constants/Explorer";
+import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { useEditorType } from "ee/hooks";
+import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
+import type { AppState } from "ee/reducers";
+import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { hasCreateDSActionPermissionInApp } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { DatasourceTable } from "entities/Datasource";
+import type { DatasourceStructureContext } from "entities/Datasource";
+import { omit } from "lodash";
+import { useSelector } from "react-redux";
+import { Virtuoso } from "react-virtuoso";
+import { getPagePermissions } from "selectors/editorSelectors";
+import styled from "styled-components";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
+
 import Entity, { EntityClassNames } from "../Explorer/Entity";
 import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
-import type { DatasourceTable } from "entities/Datasource";
-import type { DatasourceStructureContext } from "entities/Datasource";
-import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
-import { SIDEBAR_ID } from "constants/Explorer";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
-import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "@appsmith/ads";
-import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
-import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
-import { omit } from "lodash";
-import { Virtuoso } from "react-virtuoso";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { hasCreateDSActionPermissionInApp } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "ee/hooks";
-import history from "utils/history";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;

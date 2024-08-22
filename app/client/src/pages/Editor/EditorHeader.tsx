@@ -1,7 +1,42 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ThemeProvider } from "styled-components";
-import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
+
+import { showConnectGitModal } from "actions/gitSyncActions";
+import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
+import type { NavigationSetting } from "constants/AppConstants";
+import { viewerURL } from "ee/RouteBuilder";
+import {
+  publishApplication,
+  updateApplication,
+} from "ee/actions/applicationActions";
+import { fetchUsersForWorkspace } from "ee/actions/workspaceActions";
+import { getAppsmithConfigs } from "ee/configs";
+import {
+  APPLICATION_INVITE,
+  COMMUNITY_TEMPLATES,
+  DEPLOY_BUTTON_TOOLTIP,
+  DEPLOY_MENU_OPTION,
+  INVITE_TAB,
+  IN_APP_EMBED_SETTING,
+  RENAME_APPLICATION_TOOLTIP,
+  createMessage,
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import {
+  getApplicationList,
+  getCurrentApplication,
+  getIsErroredSavingAppName,
+  getIsSavingAppName,
+} from "ee/selectors/applicationSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import {
+  getCurrentAppWorkspace,
+  getCurrentWorkspaceId,
+} from "ee/selectors/selectedWorkspaceSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
@@ -10,72 +45,39 @@ import {
   getPageSavingError,
 } from "selectors/editorSelectors";
 import {
-  getCurrentWorkspaceId,
-  getCurrentAppWorkspace,
-} from "ee/selectors/selectedWorkspaceSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import {
-  publishApplication,
-  updateApplication,
-} from "ee/actions/applicationActions";
-import {
-  getApplicationList,
-  getIsSavingAppName,
-  getIsErroredSavingAppName,
-  getCurrentApplication,
-} from "ee/selectors/applicationSelectors";
-import EditorName from "./EditorName";
-import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
-import {
-  Button,
-  Tooltip,
-  Modal,
-  ModalHeader,
-  ModalContent,
-  ModalBody,
-  Tabs,
-  TabsList,
-  Tab,
-  TabPanel,
-} from "@appsmith/ads";
-import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import ToggleModeButton from "pages/Editor/ToggleModeButton";
-import { showConnectGitModal } from "actions/gitSyncActions";
-import RealtimeAppEditors from "./RealtimeAppEditors";
-import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { fetchUsersForWorkspace } from "ee/actions/workspaceActions";
-import { useNavigationMenuData } from "./EditorName/useNavigationMenuData";
-
-import {
   getIsGitConnected,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
+import { ThemeMode, getTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import {
-  createMessage,
-  DEPLOY_BUTTON_TOOLTIP,
-  DEPLOY_MENU_OPTION,
-  INVITE_TAB,
-  IN_APP_EMBED_SETTING,
-  RENAME_APPLICATION_TOOLTIP,
-  COMMUNITY_TEMPLATES,
-  APPLICATION_INVITE,
-} from "ee/constants/messages";
-import { viewerURL } from "ee/RouteBuilder";
-import { useHref } from "./utils";
-import { getAppsmithConfigs } from "ee/configs";
-import type { NavigationSetting } from "constants/AppConstants";
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsList,
+  Tooltip,
+} from "@appsmith/ads";
+import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
+
+import { AppsmithLink } from "./AppsmithLink";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
-import { HeaderSection, HeaderWrapper } from "./commons/EditorHeaderComponents";
-import { Omnibar } from "./commons/Omnibar";
+import EditorName from "./EditorName";
+import { useNavigationMenuData } from "./EditorName/useNavigationMenuData";
+import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
-import { AppsmithLink } from "./AppsmithLink";
+import RealtimeAppEditors from "./RealtimeAppEditors";
+import { HeaderSection, HeaderWrapper } from "./commons/EditorHeaderComponents";
+import { Omnibar } from "./commons/Omnibar";
+import { useHref } from "./utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 

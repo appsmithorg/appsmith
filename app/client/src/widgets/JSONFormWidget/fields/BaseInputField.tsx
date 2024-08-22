@@ -6,22 +6,24 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled from "styled-components";
-import type { Alignment, IconName } from "@blueprintjs/core";
-import { isNil } from "lodash";
-import { useController } from "react-hook-form";
 
-import Field from "../component/Field";
-import FormContext from "../FormContext";
-import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
+import type { Alignment, IconName } from "@blueprintjs/core";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
-  createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
+  createMessage,
 } from "ee/constants/messages";
+import { isNil } from "lodash";
+import { useController } from "react-hook-form";
+import styled from "styled-components";
+import type { InputHTMLType } from "widgets/BaseInputWidget/component";
+import BaseInputComponent from "widgets/BaseInputWidget/component";
+
+import FormContext from "../FormContext";
+import Field from "../component/Field";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
@@ -34,9 +36,8 @@ import {
   FieldType,
   INPUT_FIELD_TYPE,
 } from "../constants";
-import type { InputHTMLType } from "widgets/BaseInputWidget/component";
-import BaseInputComponent from "widgets/BaseInputWidget/component";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useEvents from "./useBlurAndFocusEvents";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {

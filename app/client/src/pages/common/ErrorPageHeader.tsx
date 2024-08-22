@@ -1,24 +1,26 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { connect, useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
-import styled from "styled-components";
+
+import { flushErrors, flushErrorsAndRedirect } from "actions/errorActions";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "ee/reducers";
+import Button from "components/editorComponents/Button";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { Indices } from "constants/Layers";
+import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
-import Button from "components/editorComponents/Button";
-import ProfileDropdown from "./ProfileDropdown";
-import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
-import { getSafeCrash } from "selectors/errorSelectors";
-import { Indices } from "constants/Layers";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { get } from "lodash";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { AppState } from "ee/reducers";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { get } from "lodash";
+import { connect, useSelector } from "react-redux";
+import { Link, useLocation } from "react-router-dom";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getSafeCrash } from "selectors/errorSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+
+import ProfileDropdown from "./ProfileDropdown";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;

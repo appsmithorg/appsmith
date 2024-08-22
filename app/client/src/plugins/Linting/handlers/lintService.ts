@@ -1,29 +1,29 @@
-import { get, intersection, isEmpty, uniq } from "lodash";
+import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
+import { isJSEntity } from "ee/plugins/Linting/lib/entity";
+import { extractReferencesFromPath } from "ee/plugins/Linting/utils/getEntityDependencies";
 import {
   convertPathToString,
   getAllPaths,
   getEntityNameAndPropertyPath,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
-import { PathUtils } from "plugins/Linting/utils/pathUtils";
-import { extractReferencesFromPath } from "ee/plugins/Linting/utils/getEntityDependencies";
-import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
+import { getEntityFunctions } from "ee/workers/Evaluation/fns";
+import DependencyMap from "entities/DependencyMap";
+import { get, intersection, isEmpty, uniq } from "lodash";
+import {
+  type EntityTree,
+  LintEntityTree,
+} from "plugins/Linting/lib/entity/EntityTree";
+import { getLintErrorsFromTree } from "plugins/Linting/lintTree";
 import type {
   LintTreeRequestPayload,
   LintTreeResponse,
 } from "plugins/Linting/types";
-import { getLintErrorsFromTree } from "plugins/Linting/lintTree";
+import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
+import { PathUtils } from "plugins/Linting/utils/pathUtils";
 import type {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
-import { isJSEntity } from "ee/plugins/Linting/lib/entity";
-import DependencyMap from "entities/DependencyMap";
-import {
-  LintEntityTree,
-  type EntityTree,
-} from "plugins/Linting/lib/entity/EntityTree";
-import { getEntityFunctions } from "ee/workers/Evaluation/fns";
 
 class LintService {
   cachedEntityTree: EntityTree | null;

@@ -1,14 +1,16 @@
+import React, { useMemo } from "react";
+
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
-import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { getWidgetByID } from "sagas/selectors";
-import { getDefaultSpaceDistributed } from "./utils/spaceRedistributionSagaUtils";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getWidgetSelectionBlock } from "selectors/ui";
+
+import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
 import { getAnvilZoneBoundaryOffset } from "./utils/spaceDistributionEditorUtils";
-import { getWidgetSelectionBlock } from "selectors/ui";
+import { getDefaultSpaceDistributed } from "./utils/spaceRedistributionSagaUtils";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;

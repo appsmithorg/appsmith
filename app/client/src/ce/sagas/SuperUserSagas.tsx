@@ -1,36 +1,36 @@
+import type { ApiResponse } from "api/ApiResponses";
+import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
+import { APPLICATIONS_URL } from "constants/routes";
+import type { User } from "constants/userConstants";
+import type { FetchCurrentTenantConfigResponse } from "ee/api/TenantApi";
+import TenantApi from "ee/api/TenantApi";
 import type { SendTestEmailPayload } from "ee/api/UserApi";
 import UserApi from "ee/api/UserApi";
+import { getAppsmithConfigs } from "ee/configs";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { APPLICATIONS_URL } from "constants/routes";
-import type { User } from "constants/userConstants";
-import { call, put, delay, select } from "redux-saga/effects";
-import history from "utils/history";
-import { validateResponse } from "sagas/ErrorSagas";
-import { getAppsmithConfigs } from "ee/configs";
-
-import type { ApiResponse } from "api/ApiResponses";
 import {
   APPSMITH_DISPLAY_VERSION,
-  createMessage,
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
   TEST_EMAIL_SUCCESS_TROUBLESHOOT,
+  createMessage,
 } from "ee/constants/messages";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { toast } from "@appsmith/ads";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   MIGRATION_STATUS,
   RESTART_POLL_INTERVAL,
   RESTART_POLL_TIMEOUT,
 } from "ee/constants/tenantConstants";
-import type { FetchCurrentTenantConfigResponse } from "ee/api/TenantApi";
-import TenantApi from "ee/api/TenantApi";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { call, delay, put, select } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
+import { getCurrentUser } from "selectors/usersSelectors";
+import history from "utils/history";
+
+import { toast } from "@appsmith/ads";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);

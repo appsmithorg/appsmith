@@ -1,10 +1,12 @@
 import React from "react";
+
+import type { InputType } from "components/constants";
+import TextField from "components/editorComponents/form/fields/TextField";
+import type { ControlType } from "constants/PropertyControlConstants";
+import styled from "styled-components";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { InputType } from "components/constants";
-import type { ControlType } from "constants/PropertyControlConstants";
-import TextField from "components/editorComponents/form/fields/TextField";
-import styled from "styled-components";
 
 const Wrapper = styled.div`
   width: 545px;

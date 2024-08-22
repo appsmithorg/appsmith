@@ -1,8 +1,9 @@
 import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import type { LintRequest } from "../types";
+
 import { handlerMap } from "../handlers";
+import type { LintRequest } from "../types";
 
 export function messageListener(e: MessageEvent<TMessage<LintRequest>>) {
   const { messageType } = e.data;

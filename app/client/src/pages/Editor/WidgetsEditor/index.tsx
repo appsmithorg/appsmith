@@ -1,15 +1,18 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+
 import WidgetEditorFooter from "components/editorComponents/Debugger";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+
 import { WidgetEditorContainer } from "./WidgetEditorContainer";
-import { WidgetEditorHeader } from "./WidgetEditorHeader";
 import { WidgetEditorContent } from "./WidgetEditorContent";
+import { WidgetEditorHeader } from "./WidgetEditorHeader";
+
 /**
  * WidgetsEditor
  * This is the main editor component that is used to edit widgets.

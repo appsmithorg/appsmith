@@ -1,7 +1,8 @@
 import adminSettings from "../../../../locators/AdminsSettings";
-const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 import { adminSettings as adminSettingsHelper } from "../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe(
   "SSO with Google test functionality",

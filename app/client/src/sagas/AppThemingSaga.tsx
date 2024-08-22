@@ -1,3 +1,6 @@
+import type { SagaIterator } from "@redux-saga/types";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
 import type {
   ChangeSelectedAppThemeAction,
   DeleteAppThemeAction,
@@ -6,45 +9,44 @@ import type {
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { updateisBetaCardShownAction } from "actions/appThemingActions";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
+import { updateReplayEntity } from "actions/pageActions";
+import type { ApiResponse } from "api/ApiResponses";
+import ThemingApi from "api/AppThemingApi";
+import type { AxiosPromise } from "axios";
+import type { User } from "constants/userConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import ThemingApi from "api/AppThemingApi";
-import { all, takeLatest, put, select, call } from "redux-saga/effects";
-import { toast } from "@appsmith/ads";
 import {
   CHANGE_APP_THEME,
-  createMessage,
   DELETE_APP_THEME,
   SET_DEFAULT_SELECTED_THEME,
+  createMessage,
 } from "ee/constants/messages";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { updateReplayEntity } from "actions/pageActions";
-import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getAppMode } from "ee/selectors/applicationSelectors";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import type { APP_MODE } from "entities/App";
-import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
-import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
-import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
-import type { ApiResponse } from "api/ApiResponses";
 import type { AppTheme } from "entities/AppTheming";
+import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
+import { find } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
   getCurrentApplicationId,
   selectApplicationVersion,
 } from "selectors/editorSelectors";
-import { find } from "lodash";
-import * as Sentry from "@sentry/react";
-import { Severity } from "@sentry/react";
-import { getAllPageIdentities } from "./selectors";
-import type { SagaIterator } from "@redux-saga/types";
-import type { AxiosPromise } from "axios";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { STORAGE_KEYS, getBetaFlag, setBetaFlag } from "utils/storage";
+
+import { toast } from "@appsmith/ads";
+
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { getAllPageIdentities } from "./selectors";
 
 /**
  * init app theming

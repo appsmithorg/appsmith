@@ -1,10 +1,13 @@
 import React from "react";
-import { FormGroup as StyledFormGroup } from "@appsmith/ads-old";
+
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";
+
+import { Option, Select } from "@appsmith/ads";
+import { FormGroup as StyledFormGroup } from "@appsmith/ads-old";
+
 import type { OptionType } from "./constants";
-import { Select, Option } from "@appsmith/ads";
 
 export const FormHeaderLabel = styled.h5`
   width: 100%;

@@ -1,8 +1,10 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import { TextView } from "./index";
+
 import type { TextViewProps } from "../../types";
+import { TextView } from "./index";
 
 describe("Text view component", () => {
   const props: TextViewProps = {

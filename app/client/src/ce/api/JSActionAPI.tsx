@@ -1,11 +1,11 @@
-import API from "api/Api";
-import type { AxiosPromise } from "axios";
-import type { JSCollection } from "entities/JSCollection";
-import type { ApiResponse } from "api/ApiResponses";
-import type { Variable, JSAction } from "entities/JSCollection";
-import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
+import API from "api/Api";
+import type { ApiResponse } from "api/ApiResponses";
+import type { AxiosPromise } from "axios";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { PluginType } from "entities/Action";
+import type { JSCollection } from "entities/JSCollection";
+import type { JSAction, Variable } from "entities/JSCollection";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse<JSCollection>;
 

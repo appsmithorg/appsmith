@@ -1,8 +1,11 @@
 import React from "react";
-import type { KeyValueViewProps } from "../../types";
-import { ControlWrapper } from "components/propertyControls/StyledControls";
+
 import { KeyValueComponent } from "components/propertyControls/KeyValueComponent";
+import { ControlWrapper } from "components/propertyControls/StyledControls";
+
 import type { SegmentedControlOption } from "@appsmith/ads";
+
+import type { KeyValueViewProps } from "../../types";
 
 export function KeyValueView(props: KeyValueViewProps) {
   return (

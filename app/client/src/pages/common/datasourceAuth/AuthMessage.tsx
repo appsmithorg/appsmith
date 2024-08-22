@@ -1,26 +1,29 @@
-import type { AppState } from "ee/reducers";
-import { redirectAuthorizationCode } from "actions/datasourceActions";
-import type { CalloutKind } from "@appsmith/ads";
-import { Callout } from "@appsmith/ads";
-import type { Datasource } from "entities/Datasource";
-import { ActionType } from "entities/Datasource";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+
+import { redirectAuthorizationCode } from "actions/datasourceActions";
+import type { Plugin } from "api/PluginApi";
+import { DocsLink, openDoc } from "constants/DocumentationLinks";
+import { getAppsmithConfigs } from "ee/configs";
+import {
+  DATASOURCE_INTERCOM_TEXT,
+  GOOGLE_SHEETS_ASK_FOR_SUPPORT,
+  GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
+  GOOGLE_SHEETS_LEARN_MORE,
+  createMessage,
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import {
   getPlugin,
   getPluginTypeFromDatasourceId,
 } from "ee/selectors/entitiesSelector";
+import type { Datasource } from "entities/Datasource";
+import { ActionType } from "entities/Datasource";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import {
-  GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
-  GOOGLE_SHEETS_LEARN_MORE,
-  createMessage,
-  GOOGLE_SHEETS_ASK_FOR_SUPPORT,
-  DATASOURCE_INTERCOM_TEXT,
-} from "ee/constants/messages";
-import { getAppsmithConfigs } from "ee/configs";
-import { DocsLink, openDoc } from "constants/DocumentationLinks";
-import type { Plugin } from "api/PluginApi";
+
+import type { CalloutKind } from "@appsmith/ads";
+import { Callout } from "@appsmith/ads";
+
 const { intercomAppID } = getAppsmithConfigs();
 
 const StyledAuthMessage = styled.div<{ isInViewMode: boolean }>`

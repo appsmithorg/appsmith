@@ -1,11 +1,12 @@
 import React from "react";
-import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
-import { Field } from "redux-form";
-import { Input, NumberInput } from "@appsmith/ads";
 
 import type { Intent } from "constants/DefaultTheme";
 import { SettingSubtype } from "ee/pages/AdminSettings/config/types";
 import { omit } from "lodash";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
+
+import { Input, NumberInput } from "@appsmith/ads";
 
 const renderComponent = (
   componentProps: FormTextFieldProps & {

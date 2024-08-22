@@ -1,7 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 import {
-  entityExplorer,
   agHelper,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

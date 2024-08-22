@@ -1,10 +1,11 @@
 import React from "react";
+
 import clsx from "classnames";
 
-import type { BoxProps } from "./Box.types";
+import { CSS_VARIABLE_PREFIX } from "../__config__/constants";
 import { BoxClassName, PropsToBeCssPrefixPrepended } from "./Box.constants";
 import { StyledBox } from "./Box.styles";
-import { CSS_VARIABLE_PREFIX } from "../__config__/constants";
+import type { BoxProps } from "./Box.types";
 
 function Box({ children, className, ...rest }: BoxProps) {
   const transformedRest = Object.entries(rest).reduce((acc, [key, value]) => {

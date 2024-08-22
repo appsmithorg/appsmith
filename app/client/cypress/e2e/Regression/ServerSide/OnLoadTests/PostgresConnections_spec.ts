@@ -1,11 +1,11 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
-  deployMode,
-  dataSources,
-  entityItems,
   assertHelper,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
@@ -13,6 +13,7 @@ import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+
 let guid: any, dsName_1: any, dsName_2: any;
 
 describe(

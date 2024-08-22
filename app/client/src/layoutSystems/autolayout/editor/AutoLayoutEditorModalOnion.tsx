@@ -1,12 +1,14 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import React from "react";
-import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
-import { ModalResizableLayer } from "../../common/resizer/ModalResizableLayer";
-import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
-import { ModalOverlayLayer } from "../../common/modalOverlay/ModalOverlayLayer";
-import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
-import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+
 import { get } from "lodash";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
+import { ModalOverlayLayer } from "../../common/modalOverlay/ModalOverlayLayer";
+import { ModalResizableLayer } from "../../common/resizer/ModalResizableLayer";
+import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
+import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 
 /**
  * AutoLayoutEditorModalOnion

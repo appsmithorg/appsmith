@@ -1,13 +1,16 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { generateReactKey } from "utils/generators";
-import orderBy from "lodash/orderBy";
+
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
+import orderBy from "lodash/orderBy";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import { generateReactKey } from "utils/generators";
+
 import { Button } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 interface State {
   focusedIndex: number | null;

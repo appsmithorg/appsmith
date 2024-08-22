@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import has from "lodash/has";
+
 import type { DSLWidget } from "../types";
 
 export const migrateNewlyAddedTabsWidgetsMissingData = (

@@ -1,9 +1,8 @@
 import {
-  getWidgetSelector,
   PROPERTY_SELECTOR,
   WIDGET,
+  getWidgetSelector,
 } from "../../../../locators/WidgetLocators";
-
 import {
   agHelper,
   entityExplorer,

@@ -5,26 +5,28 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Option } from "@appsmith/ads";
-import { DropdownOption } from "../../../../CommonControls/DatasourceDropdown/DropdownOption";
-import { WidgetQueryGeneratorFormContext } from "../../../../index";
-import { useColumns } from "../../../ColumnDropdown/useColumns";
-import type { DefaultOptionType } from "rc-select/lib/Select";
-import { get } from "lodash";
-import { useSelector } from "react-redux";
-import { getCurrentPageWidgets } from "ee/selectors/entitiesSelector";
-import { StyledImage } from "./styles";
-import { FieldOptionsType } from "./types";
-import type { DropdownOptionType } from "../../../../types";
-import WidgetFactory from "WidgetProvider/factory";
 
+import WidgetFactory from "WidgetProvider/factory";
 import {
-  createMessage,
   NO_CONNECTABLE_WIDGET_FOUND,
+  createMessage,
 } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
-import { getWidget } from "sagas/selectors";
+import { getCurrentPageWidgets } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { get } from "lodash";
+import type { DefaultOptionType } from "rc-select/lib/Select";
+import { useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
+
+import { Option } from "@appsmith/ads";
+
+import { DropdownOption } from "../../../../CommonControls/DatasourceDropdown/DropdownOption";
+import { WidgetQueryGeneratorFormContext } from "../../../../index";
+import type { DropdownOptionType } from "../../../../types";
+import { useColumns } from "../../../ColumnDropdown/useColumns";
+import { StyledImage } from "./styles";
+import { FieldOptionsType } from "./types";
 
 export interface OneClickDropdownFieldProps {
   label: string;

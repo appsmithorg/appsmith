@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
+
 import Button from "components/editorComponents/Button";
 import Divider from "components/editorComponents/Divider";
+import styled from "styled-components";
 
 interface FormFooterProps {
   onCancel?: () => void;

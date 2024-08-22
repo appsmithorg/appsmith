@@ -1,9 +1,9 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import {
   agHelper,
+  gitSync,
   homePage,
   locators,
-  gitSync,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

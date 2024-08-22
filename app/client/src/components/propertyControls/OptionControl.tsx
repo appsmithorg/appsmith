@@ -1,10 +1,13 @@
 import React from "react";
+
+import type { DropdownOption } from "components/constants";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+
+import type { SegmentedControlOption } from "@appsmith/ads";
+
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { DropdownOption } from "components/constants";
 import { KeyValueComponent } from "./KeyValueComponent";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { SegmentedControlOption } from "@appsmith/ads";
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {

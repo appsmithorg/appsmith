@@ -1,8 +1,9 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { FormControl, FormError, FormHelper, FormLabel } from "./FormControl";
 import { Input } from "../Input";
+import { FormControl, FormError, FormHelper, FormLabel } from "./FormControl";
 
 export default {
   title: "ADS/Components/FormControl",

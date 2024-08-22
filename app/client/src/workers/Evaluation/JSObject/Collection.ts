@@ -1,9 +1,10 @@
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { klona } from "klona/full";
 import { get, set } from "lodash";
-import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
+
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
-import type { JSActionEntity } from "ee/entities/DataTree/types";
+import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 
 export enum PatchType {
   "SET" = "SET",

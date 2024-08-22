@@ -1,8 +1,8 @@
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
 } from "ee/constants/messages";
-import { ValidationTypes } from "constants/WidgetValidation";
 
 /**
  * This is for the configuration of menu items when

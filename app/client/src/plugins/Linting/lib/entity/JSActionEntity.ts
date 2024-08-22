@@ -1,16 +1,16 @@
+import type { TParsedJSProperty } from "@shared/ast";
+import { isJSFunctionProperty } from "@shared/ast";
+import type { Diff } from "deep-diff";
 import type {
   JSActionEntity as TJSActionEntity,
   JSActionEntityConfig as TJSActionEntityConfig,
 } from "ee/entities/DataTree/types";
+import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
 import {
-  defaultDiffGenerator,
   type EntityDiffGenerator,
+  defaultDiffGenerator,
 } from "plugins/Linting/utils/diffGenerator";
 import type { EntityParser } from "plugins/Linting/utils/entityParser";
-import type { TParsedJSProperty } from "@shared/ast";
-import { isJSFunctionProperty } from "@shared/ast";
-import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
-import type { Diff } from "deep-diff";
 
 export class JSEntity implements IEntity {
   entity: TJSActionEntity;

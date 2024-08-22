@@ -1,7 +1,9 @@
 import React from "react";
+
+import { BUSINESS_TAG, createMessage } from "ee/constants/messages";
+
 import type { TagSizes } from "@appsmith/ads";
 import { Tag } from "@appsmith/ads";
-import { BUSINESS_TAG, createMessage } from "ee/constants/messages";
 
 const BusinessTag = ({
   classes = "",

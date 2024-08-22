@@ -1,12 +1,14 @@
+import React, { useMemo } from "react";
+
 import {
   COMMUNITY_TEMPLATES,
   FORM_VALIDATION_INVALID_EMAIL,
   createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
+
 import { Input, Text } from "@appsmith/ads";
 import { emailValidator } from "@appsmith/ads-old";
-import React, { useMemo } from "react";
-import styled from "styled-components";
 
 interface Props {
   authorEmail: string;

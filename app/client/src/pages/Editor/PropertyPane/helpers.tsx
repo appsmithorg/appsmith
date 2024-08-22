@@ -1,3 +1,5 @@
+import React, { useCallback, useState } from "react";
+
 import type { WidgetCallout } from "WidgetProvider/constants";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
@@ -5,12 +7,12 @@ import type {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import { Callout } from "@appsmith/ads";
 import { debounce } from "lodash";
-import React, { useCallback, useState } from "react";
 import { layoutSystemBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import { Callout } from "@appsmith/ads";
 
 export function useSearchText(initialVal: string) {
   const [searchText, setSearchText] = useState(initialVal);

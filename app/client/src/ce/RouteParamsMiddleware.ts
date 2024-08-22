@@ -1,13 +1,13 @@
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
+import type { UpdatePageResponse } from "api/PageApi";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { UpdatePageResponse } from "api/PageApi";
 import type {
   ApplicationURLParams,
   PageURLParams,
 } from "ee/entities/URLRedirect/URLAssembly";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 import type { Middleware } from "redux";
 
 // TODO: Fix this the next time the file is edited

@@ -1,19 +1,19 @@
-import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
-import { OneClickBinding } from "../spec_utility";
-import {
-  agHelper,
-  entityExplorer,
-  dataSources,
-  draggableWidgets,
-  assertHelper,
-  propPane,
-} from "../../../../../support/Objects/ObjectsCore";
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
+import oneClickBindingLocator from "../../../../../locators/OneClickBindingLocator";
 import widgetsPage from "../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
+import {
+  agHelper,
+  assertHelper,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import { OneClickBinding } from "../spec_utility";
 
 const oneClickBinding = new OneClickBinding();
 

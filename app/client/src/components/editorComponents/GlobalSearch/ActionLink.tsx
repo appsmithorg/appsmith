@@ -1,9 +1,12 @@
 import React from "react";
 import { useContext } from "react";
+
 import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
+
 import SearchContext from "./GlobalSearchContext";
 import type { SearchItem } from "./utils";
-import { Button } from "@appsmith/ads";
 
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};

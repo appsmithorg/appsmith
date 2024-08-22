@@ -1,7 +1,7 @@
-import { createSelector } from "reselect";
 import type { AppState } from "ee/reducers";
-import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
+import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
+import { createSelector } from "reselect";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 const getPageListState = (state: AppState): PageListReduxState =>

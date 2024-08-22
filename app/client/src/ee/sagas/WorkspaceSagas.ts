@@ -1,21 +1,22 @@
-export * from "ce/sagas/WorkspaceSagas";
 import {
+  changeWorkspaceUserRoleSaga,
+  createWorkspaceSaga,
+  deleteWorkspaceLogoSaga,
+  deleteWorkspaceSaga,
+  deleteWorkspaceUserSaga,
+  fetchAllRolesSaga,
+  fetchAllUsersSaga,
+  fetchAllWorkspacesSaga,
+  fetchEntitiesOfWorkspaceSaga,
   fetchWorkspaceSaga,
   saveWorkspaceSaga,
-  createWorkspaceSaga,
-  fetchAllUsersSaga,
-  fetchAllRolesSaga,
-  deleteWorkspaceUserSaga,
-  changeWorkspaceUserRoleSaga,
-  deleteWorkspaceSaga,
-  uploadWorkspaceLogoSaga,
-  deleteWorkspaceLogoSaga,
-  fetchAllWorkspacesSaga,
   searchWorkspaceEntitiesSaga,
-  fetchEntitiesOfWorkspaceSaga,
+  uploadWorkspaceLogoSaga,
 } from "ce/sagas/WorkspaceSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
+
+export * from "ce/sagas/WorkspaceSagas";
 
 export default function* workspaceSagas() {
   yield all([

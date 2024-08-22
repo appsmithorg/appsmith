@@ -1,8 +1,8 @@
-import type { WidgetProps } from "widgets/BaseWidget";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { select } from "redux-saga/effects";
 import { getWidget } from "sagas/selectors";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {

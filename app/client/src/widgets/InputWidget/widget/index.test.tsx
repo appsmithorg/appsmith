@@ -1,6 +1,7 @@
+import _ from "lodash";
+
 import type { InputWidgetProps } from "./index";
 import { defaultValueValidation } from "./index";
-import _ from "lodash";
 
 describe("#defaultValueValidation", () => {
   const defaultInputWidgetProps: InputWidgetProps = {

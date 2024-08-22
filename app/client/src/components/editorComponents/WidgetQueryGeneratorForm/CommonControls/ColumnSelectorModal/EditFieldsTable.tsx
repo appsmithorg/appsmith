@@ -1,6 +1,8 @@
-import { useTable, useSortBy, useExpanded } from "react-table";
 import React from "react";
+
+import { useExpanded, useSortBy, useTable } from "react-table";
 import styled from "styled-components";
+
 import { Spinner } from "@appsmith/ads";
 
 const Styles = styled.div`

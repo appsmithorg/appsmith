@@ -1,10 +1,13 @@
-import type { TabViewProps } from "../../types";
+import React from "react";
+
 import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
+
 import { SegmentedControl } from "@appsmith/ads";
-import React from "react";
+
+import type { TabViewProps } from "../../types";
 
 interface Option {
   id: string;

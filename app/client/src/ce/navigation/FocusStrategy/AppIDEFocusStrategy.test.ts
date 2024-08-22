@@ -1,9 +1,10 @@
-import { runSaga } from "redux-saga";
-import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
-import { NavigationMethod } from "utils/history";
-import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { all, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { runSaga } from "redux-saga";
+import { all, take } from "redux-saga/effects";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { NavigationMethod } from "utils/history";
+
+import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
 
 const basePageId1 = "0123456789abcdef00000000";
 const basePageId2 = "0123456789abcdef00000001";

@@ -1,24 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 
 import { FloatingPortal } from "@floating-ui/react";
-
 import {
   MAIN_CONTAINER_WIDGET_ID,
   SKELETON_WIDGET_TYPE,
 } from "constants/WidgetConstants";
+import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
+import { useSelector } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+
+import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
+import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
+import type { NameComponentStates } from "./types";
 import {
   getWidgetDOMElement,
   getWidgetNameComponentStyleProps,
   handleWidgetUpdate,
 } from "./utils";
-import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
-import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
-import type { NameComponentStates } from "./types";
-import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export function AnvilWidgetName(props: {
   widgetId: string;

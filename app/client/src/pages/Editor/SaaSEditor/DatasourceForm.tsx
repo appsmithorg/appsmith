@@ -1,100 +1,102 @@
 import React from "react";
-import styled from "styled-components";
-import { get, isEqual, isNil, map, memoize, omit } from "lodash";
-import { DATASOURCE_SAAS_FORM } from "ee/constants/forms";
-import type { Datasource } from "entities/Datasource";
-import { AuthenticationStatus } from "entities/Datasource";
-import { ActionType } from "entities/Datasource";
-import type { InjectedFormProps } from "redux-form";
-import {
-  getFormValues,
-  isDirty,
-  reduxForm,
-  initialize,
-  getFormInitialValues,
-  reset,
-} from "redux-form";
-import type { RouteComponentProps } from "react-router";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
-import {
-  getDatasource,
-  getPluginImages,
-  getDatasourceFormButtonConfig,
-  getPlugin,
-  getPluginDocumentationLinks,
-  getDatasourceScopeValue,
-} from "ee/selectors/entitiesSelector";
-import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
-import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
-import { JSONtoForm } from "../DataSourceEditor/JSONtoForm";
-import { normalizeValues, validate } from "components/formControls/utils";
-import {
-  getCurrentApplicationId,
-  getGsheetProjectID,
-  getGsheetToken,
-} from "selectors/editorSelectors";
-import DatasourceAuth from "pages/common/datasourceAuth";
-import EntityNotFoundPane from "../EntityNotFoundPane";
-import type { Plugin } from "api/PluginApi";
-import {
-  isDatasourceAuthorizedForQueryCreation,
-  isEnabledForPreviewData,
-  isGoogleSheetPluginDS,
-} from "utils/editorContextUtils";
-import type { PluginType } from "entities/Action";
-import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
-import { isDatasourceInViewMode } from "selectors/ui";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+
 import {
   createTempDatasourceFromForm,
+  datasourceDiscardAction,
   deleteTempDSFromDraft,
   loadFilePickerAction,
   removeTempDatasource,
   setDatasourceViewMode,
   toggleSaveActionFlag,
   toggleSaveActionFromPopupFlag,
-  datasourceDiscardAction,
 } from "actions/datasourceActions";
-import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
+import type { Plugin } from "api/PluginApi";
+import type { ControlProps } from "components/formControls/BaseControl";
+import { normalizeValues, validate } from "components/formControls/utils";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";
+import DSDataFilter from "ee/components/DSDataFilter";
+import { DATASOURCE_SAAS_FORM } from "ee/constants/forms";
 import {
-  createMessage,
   GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
   GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
+  createMessage,
 } from "ee/constants/messages";
-import { getDatasourceErrorMessage } from "./errorUtils";
-import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
-import DatasourceInformation, {
-  ViewModeWrapper,
-} from "./../DataSourceEditor/DatasourceSection";
-import type { ControlProps } from "components/formControls/BaseControl";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
+import {
+  getDatasource,
+  getDatasourceFormButtonConfig,
+  getDatasourceScopeValue,
+  getPlugin,
+  getPluginDocumentationLinks,
+  getPluginImages,
+} from "ee/selectors/entitiesSelector";
+import { getDefaultEnvironmentId } from "ee/selectors/environmentSelectors";
+import {
+  selectFeatureFlagCheck,
+  selectFeatureFlags,
+} from "ee/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import {
+  getHasDeleteDatasourcePermission,
+  getHasManageDatasourcePermission,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { PluginType } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { AuthenticationStatus } from "entities/Datasource";
+import { ActionType } from "entities/Datasource";
+import { get, isEqual, isNil, map, memoize, omit } from "lodash";
+import DatasourceAuth from "pages/common/datasourceAuth";
+import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
+import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import type { InjectedFormProps } from "redux-form";
+import {
+  getFormInitialValues,
+  getFormValues,
+  initialize,
+  isDirty,
+  reduxForm,
+  reset,
+} from "redux-form";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import {
+  getCurrentApplicationId,
+  getGsheetProjectID,
+  getGsheetToken,
+} from "selectors/editorSelectors";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { isDatasourceInViewMode } from "selectors/ui";
+import styled from "styled-components";
+import { getQueryParams } from "utils/URLUtils";
+import {
+  isDatasourceAuthorizedForQueryCreation,
+  isEnabledForPreviewData,
+  isGoogleSheetPluginDS,
+} from "utils/editorContextUtils";
+
+import { DSEditorWrapper } from "../DataSourceEditor";
+import type { DatasourceFilterState } from "../DataSourceEditor";
+import { Form } from "../DataSourceEditor/DBForm";
 import { DSFormHeader } from "../DataSourceEditor/DSFormHeader";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import { Form } from "../DataSourceEditor/DBForm";
-import DSDataFilter from "ee/components/DSDataFilter";
-import { DSEditorWrapper } from "../DataSourceEditor";
-import type { DatasourceFilterState } from "../DataSourceEditor";
-import { getQueryParams } from "utils/URLUtils";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getDefaultEnvironmentId } from "ee/selectors/environmentSelectors";
-import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";
-import {
-  getHasDeleteDatasourcePermission,
-  getHasManageDatasourcePermission,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import {
-  selectFeatureFlagCheck,
-  selectFeatureFlags,
-} from "ee/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
+import { JSONtoForm } from "../DataSourceEditor/JSONtoForm";
+import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
-import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
-import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import EntityNotFoundPane from "../EntityNotFoundPane";
+import DatasourceInformation, {
+  ViewModeWrapper,
+} from "./../DataSourceEditor/DatasourceSection";
+import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
+import { getDatasourceErrorMessage } from "./errorUtils";
 
 const ViewModeContainer = styled.div`
   display: flex;

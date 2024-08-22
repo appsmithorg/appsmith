@@ -1,7 +1,14 @@
-import type { AppState } from "ee/reducers";
-import { bindDataToWidget } from "actions/propertyPaneActions";
-import type { WidgetType } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
+
+import WidgetFactory from "WidgetProvider/factory";
+import { bindDataToWidget } from "actions/propertyPaneActions";
+import { theme } from "constants/DefaultTheme";
+import { Layers } from "constants/Layers";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
+import memoize from "micro-memoize";
 // import type { CSSProperties } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -13,24 +20,19 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import WidgetFactory from "WidgetProvider/factory";
-import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import SettingsControl, { Activities } from "./SettingsControl";
-import { theme } from "constants/DefaultTheme";
 import {
   isCurrentWidgetActiveInPropertyPane,
-  isWidgetFocused,
   isMultiSelectedWidget,
   isResizingOrDragging,
+  isWidgetFocused,
   showWidgetAsSelected,
 } from "selectors/widgetSelectors";
-import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
-import { Layers } from "constants/Layers";
-import memoize from "micro-memoize";
+import styled from "styled-components";
 import { NavigationMethod } from "utils/history";
+import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+
+import SettingsControl, { Activities } from "./SettingsControl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];

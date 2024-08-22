@@ -1,4 +1,5 @@
 import { camelCase } from "lodash";
+
 import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class AnvilSnapshot {

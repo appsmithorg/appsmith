@@ -1,15 +1,16 @@
-import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { GridDefaults, type RenderModes } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystem } from "layoutSystems/withLayoutSystemWidgetHOC";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
-import { getRenderMode } from "./editorSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";
-import type { AppState } from "ee/reducers";
-import type { LayoutSystemTypes } from "layoutSystems/types";
+
+import { getRenderMode } from "./editorSelectors";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 
 function buildFlattenedChildCanvasWidgets(

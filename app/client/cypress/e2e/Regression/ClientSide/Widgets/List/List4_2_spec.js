@@ -1,5 +1,5 @@
 /// <reference types="Cypress" />
-
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -7,7 +7,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Container Widget Functionality",

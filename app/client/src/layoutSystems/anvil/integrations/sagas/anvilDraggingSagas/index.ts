@@ -2,27 +2,27 @@ import {
   type ReduxAction,
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
-import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { getWidgets } from "sagas/selectors";
-import type { AnvilMoveWidgetsPayload } from "../../actions/actionTypes";
-import { AnvilReduxActionTypes } from "../../actions/actionTypes";
 import { moveWidgetsToMainCanvas } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
-
 import { moveWidgetsToSection } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
-import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import {
   isRedundantZoneWidget,
   isZoneWidget,
   moveWidgetsToZone,
 } from "layoutSystems/anvil/utils/layouts/update/zoneUtils";
+import log from "loglevel";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { getWidgets } from "sagas/selectors";
+
+import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import { severTiesFromParents } from "../../../utils/layouts/update/moveUtils";
 import { widgetChildren } from "../../../utils/layouts/widgetUtils";
+import type { AnvilMoveWidgetsPayload } from "../../actions/actionTypes";
+import { AnvilReduxActionTypes } from "../../actions/actionTypes";
 
 /**
  * Remove widgets from current parents and layouts.

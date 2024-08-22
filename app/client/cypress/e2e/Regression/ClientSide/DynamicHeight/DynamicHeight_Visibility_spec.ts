@@ -1,10 +1,10 @@
 import {
-  locators,
   agHelper,
   deployMode,
-  propPane,
-  pageSettings,
   draggableWidgets,
+  locators,
+  pageSettings,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

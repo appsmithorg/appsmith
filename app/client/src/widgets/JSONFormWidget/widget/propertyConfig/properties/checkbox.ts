@@ -1,7 +1,8 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
+
 import type { HiddenFnParams } from "../helper";
-import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import { getAutocompleteProperties, getSchemaItem } from "../helper";
 
 const PROPERTIES = {
   content: {

@@ -1,8 +1,9 @@
-import PageList from "../../../../../support/Pages/PageList";
-const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
+
+const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;

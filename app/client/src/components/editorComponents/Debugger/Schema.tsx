@@ -1,18 +1,20 @@
-import { Flex } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
-import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
-import { DatasourceStructureContext } from "entities/Datasource";
-import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
-import { useSelector } from "react-redux";
+
+import type { AppState } from "ee/reducers";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
 } from "ee/selectors/entitiesSelector";
-import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
+import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
 import { find } from "lodash";
-import type { AppState } from "ee/reducers";
+import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
+import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
+import { useSelector } from "react-redux";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+
+import { Flex } from "@appsmith/ads";
 
 interface Props {
   datasourceId: string;

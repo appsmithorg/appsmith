@@ -1,12 +1,13 @@
-import { Classes, Switch } from "@blueprintjs/core";
-import { LabelPosition } from "components/constants";
-import { BlueprintControlTransform } from "constants/DefaultTheme";
 import React from "react";
+
+import { Classes, Switch } from "@blueprintjs/core";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { Colors } from "constants/Colors";
+import { BlueprintControlTransform } from "constants/DefaultTheme";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
-import { Colors } from "constants/Colors";
-import { FontStyleTypes } from "constants/WidgetConstants";
 import { darkenColor } from "widgets/WidgetUtils";
 
 export interface SwitchComponentProps extends ComponentProps {

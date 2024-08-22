@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-
+import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ValidationResponse, Validator } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import _, {
@@ -13,12 +13,10 @@ import _, {
   toString,
   uniq,
 } from "lodash";
-
-import moment from "moment";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
-
-import getIsSafeURL from "utils/validation/getIsSafeURL";
 import * as log from "loglevel";
+import moment from "moment";
+import getIsSafeURL from "utils/validation/getIsSafeURL";
+
 import {
   countOccurrences,
   findDuplicateIndex,

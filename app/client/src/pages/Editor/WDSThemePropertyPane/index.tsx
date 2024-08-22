@@ -1,32 +1,33 @@
-import { debounce } from "lodash";
-import styled from "styled-components";
-import { isValidColor } from "utils/helpers";
-import { FONT_METRICS } from "@appsmith/wds-theming";
-import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
-import type { ThemeSetting } from "constants/AppConstants";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplication } from "ee/actions/applicationActions";
-import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
-import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
+
 import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "@appsmith/ads";
+import type { ThemeSetting } from "constants/AppConstants";
+import { updateApplication } from "ee/actions/applicationActions";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
+import { debounce } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { isValidColor } from "utils/helpers";
 
-import styles from "./styles.module.css";
+import { Icon, Option, SegmentedControl, Select, Tooltip } from "@appsmith/ads";
+import { FONT_METRICS } from "@appsmith/wds-theming";
 
+import SettingSection from "../ThemePropertyPane/SettingSection";
+import { AppMaxWidthSelect } from "./components/AppMaxWidthSelect";
 import {
   THEME_SETTINGS_BORDER_RADIUS_OPTIONS,
+  THEME_SETTINGS_COLOR_MODE_OPTIONS,
   THEME_SETTINGS_DENSITY_OPTIONS,
   THEME_SETTINGS_ICON_STYLE_OPTIONS,
   THEME_SETTINGS_SIZING_OPTIONS,
-  THEME_SETTINGS_COLOR_MODE_OPTIONS,
   THEME_SETTING_COLOR_PRESETS,
 } from "./constants";
-import SettingSection from "../ThemePropertyPane/SettingSection";
-import { AppMaxWidthSelect } from "./components/AppMaxWidthSelect";
+import styles from "./styles.module.css";
 
 const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);

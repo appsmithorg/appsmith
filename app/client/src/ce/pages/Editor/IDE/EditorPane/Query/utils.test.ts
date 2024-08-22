@@ -1,9 +1,10 @@
-import { getQueryEntityItemUrl, getQueryUrl } from "./utils";
+import { EditorState } from "ee/entities/IDE/constants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { PluginPackageName, PluginType } from "entities/Action";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
-import { EditorState } from "ee/entities/IDE/constants";
-import { PluginPackageName, PluginType } from "entities/Action";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+
+import { getQueryEntityItemUrl, getQueryUrl } from "./utils";
 
 describe("getQueryEntityItemUrl", () => {
   it("throws error if plugin type is not a query", () => {

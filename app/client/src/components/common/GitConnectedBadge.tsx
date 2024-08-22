@@ -1,8 +1,9 @@
 import React from "react";
-import styled from "styled-components";
-import { Icon, Tooltip } from "@appsmith/ads";
 
 import { CONNECTED_TO_GIT, createMessage } from "ee/constants/messages";
+import styled from "styled-components";
+
+import { Icon, Tooltip } from "@appsmith/ads";
 
 const StyledGitConnectedBadge = styled.div`
   width: 24px;

@@ -1,5 +1,7 @@
 import React from "react";
+
 import styled from "styled-components";
+
 import { Icon } from "@appsmith/ads";
 
 export interface SectionHeaderProps {

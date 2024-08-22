@@ -1,14 +1,16 @@
 import React from "react";
-import styled from "styled-components";
+
 import type { SocialLoginType } from "ee/constants/SocialLogin";
-import { getSocialLoginButtonProps } from "ee/utils/signupHelpers";
-import type { EventName } from "ee/utils/analyticsUtilTypes";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useLocation } from "react-router-dom";
-import { Button } from "@appsmith/ads";
-import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
-import { useSelector } from "react-redux";
 import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
+import type { EventName } from "ee/utils/analyticsUtilTypes";
+import { getSocialLoginButtonProps } from "ee/utils/signupHelpers";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
+import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;

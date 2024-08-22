@@ -1,8 +1,7 @@
+import { jsCollectionIdURL, widgetURL } from "ee/RouteBuilder";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import { ACTION_TYPE, JSACTION_TYPE } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { createSelector } from "reselect";
+import type { AppState } from "ee/reducers";
 import {
   getCurrentActions,
   getDatasources,
@@ -11,26 +10,27 @@ import {
   getModuleInstances,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import { getWidgets } from "sagas/selectors";
-import {
-  getCurrentBasePageId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { jsCollectionIdURL, widgetURL } from "ee/RouteBuilder";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { createNavData } from "utils/NavigationSelector/common";
-import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
-import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
+import { getModuleInstanceNavigationData } from "ee/utils/moduleInstanceNavigationData";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { AppState } from "ee/reducers";
 import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Datasource } from "entities/Datasource";
-import { getModuleInstanceNavigationData } from "ee/utils/moduleInstanceNavigationData";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { createSelector } from "reselect";
+import { getWidgets } from "sagas/selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
+import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
+import { createNavData } from "utils/NavigationSelector/common";
 
 export interface NavigationData {
   name: string;

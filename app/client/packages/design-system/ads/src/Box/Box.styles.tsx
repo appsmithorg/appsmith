@@ -1,19 +1,20 @@
-import styled from "styled-components";
 import {
-  compose,
   backgrounds,
   borders,
+  compose,
   effects,
+  flexboxGrids,
+  flexboxes,
+  grids,
   interactivity,
   layout,
   sizing,
   space,
   transforms,
-  flexboxes,
-  flexboxGrids,
-  grids,
 } from "@xstyled/system";
-import { width, height } from "../__config__/utils";
+import styled from "styled-components";
+
+import { height, width } from "../__config__/utils";
 
 const customSystem = compose(
   backgrounds,

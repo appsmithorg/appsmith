@@ -1,11 +1,16 @@
-import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { publishCommunityTemplate } from "actions/communityTemplateActions";
-import { Button, Checkbox } from "@appsmith/ads";
 import React, { useEffect, useMemo, useState } from "react";
+
+import { publishCommunityTemplate } from "actions/communityTemplateActions";
+import { viewerURL } from "ee/RouteBuilder";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import { Button, Checkbox } from "@appsmith/ads";
+
 import {
   PublishPageAppSettingContainer,
   PublishPageBodyContainer,
@@ -16,8 +21,6 @@ import ApplicationSettings from "./components/ApplicationSettings";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateInfoForm from "./components/TemplateInfoForm";
-import { viewerURL } from "ee/RouteBuilder";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 interface Props {
   onPublishSuccess: () => void;

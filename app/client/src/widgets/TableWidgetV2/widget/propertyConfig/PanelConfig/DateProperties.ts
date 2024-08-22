@@ -1,9 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { get } from "lodash";
+
 import { allowedFirstDayOfWeekRange } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 export default {
   sectionName: "Date Settings",

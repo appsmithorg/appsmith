@@ -1,6 +1,6 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { UpdateTenantConfigRequest } from "ee/api/TenantApi";
 import type { ApiResponse } from "api/ApiResponses";
+import type { UpdateTenantConfigRequest } from "ee/api/TenantApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const getCurrentTenant = (
   isBackgroundRequest = true,

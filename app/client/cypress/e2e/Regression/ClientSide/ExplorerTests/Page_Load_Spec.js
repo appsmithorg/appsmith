@@ -1,15 +1,15 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
-
-const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
   deployMode,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
-import PageList from "../../../../support/Pages/PageList";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
+
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {

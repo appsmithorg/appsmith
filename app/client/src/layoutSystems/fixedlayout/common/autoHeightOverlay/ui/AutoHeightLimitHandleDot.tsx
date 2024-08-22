@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import { OVERLAY_COLOR, OVERLAY_HANDLE_DOT_DRAGGING_SCALE } from "../constants";
 
 interface AutoHeightLimitHandleDotProps {

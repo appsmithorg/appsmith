@@ -1,9 +1,11 @@
 import React from "react";
-import styled from "styled-components";
+
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
+import styled from "styled-components";
+
 const GRID_POINT_SIZE = 1;
 const WrappedDragLayer = styled.div<{
   columnWidth: number;

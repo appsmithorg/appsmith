@@ -1,7 +1,8 @@
-import React, { useState, forwardRef } from "react";
-import styled from "styled-components";
+import React, { forwardRef, useState } from "react";
 
+import styled from "styled-components";
 import { getRgbaColor } from "widgets/WidgetUtils";
+
 import type { SliderSizes } from "../utils";
 import { thumbSizeMap } from "../utils";
 

@@ -1,11 +1,13 @@
-import { render, screen } from "test/testUtils";
-import "@testing-library/jest-dom";
 import React from "react";
-import { ThemeProvider } from "styled-components";
-import { Field } from "./index";
+
+import "@testing-library/jest-dom";
 import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { render, screen } from "test/testUtils";
+
 import { FieldType } from "../constants";
 import { FIELD_CONFIG } from "./FieldConfig";
+import { Field } from "./index";
 
 describe("Field component", () => {
   const commonProps = {

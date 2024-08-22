@@ -1,19 +1,23 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
+
+import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import type { ControlType } from "constants/PropertyControlConstants";
+import { useDispatch } from "react-redux";
 import type {
   WrappedFieldArrayProps,
-  WrappedFieldMetaProps,
   WrappedFieldInputProps,
+  WrappedFieldMetaProps,
 } from "redux-form";
 import { Field, FieldArray } from "redux-form";
 import styled from "styled-components";
-import type { ControlProps, ControlData } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+
 import type { InputProps } from "@appsmith/ads";
-import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
-import { useDispatch } from "react-redux";
 import { Button, Icon, Input, Text, Tooltip } from "@appsmith/ads";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;

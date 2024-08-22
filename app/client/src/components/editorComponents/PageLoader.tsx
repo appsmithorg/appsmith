@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, ProgressBar } from "@blueprintjs/core";
+
+import { ProgressBar, Text } from "@blueprintjs/core";
 import styled from "styled-components";
 
 const PageLoaderWrapper = styled.div`

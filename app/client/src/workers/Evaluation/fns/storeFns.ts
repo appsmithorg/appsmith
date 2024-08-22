@@ -1,7 +1,8 @@
 import set from "lodash/set";
-import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
-import { dataTreeEvaluator } from "../handlers/evalTree";
 import unset from "lodash/unset";
+
+import { dataTreeEvaluator } from "../handlers/evalTree";
+import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
 
 function storeFnDescriptor(key: string, value: string, persist = true) {
   return {

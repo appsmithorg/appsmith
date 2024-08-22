@@ -1,18 +1,20 @@
 import React from "react";
-import type { Page } from "entities/Page";
+
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
+import type { Page } from "entities/Page";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";
 import { useSelector } from "react-redux";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { trimQueryString } from "utils/helpers";
-import MenuText from "./MenuText";
-import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
+
+import { StyledMenuItem } from "./MenuItem.styled";
+import MenuText from "./MenuText";
 
 interface MenuItemProps {
   page: Page;

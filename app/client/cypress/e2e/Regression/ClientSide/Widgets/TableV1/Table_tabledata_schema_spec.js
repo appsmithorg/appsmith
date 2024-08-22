@@ -1,9 +1,8 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
-
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
   before(() => {

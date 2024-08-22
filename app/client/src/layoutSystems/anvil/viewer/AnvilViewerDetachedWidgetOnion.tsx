@@ -1,8 +1,9 @@
 import React from "react";
 
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { AnvilErrorBoundary } from "../common/widgetComponent/AnvilErrorBoundary";
 import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
+import { AnvilErrorBoundary } from "../common/widgetComponent/AnvilErrorBoundary";
 
 /**
  * AnvilViewerDetachedWidgetOnion

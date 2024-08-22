@@ -1,13 +1,15 @@
 import React from "react";
-import { Button } from "@appsmith/ads";
 
-import Page from "./Page";
 import {
-  createMessage,
   PAGE_SERVER_TIMEOUT_DESCRIPTION,
   PAGE_SERVER_TIMEOUT_ERROR_CODE,
   PAGE_SERVER_TIMEOUT_TITLE,
+  createMessage,
 } from "ee/constants/messages";
+
+import { Button } from "@appsmith/ads";
+
+import Page from "./Page";
 
 function ServerTimeout() {
   return (

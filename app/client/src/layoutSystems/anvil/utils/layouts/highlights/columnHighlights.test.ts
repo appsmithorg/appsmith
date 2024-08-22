@@ -1,21 +1,22 @@
-import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import {
-  LayoutComponentTypes,
-  type LayoutComponentProps,
-  type WidgetLayoutProps,
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
+
+import {
   type DraggedWidget,
+  type LayoutComponentProps,
+  LayoutComponentTypes,
+  type WidgetLayoutProps,
 } from "../../anvilTypes";
 import {
   DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT,
   HIGHLIGHT_SIZE,
 } from "../../constants";
 import { registerLayoutComponents } from "../layoutUtils";
-import {
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
 import { deriveColumnHighlights } from "./columnHighlights";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
 
 describe("columnHighlights", () => {
   const draggedHugWidget: DraggedWidget[] = [

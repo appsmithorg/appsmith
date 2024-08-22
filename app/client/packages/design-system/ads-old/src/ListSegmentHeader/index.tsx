@@ -1,6 +1,8 @@
 import type { CSSProperties } from "react";
 import React from "react";
+
 import styled from "styled-components";
+
 import { typography } from "../constants/typography";
 
 const StyledSegmentHeader = styled.div`

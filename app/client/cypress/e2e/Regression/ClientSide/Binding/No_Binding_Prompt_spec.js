@@ -1,13 +1,14 @@
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dynamicInput = require("../../../../locators/DynamicInput.json");
-import {
-  entityExplorer,
-  agHelper,
-} from "../../../../support/Objects/ObjectsCore";
+
 describe("Binding prompt", { tags: ["@tag.Binding"] }, function () {
   before(() => {
     agHelper.AddDsl("inputdsl");

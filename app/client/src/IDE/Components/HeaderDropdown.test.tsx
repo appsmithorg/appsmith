@@ -1,7 +1,9 @@
 import React from "react";
-import { render } from "@testing-library/react";
-import HeaderDropdown from "./HeaderDropdown";
+
 import "@testing-library/jest-dom";
+import { render } from "@testing-library/react";
+
+import HeaderDropdown from "./HeaderDropdown";
 
 describe("HeaderDropdown", () => {
   it("renders children components correctly", () => {

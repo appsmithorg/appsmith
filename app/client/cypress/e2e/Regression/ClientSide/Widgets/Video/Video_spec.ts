@@ -1,11 +1,12 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const testdata = require("../../../../../fixtures/testdata.json");
 import {
   agHelper,
-  entityExplorer,
   draggableWidgets,
+  entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const testdata = require("../../../../../fixtures/testdata.json");
 
 describe(
   "Video Widget Functionality",

@@ -1,8 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
-import { hideByColumnType } from "../../../widget/propertyUtils";
+
 import { BUTTON_VARIANTS, objectKeys } from "@appsmith/wds";
+
+import { hideByColumnType } from "../../../widget/propertyUtils";
 
 export default {
   sectionName: "General",

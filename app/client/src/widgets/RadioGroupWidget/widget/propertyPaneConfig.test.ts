@@ -1,4 +1,5 @@
 import _ from "lodash";
+
 import RadioGroupWidget from "./index";
 
 describe("unit test case for property config pane", () => {

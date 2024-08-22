@@ -1,24 +1,26 @@
 import React from "react";
-import { Route, Switch, useLocation, useRouteMatch } from "react-router-dom";
+
+import * as Sentry from "@sentry/react";
+import { getAppsmithConfigs } from "ee/configs";
+import type { AppState } from "ee/reducers";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import Login from "pages/UserAuth/Login";
 import SignUp from "pages/UserAuth/SignUp";
+import PageNotFound from "pages/common/ErrorPages/PageNotFound";
+import { useSelector } from "react-redux";
+import { Route, Switch, useLocation, useRouteMatch } from "react-router-dom";
+import { ThemeMode, getThemeDetails } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+
+import FooterLinks from "./FooterLinks";
 import ForgotPassword from "./ForgotPassword";
 import ResetPassword from "./ResetPassword";
-import PageNotFound from "pages/common/ErrorPages/PageNotFound";
-import * as Sentry from "@sentry/react";
-import { requiresUnauth } from "./requiresAuthHOC";
-import { useSelector } from "react-redux";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import type { AppState } from "ee/reducers";
-import { ThemeProvider } from "styled-components";
+import VerificationError from "./VerificationError";
 import VerificationPending from "./VerificationPending";
 import VerifyUser from "./VerifyUser";
-import VerificationError from "./VerificationError";
-import FooterLinks from "./FooterLinks";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "ee/configs";
+import { requiresUnauth } from "./requiresAuthHOC";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

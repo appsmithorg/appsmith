@@ -1,19 +1,20 @@
+import React from "react";
+
+import { screen } from "@testing-library/react";
+import Canvas from "pages/Editor/Canvas";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as editorSelectors from "selectors/editorSelectors";
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { render, fireEvent } from "test/testUtils";
-import { screen } from "@testing-library/react";
-import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import * as dataTreeSelectors from "selectors/dataTreeSelectors";
-import * as editorSelectors from "selectors/editorSelectors";
-import Canvas from "pages/Editor/Canvas";
-import React from "react";
 import {
+  MockPageDSL,
   mockCreateCanvasWidget,
   mockGetWidgetEvalValues,
-  MockPageDSL,
 } from "test/testCommon";
+import { fireEvent, render } from "test/testUtils";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 
 describe("Tabs widget functional cases", () => {
   jest

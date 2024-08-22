@@ -1,9 +1,9 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "DatePicker Widget Property pane tests with js bindings",

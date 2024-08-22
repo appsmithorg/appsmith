@@ -1,33 +1,33 @@
-import { all, put, select, takeEvery } from "redux-saga/effects";
-import type { ApplicationPayload } from "entities/Application";
+import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  generateTemplateFormURL,
+  saasEditorApiIdURL,
+  saasEditorDatasourceIdURL,
+} from "ee/RouteBuilder";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import history from "utils/history";
+import { DATASOURCE_SAAS_FORM } from "ee/constants/forms";
+import {
+  getApplicationByIdFromWorkspaces,
+  getCurrentApplicationIdForCreateNewApp,
+} from "ee/selectors/applicationSelectors";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
-import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import {
-  generateTemplateFormURL,
-  saasEditorApiIdURL,
-  saasEditorDatasourceIdURL,
-} from "ee/RouteBuilder";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
-import { getQueryParams } from "utils/URLUtils";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { DATASOURCE_SAAS_FORM } from "ee/constants/forms";
-import { initialize } from "redux-form";
+import type { ApplicationPayload } from "entities/Application";
 import { omit } from "lodash";
-import {
-  getApplicationByIdFromWorkspaces,
-  getCurrentApplicationIdForCreateNewApp,
-} from "ee/selectors/applicationSelectors";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { initialize } from "redux-form";
+import { all, put, select, takeEvery } from "redux-saga/effects";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getQueryParams } from "utils/URLUtils";
+import history from "utils/history";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,

@@ -1,12 +1,13 @@
 import type { AppState } from "ee/reducers";
-import {
-  snipingModeSelector,
-  combinedPreviewModeSelector,
-} from "selectors/editorSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import {
+  combinedPreviewModeSelector,
+  snipingModeSelector,
+} from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
+
 import { getWidgetSelectionBlock } from "../../selectors/ui";
 
 export const useAllowEditorDragToSelect = () => {

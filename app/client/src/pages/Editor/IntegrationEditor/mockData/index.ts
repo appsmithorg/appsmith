@@ -1,6 +1,6 @@
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getDefaultEnvId } from "ee/api/ApiUtils";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { PluginPackageName } from "entities/Action";
 
 export const mockPlugins = [

@@ -5,18 +5,19 @@ import type {
   RefObject,
 } from "react";
 import React, { useCallback, useEffect, useRef } from "react";
-import styled from "styled-components";
-import tinycolor from "tinycolor2";
-import fastdom from "fastdom";
-import { generateClassName, getCanvasClassName } from "utils/generators";
+
+import type { WidgetType } from "WidgetProvider/factory";
 import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import { scrollCSS } from "widgets/WidgetUtils";
-import { useSelector } from "react-redux";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { WidgetType } from "WidgetProvider/factory";
+import fastdom from "fastdom";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { useSelector } from "react-redux";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import styled from "styled-components";
+import tinycolor from "tinycolor2";
+import { generateClassName, getCanvasClassName } from "utils/generators";
+import { scrollCSS } from "widgets/WidgetUtils";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">

@@ -1,22 +1,24 @@
 import React from "react";
-import { useHistory } from "react-router-dom";
-import { SettingCategories } from "ee/pages/AdminSettings/config/types";
-import styled from "styled-components";
+
+import EnterpriseTag from "components/EnterpriseTag";
+import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
 import {
-  ENABLE,
   ADMIN_AUTH_SETTINGS_SUBTITLE,
   ADMIN_AUTH_SETTINGS_TITLE,
-  createMessage,
-  EDIT,
-  UPGRADE,
   AUTHENTICATION_METHOD_ENABLED,
+  EDIT,
+  ENABLE,
+  UPGRADE,
+  createMessage,
 } from "ee/constants/messages";
-import { Button, Callout, Divider, Icon, Text, Tooltip } from "@appsmith/ads";
-import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
+import { SettingCategories } from "ee/pages/AdminSettings/config/types";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
+import { useHistory } from "react-router-dom";
+import styled from "styled-components";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
-import EnterpriseTag from "components/EnterpriseTag";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
+
+import { Button, Callout, Divider, Icon, Text, Tooltip } from "@appsmith/ads";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);

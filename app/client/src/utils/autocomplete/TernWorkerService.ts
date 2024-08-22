@@ -1,4 +1,5 @@
 import type { Def, Server } from "tern";
+
 import type { CallbackFn } from "./types";
 import { TernWorkerAction } from "./types";
 

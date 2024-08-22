@@ -1,3 +1,8 @@
+import {
+  agHelper,
+  apiPage,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -6,12 +11,6 @@ import EditorNavigation, {
 
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-
-import {
-  agHelper,
-  apiPage,
-  entityExplorer,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "API Panel Test Functionality ",

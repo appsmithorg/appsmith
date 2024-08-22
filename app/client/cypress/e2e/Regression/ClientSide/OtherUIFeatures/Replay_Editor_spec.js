@@ -1,13 +1,14 @@
+import {
+  agHelper,
+  dataSources,
+  jsEditor,
+} from "../../../../support/Objects/ObjectsCore";
+
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../../../../fixtures/datasources.json");
-import {
-  agHelper,
-  jsEditor,
-  dataSources,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

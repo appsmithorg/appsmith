@@ -1,9 +1,9 @@
 import fs from "fs";
-import { TokensAccessor, defaultTokens, tokensConfigs } from "../token";
-import { cssRule } from "./cssRule";
-import { getSizing, getSpacing } from "../hooks";
 
+import { getSizing, getSpacing } from "../hooks";
+import { TokensAccessor, defaultTokens, tokensConfigs } from "../token";
 import type { TokenSource } from "../token";
+import { cssRule } from "./cssRule";
 
 const allTokens = new TokensAccessor({
   ...(defaultTokens as TokenSource),

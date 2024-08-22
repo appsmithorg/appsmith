@@ -1,18 +1,18 @@
-import { precacheAndRoute } from "workbox-precaching";
+import {
+  PrefetchApiService,
+  cachedApiUrlRegex,
+  getApplicationParamsFromUrl,
+  getPrefetchRequests,
+} from "ee/utils/serviceWorkerUtils";
 import { clientsClaim, setCacheNameDetails, skipWaiting } from "workbox-core";
-import { registerRoute, Route } from "workbox-routing";
+import type { RouteHandlerCallback } from "workbox-core/types";
+import { precacheAndRoute } from "workbox-precaching";
+import { Route, registerRoute } from "workbox-routing";
 import {
   CacheFirst,
   NetworkOnly,
   StaleWhileRevalidate,
 } from "workbox-strategies";
-import {
-  cachedApiUrlRegex,
-  getApplicationParamsFromUrl,
-  getPrefetchRequests,
-  PrefetchApiService,
-} from "ee/utils/serviceWorkerUtils";
-import type { RouteHandlerCallback } from "workbox-core/types";
 
 setCacheNameDetails({
   prefix: "appsmith",

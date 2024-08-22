@@ -1,10 +1,12 @@
 import React from "react";
-import { render, screen } from "test/testUtils";
-import DynamicInputTextControl from "./DynamicInputTextControl";
+
+import { waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { reduxForm } from "redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
-import userEvent from "@testing-library/user-event";
-import { waitFor } from "@testing-library/react";
+import { render, screen } from "test/testUtils";
+
+import DynamicInputTextControl from "./DynamicInputTextControl";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

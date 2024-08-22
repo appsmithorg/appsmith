@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
+
 import { useThemeContext } from "@appsmith/wds-theming";
 
 export const CompareTokens = () => {

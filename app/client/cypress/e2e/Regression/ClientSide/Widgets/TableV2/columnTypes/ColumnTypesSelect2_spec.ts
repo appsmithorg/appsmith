@@ -1,8 +1,8 @@
 import {
-  entityExplorer,
-  propPane,
   agHelper,
   draggableWidgets,
+  entityExplorer,
+  propPane,
   table,
 } from "../../../../../../support/Objects/ObjectsCore";
 

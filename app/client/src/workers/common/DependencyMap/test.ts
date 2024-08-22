@@ -1,7 +1,8 @@
 import type {
-  WidgetEntity,
   DataTreeEntityConfig,
+  WidgetEntity,
 } from "ee/entities/DataTree/types";
+
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
 
 describe("DependencyMap utils", function () {

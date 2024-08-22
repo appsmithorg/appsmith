@@ -1,7 +1,11 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
-import { get } from "lodash";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+
 import {
   getBasePropertyPath,
   hideByColumnType,
@@ -12,9 +16,6 @@ import {
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 
 export default {
   sectionName: "Data",

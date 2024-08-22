@@ -1,5 +1,6 @@
-import styled from "styled-components";
 import clsx from "classnames";
+import styled from "styled-components";
+
 import {
   TableBodyCellClassName,
   TableBodyClassName,

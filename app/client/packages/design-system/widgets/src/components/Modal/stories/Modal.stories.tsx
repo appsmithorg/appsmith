@@ -1,10 +1,13 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
 import { Modal } from "@appsmith/wds";
-import { ModalHeader, ModalFooter, ModalContent } from "@appsmith/wds";
-import { SimpleModal } from "./SimpleModal";
-import { ModalExamples } from "./ModalExamples";
+import { ModalContent, ModalFooter, ModalHeader } from "@appsmith/wds";
+
 import { CustomModal as CustomModalExample } from "./CustomModal";
+import { ModalExamples } from "./ModalExamples";
+import { SimpleModal } from "./SimpleModal";
 
 /**
  * A modal is a floating element that displays information that requires immediate attention, appearing over the page content and blocking interactions with the page until it is dismissed.

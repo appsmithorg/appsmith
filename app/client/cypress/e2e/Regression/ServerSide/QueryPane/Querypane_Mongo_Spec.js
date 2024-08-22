@@ -1,3 +1,14 @@
+import {
+  agHelper,
+  apiPage,
+  assertHelper,
+  dataSources,
+  entityExplorer,
+  entityItems,
+  homePage,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -5,18 +16,6 @@ import EditorNavigation, {
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
-
-import {
-  agHelper,
-  entityExplorer,
-  homePage,
-  dataSources,
-  entityItems,
-  assertHelper,
-  locators,
-  apiPage,
-} from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 

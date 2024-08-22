@@ -1,13 +1,14 @@
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
+import Button from "pages/AppViewer/AppViewerButton";
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemBackgroundColorWhenActive,
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
-import styled from "styled-components";
-import Button from "pages/AppViewer/AppViewerButton";
 import { NavLink } from "react-router-dom";
+import styled from "styled-components";
+
 import { Menu } from "@appsmith/ads-old";
 
 export const StyleMoreDropdownButton = styled(Button)<{

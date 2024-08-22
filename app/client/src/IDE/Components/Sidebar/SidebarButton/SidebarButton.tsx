@@ -1,6 +1,8 @@
 import React, { useCallback } from "react";
-import { Flex, Icon, Text, Tooltip } from "@appsmith/ads";
+
 import styled from "styled-components";
+
+import { Flex, Icon, Text, Tooltip } from "@appsmith/ads";
 
 import { Condition } from "../../../enums";
 

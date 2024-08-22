@@ -1,12 +1,13 @@
 import React, { useLayoutEffect } from "react";
+
+import { useId } from "@floating-ui/react";
+
 import { usePopoverContext } from "@appsmith/wds-headless";
 
-import { Text } from "../../Text";
-import { IconButton } from "../../IconButton";
 import { Flex } from "../../Flex";
-import { useId } from "@floating-ui/react";
+import { IconButton } from "../../IconButton";
+import { Text } from "../../Text";
 import styles from "./styles.module.css";
-
 import type { ModalHeaderProps } from "./types";
 
 export const ModalHeader = (props: ModalHeaderProps) => {

@@ -1,14 +1,14 @@
 import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
+import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "List Widget V2 Functionality",

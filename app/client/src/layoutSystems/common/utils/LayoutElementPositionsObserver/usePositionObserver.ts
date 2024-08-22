@@ -1,12 +1,15 @@
 import type { RefObject } from "react";
 import { useEffect } from "react";
-import { positionObserver } from ".";
+
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "ee/selectors/entitiesSelector";
+
+import { positionObserver } from ".";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
-import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+
 export type ObservableElementType = "widget" | "layout";
 
 export function useObserveDetachedWidget(widgetId: string) {

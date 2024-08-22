@@ -1,16 +1,10 @@
 import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import type { JSAction } from "entities/JSCollection";
-import type { DropdownOnSelect } from "@appsmith/ads-old";
+
 import {
-  CodeEditorBorder,
-  EditorModes,
-  EditorSize,
-  EditorTheme,
-  TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
-import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
-import JSObjectNameEditor from "./JSObjectNameEditor";
+  setCodeEditorCursorAction,
+  setFocusableInputField,
+} from "actions/editorContextActions";
 import {
   setActiveJSAction,
   setJsPaneConfigSelectedTab,
@@ -18,31 +12,52 @@ import {
   startExecutingJSFunction,
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
-import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router";
+import {
+  CodeEditorBorder,
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import JSResponseView from "components/editorComponents/JSResponseView";
-import { isEmpty } from "lodash";
-import equal from "fast-deep-equal/es6";
-import { JSFunctionRun } from "./JSFunctionRun";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import RunHistory from "ee/components/RunHistory";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { AppState } from "ee/reducers";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
   getJSActions,
   getJSCollectionParseErrors,
 } from "ee/selectors/entitiesSelector";
-import type { JSActionDropdownOption } from "./utils";
 import {
-  convertJSActionsToDropdownOptions,
-  convertJSActionToDropdownOption,
-  getActionFromJsCollection,
-  getJSActionOption,
-  getJSFunctionLineGutter,
-  getJSPropertyLineFromName,
-} from "./utils";
+  getHasExecuteActionPermission,
+  getHasManageActionPermission,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import type { JSAction } from "entities/JSCollection";
+import equal from "fast-deep-equal/es6";
+import { isEmpty } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
+import styled from "styled-components";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
+import type { DropdownOnSelect } from "@appsmith/ads-old";
+
+import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
+import { JSFunctionRun } from "./JSFunctionRun";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import type { JSFunctionSettingsProps } from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
+import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
+import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   ActionButtons,
   Form,
@@ -51,27 +66,16 @@ import {
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
-import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
-import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import type { JSActionDropdownOption } from "./utils";
 import {
-  setCodeEditorCursorAction,
-  setFocusableInputField,
-} from "actions/editorContextActions";
-import history from "utils/history";
-import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import styled from "styled-components";
-import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
-import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  getHasExecuteActionPermission,
-  getHasManageActionPermission,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
-import RunHistory from "ee/components/RunHistory";
+  convertJSActionToDropdownOption,
+  convertJSActionsToDropdownOptions,
+  getActionFromJsCollection,
+  getJSActionOption,
+  getJSFunctionLineGutter,
+  getJSPropertyLineFromName,
+} from "./utils";
+
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;

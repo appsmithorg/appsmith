@@ -1,15 +1,17 @@
 import React from "react";
-import { Provider } from "react-redux";
-import store from "store";
-import { ThemeProvider } from "styled-components";
-import { lightTheme } from "selectors/themeSelectors";
-import { render } from "test/testUtils";
-import Deploy from "../Deploy";
+
 import {
   commitToRepoInit,
   fetchGitStatusSuccess,
 } from "actions/gitSyncActions";
 import { COMMITTING_AND_PUSHING_CHANGES } from "ee/constants/messages";
+import { Provider } from "react-redux";
+import { lightTheme } from "selectors/themeSelectors";
+import store from "store";
+import { ThemeProvider } from "styled-components";
+import { render } from "test/testUtils";
+
+import Deploy from "../Deploy";
 
 describe("Tests for git deploy modal", () => {
   it("Should show progress bar for JS Library diffs", () => {

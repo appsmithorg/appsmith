@@ -1,6 +1,7 @@
 import styled, { css } from "styled-components";
-import type { TagKind, TagSizes } from "./Tag.types";
+
 import { Button } from "../Button";
+import type { TagKind, TagSizes } from "./Tag.types";
 
 const Variables = css`
   --tag-color-background: var(--ads-v2-colors-content-surface-neutral-bg);

@@ -1,6 +1,7 @@
-import type { DropdownOption } from "@appsmith/ads-old";
-import type { DatasourceTable } from "entities/Datasource";
 import { PluginPackageName } from "entities/Action";
+import type { DatasourceTable } from "entities/Datasource";
+
+import type { DropdownOption } from "@appsmith/ads-old";
 
 export type DropdownOptions = Array<DropdownOption>;
 

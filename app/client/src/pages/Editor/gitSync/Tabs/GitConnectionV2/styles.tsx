@@ -1,5 +1,6 @@
-import { Callout, Text } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Callout, Text } from "@appsmith/ads";
 
 export const WellContainer = styled.div`
   padding: 16px;

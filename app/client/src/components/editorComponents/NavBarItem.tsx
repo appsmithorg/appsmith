@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
 // TODO(abhinav): This file may not be used anymore.
 import React from "react";
-import styled from "styled-components";
-import { NavLink } from "react-router-dom";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { Colors } from "constants/Colors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { NavLink } from "react-router-dom";
+import styled from "styled-components";
 
 interface MenuBarItemProps {
   icon: Function;

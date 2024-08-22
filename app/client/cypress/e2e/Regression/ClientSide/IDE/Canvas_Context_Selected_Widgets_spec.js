@@ -1,3 +1,4 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -5,7 +6,6 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../fixtures/editorContextdsl.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const page1 = "Page1";
 const page2 = "Page2";

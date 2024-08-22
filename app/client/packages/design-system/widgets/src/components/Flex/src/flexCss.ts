@@ -1,7 +1,7 @@
 import { css } from "@emotion/css";
 import kebabCase from "lodash/kebabCase";
 
-import type { FlexCssProps, CssVarValues, FlexProps } from "./types";
+import type { CssVarValues, FlexCssProps, FlexProps } from "./types";
 
 export const flexCss = (props: FlexCssProps) => {
   const { isInner, ...rest } = props;

@@ -1,11 +1,12 @@
 import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
+
 import type { ColorMode } from "../../color";
 import type {
   FontFamily,
-  Typography,
-  ThemeToken,
   IconStyle,
+  ThemeToken,
+  Typography,
 } from "../../token";
 
 export type Theme = ThemeToken & {

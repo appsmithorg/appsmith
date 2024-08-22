@@ -1,7 +1,8 @@
-import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
+import type { AxiosPromise } from "axios";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
+
 import type { ProductAlert } from "../../reducers/uiReducers/usersReducer";
 
 export interface LoginUserRequest {

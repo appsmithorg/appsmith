@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Icon } from "@appsmith/ads";
 
 export function CollapseToggle(props: {

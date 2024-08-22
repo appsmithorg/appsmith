@@ -1,40 +1,8 @@
-import type {
-  TNavigateToActionType,
-  TNavigateToDescription,
-} from "./navigateTo";
-import navigateTo from "./navigateTo";
-import type { TShowAlertActionType, TShowAlertDescription } from "./showAlert";
-import showAlert from "./showAlert";
-import type {
-  TCloseModalActionType,
-  TCloseModalDescription,
-  TShowModalActionType,
-  TShowModalDescription,
-} from "./modalFns";
-import { closeModal, showModal } from "./modalFns";
-import type { TDownloadActionType, TDownloadDescription } from "./download";
-import download from "./download";
-import type {
-  TPostWindowMessageActionType,
-  TPostWindowMessageDescription,
-} from "./postWindowMessage";
-import postWindowMessage from "./postWindowMessage";
-import type {
-  TCopyToClipboardActionType,
-  TCopyToClipboardDescription,
-} from "./copyToClipboard";
-import copyToClipboard from "./copyToClipboard";
-import type {
-  TResetWidgetActionType,
-  TResetWidgetDescription,
-} from "./resetWidget";
-import resetWidget from "./resetWidget";
-import type {
-  TClearStoreDescription,
-  TRemoveValueDescription,
-  TStoreValueDescription,
-} from "./storeFns";
-import { clearStore, removeValue, storeValue } from "./storeFns";
+import type { ActionEntity } from "ee/entities/DataTree/types";
+import { isAppsmithEntity } from "ee/workers/Evaluation/evaluationUtils";
+import { isRunNClearFnQualifierEntity } from "ee/workers/Evaluation/fns/utils/isRunNClearFnQualifierEntity";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+
 import type {
   TClearActionType,
   TClearDescription,
@@ -42,9 +10,13 @@ import type {
   TRunDescription,
 } from "./actionFns";
 import run, { clear } from "./actionFns";
-import { isAppsmithEntity } from "ee/workers/Evaluation/evaluationUtils";
-import type { ActionEntity } from "ee/entities/DataTree/types";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import type {
+  TCopyToClipboardActionType,
+  TCopyToClipboardDescription,
+} from "./copyToClipboard";
+import copyToClipboard from "./copyToClipboard";
+import type { TDownloadActionType, TDownloadDescription } from "./download";
+import download from "./download";
 import type {
   TGetGeoLocationActionType,
   TGetGeoLocationDescription,
@@ -58,8 +30,37 @@ import {
   stopWatchGeoLocation,
   watchGeoLocation,
 } from "./geolocationFns";
+import type {
+  TCloseModalActionType,
+  TCloseModalDescription,
+  TShowModalActionType,
+  TShowModalDescription,
+} from "./modalFns";
+import { closeModal, showModal } from "./modalFns";
+import type {
+  TNavigateToActionType,
+  TNavigateToDescription,
+} from "./navigateTo";
+import navigateTo from "./navigateTo";
+import type {
+  TPostWindowMessageActionType,
+  TPostWindowMessageDescription,
+} from "./postWindowMessage";
+import postWindowMessage from "./postWindowMessage";
+import type {
+  TResetWidgetActionType,
+  TResetWidgetDescription,
+} from "./resetWidget";
+import resetWidget from "./resetWidget";
+import type { TShowAlertActionType, TShowAlertDescription } from "./showAlert";
+import showAlert from "./showAlert";
+import type {
+  TClearStoreDescription,
+  TRemoveValueDescription,
+  TStoreValueDescription,
+} from "./storeFns";
+import { clearStore, removeValue, storeValue } from "./storeFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
-import { isRunNClearFnQualifierEntity } from "ee/workers/Evaluation/fns/utils/isRunNClearFnQualifierEntity";
 
 export const getPlatformFunctions = () => {
   return platformFns;

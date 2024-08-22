@@ -1,25 +1,26 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // Heavily inspired from https://github.com/codemirror/CodeMirror/blob/master/addon/tern/tern.js
-import type { Server, Def, QueryRegistry } from "tern";
 import type { Hint, Hints } from "codemirror";
 import type CodeMirror from "codemirror";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { findIndex, isString } from "lodash";
+import type { Def, QueryRegistry, Server } from "tern";
 import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { EntityTypeValue } from "ee/entities/DataTree/types";
-import { AutocompleteSorter } from "./AutocompleteSortRules";
-import { getCompletionsForKeyword } from "./keywordCompletion";
-import TernWorkerServer from "./TernWorkerService";
-import { AutocompleteDataType } from "./AutocompleteDataType";
+
 import {
   getCodeMirrorNamespaceFromDoc,
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { findIndex, isString } from "lodash";
+import { AutocompleteDataType } from "./AutocompleteDataType";
+import { AutocompleteSorter } from "./AutocompleteSortRules";
+import TernWorkerServer from "./TernWorkerService";
+import { getCompletionsForKeyword } from "./keywordCompletion";
 import { renderTernTooltipContent } from "./ternDocTooltip";
 
 const bigDoc = 250;

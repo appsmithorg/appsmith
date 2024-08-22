@@ -1,29 +1,30 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call } from "redux-saga/effects";
+import { generateReactKey } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { anvilWidgets } from "widgets/anvil/constants";
+
 import type {
   AnvilHighlightInfo,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { generateReactKey } from "utils/generators";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { call } from "redux-saga/effects";
-import { addWidgetsToChildTemplate } from "./additionUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { isLargeWidget } from "../../widgetUtils";
-import { anvilWidgets } from "widgets/anvil/constants";
-import {
-  moveWidgets,
-  severTiesFromParents,
-  transformMovedWidgets,
-} from "./moveUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
 import {
   hasWidgetJsPropertiesEnabled,
   isEmptyWidget,
   widgetChildren,
 } from "../widgetUtils";
-import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
+import { addWidgetsToChildTemplate } from "./additionUtils";
+import {
+  moveWidgets,
+  severTiesFromParents,
+  transformMovedWidgets,
+} from "./moveUtils";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,

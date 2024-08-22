@@ -1,10 +1,13 @@
 import React from "react";
-import { NotificationBannerContainer } from "./StyledComponents";
+
 import {
-  createMessage,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
+  createMessage,
 } from "ee/constants/messages";
+
 import { Callout } from "@appsmith/ads";
+
+import { NotificationBannerContainer } from "./StyledComponents";
 
 /**
  * getNotificationBanner returns a notification banner about copying the key to repo settings.

@@ -1,10 +1,11 @@
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { getScriptToEval, getScriptType } from "workers/Evaluation/evaluate";
-import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+
 import type { lintBindingPathProps } from "../types";
-import getLintingErrors from "./getLintingErrors";
 import { getJSToLint } from "./getJSToLint";
+import getLintingErrors from "./getLintingErrors";
 
 export default function lintBindingPath({
   dynamicBinding,

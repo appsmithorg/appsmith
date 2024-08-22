@@ -1,8 +1,5 @@
 import React from "react";
-import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { StyledDynamicInput } from "./StyledControls";
+
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -10,22 +7,27 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import styled from "styled-components";
-import { isString } from "utils/helpers";
-import { JSToString, stringToJS } from "./utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import {
+  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
+  createMessage,
+} from "ee/constants/messages";
+import styled from "styled-components";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { isString } from "utils/helpers";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import {
   ORIGINAL_INDEX_KEY,
   PRIMARY_COLUMN_KEY_VALUE,
 } from "widgets/TableWidgetV2/constants";
-import {
-  createMessage,
-  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
-} from "ee/constants/messages";
-import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
-import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import { StyledDynamicInput } from "./StyledControls";
+import { JSToString, stringToJS } from "./utils";
 
 export const PromptMessage = styled.span`
   line-height: 17px;

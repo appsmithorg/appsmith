@@ -1,36 +1,35 @@
+import datasource from "../../../../../locators/DatasourcesEditor.json";
+import homePageLocators from "../../../../../locators/HomePage";
+import widgetsPage from "../../../../../locators/Widgets.json";
+import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import {
+  agHelper,
+  apiPage,
+  assertHelper,
+  dataSources,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  gitSync,
+  homePage,
+  jsEditor,
+  locators,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
   PageLeftPane,
   PagePaneSegment,
-  AppSidebar,
-  AppSidebarButton,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 const generatePage = require("../../../../../locators/GeneratePage.json");
 const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
-import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-import homePageLocators from "../../../../../locators/HomePage";
-import datasource from "../../../../../locators/DatasourcesEditor.json";
-import widgetsPage from "../../../../../locators/Widgets.json";
-
-import {
-  agHelper,
-  entityExplorer,
-  jsEditor,
-  deployMode,
-  homePage,
-  gitSync,
-  dataSources,
-  table,
-  draggableWidgets,
-  locators,
-  apiPage,
-  propPane,
-  assertHelper,
-} from "../../../../../support/Objects/ObjectsCore";
-import PageList from "../../../../../support/Pages/PageList";
-import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";

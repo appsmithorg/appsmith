@@ -1,4 +1,5 @@
 import type { Dispatch } from "react";
+
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {

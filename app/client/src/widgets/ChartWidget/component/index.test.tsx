@@ -1,22 +1,21 @@
+import React from "react";
+
+import "@testing-library/jest-dom";
+import { render } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { APP_MODE } from "entities/App";
+import { Provider } from "react-redux";
+import configureMockStore from "redux-mock-store";
+
 import ChartComponent from ".";
 import type { ChartComponentProps } from ".";
 import type { ChartData } from "../constants";
 import {
   DefaultEChartConfig,
-  LabelOrientation,
   DefaultFusionChartConfig,
+  LabelOrientation,
 } from "../constants";
-
-import React from "react";
-
-import { render } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
-import { screen } from "@testing-library/react";
-
-import { Provider } from "react-redux";
-import configureMockStore from "redux-mock-store";
-import { APP_MODE } from "entities/App";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

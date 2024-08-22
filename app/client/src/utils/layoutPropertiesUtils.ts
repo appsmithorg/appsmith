@@ -1,3 +1,4 @@
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   AlignItems,
   Alignment,
@@ -9,7 +10,6 @@ import {
   ResponsiveBehavior,
   Spacing,
 } from "layoutSystems/common/utils/constants";
-import { ValidationTypes } from "constants/WidgetValidation";
 
 export interface LayoutProperties {
   flexDirection: FlexDirection;

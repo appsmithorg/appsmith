@@ -1,11 +1,14 @@
 import React from "react";
-import { Spinner, Tooltip } from "@appsmith/ads";
-import { isEllipsisActive } from "utils/helpers";
-import { Text, TextType } from "@appsmith/ads-old";
-import { BranchListItemContainer } from "./BranchListItemContainer";
+
 import { useSelector } from "react-redux";
 import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+import { isEllipsisActive } from "utils/helpers";
+
+import { Spinner, Tooltip } from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
+
+import { BranchListItemContainer } from "./BranchListItemContainer";
 
 const OptionsContainer = styled.div`
   display: flex;

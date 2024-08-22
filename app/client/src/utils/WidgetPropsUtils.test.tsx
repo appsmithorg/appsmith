@@ -1,8 +1,9 @@
+import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
+
 import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
-import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {

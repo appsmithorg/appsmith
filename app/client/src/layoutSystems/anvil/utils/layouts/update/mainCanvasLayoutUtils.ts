@@ -1,19 +1,19 @@
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
+import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call } from "redux-saga/effects";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { anvilWidgets } from "widgets/anvil/constants";
+
 import type {
   AnvilHighlightInfo,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { addWidgetsToChildTemplate, getAffectedLayout } from "./additionUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { createSectionAndAddWidget } from "./sectionUtils";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import { call } from "redux-saga/effects";
-
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
-import { anvilWidgets } from "widgets/anvil/constants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
+import { createSectionAndAddWidget } from "./sectionUtils";
 
 /**
  * This function adds a detached widget to the main canvas.

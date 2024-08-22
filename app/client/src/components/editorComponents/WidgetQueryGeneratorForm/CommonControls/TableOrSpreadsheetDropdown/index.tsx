@@ -1,11 +1,14 @@
 import React, { memo, useContext } from "react";
-import { ErrorMessage, Label, LabelWrapper, SelectWrapper } from "../../styles";
-import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
-import { Select, Option, Tooltip } from "@appsmith/ads";
-import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
-import type { DefaultOptionType } from "rc-select/lib/Select";
-import { ColumnSelectorModal } from "../ColumnSelectorModal";
+
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
+import type { DefaultOptionType } from "rc-select/lib/Select";
+
+import { Option, Select, Tooltip } from "@appsmith/ads";
+
+import { ErrorMessage, Label, LabelWrapper, SelectWrapper } from "../../styles";
+import { ColumnSelectorModal } from "../ColumnSelectorModal";
+import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
+import { useTableOrSpreadsheet } from "./useTableOrSpreadsheet";
 
 function TableOrSpreadsheetDropdown() {
   const {

@@ -1,28 +1,30 @@
 import React, { useState } from "react";
-import { Flex, Text } from "@appsmith/ads";
-import { useSelector } from "react-redux";
 
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
+import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
+import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
+import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
+import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
+import { useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
-import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
-import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
-import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
-import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
-import { BlankState } from "./BlankState";
+
+import { Flex, Text } from "@appsmith/ads";
+
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
-import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
-import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { fuzzySearchInObjectItems } from "../utils";
+import { BlankState } from "./BlankState";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");

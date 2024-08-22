@@ -1,23 +1,24 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { EditorState } from "ee/entities/IDE/constants";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { PageViewWrapper } from "pages/AppViewer/AppPage";
+
 import classNames from "classnames";
-import { APP_MODE } from "entities/App";
-import { getAppMode } from "ee/selectors/entitiesSelector";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { EditorState } from "ee/entities/IDE/constants";
 import {
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
 } from "ee/selectors/applicationSelectors";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { PageViewWrapper } from "pages/AppViewer/AppPage";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { useSelector } from "react-redux";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
 /**
  * NavigationAdjustedPageViewer

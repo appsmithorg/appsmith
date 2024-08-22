@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-import type { Color } from "constants/Colors";
+
 import { Button } from "@blueprintjs/core";
+import type { Color } from "constants/Colors";
+import styled from "styled-components";
 
 interface CloseButtonProps {
   color: Color;

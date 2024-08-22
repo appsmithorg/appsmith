@@ -1,9 +1,11 @@
 import React from "react";
-import ColumnDropdown from "./ColumnDropdown";
+
 import { noop } from "lodash";
-import type { Alias, OtherField } from "../types";
-import { OtherFieldComponent } from "./OtherFields";
+
 import { useFormConfig } from "../common/useFormConfig";
+import type { Alias, OtherField } from "../types";
+import ColumnDropdown from "./ColumnDropdown";
+import { OtherFieldComponent } from "./OtherFields";
 
 interface Props {
   hasSearchableColumn?: boolean;

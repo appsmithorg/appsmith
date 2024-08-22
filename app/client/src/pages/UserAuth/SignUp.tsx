@@ -1,62 +1,60 @@
 import React, { useEffect } from "react";
-import type { InjectedFormProps } from "redux-form";
-import { reduxForm, formValueSelector } from "redux-form";
+
+import FormTextField from "components/utils/ReduxFormTextField";
+import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 import { AUTH_LOGIN_URL } from "constants/routes";
+import { getAppsmithConfigs } from "ee/configs";
+import { SIGNUP_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import { SIGNUP_FORM_NAME } from "ee/constants/forms";
-import type { RouteComponentProps } from "react-router-dom";
-import { useHistory, useLocation, withRouter } from "react-router-dom";
+import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "ee/constants/forms";
 import {
-  SpacedSubmitForm,
-  FormActions,
-  OrWithLines,
-} from "pages/UserAuth/StyledComponents";
-import {
-  SIGNUP_PAGE_TITLE,
-  SIGNUP_PAGE_EMAIL_INPUT_LABEL,
-  SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER,
-  SIGNUP_PAGE_PASSWORD_INPUT_LABEL,
-  SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER,
-  SIGNUP_PAGE_LOGIN_LINK_TEXT,
+  ALREADY_HAVE_AN_ACCOUNT,
   FORM_VALIDATION_EMPTY_PASSWORD,
   FORM_VALIDATION_INVALID_EMAIL,
   FORM_VALIDATION_INVALID_PASSWORD,
-  SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
-  ALREADY_HAVE_AN_ACCOUNT,
-  createMessage,
   GOOGLE_RECAPTCHA_KEY_ERROR,
   LOOKING_TO_SELF_HOST,
+  SIGNUP_PAGE_EMAIL_INPUT_LABEL,
+  SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER,
+  SIGNUP_PAGE_LOGIN_LINK_TEXT,
+  SIGNUP_PAGE_PASSWORD_INPUT_LABEL,
+  SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER,
+  SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
+  SIGNUP_PAGE_TITLE,
   VISIT_OUR_DOCS,
+  createMessage,
 } from "ee/constants/messages";
-import FormTextField from "components/utils/ReduxFormTextField";
-import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
-import { FormGroup } from "@appsmith/ads-old";
-import { Button, Link, Callout } from "@appsmith/ads";
-import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
-
-import type { SignupFormValues } from "pages/UserAuth/helpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-
-import { SIGNUP_SUBMIT_PATH } from "ee/constants/ApiConstants";
-import { connect, useSelector } from "react-redux";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { AppState } from "ee/reducers";
-
-import { SIGNUP_FORM_EMAIL_FIELD_NAME } from "ee/constants/forms";
-import { getAppsmithConfigs } from "ee/configs";
-import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-
-import { getIsSafeRedirectURL } from "utils/helpers";
-import Container from "pages/UserAuth/Container";
 import {
   getIsFormLoginEnabled,
   getTenantConfig,
   getThirdPartyAuths,
 } from "ee/selectors/tenantSelectors";
-import Helmet from "react-helmet";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
-import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
+import Container from "pages/UserAuth/Container";
+import {
+  FormActions,
+  OrWithLines,
+  SpacedSubmitForm,
+} from "pages/UserAuth/StyledComponents";
+import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
+import type { SignupFormValues } from "pages/UserAuth/helpers";
+import Helmet from "react-helmet";
+import { connect, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router-dom";
+import { useHistory, useLocation, withRouter } from "react-router-dom";
+import type { InjectedFormProps } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form";
+import { isEmail, isEmptyString, isStrongPassword } from "utils/formhelpers";
+import { getIsSafeRedirectURL } from "utils/helpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
+
+import { Button, Callout, Link } from "@appsmith/ads";
+import { FormGroup } from "@appsmith/ads-old";
 
 declare global {
   interface Window {

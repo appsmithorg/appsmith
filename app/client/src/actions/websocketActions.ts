@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { reconnectWebsocketEvent } from "constants/WebsocketConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const setIsAppLevelWebsocketConnected = (payload: boolean) => ({
   type: ReduxActionTypes.SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED,

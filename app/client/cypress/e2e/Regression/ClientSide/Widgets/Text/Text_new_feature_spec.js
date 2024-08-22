@@ -1,10 +1,11 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "Text Widget color/font/alignment Functionality",

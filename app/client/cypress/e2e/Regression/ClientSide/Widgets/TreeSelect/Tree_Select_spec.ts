@@ -1,7 +1,6 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
-
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
 import commonlocators from "../../../../../locators/commonlocators.json";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Tree Select Widget",

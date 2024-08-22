@@ -1,11 +1,14 @@
 import React from "react";
-import styled from "styled-components";
+
+import { NO_JS_FUNCTION_TO_RUN, createMessage } from "ee/constants/messages";
 import type { JSCollection } from "entities/JSCollection";
+import styled from "styled-components";
+
 import type { SelectProps } from "@appsmith/ads";
-import { Button, Option, Select, Tooltip, Text } from "@appsmith/ads";
-import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ee/constants/messages";
-import type { JSActionDropdownOption } from "./utils";
+import { Button, Option, Select, Text, Tooltip } from "@appsmith/ads";
+
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
+import type { JSActionDropdownOption } from "./utils";
 
 interface Props {
   disabled: boolean;

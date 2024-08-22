@@ -1,8 +1,10 @@
-import type { Workspace } from "ee/constants/workspaceConstants";
-import { Icon, Text } from "@appsmith/ads";
 import React from "react";
+
+import type { Workspace } from "ee/constants/workspaceConstants";
 import { useHistory } from "react-router";
 import styled from "styled-components";
+
+import { Icon, Text } from "@appsmith/ads";
 
 export const SearchListItem = styled.div`
   display: flex;

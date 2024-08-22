@@ -1,27 +1,28 @@
 import React, { useCallback, useContext, useMemo, useRef } from "react";
-import styled from "styled-components";
-import type { LabelInValueType, DraftValueType } from "rc-select/lib/Select";
-import { useController } from "react-hook-form";
-import { isNil } from "lodash";
 
-import Field from "../component/Field";
-import FormContext from "../FormContext";
-import MultiSelect from "widgets/MultiSelectWidgetV2/component";
-import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 import { Layers } from "constants/Layers";
+import { isNil } from "lodash";
+import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
+import { useController } from "react-hook-form";
+import styled from "styled-components";
+import type { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
+import MultiSelect from "widgets/MultiSelectWidgetV2/component";
+
+import FormContext from "../FormContext";
+import Field from "../component/Field";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
-import type { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isPrimitive, validateOptions } from "../helper";
-import { Colors } from "constants/Colors";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useEvents from "./useBlurAndFocusEvents";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
+import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 
 type MultiSelectComponentProps = FieldComponentBaseProps &
   FieldEventProps & {

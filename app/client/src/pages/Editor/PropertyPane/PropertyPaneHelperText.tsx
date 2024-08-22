@@ -1,6 +1,8 @@
-import { Text, TextType } from "@appsmith/ads-old";
 import React from "react";
+
 import styled from "styled-components";
+
+import { Text, TextType } from "@appsmith/ads-old";
 
 interface Props {
   helperText?: string;

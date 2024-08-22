@@ -6,25 +6,28 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { find, findIndex } from "lodash";
+
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import {
-  PopoverInteractionKind,
-  PopoverPosition,
-  MenuItem,
-  Popover,
-  Menu,
   Button,
   Classes,
+  Menu,
+  MenuItem,
+  Popover,
+  PopoverInteractionKind,
+  PopoverPosition,
 } from "@blueprintjs/core";
-import styled from "styled-components";
-import { Icon } from "@appsmith/ads";
-import { replayHighlightClass } from "../constants/classes";
-import useDSEvent from "../hooks/useDSEvent";
-import { DSEventTypes } from "../types/common";
-import { typography } from "../constants/typography";
 import type { Intent as BlueprintIntent } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
+import { find, findIndex } from "lodash";
+import styled from "styled-components";
+
+import { Icon } from "@appsmith/ads";
+
+import { replayHighlightClass } from "../constants/classes";
+import { typography } from "../constants/typography";
+import useDSEvent from "../hooks/useDSEvent";
+import { DSEventTypes } from "../types/common";
 import "./styles.module.css";
 
 export interface TreeDropdownOption {

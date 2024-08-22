@@ -1,9 +1,12 @@
 import React from "react";
+
 import styled from "styled-components";
+
+import { getTypographyByKey } from "@appsmith/ads-old";
+
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
-import { getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
-import { getTypographyByKey } from "@appsmith/ads-old";
+import { SEARCH_ITEM_TYPES, getItemTitle } from "./utils";
 import type { SearchItem } from "./utils";
 
 interface Props {

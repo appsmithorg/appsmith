@@ -1,12 +1,11 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
-
+import { setShowBranchPopupAction } from "actions/gitSyncActions";
 import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
-import BranchList from "../components/BranchList";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getGitStatus,
   getIsPollingAutocommit,
@@ -14,11 +13,13 @@ import {
   protectedModeSelector,
   showBranchPopupSelector,
 } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Button, Icon, Tooltip } from "@appsmith/ads";
+import styled from "styled-components";
 import { isEllipsisActive } from "utils/helpers";
+
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import { importRemixIcon } from "@appsmith/ads-old";
-import { setShowBranchPopupAction } from "actions/gitSyncActions";
+
+import BranchList from "../components/BranchList";
 
 const ProtectedIcon = importRemixIcon(
   async () => import("remixicon-react/ShieldKeyholeLineIcon"),

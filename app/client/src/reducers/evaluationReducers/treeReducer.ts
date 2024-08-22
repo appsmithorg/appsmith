@@ -1,9 +1,9 @@
+import * as Sentry from "@sentry/react";
+import { applyChange } from "deep-diff";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { applyChange } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createImmerReducer } from "utils/ReducerUtils";
-import * as Sentry from "@sentry/react";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 
 export type EvaluatedTreeState = DataTree;

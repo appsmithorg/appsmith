@@ -1,7 +1,9 @@
 import React, { useEffect } from "react";
-import CreateNewAppFromTemplatesModal from ".";
+
 import { getIsReconnectingDatasourcesModalOpen } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
+
+import CreateNewAppFromTemplatesModal from ".";
 
 interface Props {
   currentWorkspaceId: string;

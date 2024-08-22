@@ -1,4 +1,5 @@
 import { easings } from "@react-spring/web";
+
 import type { AnimatedGridUnit } from "./types";
 
 /** Default rows config. */

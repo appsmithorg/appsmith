@@ -1,7 +1,9 @@
-import { Button, Divider, Text } from "@appsmith/ads";
-import noop from "lodash/noop";
 import React, { Fragment } from "react";
+
+import noop from "lodash/noop";
 import styled from "styled-components";
+
+import { Button, Divider, Text } from "@appsmith/ads";
 
 const Container = styled.div`
   display: flex;

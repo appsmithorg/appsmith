@@ -1,30 +1,32 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
-import SwitchComponent from "../component";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { LabelPosition } from "components/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+
 import { AlignWidgetTypes } from "WidgetProvider/constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type {
-  SnipingModeProperty,
   PropertyUpdates,
+  SnipingModeProperty,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
+
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import SwitchComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static type = "SWITCH_WIDGET";

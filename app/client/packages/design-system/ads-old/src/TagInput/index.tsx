@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react";
-import styled from "styled-components";
+import React, { useEffect, useMemo, useState } from "react";
+
 import { Classes, TagInput } from "@blueprintjs/core";
+import styled from "styled-components";
+
 import {
-  createMessage,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
+  createMessage,
 } from "../constants/messages";
 
 export const isEmail = (value: string) => {

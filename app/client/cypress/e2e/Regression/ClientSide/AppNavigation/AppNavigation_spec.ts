@@ -1,9 +1,9 @@
 import {
   agHelper,
-  deployMode,
-  homePage,
   appSettings,
   assertHelper,
+  deployMode,
+  homePage,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";

@@ -1,20 +1,21 @@
 import type { MutableRefObject } from "react";
 import React, { useRef } from "react";
-import type { DropdownOption } from "@appsmith/ads-old";
-import styled from "styled-components";
-import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "ee/constants/messages";
+import { useDispatch } from "react-redux";
+import styled from "styled-components";
+
 import {
   Button,
   Icon,
   Option,
   SearchInput,
   Select,
-  Tooltip,
   Text,
+  Tooltip,
 } from "@appsmith/ads";
+import type { DropdownOption } from "@appsmith/ads-old";
 
 const Wrapper = styled.div`
   flex-direction: row;

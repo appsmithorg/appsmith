@@ -1,30 +1,33 @@
 import React, { memo, useCallback, useMemo } from "react";
+
+import {
+  ADD_WIDGET_BUTTON,
+  ADD_WIDGET_TOOLTIP,
+  EMPTY_WIDGET_BUTTON_TEXT,
+  EMPTY_WIDGET_MAIN_TEXT,
+  createMessage,
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import {
+  getExplorerStatus,
+  saveExplorerStatus,
+} from "ee/pages/Editor/Explorer/helpers";
+import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { noop } from "lodash";
 import { useSelector } from "react-redux";
-import Entity from "../Entity";
-import WidgetEntity from "./WidgetEntity";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import {
-  ADD_WIDGET_BUTTON,
-  ADD_WIDGET_TOOLTIP,
-  createMessage,
-  EMPTY_WIDGET_BUTTON_TEXT,
-  EMPTY_WIDGET_MAIN_TEXT,
-} from "ee/constants/messages";
-import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
-import {
-  getExplorerStatus,
-  saveExplorerStatus,
-} from "ee/pages/Editor/Explorer/helpers";
-import { AddEntity, EmptyComponent } from "../common";
-import { noop } from "lodash";
-import { Icon } from "@appsmith/ads";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+
+import { Icon } from "@appsmith/ads";
+
+import Entity from "../Entity";
+import { AddEntity, EmptyComponent } from "../common";
+import WidgetEntity from "./WidgetEntity";
 
 interface ExplorerWidgetGroupProps {
   step: number;

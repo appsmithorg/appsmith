@@ -1,28 +1,31 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import styled from "styled-components";
+
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import {
-  comboHelpText,
   SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
+  comboHelpText,
 } from "components/editorComponents/GlobalSearch/utils";
-import { useSelector } from "react-redux";
-import EntityAddButton from "../Entity/AddButton";
-import keyBy from "lodash/keyBy";
-import type { AppState } from "ee/reducers";
-import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
-import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
+import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
+import type { AppState } from "ee/reducers";
+import keyBy from "lodash/keyBy";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+
 import {
   Menu,
   MenuContent,
   MenuItem,
   MenuTrigger,
-  Tooltip,
   SearchInput,
   Text,
+  Tooltip,
 } from "@appsmith/ads";
+
+import { AddButtonWrapper, EntityClassNames } from "../Entity";
+import EntityAddButton from "../Entity/AddButton";
+import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 
 const SubMenuContainer = styled.div`
   width: 250px;

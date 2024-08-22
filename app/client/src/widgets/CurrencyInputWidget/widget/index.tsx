@@ -1,49 +1,51 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
-import type { CurrencyInputComponentProps } from "../component";
-import CurrencyInputComponent from "../component";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import {
-  CurrencyDropdownOptions,
-  getCountryCodeFromCurrencyCode,
-} from "../component/CurrencyCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import _ from "lodash";
-import derivedProperties from "./parsedDerivedProperties";
-import BaseInputWidget from "widgets/BaseInputWidget";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
-import {
-  formatCurrencyNumber,
-  limitDecimalValue,
-} from "../component/utilities";
-import { getLocale, mergeWidgetConfig } from "utils/helpers";
-import {
-  getLocaleDecimalSeperator,
-  getLocaleThousandSeparator,
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-  isCompactMode,
-} from "widgets/WidgetUtils";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import _ from "lodash";
+import log from "loglevel";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { getLocale, mergeWidgetConfig } from "utils/helpers";
+import BaseInputWidget from "widgets/BaseInputWidget";
+import { NumberInputStepButtonPosition } from "widgets/BaseInputWidget/constants";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import type { WidgetState } from "widgets/BaseWidget";
+import {
+  DefaultAutocompleteDefinitions,
+  getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+
+import type { CurrencyInputComponentProps } from "../component";
+import CurrencyInputComponent from "../component";
+import {
+  CurrencyDropdownOptions,
+  getCountryCodeFromCurrencyCode,
+} from "../component/CurrencyCodeDropdown";
 import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
+import {
+  formatCurrencyNumber,
+  limitDecimalValue,
+} from "../component/utilities";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import derivedProperties from "./parsedDerivedProperties";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited

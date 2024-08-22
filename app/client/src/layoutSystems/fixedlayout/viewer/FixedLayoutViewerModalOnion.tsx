@@ -1,8 +1,10 @@
 import React from "react";
+
+import { Classes } from "@blueprintjs/core";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { ModalOverlayLayer } from "../../common/modalOverlay/ModalOverlayLayer";
 import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
-import { Classes } from "@blueprintjs/core";
 
 /**
  * FixedLayoutViewerModalOnion

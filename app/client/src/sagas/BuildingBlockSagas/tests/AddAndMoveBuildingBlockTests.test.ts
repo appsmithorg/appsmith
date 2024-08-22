@@ -1,10 +1,10 @@
+import type { WidgetAddChild } from "actions/pageActions";
 import {
-  ReduxActionTypes,
   type ReduxAction,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import { getAction } from "ee/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import type { WidgetAddChild } from "actions/pageActions";
 import type { Action } from "entities/Action";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { CallEffect, PutEffect, SelectEffect } from "redux-saga/effects";
@@ -15,6 +15,7 @@ import { addChildSaga } from "sagas/WidgetAdditionSagas";
 import { getDragDetails, getWidgetByName } from "sagas/selectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
+
 import { addNewlyAddedActionsToRedux, updateWidgetsNameInNewQueries } from "..";
 import {
   addAndMoveBuildingBlockToCanvasSaga,

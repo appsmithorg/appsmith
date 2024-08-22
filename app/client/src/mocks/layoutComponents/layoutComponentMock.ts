@@ -1,15 +1,15 @@
 import { RenderModes } from "constants/WidgetConstants";
 import {
-  LayoutComponentTypes,
   type LayoutComponentProps,
+  LayoutComponentTypes,
   type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { generateReactKey } from "utils/generators";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { mockInputProps } from "mocks/widgetProps/input";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { generateReactKey } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 export function generateLayoutComponentMock(
   data: Partial<LayoutComponentProps> = {},

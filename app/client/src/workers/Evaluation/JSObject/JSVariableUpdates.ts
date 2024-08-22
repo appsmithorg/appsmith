@@ -1,13 +1,14 @@
-import { dataTreeEvaluator } from "../handlers/evalTree";
+import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import isDeepEqualES6 from "fast-deep-equal/es6";
+import { get } from "lodash";
+
 import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
-import { get } from "lodash";
-import { isJSObjectVariable } from "./utils";
-import isDeepEqualES6 from "fast-deep-equal/es6";
+import { dataTreeEvaluator } from "../handlers/evalTree";
 import type { Patch } from "./Collection";
 import { PatchType } from "./Collection";
-import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+import { isJSObjectVariable } from "./utils";
 
 export type UpdatedPathsMap = Record<string, Patch>;
 

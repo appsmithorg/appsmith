@@ -1,6 +1,8 @@
 import React from "react";
-import { AvatarGroup } from "./Avatar";
+
 import type { StoryObj } from "@storybook/react";
+
+import { AvatarGroup } from "./Avatar";
 import type { AvatarGroupProps } from "./Avatar.types";
 
 export default {

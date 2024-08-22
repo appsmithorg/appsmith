@@ -1,12 +1,13 @@
 import React from "react";
+
+import { Classes } from "@blueprintjs/core";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { Checkbox } from "components/wds";
+import { Colors } from "constants/Colors";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
-import { Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
-import { LabelPosition } from "components/constants";
-import { FontStyleTypes } from "constants/WidgetConstants";
-import { Checkbox } from "components/wds";
 
 interface StyledCheckboxContainerProps {
   isValid: boolean;

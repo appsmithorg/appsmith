@@ -1,9 +1,9 @@
+import { EditorSize } from "./EditorConfig";
 import {
-  removeNewLineChars,
   getInputValue,
+  removeNewLineChars,
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
-import { EditorSize } from "./EditorConfig";
 
 describe("remove new line code", () => {
   it("removed new lines", () => {

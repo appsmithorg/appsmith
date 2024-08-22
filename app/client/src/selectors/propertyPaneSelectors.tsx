@@ -1,13 +1,16 @@
-import type { AppState } from "ee/reducers";
-import { find, get, set } from "lodash";
-import { createSelector } from "reselect";
+import { RenderModes } from "constants/WidgetConstants";
 import type { WidgetEntity } from "ee/entities/DataTree/types";
+import type { AppState } from "ee/reducers";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
 import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import { find, get, set } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
 } from "reducers/uiReducers/propertyPaneReducer";
+import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
@@ -16,13 +19,11 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
-import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getLayoutSystemType } from "./layoutSystemSelectors";
+
 import { getRenderMode } from "./editorSelectors";
-import { RenderModes } from "constants/WidgetConstants";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;

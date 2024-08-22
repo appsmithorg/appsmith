@@ -1,14 +1,15 @@
 import type { JSActionEntity } from "ee/entities/DataTree/types";
+import { Severity } from "entities/AppsmithConsole";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getScriptToEval, getScriptType } from "workers/Evaluation/evaluate";
+
 import {
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
   JS_OBJECT_START_STATEMENT,
 } from "../constants";
-import { Severity } from "entities/AppsmithConsole";
 import { getJSToLint } from "./getJSToLint";
 import getLintingErrors from "./getLintingErrors";
 

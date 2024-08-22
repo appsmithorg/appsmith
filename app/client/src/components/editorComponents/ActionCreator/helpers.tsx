@@ -1,42 +1,59 @@
 import React from "react";
+
 import {
-  getFunctionNameFromJsObjectExpression,
   getFuncExpressionAtPosition,
+  getFunctionNameFromJsObjectExpression,
   getThenCatchBlocksFromQuery,
-  setThenBlockInQuery,
   setCatchBlockInQuery,
+  setThenBlockInQuery,
 } from "@shared/ast";
-import { createModalAction } from "actions/widgetActions";
-import type { AppState } from "ee/reducers";
 import {
-  getEntityNameAndPropertyPath,
-  isEntityAction,
-} from "ee/workers/Evaluation/evaluationUtils";
-import type { TreeDropdownOption } from "@appsmith/ads-old";
-import { Icon } from "@appsmith/ads";
-import { PluginType } from "entities/Action";
-import type { JSAction, Variable } from "entities/JSCollection";
-import keyBy from "lodash/keyBy";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { useDispatch, useSelector } from "react-redux";
+  createNewJSCollectionFromActionCreator,
+  createNewQueryFromActionCreator,
+} from "actions/propertyPaneActions";
+import { createModalAction } from "actions/widgetActions";
+import type { Plugin } from "api/PluginApi";
+import type { Module } from "ee/constants/ModuleConstants";
+import type { ModuleInstanceDataState } from "ee/constants/ModuleInstanceConstants";
+import type { AppState } from "ee/reducers";
 import type {
   ActionData,
   ActionDataState,
 } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import {
   getCurrentActions,
-  getJSCollectionFromName,
   getCurrentJSCollections,
-  getQueryModuleInstances,
+  getJSCollectionFromName,
   getJSModuleInstancesData,
+  getQueryModuleInstances,
 } from "ee/selectors/entitiesSelector";
+import { getAllModules } from "ee/selectors/modulesSelector";
+import {
+  getEntityNameAndPropertyPath,
+  isEntityAction,
+} from "ee/workers/Evaluation/evaluationUtils";
+import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
+import { PluginType } from "entities/Action";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import type { JSAction, Variable } from "entities/JSCollection";
+import keyBy from "lodash/keyBy";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
+import store from "store";
+
+import { Icon } from "@appsmith/ads";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+
+import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
   APPSMITH_INTEGRATIONS,
@@ -46,7 +63,6 @@ import {
   NAVIGATE_TO_TAB_OPTIONS,
   NEW_MODAL_LABEL,
 } from "./constants";
-import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import type {
   DataTreeForActionCreator,
   GenericFunction,
@@ -59,19 +75,6 @@ import {
   getCodeFromMoustache,
   getEvaluationVersion,
 } from "./utils";
-import store from "store";
-import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
-import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type { ModuleInstanceDataState } from "ee/constants/ModuleInstanceConstants";
-import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
-import { getAllModules } from "ee/selectors/modulesSelector";
-import type { Module } from "ee/constants/ModuleConstants";
-import type { Plugin } from "api/PluginApi";
-import {
-  createNewJSCollectionFromActionCreator,
-  createNewQueryFromActionCreator,
-} from "actions/propertyPaneActions";
 
 const actionList: {
   label: string;

@@ -1,5 +1,6 @@
-import type { IconButtonProps, IconProps } from "@appsmith/wds";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+
+import type { IconButtonProps, IconProps } from "@appsmith/wds";
 
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName: IconProps["name"];

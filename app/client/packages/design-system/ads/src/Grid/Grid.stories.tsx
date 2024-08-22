@@ -1,8 +1,10 @@
 import React from "react";
-import { Grid } from "./Grid";
+
+import type { Meta, StoryObj } from "@storybook/react";
+
 import { Flex } from "../Flex";
 import { Text } from "../Text";
-import type { Meta, StoryObj } from "@storybook/react";
+import { Grid } from "./Grid";
 
 export default {
   title: "ADS/Components/Grid",

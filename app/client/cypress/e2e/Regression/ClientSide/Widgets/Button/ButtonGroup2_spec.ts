@@ -1,3 +1,4 @@
+import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
   deployMode,
@@ -7,8 +8,6 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

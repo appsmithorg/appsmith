@@ -3,6 +3,7 @@ import {
   EvaluationScriptType,
   getScriptToEval,
 } from "workers/Evaluation/evaluate";
+
 import type { lintTriggerPathProps } from "../types";
 import getLintingErrors from "./getLintingErrors";
 

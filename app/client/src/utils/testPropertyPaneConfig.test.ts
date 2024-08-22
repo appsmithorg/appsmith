@@ -1,3 +1,5 @@
+import WidgetFactory from "WidgetProvider/factory";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
@@ -7,8 +9,6 @@ import type {
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isFunction } from "lodash";
 import widgets from "widgets";
-import WidgetFactory from "WidgetProvider/factory";
-import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 function validatePropertyPaneConfig(
   config: PropertyPaneConfig[],

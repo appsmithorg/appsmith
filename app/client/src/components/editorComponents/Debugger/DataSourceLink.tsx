@@ -1,13 +1,15 @@
 import React from "react";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { getDatasource } from "ee/selectors/entitiesSelector";
-import history from "utils/history";
-import { getQueryParams } from "utils/URLUtils";
+
 import { datasourcesEditorIdURL } from "ee/RouteBuilder";
+import type { AppState } from "ee/reducers";
+import { getDatasource } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getQueryParams } from "utils/URLUtils";
+import history from "utils/history";
+
+import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 
 export default function DatasourceLink(props: EntityLinkProps) {
   const datasource = useSelector((state: AppState) =>

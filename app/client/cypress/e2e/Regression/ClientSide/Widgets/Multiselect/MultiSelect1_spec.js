@@ -1,5 +1,6 @@
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
 describe(
   "MultiSelect Widget Functionality",

@@ -1,6 +1,7 @@
+import React, { useMemo } from "react";
+
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { PADDING_FOR_HORIZONTAL_HIGHLIGHT } from "layoutSystems/anvil/utils/constants";
-import React, { useMemo } from "react";
 import styled from "styled-components";
 
 // Styled component for the highlight element

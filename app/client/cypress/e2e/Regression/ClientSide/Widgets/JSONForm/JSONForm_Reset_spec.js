@@ -1,5 +1,7 @@
-const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
+
 const locators = ObjectsRegistry.CommonLocators;
 const fieldPrefix = ".t--jsonformfield";
 

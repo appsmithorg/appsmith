@@ -1,27 +1,26 @@
-export * from "ce/sagas/PageSagas";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
+  clonePageSaga,
+  createNewPageFromEntity,
+  createPageSaga,
+  deleteCanvasCardsStateSaga,
+  deletePageSaga,
+  fetchAllPublishedPagesSaga,
   fetchPageSaga,
   fetchPublishedPageSaga,
-  saveLayoutSaga,
-  createPageSaga,
-  createNewPageFromEntity,
-  clonePageSaga,
-  updatePageSaga,
-  deletePageSaga,
-  savePageSaga,
-  updateWidgetNameSaga,
-  fetchAllPublishedPagesSaga,
   generateTemplatePageSaga,
-  setPageOrderSaga,
   populatePageDSLsSaga,
-  setCanvasCardsStateSaga,
-  deleteCanvasCardsStateSaga,
-  setPreviewModeInitSaga,
   refreshTheApp,
+  saveLayoutSaga,
+  savePageSaga,
+  setCanvasCardsStateSaga,
+  setPageOrderSaga,
+  setPreviewModeInitSaga,
   setupPageSaga,
   setupPublishedPageSaga,
+  updatePageSaga,
+  updateWidgetNameSaga,
 } from "ce/sagas/PageSagas";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   all,
   debounce,
@@ -30,6 +29,8 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import { clearEvalCache } from "sagas/EvaluationsSaga";
+
+export * from "ce/sagas/PageSagas";
 
 export default function* pageSagas() {
   yield all([

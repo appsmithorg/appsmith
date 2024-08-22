@@ -1,29 +1,29 @@
-import type { FetchPageResponse } from "api/PageApi";
+import { migrateDSL } from "@shared/dsl";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
-import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
-import { WidgetOperations } from "widgets/BaseWidget";
+import type { DSLWidget } from "WidgetProvider/constants";
+import type { FetchPageResponse } from "api/PageApi";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import { snapToGrid } from "./helpers";
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import defaultTemplate from "templates/default";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetType } from "../WidgetProvider/factory";
-import type { DSLWidget } from "WidgetProvider/constants";
-import type { BlockSpace, GridProps } from "reflow/reflowTypes";
-import type { Rect } from "./boxHelpers";
-import { areIntersecting } from "./boxHelpers";
-
 import type {
   WidgetDraggingBlock,
   XYCord,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { migrateDSL } from "@shared/dsl";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { BlockSpace, GridProps } from "reflow/reflowTypes";
+import defaultTemplate from "templates/default";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import { WidgetOperations } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+
+import type { WidgetType } from "../WidgetProvider/factory";
+import type { Rect } from "./boxHelpers";
+import { areIntersecting } from "./boxHelpers";
+import { snapToGrid } from "./helpers";
 
 export interface WidgetOperationParams {
   operation: WidgetOperation;

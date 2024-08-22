@@ -1,23 +1,5 @@
 import React, { useState } from "react";
-import {
-  DemoImage,
-  ErrorCallout,
-  FieldContainer,
-  WellContainer,
-  WellText,
-  WellTitle,
-  WellTitleContainer,
-} from "./styles";
-import {
-  Button,
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleHeader,
-  Icon,
-  Input,
-  Text,
-} from "@appsmith/ads";
-import { isValidGitRemoteUrl } from "../../utils";
+
 import {
   COPY_SSH_URL_MESSAGE,
   ERROR_REPO_NOT_EMPTY_MESSAGE,
@@ -29,9 +11,30 @@ import {
   REMOTE_URL_INPUT_LABEL,
   createMessage,
 } from "ee/constants/messages";
+import noop from "lodash/noop";
+
+import {
+  Button,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleHeader,
+  Icon,
+  Input,
+  Text,
+} from "@appsmith/ads";
+
+import { isValidGitRemoteUrl } from "../../utils";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
-import noop from "lodash/noop";
+import {
+  DemoImage,
+  ErrorCallout,
+  FieldContainer,
+  WellContainer,
+  WellText,
+  WellTitle,
+  WellTitleContainer,
+} from "./styles";
 
 interface GenerateSSHState {
   gitProvider?: GitProvider;

@@ -1,9 +1,9 @@
+import { Classes } from "@blueprintjs/core";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
 
 // Here the data structure is the `widgetsToUpdate` data structure. If possible, we should create the `updates`
 // we use in the function directly in the `widgets.ts` (auto height saga)

@@ -1,12 +1,13 @@
-import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import type { ReactNode } from "react";
 import React from "react";
+
 import classNames from "classnames";
+import EditorContextProvider from "components/editorComponents/EditorContextProvider";
+import { RenderModes } from "constants/WidgetConstants";
+import { EditorState } from "ee/entities/IDE/constants";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { EditorState } from "ee/entities/IDE/constants";
-import { RenderModes } from "constants/WidgetConstants";
 
 /**
  * WidgetEditorContainer

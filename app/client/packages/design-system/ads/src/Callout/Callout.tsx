@@ -1,14 +1,5 @@
 import React from "react";
 
-import type { CalloutProps } from "./Callout.types";
-import {
-  StyledCallout,
-  StyledChildrenContainer,
-  StyledCloseButton,
-  StyledIconContainer,
-  StyledLinks,
-  StyledChildren,
-} from "./Callout.styles";
 import { getIconByKind } from "../Icon/getIconByKind";
 import { Link } from "../Link";
 import {
@@ -19,6 +10,15 @@ import {
   CalloutCloseClassName,
   CalloutIconContainerClassName,
 } from "./Callout.constants";
+import {
+  StyledCallout,
+  StyledChildren,
+  StyledChildrenContainer,
+  StyledCloseButton,
+  StyledIconContainer,
+  StyledLinks,
+} from "./Callout.styles";
+import type { CalloutProps } from "./Callout.types";
 
 /*
  * TODO:

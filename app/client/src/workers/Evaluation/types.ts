@@ -1,23 +1,22 @@
-import type { unEvalAndConfigTree } from "entities/DataTree/dataTreeTypes";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
+import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import type { AppTheme } from "entities/AppTheming";
-
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import type {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
 } from "ee/workers/Evaluation/evalWorkerActions";
-import type { JSUpdate } from "utils/JSPaneUtils";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type { WorkerRequest } from "ee/workers/common/types";
-import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
-import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
+import type { AppTheme } from "entities/AppTheming";
+import type { unEvalAndConfigTree } from "entities/DataTree/dataTreeTypes";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

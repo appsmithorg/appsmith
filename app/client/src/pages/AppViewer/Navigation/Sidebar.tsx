@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react";
+
+import { useMouse } from "@mantine/hooks";
+import classNames from "classnames";
+import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
+import type { User } from "constants/userConstants";
+import { builderURL } from "ee/RouteBuilder";
+import { setIsAppSidebarPinned } from "ee/actions/applicationActions";
+import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
+import { getAppSidebarPinned } from "ee/selectors/applicationSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import type { Page } from "entities/Page";
-import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { get } from "lodash";
+import { useHref } from "pages/Editor/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import ApplicationName from "./components/ApplicationName";
-import MenuItem from "./components/MenuItem";
-import ShareButton from "./components/ShareButton";
-import PrimaryCTA from "../PrimaryCTA";
-import { useHref } from "pages/Editor/utils";
-import { builderURL } from "ee/RouteBuilder";
 import {
   combinedPreviewModeSelector,
   getCurrentBasePageId,
 } from "selectors/editorSelectors";
-import type { User } from "constants/userConstants";
-import SidebarProfileComponent from "./components/SidebarProfileComponent";
-import CollapseButton from "./components/CollapseButton";
-import classNames from "classnames";
-import { useMouse } from "@mantine/hooks";
-import { getAppSidebarPinned } from "ee/selectors/applicationSelectors";
-import { setIsAppSidebarPinned } from "ee/actions/applicationActions";
+import { getCurrentThemeDetails } from "selectors/themeSelectors";
+
+import PrimaryCTA from "../PrimaryCTA";
 import {
   StyledCtaContainer,
   StyledFooter,
@@ -30,11 +30,13 @@ import {
   StyledMenuContainer,
   StyledSidebar,
 } from "./Sidebar.styled";
-import { getCurrentThemeDetails } from "selectors/themeSelectors";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
-import MenuItemContainer from "./components/MenuItemContainer";
+import ApplicationName from "./components/ApplicationName";
 import BackToAppsButton from "./components/BackToAppsButton";
+import CollapseButton from "./components/CollapseButton";
+import MenuItem from "./components/MenuItem";
+import MenuItemContainer from "./components/MenuItemContainer";
+import ShareButton from "./components/ShareButton";
+import SidebarProfileComponent from "./components/SidebarProfileComponent";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;

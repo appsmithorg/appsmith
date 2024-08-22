@@ -1,30 +1,31 @@
-import type {
-  ArrowFunctionExpressionNode,
-  MemberExpressionNode,
-  LiteralNode,
-  CallExpressionNode,
-  BinaryExpressionNode,
-  BlockStatementNode,
-  ArgumentTypes,
-} from "../index";
-import {
-  getAST,
-  attachCommentsToAst,
-  isArrowFunctionExpression,
-  isCallExpressionNode,
-  isMemberExpressionNode,
-  wrapCode,
-  isIdentifierNode,
-  isExpressionStatementNode,
-  isTypeOfFunction,
-  isBlockStatementNode,
-} from "../index";
-import { sanitizeScript } from "../utils";
+import type { Comment, Node } from "acorn";
 import { findNodeAt, simple } from "acorn-walk";
-import type { Node, Comment } from "acorn";
-import { NodeTypes } from "../constants";
 import { generate } from "astring";
 import { klona } from "klona/json";
+
+import { NodeTypes } from "../constants";
+import type {
+  ArgumentTypes,
+  ArrowFunctionExpressionNode,
+  BinaryExpressionNode,
+  BlockStatementNode,
+  CallExpressionNode,
+  LiteralNode,
+  MemberExpressionNode,
+} from "../index";
+import {
+  attachCommentsToAst,
+  getAST,
+  isArrowFunctionExpression,
+  isBlockStatementNode,
+  isCallExpressionNode,
+  isExpressionStatementNode,
+  isIdentifierNode,
+  isMemberExpressionNode,
+  isTypeOfFunction,
+  wrapCode,
+} from "../index";
+import { sanitizeScript } from "../utils";
 
 const LENGTH_OF_QUOTES = 2;
 const NEXT_POSITION = 1;

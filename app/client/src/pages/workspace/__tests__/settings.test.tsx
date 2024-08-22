@@ -1,9 +1,11 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
+import * as reactRedux from "react-redux";
 import Router from "react-router-dom";
 import { render, screen } from "test/testUtils";
+
 import Settings from "../settings";
-import * as reactRedux from "react-redux";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

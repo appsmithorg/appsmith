@@ -1,23 +1,6 @@
-import isEqual from "fast-deep-equal/es6";
-import log from "loglevel";
-import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { floor, isEmpty, isNil, isString } from "lodash";
-import { klona } from "klona";
-import hash from "object-hash";
-import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import derivedProperties from "./parseDerivedProperties";
-import ListComponent, { ListComponentEmpty } from "../component";
-import ListPagination, {
-  ServerSideListPagination,
-} from "../component/ListPagination";
-import Loader from "../component/Loader";
-import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
-import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
-import MetaWidgetGenerator from "../MetaWidgetGenerator";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -26,34 +9,52 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import {
-  PropertyPaneContentConfig,
-  PropertyPaneStyleConfig,
-} from "./propertyConfig";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   RenderModes,
   WIDGET_PADDING,
   WIDGET_TAGS,
 } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetState } from "../../BaseWidget";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import isEqual from "fast-deep-equal/es6";
+import { klona } from "klona";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { floor, isEmpty, isNil, isString } from "lodash";
+import log from "loglevel";
+import memoize from "micro-memoize";
+import hash from "object-hash";
+import type { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaWidgetsReducer";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
-import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import defaultProps from "./defaultProps";
 
+import type { WidgetState } from "../../BaseWidget";
+import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
+import type { GeneratorOptions, HookOptions } from "../MetaWidgetGenerator";
+import MetaWidgetGenerator from "../MetaWidgetGenerator";
+import ListComponent, { ListComponentEmpty } from "../component";
+import ListPagination, {
+  ServerSideListPagination,
+} from "../component/ListPagination";
+import Loader from "../component/Loader";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import defaultProps from "./defaultProps";
+import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
+import derivedProperties from "./parseDerivedProperties";
+import {
+  PropertyPaneContentConfig,
+  PropertyPaneStyleConfig,
+} from "./propertyConfig";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",

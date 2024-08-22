@@ -1,5 +1,5 @@
 import type React from "react";
-import { useRef, useCallback } from "react";
+import { useCallback, useRef } from "react";
 
 /**
  * Use requestAnimationFrame + setInterval with Hooks in a declarative way.

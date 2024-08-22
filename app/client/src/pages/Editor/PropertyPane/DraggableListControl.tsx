@@ -1,12 +1,13 @@
-import type { AppState } from "ee/reducers";
+import React, { useCallback } from "react";
+import { useEffect } from "react";
+
 import type {
   BaseItemProps,
   DroppableComponentProps,
 } from "components/propertyControls/DraggableListComponent";
 import { DroppableComponent } from "components/propertyControls/DraggableListComponent";
+import type { AppState } from "ee/reducers";
 import debounce from "lodash/debounce";
-import React, { useCallback } from "react";
-import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getSelectedPropertyPanelIndex } from "selectors/propertyPaneSelectors";
 

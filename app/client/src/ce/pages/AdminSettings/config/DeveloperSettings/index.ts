@@ -4,6 +4,7 @@ import {
   SettingCategories,
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
+
 import { googleMapsConfig } from "./googleMaps";
 
 export const config: AdminConfigType = {

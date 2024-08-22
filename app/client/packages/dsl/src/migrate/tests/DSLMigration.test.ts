@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as DSLMigrations from "..";
-import type { DSLWidget } from "../types";
-import { originalDSLForDSLMigrations } from "./testDSLs";
-
 import * as m1 from "../migrations/001-update-containers";
 import * as m2 from "../migrations/002-chart-data-migration";
 import * as m3 from "../migrations/003-map-data-migration";
@@ -90,6 +88,8 @@ import * as m86 from "../migrations/086-migrate-table-server-side-filtering";
 import * as m87 from "../migrations/087-migrate-chart-widget-customechartdata";
 import * as m88 from "../migrations/088-migrate-custom-widget-dynamic-height";
 import * as m89 from "../migrations/089-migrage-table-widget-v2-currentRow-binding";
+import type { DSLWidget } from "../types";
+import { originalDSLForDSLMigrations } from "./testDSLs";
 
 interface Migration {
   functionLookup: {

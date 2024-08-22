@@ -1,11 +1,13 @@
-import { useCallback, type RefObject, useMemo } from "react";
+import { type RefObject, useCallback, useMemo } from "react";
+
 import {
   useLayoutEffect,
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
-import type { POSITION } from "@appsmith/wds";
 import type { Orientation } from "@react-types/shared";
+
+import type { POSITION } from "@appsmith/wds";
 
 export interface GroupAria {
   orientation?: Orientation;

@@ -1,16 +1,17 @@
+import {
+  agHelper,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  entityItems,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
+
 /// <reference types="Cypress" />
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
-import {
-  agHelper,
-  entityExplorer,
-  dataSources,
-  entityItems,
-  draggableWidgets,
-  propPane,
-} from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 

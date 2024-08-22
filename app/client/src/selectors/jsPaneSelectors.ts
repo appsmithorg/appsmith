@@ -1,8 +1,9 @@
-import type { AppState } from "ee/reducers";
 import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import type { AppState } from "ee/reducers";
+import { selectJSSegmentEditorTabs } from "ee/selectors/appIDESelectors";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { selectJSSegmentEditorTabs } from "ee/selectors/appIDESelectors";
+
 import { getCurrentBasePageId } from "./editorSelectors";
 
 export const getJSPaneConfigSelectedTab = (state: AppState) =>

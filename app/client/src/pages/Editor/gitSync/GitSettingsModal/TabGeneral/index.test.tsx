@@ -1,8 +1,10 @@
 /* eslint-disable jest/no-focused-tests */
 import React from "react";
-import { render, screen } from "test/testUtils";
-import TabGeneral from ".";
+
 import type { AppState } from "ee/reducers";
+import { render, screen } from "test/testUtils";
+
+import TabGeneral from ".";
 
 jest.mock("../../hooks/gitPermissionHooks", () => ({
   useHasConnectToGitPermission: () => false,

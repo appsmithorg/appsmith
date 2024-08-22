@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { useSelector } from "react-redux";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export enum LayoutSystemFeatures {

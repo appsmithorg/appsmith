@@ -1,6 +1,6 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { isObject, set } from "lodash";
 import { klona } from "klona/json";
+import { isObject, set } from "lodash";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 
 /**

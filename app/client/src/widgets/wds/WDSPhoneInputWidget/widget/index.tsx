@@ -1,27 +1,28 @@
 import React from "react";
-import log from "loglevel";
-import merge from "lodash/merge";
-import { klona as clone } from "klona";
+
 import * as Sentry from "@sentry/react";
-import { mergeWidgetConfig } from "utils/helpers";
-import type { CountryCode } from "libphonenumber-js";
-import type { WidgetState } from "widgets/BaseWidget";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
-import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { klona as clone } from "klona";
+import type { CountryCode } from "libphonenumber-js";
+import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
+import merge from "lodash/merge";
+import log from "loglevel";
+import { mergeWidgetConfig } from "utils/helpers";
+import type { WidgetState } from "widgets/BaseWidget";
+import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 import derivedProperties from "widgets/wds/WDSCurrencyInputWidget/widget/parsedDerivedProperties";
 
-import * as config from "../config";
 import { PhoneInputComponent } from "../component";
-import type { PhoneInputWidgetProps } from "./types";
+import * as config from "../config";
 import { getCountryCode, validateInput } from "./helpers";
+import type { PhoneInputWidgetProps } from "./types";
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,

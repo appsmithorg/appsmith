@@ -1,6 +1,6 @@
-import styled from "styled-components";
-import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
+import { getMenuItemTextColor } from "pages/AppViewer/utils";
+import styled from "styled-components";
 
 export const StyledContainer = styled.div<{
   primaryColor: string;

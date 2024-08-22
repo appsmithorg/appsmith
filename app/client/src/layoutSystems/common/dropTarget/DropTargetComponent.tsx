@@ -1,9 +1,3 @@
-import type { AppState } from "ee/reducers";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
-import equal from "fast-deep-equal/es6";
 import type { Context, PropsWithChildren } from "react";
 import React, {
   createContext,
@@ -12,36 +6,42 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
 
 import {
   checkContainersForAutoHeightAction,
   updateDOMDirectlyBasedOnAutoHeightAction,
 } from "actions/autoHeightActions";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import equal from "fast-deep-equal/es6";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { getDragDetails } from "sagas/selectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
 import {
   combinedPreviewModeSelector,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getWidgetSelectionBlock } from "selectors/ui";
+import styled from "styled-components";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { calculateDropTargetRows } from "./DropTargetUtils";
-
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { getWidgetSelectionBlock } from "selectors/ui";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
+
 import DragLayerComponent from "./DragLayerComponent";
+import { calculateDropTargetRows } from "./DropTargetUtils";
 import Onboarding from "./OnBoarding";
-import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;

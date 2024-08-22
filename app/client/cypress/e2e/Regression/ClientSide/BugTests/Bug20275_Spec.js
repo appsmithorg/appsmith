@@ -1,5 +1,5 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";

@@ -1,10 +1,13 @@
+import React, { memo } from "react";
+
 import {
   ErrorMessage,
   Label,
   SelectWrapper,
 } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
-import { Tooltip, Select } from "@appsmith/ads";
-import React, { memo } from "react";
+
+import { Select, Tooltip } from "@appsmith/ads";
+
 import { useSheets } from "./useSheets";
 
 export default memo(function SheetsDropdown() {

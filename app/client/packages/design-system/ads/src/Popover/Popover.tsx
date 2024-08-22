@@ -1,20 +1,21 @@
 import React from "react";
-import type { PopoverTriggerProps } from "@radix-ui/react-popover";
-import { Close, Root, Trigger, Portal } from "@radix-ui/react-popover";
 
-import type { PopoverHeaderProps, PopoverContentProps } from "./Popover.types";
-import {
-  StyledBody,
-  StyledContent,
-  StyledHeader,
-  StyledHeaderText,
-} from "./Popover.styles";
+import type { PopoverTriggerProps } from "@radix-ui/react-popover";
+import { Close, Portal, Root, Trigger } from "@radix-ui/react-popover";
+
 import { Button } from "../Button";
 import {
   PopoverBodyContentClassName,
   PopoverBodyHeaderClassName,
   PopoverTriggerClassName,
 } from "./Popover.constants";
+import {
+  StyledBody,
+  StyledContent,
+  StyledHeader,
+  StyledHeaderText,
+} from "./Popover.styles";
+import type { PopoverContentProps, PopoverHeaderProps } from "./Popover.types";
 
 function PopoverTrigger(props: PopoverTriggerProps) {
   return (

@@ -1,6 +1,8 @@
 import { isPromise } from "workers/Evaluation/JSObject/utils";
-import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
+
 import ExecutionMetaData from "./ExecutionMetaData";
+import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
+
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function addMetaDataToError(e: any, fnName: string, fnString: string) {

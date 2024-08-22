@@ -1,12 +1,12 @@
-import { createReducer } from "utils/ReducerUtils";
+import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import get from "lodash/get";
 import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
-import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
+import get from "lodash/get";
+import { createReducer } from "utils/ReducerUtils";
 
 export enum ExplorerPinnedState {
   PINNED,

@@ -1,5 +1,6 @@
-import { ObjectsRegistry } from "../../Objects/Registry";
 import { sanitizeString } from "../../../../src/utils/URLUtils";
+import { ObjectsRegistry } from "../../Objects/Registry";
+
 class FileTabs {
   locators = {
     container: "[data-testid='t--editor-tabs']",

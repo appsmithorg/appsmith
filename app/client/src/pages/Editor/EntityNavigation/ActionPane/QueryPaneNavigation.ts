@@ -1,14 +1,15 @@
-import { call, delay, put, race, select, take } from "redux-saga/effects";
-import type { EntityInfo, IQueryPaneNavigationConfig } from "../types";
-import { ActionPaneNavigation } from "./exports";
-import { NAVIGATION_DELAY } from "../costants";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import { getFormEvaluationState } from "selectors/formSelectors";
-import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
-import { isEmpty } from "lodash";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { isActionSaving } from "ee/selectors/entitiesSelector";
+import { isEmpty } from "lodash";
+import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
+import { call, delay, put, race, select, take } from "redux-saga/effects";
+import { getFormEvaluationState } from "selectors/formSelectors";
+
+import { NAVIGATION_DELAY } from "../costants";
+import type { EntityInfo, IQueryPaneNavigationConfig } from "../types";
+import { ActionPaneNavigation } from "./exports";
 
 export default class QueryPaneNavigation extends ActionPaneNavigation {
   constructor(entityInfo: EntityInfo) {

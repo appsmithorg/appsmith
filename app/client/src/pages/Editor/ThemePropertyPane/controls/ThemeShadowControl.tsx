@@ -1,10 +1,12 @@
 import React, { useCallback } from "react";
-import type { AppTheme } from "entities/AppTheming";
-import { Icon } from "@appsmith/ads";
+
 import {
   invertedBoxShadowOptions,
   sizeMappings,
 } from "constants/ThemeConstants";
+import type { AppTheme } from "entities/AppTheming";
+
+import { Icon } from "@appsmith/ads";
 import { SegmentedControl } from "@appsmith/ads";
 
 interface ThemeBoxShadowControlProps {

@@ -1,9 +1,11 @@
 import React from "react";
+
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+
 import { NumberInput } from "@appsmith/ads";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 export interface NumericInputControlProps extends ControlProps {
   propertyValue: string;

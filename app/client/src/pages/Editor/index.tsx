@@ -1,11 +1,32 @@
 import React, { Component } from "react";
+
+import * as Sentry from "@sentry/react";
+import type { InitEditorActionPayload } from "actions/initActions";
+import { initEditorAction, resetEditorRequest } from "actions/initActions";
+import { setupPageAction, updateCurrentPage } from "actions/pageActions";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
+import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
+import type { Theme } from "constants/DefaultTheme";
+import type { BuilderRouteParams } from "constants/routes";
+import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
+import type { User } from "constants/userConstants";
+import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
+import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyModal";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
+import type { AppState } from "ee/reducers";
+import { APP_MODE } from "entities/App";
+import type { Page } from "entities/Page";
+import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
+import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
+import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import TemplatesModal from "pages/Templates/TemplatesModal";
 import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
-import type { BuilderRouteParams } from "constants/routes";
-import type { AppState } from "ee/reducers";
-import IDE from "./IDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -14,42 +35,24 @@ import {
   getPageList,
   getPublishingError,
 } from "selectors/editorSelectors";
-import type { InitEditorActionPayload } from "actions/initActions";
-import { initEditorAction, resetEditorRequest } from "actions/initActions";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
-import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
-import * as Sentry from "@sentry/react";
-import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import { ThemeProvider } from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
-import GlobalHotKeys from "./GlobalHotKeys";
-import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
-import { setupPageAction, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { ThemeMode, getTheme } from "selectors/themeSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { ThemeProvider } from "styled-components";
 import { getSearchQuery } from "utils/helpers";
-import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
-import ImportedApplicationSuccessModal from "./gitSync/ImportSuccessModal";
-import { getIsBranchUpdated } from "../utils";
-import { APP_MODE } from "entities/App";
-import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
-import TemplatesModal from "pages/Templates/TemplatesModal";
-import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
+
 import { Spinner } from "@appsmith/ads";
-import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
-import { editorInitializer } from "../../utils/editor/EditorUtils";
+
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { editorInitializer } from "../../utils/editor/EditorUtils";
+import { getIsBranchUpdated } from "../utils";
+import GlobalHotKeys from "./GlobalHotKeys";
+import IDE from "./IDE";
 import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
 import GitSettingsModal from "./gitSync/GitSettingsModal";
-import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyModal";
-import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
-import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
-import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
-import type { Page } from "entities/Page";
-import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
+import ImportedApplicationSuccessModal from "./gitSync/ImportSuccessModal";
+import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
+import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
 
 interface EditorProps {
   currentApplicationId?: string;

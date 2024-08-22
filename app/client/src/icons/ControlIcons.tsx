@@ -1,11 +1,12 @@
 // TODO (tanvi): Figure out why this file is still here and if it's safe to delete it.
-
 import type { JSXElementConstructor } from "react";
 import React from "react";
-import { importRemixIcon, importSvg } from "@appsmith/ads-old";
+
+import PlayIcon from "assets/icons/control/play-icon.png";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import PlayIcon from "assets/icons/control/play-icon.png";
+
+import { importRemixIcon, importSvg } from "@appsmith/ads-old";
 
 const DeleteIcon = importSvg(
   async () => import("assets/icons/control/delete.svg"),

@@ -1,5 +1,7 @@
 import React from "react";
+
 import { Icon } from "@appsmith/ads";
+
 import styles from "./styles.module.css";
 
 export default function Counter(props: {

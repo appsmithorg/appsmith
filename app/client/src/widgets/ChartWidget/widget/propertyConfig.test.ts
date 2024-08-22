@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-namespace */
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import { isString } from "lodash";
 
-import { styleConfig, contentConfig } from "./propertyConfig";
-import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import { contentConfig, styleConfig } from "./propertyConfig";
 
 const config = [...contentConfig(), ...styleConfig];
 

@@ -1,8 +1,9 @@
-import type {
-  MenuProps as HeadlessMenuProps,
-  MenuItemProps as HeadlessMenuItemProps,
-} from "react-aria-components";
 import type { Key } from "@react-types/shared";
+import type {
+  MenuItemProps as HeadlessMenuItemProps,
+  MenuProps as HeadlessMenuProps,
+} from "react-aria-components";
+
 import type { IconProps } from "../../Icon";
 
 export interface MenuProps

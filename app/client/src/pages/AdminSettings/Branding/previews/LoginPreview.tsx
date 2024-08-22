@@ -1,5 +1,6 @@
-import { ContentBox } from "pages/AdminSettings/components";
 import React from "react";
+
+import { ContentBox } from "pages/AdminSettings/components";
 
 import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";

@@ -1,13 +1,15 @@
+import React from "react";
+
 import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
 import type {
   AlertMessage,
   Alias,
   OtherField,
 } from "components/editorComponents/WidgetQueryGeneratorForm/types";
-import React from "react";
+
+import { DROPDOWN_VARIANT } from "../editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { DROPDOWN_VARIANT } from "../editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 
 class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
   constructor(props: OneClickBindingControlProps) {

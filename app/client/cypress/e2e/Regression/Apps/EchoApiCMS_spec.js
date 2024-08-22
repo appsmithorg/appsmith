@@ -1,12 +1,12 @@
 import appPage from "../../../locators/CMSApplocators";
 import {
   agHelper,
-  deployMode,
-  homePage,
-  gitSync,
   apiPage,
-  dataSources,
   dataManager,
+  dataSources,
+  deployMode,
+  gitSync,
+  homePage,
 } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

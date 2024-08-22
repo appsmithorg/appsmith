@@ -1,6 +1,7 @@
 import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
-import TriggerEmitter, { BatchKey } from "../utils/TriggerEmitter";
+
 import { evalContext } from "../mock";
+import TriggerEmitter, { BatchKey } from "../utils/TriggerEmitter";
 
 const pingMock = jest.fn();
 

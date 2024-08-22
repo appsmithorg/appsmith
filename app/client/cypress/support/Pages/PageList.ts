@@ -1,11 +1,12 @@
+import { PAGE_ENTITY_NAME } from "../../../src/ce/constants/messages";
 import { ObjectsRegistry } from "../Objects/Registry";
+import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
   EntityType,
 } from "./EditorNavigation";
-import { EntityItems } from "./AssertHelper";
-import { PAGE_ENTITY_NAME } from "../../../src/ce/constants/messages";
+
 class PageList {
   private locators = {
     pageListItem: (pageName: string) =>

@@ -1,5 +1,6 @@
-import { TYPOGRAPHY_VARIANTS } from "@appsmith/wds-theming";
 import { ValidationTypes } from "constants/WidgetValidation";
+
+import { TYPOGRAPHY_VARIANTS } from "@appsmith/wds-theming";
 
 export const propertyPaneStyleConfig = [
   {

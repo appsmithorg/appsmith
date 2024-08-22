@@ -1,14 +1,15 @@
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
-import { Field } from "redux-form";
-import { Button } from "@appsmith/ads";
-import React, { memo, useRef, useState, useEffect } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 
+import { Button } from "@appsmith/ads";
+
+import { ContentBox } from "../components";
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
-import { ContentBox } from "../components";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 interface ImageInputProps {
   // TODO: Fix this the next time the file is edited

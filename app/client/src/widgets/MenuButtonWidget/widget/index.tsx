@@ -1,25 +1,27 @@
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
-import MenuButtonComponent from "../component";
-import type { MenuButtonWidgetProps, MenuItem } from "../constants";
-import { MenuItemsSource } from "../constants";
-import contentConfig from "./propertyConfig/contentConfig";
-import styleConfig from "./propertyConfig/styleConfig";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { isArray, orderBy } from "lodash";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import MenuButtonComponent from "../component";
+import type { MenuButtonWidgetProps, MenuItem } from "../constants";
+import { MenuItemsSource } from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
-import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import contentConfig from "./propertyConfig/contentConfig";
+import styleConfig from "./propertyConfig/styleConfig";
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   static type = "MENU_BUTTON_WIDGET";

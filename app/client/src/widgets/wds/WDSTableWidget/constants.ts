@@ -1,19 +1,20 @@
+import type { Alignment } from "@blueprintjs/core";
+import { IconNames } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
+import type { ButtonVariant } from "components/constants";
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { WithMeta } from "widgets/MetaHOC";
+
 import type {
   ColumnProperties,
   CompactMode,
   ReactTableFilter,
-  TableStyles,
   SortOrderTypes,
+  TableStyles,
 } from "./component/Constants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { WithMeta } from "widgets/MetaHOC";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { IconNames } from "@blueprintjs/icons";
-import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import type { Alignment } from "@blueprintjs/core";
-import type { IconName } from "@blueprintjs/icons";
-import type { ButtonVariant } from "components/constants";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export interface EditableCell {
   column: string;

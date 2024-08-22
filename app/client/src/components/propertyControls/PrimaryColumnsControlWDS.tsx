@@ -1,38 +1,40 @@
 import React, { Component } from "react";
-import type { AppState } from "ee/reducers";
-import { connect } from "react-redux";
-import type { Placement } from "popper.js";
+
 import * as Sentry from "@sentry/react";
-import _, { toString } from "lodash";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import styled from "styled-components";
-import type { Indices } from "constants/Layers";
-import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import type { Indices } from "constants/Layers";
+import type { AppState } from "ee/reducers";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import _, { toString } from "lodash";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import type { Placement } from "popper.js";
+import { connect } from "react-redux";
+import {
+  getDataTreeForAutocomplete,
+  getPathEvalErrors,
+} from "selectors/dataTreeSelectors";
+import styled from "styled-components";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 import {
+  extraSpace,
   itemHeight,
   noOfItemsToDisplay,
-  extraSpace,
 } from "widgets/TableWidgetV2/component/Constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
   createColumn,
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import {
-  getDataTreeForAutocomplete,
-  getPathEvalErrors,
-} from "selectors/dataTreeSelectors";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const EmptyStateLabel = styled.div`
   margin: 20px 0px;

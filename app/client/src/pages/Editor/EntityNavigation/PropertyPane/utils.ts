@@ -4,9 +4,10 @@ import type {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { get } from "lodash";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { IMatchedSection, IPanelStack } from "../types";
 import { updateConfigPaths } from "pages/Editor/PropertyPane/helpers";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import type { IMatchedSection, IPanelStack } from "../types";
 
 export const getSectionId = (
   config: readonly PropertyPaneConfig[],

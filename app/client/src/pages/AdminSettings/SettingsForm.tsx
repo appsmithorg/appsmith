@@ -1,13 +1,33 @@
 import React, { useCallback, useEffect, useMemo } from "react";
+
+import { BackButton } from "components/utils/helperComponents";
 import { saveSettings } from "ee/actions/settingsAction";
-import { SETTINGS_FORM_NAME } from "ee/constants/forms";
+import { updateTenantConfig } from "ee/actions/tenantActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
+import {
+  DISCONNECT_AUTH_ERROR,
+  DISCONNECT_SERVICE_SUBHEADER,
+  DISCONNECT_SERVICE_WARNING,
+  MANDATORY_FIELDS_ERROR,
+  createMessage,
+} from "ee/constants/messages";
+import { tenantConfigConnection } from "ee/constants/tenantConstants";
+import AdminConfig from "ee/pages/AdminSettings/config";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
+import type { AppState } from "ee/reducers";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isTenantConfig, saveAllowed } from "ee/utils/adminSettingsHelpers";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { useParams, withRouter } from "react-router";
-import type { AppState } from "ee/reducers";
 import type { InjectedFormProps } from "redux-form";
 import { formValueSelector, reduxForm } from "redux-form";
 import {
@@ -15,38 +35,21 @@ import {
   getSettingsSavingState,
   getShowReleaseNotes,
 } from "selectors/settingsSelectors";
+
+import { toast } from "@appsmith/ads";
+
+import { DisconnectService } from "./DisconnectService";
 import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import SaveAdminSettings from "./SaveSettings";
-import { DisconnectService } from "./DisconnectService";
-import AdminConfig from "ee/pages/AdminSettings/config";
-import type { Setting } from "ee/pages/AdminSettings/config/types";
-import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import {
-  createMessage,
-  DISCONNECT_AUTH_ERROR,
-  DISCONNECT_SERVICE_SUBHEADER,
-  DISCONNECT_SERVICE_WARNING,
-  MANDATORY_FIELDS_ERROR,
-} from "ee/constants/messages";
-import { isTenantConfig, saveAllowed } from "ee/utils/adminSettingsHelpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  Wrapper,
   BottomSpace,
   HeaderWrapper,
+  SettingsFormWrapper,
   SettingsHeader,
   SettingsSubHeader,
-  SettingsFormWrapper,
+  Wrapper,
 } from "./components";
-import { BackButton } from "components/utils/helperComponents";
-import { toast } from "@appsmith/ads";
-import {
-  getIsFormLoginEnabled,
-  getThirdPartyAuths,
-} from "ee/selectors/tenantSelectors";
-import { updateTenantConfig } from "ee/actions/tenantActions";
-import { tenantConfigConnection } from "ee/constants/tenantConstants";
 
 interface FormProps {
   settings: Record<string, string>;

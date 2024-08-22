@@ -1,5 +1,5 @@
-import type { AppState } from "ee/reducers";
 import type { WorkflowMetadata } from "ee/constants/WorkflowConstants";
+import type { AppState } from "ee/reducers";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 

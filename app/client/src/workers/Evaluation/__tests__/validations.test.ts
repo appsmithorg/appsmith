@@ -1,12 +1,12 @@
-import {
-  validate,
-  WIDGET_TYPE_VALIDATION_ERROR,
-} from "workers/Evaluation/validations";
-import type { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { WidgetProps } from "widgets/BaseWidget";
+import {
+  WIDGET_TYPE_VALIDATION_ERROR,
+  validate,
+} from "workers/Evaluation/validations";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,

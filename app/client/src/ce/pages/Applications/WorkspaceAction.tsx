@@ -1,13 +1,4 @@
-import {
-  Button,
-  Divider,
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-} from "@appsmith/ads";
 import React, { useCallback, useState } from "react";
-import { useSelector } from "react-redux";
 
 import {
   IMPORT_BTN_LABEL,
@@ -19,8 +10,18 @@ import {
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { getIsCreatingApplicationByWorkspaceId } from "ee/selectors/applicationSelectors";
 import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
-import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import { isAirgapped } from "ee/utils/airgapHelpers";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
+import { useSelector } from "react-redux";
+
+import {
+  Button,
+  Divider,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "@appsmith/ads";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;

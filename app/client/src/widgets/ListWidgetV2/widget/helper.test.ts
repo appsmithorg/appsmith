@@ -1,4 +1,5 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+
 import {
   getNumberOfChildListWidget,
   getNumberOfParentListWidget,

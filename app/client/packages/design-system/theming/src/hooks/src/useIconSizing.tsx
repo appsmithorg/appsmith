@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import type { IconSizing, TokenObj } from "../../token";
 
 export const useIconSizing = (sizing: IconSizing, userSizing = 1) => {

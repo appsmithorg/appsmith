@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Popover, PopoverTrigger, PopoverContent } from "@appsmith/ads";
 
-import { createMessage, HEADER_TITLES } from "ee/constants/messages";
-import { PagesSection } from "../EditorPane/PagesSection";
 import { IDEHeaderEditorSwitcher } from "IDE";
+import { HEADER_TITLES, createMessage } from "ee/constants/messages";
+
+import { Popover, PopoverContent, PopoverTrigger } from "@appsmith/ads";
+
+import { PagesSection } from "../EditorPane/PagesSection";
 
 const EditorTitle = ({ title }: { title: string }) => {
   const [active, setActive] = useState(false);

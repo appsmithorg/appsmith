@@ -1,6 +1,6 @@
-import type { AppState } from "ee/reducers";
 import type { Theme } from "constants/DefaultTheme";
 import { dark, light, theme } from "constants/DefaultTheme";
+import type { AppState } from "ee/reducers";
 
 export enum ThemeMode {
   LIGHT = "LIGHT",

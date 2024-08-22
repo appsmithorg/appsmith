@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Radio, RadioGroup } from "./Radio";
-import { Text } from "../Text";
-import styled from "styled-components";
-import type { RadioGroupProps } from "./Radio.types";
+
 import type { StoryObj } from "@storybook/react";
+import styled from "styled-components";
+
+import { Text } from "../Text";
+import { Radio, RadioGroup } from "./Radio";
+import type { RadioGroupProps } from "./Radio.types";
 
 export default {
   title: "ADS/Components/Radio/Radio Group",

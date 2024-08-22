@@ -1,15 +1,17 @@
 import React from "react";
-import { toast } from "@appsmith/ads";
 
-import * as config from "../config";
-import BaseWidget from "widgets/BaseWidget";
-import ButtonComponent from "../component";
 import type { AnvilConfig } from "WidgetProvider/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import BaseWidget from "widgets/BaseWidget";
+
+import { toast } from "@appsmith/ads";
+
+import ButtonComponent from "../component";
+import * as config from "../config";
+import type { ButtonWidgetProps, ButtonWidgetState } from "./types";
 
 class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   constructor(props: ButtonWidgetProps) {

@@ -1,12 +1,15 @@
-import store from "store";
 import React from "react";
-import { ThemeProvider } from "styled-components";
-import { theme } from "constants/DefaultTheme";
-import InputComponent from "./";
-import { Provider } from "react-redux";
+
 import ReactDOM from "react-dom";
+
+import { theme } from "constants/DefaultTheme";
 import { act } from "react-dom/test-utils";
+import { Provider } from "react-redux";
+import store from "store";
+import { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
+
+import InputComponent from "./";
 
 let container: HTMLDivElement | null;
 

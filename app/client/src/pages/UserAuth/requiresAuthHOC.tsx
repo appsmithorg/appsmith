@@ -1,10 +1,10 @@
 import React from "react";
+
+import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { useSelector } from "react-redux";
 import { Redirect } from "react-router-dom";
-
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 
 export const requiresUnauth = (Component: React.ComponentType) => {
   // TODO: Fix this the next time the file is edited

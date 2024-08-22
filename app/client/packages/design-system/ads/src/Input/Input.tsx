@@ -1,29 +1,30 @@
 import React, { forwardRef } from "react";
+
 import { useFocusRing } from "@react-aria/focus";
 import { useTextField } from "@react-aria/textfield";
 import clsx from "classnames";
 
-import type { InputProps } from "./Input.types";
-import {
-  Description,
-  Error,
-  Label,
-  MainContainer,
-  StyledInput,
-  InputSection,
-  InputContainer,
-} from "./Input.styles";
-import { useDOMRef } from "../__hooks__/useDomRef";
 import { Icon } from "../Icon";
+import { useDOMRef } from "../__hooks__/useDomRef";
 import {
   InputClassName,
+  InputEndIconClassName,
+  InputIconClassName,
   InputLabelClassName,
   InputSectionClassName,
   InputSectionInputClassName,
-  InputEndIconClassName,
-  InputIconClassName,
   InputStartIconClassName,
 } from "./Input.constants";
+import {
+  Description,
+  Error,
+  InputContainer,
+  InputSection,
+  Label,
+  MainContainer,
+  StyledInput,
+} from "./Input.styles";
+import type { InputProps } from "./Input.types";
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   (props, ref): JSX.Element => {

@@ -1,5 +1,6 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 import PageList from "../../../../support/Pages/PageList";
+
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Layout Functionality", function () {
   it("1. Dynamic Layout - Change Layout", function () {

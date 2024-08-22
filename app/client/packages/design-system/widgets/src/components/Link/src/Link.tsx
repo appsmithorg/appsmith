@@ -1,9 +1,10 @@
 import React from "react";
+
 import { Link as HeadlessLink } from "react-aria-components";
 
 import { Text } from "../../Text";
-import type { LinkProps } from "./types";
 import styles from "./styles.module.css";
+import type { LinkProps } from "./types";
 
 export function Link(props: LinkProps) {
   const {

@@ -1,10 +1,11 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import { PanelStack, Classes } from "@blueprintjs/core";
 
+import { Classes, PanelStack } from "@blueprintjs/core";
 import { get } from "lodash";
+import { useSelector } from "react-redux";
 import { getSelectedWidgets } from "selectors/ui";
+import styled from "styled-components";
+
 import PropertyPaneView from "./PropertyPaneView";
 
 const StyledPanelStack = styled(PanelStack)`

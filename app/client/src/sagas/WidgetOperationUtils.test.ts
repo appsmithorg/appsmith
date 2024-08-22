@@ -1,28 +1,29 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { klona } from "klona";
 import { get } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+
 import type { CopiedWidgetGroup } from "./WidgetOperationUtils";
 import {
-  handleIfParentIsListWidgetWhilePasting,
-  handleSpecificCasesWhilePasting,
-  doesTriggerPathsContainPropertyPath,
-  getSelectedWidgetIfPastingIntoListWidget,
-  checkForListWidgetInCopiedWidgets,
-  updateListWidgetPropertiesOnChildDelete,
-  purgeOrphanedDynamicPaths,
-  getBoundariesFromSelectedWidgets,
-  getSnappedGrid,
   changeIdsOfPastePositions,
-  getVerticallyAdjustedPositions,
+  checkForListWidgetInCopiedWidgets,
+  doesTriggerPathsContainPropertyPath,
+  getBoundariesFromSelectedWidgets,
   getNewPositionsForCopiedWidgets,
   getPastePositionMapFromMousePointer,
   getReflowedPositions,
-  getWidgetsFromIds,
+  getSelectedWidgetIfPastingIntoListWidget,
+  getSnappedGrid,
   getValueFromTree,
+  getVerticallyAdjustedPositions,
+  getWidgetsFromIds,
+  handleIfParentIsListWidgetWhilePasting,
+  handleSpecificCasesWhilePasting,
+  purgeOrphanedDynamicPaths,
   resizePublishedMainCanvasToLowestWidget,
+  updateListWidgetPropertiesOnChildDelete,
 } from "./WidgetOperationUtils";
 
 describe("WidgetOperationSaga", () => {

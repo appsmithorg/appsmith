@@ -1,13 +1,13 @@
-import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { get } from "lodash";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
+import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import {
   getDependencies,
   getPathDependencies,
 } from "ee/workers/common/DependencyMap/utils/getEntityDependenciesByType";
-import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
+import { get } from "lodash";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
 
 export function getEntityDependencies(
   entity: DataTreeEntityObject,

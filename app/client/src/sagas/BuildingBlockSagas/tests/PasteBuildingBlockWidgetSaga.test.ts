@@ -16,6 +16,7 @@ import {
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import { getCopiedWidgets } from "utils/storage";
+
 import { pasteBuildingBlockWidgetsSaga } from "../BuildingBlockAdditionSagas";
 import {
   copiedWidgets,

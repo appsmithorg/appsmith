@@ -1,6 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getKeysFromSourceDataForEventAutocomplete } from "../../helper";
 import type { MenuButtonWidgetProps } from "widgets/wds/WDSMenuButtonWidget/widget/types";
+
+import { getKeysFromSourceDataForEventAutocomplete } from "../../helper";
 
 /**
  * This is for the configuration of menu items when

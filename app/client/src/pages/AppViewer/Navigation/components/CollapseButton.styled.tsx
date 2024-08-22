@@ -1,12 +1,12 @@
-import styled, { createGlobalStyle } from "styled-components";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { NavigationSetting } from "constants/AppConstants";
+import { Colors } from "constants/Colors";
 import {
   getApplicationNameTextColor,
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
-import { Colors } from "constants/Colors";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import type { NavigationSetting } from "constants/AppConstants";
+import styled, { createGlobalStyle } from "styled-components";
 
 export const StyledIconContainer = styled.div<{
   primaryColor: string;

@@ -1,3 +1,7 @@
+import React, { useCallback, useState } from "react";
+import { useEffect } from "react";
+
+import classNames from "classnames";
 import { updateApplication } from "ee/actions/applicationActions";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
@@ -5,20 +9,19 @@ import {
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
 } from "ee/constants/messages";
-import classNames from "classnames";
-import type { AppIconName } from "@appsmith/ads-old";
-import { Input, Text } from "@appsmith/ads";
-import { IconSelector } from "@appsmith/ads-old";
-import { debounce } from "lodash";
-import React, { useCallback, useState } from "react";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getIsSavingAppName,
 } from "ee/selectors/applicationSelectors";
+import { debounce } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
+
+import { Input, Text } from "@appsmith/ads";
+import type { AppIconName } from "@appsmith/ads-old";
+import { IconSelector } from "@appsmith/ads-old";
+
 import TextLoaderIcon from "../Components/TextLoaderIcon";
 
 const IconSelectorWrapper = styled.div`

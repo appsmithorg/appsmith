@@ -1,7 +1,7 @@
+import { SectionColumns } from "../../../../src/layoutSystems/anvil/sectionSpaceDistributor/constants";
 import { WIDGET } from "../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../Objects/Registry";
 import { anvilLocators } from "./Locators";
-import { SectionColumns } from "../../../../src/layoutSystems/anvil/sectionSpaceDistributor/constants";
 
 export class AnvilSectionsZonesHelper {
   protected agHelper = ObjectsRegistry.AggregateHelper;

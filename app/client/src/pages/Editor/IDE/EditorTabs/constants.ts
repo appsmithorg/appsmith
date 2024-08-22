@@ -1,5 +1,7 @@
 import type { EntityItem } from "ee/entities/IDE/constants";
 import { EditorEntityTab } from "ee/entities/IDE/constants";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 import type { AppState } from "ee/reducers";
 import {
   selectJSSegmentEditorTabs,
@@ -9,8 +11,6 @@ import {
   getJSSegmentItems,
   getQuerySegmentItems,
 } from "ee/selectors/entitiesSelector";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const TabSelectors: Record<
   EditorEntityTab,

@@ -1,56 +1,59 @@
 import React, { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import ReactJson from "react-json-view";
-import styled from "styled-components";
+
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
+import { setApiPaneDebuggerState } from "actions/apiPaneActions";
+import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import type { ActionResponse } from "api/ActionAPI";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import NoResponseSVG from "assets/images/no-response.svg";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { isArray, isEmpty, isString } from "lodash";
+import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import {
   CHECK_REQUEST_BODY,
-  createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   DEBUGGER_RESPONSE,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
+  createMessage,
 } from "ee/constants/messages";
-import { EditorTheme } from "./CodeEditor/EditorConfig";
-import NoResponseSVG from "assets/images/no-response.svg";
-import DebuggerLogs from "./Debugger/DebuggerLogs";
-import ErrorLogs from "./Debugger/Errors";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Classes, Text, TextType } from "@appsmith/ads-old";
-import { Button, Callout, Flex, SegmentedControl } from "@appsmith/ads";
-import type { BottomTab } from "./EntityBottomTabs";
-import EntityBottomTabs from "./EntityBottomTabs";
-import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
-import Table from "pages/Editor/QueryEditor/Table";
-import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
-import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
-import { isHtml } from "./utils";
-import { getErrorCount } from "selectors/debuggerSelectors";
+import type { Action } from "entities/Action";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { isArray, isEmpty, isString } from "lodash";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import Table from "pages/Editor/QueryEditor/Table";
+import ReactJson from "react-json-view";
+import { useDispatch, useSelector } from "react-redux";
+import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import { getErrorCount } from "selectors/debuggerSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import styled from "styled-components";
+
+import { Button, Callout, Flex, SegmentedControl } from "@appsmith/ads";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
+
+import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
+import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
+import ApiResponseMeta from "./ApiResponseMeta";
+import { EditorTheme } from "./CodeEditor/EditorConfig";
+import DebuggerLogs from "./Debugger/DebuggerLogs";
+import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import LogAdditionalInfo from "./Debugger/ErrorLogs/components/LogAdditionalInfo";
 import {
   JsonWrapper,
   reactJsonProps,
 } from "./Debugger/ErrorLogs/components/LogCollapseData";
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
-import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
-import type { Action } from "entities/Action";
-import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
-import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
-import { EMPTY_RESPONSE } from "./emptyResponse";
-import { setApiPaneDebuggerState } from "actions/apiPaneActions";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "ee/entities/IDE/constants";
-import ApiResponseMeta from "./ApiResponseMeta";
+import ErrorLogs from "./Debugger/Errors";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
-import { IDEBottomView, ViewHideBehaviour } from "IDE";
+import type { BottomTab } from "./EntityBottomTabs";
+import EntityBottomTabs from "./EntityBottomTabs";
+import { EMPTY_RESPONSE } from "./emptyResponse";
+import { isHtml } from "./utils";
 
 const ResponseTabWrapper = styled.div`
   display: flex;

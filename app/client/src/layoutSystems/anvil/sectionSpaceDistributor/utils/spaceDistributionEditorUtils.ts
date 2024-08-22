@@ -1,5 +1,7 @@
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { MutableRefObject } from "react";
+
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+
 import {
   SectionColumns,
   ZoneMinColumnWidth,

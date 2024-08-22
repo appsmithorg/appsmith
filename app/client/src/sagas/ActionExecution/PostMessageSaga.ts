@@ -1,9 +1,9 @@
+import { isEmpty } from "lodash";
 import { call, spawn } from "redux-saga/effects";
 import {
-  logActionExecutionError,
   TriggerFailureError,
+  logActionExecutionError,
 } from "sagas/ActionExecution/errorUtils";
-import { isEmpty } from "lodash";
 import type { TPostWindowMessageDescription } from "workers/Evaluation/fns/postWindowMessage";
 
 export function* postMessageSaga(action: TPostWindowMessageDescription) {

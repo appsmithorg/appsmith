@@ -1,9 +1,11 @@
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import React, { useEffect, useRef } from "react";
+
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { SpaceDistributorHandleDimensions } from "./constants";
+
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
+import { SpaceDistributorHandleDimensions } from "./constants";
 import { useSpaceDistributionEvents } from "./useSpaceDistributionEvents";
 import { getDistributionHandleId } from "./utils/spaceDistributionEditorUtils";
 

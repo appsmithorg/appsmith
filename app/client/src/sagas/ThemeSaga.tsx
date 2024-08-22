@@ -1,10 +1,10 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { select, takeLatest } from "redux-saga/effects";
-import localStorage from "utils/localStorage";
 import type { ThemeMode } from "selectors/themeSelectors";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { trimTrailingSlash } from "utils/helpers";
+import localStorage from "utils/localStorage";
 
 export interface BackgroundTheme {
   colors: { homepageBackground: string; appBackground: string };

@@ -3,8 +3,8 @@ import type {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import { debounce } from "lodash";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { debounce } from "lodash";
 
 interface SearchResultType {
   section: {

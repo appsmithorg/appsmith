@@ -1,6 +1,8 @@
-import { Classes } from "@blueprintjs/core";
 import React from "react";
+
+import { Classes } from "@blueprintjs/core";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { ModalOverlayLayer } from "../../common/modalOverlay/ModalOverlayLayer";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 

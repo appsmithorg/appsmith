@@ -1,15 +1,18 @@
+import React, { useCallback, useState } from "react";
+
 import {
   FUNCTION_SETTINGS_HEADING,
   NO_JS_FUNCTIONS,
   createMessage,
 } from "ee/constants/messages";
-import type { JSAction } from "entities/JSCollection";
-import React, { useCallback, useState } from "react";
-import styled from "styled-components";
-import { CONFIRM_BEFORE_CALLING_HEADING, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Icon, Tooltip, Switch } from "@appsmith/ads";
+import type { JSAction } from "entities/JSCollection";
+import styled from "styled-components";
+
+import { Icon, Switch, Tooltip } from "@appsmith/ads";
+
 import RemoveConfirmationModal from "./RemoveConfirmBeforeCallingDialog";
+import { CONFIRM_BEFORE_CALLING_HEADING, SETTINGS_HEADINGS } from "./constants";
 
 interface SettingsHeadingProps {
   text: string;

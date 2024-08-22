@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import type { IconDensity, TokenObj } from "../../token";
 
 export const useIconDensity = (density: IconDensity, userDensity = 1) => {

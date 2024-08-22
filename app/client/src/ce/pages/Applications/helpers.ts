@@ -1,5 +1,6 @@
-import { getIsFetchingPackages } from "ee/selectors/packageSelectors";
 import { useCallback } from "react";
+
+import { getIsFetchingPackages } from "ee/selectors/packageSelectors";
 import { useSelector } from "react-redux";
 
 export const usePackage = () => {

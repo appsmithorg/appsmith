@@ -1,6 +1,7 @@
-import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
-import { Option, Select } from "@appsmith/ads";
 import React from "react";
+
+import { Option, Select } from "@appsmith/ads";
+import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
 
 interface AppMaxWidthSelectProps {
   value: AppMaxWidth;

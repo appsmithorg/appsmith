@@ -1,13 +1,15 @@
-import { Button, Popover, PopoverTrigger } from "@appsmith/ads";
 import React from "react";
-import history from "utils/history";
+
 import { builderURL } from "ee/RouteBuilder";
-import { useSelector } from "react-redux";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useSelector } from "react-redux";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, Popover, PopoverTrigger } from "@appsmith/ads";
 
 const CreateDatasourcePopover = () => {
   const userWorkspacePermissions = useSelector(

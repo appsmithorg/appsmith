@@ -1,6 +1,5 @@
 // A utility that returns a single instance of ResizeObserver to be used across the application.
 // This is to avoid creating multiple instances of ResizeObserver which can cause performance issues.
-
 import ResizeObserver from "resize-observer-polyfill";
 
 type ResizeObserCallback = (

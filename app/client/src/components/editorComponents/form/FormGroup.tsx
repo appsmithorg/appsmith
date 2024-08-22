@@ -1,6 +1,7 @@
-import styled from "styled-components";
-import { FormGroup, Classes } from "@blueprintjs/core";
 import type { PropsWithChildren } from "react";
+
+import { Classes, FormGroup } from "@blueprintjs/core";
+import styled from "styled-components";
 
 type FormGroupProps = PropsWithChildren<{
   fill?: boolean;

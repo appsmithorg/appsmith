@@ -1,10 +1,11 @@
 import React from "react";
-import { render } from "@testing-library/react";
 
-import type { MockStoreEnhanced } from "redux-mock-store";
-import configureStore from "redux-mock-store";
+import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import type { MockStoreEnhanced } from "redux-mock-store";
+import configureStore from "redux-mock-store";
+
 import GitSettingsModal from ".";
 
 // TODO: Fix this the next time the file is edited

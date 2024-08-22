@@ -1,10 +1,11 @@
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import ContainerWidget from "widgets/ContainerWidget/widget";
-import type { WidgetDefaultProps } from "../WidgetProvider/constants";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type { SetterConfig } from "entities/AppTheming";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import ContainerWidget from "widgets/ContainerWidget/widget";
+
+import type { WidgetDefaultProps } from "../WidgetProvider/constants";
 
 /**
  * Please refer to renderAppsmithCanvas in CanvasFactory to see current version of How CanvasWidget is rendered.

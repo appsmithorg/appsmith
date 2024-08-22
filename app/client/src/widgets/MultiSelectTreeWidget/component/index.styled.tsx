@@ -1,21 +1,22 @@
 import React from "react";
+
 import { Checkbox, Classes } from "@blueprintjs/core";
-import styled, { keyframes, createGlobalStyle } from "styled-components";
-import { Colors } from "constants/Colors";
-import {
-  LabelPosition,
-  LABEL_MARGIN_OLD_SELECT,
-  SELECT_DEFAULT_HEIGHT,
-} from "components/constants";
-import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 import {
   Icon,
-  labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
   multiSelectInputContainerStyles,
 } from "@design-system/widgets-old";
-import { lightenColor } from "widgets/WidgetUtils";
 import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
+import {
+  LABEL_MARGIN_OLD_SELECT,
+  LabelPosition,
+  SELECT_DEFAULT_HEIGHT,
+} from "components/constants";
+import { Colors } from "constants/Colors";
+import styled, { createGlobalStyle, keyframes } from "styled-components";
+import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
+import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);

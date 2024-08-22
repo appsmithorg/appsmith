@@ -1,4 +1,9 @@
+import React, { useState } from "react";
+
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import type { User } from "constants/userConstants";
 import { getAppsmithConfigs } from "ee/configs";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   ADMIN_SETTINGS,
   APPSMITH_DISPLAY_VERSION,
@@ -17,7 +22,13 @@ import {
 } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { ShowUpgradeMenuItem } from "ee/utils/licenseHelpers";
-import type { User } from "constants/userConstants";
+import { IntercomConsent } from "pages/Editor/HelpButton";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouteMatch } from "react-router";
+import styled from "styled-components";
+import { howMuchTimeBeforeText } from "utils/helpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import {
   Button,
   Menu,
@@ -27,19 +38,12 @@ import {
   MenuTrigger,
   Tooltip,
 } from "@appsmith/ads";
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useRouteMatch } from "react-router";
-import { howMuchTimeBeforeText } from "utils/helpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "../CustomizedDropdown/dropdownHelpers";
-import { IntercomConsent } from "pages/Editor/HelpButton";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import styled from "styled-components";
+
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export const VersionData = styled.div`

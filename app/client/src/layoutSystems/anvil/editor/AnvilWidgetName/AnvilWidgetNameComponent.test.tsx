@@ -1,9 +1,11 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
-import "@testing-library/jest-dom";
 import React from "react";
+
+import "@testing-library/jest-dom";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import store from "store";
+
+import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
 
 const handler = {
   log: jest.fn(),

@@ -1,12 +1,11 @@
+import testdata from "../../../../../fixtures/testdata.json";
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
   deployMode,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import testdata from "../../../../../fixtures/testdata.json";
 
 describe(
   "Iframe widget Tests",

@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
 
-import Previews from "./previews";
-import SettingsForm from "./SettingsForm";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
-import { Wrapper } from "pages/AdminSettings/Authentication/AuthPage";
-
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
 import { getUpgradeBanner } from "ee/utils/BusinessFeatures/brandingPageHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { Wrapper } from "pages/AdminSettings/Authentication/AuthPage";
+import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux";
+
+import SettingsForm from "./SettingsForm";
+import Previews from "./previews";
 
 export type brandColorsKeys =
   | "primary"

@@ -1,19 +1,21 @@
 import React from "react";
-import { Button } from "@appsmith/ads";
-import { ContentBox } from "pages/AdminSettings/components";
+
+import BusinessTag from "components/BusinessTag";
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE,
   ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE,
   createMessage,
 } from "ee/constants/messages";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import {
   SettingsHeader,
   SettingsSubHeader,
 } from "pages/AdminSettings/Authentication/AuthPage";
+import { ContentBox } from "pages/AdminSettings/components";
 import styled from "styled-components";
-import BusinessTag from "components/BusinessTag";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
+
+import { Button } from "@appsmith/ads";
 
 const StyledSettingsSubHeader = styled(SettingsSubHeader)`
   margin: 0;

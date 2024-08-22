@@ -1,12 +1,15 @@
 import React from "react";
+
+import { TimePrecision } from "@blueprintjs/datetime";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import moment from "moment";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { DatePicker } from "@appsmith/ads";
+
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import moment from "moment";
-import { TimePrecision } from "@blueprintjs/datetime";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import { DatePicker } from "@appsmith/ads";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 class DatePickerControl extends BaseControl<
   DatePickerControlProps,

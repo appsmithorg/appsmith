@@ -1,13 +1,13 @@
-import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { UpdateCanvasPayload } from "actions/pageActions";
+import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
-import { denormalize } from "utils/canvasStructureHelpers";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { klona } from "klona";
-import type { UpdateCanvasPayload } from "actions/pageActions";
+import { createImmerReducer } from "utils/ReducerUtils";
+import { denormalize } from "utils/canvasStructureHelpers";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {

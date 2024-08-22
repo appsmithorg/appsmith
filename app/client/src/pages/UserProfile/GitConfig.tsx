@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { Wrapper, FieldWrapper, Loader } from "./StyledComponents";
+
+import { Classes } from "@blueprintjs/core";
+import { updateGlobalGitConfigInit } from "actions/gitSyncActions";
 import {
-  createMessage,
   AUTHOR_EMAIL,
   AUTHOR_NAME,
   SUBMIT,
+  createMessage,
 } from "ee/constants/messages";
-import { Classes } from "@blueprintjs/core";
-import { Button, Input, toast } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
 } from "selectors/gitSyncSelectors";
-import { updateGlobalGitConfigInit } from "actions/gitSyncActions";
+
+import { Button, Input, toast } from "@appsmith/ads";
 import { emailValidator } from "@appsmith/ads-old";
+
+import { FieldWrapper, Loader, Wrapper } from "./StyledComponents";
 
 export default function GitConfig() {
   const dispatch = useDispatch();

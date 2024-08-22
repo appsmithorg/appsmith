@@ -1,8 +1,8 @@
 /// <reference types="Cypress" />
 import {
   agHelper,
-  entityExplorer,
   draggableWidgets,
+  entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(

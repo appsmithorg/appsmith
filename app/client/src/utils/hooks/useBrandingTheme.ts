@@ -1,9 +1,10 @@
-import { useSelector } from "react-redux";
+import { useLayoutEffect } from "react";
 
 import { getTenantConfig } from "ee/selectors/tenantSelectors";
-import { useLayoutEffect } from "react";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { useSelector } from "react-redux";
 import { APPSMITH_BRAND_PRIMARY_COLOR } from "utils/BrandingUtils";
+
 import { LightModeTheme } from "@appsmith/wds-theming";
 
 const useBrandingTheme = () => {

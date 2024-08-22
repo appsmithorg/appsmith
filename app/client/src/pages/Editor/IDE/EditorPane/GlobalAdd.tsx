@@ -1,12 +1,15 @@
-import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import React, { useCallback } from "react";
-import styled from "styled-components";
-import { Button, Flex, Icon, Text } from "@appsmith/ads";
+
+import { createNewJSCollection } from "actions/jsPaneActions";
+import { queryAddURL } from "ee/RouteBuilder";
+import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import styled from "styled-components";
 import history from "utils/history";
-import { queryAddURL } from "ee/RouteBuilder";
-import { createNewJSCollection } from "actions/jsPaneActions";
+
+import { Button, Flex, Icon, Text } from "@appsmith/ads";
+
 import PaneHeader from "../LeftPane/PaneHeader";
 
 const CTABox = styled.div`

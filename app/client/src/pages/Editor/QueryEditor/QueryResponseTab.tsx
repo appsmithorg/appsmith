@@ -1,37 +1,40 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import ReactJson from "react-json-view";
+
+import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
+import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import {
-  apiReactJsonProps,
   NoResponse,
-  responseTabComponent,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
+  apiReactJsonProps,
+  responseTabComponent,
 } from "components/editorComponents/ApiResponseView";
-import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
-import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
-import { Callout, Flex, SegmentedControl } from "@appsmith/ads";
-import styled from "styled-components";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
-import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import type { Action } from "entities/Action";
-import { getActionData } from "ee/selectors/entitiesSelector";
-import { actionResponseDisplayDataFormats } from "../utils";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
-import { isString } from "lodash";
-import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import BindDataButton from "./BindDataButton";
+import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
+import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
+import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
+import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getActionData } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { Action } from "entities/Action";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { isString } from "lodash";
+import ReactJson from "react-json-view";
+import { useDispatch, useSelector } from "react-redux";
+import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Callout, Flex, SegmentedControl } from "@appsmith/ads";
+
+import { actionResponseDisplayDataFormats } from "../utils";
+import BindDataButton from "./BindDataButton";
 
 const HelpSection = styled.div``;
 

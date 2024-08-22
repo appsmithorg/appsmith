@@ -1,8 +1,9 @@
 import React from "react";
+
+import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 import styled from "styled-components";
 
 import { Callout, Icon, Text } from "@appsmith/ads";
-import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 
 const AlertIcons = {
   [AlertType.SUCCESS]: {

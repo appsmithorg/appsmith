@@ -1,21 +1,22 @@
-export * from "ce/sagas/JSActionSagas";
 import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import {
-  fetchJSCollectionsSaga,
-  createJSCollectionSaga,
+  closeJSActionTabSaga,
   copyJSCollectionSaga,
-  handleMoveOrCopySaga,
-  moveJSCollectionSaga,
+  createJSCollectionSaga,
   deleteJSCollectionSaga,
   fetchJSCollectionsForPageSaga,
   fetchJSCollectionsForViewModeSaga,
+  fetchJSCollectionsSaga,
+  handleMoveOrCopySaga,
+  moveJSCollectionSaga,
   saveJSObjectName,
-  closeJSActionTabSaga,
 } from "ce/sagas/JSActionSagas";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import { all, takeEvery, takeLatest } from "redux-saga/effects";
+
+export * from "ce/sagas/JSActionSagas";
 
 export function* watchJSActionSagas() {
   yield all([

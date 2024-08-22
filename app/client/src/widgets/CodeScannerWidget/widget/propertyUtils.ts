@@ -1,5 +1,6 @@
-import type { CodeScannerWidgetProps } from "../constants";
 import { Alignment } from "@blueprintjs/core";
+
+import type { CodeScannerWidgetProps } from "../constants";
 
 export const updateStyles = (
   props: CodeScannerWidgetProps,

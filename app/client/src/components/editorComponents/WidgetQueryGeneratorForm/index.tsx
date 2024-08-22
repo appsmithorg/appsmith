@@ -1,23 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+
+import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
+import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
 import produce from "immer";
 import { noop, set } from "lodash";
-
-import { CommonControls } from "./CommonControls";
-import { ConnectData } from "./ConnectData";
-import { DatasourceSpecificControls } from "./DatasourceSpecificControls";
-import { Wrapper } from "./styles";
-import WidgetSpecificControls from "./WidgetSpecificControls";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getisOneClickBindingConnectingForWidget,
   getIsOneClickBindingOptionsVisibility,
   getOneClickBindingConfigForWidget,
+  getisOneClickBindingConnectingForWidget,
 } from "selectors/oneClickBindingSelectors";
-import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
-import type { AlertMessage, Alias, OtherField } from "./types";
-import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
 
+import { CommonControls } from "./CommonControls";
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
+import { ConnectData } from "./ConnectData";
+import { DatasourceSpecificControls } from "./DatasourceSpecificControls";
+import WidgetSpecificControls from "./WidgetSpecificControls";
+import { Wrapper } from "./styles";
+import type { AlertMessage, Alias, OtherField } from "./types";
 
 interface WidgetQueryGeneratorFormContextType {
   widgetId: string;

@@ -1,10 +1,10 @@
+import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import {
   agHelper,
   anvilLayout,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 import EditorNavigation, {
   EntityType,

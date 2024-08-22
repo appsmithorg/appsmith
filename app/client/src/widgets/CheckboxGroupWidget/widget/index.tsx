@@ -1,37 +1,39 @@
+import { default as React } from "react";
+
 import { Alignment } from "@blueprintjs/core";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
 } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TextSize } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 import { compact, xor } from "lodash";
-import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import {
-  isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
   isCompactMode,
 } from "widgets/WidgetUtils";
+
 import CheckboxGroupComponent from "../component";
 import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,

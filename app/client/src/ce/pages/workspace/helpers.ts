@@ -1,7 +1,8 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { SubmissionError } from "redux-form";
-import type { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
 import type { DefaultOptionType } from "rc-select/lib/Select";
+import type { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
+import { SubmissionError } from "redux-form";
+
 export interface InviteUsersToWorkspaceByRoleValues {
   id: string;
   users?: string;

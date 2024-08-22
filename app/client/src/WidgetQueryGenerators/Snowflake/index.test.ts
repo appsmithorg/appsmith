@@ -1,4 +1,5 @@
 import { DatasourceConnectionMode } from "entities/Datasource";
+
 import Snowflake from ".";
 
 describe("Snowflake WidgetQueryGenerator", () => {

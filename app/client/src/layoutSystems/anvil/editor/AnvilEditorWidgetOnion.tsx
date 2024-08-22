@@ -1,13 +1,15 @@
 import React from "react";
 import { useMemo } from "react";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
-import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
+
+import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { AnvilEditorFlexComponent } from "./AnvilEditorFlexComponent";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
-import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
+import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
+import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
+import { AnvilEditorFlexComponent } from "./AnvilEditorFlexComponent";
 
 /**
  * AnvilEditorWidgetOnion

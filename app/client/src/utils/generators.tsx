@@ -1,5 +1,6 @@
 import type { WidgetType } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
+
 import { getBaseWidgetClassName } from "../constants/componentClassNameConstants";
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";

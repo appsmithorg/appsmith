@@ -1,7 +1,8 @@
 import styled, { css } from "styled-components";
-import type { CalloutKind } from "./Callout.types";
+
 import { Button } from "../Button";
 import { Text } from "../Text";
+import type { CalloutKind } from "./Callout.types";
 
 const Variables = css`
   --callout-color-background: var(

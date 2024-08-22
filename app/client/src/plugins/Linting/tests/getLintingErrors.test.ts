@@ -1,4 +1,5 @@
 import { getScriptType } from "workers/Evaluation/evaluate";
+
 import { CustomLintErrorCode } from "../constants";
 import getLintingErrors from "../utils/getLintingErrors";
 

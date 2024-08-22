@@ -1,12 +1,13 @@
-import * as Sentry from "@sentry/react";
-
 import React from "react";
-import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
+
+import * as Sentry from "@sentry/react";
 import styled from "styled-components";
+
 import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
+import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
 
 const Title = styled.p`

@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import BaseDatePicker from "react-datepicker";
-import range from "lodash/range";
-import getYear from "date-fns/getYear";
-import getMonth from "date-fns/getMonth";
-import clsx from "classnames";
 
+import clsx from "classnames";
+import getMonth from "date-fns/getMonth";
+import getYear from "date-fns/getYear";
+import range from "lodash/range";
+import BaseDatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "./styles.module.css";
+
+import { Button } from "../Button";
+import { Divider } from "../Divider";
+import { Input } from "../Input";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "../Menu";
 import {
   DatePickerCalenderClassName,
   DatePickerCalenderHeaderClassName,
@@ -17,6 +21,13 @@ import {
   DateRangePickerClassName,
   DateTimePickerClassName,
 } from "./DatePicker.constants";
+import {
+  DatePickerFooter,
+  DatePickerShortcut,
+  DatePickerShortcutContainer,
+  DatePickerShortcutItem,
+  StyledDatePickerHeader,
+} from "./DatePicker.styles";
 import type {
   DatePickerHeaderProps,
   DatePickerProps,
@@ -27,17 +38,7 @@ import type {
   DateRangeShortcutsProps,
   ExcludeShortcuts,
 } from "./DatePicker.types";
-import {
-  DatePickerFooter,
-  DatePickerShortcut,
-  DatePickerShortcutContainer,
-  DatePickerShortcutItem,
-  StyledDatePickerHeader,
-} from "./DatePicker.styles";
-import { Input } from "../Input";
-import { Button } from "../Button";
-import { Menu, MenuContent, MenuItem, MenuTrigger } from "../Menu";
-import { Divider } from "../Divider";
+import "./styles.module.css";
 
 function DatePicker(props: DatePickerProps) {
   const {

@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import React from "react";
+
 import { Flex } from "@appsmith/ads";
+
 import { EDITOR_TABS_HEIGHT } from "../EditorPane/constants";
 
 const Container = (props: { children: ReactNode }) => {

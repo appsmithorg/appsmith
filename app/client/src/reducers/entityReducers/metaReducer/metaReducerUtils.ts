@@ -1,14 +1,15 @@
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type {
+  PropertyOverrideDependency,
   WidgetEntity,
   WidgetEntityConfig,
-  PropertyOverrideDependency,
 } from "ee/entities/DataTree/types";
-import { klona } from "klona";
-import type { MetaState, WidgetMetaState } from ".";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import produce from "immer";
+import { klona } from "klona";
 import { set, unset } from "lodash";
+
+import type { MetaState, WidgetMetaState } from ".";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,

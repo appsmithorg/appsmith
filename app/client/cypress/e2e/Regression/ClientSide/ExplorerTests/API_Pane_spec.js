@@ -1,3 +1,4 @@
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -7,8 +8,6 @@ import EditorNavigation, {
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pageid = "MyPage";
-
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,

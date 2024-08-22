@@ -1,16 +1,14 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
-const { modifierKey } = require("../../../../../support/Constants");
-
+import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 import { draggableWidgets } from "../../../../../support/Objects/ObjectsCore";
 import {
-  entityExplorer,
   agHelper,
   assertHelper,
+  entityExplorer,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
-
 import { PropertyPane } from "../../../../../support/Pages/PropertyPane";
+
+const explorer = require("../../../../../locators/explorerlocators.json");
+const { modifierKey } = require("../../../../../support/Constants");
 
 const firstButton = ".t--buttongroup-widget > div > button > div";
 const menuButton =

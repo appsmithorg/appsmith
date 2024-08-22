@@ -1,8 +1,3 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../support/Pages/EditorNavigation";
-
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   deployMode,
@@ -10,6 +5,11 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 /*
 Selected row stays selected after data updation

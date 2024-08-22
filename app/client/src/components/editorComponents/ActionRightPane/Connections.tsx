@@ -1,19 +1,22 @@
 import React from "react";
-import { Text, TextType } from "@appsmith/ads-old";
-import styled from "styled-components";
+
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
-import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import Collapsible from "components/common/Collapsible";
 import {
-  createMessage,
   INCOMING_ENTITIES,
   NO_INCOMING_ENTITIES,
   NO_OUTGOING_ENTITIES,
   OUTGOING_ENTITIES,
+  createMessage,
 } from "ee/constants/messages";
-import { Connection } from "../Debugger/EntityDependecies";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import styled from "styled-components";
+
 import { Icon } from "@appsmith/ads";
-import Collapsible from "components/common/Collapsible";
+import { Text, TextType } from "@appsmith/ads-old";
+
+import { Connection } from "../Debugger/EntityDependecies";
+import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
 
 const ConnectionType = styled.span`
   span:nth-child(2) {

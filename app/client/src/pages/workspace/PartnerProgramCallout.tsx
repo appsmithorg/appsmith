@@ -1,11 +1,13 @@
-import type { CalloutLinkProps } from "@appsmith/ads";
-import { Callout } from "@appsmith/ads";
 import React from "react";
+
 import {
   PARTNER_PROGRAM_CALLOUT,
   PARTNER_PROGRAM_CALLOUT_LINK,
   createMessage,
 } from "ee/constants/messages";
+
+import type { CalloutLinkProps } from "@appsmith/ads";
+import { Callout } from "@appsmith/ads";
 
 interface PartnerProgramCalloutProps {
   email: string;

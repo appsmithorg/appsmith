@@ -1,7 +1,7 @@
-import type { AppState } from "ee/reducers";
 import type { User } from "constants/userConstants";
-import type { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import type { AppState } from "ee/reducers";
+import type { PropertyPanePositionConfig } from "reducers/uiReducers/usersReducer";
 
 export const getCurrentUser = (state: AppState): User | undefined =>
   state.ui?.users?.currentUser;

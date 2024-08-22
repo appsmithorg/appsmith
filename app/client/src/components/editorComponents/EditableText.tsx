@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation } from "react-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import {
   EditableText as BlueprintEditableText,
   Classes,
 } from "@blueprintjs/core";
-import styled from "styled-components";
-import _ from "lodash";
-import { Button, Spinner, toast, Tooltip } from "@appsmith/ads";
 import { INVALID_NAME_ERROR, createMessage } from "ee/constants/messages";
+import _ from "lodash";
+import { useLocation } from "react-router";
+import styled from "styled-components";
+
+import { Button, Spinner, Tooltip, toast } from "@appsmith/ads";
 
 export enum EditInteractionKind {
   SINGLE,

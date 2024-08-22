@@ -1,14 +1,34 @@
+import WidgetFactory from "WidgetProvider/factory";
+import "WidgetQueryGenerators";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+import { QUERY_TYPE } from "WidgetQueryGenerators/types";
+import { fetchActions, runAction } from "actions/pluginActionActions";
+import type { ActionCreateUpdateResponse } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
+import type { ApiResponse } from "api/ApiResponses";
+import type { Plugin } from "api/PluginApi";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { Plugin } from "api/PluginApi";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import {
+  getActions,
+  getCurrentPageNameByActionId,
+  getDatasource,
+  getPlugin,
+} from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import {
+  type Action,
   ActionCreationSourceTypeEnum,
   ActionExecutionContext,
   PluginType,
-  type Action,
   type QueryActionConfig,
 } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
@@ -18,38 +38,20 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import {
-  getActions,
-  getCurrentPageNameByActionId,
-  getDatasource,
-  getPlugin,
-} from "ee/selectors/entitiesSelector";
+import AppsmithConsole from "utils/AppsmithConsole";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { toast } from "@appsmith/ads";
+
+import "../WidgetQueryGenerators";
 import {
   createDefaultActionPayloadWithPluginDefaults,
   getPluginActionDefaultValues,
 } from "./ActionSagas";
-import "../WidgetQueryGenerators";
-import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
-import "WidgetQueryGenerators";
-import { getWidgetByID } from "./selectors";
-import type {
-  WidgetQueryConfig,
-  WidgetQueryGenerationFormConfig,
-} from "WidgetQueryGenerators/types";
-import { QUERY_TYPE } from "WidgetQueryGenerators/types";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { ApiResponse } from "api/ApiResponses";
-import type { ActionCreateUpdateResponse } from "api/ActionAPI";
-import ActionAPI from "api/ActionAPI";
 import { validateResponse } from "./ErrorSagas";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { fetchActions, runAction } from "actions/pluginActionActions";
-import { toast } from "@appsmith/ads";
-import WidgetFactory from "WidgetProvider/factory";
+import { getWidgetByID } from "./selectors";
 
 export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },

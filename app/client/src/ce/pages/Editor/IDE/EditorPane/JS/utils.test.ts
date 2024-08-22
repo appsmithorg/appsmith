@@ -1,9 +1,10 @@
-import { getJSEntityItemUrl, getJSUrl } from "./utils";
+import { EditorState } from "ee/entities/IDE/constants";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { PluginType } from "entities/Action";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
-import { EditorState } from "ee/entities/IDE/constants";
+
+import { getJSEntityItemUrl, getJSUrl } from "./utils";
 
 describe("getJSEntityItemUrl", () => {
   urlBuilder.setCurrentBasePageId("0123456789abcdef00000000");

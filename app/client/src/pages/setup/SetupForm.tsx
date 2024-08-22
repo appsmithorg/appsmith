@@ -1,33 +1,35 @@
 import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
-import { connect } from "react-redux";
-import type { DetailsFormValues, SetupFormProps } from "./DetailsForm";
-import DetailsForm from "./DetailsForm";
+import { useState } from "react";
+
+import { SUPER_USER_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import {
-  WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_FORM_EMAIL_FIELD_NAME,
   WELCOME_FORM_NAME,
   WELCOME_FORM_NAME_FIELD_NAME,
   WELCOME_FORM_PASSWORD_FIELD_NAME,
-  WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_PROFICIENCY_LEVEL,
+  WELCOME_FORM_USECASE_FIELD_NAME,
+  WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
 } from "ee/constants/forms";
-import type { FormErrors } from "redux-form";
-import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
-import { isEmail, isStrongPassword } from "utils/formhelpers";
-import type { AppState } from "ee/reducers";
-import { SUPER_USER_SUBMIT_PATH } from "ee/constants/ApiConstants";
-import { useState } from "react";
-import { isAirgapped } from "ee/utils/airgapHelpers";
 import {
-  WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
   WELCOME_FORM_EMAIL_ERROR_MESSAGE,
-  createMessage,
-  WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE,
   WELCOME_FORM_GENERIC_ERROR_MESSAGE,
   WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE,
   WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
+  WELCOME_FORM_STRONG_PASSWORD_ERROR_MESSAGE,
+  WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
+  createMessage,
 } from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { connect } from "react-redux";
+import type { FormErrors } from "redux-form";
+import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
+import styled from "styled-components";
+import { isEmail, isStrongPassword } from "utils/formhelpers";
+
+import type { DetailsFormValues, SetupFormProps } from "./DetailsForm";
+import DetailsForm from "./DetailsForm";
 
 const PageWrapper = styled.div`
   width: 100%;

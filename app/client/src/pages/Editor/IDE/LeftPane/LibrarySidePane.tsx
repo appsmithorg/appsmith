@@ -1,12 +1,15 @@
 import React from "react";
+
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import { selectLibrariesForExplorer } from "ee/selectors/entitiesSelector";
+import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
+import { useSelector } from "react-redux";
+import { animated, useTransition } from "react-spring";
+
+import { Flex } from "@appsmith/ads";
+
 import AddLibraryPopover from "./AddLibraryPopover";
 import PaneHeader from "./PaneHeader";
-import { useSelector } from "react-redux";
-import { selectLibrariesForExplorer } from "ee/selectors/entitiesSelector";
-import { animated, useTransition } from "react-spring";
-import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
-import { Flex } from "@appsmith/ads";
-import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const LibrarySidePane = () => {
   const libraries = useSelector(selectLibrariesForExplorer);

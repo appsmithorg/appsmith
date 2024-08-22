@@ -1,22 +1,43 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import type { UpdateWidgetAutoHeightPayload } from "actions/autoHeightActions";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
 import { groupBy, uniq } from "lodash";
 import log from "loglevel";
+import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
 import type {
   CanvasWidgetsReduxState,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { put, select } from "redux-saga/effects";
+import {
+  getAutoHeightLayoutTree,
+  getCanvasLevelMap,
+} from "selectors/autoHeightSelectors";
+import {
+  getDimensionMap,
+  getIsAutoLayout,
+  getWidgetsForBreakpoint,
+} from "selectors/editorSelectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { TreeNode } from "utils/autoHeight/constants";
+import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
+import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
+
 import {
   getAutoHeightUpdateQueue,
   resetAutoHeightUpdateQueue,
@@ -27,27 +48,7 @@ import {
   mutation_setPropertiesToUpdate,
   shouldCollapseThisWidget,
 } from "./helpers";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
-import type { UpdateWidgetAutoHeightPayload } from "actions/autoHeightActions";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { computeChangeInPositionBasedOnDelta } from "utils/autoHeight/reflow";
-import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
-import {
-  getAutoHeightLayoutTree,
-  getCanvasLevelMap,
-} from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
-import WidgetFactory from "WidgetProvider/factory";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import type { TreeNode } from "utils/autoHeight/constants";
-import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
-import { getAppMode } from "ee/selectors/entitiesSelector";
-import { APP_MODE } from "entities/App";
-import {
-  getDimensionMap,
-  getIsAutoLayout,
-  getWidgetsForBreakpoint,
-} from "selectors/editorSelectors";
 
 /* TODO(abhinav)
   hasScroll is no longer needed, as the only way we will be computing for hasScroll, is when we get the updates

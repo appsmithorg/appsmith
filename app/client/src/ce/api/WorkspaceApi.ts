@@ -1,7 +1,7 @@
-import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
-import type { WorkspaceRole, Workspace } from "ee/constants/workspaceConstants";
+import type { AxiosProgressEvent, AxiosPromise } from "axios";
+import type { Workspace, WorkspaceRole } from "ee/constants/workspaceConstants";
 
 export interface FetchWorkspacesResponse extends ApiResponse {
   data: Workspace[];

@@ -1,10 +1,11 @@
-import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { get } from "lodash";
+import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
+
+import { ColumnTypes } from "../../../constants";
 import { hideByColumnType } from "../../../widget/propertyUtils";
 import commonValidations from "./Validations/Common";
-import numberTypeValidations from "./Validations/Number";
 import dateTypeValidations from "./Validations/Date";
-import { ColumnTypes } from "../../../constants";
+import numberTypeValidations from "./Validations/Number";
 
 export default {
   sectionName: "Validation",

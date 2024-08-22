@@ -1,9 +1,9 @@
 import Api from "api/Api";
-import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
+import type { AxiosPromise } from "axios";
+import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import type { PluginPackageName, PluginType } from "entities/Action";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "ee/constants/ApiConstants";
 
 export type PluginId = string;
 export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;

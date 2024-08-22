@@ -1,4 +1,4 @@
-import type { WidgetLayoutProps, LayoutProps } from "../anvilTypes";
+import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
 
 /**
  * @param layoutProps | LayoutProps : Layout

@@ -1,17 +1,16 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsLocators = require("../../../../../locators/Widgets.json");
-
-import {
-  agHelper,
-  deployMode,
-  entityExplorer,
-  propPane,
-  locators,
-} from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 

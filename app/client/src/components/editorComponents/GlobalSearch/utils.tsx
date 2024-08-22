@@ -1,34 +1,36 @@
 import React from "react";
+
+import WidgetFactory from "WidgetProvider/factory";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ValidationTypes } from "constants/WidgetValidation";
+import {
+  createNewAPIBasedOnParentEntity,
+  createNewJSCollectionBasedOnParentEntity,
+} from "ee/actions/helpers";
 import {
   ACTION_OPERATION_DESCRIPTION,
-  createMessage,
   NAV_DESCRIPTION,
+  createMessage,
 } from "ee/constants/messages";
-import type { ValidationTypes } from "constants/WidgetValidation";
-import type { Datasource } from "entities/Datasource";
-import { PluginPackageName, PluginType } from "entities/Action";
-import type { WidgetType } from "constants/WidgetConstants";
-import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
-import { getPluginByPackageName } from "ee/selectors/entitiesSelector";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import type { AppState } from "ee/reducers";
-import WidgetFactory from "WidgetProvider/factory";
+import { getPluginByPackageName } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import { PluginPackageName, PluginType } from "entities/Action";
+import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
+import type { Datasource } from "entities/Datasource";
+import { FocusEntity } from "navigation/FocusEntity";
+import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
 import {
   CurlIconV2,
   EntityIcon,
   GraphQLIconV2,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
-import { FocusEntity } from "navigation/FocusEntity";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { Icon } from "@appsmith/ads";
-import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
-import {
-  createNewAPIBasedOnParentEntity,
-  createNewJSCollectionBasedOnParentEntity,
-} from "ee/actions/helpers";
-import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
 
 export type SelectEvent =
   | React.MouseEvent

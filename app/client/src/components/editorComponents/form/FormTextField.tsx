@@ -1,10 +1,11 @@
 import React from "react";
-import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
-import { Field } from "redux-form";
+
 import type { InputType } from "components/editorComponents/InputComponent";
 import InputComponent from "components/editorComponents/InputComponent";
-import type { Intent } from "constants/DefaultTheme";
 import FormFieldError from "components/editorComponents/form/FieldError";
+import type { Intent } from "constants/DefaultTheme";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
 
 const renderComponent = (
   componentProps: FormTextFieldProps & {

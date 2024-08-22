@@ -1,8 +1,10 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import AutoHeightLimitHandleDot from "./AutoHeightLimitHandleDot";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
+
+import AutoHeightLimitHandleDot from "./AutoHeightLimitHandleDot";
 
 describe("<AutoHeightLimitHandleDot />", () => {
   it("should have scale style set to 1 when isDragging is false", () => {

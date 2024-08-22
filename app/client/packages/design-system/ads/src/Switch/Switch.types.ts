@@ -1,5 +1,6 @@
-import type { AriaSwitchProps } from "@react-aria/switch";
 import type { ReactNode } from "react";
+
+import type { AriaSwitchProps } from "@react-aria/switch";
 
 // Switch props
 export type SwitchProps = {

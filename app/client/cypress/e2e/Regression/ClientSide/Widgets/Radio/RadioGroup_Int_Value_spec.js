@@ -1,4 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
 function checkSelectedRadioValue(selector, value) {

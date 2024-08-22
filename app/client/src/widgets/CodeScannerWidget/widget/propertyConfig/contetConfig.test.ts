@@ -1,8 +1,9 @@
+import { DefaultMobileCameraTypes } from "WidgetProvider/constants";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
-import { DefaultMobileCameraTypes } from "WidgetProvider/constants";
+
 import contentConfig from "./contentConfig";
 
 describe("codescanner property control", () => {

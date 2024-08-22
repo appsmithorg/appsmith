@@ -5,8 +5,8 @@ import type {
   WidgetEntity,
 } from "ee/entities/DataTree/types";
 import {
-  type EntityTypeValue,
   ENTITY_TYPE,
+  type EntityTypeValue,
 } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 

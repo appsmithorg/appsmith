@@ -1,5 +1,6 @@
-import styled from "styled-components";
 import { Profile } from "pages/common/ProfileImage";
+import styled from "styled-components";
+
 import { getTypographyByKey } from "@appsmith/ads-old";
 
 export const HeaderWrapper = styled.div`

@@ -1,21 +1,22 @@
-import React, { useEffect, useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { IconWrapper } from "constants/IconConstants";
+import React, { useCallback, useEffect } from "react";
+
 import { Colors } from "constants/Colors";
-import { TableIconWrapper } from "../../../TableStyledWrappers";
-import TableFilterPane from "./FilterPane";
+import { IconWrapper } from "constants/IconConstants";
+//TODO(abhinav): All of the following imports should not exist in a widget component
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { useDispatch, useSelector } from "react-redux";
+import { getTableFilterState } from "selectors/tableFilterSelectors";
+import { generateClassName } from "utils/generators";
+
+import { importSvg } from "@appsmith/ads-old";
 
 import type {
   ReactTableColumnProps,
   ReactTableFilter,
 } from "../../../Constants";
-
-//TODO(abhinav): All of the following imports should not exist in a widget component
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { generateClassName } from "utils/generators";
-import { getTableFilterState } from "selectors/tableFilterSelectors";
+import { TableIconWrapper } from "../../../TableStyledWrappers";
 import ActionItem from "../ActionItem";
-import { importSvg } from "@appsmith/ads-old";
+import TableFilterPane from "./FilterPane";
 
 const FilterIcon = importSvg(
   async () => import("assets/icons/control/filter-icon.svg"),

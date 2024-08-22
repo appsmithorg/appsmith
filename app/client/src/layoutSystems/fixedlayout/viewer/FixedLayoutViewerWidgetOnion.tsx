@@ -1,7 +1,9 @@
 import React from "react";
+
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
+
 import { PositionedComponentLayer } from "../common/PositionedComponentLayer";
+import { FixedLayoutWidgetComponent } from "../common/widgetComponent/FixedLayoutWidgetComponent";
 
 /**
  * FixedLayoutViewerWidgetOnion

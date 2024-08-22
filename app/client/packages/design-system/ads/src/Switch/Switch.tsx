@@ -1,20 +1,21 @@
 import React from "react";
-import clsx from "classnames";
-import { useFocusRing } from "@react-aria/focus";
-import { useToggleState } from "@react-stately/toggle";
-import { useSwitch } from "@react-aria/switch";
 
-import type { SwitchProps } from "./Switch.types";
-import {
-  StyledSwitch,
-  StyledSwitchLabel,
-  StyledSwitchInput,
-} from "./Switch.styles";
+import { useFocusRing } from "@react-aria/focus";
+import { useSwitch } from "@react-aria/switch";
+import { useToggleState } from "@react-stately/toggle";
+import clsx from "classnames";
+
 import {
   SwitchCheckedClassName,
   SwitchClassName,
   SwitchClassNameLabel,
 } from "./Switch.constants";
+import {
+  StyledSwitch,
+  StyledSwitchInput,
+  StyledSwitchLabel,
+} from "./Switch.styles";
+import type { SwitchProps } from "./Switch.types";
 
 function Switch(props: SwitchProps) {
   const state = useToggleState(props);

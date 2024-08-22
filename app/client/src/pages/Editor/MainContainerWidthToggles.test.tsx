@@ -1,12 +1,13 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import { ThemeProvider } from "styled-components";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Provider } from "react-redux";
-
 import { lightTheme } from "selectors/themeSelectors";
 import store from "store";
+import { ThemeProvider } from "styled-components";
+
 import { MainContainerWidthToggles } from "./MainContainerWidthToggles";
 
 async function navigateWithArrowKeys(key: string, noOfPresses: number) {

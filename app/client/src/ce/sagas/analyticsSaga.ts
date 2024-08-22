@@ -1,17 +1,17 @@
-import { getCurrentUser } from "selectors/usersSelectors";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
-import { call, select } from "redux-saga/effects";
-import type { APP_MODE } from "entities/App";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray } from "lodash";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
-import { getWidget } from "sagas/selectors";
-import { getUserSource } from "ee/utils/AnalyticsUtil";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getUserSource } from "ee/utils/AnalyticsUtil";
+import type { APP_MODE } from "entities/App";
+import { isArray } from "lodash";
+import { call, select } from "redux-saga/effects";
+import { getWidget } from "sagas/selectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 export interface UserAndAppDetails {
   pageId: string;

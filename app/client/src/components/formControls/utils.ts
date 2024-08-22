@@ -1,22 +1,23 @@
+import type { Action } from "@sentry/react/dist/types";
+import { InputTypes } from "components/constants";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { isBoolean, get, set, isString } from "lodash";
+import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
+import type { Diff } from "deep-diff";
+import { diff } from "deep-diff";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { klona } from "klona/full";
+import { get, isBoolean, isString, set } from "lodash";
+import _ from "lodash";
 import type {
   ConditionalOutput,
   FormConfigEvalObject,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import { Types, getType } from "utils/TypeHelpers";
+
 import type { FormConfigType, HiddenType } from "./BaseControl";
-import type { Diff } from "deep-diff";
-import { diff } from "deep-diff";
-import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
-import type { Action } from "@sentry/react/dist/types";
-import { klona } from "klona/full";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import _ from "lodash";
-import { getType, Types } from "utils/TypeHelpers";
-import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { InputTypes } from "components/constants";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value

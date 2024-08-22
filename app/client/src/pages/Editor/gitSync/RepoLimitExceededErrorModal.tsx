@@ -1,15 +1,40 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getDisconnectDocUrl,
-  getShowRepoLimitErrorModal,
-} from "selectors/gitSyncSelectors";
+
 import {
   setDisconnectingGitApplication,
   setIsDisconnectGitModalOpen,
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
+import { Colors } from "constants/Colors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  CONTACT_SALES_MESSAGE_ON_INTERCOM,
+  CONTACT_SUPPORT,
+  CONTACT_SUPPORT_TO_UPGRADE,
+  LEARN_MORE,
+  REPOSITORY_LIMIT_REACHED,
+  REPOSITORY_LIMIT_REACHED_INFO,
+  REVOKE_ACCESS,
+  REVOKE_CAUSE_APPLICATION_BREAK,
+  REVOKE_EXISTING_REPOSITORIES,
+  REVOKE_EXISTING_REPOSITORIES_INFO,
+  createMessage,
+} from "ee/constants/messages";
+import {
+  getCurrentApplication,
+  getWorkspaceIdForImport,
+} from "ee/selectors/applicationSelectors";
+import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { ApplicationPayload } from "entities/Application";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getDisconnectDocUrl,
+  getShowRepoLimitErrorModal,
+} from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+
 import {
   Callout,
   Modal,
@@ -18,31 +43,9 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import { Colors } from "constants/Colors";
-import {
-  CONTACT_SALES_MESSAGE_ON_INTERCOM,
-  CONTACT_SUPPORT,
-  CONTACT_SUPPORT_TO_UPGRADE,
-  createMessage,
-  REVOKE_CAUSE_APPLICATION_BREAK,
-  REVOKE_EXISTING_REPOSITORIES_INFO,
-  LEARN_MORE,
-  REPOSITORY_LIMIT_REACHED,
-  REPOSITORY_LIMIT_REACHED_INFO,
-  REVOKE_ACCESS,
-  REVOKE_EXISTING_REPOSITORIES,
-} from "ee/constants/messages";
+
 import Link from "./components/Link";
-import {
-  getCurrentApplication,
-  getWorkspaceIdForImport,
-} from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "entities/Application";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
-import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
 const ApplicationWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;

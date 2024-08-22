@@ -1,8 +1,10 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
-import { ToggleGroup, Checkbox } from "@appsmith/wds";
+import userEvent from "@testing-library/user-event";
+
+import { Checkbox, ToggleGroup } from "@appsmith/wds";
 
 describe("@appsmith/wds/ToggleGroup", () => {
   const items = [

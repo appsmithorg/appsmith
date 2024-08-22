@@ -1,27 +1,29 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { change, formValueSelector } from "redux-form";
-import FormRow from "components/editorComponents/FormRow";
-import { PaginationType } from "entities/Action";
-import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import type { DropdownOption } from "@appsmith/ads-old";
+
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import FormRow from "components/editorComponents/FormRow";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
+import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
+import { PaginationSubComponent } from "components/formControls/utils";
+import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import type { AppState } from "ee/reducers";
+import { PaginationType } from "entities/Action";
+import { log } from "loglevel";
+import { connect } from "react-redux";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
-import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { change, formValueSelector } from "redux-form";
+import styled from "styled-components";
 import {
-  LIMITBASED_PREFIX,
   CURSORBASED_PREFIX,
-  CURSOR_PREVIOUS_PREFIX,
   CURSOR_NEXT_PREFIX,
+  CURSOR_PREVIOUS_PREFIX,
+  LIMITBASED_PREFIX,
 } from "utils/editor/EditorBindingPaths";
-import { log } from "loglevel";
-import { PaginationSubComponent } from "components/formControls/utils";
-import { Select, Option, Checkbox, Text, Tooltip, Link } from "@appsmith/ads";
+
+import { Checkbox, Link, Option, Select, Text, Tooltip } from "@appsmith/ads";
+import type { DropdownOption } from "@appsmith/ads-old";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";

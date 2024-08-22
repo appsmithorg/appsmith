@@ -1,6 +1,6 @@
-import type { Socket } from "socket.io";
-import log from "loglevel";
 import axios from "axios";
+import log from "loglevel";
+import type { Socket } from "socket.io";
 
 const API_BASE_URL = process.env.APPSMITH_API_BASE_URL;
 

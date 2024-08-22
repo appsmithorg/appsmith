@@ -1,5 +1,7 @@
 import React, { Profiler, useCallback } from "react";
+
 import { startAndEndSpan } from "UITelemetry/generateTraces";
+
 export const WidgetProfiler = ({
   children,
   type,

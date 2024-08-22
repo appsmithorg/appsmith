@@ -1,10 +1,13 @@
 import React from "react";
-import { MenuContent } from "@appsmith/ads";
+
+import { showSignpostingModal } from "actions/onboardingActions";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+
+import { MenuContent } from "@appsmith/ads";
+
 import Checklist from "./Checklist";
 import HelpMenu from "./HelpMenu";
-import { useDispatch } from "react-redux";
-import { showSignpostingModal } from "actions/onboardingActions";
 
 const SIGNPOSTING_POPUP_WIDTH = "360px";
 

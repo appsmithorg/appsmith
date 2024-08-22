@@ -1,14 +1,14 @@
-import { runSaga } from "redux-saga";
-import type { Saga } from "redux-saga";
-
 import ActionAPI from "api/ActionAPI";
-import { PostgresFactory } from "test/factories/Actions/Postgres";
 import type { ApiResponse } from "api/ApiResponses";
-import type { Action } from "entities/Action";
-import { JSObjectFactory } from "test/factories/Actions/JSObject";
 // Since this is a ce test, importing from @appsmith might lead to unexpected results
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import JSActionAPI from "ce/api/JSActionAPI";
+import type { Action } from "entities/Action";
+import { runSaga } from "redux-saga";
+import type { Saga } from "redux-saga";
+import { JSObjectFactory } from "test/factories/Actions/JSObject";
+import { PostgresFactory } from "test/factories/Actions/Postgres";
+
 import {
   updateActionAPICall,
   updateJSCollectionAPICall,

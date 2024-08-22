@@ -1,16 +1,17 @@
 import React, { Component } from "react";
-import styled from "styled-components";
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+
 import type {
-  IconName,
   IInputGroupProps,
   IIntentProps,
+  IconName,
   MaybeElement,
 } from "@blueprintjs/core";
 import { InputGroup } from "@blueprintjs/core";
-import type { ComponentProps } from "widgets/BaseComponent";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import styled from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const TextInput = styled(({ hasError, ...rest }) => (

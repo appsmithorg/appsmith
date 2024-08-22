@@ -1,5 +1,9 @@
-import { parseExpressionAt, type Node } from "acorn";
+import { type Node, parseExpressionAt } from "acorn";
 import { simple } from "acorn-walk";
+import { generate } from "astring";
+import escodegen, { attachComments } from "escodegen";
+
+import { ECMA_VERSION, SourceType } from "../../index";
 import type {
   IdentifierNode,
   LiteralNode,
@@ -12,11 +16,8 @@ import {
   isObjectExpression,
   isTypeOfFunction,
 } from "../index";
-import { generate } from "astring";
 import type { functionParam } from "../index";
 import { getFunctionalParamsFromNode, isPropertyAFunctionNode } from "../index";
-import { ECMA_VERSION, SourceType } from "../../index";
-import escodegen, { attachComments } from "escodegen";
 import { extractContentByPosition } from "../utils";
 
 const jsObjectVariableName =

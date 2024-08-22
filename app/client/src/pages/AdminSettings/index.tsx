@@ -1,17 +1,19 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import PageWrapper from "pages/common/PageWrapper";
-import { getSettingsLoadingState } from "selectors/settingsSelectors";
-import styled from "styled-components";
+import WithSuperUserHOC from "ee/pages/AdminSettings/WithSuperUserHoc";
+import AdminConfig from "ee/pages/AdminSettings/config";
 import LeftPane from "pages/AdminSettings/LeftPane";
 import Main from "pages/AdminSettings/Main";
-import WithSuperUserHOC from "ee/pages/AdminSettings/WithSuperUserHoc";
-import { getCurrentUser } from "selectors/usersSelectors";
-import bootIntercom from "utils/bootIntercom";
 import { LoaderContainer } from "pages/AdminSettings/components";
+import PageWrapper from "pages/common/PageWrapper";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
-import AdminConfig from "ee/pages/AdminSettings/config";
+import { getSettingsLoadingState } from "selectors/settingsSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+import bootIntercom from "utils/bootIntercom";
+
 import { Spinner } from "@appsmith/ads";
 
 const FlexContainer = styled.div`

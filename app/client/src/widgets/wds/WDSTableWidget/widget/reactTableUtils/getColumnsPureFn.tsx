@@ -1,14 +1,15 @@
-import { isBoolean, isArray, findIndex, isEqual } from "lodash";
 import type { RenderMode } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
+import { findIndex, isArray, isBoolean, isEqual } from "lodash";
+import memoizeOne from "memoize-one";
+
 import { StickyType } from "../../component/Constants";
+import type { ReactTableColumnProps } from "../../component/Constants";
 import {
   COLUMN_MIN_WIDTH,
-  DEFAULT_COLUMN_WIDTH,
   DEFAULT_COLUMN_NAME,
+  DEFAULT_COLUMN_WIDTH,
 } from "../../constants";
-import type { ReactTableColumnProps } from "../../component/Constants";
-import memoizeOne from "memoize-one";
 
 export type getColumns = (
   // TODO: Fix this the next time the file is edited

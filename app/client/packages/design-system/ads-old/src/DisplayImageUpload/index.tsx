@@ -1,18 +1,18 @@
 import React, { Suspense, useEffect, useState } from "react";
-import Dialog from "../DialogComponent";
 
 import styled from "styled-components";
-import {
-  REMOVE,
-  createMessage,
-  DISPLAY_IMAGE_UPLOAD_LABEL,
-} from "../constants/messages";
 
-import { getTypographyByKey } from "../constants/typography";
+import { Spinner } from "@appsmith/ads";
 
+import Dialog from "../DialogComponent";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ReactComponent as ProfileImagePlaceholder } from "../assets/icons/others/profile-placeholder.svg";
-import { Spinner } from "@appsmith/ads";
+import {
+  DISPLAY_IMAGE_UPLOAD_LABEL,
+  REMOVE,
+  createMessage,
+} from "../constants/messages";
+import { getTypographyByKey } from "../constants/typography";
 
 interface Props {
   onChange: (file: File) => void;

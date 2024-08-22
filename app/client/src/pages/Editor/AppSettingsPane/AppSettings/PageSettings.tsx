@@ -1,8 +1,13 @@
-import { ApplicationVersion } from "ee/actions/applicationActions";
+import React, { useCallback, useEffect, useState } from "react";
+
 import type { UpdatePageActionPayload } from "actions/pageActions";
 import { setPageAsDefault, updatePageAction } from "actions/pageActions";
+import classNames from "classnames";
+import ManualUpgrades from "components/BottomBar/ManualUpgrades";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 import {
-  PAGE_SETTINGS_SHOW_PAGE_NAV,
+  PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
+  PAGE_SETTINGS_NAME_EMPTY_MESSAGE,
   PAGE_SETTINGS_PAGE_NAME_LABEL,
   PAGE_SETTINGS_PAGE_URL_LABEL,
   PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1,
@@ -10,18 +15,17 @@ import {
   PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3,
   PAGE_SETTINGS_SET_AS_HOMEPAGE,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP,
-  PAGE_SETTINGS_NAME_EMPTY_MESSAGE,
-  PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
-  PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
+  PAGE_SETTINGS_SHOW_PAGE_NAV,
+  PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
 } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { Page } from "entities/Page";
-import classNames from "classnames";
-import { Input, Switch } from "@appsmith/ads";
-import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import React, { useCallback, useEffect, useState } from "react";
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { getUsedActionNames } from "selectors/actionSelectors";
 import {
   getCurrentApplicationId,
   selectApplicationVersion,
@@ -29,14 +33,13 @@ import {
 import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
-import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../Utils";
-import type { AppState } from "ee/reducers";
-import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, toValidPageName } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+
+import { Input, Switch } from "@appsmith/ads";
+
+import TextLoaderIcon from "../Components/TextLoaderIcon";
+import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../Utils";
 
 const UrlPreviewWrapper = styled.div`
   height: 52px;

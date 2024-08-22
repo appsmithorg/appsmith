@@ -1,8 +1,9 @@
-import { Directions } from "utils/helpers";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getOnSelectAction, DropdownOnSelectActions } from "./dropdownHelpers";
-import type { CustomizedDropdownProps } from "./index";
 import type { User } from "constants/userConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { Directions } from "utils/helpers";
+
+import { DropdownOnSelectActions, getOnSelectAction } from "./dropdownHelpers";
+import type { CustomizedDropdownProps } from "./index";
 
 export const options = (
   user: User,

@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { Switch } from "./Switch";
 import type { SwitchProps } from "./Switch.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Switch",

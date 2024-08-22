@@ -1,5 +1,6 @@
-import ReplayDSL from "../ReplayDSL";
 import { diff as deepDiff } from "deep-diff";
+
+import ReplayDSL from "../ReplayDSL";
 
 describe("Checks ReplayDSL functionality", () => {
   const replayDSL = new ReplayDSL({});

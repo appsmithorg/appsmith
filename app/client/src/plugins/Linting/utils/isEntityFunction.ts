@@ -1,6 +1,6 @@
-import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { isDataTreeEntity } from "ee/workers/Evaluation/evaluationUtils";
 import { getEntityFunctions } from "ee/workers/Evaluation/fns";
+import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import setters from "workers/Evaluation/setters";
 
 export default function isEntityFunction(

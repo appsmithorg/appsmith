@@ -1,21 +1,23 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { Button, Flex } from "@appsmith/ads";
+
+import { builderURL } from "ee/RouteBuilder";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import WidgetEntity from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import { useSelector } from "react-redux";
-
-import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
 import {
   getCurrentBasePageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { EmptyState } from "../components/EmptyState";
-import history from "utils/history";
-import { builderURL } from "ee/RouteBuilder";
 import styled from "styled-components";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, Flex } from "@appsmith/ads";
+
+import { EmptyState } from "../components/EmptyState";
 
 const ListContainer = styled(Flex)`
   & .t--entity-item {

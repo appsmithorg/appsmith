@@ -1,12 +1,13 @@
+import _, { isArray, isNil, isNumber } from "lodash";
 import log from "loglevel";
+import memoizeOne from "memoize-one";
 import type { MomentInput } from "moment";
 import moment from "moment";
-import _, { isNumber, isNil, isArray } from "lodash";
+import shallowEqual from "shallowequal";
+
+import type { ReactTableColumnProps } from "../../component/Constants";
 import type { EditableCell } from "../../constants";
 import { ColumnTypes, DateInputFormat } from "../../constants";
-import type { ReactTableColumnProps } from "../../component/Constants";
-import memoizeOne from "memoize-one";
-import shallowEqual from "shallowequal";
 
 export type tableData = Array<Record<string, unknown>>;
 

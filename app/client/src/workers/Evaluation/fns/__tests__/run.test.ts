@@ -1,8 +1,9 @@
-import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
-import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import ExecutionMetaData from "../utils/ExecutionMetaData";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+
 import { evalContext } from "../mock";
+import ExecutionMetaData from "../utils/ExecutionMetaData";
 
 jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {

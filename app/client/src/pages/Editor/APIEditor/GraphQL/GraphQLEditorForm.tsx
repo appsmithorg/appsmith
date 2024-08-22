@@ -1,29 +1,31 @@
 import React, { useCallback, useContext, useRef } from "react";
-import { connect } from "react-redux";
-import type { InjectedFormProps } from "redux-form";
-import { change, formValueSelector, reduxForm } from "redux-form";
+
 import classNames from "classnames";
-import styled from "styled-components";
-import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
-import type { Action } from "entities/Action";
-import type { AppState } from "ee/reducers";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import get from "lodash/get";
-import type { Datasource } from "entities/Datasource";
+import { tailwindLayers } from "constants/Layers";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
+import type { AppState } from "ee/reducers";
 import {
   getActionByBaseId,
   getActionData,
 } from "ee/selectors/entitiesSelector";
+import type { Action } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
 import { isEmpty } from "lodash";
+import get from "lodash/get";
+import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
+import { connect } from "react-redux";
+import type { InjectedFormProps } from "redux-form";
+import { change, formValueSelector, reduxForm } from "redux-form";
+import styled from "styled-components";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
+
+import { ApiEditorContext } from "../ApiEditorContext";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
-import QueryEditor from "./QueryEditor";
-import { tailwindLayers } from "constants/Layers";
-import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
-import { ApiEditorContext } from "../ApiEditorContext";
-import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
+import QueryEditor from "./QueryEditor";
+import VariableEditor from "./VariableEditor";
 
 const ResizeableDiv = styled.div`
   display: flex;

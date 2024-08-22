@@ -1,36 +1,37 @@
-import type { ActionPattern } from "redux-saga/effects";
-import { call, take, select, put, actionChannel } from "redux-saga/effects";
+import * as Sentry from "@sentry/react";
+import type { ApiResponse } from "api/ApiResponses";
+import PluginsApi from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
+import type { FormConfigType } from "components/formControls/BaseControl";
+import { FORM_EVALUATION_REDUX_ACTIONS } from "ee/actions/evaluationActionsList";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
+import type { Action, ActionConfig } from "entities/Action";
+import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { DatasourceConfiguration } from "entities/Datasource";
+import { klona } from "klona/lite";
+import get from "lodash/get";
 import log from "loglevel";
-import * as Sentry from "@sentry/react";
-import { getFormEvaluationState } from "selectors/formSelectors";
-import { evalFormConfig } from "./EvaluationsSaga";
 import type {
   ConditionalOutput,
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FORM_EVALUATION_REDUX_ACTIONS } from "ee/actions/evaluationActionsList";
-import type { Action, ActionConfig } from "entities/Action";
-import type { FormConfigType } from "components/formControls/BaseControl";
-import PluginsApi from "api/PluginApi";
-import type { ApiResponse } from "api/ApiResponses";
-import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
-import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
+import { buffers } from "redux-saga";
+import type { ActionPattern } from "redux-saga/effects";
+import { actionChannel, call, put, select, take } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
+import { getFormEvaluationState } from "selectors/formSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import get from "lodash/get";
-import { klona } from "klona/lite";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
+
+import { evalFormConfig } from "./EvaluationsSaga";
 import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
-import type { DatasourceConfiguration } from "entities/Datasource";
-import { buffers } from "redux-saga";
-import type { Plugin } from "api/PluginApi";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 
 export interface FormEvalActionPayload {
   formId: string;

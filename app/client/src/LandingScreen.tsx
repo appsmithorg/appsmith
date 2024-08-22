@@ -1,13 +1,14 @@
 import React from "react";
-import type { AppState } from "ee/reducers";
-import { getCurrentUser, getUserAuthError } from "selectors/usersSelectors";
-import { connect } from "react-redux";
+
+import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Redirect } from "react-router";
-import { APPLICATIONS_URL, AUTH_LOGIN_URL, BASE_URL } from "constants/routes";
-import PageLoadingBar from "pages/common/PageLoadingBar";
+import type { AppState } from "ee/reducers";
 import ServerUnavailable from "pages/common/ErrorPages/ServerUnavailable";
+import PageLoadingBar from "pages/common/PageLoadingBar";
+import { connect } from "react-redux";
+import { Redirect } from "react-router";
+import { getCurrentUser, getUserAuthError } from "selectors/usersSelectors";
 
 interface Props {
   user?: User;

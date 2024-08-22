@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { SearchInput } from "./SearchInput";
 import type { SearchInputProps } from "./SearchInput.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Input/SearchInput",

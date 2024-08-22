@@ -1,9 +1,9 @@
-import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: DatasourceNameReduxState = {
   isSaving: {},

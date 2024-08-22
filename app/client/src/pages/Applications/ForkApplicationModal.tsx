@@ -1,29 +1,32 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
+import React, { useEffect, useMemo, useState } from "react";
+
+import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  CANCEL,
+  FORK,
+  FORK_APP_MODAL_EMPTY_TITLE,
+  FORK_APP_MODAL_LOADING_TITLE,
+  FORK_APP_MODAL_SUCCESS_TITLE,
+  createMessage,
+} from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   Button,
   Modal,
   ModalContent,
   ModalHeader,
-  Spinner,
-  Select,
   Option,
+  Select,
+  Spinner,
 } from "@appsmith/ads";
+
 import { ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
-import {
-  CANCEL,
-  createMessage,
-  FORK,
-  FORK_APP_MODAL_EMPTY_TITLE,
-  FORK_APP_MODAL_LOADING_TITLE,
-  FORK_APP_MODAL_SUCCESS_TITLE,
-} from "ee/constants/messages";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
-import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
-import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 
 interface ForkApplicationModalProps {
   applicationId: string;

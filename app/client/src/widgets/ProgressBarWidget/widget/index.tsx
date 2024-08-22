@@ -1,22 +1,21 @@
 import React from "react";
 
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-
-import ProgressBarComponent from "../component";
-
 import type {
   AutocompletionDefinitions,
   WidgetCallout,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { Colors } from "constants/Colors";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import ProgressBarComponent from "../component";
 import { BarType } from "../constants";
 import IconSVG from "../icon.svg";
 

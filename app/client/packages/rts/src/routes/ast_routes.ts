@@ -1,7 +1,7 @@
-import express from "express";
 import AstController from "@controllers/Ast/AstController";
 import { Validator } from "@middlewares/Validator";
 import AstRules from "@rules/ast";
+import express from "express";
 
 const router = express.Router();
 const astController = new AstController();

@@ -1,8 +1,8 @@
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { AppTheme } from "entities/AppTheming";
 import type { AppThemingMode } from "selectors/appThemingSelectors";
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export interface AppThemingState {
   isSaving: boolean;

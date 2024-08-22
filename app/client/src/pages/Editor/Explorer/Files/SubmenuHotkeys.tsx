@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import type { SelectEvent } from "components/editorComponents/GlobalSearch/utils";
 

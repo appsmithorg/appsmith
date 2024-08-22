@@ -1,21 +1,21 @@
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { Colors } from "constants/Colors";
-
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
-import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
-
-import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import NameEditorComponent from "components/utils/NameEditorComponent";
+import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
+import { Colors } from "constants/Colors";
 import {
   ACTION_ID_NOT_FOUND_IN_URL,
   ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR,
 } from "ee/constants/messages";
-import { Tooltip } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
+import styled from "styled-components";
+import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
+
+import { Tooltip } from "@appsmith/ads";
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";

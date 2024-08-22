@@ -1,7 +1,8 @@
 import React from "react";
+
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
-import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
 import type { EntityItem } from "ee/entities/IDE/constants";
+import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
 
 export interface QueryListItemProps {
   item: EntityItem;

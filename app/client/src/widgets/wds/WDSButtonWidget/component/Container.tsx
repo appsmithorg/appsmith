@@ -1,7 +1,7 @@
 import React from "react";
-import styled from "styled-components";
 
 import type { RenderMode } from "constants/WidgetConstants";
+import styled from "styled-components";
 
 const StyledContainer = styled.div<ContainerProps>`
   height: 100%;

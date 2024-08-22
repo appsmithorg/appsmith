@@ -1,6 +1,7 @@
 import styled, { keyframes } from "styled-components";
-import { ContentKind } from "./types";
+
 import { CodeEditorColors } from "../CodeEditor/constants";
+import { ContentKind } from "./types";
 
 export const HighlighedCodeContainer = styled("div")<{
   contentKind: ContentKind;

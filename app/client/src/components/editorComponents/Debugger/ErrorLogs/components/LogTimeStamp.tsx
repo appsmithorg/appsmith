@@ -1,4 +1,5 @@
 import React from "react";
+
 import type { Severity } from "entities/AppsmithConsole";
 import moment from "moment";
 

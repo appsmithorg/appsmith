@@ -1,6 +1,6 @@
-import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { createReducer } from "utils/ReducerUtils";
 
 export type ActionSelectorReduxState = Record<
   string,

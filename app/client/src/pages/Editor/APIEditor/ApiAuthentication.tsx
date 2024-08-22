@@ -1,11 +1,6 @@
 import React from "react";
-import type { EmbeddedRestDatasource } from "entities/Datasource";
-import { get, merge } from "lodash";
-import styled from "styled-components";
-import { connect, useSelector } from "react-redux";
-import { AuthType } from "entities/Datasource/RestAPIForm";
-import { formValueSelector } from "redux-form";
-import type { AppState } from "ee/reducers";
+
+import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import {
   EDIT_DATASOURCE_MESSAGE,
   OAUTH_2_0,
@@ -13,16 +8,24 @@ import {
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
-import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { Icon, Text } from "@appsmith/ads";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   getHasCreateDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { EmbeddedRestDatasource } from "entities/Datasource";
+import { AuthType } from "entities/Datasource/RestAPIForm";
+import { get, merge } from "lodash";
+import { connect, useSelector } from "react-redux";
+import { formValueSelector } from "redux-form";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Icon, Text } from "@appsmith/ads";
+
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource;
 }

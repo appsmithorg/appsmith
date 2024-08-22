@@ -1,8 +1,8 @@
 import {
   agHelper,
-  locators,
-  entityExplorer,
   draggableWidgets,
+  entityExplorer,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(

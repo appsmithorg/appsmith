@@ -1,21 +1,15 @@
+import type { ReactNode } from "react";
+import React, { useState } from "react";
+
+import classNames from "classnames";
 import {
   ApplicationVersion,
   updateApplication,
 } from "ee/actions/applicationActions";
-import {
-  Button,
-  Tooltip,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  Callout,
-} from "@appsmith/ads";
-import { Text, TextType } from "@appsmith/ads-old";
-import type { ReactNode } from "react";
-import React, { useState } from "react";
+import { CLEAN_URL_UPDATE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -23,10 +17,18 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { createMessage, CLEAN_URL_UPDATE } from "ee/constants/messages";
-import { useLocation } from "react-router";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import classNames from "classnames";
+
+import {
+  Button,
+  Callout,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Tooltip,
+} from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
 
 const StyledList = styled.ul`
   list-style: disc;

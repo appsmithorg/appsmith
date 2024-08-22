@@ -1,10 +1,10 @@
 /* eslint-disable  @typescript-eslint/ban-ts-comment */
-import _ from "lodash";
-import { put, debounce, takeEvery, all } from "redux-saga/effects";
+import { batchActionSuccess } from "actions/batchActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { batchActionSuccess } from "actions/batchActions";
+import _ from "lodash";
 import * as log from "loglevel";
+import { all, debounce, put, takeEvery } from "redux-saga/effects";
 
 const BATCH_PRIORITY = {
   [ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL]: {

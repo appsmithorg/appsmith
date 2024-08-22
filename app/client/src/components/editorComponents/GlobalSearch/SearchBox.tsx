@@ -1,16 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
-import type { AppState } from "ee/reducers";
+
 import {
-  createMessage,
   CREATE_NEW_OMNIBAR_PLACEHOLDER,
   OMNIBAR_PLACEHOLDER,
   OMNIBAR_PLACEHOLDER_NAV,
+  createMessage,
 } from "ee/constants/messages";
-import type { SearchCategory } from "./utils";
-import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
+import type { AppState } from "ee/reducers";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+
 import { Button, Icon } from "@appsmith/ads";
+
+import type { SearchCategory } from "./utils";
+import { SEARCH_CATEGORY_ID, isMenu } from "./utils";
 
 const Container = styled.div`
   background: var(--ads-v2-color-bg);

@@ -1,3 +1,12 @@
+import React from "react";
+
+import {
+  setDisconnectingGitApplication,
+  setGitSettingsModalOpenAction,
+  setIsAutocommitModalOpen,
+  setIsDisconnectGitModalOpen,
+  toggleAutocommitEnabledInit,
+} from "actions/gitSyncActions";
 import {
   AUTOCOMMIT,
   AUTOCOMMIT_DISABLE,
@@ -8,16 +17,9 @@ import {
   DISCONNECT_GIT_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
-import {
-  setDisconnectingGitApplication,
-  toggleAutocommitEnabledInit,
-  setIsAutocommitModalOpen,
-  setIsDisconnectGitModalOpen,
-  setGitSettingsModalOpenAction,
-} from "actions/gitSyncActions";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { Button, Divider, Text } from "@appsmith/ads";
-import React from "react";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAutocommitEnabledSelector,
@@ -25,13 +27,14 @@ import {
   getIsAutocommitToggling,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, Divider, Text } from "@appsmith/ads";
+
 import {
   useHasConnectToGitPermission,
   useHasManageAutoCommitPermission,
 } from "../../hooks/gitPermissionHooks";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 const Container = styled.div`
   padding-top: 16px;

@@ -1,13 +1,13 @@
-import { useSelector } from "react-redux";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
 import {
   CUSTOMER_PORTAL_URL_WITH_PARAMS,
   PRICING_PAGE_URL,
 } from "constants/ThirdPartyConstants";
-import type { EventName } from "ee/utils/analyticsUtilTypes";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ee/configs";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { EventName } from "ee/utils/analyticsUtilTypes";
 import { pricingPageUrlSource } from "ee/utils/licenseHelpers";
+import { useSelector } from "react-redux";
 import type {
   RampFeature,
   RampSection,

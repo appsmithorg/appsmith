@@ -1,5 +1,5 @@
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 
 describe("builderURL", () => {
   let location: typeof window.location;

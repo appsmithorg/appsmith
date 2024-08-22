@@ -1,16 +1,19 @@
 import * as React from "react";
 import { useState } from "react";
-import styled from "styled-components";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+import { useCallback, useEffect } from "react";
+
 import type { ControlType } from "constants/PropertyControlConstants";
-import type { SetProgress } from "@appsmith/ads-old";
-import { FilePickerV2, FileType } from "@appsmith/ads-old";
+import { replayHighlightClass } from "globalStyles/portals";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { useEffect, useCallback } from "react";
-import { replayHighlightClass } from "globalStyles/portals";
+import styled from "styled-components";
+
 import { Button, Modal, ModalBody, ModalContent } from "@appsmith/ads";
+import type { SetProgress } from "@appsmith/ads-old";
+import { FilePickerV2, FileType } from "@appsmith/ads-old";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const StyledDiv = styled.div`
   flex: 1;

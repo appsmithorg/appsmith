@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ApiResponse } from "api/ApiResponses";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { JSLibrary } from "workers/common/JSLibrary";
 
 export function fetchJSLibraries(

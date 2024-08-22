@@ -1,13 +1,14 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-/* eslint-disable cypress/no-assigning-return-values */
-/* Contains all methods related to Workspace features*/
 
+/* eslint-disable cypress/no-assigning-return-values */
+
+/* Contains all methods related to Workspace features*/
+import homePage from "../locators/HomePage";
+import { ObjectsRegistry } from "../support/Objects/Registry";
 import { AppSidebar } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-import homePage from "../locators/HomePage";
-import { ObjectsRegistry } from "../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const assertHelper = ObjectsRegistry.AssertHelper;

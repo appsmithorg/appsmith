@@ -1,32 +1,33 @@
-import _ from "lodash";
 import React from "react";
-import log from "loglevel";
-import * as Sentry from "@sentry/react";
-import type { WidgetState } from "widgets/BaseWidget";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-import { CurrencyInputComponent } from "../component";
-import derivedProperties from "./parsedDerivedProperties";
-import {
-  formatCurrencyNumber,
-  limitDecimalValue,
-} from "../component/utilities";
-import { getLocale, mergeWidgetConfig } from "utils/helpers";
-import {
-  getLocaleDecimalSeperator,
-  getLocaleThousandSeparator,
-} from "widgets/WidgetUtils";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import * as Sentry from "@sentry/react";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import * as config from "../config";
-import type { CurrencyInputWidgetProps } from "./types";
-import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
-import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
-import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { klona as clone } from "klona";
+import _ from "lodash";
+import log from "loglevel";
+import { getLocale, mergeWidgetConfig } from "utils/helpers";
+import type { WidgetState } from "widgets/BaseWidget";
+import {
+  getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
+} from "widgets/WidgetUtils";
+import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
+import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+
+import { CurrencyInputComponent } from "../component";
+import {
+  formatCurrencyNumber,
+  limitDecimalValue,
+} from "../component/utilities";
+import * as config from "../config";
+import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
+import derivedProperties from "./parsedDerivedProperties";
+import type { CurrencyInputWidgetProps } from "./types";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,

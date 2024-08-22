@@ -1,14 +1,18 @@
 import React from "react";
-import { Text, Button } from "@appsmith/ads";
+
+import classNames from "classnames";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { APPSMITH_DISPLAY_VERSION, createMessage } from "ee/constants/messages";
 import moment from "moment";
-import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+
+import { Button, Text } from "@appsmith/ads";
+
 import { IntercomConsent } from "../HelpButton";
-import classNames from "classnames";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 interface HelpItem {

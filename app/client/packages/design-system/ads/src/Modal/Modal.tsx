@@ -1,24 +1,25 @@
 import React from "react";
+
 import type { DialogTriggerProps } from "@radix-ui/react-dialog";
 import { Portal, Root, Trigger } from "@radix-ui/react-dialog";
 import clsx from "classnames";
 
-import type { ModalHeaderProps, ModalContentProps } from "./Modal.types";
-import {
-  StyledOverlay,
-  StyledContent,
-  StyledHeader,
-  StyledClose,
-  StyledBody,
-  StyledFooter,
-} from "./Modal.styles";
+import { Button } from "../Button";
+import { Text } from "../Text";
 import {
   ModalContentClassName,
   ModalContentHeaderClassName,
   ModalContentHeaderCloseButtonClassName,
 } from "./Modal.constants";
-import { Text } from "../Text";
-import { Button } from "../Button";
+import {
+  StyledBody,
+  StyledClose,
+  StyledContent,
+  StyledFooter,
+  StyledHeader,
+  StyledOverlay,
+} from "./Modal.styles";
+import type { ModalContentProps, ModalHeaderProps } from "./Modal.types";
 
 function ModalContent(props: ModalContentProps) {
   const { children, className, overlayClassName, ...rest } = props;

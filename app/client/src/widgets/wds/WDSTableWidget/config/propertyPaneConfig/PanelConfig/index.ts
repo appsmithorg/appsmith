@@ -2,13 +2,13 @@ import { updateCustomColumnAliasOnLabelChange } from "../../../widget/propertyUt
 import Basic from "./Basic";
 import Color from "./Color";
 import Data from "./Data";
+import DateProperties from "./DateProperties";
 import DiscardButtonproperties from "./DiscardButtonproperties";
 import Events from "./Events";
 import General, { GeneralStyle } from "./General";
 import SaveButtonProperties from "./SaveButtonProperties";
 import TextFormatting from "./TextFormatting";
 import Validations from "./Validation";
-import DateProperties from "./DateProperties";
 
 export default {
   editableTitle: true,

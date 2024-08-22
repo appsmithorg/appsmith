@@ -1,12 +1,13 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-/* eslint-disable cypress/no-assigning-return-values */
 
+/* eslint-disable cypress/no-assigning-return-values */
+import { ObjectsRegistry } from "../support/Objects/Registry";
+import { agHelper } from "./Objects/ObjectsCore";
 import { AppSidebar, AppSidebarButton } from "./Pages/EditorNavigation";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-import { ObjectsRegistry } from "../support/Objects/Registry";
-import { agHelper } from "./Objects/ObjectsCore";
+
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");

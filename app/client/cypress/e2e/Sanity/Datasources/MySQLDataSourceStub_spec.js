@@ -1,5 +1,6 @@
-const datasource = require("../../../locators/DatasourcesEditor.json");
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
+
+const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe(
   "MySQL datasource test cases",

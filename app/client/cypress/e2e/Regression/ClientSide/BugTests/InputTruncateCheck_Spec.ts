@@ -4,13 +4,13 @@ import {
 } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
   apiPage,
-  draggableWidgets,
-  fakerHelper,
   dataManager,
+  draggableWidgets,
+  entityExplorer,
+  fakerHelper,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 const widgetsToTest = {

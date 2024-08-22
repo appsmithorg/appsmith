@@ -1,93 +1,93 @@
-import { call, put, race, select, take } from "redux-saga/effects";
+import {
+  segmentInitSuccess,
+  segmentInitUncertain,
+} from "actions/analyticsActions";
+import {
+  flushErrorsAndRedirect,
+  safeCrashAppRequest,
+} from "actions/errorActions";
+import {
+  fetchFeatureFlagsError,
+  fetchFeatureFlagsInit,
+  fetchFeatureFlagsSuccess,
+  fetchProductAlertFailure,
+  fetchProductAlertSuccess,
+  invitedUserSignupError,
+  invitedUserSignupSuccess,
+  logoutUserError,
+  logoutUserSuccess,
+  verifyInviteError,
+  verifyInviteSuccess,
+} from "actions/userActions";
+import {
+  initAppLevelSocketConnection,
+  initPageLevelSocketConnection,
+} from "actions/websocketActions";
+import type { ApiResponse } from "api/ApiResponses";
+import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import type {
+  CreateUserRequest,
+  CreateUserResponse,
+  ForgotPasswordRequest,
+  LeaveWorkspaceRequest,
+  TokenPasswordUpdateRequest,
+  UpdateUserRequest,
+  VerifyTokenRequest,
+} from "ee/api/UserApi";
+import UserApi from "ee/api/UserApi";
+import { getAppsmithConfigs } from "ee/configs";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
 } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { reset } from "redux-form";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
+import {
+  UPDATE_USER_DETAILS_FAILED,
+  USER_PROFILE_PICTURE_UPLOAD_FAILED,
+} from "ee/constants/messages";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import log from "loglevel";
+import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type {
-  CreateUserRequest,
-  CreateUserResponse,
-  ForgotPasswordRequest,
-  VerifyTokenRequest,
-  TokenPasswordUpdateRequest,
-  UpdateUserRequest,
-  LeaveWorkspaceRequest,
-} from "ee/api/UserApi";
-import UserApi from "ee/api/UserApi";
-import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
-import history from "utils/history";
-import type { ApiResponse } from "api/ApiResponses";
+  ProductAlert,
+  ProductAlertConfig,
+} from "reducers/uiReducers/usersReducer";
+import { reset } from "redux-form";
+import { call, put, race, select, take } from "redux-saga/effects";
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import {
-  validateResponse,
-  getResponseErrorMessage,
   callAPI,
+  getResponseErrorMessage,
+  validateResponse,
 } from "sagas/ErrorSagas";
-import {
-  logoutUserSuccess,
-  logoutUserError,
-  verifyInviteSuccess,
-  verifyInviteError,
-  invitedUserSignupError,
-  invitedUserSignupSuccess,
-  fetchFeatureFlagsSuccess,
-  fetchFeatureFlagsError,
-  fetchProductAlertSuccess,
-  fetchProductAlertFailure,
-  fetchFeatureFlagsInit,
-} from "actions/userActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
-import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import {
-  flushErrorsAndRedirect,
-  safeCrashAppRequest,
-} from "actions/errorActions";
-import localStorage from "utils/localStorage";
-import log from "loglevel";
-
+import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
+import { getSegmentState } from "selectors/analyticsSelectors";
 import {
   getCurrentUser,
   getFeatureFlagsFetched,
 } from "selectors/usersSelectors";
-import {
-  initAppLevelSocketConnection,
-  initPageLevelSocketConnection,
-} from "actions/websocketActions";
+import UsagePulse from "usagePulse";
+import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
+import history from "utils/history";
+import localStorage from "utils/localStorage";
 import {
   getEnableStartSignposting,
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
-import { getAppsmithConfigs } from "ee/configs";
-import { getSegmentState } from "selectors/analyticsSelectors";
-import {
-  segmentInitUncertain,
-  segmentInitSuccess,
-} from "actions/analyticsActions";
-import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
-import UsagePulse from "usagePulse";
+
 import { toast } from "@appsmith/ads";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import {
-  USER_PROFILE_PICTURE_UPLOAD_FAILED,
-  UPDATE_USER_DETAILS_FAILED,
-} from "ee/constants/messages";
 import { createMessage } from "@appsmith/ads-old";
-import type {
-  ProductAlert,
-  ProductAlertConfig,
-} from "reducers/uiReducers/usersReducer";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,

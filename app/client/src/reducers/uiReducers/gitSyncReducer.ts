@@ -1,4 +1,5 @@
-import { createReducer } from "utils/ReducerUtils";
+import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import type { PageDefaultMeta } from "ee/api/ApplicationApi";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -6,8 +7,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import type { GitConfig, MergeStatus } from "entities/GitSync";
 import { GitSyncModalTab } from "entities/GitSync";
-import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
-import type { PageDefaultMeta } from "ee/api/ApplicationApi";
+import { createReducer } from "utils/ReducerUtils";
 
 export enum GitSettingsTab {
   GENERAL = "GENERAL",

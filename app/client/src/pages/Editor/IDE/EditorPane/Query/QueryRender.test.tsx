@@ -1,19 +1,20 @@
 import React from "react";
-import { Route } from "react-router-dom";
-import { render } from "test/testUtils";
-import IDE from "pages/Editor/IDE/index";
-import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
+
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import IDE from "pages/Editor/IDE/index";
+import { Route } from "react-router-dom";
 import { APIFactory } from "test/factories/Actions/API";
-import localStorage from "utils/localStorage";
+import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
-import { sagasToRunForTests } from "test/sagas";
-import userEvent from "@testing-library/user-event";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
-import { screen } from "@testing-library/react";
-import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
+import { sagasToRunForTests } from "test/sagas";
+import { render } from "test/testUtils";
+import localStorage from "utils/localStorage";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,

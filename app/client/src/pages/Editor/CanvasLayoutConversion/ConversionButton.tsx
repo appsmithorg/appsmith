@@ -1,15 +1,11 @@
-import * as Sentry from "@sentry/react";
 import React, { useRef } from "react";
+
+import * as Sentry from "@sentry/react";
 import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-} from "@appsmith/ads";
-import { ConversionForm } from "./ConversionForm";
-import { useDispatch, useSelector } from "react-redux";
-import { getIsAutoLayout } from "selectors/canvasSelectors";
+  setConversionStart,
+  setConversionStop,
+} from "actions/autoLayoutActions";
+import BetaCard from "components/editorComponents/BetaCard";
 import {
   CONVERT_TO_AUTO_BUTTON,
   CONVERT_TO_AUTO_TITLE,
@@ -17,17 +13,24 @@ import {
   CONVERT_TO_FIXED_TITLE,
   createMessage,
 } from "ee/constants/messages";
-import BetaCard from "components/editorComponents/BetaCard";
-import store from "store";
-import {
-  setConversionStart,
-  setConversionStop,
-} from "actions/autoLayoutActions";
-import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { useConversionForm } from "./hooks/useConversionForm";
-import type { AppState } from "ee/reducers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { useDispatch, useSelector } from "react-redux";
+import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
+import store from "store";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@appsmith/ads";
+
+import { ConversionForm } from "./ConversionForm";
+import { useConversionForm } from "./hooks/useConversionForm";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);

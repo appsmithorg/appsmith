@@ -1,9 +1,11 @@
 import type { MutableRefObject, Ref } from "react";
-import React, { useRef, useEffect, forwardRef } from "react";
-import styled from "styled-components";
-import Prism from "prismjs";
-import themes from "./themes";
+import React, { forwardRef, useEffect, useRef } from "react";
+
 import { Skin } from "constants/DefaultTheme";
+import Prism from "prismjs";
+import styled from "styled-components";
+
+import themes from "./themes";
 
 // TODO(abhinav): This is rudimentary. Enhance it.
 Prism.languages["appsmith-binding"] = {

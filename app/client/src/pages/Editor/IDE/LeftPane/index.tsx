@@ -1,7 +1,5 @@
 import React from "react";
-import styled from "styled-components";
-import { Switch, useRouteMatch } from "react-router";
-import { SentryRoute } from "ee/AppRouter";
+
 import {
   APP_LIBRARIES_EDITOR_PATH,
   APP_SETTINGS_EDITOR_PATH,
@@ -10,10 +8,14 @@ import {
   INTEGRATION_EDITOR_PATH,
   SAAS_GSHEET_EDITOR_ID_PATH,
 } from "constants/routes";
+import { SentryRoute } from "ee/AppRouter";
+import { Switch, useRouteMatch } from "react-router";
+import styled from "styled-components";
+
+import EditorPane from "../EditorPane";
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
-import EditorPane from "../EditorPane";
 
 export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
   height: 100%;

@@ -1,3 +1,9 @@
+import type { ResponseMeta } from "api/ApiResponses";
+import type {
+  ConnectToGitPayload,
+  GitAutocommitProgressResponse,
+} from "api/GitSyncAPI";
+import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
@@ -6,17 +12,11 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type {
-  ConnectToGitPayload,
-  GitAutocommitProgressResponse,
-} from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import {
-  type GitStatusData,
   GitSettingsTab,
+  type GitStatusData,
 } from "reducers/uiReducers/gitSyncReducer";
-import type { ResponseMeta } from "api/ApiResponses";
 
 export interface GitStatusParams {
   compareRemote?: boolean;

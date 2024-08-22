@@ -1,16 +1,9 @@
 import React from "react";
+
 import * as HoverCard from "@radix-ui/react-hover-card";
 import clsx from "classnames";
 
-import type { AnnouncementPopoverContentProps } from "./AnnouncementPopover.types";
-import {
-  StyledTitle,
-  StyledBanner,
-  StyledContent,
-  StyledCustomBody,
-  StyledDescription,
-  StyledFooter,
-} from "./AnnouncementPopover.styles";
+import { Button } from "../Button";
 import {
   AnnouncementPopoverArrowClassName,
   AnnouncementPopoverBannerClassName,
@@ -22,7 +15,15 @@ import {
   AnnouncementPopoverContentClassName,
   AnnouncementPopoverTriggerClassName,
 } from "./AnnouncementPopover.constants";
-import { Button } from "../Button";
+import {
+  StyledBanner,
+  StyledContent,
+  StyledCustomBody,
+  StyledDescription,
+  StyledFooter,
+  StyledTitle,
+} from "./AnnouncementPopover.styles";
+import type { AnnouncementPopoverContentProps } from "./AnnouncementPopover.types";
 
 const AnnouncementPopover = HoverCard.Root;
 AnnouncementPopover.displayName = "AnnouncementPopover";

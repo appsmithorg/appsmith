@@ -1,9 +1,10 @@
 import React from "react";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { isFunction } from "lodash";
+
 import WidgetFactory from "WidgetProvider/factory";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ResizableComponent } from "layoutSystems/common/resizer/ResizableComponent";
+import { isFunction } from "lodash";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 /**
  * AutoResizableLayer

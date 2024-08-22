@@ -1,5 +1,6 @@
-const dsl = require("../../../../fixtures/deprecatedWidgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+
+const dsl = require("../../../../fixtures/deprecatedWidgets.json");
 
 describe("Deprecation warning feature", { tags: ["@tag.Widget"] }, function () {
   before(() => {

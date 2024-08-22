@@ -1,29 +1,31 @@
+import React from "react";
+
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import type { ButtonPlacement, ButtonVariant } from "components/constants";
-import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { get } from "lodash";
-import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
-import ButtonGroupComponent from "../component";
-import { getStylesheetValue } from "./helpers";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { ButtonPlacement, ButtonVariant } from "components/constants";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { klona as clone } from "klona/full";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import { get } from "lodash";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import ButtonGroupComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { getStylesheetValue } from "./helpers";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,

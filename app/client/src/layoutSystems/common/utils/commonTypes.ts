@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
 import type {
@@ -5,7 +7,6 @@ import type {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { ReactNode } from "react";
 
 export interface AutoLayoutProps {
   alignment: FlexLayerAlignment;

@@ -1,5 +1,5 @@
-import widgetLocators from "../../../../locators/Widgets.json";
 import template from "../../../../locators/TemplatesLocators.json";
+import widgetLocators from "../../../../locators/Widgets.json";
 import {
   agHelper,
   assertHelper,

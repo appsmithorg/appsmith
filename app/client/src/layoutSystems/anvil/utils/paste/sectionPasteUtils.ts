@@ -1,19 +1,20 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { handleWidgetMovement } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call } from "redux-saga/effects";
+import { anvilWidgets } from "widgets/anvil/constants";
+
+import type { LayoutProps } from "../anvilTypes";
+import { defaultHighlightRenderInfo } from "../constants";
+import { getDestinedParent } from "./destinationUtils";
+import { pasteWidgetsIntoMainCanvas } from "./mainCanvasPasteUtils";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
   PastePayload,
 } from "./types";
-import { getDestinedParent } from "./destinationUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { anvilWidgets } from "widgets/anvil/constants";
-import type { LayoutProps } from "../anvilTypes";
-import { all, call } from "redux-saga/effects";
 import { addPastedWidgets } from "./utils";
-import { handleWidgetMovement } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
-import { defaultHighlightRenderInfo } from "../constants";
-import { pasteWidgetsIntoMainCanvas } from "./mainCanvasPasteUtils";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 export function* pasteWidgetsInSection(
   allWidgets: CanvasWidgetsReduxState,

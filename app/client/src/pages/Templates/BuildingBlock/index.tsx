@@ -1,27 +1,30 @@
 import React, { useState } from "react";
+
+import { Position } from "@blueprintjs/core";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import {
-  BuildingBlockWrapper,
-  ImageWrapper,
-  StyledImage,
-  BuildingBlockContent,
-  BuildingBlockContentFooter,
-} from "./StyledComponents";
-import { Button, Text, Tooltip } from "@appsmith/ads";
-import history from "utils/history";
+import { templateIdUrl } from "ee/RouteBuilder";
 import {
   FORK_THIS_TEMPLATE_BUILDING_BLOCK,
   createMessage,
 } from "ee/constants/messages";
-import { Position } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import {
   activeLoadingTemplateId,
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
-import { templateIdUrl } from "ee/RouteBuilder";
-import { BUILDING_BLOCK_THUMBNAIL_ALT_TEXT } from "../constants";
+import history from "utils/history";
+
+import { Button, Text, Tooltip } from "@appsmith/ads";
+
 import ForkTemplateDialog from "../ForkTemplate";
+import { BUILDING_BLOCK_THUMBNAIL_ALT_TEXT } from "../constants";
+import {
+  BuildingBlockContent,
+  BuildingBlockContentFooter,
+  BuildingBlockWrapper,
+  ImageWrapper,
+  StyledImage,
+} from "./StyledComponents";
 
 export interface BuildingBlockProps {
   buildingBlock: TemplateInterface;

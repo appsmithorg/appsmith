@@ -1,56 +1,57 @@
 import React from "react";
-import { Redirect, useLocation } from "react-router-dom";
-import { connect, useSelector } from "react-redux";
-import type { InjectedFormProps, DecoratedFormProps } from "redux-form";
-import { reduxForm, formValueSelector, isDirty } from "redux-form";
+
+import FormTextField from "components/utils/ReduxFormTextField";
+import { FORGOT_PASSWORD_URL, SETUP, SIGN_UP_URL } from "constants/routes";
+import { LOGIN_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import {
-  LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
+  LOGIN_FORM_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
 } from "ee/constants/forms";
-import { FORGOT_PASSWORD_URL, SETUP, SIGN_UP_URL } from "constants/routes";
 import {
-  LOGIN_PAGE_TITLE,
-  LOGIN_PAGE_EMAIL_INPUT_LABEL,
-  LOGIN_PAGE_PASSWORD_INPUT_LABEL,
-  LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER,
-  LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER,
   FORM_VALIDATION_EMPTY_PASSWORD,
   FORM_VALIDATION_INVALID_EMAIL,
-  LOGIN_PAGE_LOGIN_BUTTON_TEXT,
+  LOGIN_PAGE_EMAIL_INPUT_LABEL,
+  LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER,
   LOGIN_PAGE_FORGOT_PASSWORD_TEXT,
-  LOGIN_PAGE_SIGN_UP_LINK_TEXT,
   LOGIN_PAGE_INVALID_CREDS_ERROR,
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
+  LOGIN_PAGE_LOGIN_BUTTON_TEXT,
+  LOGIN_PAGE_PASSWORD_INPUT_LABEL,
+  LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER,
+  LOGIN_PAGE_SIGN_UP_LINK_TEXT,
+  LOGIN_PAGE_TITLE,
   NEW_TO_APPSMITH,
   createMessage,
 } from "ee/constants/messages";
-import { FormGroup } from "@appsmith/ads-old";
-import { Button, Link, Callout } from "@appsmith/ads";
-import FormTextField from "components/utils/ReduxFormTextField";
-import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
-import { isEmail, isEmptyString } from "utils/formhelpers";
-import type { LoginFormValues } from "pages/UserAuth/helpers";
-
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
-  SpacedSubmitForm,
-  FormActions,
-  EmailFormWrapper,
-} from "pages/UserAuth/StyledComponents";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { LOGIN_SUBMIT_PATH } from "ee/constants/ApiConstants";
-import { getIsSafeRedirectURL } from "utils/helpers";
-import { getCurrentUser } from "selectors/usersSelectors";
-import Container from "pages/UserAuth/Container";
-import {
-  getThirdPartyAuths,
   getIsFormLoginEnabled,
   getTenantConfig,
+  getThirdPartyAuths,
 } from "ee/selectors/tenantSelectors";
-import Helmet from "react-helmet";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
+import Container from "pages/UserAuth/Container";
+import {
+  EmailFormWrapper,
+  FormActions,
+  SpacedSubmitForm,
+} from "pages/UserAuth/StyledComponents";
+import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
+import type { LoginFormValues } from "pages/UserAuth/helpers";
+import Helmet from "react-helmet";
+import { connect, useSelector } from "react-redux";
+import { Redirect, useLocation } from "react-router-dom";
+import type { DecoratedFormProps, InjectedFormProps } from "redux-form";
+import { formValueSelector, isDirty, reduxForm } from "redux-form";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { isEmail, isEmptyString } from "utils/formhelpers";
+import { getIsSafeRedirectURL } from "utils/helpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, Callout, Link } from "@appsmith/ads";
+import { FormGroup } from "@appsmith/ads-old";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};

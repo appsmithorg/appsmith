@@ -1,21 +1,20 @@
 /// <reference types="Cypress" />
-
+import {
+  agHelper,
+  propPane,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
-import {
-  agHelper,
-  propPane,
-  table,
-} from "../../../../support/Objects/ObjectsCore";
-import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Binding the multiple Widgets and validating NavigateTo Page",

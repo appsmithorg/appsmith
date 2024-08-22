@@ -1,9 +1,9 @@
-import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import moment from "moment";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
 import { sample } from "lodash";
-import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import moment from "moment";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 // TODO: Fix this the next time the file is edited

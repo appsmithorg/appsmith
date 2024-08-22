@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { useTable } from "react-table";
-import { parseExcelData } from "./ExcelDataParser";
-import type { RowData, HeaderCell, RawSheetData } from "./ExcelDataParser";
 
+import { useTable } from "react-table";
+import styled from "styled-components";
 import * as XLSX from "xlsx";
+
+import { parseExcelData } from "./ExcelDataParser";
+import type { HeaderCell, RawSheetData, RowData } from "./ExcelDataParser";
 
 const StyledViewer = styled.div`
   width: 100%;

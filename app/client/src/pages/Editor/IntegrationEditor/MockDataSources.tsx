@@ -1,15 +1,16 @@
 import React from "react";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
-import type { MockDatasource } from "entities/Datasource";
-import { getPluginImages } from "ee/selectors/entitiesSelector";
+
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getQueryParams } from "utils/URLUtils";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import type { AppState } from "ee/reducers";
+import { getPluginImages } from "ee/selectors/entitiesSelector";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import type { MockDatasource } from "entities/Datasource";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import { getQueryParams } from "utils/URLUtils";
 
 const MockDataSourceWrapper = styled.div`
   overflow: auto;

@@ -1,11 +1,12 @@
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { generateReactKey } from "utils/generators";
+
 import type {
   AnvilHighlightInfo,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { generateReactKey } from "utils/generators";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 /**
  * Update a layout preset by adding a list of widgets in correct position.

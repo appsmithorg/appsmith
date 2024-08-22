@@ -1,3 +1,11 @@
+import React, { useContext, useState } from "react";
+
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";
+import type { SrcDoc } from "pages/Editor/CustomWidgetBuilder/types";
+import styled from "styled-components";
+
 import {
   Button,
   Menu,
@@ -6,20 +14,15 @@ import {
   MenuSeparator,
   MenuTrigger,
   Modal,
-  ModalContent,
-  ModalHeader,
   ModalBody,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
   Text,
 } from "@appsmith/ads";
-import React, { useContext, useState } from "react";
-import codeTemplates from "./Templates";
-import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";
+
 import styles from "../styles.module.css";
-import type { SrcDoc } from "pages/Editor/CustomWidgetBuilder/types";
-import styled from "styled-components";
-import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import codeTemplates from "./Templates";
 
 const StyledButton = styled(Button)`
   height: 32px !important;

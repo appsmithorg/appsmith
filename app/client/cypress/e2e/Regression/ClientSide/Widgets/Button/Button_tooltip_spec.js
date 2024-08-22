@@ -1,7 +1,8 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Button Widget Functionality - Validate tooltip visibility",

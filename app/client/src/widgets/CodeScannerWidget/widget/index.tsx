@@ -1,27 +1,29 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import CodeScannerComponent from "../component";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import contentConfig from "./propertyConfig/contentConfig";
-import styleConfig from "./propertyConfig/styleConfig";
-import type { CodeScannerWidgetProps } from "../constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-
 import { ButtonPlacementTypes } from "components/constants";
-import { ScannerLayout } from "../constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import CodeScannerComponent from "../component";
+import type { CodeScannerWidgetProps } from "../constants";
+import { ScannerLayout } from "../constants";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
+import contentConfig from "./propertyConfig/contentConfig";
+import styleConfig from "./propertyConfig/styleConfig";
+
 class CodeScannerWidget extends BaseWidget<
   CodeScannerWidgetProps,
   WidgetState

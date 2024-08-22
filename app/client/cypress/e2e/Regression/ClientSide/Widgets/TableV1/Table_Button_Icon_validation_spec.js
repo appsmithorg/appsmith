@@ -1,8 +1,9 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 const color = "rgb(151, 0, 0)";
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget property pane feature validation",

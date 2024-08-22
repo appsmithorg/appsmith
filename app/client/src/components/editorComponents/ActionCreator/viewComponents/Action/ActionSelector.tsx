@@ -1,15 +1,18 @@
+import React, { useCallback, useRef } from "react";
+
 import { Popover2 } from "@blueprintjs/popover2";
 import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
-import type { TreeDropdownOption } from "@appsmith/ads-old";
-import { Text, Button } from "@appsmith/ads";
-import React, { useCallback, useRef } from "react";
+import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
-import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+
+import { Button, Text } from "@appsmith/ads";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+
 import { ActionCreatorContext } from "../..";
-import { AppsmithFunction } from "../../constants";
 import FieldGroup from "../../FieldGroup";
+import { AppsmithFunction } from "../../constants";
 import {
   useApisQueriesAndJsActionOptions,
   useModalDropdownList,

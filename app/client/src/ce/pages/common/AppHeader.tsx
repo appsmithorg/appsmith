@@ -1,25 +1,26 @@
 import React from "react";
-import PageHeader from "pages/common/PageHeader";
-import { Route, Switch } from "react-router";
+
 import {
-  VIEWER_PATH,
+  ADMIN_SETTINGS_CATEGORY_PATH,
+  BASE_URL,
+  BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+  CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH,
+  CUSTOM_WIDGETS_EDITOR_ID_PATH,
+  CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
   SETUP,
   SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
-  BUILDER_PATH_DEPRECATED,
-  VIEWER_PATH_DEPRECATED,
-  ADMIN_SETTINGS_CATEGORY_PATH,
   VIEWER_CUSTOM_PATH,
-  BUILDER_CUSTOM_PATH,
-  BASE_URL,
-  CUSTOM_WIDGETS_EDITOR_ID_PATH,
-  CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
-  CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH,
+  VIEWER_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import Navigation from "pages/AppViewer/Navigation";
-import type { RouteComponentProps } from "react-router";
 import { Header as AppIDEHeader } from "pages/Editor/IDE/Header";
+import PageHeader from "pages/common/PageHeader";
+import { Route, Switch } from "react-router";
+import type { RouteComponentProps } from "react-router";
 
 export type Props = RouteComponentProps;
 

@@ -1,14 +1,15 @@
-import { BaseQueryGenerator } from "../BaseQueryGenerator";
+import { DatasourceConnectionMode } from "entities/Datasource";
+import { without } from "lodash";
 import { formatDialect, snowflake } from "sql-formatter";
+import { removeSpecialChars } from "utils/helpers";
+
+import { BaseQueryGenerator } from "../BaseQueryGenerator";
 import { QUERY_TYPE } from "../types";
 import type {
+  ActionConfigurationSQL,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
-  ActionConfigurationSQL,
 } from "../types";
-import { removeSpecialChars } from "utils/helpers";
-import { without } from "lodash";
-import { DatasourceConnectionMode } from "entities/Datasource";
 
 export default abstract class Snowflake extends BaseQueryGenerator {
   private static buildSelect(

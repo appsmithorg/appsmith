@@ -1,10 +1,11 @@
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import { PluginType } from "entities/Action";
-import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import initLocalStorage from "../overrides/localStorage";
 import { ENTITY_TYPE } from "pages/common/SearchSnippets";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
+
+import initLocalStorage from "../overrides/localStorage";
 
 describe("Tests localStorage implementation in worker", () => {
   const dataTree: DataTree = {

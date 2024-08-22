@@ -1,4 +1,8 @@
 import React, { PureComponent } from "react";
+
+import { RenderModes } from "constants/WidgetConstants";
+
+import { AnvilDraggingArena } from "../editor/canvasArenas/AnvilDraggingArena";
 import type {
   AnvilHighlightInfo,
   DeriveHighlightsFn,
@@ -8,17 +12,15 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../utils/anvilTypes";
-import { renderLayouts, renderWidgets } from "../utils/layouts/renderUtils";
+import { defaultHighlightPayload } from "../utils/constants";
 import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "../utils/layouts/layoutUtils";
-import { RenderModes } from "constants/WidgetConstants";
+import { renderLayouts, renderWidgets } from "../utils/layouts/renderUtils";
 import LayoutFactory from "./LayoutFactory";
-import { AnvilDraggingArena } from "../editor/canvasArenas/AnvilDraggingArena";
 import { FlexLayout, type FlexLayoutProps } from "./components/FlexLayout";
-import { defaultHighlightPayload } from "../utils/constants";
 
 abstract class BaseLayoutComponent extends PureComponent<
   LayoutComponentProps,

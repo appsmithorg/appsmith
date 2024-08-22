@@ -1,7 +1,7 @@
 //check difference for after body change and parsing
-import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { JSAction, JSCollection, Variable } from "entities/JSCollection";
 import AppsmithConsole from "utils/AppsmithConsole";
 
 export interface ParsedJSSubAction {

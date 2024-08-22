@@ -1,3 +1,9 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  locators,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -5,12 +11,6 @@ import EditorNavigation, {
 const widgetLocators = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const viewWidgetsPage = require("../../../../locators/ViewWidgets.json");
-import {
-  entityExplorer,
-  agHelper,
-  deployMode,
-  locators,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Text-Table Binding Functionality",

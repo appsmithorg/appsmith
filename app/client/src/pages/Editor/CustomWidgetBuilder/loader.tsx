@@ -1,5 +1,6 @@
-import PageLoadingBar from "pages/common/PageLoadingBar";
 import React from "react";
+
+import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
 
 // TODO: Fix this the next time the file is edited

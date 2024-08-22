@@ -1,15 +1,15 @@
 import {
-  entityExplorer,
+  encodedWordDoc,
+  encodedXlsDoc,
+  encodedXlsxDoc,
+} from "../../../../../fixtures/exampleEncodedDocs";
+import {
   agHelper,
-  locators,
   deployMode,
+  entityExplorer,
+  locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-import {
-  encodedWordDoc,
-  encodedXlsxDoc,
-  encodedXlsDoc,
-} from "../../../../../fixtures/exampleEncodedDocs";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

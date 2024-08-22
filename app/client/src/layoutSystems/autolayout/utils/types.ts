@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
@@ -6,7 +8,6 @@ import type {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { ReactNode } from "react";
 
 export interface LayerChild {
   id: string;

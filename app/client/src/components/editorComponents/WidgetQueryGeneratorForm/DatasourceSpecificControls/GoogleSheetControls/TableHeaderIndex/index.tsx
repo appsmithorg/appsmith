@@ -1,16 +1,19 @@
+import React, { memo } from "react";
+
+import { Colors } from "constants/Colors";
 import {
-  createMessage,
   GEN_CRUD_TABLE_HEADER_LABEL,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
+  createMessage,
 } from "ee/constants/messages";
-import { Colors } from "constants/Colors";
+import styled from "styled-components";
+
 import { Icon } from "@appsmith/ads";
 import { Tooltip } from "@appsmith/ads";
-import React, { memo } from "react";
-import { Label, Row, RowHeading, SelectWrapper } from "../../../styles";
-import styled from "styled-components";
-import { useTableHeaderIndex } from "./useTableHeader";
 import { Input } from "@appsmith/ads";
+
+import { Label, Row, RowHeading, SelectWrapper } from "../../../styles";
+import { useTableHeaderIndex } from "./useTableHeader";
 
 const RoundBg = styled.div`
   width: 16px;

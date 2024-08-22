@@ -1,9 +1,9 @@
 import {
-  apiPage,
   agHelper,
-  jsEditor,
-  entityItems,
+  apiPage,
   dataManager,
+  entityItems,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

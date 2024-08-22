@@ -1,7 +1,7 @@
-import type { WidgetProps } from "widgets/BaseWidget";
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonPlacement } from "components/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface CodeScannerWidgetProps extends WidgetProps {
   label: string;

@@ -1,6 +1,7 @@
 import API from "api/Api";
 import type { AxiosPromise } from "axios";
 import type { AppTheme } from "entities/AppTheming";
+
 import type { ApiResponse } from "./ApiResponses";
 
 class AppThemingApi extends API {

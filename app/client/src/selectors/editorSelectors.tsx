@@ -1,6 +1,26 @@
-import { createSelector } from "reselect";
-
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
+import { DefaultDimensionMap, RenderModes } from "constants/WidgetConstants";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import {
+  getApiPaneSavingMap,
+  getCanvasWidgets,
+  getJSCollections,
+} from "ee/selectors/entitiesSelector";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { APP_MODE } from "entities/App";
+import type { Page } from "entities/Page";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { find, sortBy } from "lodash";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -9,45 +29,23 @@ import type {
   AppLayoutConfig,
   PageListReduxState,
 } from "reducers/entityReducers/pageListReducer";
-import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
-
-import { ApplicationVersion } from "ee/actions/applicationActions";
-import type {
-  OccupiedSpace,
-  WidgetSpace,
-} from "constants/CanvasEditorConstants";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { DefaultDimensionMap, RenderModes } from "constants/WidgetConstants";
-import { APP_MODE } from "entities/App";
-import { find, sortBy } from "lodash";
+import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { createSelector } from "reselect";
 import {
+  getConfigTree,
   getDataTree,
   getLoadingEntities,
-  getConfigTree,
 } from "selectors/dataTreeSelectors";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-
-import {
-  getApiPaneSavingMap,
-  getCanvasWidgets,
-  getJSCollections,
-} from "ee/selectors/entitiesSelector";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
-import { buildChildWidgetTree } from "utils/widgetRenderUtils";
-import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { buildChildWidgetTree } from "utils/widgetRenderUtils";
+import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
-import WidgetFactory from "WidgetProvider/factory";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "./layoutSystemSelectors";
+
 import { protectedModeSelector } from "./gitSyncSelectors";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { Page } from "entities/Page";
+import { getLayoutSystemType } from "./layoutSystemSelectors";
+import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;

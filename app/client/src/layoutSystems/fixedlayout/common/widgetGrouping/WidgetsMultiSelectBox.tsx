@@ -1,29 +1,29 @@
 import React, { forwardRef, useEffect, useMemo, useRef } from "react";
-import styled from "styled-components";
-import { get, minBy } from "lodash";
-import { useSelector, useDispatch } from "react-redux";
 
+import type { IPopoverSharedProps } from "@blueprintjs/core";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   copyWidget,
   cutWidget,
-  groupWidgets,
   deleteSelectedWidget,
+  groupWidgets,
 } from "actions/widgetActions";
-import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
-import { TooltipComponent as Tooltip } from "@appsmith/ads-old";
-import { getSelectedWidgets } from "selectors/ui";
-
-import { stopEventPropagation } from "utils/AppsmithUtils";
-import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
-import type { IPopoverSharedProps } from "@blueprintjs/core";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import WidgetFactory from "WidgetProvider/factory";
-import type { AppState } from "ee/reducers";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import { get, minBy } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
+import { getSelectedWidgets } from "selectors/ui";
+import styled from "styled-components";
+import { stopEventPropagation } from "utils/AppsmithUtils";
+import { modText } from "utils/helpers";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+
 import { Icon } from "@appsmith/ads";
+import { TooltipComponent as Tooltip } from "@appsmith/ads-old";
 
 const POPUP_HEIGHT = 122;
 const POPUP_WIDTH = 38;

@@ -1,20 +1,20 @@
+import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   BUILD_RESPONSIVE,
   BUILD_RESPONSIVE_TEXT,
   CANCEL_DIALOG,
   CONVERT,
   CONVERTING_APP,
-  createMessage,
   CREATE_SNAPSHOT,
   SAVE_SNAPSHOT,
   SAVE_SNAPSHOT_TEXT,
+  createMessage,
 } from "ee/constants/messages";
-import type { ConversionProps } from "../ConversionForm";
-
-import type { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Dispatch } from "redux";
+
+import type { ConversionProps } from "../ConversionForm";
 import { commonConversionFlows } from "./CommonConversionFlows";
 
 //returns props for Fixed to auto-layout conversion flows based on which the Conversion Form can be rendered

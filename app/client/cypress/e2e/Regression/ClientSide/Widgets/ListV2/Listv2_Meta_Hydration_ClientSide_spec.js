@@ -1,6 +1,6 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;

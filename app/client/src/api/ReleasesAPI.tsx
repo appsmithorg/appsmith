@@ -1,5 +1,6 @@
-import type { AxiosPromise } from "axios";
 import Api from "api/Api";
+import type { AxiosPromise } from "axios";
+
 import type { ApiResponse } from "./ApiResponses";
 
 class ReleasesAPI extends Api {

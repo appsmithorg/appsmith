@@ -1,8 +1,8 @@
 import {
   formatCurrencyNumber,
-  limitDecimalValue,
   getDecimalSeparator,
   getGroupSeparator,
+  limitDecimalValue,
 } from "./utilities";
 
 describe("currency Number formating", () => {

@@ -1,8 +1,10 @@
+import React from "react";
+
 import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
 import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
-import { Text } from "@appsmith/ads";
-import React from "react";
 import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
 
 const DROP_TARGET_CONTAINER_TOP_MARGIN = 20;
 const DROP_TARGET_CONTAINER_LEFT_MARGIN = 50;

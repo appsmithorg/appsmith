@@ -1,7 +1,9 @@
 import type React from "react";
+
 import { Alignment, Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
 import type { IconName } from "@blueprintjs/icons";
+import type { PropertyUpdates } from "WidgetProvider/constants";
 import type { ButtonPlacement, ButtonVariant } from "components/constants";
 import {
   ButtonBorderRadiusTypes,
@@ -11,31 +13,31 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
-import type { PropertyUpdates } from "WidgetProvider/constants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
   GridDefaults,
   TextSizes,
-  WidgetHeightLimits,
   WIDGET_PADDING,
+  WidgetHeightLimits,
 } from "constants/WidgetConstants";
+import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
 import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
+import punycode from "punycode";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { getLocale } from "utils/helpers";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import { getLocale } from "utils/helpers";
+
 import {
   COMPACT_MODE_MIN_ROWS,
   rgbaMigrationConstantV56,
 } from "../WidgetProvider/constants";
+import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import type { SchemaItem } from "./JSONFormWidget/constants";
-import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
-import punycode from "punycode";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 
 interface SanitizeOptions {
   existingKeys?: string[];

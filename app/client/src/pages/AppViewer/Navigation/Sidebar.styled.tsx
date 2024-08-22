@@ -1,6 +1,7 @@
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import styled from "styled-components";
+
 import {
   getMenuContainerBackgroundColor,
   getMenuItemBackgroundColorOnHover,

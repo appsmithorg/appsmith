@@ -14,34 +14,35 @@
 // ***********************************************************
 /// <reference types="Cypress" />
 /// <reference types='cypress-tags' />
+import "cypress-mochawesome-reporter/register";
+import "cypress-network-idle";
+import "cypress-plugin-tab";
 import "cypress-real-events";
 import "cypress-real-events/support";
-import "cypress-wait-until";
-import "cypress-network-idle";
-import "cypress-xpath";
-import * as MESSAGES from "../../src/ce/constants/messages.ts";
-import "./ApiCommands";
-// Import commands.js using ES2015 syntax:
-import "./commands";
-import { initLocalstorage, addIndexedDBKey } from "./commands";
-import "./dataSourceCommands";
-import "./gitSync";
-import { initLocalstorageRegistry } from "./Objects/Registry";
-import RapidMode from "./RapidMode.ts";
-import "cypress-mochawesome-reporter/register";
 import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
-import { CURRENT_REPO, REPO } from "../fixtures/REPO";
+import "cypress-wait-until";
+import "cypress-xpath";
 
-import "./WorkspaceCommands";
-import "./queryCommands";
-import "./widgetCommands";
-import "./themeCommands";
+import * as MESSAGES from "../../src/ce/constants/messages.ts";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 import "./AdminSettingsCommands";
-import "cypress-plugin-tab";
+import "./ApiCommands";
 import {
   FEATURE_WALKTHROUGH_INDEX_KEY,
   WALKTHROUGH_TEST_PAGE,
 } from "./Constants.js";
+import { initLocalstorageRegistry } from "./Objects/Registry";
+import RapidMode from "./RapidMode.ts";
+import "./WorkspaceCommands";
+// Import commands.js using ES2015 syntax:
+import "./commands";
+import { addIndexedDBKey, initLocalstorage } from "./commands";
+import "./dataSourceCommands";
+import "./gitSync";
+import "./queryCommands";
+import "./themeCommands";
+import "./widgetCommands";
+
 const registerCypressGrep = require("@cypress/grep");
 /// <reference types="cypress-xpath" />
 

@@ -1,17 +1,17 @@
-import type { Server, Def } from "tern";
-import tern from "tern";
-import type { CallbackFn } from "utils/autocomplete/types";
-import { TernWorkerAction } from "utils/autocomplete/types";
-import ecma from "constants/defs/ecmascript.json";
-import lodash from "constants/defs/lodash.json";
 import base64 from "constants/defs/base64-js.json";
-import moment from "constants/defs/moment.json";
-import forge from "constants/defs/forge.json";
 import browser from "constants/defs/browser.json";
+import ecma from "constants/defs/ecmascript.json";
+import forge from "constants/defs/forge.json";
+import lodash from "constants/defs/lodash.json";
+import moment from "constants/defs/moment.json";
 import {
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
 } from "ee/utils/autocomplete/EntityDefinitions";
+import type { Def, Server } from "tern";
+import tern from "tern";
+import type { CallbackFn } from "utils/autocomplete/types";
+import { TernWorkerAction } from "utils/autocomplete/types";
 
 let server: Server;
 

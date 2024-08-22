@@ -1,5 +1,6 @@
-const explorer = require("../../../../locators/explorerlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+
+const explorer = require("../../../../locators/explorerlocators.json");
 
 describe(
   "Disabled Widgets drag Functionality",

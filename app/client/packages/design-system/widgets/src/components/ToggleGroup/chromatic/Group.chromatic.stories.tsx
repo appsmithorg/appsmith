@@ -1,8 +1,9 @@
 import React from "react";
+
+import { StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ToggleGroup, RadioGroup, Switch, Checkbox } from "@appsmith/wds";
-import { StoryGrid } from "@design-system/storybook";
+import { Checkbox, RadioGroup, Switch, ToggleGroup } from "@appsmith/wds";
 
 const meta: Meta<typeof Switch> = {
   component: Switch,

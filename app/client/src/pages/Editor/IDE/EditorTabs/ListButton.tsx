@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+
 import type { EntityItem } from "ee/entities/IDE/constants";
+
 import {
   Button,
   Flex,
@@ -9,6 +11,7 @@ import {
   MenuTrigger,
   Text,
 } from "@appsmith/ads";
+
 import { ListIconContainer, ListTitle } from "./StyledComponents";
 
 interface Props {

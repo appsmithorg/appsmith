@@ -1,46 +1,49 @@
 import { useContext } from "react";
 import React, { useCallback } from "react";
-import type { InjectedFormProps } from "redux-form";
-import { noop } from "lodash";
-import type { Datasource } from "entities/Datasource";
-import type { Action, QueryAction, SaaSAction } from "entities/Action";
-import { useDispatch, useSelector } from "react-redux";
-import ActionSettings from "pages/Editor/ActionSettings";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "@appsmith/ads";
-import styled from "styled-components";
-import FormRow from "components/editorComponents/FormRow";
-import {
-  createMessage,
-  DEBUGGER_RESPONSE,
-  DOCUMENTATION,
-  DOCUMENTATION_TOOLTIP,
-} from "ee/constants/messages";
-import { useParams } from "react-router";
-import type { AppState } from "ee/reducers";
-import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
+
+import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { QueryEditorContext } from "./QueryEditorContext";
-import QueryDebuggerTabs from "./QueryDebuggerTabs";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
-import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import FormRender from "./FormRender";
-import QueryEditorHeader from "./QueryEditorHeader";
-import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
-import QueryResponseTab from "./QueryResponseTab";
-import DatasourceSelector from "./DatasourceSelector";
+import FormRow from "components/editorComponents/FormRow";
+import { thinScrollbar } from "constants/DefaultTheme";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import RunHistory from "ee/components/RunHistory";
+import {
+  DEBUGGER_RESPONSE,
+  DOCUMENTATION,
+  DOCUMENTATION_TOOLTIP,
+  createMessage,
+} from "ee/constants/messages";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import type { Action, QueryAction, SaaSAction } from "entities/Action";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import type { Datasource } from "entities/Datasource";
+import { noop } from "lodash";
+import ActionSettings from "pages/Editor/ActionSettings";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
+import type { InjectedFormProps } from "redux-form";
+import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
+import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "@appsmith/ads";
+
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
+import DatasourceSelector from "./DatasourceSelector";
+import FormRender from "./FormRender";
+import QueryDebuggerTabs from "./QueryDebuggerTabs";
+import { QueryEditorContext } from "./QueryEditorContext";
+import QueryEditorHeader from "./QueryEditorHeader";
+import QueryResponseTab from "./QueryResponseTab";
 
 const QueryFormContainer = styled.form`
   flex: 1;

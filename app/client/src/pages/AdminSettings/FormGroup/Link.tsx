@@ -1,9 +1,12 @@
-import { Icon } from "@blueprintjs/core";
-import { Text } from "@appsmith/ads";
-import { createMessage, LEARN_MORE } from "ee/constants/messages";
 import React from "react";
+
+import { Icon } from "@blueprintjs/core";
+import { LEARN_MORE, createMessage } from "ee/constants/messages";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
+
 import type { SettingComponentProps } from "./Common";
 
 const LinkWrapper = styled.div`

@@ -1,6 +1,7 @@
-import { ROOT_CONTAINER_WIDGET_ID } from "./constants";
 import type { NormalizedSchema } from "normalizr";
-import { schema, normalize, denormalize } from "normalizr";
+import { denormalize, normalize, schema } from "normalizr";
+
+import { ROOT_CONTAINER_WIDGET_ID } from "./constants";
 import type { FlattenedDSL, FlattenedDSLEntities, NestedDSL } from "./types";
 
 // Schema by widgetId

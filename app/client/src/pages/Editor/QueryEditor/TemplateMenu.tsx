@@ -1,9 +1,10 @@
 import React from "react";
-import styled from "styled-components";
-import { connect } from "react-redux";
+
 import type { AppState } from "ee/reducers";
 import { getPluginTemplates } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { connect } from "react-redux";
+import styled from "styled-components";
 
 const Container = styled.div`
   display: flex;

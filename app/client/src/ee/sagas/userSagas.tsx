@@ -1,25 +1,26 @@
-export * from "ce/sagas/userSagas";
 import {
   createUserSaga,
-  getCurrentUserSaga,
-  runUserSideEffectsSaga,
-  forgotPasswordSaga,
-  resetPasswordSaga,
-  verifyResetPasswordTokenSaga,
-  inviteUsers,
-  logoutSaga,
-  verifyUserInviteSaga,
-  invitedUserSignupSaga,
-  updateUserDetailsSaga,
-  removePhoto,
-  updatePhoto,
-  leaveWorkspaceSaga,
   fetchFeatureFlags,
-  updateFirstTimeUserOnboardingSage,
   fetchProductAlertSaga,
+  forgotPasswordSaga,
+  getCurrentUserSaga,
+  inviteUsers,
+  invitedUserSignupSaga,
+  leaveWorkspaceSaga,
+  logoutSaga,
+  removePhoto,
+  resetPasswordSaga,
+  runUserSideEffectsSaga,
+  updateFirstTimeUserOnboardingSage,
+  updatePhoto,
+  updateUserDetailsSaga,
+  verifyResetPasswordTokenSaga,
+  verifyUserInviteSaga,
 } from "ce/sagas/userSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { takeLatest, all } from "redux-saga/effects";
+import { all, takeLatest } from "redux-saga/effects";
+
+export * from "ce/sagas/userSagas";
 
 export default function* userSagas() {
   yield all([

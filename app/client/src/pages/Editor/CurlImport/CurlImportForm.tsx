@@ -1,8 +1,10 @@
 import React from "react";
-import type { InjectedFormProps } from "redux-form";
-import { reduxForm, Form, Field } from "redux-form";
-import styled from "styled-components";
+
 import { CURL_IMPORT_FORM } from "ee/constants/forms";
+import type { InjectedFormProps } from "redux-form";
+import { Field, Form, reduxForm } from "redux-form";
+import styled from "styled-components";
+
 import { type CurlImportFormValues, curlImportSubmitHandler } from "./helpers";
 
 const StyledForm = styled(Form)`

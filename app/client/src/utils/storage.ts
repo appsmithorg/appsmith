@@ -1,10 +1,11 @@
-import log from "loglevel";
-import moment from "moment";
-import localforage from "localforage";
-import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
-import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "ee/entities/IDE/constants";
+import localforage from "localforage";
+import { isNumber } from "lodash";
+import log from "loglevel";
+import moment from "moment";
+
+import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
 import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
 

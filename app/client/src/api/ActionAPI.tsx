@@ -1,16 +1,18 @@
 import type React from "react";
-import type { HttpMethod } from "api/Api";
-import API from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
-import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
-import type { AxiosPromise, CancelTokenSource } from "axios";
-import axios from "axios";
-import type { Action, ActionViewMode } from "entities/Action";
-import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
+
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
+import type { HttpMethod } from "api/Api";
+import API from "api/Api";
+import type { AxiosPromise, CancelTokenSource } from "axios";
+import axios from "axios";
+import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { Action, ActionViewMode } from "entities/Action";
+
+import type { ApiResponse } from "./ApiResponses";
 
 export interface Property {
   key: string;

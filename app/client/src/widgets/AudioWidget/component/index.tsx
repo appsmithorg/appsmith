@@ -1,9 +1,9 @@
-import ReactPlayer from "react-player";
 import type { Ref } from "react";
 import React from "react";
-import styled from "styled-components";
 
-import { createMessage, ENTER_AUDIO_URL } from "ee/constants/messages";
+import { ENTER_AUDIO_URL, createMessage } from "ee/constants/messages";
+import ReactPlayer from "react-player";
+import styled from "styled-components";
 
 export interface AudioComponentProps {
   url?: string;

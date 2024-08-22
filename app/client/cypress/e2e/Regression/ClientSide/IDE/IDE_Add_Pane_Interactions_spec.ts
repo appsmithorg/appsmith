@@ -1,11 +1,11 @@
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import EditorNavigation, {
   EditorViewMode,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import FileTabs from "../../../../support/Pages/IDE/FileTabs";
 import AddView from "../../../../support/Pages/IDE/AddView";
+import FileTabs from "../../../../support/Pages/IDE/FileTabs";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const commonLocators = ObjectsRegistry.CommonLocators;

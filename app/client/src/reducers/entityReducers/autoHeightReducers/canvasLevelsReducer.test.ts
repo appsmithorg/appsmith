@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+
 import reducer from "./canvasLevelsReducer";
 
 describe("Canvas Levels Reducer", () => {

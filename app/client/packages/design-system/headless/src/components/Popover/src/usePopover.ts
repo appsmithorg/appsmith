@@ -1,5 +1,5 @@
-import type { UseFloatingOptions } from "@floating-ui/react/src/types";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
+
 import {
   autoUpdate,
   flip,
@@ -10,6 +10,7 @@ import {
   useInteractions,
   useRole,
 } from "@floating-ui/react";
+import type { UseFloatingOptions } from "@floating-ui/react/src/types";
 
 import type { PopoverProps } from "./types";
 

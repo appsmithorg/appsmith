@@ -1,16 +1,16 @@
-import type { AppState } from "ee/reducers";
+import React, { Component } from "react";
+
 import * as Sentry from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import type { Indices } from "constants/Layers";
-import { Button } from "@appsmith/ads";
+import type { AppState } from "ee/reducers";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import _, { toString as lodashToString } from "lodash";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import type { Placement } from "popper.js";
-import React, { Component } from "react";
 import { connect } from "react-redux";
 import {
   getDataTreeForAutocomplete,
@@ -32,6 +32,9 @@ import {
   isColumnTypeEditable,
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
+
+import { Button } from "@appsmith/ads";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 

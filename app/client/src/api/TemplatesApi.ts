@@ -1,12 +1,13 @@
-import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
+import type { AxiosPromise } from "axios";
 import type { WidgetType } from "constants/WidgetConstants";
 import type {
-  ApplicationResponsePayload,
   ApplicationPagePayload,
+  ApplicationResponsePayload,
 } from "ee/api/ApplicationApi";
 import type { Datasource } from "entities/Datasource";
+
+import type { ApiResponse } from "./ApiResponses";
 
 export interface Template {
   id: string;

@@ -1,6 +1,7 @@
+import React from "react";
+
 import { showSignpostingModal } from "actions/onboardingActions";
 import { Layers } from "constants/Layers";
-import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getIsFirstTimeUserOnboardingEnabled,

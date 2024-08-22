@@ -1,14 +1,16 @@
 import React from "react";
-import { useDispatch } from "react-redux";
+
 import { Tooltip } from "@blueprintjs/core";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { HelpMap } from "constants/HelpConstants";
 import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
 } from "actions/helpActions";
+import { Colors } from "constants/Colors";
+import { HelpMap } from "constants/HelpConstants";
 import type { WidgetType } from "constants/WidgetConstants";
+import { useDispatch } from "react-redux";
+import styled from "styled-components";
+
 import { Icon } from "@appsmith/ads";
 
 const StyledHelpIcon = styled.div`

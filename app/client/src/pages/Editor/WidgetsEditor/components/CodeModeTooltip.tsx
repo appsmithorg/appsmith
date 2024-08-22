@@ -1,12 +1,14 @@
-import { Tooltip } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
-import { modText } from "utils/helpers";
+
+import { CANVAS_VIEW_MODE_TOOLTIP, createMessage } from "ee/constants/messages";
+import { EditorState } from "ee/entities/IDE/constants";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { useSelector } from "react-redux";
 import { getWidgetSelectionBlock } from "selectors/ui";
+import { modText } from "utils/helpers";
 import { retrieveCodeWidgetNavigationUsed } from "utils/storage";
-import { CANVAS_VIEW_MODE_TOOLTIP, createMessage } from "ee/constants/messages";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { EditorState } from "ee/entities/IDE/constants";
+
+import { Tooltip } from "@appsmith/ads";
 
 /**
  * CodeModeTooltip

@@ -1,16 +1,17 @@
-import React, { useRef, useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import LabelWithTooltip from "widgets/components/LabelWithTooltip";
-import type { LabelPosition } from "components/constants";
 import type { Alignment } from "@blueprintjs/core";
+import type { LabelPosition } from "components/constants";
 import type { TextSize } from "constants/WidgetConstants";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+
+import { useMove } from "../use-move";
 import type { SliderSizes } from "../utils";
 import { getChangeValue, getPosition, getSliderStyles } from "../utils";
-import { useMove } from "../use-move";
 import { SliderContainer } from "./Container";
 import { SliderRoot } from "./SilderRoot";
-import { Track } from "./Track";
 import { Thumb } from "./Thumb";
+import { Track } from "./Track";
 
 export interface SliderComponentProps
   extends Omit<

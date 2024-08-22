@@ -1,5 +1,6 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import React, { createContext, useMemo } from "react";
+
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 interface SaveActionNameParams {
   id: string;

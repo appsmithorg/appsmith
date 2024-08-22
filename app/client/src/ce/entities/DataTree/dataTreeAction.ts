@@ -1,14 +1,14 @@
-import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type {
+  ActionEntity,
+  ActionEntityConfig,
+} from "ee/entities/DataTree/types";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,
 } from "entities/Action/actionProperties";
-import type {
-  ActionEntity,
-  ActionEntityConfig,
-} from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 
 export const generateDataTreeAction = (
   action: ActionData,

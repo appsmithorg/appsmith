@@ -1,15 +1,15 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const themelocator = require("../../../../locators/ThemeLocators.json");
-
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  deployMode,
   appSettings,
-  theme,
+  deployMode,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  theme,
 } from "../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../locators/commonlocators.json");
+const themelocator = require("../../../../locators/ThemeLocators.json");
 
 let themeFont;
 

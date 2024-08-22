@@ -1,7 +1,7 @@
+import type { ApiResponse } from "api/ApiResponses";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { AppTheme } from "entities/AppTheming";
 import type { AppThemingMode } from "selectors/appThemingSelectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { ApiResponse } from "api/ApiResponses";
 
 /**
  * ----------------------------------------------------------------------------

@@ -1,16 +1,19 @@
 import React from "react";
-import Container from "./Container";
+
+import { AUTH_LOGIN_URL } from "constants/routes";
 import {
-  createMessage,
-  VERIFICATION_PENDING_NO_EMAIL,
   VERIFICATION_PENDING_NOT_YOU,
+  VERIFICATION_PENDING_NO_EMAIL,
   VERIFICATION_PENDING_RESEND_LINK,
   VERIFICATION_PENDING_TITLE,
+  createMessage,
 } from "ee/constants/messages";
 import type { RouteComponentProps } from "react-router-dom";
-import { Button, Callout, Link, Text } from "@appsmith/ads";
 import styled from "styled-components";
-import { AUTH_LOGIN_URL } from "constants/routes";
+
+import { Button, Callout, Link, Text } from "@appsmith/ads";
+
+import Container from "./Container";
 import { useResendEmailVerification } from "./helpers";
 
 const Body = styled.div`

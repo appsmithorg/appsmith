@@ -1,18 +1,20 @@
 import React from "react";
+
+import "@testing-library/jest-dom/extend-expect";
 import { queryByText, render } from "@testing-library/react";
-import JSResponseView from "./JSResponseView";
-import * as actionExecutionUtils from "ee/utils/actionExecutionUtils";
-import configureStore from "redux-mock-store";
-import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
-import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
-import { lightTheme } from "selectors/themeSelectors";
-import { BrowserRouter as Router } from "react-router-dom";
+import { EMPTY_RESPONSE_LAST_HALF } from "ee/constants/messages";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import * as actionExecutionUtils from "ee/utils/actionExecutionUtils";
 import { PluginType } from "entities/Action";
-import "@testing-library/jest-dom/extend-expect";
-import { EMPTY_RESPONSE_LAST_HALF } from "ee/constants/messages";
+import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
+import { Provider } from "react-redux";
+import { BrowserRouter as Router } from "react-router-dom";
+import configureStore from "redux-mock-store";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+
+import JSResponseView from "./JSResponseView";
 
 jest.mock("ee/utils/actionExecutionUtils");
 

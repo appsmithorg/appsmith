@@ -1,14 +1,16 @@
 import React from "react";
+
 import {
   Popover,
   PopoverInteractionKind,
   PopoverPosition,
 } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import { ControlIcons } from "icons/ControlIcons";
+import styled from "styled-components";
+
 import type { VideoComponentProps } from "./";
 import VideoComponent from "./";
-import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
 
 const PlayIcon = styled(ControlIcons.PLAY_VIDEO)`
   position: relative;

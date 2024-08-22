@@ -1,4 +1,5 @@
-import { uniq, without, isNaN } from "lodash";
+import { isNaN, uniq, without } from "lodash";
+
 import type { ColumnProperties } from "./Constants";
 
 const removeSpecialChars = (value: string, limit?: number) => {

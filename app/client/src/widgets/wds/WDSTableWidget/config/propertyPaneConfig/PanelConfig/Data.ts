@@ -1,10 +1,14 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import {
   ColumnTypes,
   DateInputFormat,
 } from "widgets/wds/WDSTableWidget/constants";
-import { get } from "lodash";
+
 import {
   getBasePropertyPath,
   hideByColumnType,
@@ -14,9 +18,6 @@ import {
   updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
 } from "../../../widget/propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 
 export default {
   sectionName: "Data",

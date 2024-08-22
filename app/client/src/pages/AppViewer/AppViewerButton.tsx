@@ -4,12 +4,14 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import styled from "styled-components";
 import { StyledButton as Button } from "widgets/ButtonWidget/component";
+
+import { getTypographyByKey } from "@appsmith/ads-old";
+
 import {
   getMenuItemBackgroundColorOnHover,
   getMenuItemTextColor,
   getSignInButtonStyles,
 } from "./utils";
-import { getTypographyByKey } from "@appsmith/ads-old";
 
 const StyledButton = styled(Button)<{
   primaryColor: string;

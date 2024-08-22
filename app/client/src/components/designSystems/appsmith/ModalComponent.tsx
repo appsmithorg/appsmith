@@ -1,13 +1,14 @@
 import type { ReactNode, RefObject } from "react";
-import React, { useRef, useEffect } from "react";
-import { Overlay, Classes } from "@blueprintjs/core";
-import styled from "styled-components";
-import { getCanvasClassName } from "utils/generators";
+import React, { useEffect, useRef } from "react";
+
+import { Classes, Overlay } from "@blueprintjs/core";
 import { Layers } from "constants/Layers";
 import {
   MODAL_PORTAL_CLASSNAME,
   MODAL_PORTAL_OVERLAY_CLASSNAME,
 } from "constants/WidgetConstants";
+import styled from "styled-components";
+import { getCanvasClassName } from "utils/generators";
 
 const Container = styled.div<{
   width?: number;

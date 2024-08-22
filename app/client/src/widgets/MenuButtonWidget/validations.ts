@@ -1,4 +1,5 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
+
 import type { MenuButtonWidgetProps } from "./constants";
 
 /**

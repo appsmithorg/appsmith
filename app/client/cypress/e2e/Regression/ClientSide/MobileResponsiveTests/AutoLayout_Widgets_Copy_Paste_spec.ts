@@ -1,8 +1,8 @@
 import {
-  autoLayout,
   agHelper,
-  locators,
+  autoLayout,
   draggableWidgets,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

@@ -1,7 +1,9 @@
 import React from "react";
+
 import { animated, useSpring } from "react-spring";
-import { SPRING_CONFIG } from "./constants";
+
 import { SPRING_ANIMATION_CONFIG } from "../../constants";
+import { SPRING_CONFIG } from "./constants";
 
 interface AreaDimensions {
   /** Width in pixels. */

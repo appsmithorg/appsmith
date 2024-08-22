@@ -1,6 +1,8 @@
-import { render, screen } from "test/testUtils";
 import React from "react";
+
 import "@testing-library/jest-dom";
+import { render, screen } from "test/testUtils";
+
 import { SignupSuccess } from "./SignupSuccess";
 
 const useSelector = jest.fn();

@@ -1,9 +1,9 @@
-import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { WidgetType } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
+import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 
 export const generateDragStateForAnvilLayout = ({
   layoutId,

@@ -1,8 +1,8 @@
-import { klona as clone } from "klona";
+import { HeadingIcon, HeadingThumbnail } from "appsmith-icons";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { klona as clone } from "klona";
 import { WDSParagraphWidget } from "widgets/wds/WDSParagraphWidget";
-import { HeadingIcon, HeadingThumbnail } from "appsmith-icons";
 
 class WDSHeadingWidget extends WDSParagraphWidget {
   static type = "WDS_HEADING_WIDGET";

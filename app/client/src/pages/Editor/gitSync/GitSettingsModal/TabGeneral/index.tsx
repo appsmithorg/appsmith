@@ -1,11 +1,13 @@
 import React from "react";
-import GitUserSettings from "./GitUserSettings";
-import DangerZone from "./DangerZone";
+
 import styled from "styled-components";
+
 import {
   useHasConnectToGitPermission,
   useHasManageAutoCommitPermission,
 } from "../../hooks/gitPermissionHooks";
+import DangerZone from "./DangerZone";
+import GitUserSettings from "./GitUserSettings";
 
 const Container = styled.div`
   overflow: auto;

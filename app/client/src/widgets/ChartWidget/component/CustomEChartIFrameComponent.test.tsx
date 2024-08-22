@@ -1,15 +1,15 @@
+import React from "react";
+
+import "@testing-library/jest-dom";
+import { render } from "@testing-library/react";
+
 import type { ChartComponentConnectedProps } from ".";
 import type { ChartData } from "../constants";
 import {
   DefaultEChartConfig,
-  LabelOrientation,
   DefaultFusionChartConfig,
+  LabelOrientation,
 } from "../constants";
-
-import React from "react";
-
-import { render } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
 
 const seriesData1: ChartData = {

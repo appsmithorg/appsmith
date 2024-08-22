@@ -1,5 +1,7 @@
 import React, { useContext } from "react";
+
 import ReactJson from "react-json-view";
+
 import { CustomWidgetBuilderContext } from "../..";
 
 export default function ModelVariables() {

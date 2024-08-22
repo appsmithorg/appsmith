@@ -1,5 +1,6 @@
-import { useDebouncedValue } from "@mantine/hooks";
 import React from "react";
+
+import { useDebouncedValue } from "@mantine/hooks";
 import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import type { InputTypes } from "widgets/BaseInputWidget/constants";

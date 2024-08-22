@@ -1,32 +1,35 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import Button from "./AppViewerButton";
+
+import { setPreviewModeInitAction } from "actions/editorActions";
+import { ButtonVariantTypes } from "components/constants";
+import type { NavigationSetting } from "constants/AppConstants";
 import { AUTH_LOGIN_URL } from "constants/routes";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { viewerURL } from "ee/RouteBuilder";
+import {
+  EDIT_APP,
+  FORK_APP,
+  SIGN_IN,
+  createMessage,
+} from "ee/constants/messages";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
+import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import { useHref } from "pages/Editor/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
   getCurrentBasePageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import {
-  createMessage,
-  EDIT_APP,
-  FORK_APP,
-  SIGN_IN,
-} from "ee/constants/messages";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import { viewerURL } from "ee/RouteBuilder";
-import { useHistory, useLocation } from "react-router";
-import { useHref } from "pages/Editor/utils";
-import type { NavigationSetting } from "constants/AppConstants";
-import { Icon, Tooltip } from "@appsmith/ads";
-import { getApplicationNameTextColor } from "./utils";
-import { ButtonVariantTypes } from "components/constants";
-import { setPreviewModeInitAction } from "actions/editorActions";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+
+import { Icon, Tooltip } from "@appsmith/ads";
+
+import Button from "./AppViewerButton";
+import { getApplicationNameTextColor } from "./utils";
 
 /**
  * ---------------------------------------------------------------------------------------------------

@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import {
   APPLICATION_TITLE_MAX_WIDTH,
   APPLICATION_TITLE_MAX_WIDTH_MOBILE,
@@ -7,6 +6,7 @@ import {
 import type { NavigationSetting } from "constants/AppConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import { getApplicationNameTextColor } from "pages/AppViewer/utils";
+import styled from "styled-components";
 
 export const StyledApplicationName = styled.div<{
   primaryColor: string;

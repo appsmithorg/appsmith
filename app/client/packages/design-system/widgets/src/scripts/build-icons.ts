@@ -1,9 +1,8 @@
-import path from "path";
-import fs from "fs-extra";
-import prettier from "prettier";
-import kebabCase from "lodash/kebabCase";
-
 import { icons } from "@tabler/icons-react";
+import fs from "fs-extra";
+import kebabCase from "lodash/kebabCase";
+import path from "path";
+import prettier from "prettier";
 
 let content = `export const ICONS = {`;
 

@@ -1,11 +1,12 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { COLORS } from "@appsmith/wds";
 import capitalize from "lodash/capitalize";
 import {
   ColumnTypes,
   type TableWidgetProps,
 } from "widgets/wds/WDSTableWidget/constants";
 import { showByColumnType } from "widgets/wds/WDSTableWidget/widget/propertyUtils";
+
+import { COLORS } from "@appsmith/wds";
 
 export default {
   sectionName: "Color",

@@ -1,5 +1,5 @@
-import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import type { ActionResponse } from "api/ActionAPI";
+import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
 
 export type ModuleId = string;
 export type ModuleInstanceId = string;

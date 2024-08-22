@@ -1,11 +1,11 @@
-import type { ImportBuildingBlockToApplicationResponse } from "ee/api/ApplicationApi";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getAction } from "ee/selectors/entitiesSelector";
 import { flattenDSL } from "@shared/dsl";
 import type { WidgetProps } from "@shared/dsl/src/migrate/types";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { ApiResponse } from "api/ApiResponses";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { ImportBuildingBlockToApplicationResponse } from "ee/api/ApplicationApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getAction } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";

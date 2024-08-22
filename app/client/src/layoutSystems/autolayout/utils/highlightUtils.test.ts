@@ -1,9 +1,11 @@
 import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
-  ResponsiveBehavior,
   ROW_GAP,
+  ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
+
 import { getWidgetHeight } from "./flexWidgetUtils";
 import type { VerticalHighlightsPayload } from "./highlightUtils";
 import {
@@ -11,7 +13,6 @@ import {
   generateHighlightsForAlignment,
   generateVerticalHighlights,
 } from "./highlightUtils";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
 
 describe("test HighlightUtils methods", () => {
   describe("test deriveHighlightsFromLayers method", () => {

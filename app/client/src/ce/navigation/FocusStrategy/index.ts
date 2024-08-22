@@ -1,5 +1,6 @@
 import type { IDEType } from "ee/entities/IDE/constants";
 import { IDE_TYPE } from "ee/entities/IDE/constants";
+
 import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
 import { NoIDEFocusStrategy } from "./NoIDEFocusStrategy";
 

@@ -1,6 +1,6 @@
 import {
-  extractIdentifierInfoFromCode,
   entityRefactorFromCode,
+  extractIdentifierInfoFromCode,
 } from "@shared/ast";
 
 export default class AstService {

@@ -1,24 +1,24 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { debounce } from "lodash";
 
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import {
   DefaultLayoutType,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { debounce } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationLayout,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
-import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
-import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { scrollbarWidth } from "utils/helpers";
 
-import { resolveCanvasWidth } from "./utils/resolveCanvasWidth";
 import { RESIZE_DEBOUNCE_THRESHOLD } from "./constants";
+import { resolveCanvasWidth } from "./utils/resolveCanvasWidth";
 
 interface UseCanvasWidthAutoResizeProps {
   /** Ref of the container element, used to obtain container width. */

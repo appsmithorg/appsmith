@@ -1,5 +1,5 @@
-import type { WidgetEntity } from "ee/entities/DataTree/types";
 import { applyChange } from "deep-diff";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import produce from "immer";
 import { klona } from "klona/full";
 import { range } from "lodash";

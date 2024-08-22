@@ -1,6 +1,7 @@
-import { GridDefaults } from "constants/WidgetConstants";
 import type { CSSProperties, ReactNode } from "react";
 import React from "react";
+
+import { GridDefaults } from "constants/WidgetConstants";
 import { getCanvasClassName } from "utils/generators";
 
 interface CanvasViewerWrapperProps {

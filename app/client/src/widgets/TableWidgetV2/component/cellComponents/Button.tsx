@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 
-import { ActionWrapper } from "../TableStyledWrappers";
+import styled from "styled-components";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
-import styled from "styled-components";
+
+import { ActionWrapper } from "../TableStyledWrappers";
 
 const StyledButton = styled(BaseButton)<{
   compactMode?: string;

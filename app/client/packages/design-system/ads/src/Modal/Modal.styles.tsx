@@ -1,5 +1,6 @@
+import { Close, Content, Overlay } from "@radix-ui/react-dialog";
 import styled, { keyframes } from "styled-components";
-import { Overlay, Content, Close } from "@radix-ui/react-dialog";
+
 import {
   ModalContentBodyClassName,
   ModalContentFooterClassName,

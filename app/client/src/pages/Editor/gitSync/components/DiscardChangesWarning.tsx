@@ -1,11 +1,13 @@
 import React from "react";
+
 import {
-  createMessage,
   DISCARD_CHANGES_WARNING,
   DISCARD_MESSAGE,
+  createMessage,
 } from "ee/constants/messages";
-import { Callout, Text } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Callout, Text } from "@appsmith/ads";
 
 const Container = styled.div`
   margin: 8px 0 16px;

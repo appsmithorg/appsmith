@@ -1,20 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import type { ComponentProps } from "widgets/BaseComponent";
-import { BaseButton } from "widgets/ButtonWidget/component";
-import Modal from "react-modal";
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
-import styled, { createGlobalStyle, css } from "styled-components";
-import CloseIcon from "assets/icons/ads/cross.svg";
-import { getBrowserInfo, getPlatformOS, PLATFORM_OS } from "utils/helpers";
+
 import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
-import { getCurrentApplicationLayout } from "selectors/editorSelectors";
-import { useSelector } from "react-redux";
-import log from "loglevel";
-import { Popover2 } from "@blueprintjs/popover2";
-import Interweave from "interweave";
 import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
+import { Popover2 } from "@blueprintjs/popover2";
+import type { ThemeProp } from "WidgetProvider/constants";
+import CloseIcon from "assets/icons/ads/cross.svg";
 import type {
   ButtonBorderRadius,
   ButtonPlacement,
@@ -24,12 +15,24 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import { ScannerLayout } from "../constants";
-import type { ThemeProp } from "WidgetProvider/constants";
-import { usePageVisibility } from "react-page-visibility";
-import { importSvg } from "@appsmith/ads-old";
-import { getVideoConstraints } from "widgets/utils";
+import Interweave from "interweave";
+import log from "loglevel";
 import { isMobile } from "react-device-detect";
+import Modal from "react-modal";
+import { usePageVisibility } from "react-page-visibility";
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import { useSelector } from "react-redux";
+import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+import { getCurrentApplicationLayout } from "selectors/editorSelectors";
+import styled, { createGlobalStyle, css } from "styled-components";
+import { PLATFORM_OS, getBrowserInfo, getPlatformOS } from "utils/helpers";
+import type { ComponentProps } from "widgets/BaseComponent";
+import { BaseButton } from "widgets/ButtonWidget/component";
+import { getVideoConstraints } from "widgets/utils";
+
+import { importSvg } from "@appsmith/ads-old";
+
+import { ScannerLayout } from "../constants";
 
 const CameraOfflineIcon = importSvg(
   async () => import("assets/icons/widget/camera/camera-offline.svg"),

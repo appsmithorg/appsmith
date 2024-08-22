@@ -3,6 +3,10 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
+import type { Context, ReactNode, RefObject } from "react";
+import { Component } from "react";
+
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type { EditorContextType } from "components/editorComponents/EditorContextProvider";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -17,21 +21,37 @@ import type {
 } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import type { FeatureFlag } from "ee/entities/FeatureFlag";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { Context, ReactNode, RefObject } from "react";
-import { Component } from "react";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "layoutSystems/anvil/utils/paste/types";
+import type {
+  FlexVerticalAlignment,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
+import { type CallEffect, call } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
+import store from "store";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type {
   DataTreeEvaluationProps,
   WidgetDynamicPathListProps,
 } from "utils/DynamicBindingUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { WidgetFeatures } from "utils/WidgetFeatures";
+
 import type {
   AnvilConfig,
   AutoLayoutConfig,
@@ -41,25 +61,7 @@ import type {
   WidgetDefaultProps,
   WidgetMethods,
 } from "../WidgetProvider/constants";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
-import type {
-  FlexVerticalAlignment,
-  LayoutDirection,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
-import type { FeatureFlag } from "ee/entities/FeatureFlag";
-import store from "store";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import type { WidgetFeatures } from "utils/WidgetFeatures";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type {
-  CopiedWidgetData,
-  PasteDestinationInfo,
-  PastePayload,
-} from "layoutSystems/anvil/utils/paste/types";
-import { type CallEffect, call } from "redux-saga/effects";
 
 /***
  * BaseWidget

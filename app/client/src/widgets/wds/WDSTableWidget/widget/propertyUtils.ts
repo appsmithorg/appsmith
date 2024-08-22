@@ -1,18 +1,19 @@
 import { Alignment } from "@blueprintjs/core";
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import { Colors } from "constants/Colors";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import _, { findIndex, get, isBoolean } from "lodash";
+import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+
 import type { ColumnProperties } from "../component/Constants";
 import { StickyType } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
-import _, { findIndex, get, isBoolean } from "lodash";
-import { Colors } from "constants/Colors";
 import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import type { PropertyUpdates } from "WidgetProvider/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
 
 export function totalRecordsCountValidation(
   value: unknown,

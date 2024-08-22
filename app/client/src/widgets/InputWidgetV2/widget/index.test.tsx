@@ -1,10 +1,11 @@
+import _ from "lodash";
+
 import type { InputWidgetProps } from "./index";
 import {
   defaultValueValidation,
-  minValueValidation,
   maxValueValidation,
+  minValueValidation,
 } from "./index";
-import _ from "lodash";
 
 describe("defaultValueValidation", () => {
   // TODO: Fix this the next time the file is edited

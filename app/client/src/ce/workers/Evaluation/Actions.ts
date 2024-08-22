@@ -1,23 +1,23 @@
 /* eslint-disable @typescript-eslint/ban-types */
-
-import set from "lodash/set";
+import type { EvaluationVersion } from "constants/EvalConstants";
 import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
+import {
+  getEntityFunctions,
+  getPlatformFunctions,
+} from "ee/workers/Evaluation/fns";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { EvalContext } from "workers/Evaluation/evaluate";
-import type { EvaluationVersion } from "constants/EvalConstants";
-import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import {
-  getEntityFunctions,
-  getPlatformFunctions,
-} from "ee/workers/Evaluation/fns";
-import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
 import { isEmpty } from "lodash";
+import set from "lodash/set";
+import type { EvalContext } from "workers/Evaluation/evaluate";
+import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
+import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import setters from "workers/Evaluation/setters";
+
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in

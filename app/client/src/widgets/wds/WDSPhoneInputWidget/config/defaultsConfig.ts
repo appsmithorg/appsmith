@@ -1,6 +1,6 @@
-import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 
 import { getDefaultISDCode } from "../constants";
 

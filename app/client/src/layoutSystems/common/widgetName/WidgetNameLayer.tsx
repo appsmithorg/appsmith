@@ -1,5 +1,7 @@
-import WidgetNameComponent from "layoutSystems/common/widgetName";
 import React from "react";
+
+import WidgetNameComponent from "layoutSystems/common/widgetName";
+
 import { getErrorCount } from "./utils";
 
 interface WidgetNameLayerProps {

@@ -1,9 +1,9 @@
+import {
+  BUTTON_WIDGET_DEFAULT_LABEL,
+  createMessage,
+} from "ee/constants/messages";
 import { generateReactKey } from "utils/generators";
 
-import {
-  createMessage,
-  BUTTON_WIDGET_DEFAULT_LABEL,
-} from "ee/constants/messages";
 import ButtonListControl from "./ButtonListControl";
 
 class ToolbarButtonListControl extends ButtonListControl {

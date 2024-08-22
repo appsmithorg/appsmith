@@ -1,9 +1,9 @@
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import equal from "fast-deep-equal/es6";
 import { difference, isEmpty } from "lodash";
 import log from "loglevel";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+
 import type { MetaInternalFieldState } from ".";
 import type {
   FieldState,

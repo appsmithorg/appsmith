@@ -1,13 +1,16 @@
-import styled from "styled-components";
 import React from "react";
-import { Button, Text } from "@appsmith/ads";
-import type { FooterProps } from "./types";
+
 import {
   AVAILABLE_ON_BUSINESS,
   AVAILABLE_ON_ENTERPRISE,
-  createMessage,
   UPGRADE,
+  createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
+
+import { Button, Text } from "@appsmith/ads";
+
+import type { FooterProps } from "./types";
 
 const FooterContainer = styled.div`
   position: absolute;

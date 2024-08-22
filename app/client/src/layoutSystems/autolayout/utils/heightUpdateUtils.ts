@@ -1,9 +1,10 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+
 import {
   getBottomRow,
   getTopRow,

@@ -1,7 +1,7 @@
 import React from "react";
-import styled from "styled-components";
 
 import NoDataImage from "assets/images/no_data.png";
+import styled from "styled-components";
 
 const TableColumnEmptyWrapper = styled.div`
   display: flex;

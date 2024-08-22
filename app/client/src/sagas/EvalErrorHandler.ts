@@ -1,35 +1,36 @@
-import type { Log } from "entities/AppsmithConsole";
+import * as Sentry from "@sentry/react";
 import {
-  getModuleInstanceInvalidErrors,
+  ERROR_EVAL_ERROR_GENERIC,
+  JS_OBJECT_BODY_INVALID,
+  VALUE_IS_INVALID,
+  createMessage,
+} from "ee/constants/messages";
+import {
   type ENTITY_TYPE,
+  getModuleInstanceInvalidErrors,
 } from "ee/entities/AppsmithConsole/utils";
-import { Severity } from "entities/AppsmithConsole";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
 import {
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
-import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { get } from "lodash";
+import type { Log } from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { get } from "lodash";
+import log from "loglevel";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
-import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  createMessage,
-  ERROR_EVAL_ERROR_GENERIC,
-  JS_OBJECT_BODY_INVALID,
-  VALUE_IS_INVALID,
-} from "ee/constants/messages";
-import log from "loglevel";
-import type { AppState } from "ee/reducers";
+import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
+import { EvalErrorTypes, getEvalErrorPath } from "utils/DynamicBindingUtils";
+
 import { toast } from "@appsmith/ads";
-import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
-import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 

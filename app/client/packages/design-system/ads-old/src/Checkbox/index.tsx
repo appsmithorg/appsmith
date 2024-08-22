@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+
 import styled from "styled-components";
-import type { CommonComponentProps } from "../types/common";
-import { Classes, replayHighlightClass } from "../constants/classes";
+
 import Text, { TextType } from "../Text";
+import { Classes, replayHighlightClass } from "../constants/classes";
+import type { CommonComponentProps } from "../types/common";
 
 export enum CheckboxType {
   PRIMARY = "PRIMARY",

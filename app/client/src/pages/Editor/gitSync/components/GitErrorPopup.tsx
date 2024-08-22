@@ -1,22 +1,24 @@
 import React from "react";
-import styled from "styled-components";
-import { Overlay, Classes } from "@blueprintjs/core";
-import { useDispatch, useSelector } from "react-redux";
+
+import { Classes, Overlay } from "@blueprintjs/core";
 import { setIsGitErrorPopupVisible } from "actions/gitSyncActions";
+import { Colors } from "constants/Colors";
+import {
+  CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
+  createMessage,
+} from "ee/constants/messages";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
-import {
-  createMessage,
-  CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
-} from "ee/constants/messages";
-import { Space } from "./StyledComponents";
-import { Colors } from "constants/Colors";
+import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
 
 import ConflictInfo from "../components/ConflictInfo";
-import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
-import { Button } from "@appsmith/ads";
+import { Space } from "./StyledComponents";
 
 const StyledGitErrorPopup = styled.div`
   & {

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+
 import scrollIntoView from "scroll-into-view-if-needed";
 
 interface MenuItemContainerProps {

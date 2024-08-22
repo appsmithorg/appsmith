@@ -1,11 +1,13 @@
+import React from "react";
+
 import type { WidgetCallout } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
-import React from "react";
 import styled from "styled-components";
+
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import type { IconType } from "../component";

@@ -1,6 +1,7 @@
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getBaseUrlsForIDEType, getIDETypeByUrl } from "../entities/IDE/utils";
 import { matchPath } from "react-router";
+
+import { getBaseUrlsForIDEType, getIDETypeByUrl } from "../entities/IDE/utils";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const entityInfo = identifyEntityFromPath(path);

@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { FONT_METRICS, TYPOGRAPHY_VARIANTS } from "../../token";
-import { calculateScales } from "./calculateScales";
+
 import { createStyleObject } from "@capsizecss/core";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 
+import { FONT_METRICS, TYPOGRAPHY_VARIANTS } from "../../token";
 import type {
   FontFamily,
+  TokenScaleConfig,
   Typography,
   TypographyVariantMetric,
-  TokenScaleConfig,
 } from "../../token";
+import { calculateScales } from "./calculateScales";
 
 const getFontMetrics = (fontFamily?: FontFamily) => {
   return !Boolean(fontFamily) ||

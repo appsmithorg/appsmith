@@ -1,12 +1,13 @@
-import store from "store";
 import React from "react";
-import { ThemeProvider } from "styled-components";
-import { Provider } from "react-redux";
-import { render, screen } from "@testing-library/react";
 
-import EvaluatedValuePopup from "./EvaluatedValuePopup";
+import { render, screen } from "@testing-library/react";
 import { theme } from "constants/DefaultTheme";
+import { Provider } from "react-redux";
+import store from "store";
+import { ThemeProvider } from "styled-components";
+
 import { EditorTheme } from "./EditorConfig";
+import EvaluatedValuePopup from "./EvaluatedValuePopup";
 
 describe("EvaluatedValuePopup", () => {
   it("should render evaluated popup when hideEvaluatedValue is false", () => {

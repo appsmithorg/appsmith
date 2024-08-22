@@ -1,24 +1,26 @@
 import type { PropsWithChildren } from "react";
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
-import type { ComponentProps } from "widgets/BaseComponent";
+
 import type { Alignment } from "@blueprintjs/core";
-import { MenuItem, Button, ControlGroup, Classes } from "@blueprintjs/core";
-import type { DropdownOption } from "../constants";
+import { Button, Classes, ControlGroup, MenuItem } from "@blueprintjs/core";
 import type { IItemRendererProps } from "@blueprintjs/select";
 import { Select } from "@blueprintjs/select";
-import _ from "lodash";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
-import { BlueprintCSSTransform } from "constants/DefaultTheme";
+import { Icon } from "@design-system/widgets-old";
+import type { LabelPosition } from "components/constants";
 import { Colors } from "constants/Colors";
+import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import type { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
+import _ from "lodash";
+import styled, { createGlobalStyle } from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import type { LabelPosition } from "components/constants";
-import { Icon } from "@design-system/widgets-old";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";
+
+import type { DropdownOption } from "../constants";
 
 const FUSE_OPTIONS = {
   shouldSort: true,

@@ -1,6 +1,8 @@
 import React from "react";
-import { Tab, Tabs, TabsList } from "@appsmith/ads";
+
 import styled from "styled-components";
+
+import { Tab, Tabs, TabsList } from "@appsmith/ads";
 
 interface Props {
   activeTabKey: string;

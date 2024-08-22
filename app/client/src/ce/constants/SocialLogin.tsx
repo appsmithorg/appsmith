@@ -1,7 +1,7 @@
-import { GoogleOAuthURL, GithubOAuthURL } from "ee/constants/ApiConstants";
-
 import GithubLogo from "assets/images/Github.png";
 import GoogleLogo from "assets/images/Google.png";
+import { GithubOAuthURL, GoogleOAuthURL } from "ee/constants/ApiConstants";
+
 export interface SocialLoginButtonProps {
   url: string;
   name: string;

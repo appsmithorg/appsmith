@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import styles from "./styles.module.css";
-import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
-import type { ContentProps } from "../../CodeEditors/types";
+
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
+
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
+
+import type { ContentProps } from "../../CodeEditors/types";
+import styles from "./styles.module.css";
 
 interface Props {
   tabs: Array<{

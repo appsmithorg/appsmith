@@ -1,5 +1,6 @@
-import { ObjectsRegistry } from "../Objects/Registry";
 import localForage from "localforage";
+
+import { ObjectsRegistry } from "../Objects/Registry";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
 

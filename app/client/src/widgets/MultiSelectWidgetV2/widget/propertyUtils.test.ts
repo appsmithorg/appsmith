@@ -3,13 +3,14 @@ import { set } from "lodash";
 import _ from "lodash";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import type { MultiSelectWidgetProps } from ".";
 import {
-  labelKeyValidation,
   getLabelValueAdditionalAutocompleteData,
   getLabelValueKeyOptions,
+  labelKeyValidation,
   valueKeyValidation,
 } from "./propertyUtils";
-import type { MultiSelectWidgetProps } from ".";
 import { defaultOptionValueValidation } from "./propertyUtils";
 
 const props = {

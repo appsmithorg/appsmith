@@ -1,22 +1,23 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import DividerComponent from "../component";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import type { SetterConfig } from "entities/AppTheming";
 import { Colors } from "constants/Colors";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig } from "entities/AppTheming";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import DividerComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
   static type = "DIVIDER_WIDGET";

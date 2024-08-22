@@ -1,13 +1,14 @@
-import {
-  all,
-  call,
-  put,
-  select,
-  take,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
+import type { OtlpSpan } from "UITelemetry/generateTraces";
+import {
+  endSpan,
+  setAttributesToSpan,
+  startRootSpan,
+} from "UITelemetry/generateTraces";
+import { FileDataTypes } from "WidgetProvider/constants";
+import { softRefreshDatasourceStructure } from "actions/datasourceActions";
+import { hideDebuggerErrors } from "actions/debuggerActions";
+import { fetchPageAction } from "actions/pageActions";
 import type { updateActionDataPayloadType } from "actions/pluginActionActions";
 import { executePageLoadActions } from "actions/pluginActionActions";
 import {
@@ -20,16 +21,9 @@ import {
   updateActionData,
 } from "actions/pluginActionActions";
 import {
-  handleExecuteJSFunctionSaga,
-  makeUpdateJSCollection,
-} from "sagas/JSPaneSagas";
-
-import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+  changeQuery,
+  setQueryPaneDebuggerState,
+} from "actions/queryPaneActions";
 import type {
   ActionExecutionResponse,
   ActionResponse,
@@ -37,6 +31,51 @@ import type {
   PaginationField,
 } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
+import type { Plugin } from "api/PluginApi";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
+import type {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
+  RESP_HEADER_DATATYPE,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
+import {
+  API_EDITOR_BASE_PATH,
+  API_EDITOR_ID_PATH,
+  API_EDITOR_PATH_WITH_SELECTED_PAGE_ID,
+  INTEGRATION_EDITOR_PATH,
+  QUERIES_EDITOR_BASE_PATH,
+  QUERIES_EDITOR_ID_PATH,
+  matchQueryBuilderPath,
+} from "constants/routes";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import {
+  ACTION_EXECUTION_CANCELLED,
+  ACTION_EXECUTION_FAILED,
+  ERROR_ACTION_EXECUTE_FAIL,
+  ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
+  ERROR_PLUGIN_ACTION_EXECUTE,
+  SWITCH_ENVIRONMENT_SUCCESS,
+  createMessage,
+} from "ee/constants/messages";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
+import { matchBasePath } from "ee/pages/Editor/Explorer/helpers";
+import type { AppState } from "ee/reducers";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import {
+  getAppMode,
+  getCurrentApplication,
+} from "ee/selectors/applicationSelectors";
 import {
   getAction,
   getCurrentActions,
@@ -47,11 +86,31 @@ import {
   isActionDirty,
   isActionSaving,
 } from "ee/selectors/entitiesSelector";
-import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
-  getAppMode,
-  getCurrentApplication,
-} from "ee/selectors/applicationSelectors";
+  getCurrentEnvironmentDetails,
+  getCurrentEnvironmentName,
+} from "ee/selectors/environmentSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import {
+  getActionExecutionAnalytics,
+  getActionProperties,
+  getJSActionPathNameToDisplay,
+  getPluginActionNameToDisplay,
+} from "ee/utils/actionExecutionUtils";
+import { getIsActionCreatedInApp } from "ee/utils/getIsActionCreatedInApp";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
+import {
+  findDatatype,
+  isTrueObject,
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { Action } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
+import { PluginType } from "entities/Action";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { Datasource } from "entities/Datasource";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
   find,
   flatten,
@@ -64,34 +123,37 @@ import {
   set,
   unset,
 } from "lodash";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
+import * as log from "loglevel";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import { matchPath } from "react-router";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import {
+  all,
+  call,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import {
+  ActionValidationError,
+  PluginActionExecutionError,
+  PluginTriggerFailureError,
+  UserCancelledActionExecutionError,
+  getErrorAsString,
+} from "sagas/ActionExecution/errorUtils";
 import {
   extractClientDefinedErrorMetadata,
   validateResponse,
 } from "sagas/ErrorSagas";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { Action } from "entities/Action";
-import { ActionExecutionContext } from "entities/Action";
-import { PluginType } from "entities/Action";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { evalWorker, evaluateActionBindings } from "sagas/EvaluationsSaga";
 import {
-  ACTION_EXECUTION_CANCELLED,
-  ACTION_EXECUTION_FAILED,
-  createMessage,
-  ERROR_ACTION_EXECUTE_FAIL,
-  ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
-  ERROR_PLUGIN_ACTION_EXECUTE,
-  SWITCH_ENVIRONMENT_SUCCESS,
-} from "ee/constants/messages";
-import type {
-  LayoutOnLoadActionErrors,
-  PageAction,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import {
-  EventType,
-  RESP_HEADER_DATATYPE,
-} from "constants/AppsmithActionConstants/ActionConstants";
+  handleExecuteJSFunctionSaga,
+  makeUpdateJSCollection,
+} from "sagas/JSPaneSagas";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
@@ -100,79 +162,18 @@ import {
   getLayoutOnLoadActions,
   getLayoutOnLoadIssues,
 } from "selectors/editorSelectors";
-import * as log from "loglevel";
-import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
-import type { AppState } from "ee/reducers";
-import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
-import { evaluateActionBindings, evalWorker } from "sagas/EvaluationsSaga";
+import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
-import { getType, Types } from "utils/TypeHelpers";
-import { matchPath } from "react-router";
-import {
-  API_EDITOR_BASE_PATH,
-  API_EDITOR_ID_PATH,
-  API_EDITOR_PATH_WITH_SELECTED_PAGE_ID,
-  INTEGRATION_EDITOR_PATH,
-  matchQueryBuilderPath,
-  QUERIES_EDITOR_BASE_PATH,
-  QUERIES_EDITOR_ID_PATH,
-} from "constants/routes";
-import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { APP_MODE } from "entities/App";
-import { FileDataTypes } from "WidgetProvider/constants";
-import { hideDebuggerErrors } from "actions/debuggerActions";
-import {
-  ActionValidationError,
-  getErrorAsString,
-  PluginActionExecutionError,
-  PluginTriggerFailureError,
-  UserCancelledActionExecutionError,
-} from "sagas/ActionExecution/errorUtils";
+import { Types, getType } from "utils/TypeHelpers";
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
-import { requestModalConfirmationSaga } from "sagas/UtilSagas";
-import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { matchBasePath } from "ee/pages/Editor/Explorer/helpers";
-import {
-  findDatatype,
-  isTrueObject,
-} from "ee/workers/Evaluation/evaluationUtils";
-import type { Plugin } from "api/PluginApi";
-import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
-import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
-import { toast } from "@appsmith/ads";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import { handleStoreOperations } from "./StoreActionSaga";
-import { fetchPageAction } from "actions/pageActions";
-import type { Datasource } from "entities/Datasource";
-import { softRefreshDatasourceStructure } from "actions/datasourceActions";
-import {
-  changeQuery,
-  setQueryPaneDebuggerState,
-} from "actions/queryPaneActions";
-import {
-  getCurrentEnvironmentDetails,
-  getCurrentEnvironmentName,
-} from "ee/selectors/environmentSelectors";
-import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
-import { getIsActionCreatedInApp } from "ee/utils/getIsActionCreatedInApp";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
-import {
-  endSpan,
-  setAttributesToSpan,
-  startRootSpan,
-} from "UITelemetry/generateTraces";
-import {
-  getActionExecutionAnalytics,
-  getActionProperties,
-  getJSActionPathNameToDisplay,
-  getPluginActionNameToDisplay,
-} from "ee/utils/actionExecutionUtils";
-import type { JSAction, JSCollection } from "entities/JSCollection";
-import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
+
+import { toast } from "@appsmith/ads";
+
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
+import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
+import { handleStoreOperations } from "./StoreActionSaga";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

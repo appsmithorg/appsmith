@@ -1,13 +1,15 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewerCanvas";
 import React, { useCallback, useEffect, useRef } from "react";
-import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
-import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
+
+import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewerCanvas";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
+import { AnalyticsWrapper } from "../../../common/AnalyticsWrapper";
+import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
 import type { AnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
 import { useAnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
-import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
+import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
+import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { AnvilWidgetElevationProvider } from "./providers/AnvilWidgetElevationProvider";
-import { AnalyticsWrapper } from "../../../common/AnalyticsWrapper";
 
 export const AnvilDnDStatesContext = React.createContext<
   AnvilGlobalDnDStates | undefined

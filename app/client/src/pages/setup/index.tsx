@@ -1,11 +1,13 @@
 import React from "react";
-import UserWelcomeScreen from "./UserWelcomeScreen";
-import { requiresUnauth } from "pages/UserAuth/requiresAuthHOC";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
+
 import { AUTH_LOGIN_URL } from "constants/routes";
+import { requiresUnauth } from "pages/UserAuth/requiresAuthHOC";
+import { useSelector } from "react-redux";
 import { Redirect } from "react-router";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+
+import UserWelcomeScreen from "./UserWelcomeScreen";
 
 const StyledSetupContainer = styled.div`
   background-color: ${(props) => props.theme.colors.homepageBackground};

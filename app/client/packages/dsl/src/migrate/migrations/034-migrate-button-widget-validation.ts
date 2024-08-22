@@ -1,4 +1,5 @@
 import has from "lodash/has";
+
 import type { DSLWidget } from "../types";
 
 export const migrateButtonWidgetValidation = (currentDSL: DSLWidget) => {

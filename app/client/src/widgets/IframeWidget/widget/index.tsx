@@ -1,29 +1,31 @@
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import IframeComponent from "../component";
-import type { IframeWidgetProps } from "../constants";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-import { isAirgapped } from "ee/utils/airgapHelpers";
 import type {
-  SnipingModeProperty,
   PropertyUpdates,
+  SnipingModeProperty,
 } from "WidgetProvider/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import IframeComponent from "../component";
+import type { IframeWidgetProps } from "../constants";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 const isAirgappedInstance = isAirgapped();
 

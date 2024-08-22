@@ -1,6 +1,7 @@
-import { postMessageSaga, executePostMessage } from "./PostMessageSaga";
-import { spawn } from "redux-saga/effects";
 import { runSaga } from "redux-saga";
+import { spawn } from "redux-saga/effects";
+
+import { executePostMessage, postMessageSaga } from "./PostMessageSaga";
 
 describe("PostMessageSaga", () => {
   describe("postMessageSaga function", () => {

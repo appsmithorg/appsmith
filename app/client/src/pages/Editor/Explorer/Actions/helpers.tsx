@@ -1,17 +1,5 @@
 import type { ReactNode } from "react";
 import React from "react";
-import {
-  dbQueryIcon,
-  ApiMethodIcon,
-  EntityIcon,
-  ENTITY_ICON_SIZE,
-} from "../ExplorerIcons";
-import {
-  isGraphqlPlugin,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
-import { generateReactKey } from "utils/generators";
 
 import type { Plugin } from "api/PluginApi";
 import {
@@ -20,6 +8,19 @@ import {
   saasEditorApiIdURL,
 } from "ee/RouteBuilder";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import {
+  PluginPackageName,
+  PluginType,
+  isGraphqlPlugin,
+} from "entities/Action";
+import { generateReactKey } from "utils/generators";
+
+import {
+  ApiMethodIcon,
+  ENTITY_ICON_SIZE,
+  EntityIcon,
+  dbQueryIcon,
+} from "../ExplorerIcons";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed

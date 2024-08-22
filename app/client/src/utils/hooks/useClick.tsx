@@ -1,4 +1,4 @@
-import type { MutableRefObject, MouseEvent } from "react";
+import type { MouseEvent, MutableRefObject } from "react";
 import { useEffect } from "react";
 
 export default (

@@ -1,11 +1,13 @@
 import React, { memo, useMemo } from "react";
+
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import { getRenderMode } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
+
 import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
-import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 
 // ToDo(#27615): destructure withWidgetProps to withCanvasProps by picking only necessary props of a canvas.
 

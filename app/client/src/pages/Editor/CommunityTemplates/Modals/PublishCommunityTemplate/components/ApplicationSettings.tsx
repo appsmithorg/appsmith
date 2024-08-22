@@ -1,7 +1,9 @@
-import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { Switch, Text } from "@appsmith/ads";
 import React from "react";
+
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
+
+import { Switch, Text } from "@appsmith/ads";
 
 interface Props {
   isForkable: boolean;

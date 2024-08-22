@@ -1,6 +1,7 @@
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Form Widget Functionality",

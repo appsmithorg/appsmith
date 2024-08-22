@@ -1,9 +1,10 @@
-import styled, { css } from "styled-components";
 import { ToastContainer } from "react-toastify";
-import { Text } from "../Text";
-import type { ToastProps } from "./Toast.types";
+import styled, { css } from "styled-components";
+
 import { Button } from "../Button";
+import { Text } from "../Text";
 import { ToastClassName, ToastbodyClassName } from "./Toast.constants";
+import type { ToastProps } from "./Toast.types";
 
 const Variables = css`
   // All the --toastify prefixed variables are changing tokens defined in react-toastify

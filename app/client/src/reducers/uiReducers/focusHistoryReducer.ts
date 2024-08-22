@@ -1,6 +1,6 @@
-import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export interface FocusState {
   entityInfo: FocusEntityInfo;

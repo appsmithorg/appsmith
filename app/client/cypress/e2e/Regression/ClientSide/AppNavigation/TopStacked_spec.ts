@@ -1,9 +1,9 @@
 import {
   agHelper,
+  appSettings,
   assertHelper,
   deployMode,
   homePage,
-  appSettings,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 import {

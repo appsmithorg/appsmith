@@ -1,14 +1,16 @@
 import React from "react";
-import { fireEvent, render } from "test/testUtils";
-import EditorTabs from ".";
-import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
-import { Route } from "react-router-dom";
-import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
+
 import "@testing-library/jest-dom";
-import { PageFactory } from "test/factories/PageFactory";
-import { APIFactory } from "test/factories/Actions/API";
+import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
+import { Route } from "react-router-dom";
+import { APIFactory } from "test/factories/Actions/API";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { PageFactory } from "test/factories/PageFactory";
+import { fireEvent, render } from "test/testUtils";
+
+import EditorTabs from ".";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,

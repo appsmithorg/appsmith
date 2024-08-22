@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { isObject, isUndefined } from "lodash";
 import flow from "lodash/flow";
-import type { DSLWidget } from "../types";
-import log from "loglevel";
 import get from "lodash/get";
 import isString from "lodash/isString";
+import log from "loglevel";
 import memoize from "micro-memoize";
-import { isObject, isUndefined } from "lodash";
-import { generateReactKey, isDynamicValue } from "../utils";
+
 import widgetConfigs from "../helpers/widget-configs.json";
+import type { DSLWidget } from "../types";
+import { generateReactKey, isDynamicValue } from "../utils";
 
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,

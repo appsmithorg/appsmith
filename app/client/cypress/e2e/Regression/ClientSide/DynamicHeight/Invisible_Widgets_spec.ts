@@ -1,8 +1,8 @@
 import {
-  locators,
   agHelper,
   deployMode,
   draggableWidgets,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

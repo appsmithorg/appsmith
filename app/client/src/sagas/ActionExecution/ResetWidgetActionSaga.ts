@@ -1,16 +1,15 @@
-import { put, select, take } from "redux-saga/effects";
-import { getWidgetByName } from "sagas/selectors";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { resetWidgetMetaUpdates } from "actions/metaActions";
-
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { put, select, take } from "redux-saga/effects";
 import {
   ActionValidationError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
-import { getType, Types } from "utils/TypeHelpers";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
+import { getWidgetByName } from "sagas/selectors";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { Types, getType } from "utils/TypeHelpers";
+import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 
 export default function* resetWidgetActionSaga(
   action: TResetWidgetDescription,

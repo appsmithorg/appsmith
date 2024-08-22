@@ -1,21 +1,21 @@
-import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import type { DefaultPlugin, Plugin } from "api/PluginApi";
 import type {
+  GetPluginFormConfigRequest,
   PluginFormPayloadWithId,
   PluginFormsPayload,
-  GetPluginFormConfigRequest,
 } from "actions/pluginActions";
+import type { DefaultPlugin, Plugin } from "api/PluginApi";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import type {
+  FormDatasourceButtonConfigs,
+  FormDependencyConfigs,
   FormEditorConfigs,
   FormSettingsConfigs,
-  FormDependencyConfigs,
-  FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
+import { createReducer } from "utils/ReducerUtils";
 
 export interface PluginDataState {
   list: Plugin[];

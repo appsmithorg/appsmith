@@ -1,22 +1,23 @@
 import React from "react";
 
+import type { StoryObj } from "@storybook/react";
+
+import { Button } from "../Button";
+import { Text } from "../Text";
+import { Tooltip } from "../Tooltip";
 import {
   Menu,
   MenuContent,
+  MenuGroup,
+  MenuGroupName,
   MenuItem,
+  MenuSeparator,
   MenuSub,
   MenuSubContent,
   MenuSubTrigger,
   MenuTrigger,
-  MenuSeparator,
-  MenuGroup,
-  MenuGroupName,
 } from "./Menu";
-import { Button } from "../Button";
-import { Text } from "../Text";
-import { Tooltip } from "../Tooltip";
 import type { MenuProps } from "./Menu.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Menu",

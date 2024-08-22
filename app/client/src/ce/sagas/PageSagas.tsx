@@ -1,9 +1,16 @@
-import type { AppState } from "ee/reducers";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import * as Sentry from "@sentry/react";
+import { LATEST_DSL_VERSION, flattenDSL, nestDSL } from "@shared/dsl";
+import type { DSLWidget } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
+import { setCrudInfoModalData } from "actions/crudInfoModalActions";
+import { setPreviewModeAction } from "actions/editorActions";
 import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+  fetchJSCollectionsForPage,
+  fetchJSCollectionsForPageError,
+  fetchJSCollectionsForPageSuccess,
+} from "actions/jsActionActions";
 import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
@@ -41,6 +48,16 @@ import {
   updatePageSuccess,
   updateWidgetNameSuccess,
 } from "actions/pageActions";
+import {
+  executePageLoadActions,
+  fetchActionsForPage,
+  fetchActionsForPageError,
+  fetchActionsForPageSuccess,
+  setActionsToExecuteOnPageLoad,
+  setJSActionsToExecuteOnPageLoad,
+} from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { ApiResponse } from "api/ApiResponses";
 import type {
   FetchPageRequest,
   FetchPageResponse,
@@ -56,14 +73,47 @@ import type {
   UpdateWidgetNameResponse,
 } from "api/PageApi";
 import PageApi from "api/PageApi";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { builderURL } from "ee/RouteBuilder";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { getPageList } from "ee/selectors/entitiesSelector";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { ActionExecutionContext } from "entities/Action";
+import { APP_MODE } from "entities/App";
+import type { Page } from "entities/Page";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import log from "loglevel";
+import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, take } from "redux-saga/effects";
-import history from "utils/history";
-import { isNameValid } from "utils/helpers";
-import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
+import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  checkAndLogErrorsIfCyclicDependency,
+  getFromServerWhenNoPrefetchedResult,
+} from "sagas/helper";
 import {
   getAllPageIdentities,
   getDefaultBasePageId,
@@ -71,8 +121,7 @@ import {
   getEditorConfigs,
   getWidgets,
 } from "sagas/selectors";
-import { IncorrectBindingError, validateResponse } from "sagas/ErrorSagas";
-import type { ApiResponse } from "api/ApiResponses";
+import { getUsedActionNames } from "selectors/actionSelectors";
 import {
   combinedPreviewModeSelector,
   getCurrentApplicationId,
@@ -82,70 +131,21 @@ import {
   getMainCanvasProps,
   getPageById,
 } from "selectors/editorSelectors";
-import {
-  executePageLoadActions,
-  fetchActionsForPage,
-  fetchActionsForPageError,
-  fetchActionsForPageSuccess,
-  setActionsToExecuteOnPageLoad,
-  setJSActionsToExecuteOnPageLoad,
-} from "actions/pluginActionActions";
-import type { UrlDataState } from "reducers/entityReducers/appReducer";
-import { APP_MODE } from "entities/App";
-import { clearEvalCache } from "../../sagas/EvaluationsSaga";
-import { getQueryParams } from "utils/URLUtils";
-import log from "loglevel";
-import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
-import * as Sentry from "@sentry/react";
-import { ERROR_CODES } from "ee/constants/ApiConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import DEFAULT_TEMPLATE from "templates/default";
-
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { setCrudInfoModalData } from "actions/crudInfoModalActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import {
-  fetchJSCollectionsForPage,
-  fetchJSCollectionsForPageError,
-  fetchJSCollectionsForPageSuccess,
-} from "actions/jsActionActions";
-
-import WidgetFactory from "WidgetProvider/factory";
-import { builderURL } from "ee/RouteBuilder";
-import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
-import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
-import {
-  checkAndLogErrorsIfCyclicDependency,
-  getFromServerWhenNoPrefetchedResult,
-} from "sagas/helper";
-import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { getUsedActionNames } from "selectors/actionSelectors";
-import { getPageList } from "ee/selectors/entitiesSelector";
-import { setPreviewModeAction } from "actions/editorActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "@appsmith/ads";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
-import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "ee/utils/planHelpers";
-import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
-import type { DSLWidget } from "WidgetProvider/constants";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { ActionExecutionContext } from "entities/Action";
-import type { LayoutSystemTypes } from "layoutSystems/types";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
-import type { Page } from "entities/Page";
+import DEFAULT_TEMPLATE from "templates/default";
+import { getQueryParams } from "utils/URLUtils";
+import { extractCurrentDSL } from "utils/WidgetPropsUtils";
+import { isNameValid } from "utils/helpers";
+import history from "utils/history";
+import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
+import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { toast } from "@appsmith/ads";
+
+import { clearEvalCache } from "../../sagas/EvaluationsSaga";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,

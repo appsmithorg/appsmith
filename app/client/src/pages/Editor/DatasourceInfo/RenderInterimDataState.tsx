@@ -1,18 +1,21 @@
 import React from "react";
-import { Spinner, Text } from "@appsmith/ads";
+
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
-  EMPTY_TABLE_TITLE_TEXT,
   EMPTY_TABLE_MESSAGE_TEXT,
-  createMessage,
-  LOADING_RECORDS_MESSAGE_TEXT,
-  LOADING_RECORDS_TITLE_TEXT,
+  EMPTY_TABLE_TITLE_TEXT,
   FAILED_RECORDS_MESSAGE_TEXT,
   FAILED_RECORDS_TITLE_TEXT,
+  LOADING_RECORDS_MESSAGE_TEXT,
+  LOADING_RECORDS_TITLE_TEXT,
   NO_COLUMNS_MESSAGE_TEXT,
+  createMessage,
 } from "ee/constants/messages";
-import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+
+import { Spinner, Text } from "@appsmith/ads";
+
+import { MessageWrapper, SchemaStateMessageWrapper } from "./SchemaViewModeCSS";
 
 type InterimState = "LOADING" | "NODATA" | "FAILED" | "NOCOLUMNS";
 

@@ -1,4 +1,5 @@
 import { getNodesAndStylesToUpdate } from "./mutateDOM";
+
 describe("DOM mutations", () => {
   it("Computes the correct values to update based on widgetsToUpdate", () => {
     const widgetsToUpdate = {

@@ -1,6 +1,7 @@
 import { layoutConfigurations } from "constants/WidgetConstants";
-import { resolveCanvasWidth } from "./resolveCanvasWidth";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
+
+import { resolveCanvasWidth } from "./resolveCanvasWidth";
 
 const layoutTestConfigs = Object.entries(layoutConfigurations)
   .filter(([key]) => key !== "FLUID")

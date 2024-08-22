@@ -1,11 +1,13 @@
 import React from "react";
+
 import styled from "styled-components";
-import GitDefaultBranch from "./GitDefaultBranch";
-import GitProtectedBranches from "./GitProtectedBranches";
+
 import {
   useHasManageDefaultBranchPermission,
   useHasManageProtectedBranchesPermission,
 } from "../../hooks/gitPermissionHooks";
+import GitDefaultBranch from "./GitDefaultBranch";
+import GitProtectedBranches from "./GitProtectedBranches";
 
 const Container = styled.div`
   overflow: auto;

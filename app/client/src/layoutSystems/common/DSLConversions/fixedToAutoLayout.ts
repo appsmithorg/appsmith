@@ -1,27 +1,27 @@
-import { nestDSL, flattenDSL } from "@shared/dsl";
+import { flattenDSL, nestDSL } from "@shared/dsl";
+import type { DSLWidget } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   GridDefaults,
-  layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
+  layoutConfigurations,
 } from "constants/WidgetConstants";
-import { get, partition } from "lodash";
 import { alterLayoutForDesktop } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { get, partition } from "lodash";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   isDynamicValue,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import WidgetFactory from "WidgetProvider/factory";
 // import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 
 const unHandledWidgets = ["LIST_WIDGET"];
 const specialCaseWidgets = ["LIST_WIDGET_V2"];

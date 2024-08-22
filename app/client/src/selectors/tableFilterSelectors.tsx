@@ -1,7 +1,7 @@
 import type { AppState } from "ee/reducers";
+import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
 import { createSelector } from "reselect";
 
-import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 
 export const getTableFilterState = (

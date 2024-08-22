@@ -1,38 +1,41 @@
 import React, { useLayoutEffect } from "react";
-import type { AppState } from "ee/reducers";
-import type { RouteComponentProps } from "react-router-dom";
-import { withRouter } from "react-router-dom";
-import { connect } from "react-redux";
-import type { InjectedFormProps } from "redux-form";
-import { reduxForm, Field } from "redux-form";
-import { RESET_PASSWORD_FORM_NAME } from "ee/constants/forms";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
-import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, Callout, Icon, Link } from "@appsmith/ads";
-import Spinner from "components/editorComponents/Spinner";
+
 import StyledForm from "components/editorComponents/Form";
-import { isEmptyString, isStrongPassword } from "utils/formhelpers";
-import type { ResetPasswordFormValues } from "./helpers";
-import { resetPasswordSubmitHandler } from "./helpers";
-import { FormActions, StyledFormGroup } from "./StyledComponents";
+import Spinner from "components/editorComponents/Spinner";
+import FormTextField from "components/utils/ReduxFormTextField";
 import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { RESET_PASSWORD_FORM_NAME } from "ee/constants/forms";
 import {
-  RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL,
-  RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
-  RESET_PASSWORD_SUBMIT_BUTTON_TEXT,
-  RESET_PASSWORD_PAGE_TITLE,
-  FORM_VALIDATION_INVALID_PASSWORD,
   FORM_VALIDATION_EMPTY_PASSWORD,
+  FORM_VALIDATION_INVALID_PASSWORD,
   RESET_PASSWORD_EXPIRED_TOKEN,
   RESET_PASSWORD_FORGOT_PASSWORD_LINK,
   RESET_PASSWORD_INVALID_TOKEN,
+  RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL,
+  RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
+  RESET_PASSWORD_PAGE_TITLE,
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
+  RESET_PASSWORD_SUBMIT_BUTTON_TEXT,
   createMessage,
 } from "ee/constants/messages";
-import Container from "./Container";
+import type { AppState } from "ee/reducers";
+import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router-dom";
+import { withRouter } from "react-router-dom";
+import type { InjectedFormProps } from "redux-form";
+import { Field, reduxForm } from "redux-form";
+import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
+import { isEmptyString, isStrongPassword } from "utils/formhelpers";
+
+import { Button, Callout, Icon, Link } from "@appsmith/ads";
 import type { CalloutProps } from "@appsmith/ads";
+
+import Container from "./Container";
+import { FormActions, StyledFormGroup } from "./StyledComponents";
+import type { ResetPasswordFormValues } from "./helpers";
+import { resetPasswordSubmitHandler } from "./helpers";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};

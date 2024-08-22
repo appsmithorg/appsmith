@@ -1,20 +1,22 @@
 import * as React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+
 import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
 import type { ItemListRenderer, ItemRenderer } from "@blueprintjs/select";
 import { Select } from "@blueprintjs/select";
-import type { GridListProps, VirtuosoGridHandle } from "react-virtuoso";
-import { VirtuosoGrid } from "react-virtuoso";
-
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
-import { generateReactKey } from "utils/generators";
+import type { GridListProps, VirtuosoGridHandle } from "react-virtuoso";
+import { VirtuosoGrid } from "react-virtuoso";
+import styled, { createGlobalStyle } from "styled-components";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import { generateReactKey } from "utils/generators";
+
 import { Tooltip } from "@appsmith/ads";
 import { ICONS, Icon } from "@appsmith/wds";
 import type { IconProps } from "@appsmith/wds";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;

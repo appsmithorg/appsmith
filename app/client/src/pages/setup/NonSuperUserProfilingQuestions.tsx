@@ -1,25 +1,28 @@
 import React from "react";
-import { Button } from "@appsmith/ads";
+
+import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
 import {
+  WELCOME_FORM_PROFICIENCY_LEVEL,
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_NON_SUPER_FORM_NAME,
-  WELCOME_FORM_PROFICIENCY_LEVEL,
 } from "ee/constants/forms";
 import {
-  createMessage,
   WELCOME_ACTION,
-  WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
+  WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
   WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
+  createMessage,
 } from "ee/constants/messages";
-import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
+import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
+
 import { proficiencyOptions, useCaseOptions } from "./constants";
-import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
 
 const ActionContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[15]}px;

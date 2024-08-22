@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   RESET_BUTTON,
   SAVE_AND_REFRESH_BUTTON,
@@ -6,8 +7,9 @@ import {
   SAVE_BUTTON,
   createMessage,
 } from "ee/constants/messages";
-import { Button } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
 
 const SettingsButtonWrapper = styled.div`
   position: fixed;

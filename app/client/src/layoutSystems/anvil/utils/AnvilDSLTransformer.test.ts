@@ -1,5 +1,7 @@
-import { anvilDSLTransformer } from "./AnvilDSLTransformer";
 import { mainContainerProps } from "mocks/widgetProps/input";
+
+import { anvilDSLTransformer } from "./AnvilDSLTransformer";
+
 describe("Test the DSL transformer for Anvil", () => {
   it("should add a layout if it does not exist in the DSL", () => {
     // Arrange

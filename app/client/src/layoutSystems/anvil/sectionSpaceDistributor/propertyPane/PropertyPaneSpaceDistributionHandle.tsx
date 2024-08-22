@@ -1,6 +1,8 @@
-import styled from "styled-components";
-import { PropPaneDistributionHandleCustomEvent } from "../constants";
 import React from "react";
+
+import styled from "styled-components";
+
+import { PropPaneDistributionHandleCustomEvent } from "../constants";
 
 const DistributionHandle = styled.div`
   display: flex;

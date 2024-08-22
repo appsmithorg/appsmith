@@ -1,12 +1,14 @@
 import React from "react";
+
+import CrudInfoModal from "pages/Editor/GeneratePage/components/CrudInfoModal";
+
+import { LayoutSystemBasedPageViewer } from "./components/LayoutSystemBasedPageViewer";
+import { NavigationAdjustedPageViewer } from "./components/NavigationAdjustedPageViewer";
+import { WidgetEditorContentWrapper } from "./components/WidgetEditorContentWrapper";
 import {
   WidgetEditorNavigation,
   useNavigationPreviewHeight,
 } from "./components/WidgetEditorNavigation";
-import CrudInfoModal from "pages/Editor/GeneratePage/components/CrudInfoModal";
-import { WidgetEditorContentWrapper } from "./components/WidgetEditorContentWrapper";
-import { NavigationAdjustedPageViewer } from "./components/NavigationAdjustedPageViewer";
-import { LayoutSystemBasedPageViewer } from "./components/LayoutSystemBasedPageViewer";
 
 /**
  * WidgetEditorContent

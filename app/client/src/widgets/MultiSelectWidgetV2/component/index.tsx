@@ -1,32 +1,34 @@
 /* eslint-disable no-console */
 import type { ChangeEvent } from "react";
 import React, {
-  useEffect,
-  useState,
   useCallback,
-  useRef,
+  useEffect,
   useMemo,
+  useRef,
+  useState,
 } from "react";
+
+import type { Alignment } from "@blueprintjs/core";
+import { Button, Classes, InputGroup } from "@blueprintjs/core";
+import { Icon } from "@design-system/widgets-old";
+import type { LabelPosition } from "components/constants";
+import { Colors } from "constants/Colors";
+import type { RenderMode, TextSize } from "constants/WidgetConstants";
+import { uniqBy } from "lodash";
 import type { SelectProps } from "rc-select";
 import Select from "rc-select";
 import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
+import { WidgetContainerDiff, labelMargin } from "widgets/WidgetUtils";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import useDropdown from "widgets/useDropdown";
+
 import MenuItemCheckBox, {
   DropdownStyles,
-  MultiSelectContainer,
-  StyledCheckbox,
   InputContainer,
+  MultiSelectContainer,
   RTLStyles,
+  StyledCheckbox,
 } from "./index.styled";
-import type { RenderMode, TextSize } from "constants/WidgetConstants";
-import type { Alignment } from "@blueprintjs/core";
-import { Button, Classes, InputGroup } from "@blueprintjs/core";
-import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import { Colors } from "constants/Colors";
-import type { LabelPosition } from "components/constants";
-import { uniqBy } from "lodash";
-import { Icon } from "@design-system/widgets-old";
-import useDropdown from "widgets/useDropdown";
-import LabelWithTooltip from "widgets/components/LabelWithTooltip";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <MenuItemCheckBox checked={props.isSelected} />;

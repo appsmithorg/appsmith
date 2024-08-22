@@ -1,35 +1,37 @@
+import React, { useEffect } from "react";
+
 import {
   fetchBranchesInit,
   setGitSettingsModalOpenAction,
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
+import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 import {
-  GIT_CONNECT_SUCCESS_PROTECTION_MSG,
-  GIT_CONNECT_SUCCESS_TITLE,
-  GIT_CONNECT_SUCCESS_ACTION_SETTINGS,
   GIT_CONNECT_SUCCESS_ACTION_CONTINUE,
-  createMessage,
-  GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA,
+  GIT_CONNECT_SUCCESS_ACTION_SETTINGS,
   GIT_CONNECT_SUCCESS_DEFAULT_BRANCH,
-  GIT_CONNECT_SUCCESS_REPO_NAME,
   GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
+  GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA,
+  GIT_CONNECT_SUCCESS_PROTECTION_MSG,
+  GIT_CONNECT_SUCCESS_REPO_NAME,
+  GIT_CONNECT_SUCCESS_TITLE,
+  createMessage,
 } from "ee/constants/messages";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import styled from "styled-components";
+
 import {
   Button,
   Icon,
+  Link,
   ModalBody,
   ModalFooter,
   Text,
-  Link,
   Tooltip,
 } from "@appsmith/ads";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
-import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
-import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
 const TitleText = styled(Text)`
   flex: 1;

@@ -1,14 +1,14 @@
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import {
-  agHelper,
   adminSettings,
-  locators,
+  agHelper,
+  assertHelper,
   deployMode,
   homePage,
-  assertHelper,
   inviteModal,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe(

@@ -1,6 +1,7 @@
-import styled from "styled-components";
-import { Text } from "../Text";
 import { Content } from "@radix-ui/react-hover-card";
+import styled from "styled-components";
+
+import { Text } from "../Text";
 import { AnnouncementPopoverArrowClassName } from "./AnnouncementPopover.constants";
 
 export const StyledContent = styled(Content)`

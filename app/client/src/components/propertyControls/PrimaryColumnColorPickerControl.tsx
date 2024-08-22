@@ -1,12 +1,14 @@
 import React from "react";
+
+import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 import {
   combineDynamicBindings,
   getDynamicBindings,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
+
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
 class PrimaryColumnsColorPickerControl extends BaseControl<PrimaryColumnColorPickerControlProps> {
   handleChangeColor = (color: string) => {

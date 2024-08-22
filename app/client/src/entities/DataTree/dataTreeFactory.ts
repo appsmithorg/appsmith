@@ -1,29 +1,30 @@
-import { generateDataTreeAction } from "ee/entities/DataTree/dataTreeAction";
-import { generateDataTreeJSAction } from "ee/entities/DataTree/dataTreeJSAction";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import log from "loglevel";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "ee/entities/DataTree/types";
-import { generateDataTreeModuleInputs } from "ee/entities/DataTree/utils";
-import type {
-  DataTreeSeed,
-  AppsmithEntity,
-  EntityTypeValue,
-} from "ee/entities/DataTree/types";
-import type {
-  unEvalAndConfigTree,
-  ConfigTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeTypes";
-import { isEmpty } from "lodash";
-import { generateModuleInstance } from "ee/entities/DataTree/dataTreeModuleInstance";
 import {
   endSpan,
   startNestedSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
+import { generateDataTreeAction } from "ee/entities/DataTree/dataTreeAction";
+import { generateDataTreeJSAction } from "ee/entities/DataTree/dataTreeJSAction";
+import { generateModuleInstance } from "ee/entities/DataTree/dataTreeModuleInstance";
+import {
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "ee/entities/DataTree/types";
+import type {
+  AppsmithEntity,
+  DataTreeSeed,
+  EntityTypeValue,
+} from "ee/entities/DataTree/types";
+import { generateDataTreeModuleInputs } from "ee/entities/DataTree/utils";
+import type {
+  ConfigTree,
+  UnEvalTree,
+  unEvalAndConfigTree,
+} from "entities/DataTree/dataTreeTypes";
+import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import { isEmpty } from "lodash";
+import log from "loglevel";
+
 export class DataTreeFactory {
   static create({
     actions,

@@ -1,5 +1,16 @@
+import React from "react";
+
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type {
   ButtonPlacement,
   ButtonVariant,
@@ -12,29 +23,19 @@ import {
 } from "components/constants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import React from "react";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import ButtonComponent, { ButtonType } from "../component";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+
+import ButtonComponent, { ButtonType } from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-
-import type {
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;

@@ -1,12 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+
+import StyledHeader from "components/designSystems/appsmith/StyledHeader";
+import { Colors } from "constants/Colors";
+import { BASE_URL } from "constants/routes";
+import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
-import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "ee/reducers";
-import { BASE_URL } from "constants/routes";
-import { Colors } from "constants/Colors";
+
 import { importSvg } from "@appsmith/ads-old";
 
 const AppsmithLogo = importSvg(

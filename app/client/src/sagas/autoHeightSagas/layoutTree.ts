@@ -1,15 +1,16 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   checkContainersForAutoHeightAction,
   setAutoHeightLayoutTreeAction,
 } from "actions/autoHeightActions";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import { put, select } from "redux-saga/effects";
 import { getAutoHeightLayoutTree } from "selectors/autoHeightSelectors";
 import { getOccupiedSpacesGroupedByParentCanvas } from "selectors/editorSelectors";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { generateTree } from "utils/autoHeight/generateTree";
+
 import { shouldWidgetsCollapse } from "./helpers";
 
 export function* getLayoutTree(layoutUpdated: boolean) {

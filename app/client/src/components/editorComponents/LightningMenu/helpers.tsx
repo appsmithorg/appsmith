@@ -1,27 +1,28 @@
 import React from "react";
-import { toUpper, get } from "lodash";
-import type { Action } from "entities/Action";
-import { Directions } from "utils/helpers";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { CustomizedDropdownOption } from "pages/common/CustomizedDropdown";
-import CustomizedDropdown from "pages/common/CustomizedDropdown";
-import Button from "components/editorComponents/Button";
+
 import {
   createNewApiAction,
   createNewQueryAction,
 } from "actions/apiPaneActions";
+import Button from "components/editorComponents/Button";
+import type { Skin } from "constants/DefaultTheme";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
+  LIGHTNING_MENU_API_CREATE_NEW,
   LIGHTNING_MENU_DATA_API,
   LIGHTNING_MENU_DATA_QUERY,
   LIGHTNING_MENU_DATA_WIDGET,
   LIGHTNING_MENU_OPTION_HTML,
   LIGHTNING_MENU_OPTION_JS,
   LIGHTNING_MENU_QUERY_CREATE_NEW,
-  LIGHTNING_MENU_API_CREATE_NEW,
   createMessage,
 } from "ee/constants/messages";
-import type { Skin } from "constants/DefaultTheme";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { Action } from "entities/Action";
+import { get, toUpper } from "lodash";
+import type { CustomizedDropdownOption } from "pages/common/CustomizedDropdown";
+import CustomizedDropdown from "pages/common/CustomizedDropdown";
+import { Directions } from "utils/helpers";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const getApiOptions = (
   skin: Skin,

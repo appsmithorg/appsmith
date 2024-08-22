@@ -1,3 +1,5 @@
+import React from "react";
+
 import { templateIdUrl } from "ee/RouteBuilder";
 import {
   FORK_THIS_TEMPLATE,
@@ -5,9 +7,7 @@ import {
   GO_BACK,
   createMessage,
 } from "ee/constants/messages";
-import { Button, Link, Text } from "@appsmith/ads";
 import { useQuery } from "pages/Editor/utils";
-import React from "react";
 import { useSelector } from "react-redux";
 import {
   getActiveTemplateSelector,
@@ -17,6 +17,9 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import history from "utils/history";
+
+import { Button, Link, Text } from "@appsmith/ads";
+
 import ForkTemplate from "./ForkTemplate";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "./constants";
 

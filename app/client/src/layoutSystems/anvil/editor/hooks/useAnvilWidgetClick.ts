@@ -1,5 +1,6 @@
-import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
 import { useCallback, useEffect, useRef } from "react";
+
+import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { isWidgetFocused } from "selectors/widgetSelectors";

@@ -1,11 +1,12 @@
 import React from "react";
-import BaseWidget from "widgets/BaseWidget";
-import type { SetterConfig } from "entities/AppTheming";
+
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig } from "entities/AppTheming";
+import BaseWidget from "widgets/BaseWidget";
 
-import * as config from "./../config";
 import { IconButtonComponent } from "../component";
+import * as config from "./../config";
 import type { IconButtonWidgetProps, IconButtonWidgetState } from "./types";
 
 class WDSIconButtonWidget extends BaseWidget<

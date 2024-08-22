@@ -1,15 +1,15 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
-import { getActionChildrenPeekData } from "utils/FilterInternalProperties/Action";
-import { getAppsmithPeekData } from "utils/FilterInternalProperties/Appsmith";
-import { getJsActionPeekData } from "utils/FilterInternalProperties/JsAction";
-import { getWidgetChildrenPeekData } from "utils/FilterInternalProperties/Widget";
+import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
+import { getActionChildrenPeekData } from "utils/FilterInternalProperties/Action";
+import { getAppsmithPeekData } from "utils/FilterInternalProperties/Appsmith";
+import { getJsActionPeekData } from "utils/FilterInternalProperties/JsAction";
+import { getWidgetChildrenPeekData } from "utils/FilterInternalProperties/Widget";
 
 export const getEntityPeekData: Record<
   string,

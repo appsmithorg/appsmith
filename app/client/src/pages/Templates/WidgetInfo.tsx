@@ -1,10 +1,12 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import { Text } from "@appsmith/ads";
+
 import { IconWrapper } from "constants/IconConstants";
-import { getWidgetCards } from "selectors/editorSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { useSelector } from "react-redux";
+import { getWidgetCards } from "selectors/editorSelectors";
+import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   display: inline-flex;

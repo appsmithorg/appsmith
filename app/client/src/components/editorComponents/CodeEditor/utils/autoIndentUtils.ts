@@ -1,6 +1,7 @@
-import { getPlatformOS } from "utils/helpers";
 import type CodeMirror from "codemirror";
 import { isNil } from "lodash";
+import { getPlatformOS } from "utils/helpers";
+
 import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getAutoIndentShortcutKey = () => {

@@ -1,14 +1,14 @@
+import {
+  agHelper,
+  apiPage,
+  dataManager,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import {
-  agHelper,
-  propPane,
-  apiPage,
-  dataManager,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Statbox Widget",

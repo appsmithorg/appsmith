@@ -1,5 +1,5 @@
-import * as _ from "../../../../support/Objects/ObjectsCore";
 import emptyDSL from "../../../../fixtures/emptyDSL.json";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import { AppSidebar } from "../../../../support/Pages/EditorNavigation";
 
 // Hi, developer!

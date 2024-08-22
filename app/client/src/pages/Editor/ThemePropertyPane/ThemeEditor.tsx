@@ -1,36 +1,38 @@
-import styled, { createGlobalStyle } from "styled-components";
-import { get, startCase } from "lodash";
-import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
 
-import ThemeCard from "./ThemeCard";
-import {
-  AppThemingMode,
-  getAppThemingStack,
-  getSelectedAppTheme,
-} from "selectors/appThemingSelectors";
 import {
   resetThemeAction,
   setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import SettingSection from "./SettingSection";
-import type { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import ThemeFontControl from "./controls/ThemeFontControl";
-import ThemeColorControl from "./controls/ThemeColorControl";
-import { Classes as CsClasses } from "@appsmith/ads-old";
+import type { AppTheme } from "entities/AppTheming";
+import { get, startCase } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  AppThemingMode,
+  getAppThemingStack,
+  getSelectedAppTheme,
+} from "selectors/appThemingSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled, { createGlobalStyle } from "styled-components";
+import { capitalizeFirstLetter } from "utils/helpers";
+
 import {
   Button,
   Menu,
   MenuContent,
-  MenuTrigger,
   MenuItem,
+  MenuTrigger,
 } from "@appsmith/ads";
-import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { Classes as CsClasses } from "@appsmith/ads-old";
+
+import SettingSection from "./SettingSection";
+import ThemeCard from "./ThemeCard";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
-import { capitalizeFirstLetter } from "utils/helpers";
+import ThemeColorControl from "./controls/ThemeColorControl";
+import ThemeFontControl from "./controls/ThemeFontControl";
+import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
 

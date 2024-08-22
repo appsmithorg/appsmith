@@ -1,4 +1,5 @@
 import unescapeJS from "unescape-js";
+
 import type { PropertyNode } from "../index";
 import { isLiteralNode } from "../index";
 

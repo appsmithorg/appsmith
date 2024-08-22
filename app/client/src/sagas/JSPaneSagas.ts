@@ -1,46 +1,21 @@
-import {
-  all,
-  select,
-  put,
-  takeEvery,
-  debounce,
-  call,
-  take,
-  takeLatest,
-} from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import {
-  getCurrentApplicationId,
-  getCurrentLayoutId,
-  getCurrentPageId,
-  getIsSavingEntity,
-} from "selectors/editorSelectors";
-import {
-  getJSCollection,
-  getJSCollections,
-} from "ee/selectors/entitiesSelector";
-import type {
-  JSCollectionData,
-  JSCollectionDataState,
-} from "ee/reducers/entityReducers/jsActionsReducer";
-import { createNewJSFunctionName } from "utils/AppsmithUtils";
-import { getQueryParams } from "utils/URLUtils";
-import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
+import { setIdeEditorViewMode } from "actions/ideActions";
 import { createJSCollectionRequest } from "actions/jsActionActions";
-import history from "utils/history";
-import { executeJSFunction } from "./EvaluationsSaga";
-import { getJSCollectionIdFromURL } from "ee/pages/Editor/Explorer/helpers";
-import type { JSUpdate } from "utils/JSPaneUtils";
 import {
-  getDifferenceInJSCollection,
-  pushLogsForObjectUpdate,
-  createDummyJSCollectionActions,
-  createSingleFunctionJsCollection,
-} from "utils/JSPaneUtils";
+  createNewJSCollection,
+  executeJSFunctionInit,
+  jsSaveActionComplete,
+  jsSaveActionStart,
+  refactorJSCollectionAction,
+  setJsPaneDebuggerState,
+  updateJSCollectionBodySuccess,
+  updateJSCollectionSuccess,
+  updateJSFunction,
+} from "actions/jsPaneActions";
+import { updateReplayEntity } from "actions/pageActions";
+import ActionAPI from "api/ActionAPI";
+import type { ApiResponse } from "api/ApiResponses";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { jsCollectionIdURL } from "ee/RouteBuilder";
 import type {
   CreateJSCollectionRequest,
   JSCollectionCreateUpdateResponse,
@@ -48,58 +23,85 @@ import type {
   SetFunctionPropertyPayload,
 } from "ee/api/JSActionAPI";
 import JSActionAPI from "ee/api/JSActionAPI";
-import ActionAPI from "api/ActionAPI";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  updateJSCollectionSuccess,
-  updateJSCollectionBodySuccess,
-  updateJSFunction,
-  executeJSFunctionInit,
-  setJsPaneDebuggerState,
-  createNewJSCollection,
-  jsSaveActionComplete,
-  jsSaveActionStart,
-  refactorJSCollectionAction,
-} from "actions/jsPaneActions";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginPackageName, PluginType } from "entities/Action";
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import {
-  createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
-  JS_EXECUTION_SUCCESS,
   JS_EXECUTION_FAILURE,
+  JS_EXECUTION_SUCCESS,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
+  createMessage,
 } from "ee/constants/messages";
-import { validateResponse } from "./ErrorSagas";
-import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { getJSCollectionIdFromURL } from "ee/pages/Editor/Explorer/helpers";
+import type {
+  JSCollectionData,
+  JSCollectionDataState,
+} from "ee/reducers/entityReducers/jsActionsReducer";
+import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
 import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
-import { set } from "lodash";
-import { updateReplayEntity } from "actions/pageActions";
-import { jsCollectionIdURL } from "ee/RouteBuilder";
-import type { ApiResponse } from "api/ApiResponses";
-import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { requestModalConfirmationSaga } from "sagas/UtilSagas";
-import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import {
+  getJSCollection,
+  getJSCollections,
+} from "ee/selectors/entitiesSelector";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { checkAndLogErrorsIfCyclicDependency } from "./helper";
-import { toast } from "@appsmith/ads";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   getJSActionPathNameToDisplay,
   isBrowserExecutionAllowed,
 } from "ee/utils/actionExecutionUtils";
-import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "ee/utils/analyticsHelpers";
-import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import { PluginPackageName, PluginType } from "entities/Action";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { JSAction, JSCollection, Variable } from "entities/JSCollection";
+import { set } from "lodash";
+import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import {
+  all,
+  call,
+  debounce,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { requestModalConfirmationSaga } from "sagas/UtilSagas";
+import { getPluginIdOfPackageName } from "sagas/selectors";
+import {
+  getCurrentApplicationId,
+  getCurrentLayoutId,
+  getCurrentPageId,
+  getIsSavingEntity,
+} from "selectors/editorSelectors";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { setIdeEditorViewMode } from "actions/ideActions";
-import { EditorViewMode } from "ee/entities/IDE/constants";
-import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { createNewJSFunctionName } from "utils/AppsmithUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
+import {
+  createDummyJSCollectionActions,
+  createSingleFunctionJsCollection,
+  getDifferenceInJSCollection,
+  pushLogsForObjectUpdate,
+} from "utils/JSPaneUtils";
+import { getQueryParams } from "utils/URLUtils";
+import history from "utils/history";
+
+import { toast } from "@appsmith/ads";
+
+import { validateResponse } from "./ErrorSagas";
+import { executeJSFunction } from "./EvaluationsSaga";
+import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;

@@ -1,6 +1,7 @@
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { isEmpty } from "lodash";
+
 import type {
   CollidingSpace,
   CollisionAccessors,
@@ -23,22 +24,22 @@ import {
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "./reflowTypes";
 import {
+  buildArrayToCollisionMap,
+  checkProcessNodeForTree,
   checkReCollisionWithOtherNewSpacePositions,
   filterCommonSpaces,
-  buildArrayToCollisionMap,
   getAccessor,
   getCollidingSpacesInDirection,
   getMaxX,
   getMaxY,
+  getModifiedCollidingSpace,
   getModifiedOccupiedSpacesMap,
   getReflowDistance,
   getReflowedDimension,
+  getRelativeCollidingValue,
   getResizedDimensions,
   shouldReplaceOldMovement,
   sortCollidingSpacesByDistance,
-  getModifiedCollidingSpace,
-  checkProcessNodeForTree,
-  getRelativeCollidingValue,
 } from "./reflowUtils";
 
 /**

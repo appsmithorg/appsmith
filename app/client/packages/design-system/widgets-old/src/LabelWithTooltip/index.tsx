@@ -1,11 +1,12 @@
 import React, { useCallback, useRef, useState } from "react";
-import styled, { css } from "styled-components";
-import { Alignment, Classes, Label } from "@blueprintjs/core";
 
-import { LabelPosition } from "../types/common";
-import { FontStyleTypes } from "../constants/typography";
-import Tooltip from "../Tooltip";
+import { Alignment, Classes, Label } from "@blueprintjs/core";
+import styled, { css } from "styled-components";
+
 import { IconWrapper } from "../Icon";
+import Tooltip from "../Tooltip";
+import { FontStyleTypes } from "../constants/typography";
+import { LabelPosition } from "../types/common";
 import { importSvg } from "../utils/icon-loadables";
 
 const HelpIcon = importSvg(

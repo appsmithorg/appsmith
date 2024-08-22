@@ -1,8 +1,9 @@
-import type { WidgetEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { builderURL } from "ee/RouteBuilder";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
+
 import { createNavData } from "./common";
 
 export const getWidgetChildrenNavData = (

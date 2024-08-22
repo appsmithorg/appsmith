@@ -1,4 +1,5 @@
 import { DatasourceConnectionMode } from "entities/Datasource";
+
 import MySQl from ".";
 
 describe("MySQl WidgetQueryGenerator", () => {

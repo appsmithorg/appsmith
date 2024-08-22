@@ -1,8 +1,10 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
+
 import copy from "copy-to-clipboard";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Icon, Input, Text, toast, Tooltip } from "@appsmith/ads";
+import styled from "styled-components";
+
+import { Icon, Input, Text, Tooltip, toast } from "@appsmith/ads";
 
 export const BodyContainer = styled.div`
   width: 100%;

@@ -1,4 +1,5 @@
 import isString from "lodash/isString";
+
 import type { DSLWidget } from "../types";
 
 export const migrateOldChartData = (currentDSL: DSLWidget) => {

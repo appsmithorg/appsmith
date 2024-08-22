@@ -1,8 +1,10 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
-import { SettingsPageHeader } from "../SettingsPageHeader";
 import userEvent from "@testing-library/user-event";
+import { render, screen } from "test/testUtils";
+
+import { SettingsPageHeader } from "../SettingsPageHeader";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

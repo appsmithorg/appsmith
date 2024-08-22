@@ -1,17 +1,19 @@
 import type { ChangeEvent } from "react";
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { EventOrValueHandler } from "redux-form";
+
+import type { EditorProps } from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
-import type { EditorProps } from "components/editorComponents/CodeEditor";
+import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import type { EventOrValueHandler } from "redux-form";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {

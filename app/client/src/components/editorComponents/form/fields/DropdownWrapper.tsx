@@ -1,6 +1,8 @@
-import type { SelectOptionProps } from "@appsmith/ads";
-import { Text, Option, Select } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
+
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Option, Select, Text } from "@appsmith/ads";
+
 import type { DropdownOnSelect } from "./SelectField";
 
 interface DropdownWrapperProps {

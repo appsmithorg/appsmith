@@ -1,34 +1,36 @@
 import React from "react";
+
+import {
+  ADMIN_BRANDING_COLOR_TOOLTIP,
+  ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND,
+  ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED,
+  ADMIN_BRANDING_COLOR_TOOLTIP_FONT,
+  ADMIN_BRANDING_COLOR_TOOLTIP_HOVER,
+  ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY,
+  ADMIN_BRANDING_FAVICON_REQUIREMENT,
+  ADMIN_BRANDING_LOGO_REQUIREMENT,
+  createMessage,
+} from "ee/constants/messages";
+import { useBrandingForm } from "ee/pages/AdminSettings/Branding/useBrandingForm";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ColorInput } from "pages/AdminSettings/FormGroup/ColorInput";
+import { ImageInput } from "pages/AdminSettings/FormGroup/ImageInput";
+import { HelperText } from "pages/AdminSettings/components";
 import type {
   Control,
   FormState,
-  UseFormReset,
   UseFormHandleSubmit,
-  UseFormSetValue,
+  UseFormReset,
   UseFormResetField,
+  UseFormSetValue,
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
+import styled from "styled-components";
+import { faivconImageValidator, logoImageValidator } from "utils/BrandingUtils";
+
 import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
 
 import type { Inputs } from "./BrandingPage";
-import {
-  ADMIN_BRANDING_LOGO_REQUIREMENT,
-  ADMIN_BRANDING_FAVICON_REQUIREMENT,
-  ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND,
-  ADMIN_BRANDING_COLOR_TOOLTIP_FONT,
-  ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY,
-  ADMIN_BRANDING_COLOR_TOOLTIP_HOVER,
-  ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED,
-  ADMIN_BRANDING_COLOR_TOOLTIP,
-  createMessage,
-} from "ee/constants/messages";
-import { ColorInput } from "pages/AdminSettings/FormGroup/ColorInput";
-import { ImageInput } from "pages/AdminSettings/FormGroup/ImageInput";
-import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
-import { useBrandingForm } from "ee/pages/AdminSettings/Branding/useBrandingForm";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import styled from "styled-components";
-import { HelperText } from "pages/AdminSettings/components";
 
 const Wrapper = styled.form`
   .help-icon {

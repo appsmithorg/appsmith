@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import clsx from "clsx";
+import * as echarts from "echarts";
 import styled from "styled-components";
+
 import type { MapColorObject, MapTypes } from "../constants";
+import countryDetails from "./countryDetails";
 import type { MapData } from "./types";
 import { getChartOption, loadMapGenerator } from "./utilities";
-import * as echarts from "echarts";
-import countryDetails from "./countryDetails";
-import clsx from "clsx";
 
 const MapChartContainer = styled.div<{
   borderRadius?: string;

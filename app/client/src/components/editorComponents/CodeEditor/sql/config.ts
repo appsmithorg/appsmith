@@ -1,4 +1,5 @@
 import { find } from "lodash";
+
 import type { TEditorModes } from "../EditorConfig";
 
 type ValueOf<T> = T[keyof T];

@@ -1,24 +1,26 @@
 import React, { useMemo, useRef, useState } from "react";
+
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { Colors } from "constants/Colors";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import {
+  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+  createMessage,
+} from "ee/constants/messages";
+import moment from "moment";
+import styled from "styled-components";
+import DateComponent from "widgets/DatePickerWidget2/component";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+
 import type { VerticalAlignment } from "../Constants";
 import {
   ALIGN_ITEMS,
   EDITABLE_CELL_PADDING_OFFSET,
   TABLE_SIZES,
 } from "../Constants";
-import DateComponent from "widgets/DatePickerWidget2/component";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import type { RenderDefaultPropsType } from "./PlainTextCell";
-import styled from "styled-components";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
-import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import moment from "moment";
 import { BasicCell } from "./BasicCell";
-import { Colors } from "constants/Colors";
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import {
-  createMessage,
-  INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "ee/constants/messages";
+import type { RenderDefaultPropsType } from "./PlainTextCell";
 
 type DateComponentProps = RenderDefaultPropsType &
   editPropertyType & {

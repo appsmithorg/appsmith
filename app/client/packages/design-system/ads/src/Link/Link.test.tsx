@@ -1,7 +1,9 @@
 import React from "react";
-import { render, fireEvent } from "@testing-library/react";
-import { Link } from "./Link";
+
+import { fireEvent, render } from "@testing-library/react";
 import { StaticRouter } from "react-router-dom";
+
+import { Link } from "./Link";
 import { LinkClassName } from "./Link.constants";
 
 describe("Link component", () => {

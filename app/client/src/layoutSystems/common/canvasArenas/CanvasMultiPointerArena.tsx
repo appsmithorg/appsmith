@@ -1,17 +1,18 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useRef } from "react";
-import store from "store";
-import { useDispatch, useSelector } from "react-redux";
+
 import {
   collabResetEditorsPointersData,
   collabStartSharingPointerEvent,
   collabStopSharingPointerEvent,
 } from "actions/appCollabActions";
-import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { Colors } from "constants/Colors";
+import { useDispatch, useSelector } from "react-redux";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
+import store from "store";
+import styled from "styled-components";
 
 export const POINTERS_CANVAS_ID = "collab-pointer-sharing-canvas";
 

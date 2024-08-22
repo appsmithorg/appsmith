@@ -1,16 +1,17 @@
-import { useEffect, useState, useCallback, memo } from "react";
-import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { isNameValid } from "utils/helpers";
-import type { AppState } from "ee/reducers";
-import log from "loglevel";
-import { getUsedActionNames } from "selectors/actionSelectors";
+import { memo, useCallback, useEffect, useState } from "react";
+
+import { Classes } from "@blueprintjs/core";
 import {
   ACTION_INVALID_NAME_ERROR,
   ACTION_NAME_CONFLICT_ERROR,
   createMessage,
 } from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import log from "loglevel";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { getUsedActionNames } from "selectors/actionSelectors";
 import styled from "styled-components";
-import { Classes } from "@blueprintjs/core";
+import { isNameValid } from "utils/helpers";
 
 export const NameWrapper = styled.div<{ enableFontStyling?: boolean }>`
   min-width: 50%;

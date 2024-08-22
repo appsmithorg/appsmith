@@ -1,7 +1,7 @@
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 

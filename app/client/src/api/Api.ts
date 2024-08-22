@@ -1,13 +1,13 @@
 import type { AxiosInstance, AxiosRequestConfig } from "axios";
 import axios from "axios";
-import { REQUEST_TIMEOUT_MS } from "ee/constants/ApiConstants";
-import { convertObjectToQueryParams } from "utils/URLUtils";
 import {
   apiFailureResponseInterceptor,
   apiRequestInterceptor,
   apiSuccessResponseInterceptor,
   blockedApiRoutesForAirgapInterceptor,
 } from "ee/api/ApiUtils";
+import { REQUEST_TIMEOUT_MS } from "ee/constants/ApiConstants";
+import { convertObjectToQueryParams } from "utils/URLUtils";
 
 //TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {

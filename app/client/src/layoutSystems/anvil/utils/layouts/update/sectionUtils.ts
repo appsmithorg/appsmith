@@ -1,20 +1,21 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call } from "redux-saga/effects";
+import { generateReactKey } from "utils/generators";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { anvilWidgets } from "widgets/anvil/constants";
+
 import type {
   AnvilHighlightInfo,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { generateReactKey } from "utils/generators";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import { createZoneAndAddWidgets } from "./zoneUtils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { anvilWidgets } from "widgets/anvil/constants";
-import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
+import { createZoneAndAddWidgets } from "./zoneUtils";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,

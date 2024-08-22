@@ -1,7 +1,13 @@
-import log from "loglevel";
-import React, { lazy, Suspense } from "react";
-import memoizeOne from "memoize-one";
+import React, { Suspense, lazy } from "react";
 
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
+import type { Stylesheet } from "entities/AppTheming";
+import equal from "fast-deep-equal/es6";
+import { klona as clone } from "klona";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import _, {
   filter,
   isEmpty,
@@ -14,12 +20,15 @@ import _, {
   xor,
   xorWith,
 } from "lodash";
-
+import log from "loglevel";
+import memoizeOne from "memoize-one";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { noop, retryPromise } from "utils/AppsmithUtils";
+import localStorage from "utils/localStorage";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { noop, retryPromise } from "utils/AppsmithUtils";
+import { sanitizeKey } from "widgets/WidgetUtils";
+
 import type {
   ColumnProperties,
   ReactTableColumnProps,
@@ -31,6 +40,12 @@ import {
   SortOrderTypes,
   StickyType,
 } from "../component/Constants";
+import {
+  ButtonCell,
+  PlainTextCell,
+  URLCell,
+} from "../component/cellComponents";
+import * as config from "../config";
 import type {
   OnColumnEventArgs,
   TableWidgetProps,
@@ -38,12 +53,19 @@ import type {
 } from "../constants";
 import {
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  defaultEditableCell,
   ORIGINAL_INDEX_KEY,
   PaginationDirection,
   TABLE_COLUMN_ORDER_KEY,
+  defaultEditableCell,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
+import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
+import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
+import type {
+  tableData,
+  transformDataWithEditableCell,
+} from "./reactTableUtils/transformDataPureFn";
+import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
 import {
   deleteLocalTableColumnOrderByWidgetId,
   generateLocalNewColumnOrderFromStickyValue,
@@ -59,29 +81,6 @@ import {
   getSelectRowIndices,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import equal from "fast-deep-equal/es6";
-import { sanitizeKey } from "widgets/WidgetUtils";
-import {
-  PlainTextCell,
-  URLCell,
-  ButtonCell,
-} from "../component/cellComponents";
-
-import { klona as clone } from "klona";
-import localStorage from "utils/localStorage";
-import type { Stylesheet } from "entities/AppTheming";
-import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
-import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
-import type {
-  tableData,
-  transformDataWithEditableCell,
-} from "./reactTableUtils/transformDataPureFn";
-import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import * as config from "../config";
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

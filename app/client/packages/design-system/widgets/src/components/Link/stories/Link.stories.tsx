@@ -1,10 +1,12 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
+import { Flex, Link } from "@appsmith/wds";
 import {
-  TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
+  TYPOGRAPHY_VARIANTS,
 } from "@appsmith/wds-theming";
-import { Link, Flex } from "@appsmith/wds";
 
 /**
  * Link component is used to navigate to a different page or section of the current page.

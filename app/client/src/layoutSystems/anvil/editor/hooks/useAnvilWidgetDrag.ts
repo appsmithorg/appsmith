@@ -1,6 +1,7 @@
+import { useCallback, useEffect } from "react";
+
 import type { WidgetType } from "WidgetProvider/factory";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
-import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";

@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
-import styles from "./styles.module.css";
+
 import { CustomWidgetBuilderContext } from "../..";
+import styles from "./styles.module.css";
 
 export default function WidgetName() {
   const { name } = useContext(CustomWidgetBuilderContext);

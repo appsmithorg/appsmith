@@ -1,9 +1,9 @@
 import React from "react";
-import styled from "styled-components";
+import type { CSSProperties, ReactNode } from "react";
+
 import * as Sentry from "@sentry/react";
 import * as log from "loglevel";
-
-import type { ReactNode, CSSProperties } from "react";
+import styled from "styled-components";
 
 interface Props {
   children: ReactNode;

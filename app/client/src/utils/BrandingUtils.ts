@@ -1,16 +1,17 @@
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import {
+  ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
+  ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
+  ADMIN_BRANDING_FAVICON_SIZE_ERROR,
+  ADMIN_BRANDING_LOGO_FORMAT_ERROR,
+  ADMIN_BRANDING_LOGO_SIZE_ERROR,
+  createMessage,
+} from "ee/constants/messages";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import tinycolor from "tinycolor2";
 import { darkenColor } from "widgets/WidgetUtils";
-import {
-  createMessage,
-  ADMIN_BRANDING_LOGO_SIZE_ERROR,
-  ADMIN_BRANDING_LOGO_FORMAT_ERROR,
-  ADMIN_BRANDING_FAVICON_SIZE_ERROR,
-  ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
-  ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
-} from "ee/constants/messages";
+
 import { toast } from "@appsmith/ads";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { LightModeTheme } from "@appsmith/wds-theming";
 
 const FAVICON_MAX_WIDTH = 32;

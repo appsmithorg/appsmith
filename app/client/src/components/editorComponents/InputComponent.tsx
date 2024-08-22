@@ -1,10 +1,11 @@
 import React from "react";
-import styled from "styled-components";
+
 import type { Intent as BlueprintIntent } from "@blueprintjs/core";
 import { InputGroup } from "@blueprintjs/core";
 import type { Intent } from "constants/DefaultTheme";
 import { BlueprintInputTransform } from "constants/DefaultTheme";
 import type { WrappedFieldInputProps } from "redux-form";
+import styled from "styled-components";
 
 const StyledInputGroup = styled(InputGroup)`
   &&& {

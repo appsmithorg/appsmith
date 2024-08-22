@@ -1,11 +1,12 @@
 import React from "react";
+
+import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import Uppy from "@uppy/core";
-import { Dashboard as UppyDashboard, useUppy } from "@uppy/react";
-import ImageEditor from "@uppy/image-editor";
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
+import ImageEditor from "@uppy/image-editor";
 import "@uppy/image-editor/dist/style.css";
-import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+import { Dashboard as UppyDashboard, useUppy } from "@uppy/react";
 
 interface DashboardProps {
   onChange: (file: File) => void;

@@ -1,5 +1,6 @@
-import { routeChanged } from "actions/focusHistoryActions";
 import { useEffect, useRef } from "react";
+
+import { routeChanged } from "actions/focusHistoryActions";
 import { useDispatch } from "react-redux";
 import { useLocation } from "react-router";
 import type { AppsmithLocationState } from "utils/history";

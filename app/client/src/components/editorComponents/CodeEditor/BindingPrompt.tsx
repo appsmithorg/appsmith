@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
+
 import styled from "styled-components";
+
 import type { EditorTheme } from "./EditorConfig";
 
 const Wrapper = styled.span<{

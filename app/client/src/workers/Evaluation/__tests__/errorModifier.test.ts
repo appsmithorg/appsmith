@@ -1,11 +1,12 @@
+import { APP_MODE } from "entities/App";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import DependencyMap from "entities/DependencyMap";
+
 import {
   ActionInDataFieldErrorModifier,
   TypeErrorModifier,
   errorModifier,
 } from "../errorModifier";
-import DependencyMap from "entities/DependencyMap";
-import { APP_MODE } from "entities/App";
 
 describe("Test error modifier", () => {
   const dataTree = {

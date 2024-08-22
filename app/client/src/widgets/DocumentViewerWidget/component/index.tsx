@@ -1,11 +1,13 @@
 import React, { Suspense, lazy } from "react";
-import styled from "styled-components";
-import { DocumentViewer } from "react-documents";
-import { includes, replace, split, get } from "lodash";
-import type { Renderer, ViewerType } from "../constants";
-import { SUPPORTED_EXTENSIONS, Renderers } from "../constants";
-import { retryPromise } from "utils/AppsmithUtils";
+
 import Skeleton from "components/utils/Skeleton";
+import { get, includes, replace, split } from "lodash";
+import { DocumentViewer } from "react-documents";
+import styled from "styled-components";
+import { retryPromise } from "utils/AppsmithUtils";
+
+import type { Renderer, ViewerType } from "../constants";
+import { Renderers, SUPPORTED_EXTENSIONS } from "../constants";
 
 const DocViewer = lazy(async () =>
   retryPromise(async () => import("./DocViewer")),

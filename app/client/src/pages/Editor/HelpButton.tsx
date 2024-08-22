@@ -1,30 +1,21 @@
 import React, { useEffect, useState } from "react";
 
+import { showSignpostingModal } from "actions/onboardingActions";
+import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import bootIntercom, { updateIntercomProperties } from "utils/bootIntercom";
+import { getAppsmithConfigs } from "ee/configs";
 import {
   APPSMITH_DISPLAY_VERSION,
   CONTINUE,
-  createMessage,
   HELP_RESOURCE_TOOLTIP,
   INTERCOM_CONSENT_MESSAGE,
+  createMessage,
 } from "ee/constants/messages";
-import {
-  Button,
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-  Tooltip,
-  MenuSeparator,
-  Text,
-} from "@appsmith/ads";
-import { getAppsmithConfigs } from "ee/configs";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import moment from "moment/moment";
-import styled from "styled-components";
+import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getFirstTimeUserOnboardingModal,
   getIsFirstTimeUserOnboardingEnabled,
@@ -32,11 +23,22 @@ import {
   getSignpostingTooltipVisible,
   getSignpostingUnreadSteps,
 } from "selectors/onboardingSelectors";
-import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
-import { showSignpostingModal } from "actions/onboardingActions";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+import bootIntercom, { updateIntercomProperties } from "utils/bootIntercom";
+
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+  Text,
+  Tooltip,
+} from "@appsmith/ads";
+
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
-import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 

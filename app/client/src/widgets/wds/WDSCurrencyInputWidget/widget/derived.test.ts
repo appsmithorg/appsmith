@@ -1,5 +1,7 @@
 import _ from "lodash";
+
 import derivedProperty from "./derived";
+
 describe("Derived property - ", () => {
   describe("isValid property", () => {
     it("should test isRequired", () => {

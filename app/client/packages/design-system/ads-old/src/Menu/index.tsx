@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 import React from "react";
-import type { CommonComponentProps } from "../types/common";
-import styled from "styled-components";
-import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+
 import type { PopperModifiers } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { Popover } from "@blueprintjs/core/lib/esm/components/popover/popover";
+import styled from "styled-components";
+
+import type { CommonComponentProps } from "../types/common";
 
 export type MenuProps = CommonComponentProps & {
   autoFocus?: boolean;

@@ -1,10 +1,12 @@
 import React, { useRef } from "react";
+
+import { allowedControlTypes } from "components/formControls/utils";
+import { Colors } from "constants/Colors";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
-import type { ControlProps, FormConfigType } from "./BaseControl";
-import { allowedControlTypes } from "components/formControls/utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
-import { Colors } from "constants/Colors";
+
+import type { ControlProps, FormConfigType } from "./BaseControl";
 
 const dropDownFieldConfig: Partial<FormConfigType> = {
   label: "",

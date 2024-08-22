@@ -1,8 +1,9 @@
 import React, { forwardRef } from "react";
+
 import {
-  useMergeRefs,
-  FloatingPortal,
   FloatingArrow,
+  FloatingPortal,
+  useMergeRefs,
 } from "@floating-ui/react";
 
 import { useTooltipContext } from "./TooltipContext";

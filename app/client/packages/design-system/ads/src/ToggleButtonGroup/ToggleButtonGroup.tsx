@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import clsx from "classnames";
-import { ToggleButton } from "../ToggleButton";
 
+import clsx from "classnames";
+
+import { ToggleButton } from "../ToggleButton";
+import { ToggleGroupClassName } from "./ToggleButtonGroup.constants";
 import { Group } from "./ToggleButtonGroup.styles";
 import type {
   ToggleGroupOption,
   ToggleGroupProps,
 } from "./ToggleButtonGroup.types";
-import { ToggleGroupClassName } from "./ToggleButtonGroup.constants";
 
 // eslint-disable-next-line react/display-name
 export const ToggleButtonGroup = React.forwardRef<

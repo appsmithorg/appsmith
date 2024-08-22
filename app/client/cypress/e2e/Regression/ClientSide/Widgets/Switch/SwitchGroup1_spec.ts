@@ -1,4 +1,11 @@
 import {
+  checkboxlocators,
+  switchlocators,
+} from "../../../../../locators/WidgetLocators";
+import widgetsLoc from "../../../../../locators/Widgets.json";
+import commonlocators from "../../../../../locators/commonlocators.json";
+import widgets from "../../../../../locators/publishWidgetspage.json";
+import {
   agHelper,
   deployMode,
   draggableWidgets,
@@ -6,15 +13,6 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import {
-  checkboxlocators,
-  switchlocators,
-} from "../../../../../locators/WidgetLocators";
-
-import widgetsLoc from "../../../../../locators/Widgets.json";
-import widgets from "../../../../../locators/publishWidgetspage.json";
-import commonlocators from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

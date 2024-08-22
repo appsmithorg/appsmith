@@ -1,8 +1,9 @@
-import { useDispatch } from "react-redux";
 import { useCallback, useState } from "react";
-import type { ConnectToGitPayload } from "api/GitSyncAPI";
+
 import { connectToGitInit } from "actions/gitSyncActions";
+import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import noop from "lodash/noop";
+import { useDispatch } from "react-redux";
 
 export const useGitConnect = () => {
   const dispatch = useDispatch();

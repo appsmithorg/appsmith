@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { Icon } from "./Icon";
 import type { IconProps } from "./Icon.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Icon",

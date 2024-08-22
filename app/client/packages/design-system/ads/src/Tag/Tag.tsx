@@ -1,8 +1,8 @@
 import React from "react";
 
-import type { TagProps } from "./Tag.types";
-import { StyledButton, StyledTag } from "./Tag.styles";
 import { Text } from "../Text";
+import { StyledButton, StyledTag } from "./Tag.styles";
+import type { TagProps } from "./Tag.types";
 
 /*TODO:
  * It is unclear how the tag component can be interacted with using the keyboard.

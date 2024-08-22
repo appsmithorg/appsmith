@@ -1,5 +1,7 @@
-import type { InlineButtonsProps, InlineButtonsItem } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import type { InlineButtonsItem, InlineButtonsProps } from "@appsmith/wds";
+
 import type { InlineButtonsItemComponentProps } from "../component/types";
 
 export type ButtonsList = Record<string, InlineButtonsItemComponentProps>;

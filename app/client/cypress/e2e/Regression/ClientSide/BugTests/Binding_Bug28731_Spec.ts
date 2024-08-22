@@ -1,10 +1,10 @@
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import {
   agHelper,
-  entityExplorer,
   apiPage,
   dataManager,
   draggableWidgets,
+  entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 

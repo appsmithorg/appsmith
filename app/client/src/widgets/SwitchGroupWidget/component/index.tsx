@@ -1,15 +1,16 @@
 import React from "react";
-import styled from "styled-components";
+
 import type { Alignment } from "@blueprintjs/core";
-import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
+import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import type { TextSize } from "constants/WidgetConstants";
+import styled from "styled-components";
 import { StyledSwitch } from "widgets/SwitchWidget/component";
 import LabelWithTooltip, {
-  labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";
-import type { ThemeProp } from "WidgetProvider/constants";
 
 export interface SwitchGroupContainerProps {
   compactMode: boolean;

@@ -1,8 +1,10 @@
 import React, { useContext } from "react";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { ChildrenMapContext } from "../context/childrenMapContext";
-import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
+
 import type { RenderModes } from "constants/WidgetConstants";
+import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { ChildrenMapContext } from "../context/childrenMapContext";
 
 export interface WidgetRendererProps {
   canvasId: string;

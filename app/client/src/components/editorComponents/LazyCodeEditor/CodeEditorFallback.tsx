@@ -1,4 +1,13 @@
 import React from "react";
+
+import type {
+  EditorProps,
+  EditorStyleProps,
+} from "components/editorComponents/CodeEditor";
+import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
+
+import { Spinner } from "@appsmith/ads";
+
 import {
   ContentWrapper,
   HighlighedCodeContainer,
@@ -7,12 +16,6 @@ import {
   SpinnerContainer,
 } from "./styles";
 import { ContentKind } from "./types";
-import type {
-  EditorProps,
-  EditorStyleProps,
-} from "components/editorComponents/CodeEditor";
-import { Spinner } from "@appsmith/ads";
-import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
 
 export default function CodeEditorFallback({
   borderLess,

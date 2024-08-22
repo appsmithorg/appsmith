@@ -1,11 +1,13 @@
 import type { CSSProperties, Key } from "react";
 import React, { useContext } from "react";
+
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
+
 import { BodyContext } from ".";
+import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
-import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 
 interface RowType {
   className?: string;

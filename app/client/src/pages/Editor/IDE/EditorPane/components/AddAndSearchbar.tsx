@@ -1,5 +1,6 @@
 import React from "react";
-import { Flex, Button, SearchInput } from "@appsmith/ads";
+
+import { Button, Flex, SearchInput } from "@appsmith/ads";
 
 interface Props {
   onAddClick: () => void;

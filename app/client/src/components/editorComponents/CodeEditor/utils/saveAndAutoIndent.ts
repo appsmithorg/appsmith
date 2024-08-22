@@ -1,5 +1,6 @@
-import { getPlatformOS } from "utils/helpers";
 import type CodeMirror from "codemirror";
+import { getPlatformOS } from "utils/helpers";
+
 import { autoIndentCode } from "./autoIndentUtils";
 import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 

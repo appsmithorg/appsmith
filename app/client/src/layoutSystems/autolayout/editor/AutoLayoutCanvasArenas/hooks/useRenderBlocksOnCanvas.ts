@@ -1,11 +1,12 @@
 import { Colors } from "constants/Colors";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
+import { modifyDrawingRectangles } from "layoutSystems/common/utils/canvasDraggingUtils";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import { useSelector } from "react-redux";
 import { getZoomLevel } from "selectors/editorSelectors";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
 import { getAbsolutePixels } from "utils/helpers";
+
 import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
-import { modifyDrawingRectangles } from "layoutSystems/common/utils/canvasDraggingUtils";
 
 /**
  * returns a method that renders dragging blocks on canvas

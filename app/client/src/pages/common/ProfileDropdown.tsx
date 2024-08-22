@@ -1,26 +1,29 @@
 import React from "react";
-import type { CommonComponentProps } from "@appsmith/ads-old";
+
+import type { PopperModifiers } from "@blueprintjs/core";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import type { NavigationSetting } from "constants/AppConstants";
+import { PROFILE } from "constants/routes";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { ACCOUNT_TOOLTIP, createMessage } from "ee/constants/messages";
+import styled from "styled-components";
 import { getInitials } from "utils/AppsmithUtils";
+
 import {
+  Avatar,
   Menu,
-  MenuItem,
   MenuContent,
+  MenuItem,
   MenuSeparator,
   MenuTrigger,
   Text,
-  Avatar,
 } from "@appsmith/ads";
-import styled from "styled-components";
-import type { PopperModifiers } from "@blueprintjs/core";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import type { CommonComponentProps } from "@appsmith/ads-old";
+
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { PROFILE } from "constants/routes";
-import { ACCOUNT_TOOLTIP, createMessage } from "ee/constants/messages";
-import type { NavigationSetting } from "constants/AppConstants";
 
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;

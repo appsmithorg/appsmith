@@ -1,8 +1,10 @@
 import React from "react";
-import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
+
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
-import { Flex } from "@appsmith/ads";
 import type { EntityItem } from "ee/entities/IDE/constants";
+import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
+
+import { Flex } from "@appsmith/ads";
 
 export interface JSListItemProps {
   item: EntityItem;

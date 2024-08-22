@@ -1,11 +1,11 @@
-import { createReducer } from "utils/ReducerUtils";
+import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import type {
   ReduxAction,
   ReduxActionErrorPayload,
 } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import _ from "lodash";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: ErrorReduxState = {
   safeCrash: false,

@@ -1,14 +1,14 @@
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  jsEditor,
-  propPane,
-  deployMode,
-  table,
   debuggerHelper,
+  deployMode,
+  entityExplorer,
   entityItems,
+  jsEditor,
+  locators,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

@@ -1,7 +1,10 @@
-import { RemoteBranchListItem } from "./RemoteBranchListItem";
 import React from "react";
-import { createMessage, REMOTE_BRANCHES } from "ee/constants/messages";
+
+import { REMOTE_BRANCHES, createMessage } from "ee/constants/messages";
+
 import { Text } from "@appsmith/ads";
+
+import { RemoteBranchListItem } from "./RemoteBranchListItem";
 
 /**
  * RemoteBranchList: returns a list of remote branches

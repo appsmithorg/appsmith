@@ -1,11 +1,11 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { JSCollection, JSAction } from "entities/JSCollection";
 import type {
   RefactorAction,
   SetFunctionPropertyPayload,
 } from "ee/api/JSActionAPI";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import type {
   JSEditorTab,
   JSPaneDebuggerState,

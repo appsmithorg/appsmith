@@ -1,14 +1,16 @@
 import React from "react";
-import { Button, Tooltip } from "@appsmith/ads";
+
 import {
   EDITOR_HEADER,
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
   createMessage,
 } from "ee/constants/messages";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
 import { getAllUsersOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
+
+import { Button, Tooltip } from "@appsmith/ads";
 
 export const EditorShareButton = ({
   setShowModal,

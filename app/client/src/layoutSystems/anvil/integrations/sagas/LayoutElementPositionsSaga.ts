@@ -1,17 +1,20 @@
+import type { RefObject } from "react";
+
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
-import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
-import { extractWidgetIdFromAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
+import { extractWidgetIdFromAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import log from "loglevel";
-import type { AppState } from "ee/reducers";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { APP_MODE } from "entities/App";
+import { all, put, select, takeEvery, takeLatest } from "redux-saga/effects";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "ee/selectors/entitiesSelector";
-import type { RefObject } from "react";
+
 import { getAnvilSpaceDistributionStatus } from "../selectors";
+
 /**
  * In this function,
  * Get the DOM elements for the registered widgets and layouts

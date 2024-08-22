@@ -1,11 +1,13 @@
-import { Button, Icon, SearchInput, Spinner, Text } from "@appsmith/ads";
 import React from "react";
-import styled from "styled-components";
-import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
-import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
+
 import PackageSearchItem from "ee/pages/common/PackageSearchItem";
 import WorkflowSearchItem from "ee/pages/common/WorkflowSearchItem";
+import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
+import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import { useRouteMatch } from "react-router";
+import styled from "styled-components";
+
+import { Button, Icon, SearchInput, Spinner, Text } from "@appsmith/ads";
 
 const SearchListContainer = styled.div`
   width: 100%;

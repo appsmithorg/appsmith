@@ -1,24 +1,26 @@
-import Skeleton from "components/utils/Skeleton";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import React, { lazy, Suspense } from "react";
-import type ReactPlayer from "react-player";
-import { retryPromise } from "utils/AppsmithUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
+import React, { Suspense, lazy } from "react";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import Skeleton from "components/utils/Skeleton";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { SetterConfig } from "entities/AppTheming";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type ReactPlayer from "react-player";
+import { retryPromise } from "utils/AppsmithUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const AudioComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

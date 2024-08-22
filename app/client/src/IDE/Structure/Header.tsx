@@ -1,6 +1,8 @@
 import React from "react";
-import { Divider, Flex } from "@appsmith/ads";
+
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
+
+import { Divider, Flex } from "@appsmith/ads";
 
 interface ChildrenProps {
   children: React.ReactNode | React.ReactNode[];

@@ -1,11 +1,12 @@
 import {
+  DataType,
   areArraysEqual,
   createBlobUrl,
-  DataType,
   getCamelCaseString,
   getDatatype,
   parseBlobUrl,
 } from "utils/AppsmithUtils";
+
 import { isURL } from "./TypeHelpers";
 
 describe("getCamelCaseString", () => {

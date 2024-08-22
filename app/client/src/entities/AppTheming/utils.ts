@@ -1,16 +1,16 @@
+import WidgetFactory from "WidgetProvider/factory";
+import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { get, has } from "lodash";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
+  THEME_BINDING_REGEX,
   combineDynamicBindings,
   getDynamicBindings,
   isDynamicValue,
-  THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
-import WidgetFactory from "WidgetProvider/factory";
-import { parseSchemaItem } from "widgets/WidgetUtils";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { getFieldStylesheet } from "widgets/JSONFormWidget/helper";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { parseSchemaItem } from "widgets/WidgetUtils";
 
 /**
  * get properties to update for reset

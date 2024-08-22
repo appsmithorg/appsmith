@@ -1,7 +1,11 @@
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import React from "react";
+
+import * as widgetSelectionsActions from "actions/widgetSelectionActions";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import Canvas from "pages/Editor/Canvas";
+import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import { MemoryRouter } from "react-router-dom";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as utilities from "selectors/editorSelectors";
 import store from "store";
@@ -12,18 +16,15 @@ import {
 import { sagasToRunForTests } from "test/sagas";
 import {
   MockApplication,
+  MockPageDSL,
   mockCreateCanvasWidget,
   mockGetWidgetEvalValues,
-  MockPageDSL,
   syntheticTestMouseEvent,
 } from "test/testCommon";
 import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import * as widgetSelectionsActions from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import Canvas from "pages/Editor/Canvas";
 
 const pageId = "0123456789abcdef00000000";
 

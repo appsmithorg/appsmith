@@ -1,5 +1,5 @@
 import React from "react";
-import PropertyPaneWrapper from "pages/Editor/WidgetsEditor/components/PropertyPaneWrapper";
+
 import {
   ADD_PATH,
   BUILDER_CUSTOM_PATH,
@@ -8,8 +8,9 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import { useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
+import PropertyPaneWrapper from "pages/Editor/WidgetsEditor/components/PropertyPaneWrapper";
+import { useRouteMatch } from "react-router";
 
 const RightPane = () => {
   const { path } = useRouteMatch();

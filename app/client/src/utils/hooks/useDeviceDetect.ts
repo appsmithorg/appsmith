@@ -1,10 +1,10 @@
-import { useMediaQuery } from "react-responsive";
 import {
-  MOBILE_MAX_WIDTH,
-  TABLET_MIN_WIDTH,
-  TABLET_MAX_WIDTH,
   DESKTOP_MIN_WIDTH,
+  MOBILE_MAX_WIDTH,
+  TABLET_MAX_WIDTH,
+  TABLET_MIN_WIDTH,
 } from "constants/AppConstants";
+import { useMediaQuery } from "react-responsive";
 
 export function useIsMobileDevice() {
   return useMediaQuery({ maxWidth: MOBILE_MAX_WIDTH });

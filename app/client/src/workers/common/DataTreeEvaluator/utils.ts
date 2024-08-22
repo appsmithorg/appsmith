@@ -1,3 +1,12 @@
+import {
+  EXECUTION_PARAM_REFERENCE_REGEX,
+  THIS_DOT_PARAMS_KEY,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import type {
+  DataTreeEntityConfig,
+  DataTreeEntityObject,
+  JSActionEntity,
+} from "ee/entities/DataTree/types";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
@@ -5,25 +14,16 @@ import {
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import {
-  EXECUTION_PARAM_REFERENCE_REGEX,
-  THIS_DOT_PARAMS_KEY,
-} from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import type DependencyMap from "entities/DependencyMap";
-import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import type {
-  DataTreeEntityConfig,
-  DataTreeEntityObject,
-  JSActionEntity,
-} from "ee/entities/DataTree/types";
+import type DependencyMap from "entities/DependencyMap";
 import { isObject } from "lodash";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";

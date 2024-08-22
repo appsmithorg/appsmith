@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
+
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
+import { Colors } from "constants/Colors";
+import styled from "styled-components";
 
 const Container = styled.div`
   .heading {

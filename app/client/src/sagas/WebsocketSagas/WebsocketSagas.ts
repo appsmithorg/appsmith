@@ -1,25 +1,24 @@
-import type { Socket, ManagerOptions, SocketOptions } from "socket.io-client";
-import { io } from "socket.io-client";
-import type { EventChannel, Task } from "redux-saga";
-import { eventChannel } from "redux-saga";
-import { fork, take, call, cancel, put } from "redux-saga/effects";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import {
-  WEBSOCKET_EVENTS,
-  RTS_BASE_PATH,
-  WEBSOCKET_NAMESPACE,
-  websocketDisconnectedEvent,
-  websocketConnectedEvent,
-} from "constants/WebsocketConstants";
-
+import * as Sentry from "@sentry/react";
 import {
   setIsAppLevelWebsocketConnected,
   setIsPageLevelWebsocketConnected,
 } from "actions/websocketActions";
+import {
+  RTS_BASE_PATH,
+  WEBSOCKET_EVENTS,
+  WEBSOCKET_NAMESPACE,
+  websocketConnectedEvent,
+  websocketDisconnectedEvent,
+} from "constants/WebsocketConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { EventChannel, Task } from "redux-saga";
+import { eventChannel } from "redux-saga";
+import { call, cancel, fork, put, take } from "redux-saga/effects";
+import type { ManagerOptions, Socket, SocketOptions } from "socket.io-client";
+import { io } from "socket.io-client";
 
 import handleAppLevelSocketEvents from "./handleAppLevelSocketEvents";
 import handlePageLevelSocketEvents from "./handlePageLevelSocketEvents";
-import * as Sentry from "@sentry/react";
 import { SOCKET_CONNECTION_EVENTS } from "./socketEvents";
 
 async function connect(namespace?: string) {

@@ -1,15 +1,16 @@
 import React from "react";
+
 import { useCheckbox } from "@react-aria/checkbox";
-import { useToggleState } from "@react-stately/toggle";
 import { useFocusRing } from "@react-aria/focus";
+import { useToggleState } from "@react-stately/toggle";
 import clsx from "classnames";
 
-import type { CheckboxProps } from "./Checkbox.types";
-import { StyledCheckbox } from "./Checkbox.styles";
 import {
   CheckboxClassName,
   CheckboxClassNameSquare,
 } from "./Checkbox.constants";
+import { StyledCheckbox } from "./Checkbox.styles";
+import type { CheckboxProps } from "./Checkbox.types";
 
 function Checkbox(props: CheckboxProps) {
   const { children, className, isDisabled, isIndeterminate } = props;

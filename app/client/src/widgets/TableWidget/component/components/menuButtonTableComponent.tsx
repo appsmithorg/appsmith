@@ -1,31 +1,33 @@
 import * as React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+
 import {
   Alignment,
+  Classes as BClasses,
   Button,
   Classes as CoreClasses,
   Icon,
   Menu,
   MenuItem,
-  Classes as BClasses,
 } from "@blueprintjs/core";
-import { Classes, Popover2 } from "@blueprintjs/popover2";
 import type { IconName } from "@blueprintjs/icons";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
+import type { ThemeProp } from "WidgetProvider/constants";
+import type { ButtonVariant } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import orderBy from "lodash/orderBy";
+import styled, { createGlobalStyle } from "styled-components";
+import tinycolor from "tinycolor2";
 import {
+  getComplementaryGrayscaleColor,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
   lightenColor,
-  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
-import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import type { ButtonVariant } from "components/constants";
-import { ButtonVariantTypes } from "components/constants";
+
 import type { MenuItems } from "../Constants";
-import tinycolor from "tinycolor2";
-import { Colors } from "constants/Colors";
-import orderBy from "lodash/orderBy";
-import type { ThemeProp } from "WidgetProvider/constants";
 
 const MenuButtonContainer = styled.div`
   width: 100%;

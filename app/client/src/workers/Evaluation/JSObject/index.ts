@@ -1,26 +1,27 @@
-import { get, isEmpty, isUndefined, set } from "lodash";
+import { isJSFunctionProperty, parseJSObject } from "@shared/ast";
 import type { JSActionEntity } from "ee/entities/DataTree/types";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
-import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
-import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import evaluateSync from "workers/Evaluation/evaluate";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { get, isEmpty, isUndefined, set } from "lodash";
+import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
+import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/Evaluation/JSObject/utils";
+import evaluateSync from "workers/Evaluation/evaluate";
+import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
+
+import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { dataTreeEvaluator } from "../handlers/evalTree";
 import JSObjectCollection from "./Collection";
-import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
-import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body

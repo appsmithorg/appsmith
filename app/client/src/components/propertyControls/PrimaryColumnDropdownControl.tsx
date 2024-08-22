@@ -1,15 +1,18 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import type { SegmentedControlOption } from "@appsmith/ads";
-import { Select, Option } from "@appsmith/ads";
+
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { Option, Select } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
   containerRef = React.createRef<HTMLDivElement>();

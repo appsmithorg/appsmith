@@ -1,28 +1,30 @@
 import React from "react";
-import styled from "styled-components";
-import AdminConfig from "ee/pages/AdminSettings/config";
-import {
-  CategoryType,
-  type Category,
-} from "ee/pages/AdminSettings/config/types";
-import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
-import { useParams } from "react-router";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Link, Text } from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getCurrentUser } from "selectors/usersSelectors";
+
 import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
+import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AdminConfig from "ee/pages/AdminSettings/config";
+import {
+  type Category,
+  CategoryType,
+} from "ee/pages/AdminSettings/config/types";
 import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasAuditLogsReadPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
   getFilteredAclCategories,
   getFilteredGeneralCategories,
   getFilteredOtherCategories,
 } from "ee/utils/adminSettingsHelpers";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasAuditLogsReadPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+
+import { Link, Text } from "@appsmith/ads";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};

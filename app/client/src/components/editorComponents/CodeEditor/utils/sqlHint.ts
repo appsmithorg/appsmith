@@ -1,4 +1,5 @@
 import type { Hints } from "codemirror";
+
 import { sqlHint } from "../hintHelpers";
 
 export enum SQLDataType {

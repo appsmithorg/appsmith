@@ -25,7 +25,6 @@ Steps to change something for the EE version of app
 
   ```typescript
   // ApplicationList.tsx
-
   import ApplicationCard from "ee/pages/Applications/ApplicationCard";
   ```
 

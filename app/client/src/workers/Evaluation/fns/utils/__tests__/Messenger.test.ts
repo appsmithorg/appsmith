@@ -1,4 +1,5 @@
 import { MessageType } from "utils/MessageUtil";
+
 import { WorkerMessenger } from "../Messenger";
 
 describe("Tests all worker messenger method", () => {

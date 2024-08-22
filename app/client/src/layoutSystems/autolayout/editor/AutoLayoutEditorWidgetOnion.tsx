@@ -1,15 +1,17 @@
-import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
-import { get } from "lodash";
 import React, { useCallback } from "react";
+
+import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
+import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponent";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
+import { generateDragStateForFixedLayout } from "layoutSystems/fixedlayout/common/utils";
+import { get } from "lodash";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
-import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";
-import DraggableComponent from "layoutSystems/common/draggable/DraggableComponent";
-import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 import { AutoResizableLayer } from "../common/resizer/AutoResizableLayer";
-import { generateDragStateForFixedLayout } from "layoutSystems/fixedlayout/common/utils";
+import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 
 /**
  * AutoLayoutEditorWidgetOnion

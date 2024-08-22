@@ -1,24 +1,24 @@
 import React, { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
 import { deleteDatasource } from "actions/datasourceActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
-  CONTEXT_RENAME,
-  CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
+  CONTEXT_DELETE,
+  CONTEXT_RENAME,
   createMessage,
 } from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
-
-import { getDatasource } from "ee/selectors/entitiesSelector";
-import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
-import ContextMenu from "pages/Editor/Explorer/ContextMenu";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getDatasource } from "ee/selectors/entitiesSelector";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import { useDispatch, useSelector } from "react-redux";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;

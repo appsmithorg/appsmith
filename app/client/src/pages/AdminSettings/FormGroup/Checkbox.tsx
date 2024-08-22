@@ -1,13 +1,16 @@
 import React, { memo } from "react";
+
+import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
+import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
+import { useSelector } from "react-redux";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field, getFormValues } from "redux-form";
 import styled from "styled-components";
-import { FormGroup, type SettingComponentProps } from "./Common";
-import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+
 import { Checkbox } from "@appsmith/ads";
-import { useSelector } from "react-redux";
-import { SETTINGS_FORM_NAME } from "ee/constants/forms";
-import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
+
+import { FormGroup, type SettingComponentProps } from "./Common";
 
 const CheckboxWrapper = styled.div`
   display: grid;

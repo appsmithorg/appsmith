@@ -1,11 +1,11 @@
-import { Pool } from "pg";
 import { S3 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
-import fs from "fs";
 import { Octokit } from "@octokit/rest";
-import fetch from "node-fetch";
+import fs from "fs";
 import globby from "globby";
 import minimatch from "minimatch";
+import fetch from "node-fetch";
+import { Pool } from "pg";
 
 export interface DataItem {
   name: string;

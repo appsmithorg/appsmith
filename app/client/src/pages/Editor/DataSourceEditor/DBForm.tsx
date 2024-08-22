@@ -1,22 +1,25 @@
 import React from "react";
-import { connect } from "react-redux";
-import styled from "styled-components";
-import _ from "lodash";
-import { DATASOURCE_DB_FORM } from "ee/constants/forms";
-import type { Datasource } from "entities/Datasource";
-import type { InjectedFormProps } from "redux-form";
-import { reduxForm } from "redux-form";
+
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "ee/configs";
-import { convertArrayToSentence } from "utils/helpers";
-import { PluginType } from "entities/Action";
+import { DATASOURCE_DB_FORM } from "ee/constants/forms";
 import type { AppState } from "ee/reducers";
+import { PluginType } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import _ from "lodash";
+import { connect } from "react-redux";
+import type { InjectedFormProps } from "redux-form";
+import { reduxForm } from "redux-form";
+import store from "store";
+import styled from "styled-components";
+import { convertArrayToSentence } from "utils/helpers";
+
+import { Callout } from "@appsmith/ads";
+
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { Callout } from "@appsmith/ads";
-import store from "store";
 
 const { cloudHosting } = getAppsmithConfigs();
 

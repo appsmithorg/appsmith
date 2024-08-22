@@ -1,16 +1,18 @@
 import React from "react";
-import { Text, TextType } from "@appsmith/ads-old";
-import { Icon, Tooltip } from "@appsmith/ads";
-import type { Datasource } from "entities/Datasource";
-import styled from "styled-components";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
-import { isEnvironmentConfigured } from "ee/utils/Environments";
+
 import type { Plugin } from "api/PluginApi";
+import { isEnvironmentConfigured } from "ee/utils/Environments";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { Datasource } from "entities/Datasource";
+import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
+import styled from "styled-components";
 import {
   isDatasourceAuthorizedForQueryCreation,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
+
+import { Icon, Tooltip } from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
 
 const ListItem = styled.div<{ disabled?: boolean }>`
   display: flex;

@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 import React from "react";
+
+import { useAnvilWidgetElevationSetter } from "layoutSystems/anvil/editor/canvas/hooks/useAnvilWidgetElevationSetter";
 import styled from "styled-components";
 import { generateClassName } from "utils/generators";
+
 import type { Elevations } from "./constants";
-import { useAnvilWidgetElevationSetter } from "layoutSystems/anvil/editor/canvas/hooks/useAnvilWidgetElevationSetter";
 
 /**
  * This container component wraps the Zone and Section widgets and allows Anvil to utilise tokens from the themes

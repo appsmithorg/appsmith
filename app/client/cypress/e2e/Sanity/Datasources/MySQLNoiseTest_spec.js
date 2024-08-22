@@ -1,10 +1,11 @@
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
-import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe(

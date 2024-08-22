@@ -1,5 +1,20 @@
+import {
+  disableStartSignpostingAction,
+  removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
+  setSignpostingOverlay,
+  showSignpostingTooltip,
+  signpostingStepUpdate,
+} from "actions/onboardingActions";
+import type { User } from "constants/userConstants";
+import { builderURL } from "ee/RouteBuilder";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { isUndefined } from "lodash";
+import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
+import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
+import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import {
   all,
   call,
@@ -10,6 +25,13 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
+import { getSignpostingStepStateByStep } from "selectors/onboardingSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import history from "utils/history";
+import {
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
   removeAllFirstTimeUserOnboardingApplicationIds,
@@ -18,30 +40,6 @@ import {
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-
-import { getCurrentUser } from "selectors/usersSelectors";
-import history from "utils/history";
-
-import { getSignpostingStepStateByStep } from "selectors/onboardingSelectors";
-import {
-  disableStartSignpostingAction,
-  removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
-  setSignpostingOverlay,
-  showSignpostingTooltip,
-  signpostingStepUpdate,
-} from "actions/onboardingActions";
-import {
-  getCurrentApplicationId,
-  getIsEditorInitialized,
-} from "selectors/editorSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { User } from "constants/userConstants";
-import { builderURL } from "ee/RouteBuilder";
-import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
-import type { StepState } from "reducers/uiReducers/onBoardingReducer";
-import { isUndefined } from "lodash";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
 
 // Signposting sagas
 function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {

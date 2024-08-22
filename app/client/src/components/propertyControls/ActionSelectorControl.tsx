@@ -1,19 +1,19 @@
 import React from "react";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+
+import { canTranslateToUI, getActionBlocks } from "@shared/ast";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
 import ActionCreator from "components/editorComponents/ActionCreator";
-import type { DSEventDetail } from "utils/AppsmithUtils";
-import {
-  DSEventTypes,
-  DS_EVENT,
-  emitInteractionAnalyticsEvent,
-} from "utils/AppsmithUtils";
+import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
 import {
   codeToAction,
   getCodeFromMoustache,
 } from "components/editorComponents/ActionCreator/utils";
-import { canTranslateToUI, getActionBlocks } from "@shared/ast";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import type {
+  ModuleInstance,
+  ModuleInstanceDataState,
+} from "ee/constants/ModuleInstanceConstants";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import {
   getActions,
   getAllJSCollections,
@@ -21,17 +21,19 @@ import {
   getModuleInstances,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import store from "store";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
-import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
-import type {
-  ModuleInstance,
-  ModuleInstanceDataState,
-} from "ee/constants/ModuleInstanceConstants";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
-import type { JSAction } from "entities/JSCollection";
 import { getAllModules } from "ee/selectors/modulesSelector";
+import type { JSAction } from "entities/JSCollection";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import store from "store";
+import type { DSEventDetail } from "utils/AppsmithUtils";
+import {
+  DSEventTypes,
+  DS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();

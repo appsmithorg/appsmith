@@ -1,6 +1,11 @@
-import { Icon, Text, Button, Divider } from "@appsmith/ads";
 import React, { useContext, useEffect, useState } from "react";
+
+import { showIndicator } from "components/utils/Indicator";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import styled from "styled-components";
+
+import { Button, Divider, Icon, Text } from "@appsmith/ads";
+
 import { PADDING_HIGHLIGHT, getPosition } from "./utils";
 import type {
   FeatureDetails,
@@ -10,8 +15,6 @@ import type {
 import WalkthroughContext, {
   isFeatureFooterDetails,
 } from "./walkthroughContext";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { showIndicator } from "components/utils/Indicator";
 
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;

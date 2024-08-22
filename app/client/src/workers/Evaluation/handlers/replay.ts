@@ -1,4 +1,5 @@
 import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
+
 import type { EvalWorkerSyncRequest } from "../types";
 import { CANVAS, replayMap } from "./evalTree";
 

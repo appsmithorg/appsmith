@@ -1,7 +1,7 @@
+import type { IdentifierInfo } from "@shared/ast";
 import type { Response } from "express";
 import type { ValidationError } from "express-validator";
 import { StatusCodes } from "http-status-codes";
-import type { IdentifierInfo } from "@shared/ast";
 
 interface ErrorData {
   error: string | string[];

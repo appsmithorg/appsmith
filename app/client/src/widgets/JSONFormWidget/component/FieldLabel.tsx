@@ -1,13 +1,14 @@
 import type { PropsWithChildren } from "react";
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
+import type { AlignWidget } from "WidgetProvider/constants";
 import Tooltip from "components/editorComponents/Tooltip";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
-import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import type { AlignWidget } from "WidgetProvider/constants";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import styled from "styled-components";
+
 import { importSvg } from "@appsmith/ads-old";
 
 const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));

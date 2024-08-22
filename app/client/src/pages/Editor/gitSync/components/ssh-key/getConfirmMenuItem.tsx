@@ -1,15 +1,18 @@
 import React from "react";
+
+import {
+  DELETE_CONFIRMATION_MODAL_TITLE,
+  REGENERATE_KEY_CONFIRM_MESSAGE,
+  YES,
+  createMessage,
+} from "ee/constants/messages";
+
+import { Button, MenuItem, Text } from "@appsmith/ads";
+
 import {
   ConfirmRegeneration,
   ConfirmRegenerationActions,
 } from "./StyledComponents";
-import {
-  createMessage,
-  DELETE_CONFIRMATION_MODAL_TITLE,
-  REGENERATE_KEY_CONFIRM_MESSAGE,
-  YES,
-} from "ee/constants/messages";
-import { Button, MenuItem, Text } from "@appsmith/ads";
 
 /**
  * getConfirmMenuItem

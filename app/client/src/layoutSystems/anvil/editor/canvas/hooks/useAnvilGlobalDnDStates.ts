@@ -1,20 +1,22 @@
+import { useMemo } from "react";
+
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppState } from "ee/reducers";
-import { getDragDetails, getWidgets } from "sagas/selectors";
-import { useSelector } from "react-redux";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { useMemo } from "react";
-import { getSelectedWidgets } from "selectors/ui";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
+import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
+import { useSelector } from "react-redux";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getDragDetails, getWidgets } from "sagas/selectors";
+import { getSelectedWidgets } from "selectors/ui";
+
+import type { AnvilDraggedWidgetTypesEnum } from "../../canvasArenas/types";
 import {
   getDraggedBlocks,
   getDraggedWidgetHierarchy,
   getDraggedWidgetTypes,
 } from "../../canvasArenas/utils/utils";
-import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
-import type { AnvilDraggedWidgetTypesEnum } from "../../canvasArenas/types";
 import { useAnvilDnDDeactivation } from "./useAnvilDnDDeactivation";
 
 export interface AnvilGlobalDnDStates {

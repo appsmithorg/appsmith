@@ -1,3 +1,4 @@
+import type { WidgetType } from "WidgetProvider/factory";
 import type {
   OccupiedSpace,
   WidgetSpace,
@@ -16,12 +17,12 @@ import {
   ReflowDirection,
   VERTICAL_RESIZE_MIN_LIMIT,
 } from "reflow/reflowTypes";
-import type { WidgetType } from "WidgetProvider/factory";
 import {
   getDraggingSpacesFromBlocks,
   getDropZoneOffsets,
   noCollision,
 } from "utils/WidgetPropsUtils";
+
 import type { WidgetDraggingBlock, XYCord } from "../canvasArenas/ArenaTypes";
 
 /**

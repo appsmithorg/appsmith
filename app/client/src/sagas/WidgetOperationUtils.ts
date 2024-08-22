@@ -1,5 +1,3 @@
-import type { WidgetEntity } from "ee/entities/DataTree/types";
-import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type {
@@ -22,10 +20,13 @@ import {
   getSlidingArenaName,
   getStickyCanvasName,
 } from "constants/componentClassNameConstants";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import {
-  getWidgetLayoutMetaInfo,
   type WidgetLayoutPositionInfo,
+  getWidgetLayoutMetaInfo,
 } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
@@ -60,6 +61,7 @@ import { generateReactKey } from "utils/generators";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
+
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import {
   getFocusedWidget,
@@ -67,7 +69,6 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export interface CopiedWidgetGroup {
   widgetId: string;

@@ -6,6 +6,7 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(

@@ -1,7 +1,8 @@
-import styled from "styled-components";
-import { Link } from "react-router-dom";
-import Form from "components/editorComponents/Form";
 import { Card } from "@blueprintjs/core";
+import Form from "components/editorComponents/Form";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+
 import { FormGroup, getTypographyByKey } from "@appsmith/ads-old";
 
 export const AuthContainer = styled.section`

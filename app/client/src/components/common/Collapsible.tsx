@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 import React, { useEffect, useState } from "react";
+
+import { Classes as BPClasses, Collapse } from "@blueprintjs/core";
+import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
-import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
+
 import { Icon, Text, Tooltip } from "@appsmith/ads";
 import { Classes, getTypographyByKey } from "@appsmith/ads-old";
-import type { Datasource } from "entities/Datasource";
 
 const Label = styled.span`
   cursor: pointer;

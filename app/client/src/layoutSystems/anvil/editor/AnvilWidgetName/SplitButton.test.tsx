@@ -1,8 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
 import React from "react";
-import { SplitButton } from "./SplitButton";
+
+import "@testing-library/jest-dom";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+
+import { SplitButton } from "./SplitButton";
 
 const handler = {
   log: jest.fn(),

@@ -1,5 +1,5 @@
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 export const GIT_CONNECT_STEPS = {
   CHOOSE_PROVIDER: "choose-provider",

@@ -1,19 +1,20 @@
-import type { AppState } from "ee/reducers";
-import { getColorWithOpacity } from "constants/DefaultTheme";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { CSSProperties, DragEventHandler, ReactNode } from "react";
 import React, { useMemo, useRef } from "react";
-import styled from "styled-components";
+
+import { getColorWithOpacity } from "constants/DefaultTheme";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
 import { useSelector } from "react-redux";
-import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
+import styled from "styled-components";
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;

@@ -1,39 +1,41 @@
 import type { ReactNode } from "react";
 import React from "react";
-import type { TextSize } from "constants/WidgetConstants";
-import { countOccurrences } from "workers/Evaluation/helpers";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import type { Color } from "constants/Colors";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { pick } from "lodash";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import type { ContainerStyle } from "widgets/ContainerWidget/component";
-import type { TextAlign } from "../component";
-import TextComponent from "../component";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { OverflowTypes } from "../constants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type {
-  SnipingModeProperty,
   PropertyUpdates,
+  SnipingModeProperty,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { Color } from "constants/Colors";
+import type { TextSize } from "constants/WidgetConstants";
+import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { pick } from "lodash";
 import { get } from "lodash";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { ContainerStyle } from "widgets/ContainerWidget/component";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { countOccurrences } from "workers/Evaluation/helpers";
+
+import type { TextAlign } from "../component";
+import TextComponent from "../component";
+import { OverflowTypes } from "../constants";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {

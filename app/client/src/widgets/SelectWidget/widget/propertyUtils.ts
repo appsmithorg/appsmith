@@ -1,9 +1,10 @@
-import type { LoDashStatic } from "lodash";
-import type { SelectWidgetProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { get, isArray, isString, isPlainObject, uniq } from "lodash";
-import type { WidgetProps } from "../../BaseWidget";
+import type { LoDashStatic } from "lodash";
+import { get, isArray, isPlainObject, isString, uniq } from "lodash";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+
+import type { SelectWidgetProps } from ".";
+import type { WidgetProps } from "../../BaseWidget";
 
 export function defaultOptionValueValidation(
   value: unknown,

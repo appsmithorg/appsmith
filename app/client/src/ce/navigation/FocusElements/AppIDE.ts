@@ -3,6 +3,8 @@ import {
   setApiPaneDebuggerState,
   setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
+import { setDatasourceViewMode } from "actions/datasourceActions";
+import { setDebuggerContext } from "actions/debuggerActions";
 import {
   setAllEntityCollapsibleStates,
   setAllSubEntityCollapsibleStates,
@@ -12,28 +14,6 @@ import {
   setPanelPropertiesState,
   setWidgetSelectedPropertyTabIndex,
 } from "actions/editorContextActions";
-import {
-  getApiPaneConfigSelectedTabIndex,
-  getApiPaneDebuggerState,
-  getApiRightPaneSelectedTab,
-} from "selectors/apiPaneSelectors";
-import {
-  getAllEntityCollapsibleStates,
-  getAllPropertySectionState,
-  getAllSubEntityCollapsibleStates,
-  getCodeEditorHistory,
-  getExplorerSwitchIndex,
-  getFocusableInputField,
-  getPropertyPanelState,
-  getWidgetSelectedPropertyTabIndex,
-} from "selectors/editorContextSelectors";
-import {
-  getDefaultSelectedWidgetIds,
-  getDsViewModeValues,
-  getSelectedWidgets,
-} from "selectors/ui";
-
-import { setDatasourceViewMode } from "actions/datasourceActions";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
   setJsPaneConfigSelectedTab,
@@ -54,9 +34,41 @@ import {
   DEFAULT_ENTITY_EXPLORER_WIDTH,
   DEFAULT_PROPERTY_PANE_WIDTH,
 } from "constants/AppConstants";
+import {
+  getSelectedDatasourceId,
+  getSelectedEntityUrl,
+} from "ee/navigation/FocusSelectors";
+import {
+  setSelectedDatasource,
+  setSelectedEntityUrl,
+  setSelectedJSObject,
+  setSelectedQuery,
+} from "ee/navigation/FocusSetters";
 import { PluginPackageName } from "entities/Action";
+import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
+import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import {
+  getApiPaneConfigSelectedTabIndex,
+  getApiPaneDebuggerState,
+  getApiRightPaneSelectedTab,
+} from "selectors/apiPaneSelectors";
+import { getFirstDatasourceId } from "selectors/datasourceSelectors";
+import { getDebuggerContext } from "selectors/debuggerSelectors";
+import {
+  getAllEntityCollapsibleStates,
+  getAllPropertySectionState,
+  getAllSubEntityCollapsibleStates,
+  getCodeEditorHistory,
+  getExplorerSwitchIndex,
+  getFocusableInputField,
+  getPropertyPanelState,
+  getWidgetSelectedPropertyTabIndex,
+} from "selectors/editorContextSelectors";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import {
   getJSPaneConfigSelectedTab,
@@ -73,25 +85,12 @@ import {
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneDebuggerState,
 } from "selectors/queryPaneSelectors";
-import { getDebuggerContext } from "selectors/debuggerSelectors";
-import { setDebuggerContext } from "actions/debuggerActions";
-import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
+import {
+  getDefaultSelectedWidgetIds,
+  getDsViewModeValues,
+  getSelectedWidgets,
+} from "selectors/ui";
 import { NavigationMethod } from "utils/history";
-import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
-import {
-  getSelectedDatasourceId,
-  getSelectedEntityUrl,
-} from "ee/navigation/FocusSelectors";
-import {
-  setSelectedDatasource,
-  setSelectedEntityUrl,
-  setSelectedJSObject,
-  setSelectedQuery,
-} from "ee/navigation/FocusSetters";
-import { getFirstDatasourceId } from "selectors/datasourceSelectors";
-import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
-import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [

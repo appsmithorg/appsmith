@@ -1,3 +1,9 @@
+import React, { useCallback, useState } from "react";
+
+import { clearInstalls } from "actions/JSLibraryActions";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
+import { useDispatch } from "react-redux";
+
 import {
   Button,
   Popover,
@@ -6,11 +12,8 @@ import {
   PopoverHeader,
   PopoverTrigger,
 } from "@appsmith/ads";
-import React, { useCallback, useState } from "react";
-import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
+
 import { Installer } from "../../Explorer/Libraries/Installer";
-import { clearInstalls } from "actions/JSLibraryActions";
-import { useDispatch } from "react-redux";
 
 const AddLibraryPopover = () => {
   const [open, setOpen] = useState(false);

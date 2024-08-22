@@ -1,9 +1,9 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Entity explorer tests related to widgets and validation",

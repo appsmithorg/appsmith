@@ -2,6 +2,7 @@ import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { cloneDeep, isUndefined } from "lodash";
 import type { Rect } from "utils/boxHelpers";
 import { areIntersecting } from "utils/boxHelpers";
+
 import type {
   BlockSpace,
   CollidingSpace,

@@ -1,12 +1,13 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const Layoutpage = require("../../../../../locators/Layout.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 import {
   agHelper,
   deployMode,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const Layoutpage = require("../../../../../locators/Layout.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const publish = require("../../../../../locators/publishWidgetspage.json");
 
 describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   before(() => {

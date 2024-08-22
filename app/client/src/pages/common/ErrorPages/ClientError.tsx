@@ -1,15 +1,17 @@
 import React from "react";
-import { useDispatch } from "react-redux";
-import { Button } from "@appsmith/ads";
-import { flushErrors } from "actions/errorActions";
 
-import Page from "./Page";
+import { flushErrors } from "actions/errorActions";
+import { DISCORD_URL } from "constants/ThirdPartyConstants";
 import {
-  createMessage,
   PAGE_CLIENT_ERROR_DESCRIPTION,
   PAGE_CLIENT_ERROR_TITLE,
+  createMessage,
 } from "ee/constants/messages";
-import { DISCORD_URL } from "constants/ThirdPartyConstants";
+import { useDispatch } from "react-redux";
+
+import { Button } from "@appsmith/ads";
+
+import Page from "./Page";
 
 function ClientError() {
   const dispatch = useDispatch();

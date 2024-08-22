@@ -1,7 +1,9 @@
 import React, { useMemo } from "react";
+
 import type { WidgetProps } from "widgets/BaseWidget";
-import { FixedLayoutEditorWidgetOnion } from "./FixedLayoutEditorWidgetOnion";
+
 import { FixedLayoutEditorModalOnion } from "./FixedLayoutEditorModalOnion";
+import { FixedLayoutEditorWidgetOnion } from "./FixedLayoutEditorWidgetOnion";
 
 /**
  * FixedLayoutEditorWrapper

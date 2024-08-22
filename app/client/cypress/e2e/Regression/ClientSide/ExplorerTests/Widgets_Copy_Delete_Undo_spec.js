@@ -1,15 +1,15 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
-
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 import {
   agHelper,
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 before(() => {
   agHelper.AddDsl("formWidgetdsl");

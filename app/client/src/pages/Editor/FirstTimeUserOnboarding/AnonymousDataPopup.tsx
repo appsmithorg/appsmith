@@ -1,32 +1,35 @@
 import React, { useEffect } from "react";
-import { Callout } from "@appsmith/ads";
+
+import { deleteCanvasCardsState } from "actions/editorActions";
+import { showAnonymousDataPopup } from "actions/onboardingActions";
+import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
   ADMIN_SETTINGS,
   LEARN_MORE,
   ONBOARDING_TELEMETRY_POPUP,
   createMessage,
 } from "ee/constants/messages";
-import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
-import {
-  ANONYMOUS_DATA_POPOP_TIMEOUT,
-  TELEMETRY_DOCS_PAGE_URL,
-} from "./constants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getFirstTimeUserOnboardingComplete,
   getIsAnonymousDataPopupVisible,
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
 import {
   getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
   setFirstTimeUserOnboardingTelemetryCalloutVisibility,
 } from "utils/storage";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { deleteCanvasCardsState } from "actions/editorActions";
-import styled from "styled-components";
-import { showAnonymousDataPopup } from "actions/onboardingActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import { Callout } from "@appsmith/ads";
+
+import {
+  ANONYMOUS_DATA_POPOP_TIMEOUT,
+  TELEMETRY_DOCS_PAGE_URL,
+} from "./constants";
 
 const Wrapper = styled.div`
   margin: ${(props) =>

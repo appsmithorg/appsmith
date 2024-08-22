@@ -1,10 +1,10 @@
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   getEntityNameAndPropertyPath,
   isATriggerPath,
   isDynamicLeaf,
   isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 
 export default function sortLintingPathsByType(
   pathsToLint: string[],

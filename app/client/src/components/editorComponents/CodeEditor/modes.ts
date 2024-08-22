@@ -1,10 +1,11 @@
 import CodeMirror from "codemirror";
-import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import "codemirror/addon/hint/sql-hint";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/sql/sql";
-import "codemirror/addon/hint/sql-hint";
+import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+
 import type { TEditorSqlModes } from "./sql/config";
 import { sqlModesConfig } from "./sql/config";
 

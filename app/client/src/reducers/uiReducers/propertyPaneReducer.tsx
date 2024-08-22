@@ -1,8 +1,8 @@
+import type { ShowPropertyPanePayload } from "actions/propertyPaneActions";
+import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { DEFAULT_PROPERTY_PANE_WIDTH } from "constants/AppConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ShowPropertyPanePayload } from "actions/propertyPaneActions";
 
 export interface SelectedPropertyPanel {
   [path: string]: number;

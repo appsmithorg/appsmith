@@ -1,7 +1,9 @@
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { Button } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
+
 import {
   getMenuContainerBackgroundColor,
   getMenuItemTextColor,

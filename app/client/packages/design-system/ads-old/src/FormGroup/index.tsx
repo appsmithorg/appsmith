@@ -1,6 +1,8 @@
-import styled from "styled-components";
 import type { PropsWithChildren } from "react";
-import { FormGroup, Classes } from "@blueprintjs/core";
+
+import { Classes, FormGroup } from "@blueprintjs/core";
+import styled from "styled-components";
+
 import { getTypographyByKey } from "../constants/typography";
 
 type FormGroupProps = PropsWithChildren<{

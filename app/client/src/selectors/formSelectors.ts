@@ -1,20 +1,21 @@
-import { getFormValues, isValid, getFormInitialValues } from "redux-form";
+import { extractConditionalOutput } from "components/formControls/utils";
+import { getActionIdFromURL } from "ee/pages/Editor/Explorer/helpers";
 import type { AppState } from "ee/reducers";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import { getActionByBaseId } from "ee/selectors/entitiesSelector";
+import type { Action } from "entities/Action";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { isEmpty, replace } from "lodash";
 import type {
   DynamicValues,
   FormEvalOutput,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import { getFormInitialValues, getFormValues, isValid } from "redux-form";
 import { createSelector } from "reselect";
-import { isEmpty, replace } from "lodash";
-import { getDataTree } from "./dataTreeSelectors";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { getActionIdFromURL } from "ee/pages/Editor/Explorer/helpers";
-import { extractConditionalOutput } from "components/formControls/utils";
-import { getActionByBaseId } from "ee/selectors/entitiesSelector";
+
+import { getDataTree } from "./dataTreeSelectors";
 
 export interface GetFormData {
   initialValues: Record<string, unknown>;

@@ -1,29 +1,31 @@
 import React, { useCallback } from "react";
-import DebuggerLogs from "./DebuggerLogs";
-import { useDispatch, useSelector } from "react-redux";
+
+import { IDEBottomView, ViewDisplayMode, ViewHideBehaviour } from "IDE";
 import {
   setDebuggerSelectedTab,
   setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
 import {
+  DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
+  INSPECT_ENTITY,
+  createMessage,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { useDispatch, useSelector } from "react-redux";
+import {
   getDebuggerSelectedTab,
   getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import Errors from "./Errors";
-import EntityDeps from "./EntityDependecies";
-import {
-  createMessage,
-  DEBUGGER_ERRORS,
-  DEBUGGER_LOGS,
-  INSPECT_ENTITY,
-} from "ee/constants/messages";
-import { DEBUGGER_TAB_KEYS } from "./helpers";
+
 import EntityBottomTabs from "../EntityBottomTabs";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
+import DebuggerLogs from "./DebuggerLogs";
+import EntityDeps from "./EntityDependecies";
+import Errors from "./Errors";
+import { DEBUGGER_TAB_KEYS } from "./helpers";
 
 function DebuggerTabs() {
   const dispatch = useDispatch();

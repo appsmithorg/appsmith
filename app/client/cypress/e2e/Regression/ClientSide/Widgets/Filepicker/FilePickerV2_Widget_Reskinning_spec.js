@@ -1,6 +1,7 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const themeLocator = require("../../../../../locators/ThemeLocators.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Checkbox Widget Functionality",

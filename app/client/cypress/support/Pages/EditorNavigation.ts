@@ -1,9 +1,10 @@
 import datasource from "../../locators/DatasourcesEditor.json";
 import { ObjectsRegistry as _ } from "../Objects/Registry";
-import ClickOptions = Cypress.ClickOptions;
-import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
+import { Sidebar } from "./IDE/Sidebar";
 import PageList from "./PageList";
+
+import ClickOptions = Cypress.ClickOptions;
 
 export enum AppSidebarButton {
   Data = "Data",

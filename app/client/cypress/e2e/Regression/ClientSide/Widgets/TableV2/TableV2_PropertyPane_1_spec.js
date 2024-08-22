@@ -1,15 +1,16 @@
 import {
-  entityExplorer,
-  table,
-  propPane,
   agHelper,
   deployMode,
   draggableWidgets,
+  entityExplorer,
   locators,
+  propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");

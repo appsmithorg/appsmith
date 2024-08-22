@@ -1,15 +1,17 @@
 import React from "react";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
+
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
+import tinycolor from "tinycolor2";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
-import tinycolor from "tinycolor2";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   componentRef = React.createRef<HTMLDivElement>();

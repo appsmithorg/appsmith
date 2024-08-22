@@ -1,12 +1,13 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import type { LintError } from "utils/DynamicBindingUtils";
 import { isNil } from "lodash";
+import type { LintError } from "utils/DynamicBindingUtils";
+import type { TJSpropertyState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import {
   EvaluationScriptType,
   getScriptToEval,
   getScriptType,
 } from "workers/Evaluation/evaluate";
-import type { TJSpropertyState } from "workers/Evaluation/JSObject/jsPropertiesState";
+
 import getLintingErrors from "./getLintingErrors";
 
 export default function lintJSProperty(

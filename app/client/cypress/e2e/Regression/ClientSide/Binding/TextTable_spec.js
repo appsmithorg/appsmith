@@ -1,16 +1,16 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  propPane,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-import {
-  entityExplorer,
-  agHelper,
-  deployMode,
-  propPane,
-  table,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Text-Table Binding Functionality",

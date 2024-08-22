@@ -1,9 +1,10 @@
 import React, { useContext, useMemo } from "react";
-import styles from "./styles.module.css";
+
 import { CustomWidgetBuilderContext } from "../..";
-import TabLayout from "./TabsLayout";
-import SplitLayout from "./SplitLayout";
 import type { ContentProps } from "../CodeEditors/types";
+import SplitLayout from "./SplitLayout";
+import TabLayout from "./TabsLayout";
+import styles from "./styles.module.css";
 
 interface Props {
   content: Array<{

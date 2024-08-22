@@ -1,8 +1,9 @@
+import { type RefObject, useEffect } from "react";
+
 import {
   BUILDER_BASE_PATH_DEPRECATED,
   BUILDER_VIEWER_PATH_PREFIX,
 } from "constants/routes";
-import { useEffect, type RefObject } from "react";
 import { matchPath } from "react-router";
 
 export const EditorNames = {

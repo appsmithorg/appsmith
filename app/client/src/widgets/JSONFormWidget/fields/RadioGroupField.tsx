@@ -1,21 +1,22 @@
 import React, { useCallback, useContext } from "react";
+
 import { Alignment } from "@blueprintjs/core";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 import { isNumber } from "lodash";
 import { useController } from "react-hook-form";
-
-import FormContext from "../FormContext";
 import Field from "widgets/JSONFormWidget/component/Field";
 import RadioGroupComponent from "widgets/RadioGroupWidget/component";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import type { RadioOption } from "widgets/RadioGroupWidget/constants";
+
+import FormContext from "../FormContext";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Colors } from "constants/Colors";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];

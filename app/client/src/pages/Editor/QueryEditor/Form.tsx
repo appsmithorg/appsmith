@@ -1,18 +1,19 @@
-import { formValueSelector, reduxForm } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
-import type { Action } from "entities/Action";
-import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
 import {
-  getPluginResponseTypes,
-  getPluginDocumentationLinks,
-  getPlugin,
   getActionData,
+  getPlugin,
+  getPluginDocumentationLinks,
+  getPluginResponseTypes,
 } from "ee/selectors/entitiesSelector";
+import type { Action } from "entities/Action";
+import { connect } from "react-redux";
+import { formValueSelector, reduxForm } from "redux-form";
+import { getFormEvaluationState } from "selectors/formSelectors";
+
+import { actionResponseDisplayDataFormats } from "../utils";
 import type { EditorJSONtoFormProps } from "./EditorJSONtoForm";
 import { EditorJSONtoForm } from "./EditorJSONtoForm";
-import { getFormEvaluationState } from "selectors/formSelectors";
-import { actionResponseDisplayDataFormats } from "../utils";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
 // TODO: Fix this the next time the file is edited

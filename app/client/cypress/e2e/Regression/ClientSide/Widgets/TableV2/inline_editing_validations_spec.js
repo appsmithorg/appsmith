@@ -1,6 +1,7 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget inline editing validation functionality",

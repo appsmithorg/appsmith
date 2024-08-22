@@ -1,19 +1,22 @@
-import { Collapse } from "@blueprintjs/core";
-import { isString } from "lodash";
-import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
-import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import type { PropsWithChildren } from "react";
 import React, { useState } from "react";
-import ReactJson from "react-json-view";
-import styled from "styled-components";
-import EntityLink from "./EntityLink";
-import { getLogIcon } from "./helpers";
-import { Classes, getTypographyByKey } from "@appsmith/ads-old";
-import ContextualMenu from "./ContextualMenu";
-import { Button, Icon } from "@appsmith/ads";
-import moment from "moment";
+
+import { Collapse } from "@blueprintjs/core";
 import classNames from "classnames";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
+import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import { isString } from "lodash";
+import moment from "moment";
+import ReactJson from "react-json-view";
+import styled from "styled-components";
+
+import { Button, Icon } from "@appsmith/ads";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
+
+import ContextualMenu from "./ContextualMenu";
+import EntityLink from "./EntityLink";
+import { getLogIcon } from "./helpers";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;

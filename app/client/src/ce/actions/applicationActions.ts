@@ -1,3 +1,4 @@
+import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type {
   AppEmbedSetting,
   ApplicationResponsePayload,
@@ -6,9 +7,9 @@ import type {
   UpdateApplicationPayload,
 } from "ee/api/ApplicationApi";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
-import type { IconNames } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
+
+import type { IconNames } from "@appsmith/ads";
 
 export enum ApplicationVersion {
   DEFAULT = 1,

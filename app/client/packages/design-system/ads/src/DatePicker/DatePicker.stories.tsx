@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { DatePicker } from "./DatePicker";
 import type { DatePickerProps } from "./DatePicker.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Date Picker",

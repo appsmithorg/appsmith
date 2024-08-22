@@ -1,10 +1,10 @@
+import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   anvilLayout,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(

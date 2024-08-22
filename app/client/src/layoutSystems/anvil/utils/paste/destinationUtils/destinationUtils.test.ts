@@ -1,7 +1,8 @@
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { registerLayoutComponents } from "../../layouts/layoutUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+
 import { getDestinedParent } from ".";
+import { registerLayoutComponents } from "../../layouts/layoutUtils";
 import { generateMockDataWithSectionAndZone } from "./mockData.helper";
 
 describe("paste destination utils tests", () => {

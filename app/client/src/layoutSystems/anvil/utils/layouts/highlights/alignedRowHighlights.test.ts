@@ -1,21 +1,22 @@
-import { generateAlignedRowMock } from "mocks/layoutComponents/layoutComponentMock";
-import type { LayoutComponentProps, WidgetLayoutProps } from "../../anvilTypes";
+import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/alignedWidgetRow";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,
 } from "layoutSystems/common/types";
-import { deriveAlignedRowHighlights } from "./alignedRowHighlights";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { HIGHLIGHT_SIZE } from "../../constants";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/alignedWidgetRow";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import { generateAlignedRowMock } from "mocks/layoutComponents/layoutComponentMock";
 import { mockButtonProps } from "mocks/widgetProps/button";
-import { getAlignmentLayoutId } from "../layoutUtils";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ButtonWidget from "widgets/ButtonWidget/widget";
+
+import type { LayoutComponentProps, WidgetLayoutProps } from "../../anvilTypes";
+import { HIGHLIGHT_SIZE } from "../../constants";
+import { getAlignmentLayoutId } from "../layoutUtils";
+import { deriveAlignedRowHighlights } from "./alignedRowHighlights";
 
 describe("AlignedRow highlights", () => {
   beforeAll(() => {

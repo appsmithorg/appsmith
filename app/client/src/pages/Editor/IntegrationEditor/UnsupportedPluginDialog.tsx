@@ -1,19 +1,21 @@
 import React from "react";
-import { Text, TextType } from "@appsmith/ads-old";
+
+import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "ee/constants/messages";
+import {
+  UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
+  UNSUPPORTED_PLUGIN_DIALOG_TITLE,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import {
   Button,
   Modal,
   ModalBody,
   ModalContent,
-  ModalHeader,
   ModalFooter,
+  ModalHeader,
 } from "@appsmith/ads";
-import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "ee/constants/messages";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import {
-  UNSUPPORTED_PLUGIN_DIALOG_TITLE,
-  UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
-} from "ee/constants/messages";
+import { Text, TextType } from "@appsmith/ads-old";
 
 interface Props {
   isModalOpen: boolean;

@@ -1,33 +1,34 @@
 import type { ReactNode } from "react";
 import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
-
-import {
-  getIsFetchingPage,
-  getViewModePageList,
-  showCanvasTopSectionSelector,
-} from "selectors/editorSelectors";
-import styled from "styled-components";
-import { getCanvasClassName } from "utils/generators";
 
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import classNames from "classnames";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
-import { Spinner } from "@appsmith/ads";
+import type { AppState } from "ee/reducers";
+import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
 import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
+import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
+import Canvas from "pages/Editor/Canvas";
+import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import {
   getAppThemeIsChanging,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
-import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
-import Canvas from "pages/Editor/Canvas";
-import type { AppState } from "ee/reducers";
+import {
+  getIsFetchingPage,
+  getViewModePageList,
+  showCanvasTopSectionSelector,
+} from "selectors/editorSelectors";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
-import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
-import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import styled from "styled-components";
+import { getCanvasClassName } from "utils/generators";
+
+import { Spinner } from "@appsmith/ads";
+
 import { useCanvasWidthAutoResize } from "../../../hooks";
 
 interface MainCanvasWrapperProps {

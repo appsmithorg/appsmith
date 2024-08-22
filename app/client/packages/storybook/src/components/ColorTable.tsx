@@ -1,11 +1,13 @@
 import React from "react";
 import { useState } from "react";
+
 import {
-  TokenTable,
   StyledSquarePreview,
   ThemeSettings,
+  TokenTable,
 } from "@design-system/storybook";
-import { useTheme, ThemeProvider } from "@appsmith/wds-theming";
+
+import { ThemeProvider, useTheme } from "@appsmith/wds-theming";
 import { defaultTokens } from "@appsmith/wds-theming";
 
 interface ColorTableProps {

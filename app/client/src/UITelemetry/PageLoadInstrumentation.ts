@@ -1,13 +1,14 @@
 import type { Span } from "@opentelemetry/api";
 import { InstrumentationBase } from "@opentelemetry/instrumentation";
-import { startRootSpan, startNestedSpan } from "./generateTraces";
-import { onLCP, onFCP } from "web-vitals/attribution";
+import isString from "lodash/isString";
 import type {
-  LCPMetricWithAttribution,
   FCPMetricWithAttribution,
+  LCPMetricWithAttribution,
   NavigationTimingPolyfillEntry,
 } from "web-vitals";
-import isString from "lodash/isString";
+import { onFCP, onLCP } from "web-vitals/attribution";
+
+import { startNestedSpan, startRootSpan } from "./generateTraces";
 
 export class PageLoadInstrumentation extends InstrumentationBase {
   // PerformanceObserver to observe resource timings

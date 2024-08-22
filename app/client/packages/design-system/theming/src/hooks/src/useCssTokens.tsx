@@ -1,9 +1,10 @@
-import { css } from "@emotion/css";
 import { useEffect, useState } from "react";
-import { cssRule, getTypographyClassName } from "../../utils";
+
+import { css } from "@emotion/css";
 
 import type { Theme } from "../../theme";
 import type { FontFamily, ThemeToken, Typography } from "../../token";
+import { cssRule, getTypographyClassName } from "../../utils";
 
 const fontFamilyCss = (fontFamily?: FontFamily) => {
   const fontFamilyCss =

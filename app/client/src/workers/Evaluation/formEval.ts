@@ -1,20 +1,20 @@
+import type { FormConfigType } from "components/formControls/BaseControl";
+import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
+import type { ActionConfig } from "entities/Action";
+import type { DatasourceConfiguration } from "entities/Datasource";
+import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import type {
   DynamicValues,
+  DynamicValuesConfig,
   EvaluatedFormConfig,
+  FormConfigEvalObject,
   FormEvalOutput,
   FormEvaluationState,
-  FormConfigEvalObject,
-  DynamicValuesConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { ActionConfig } from "entities/Action";
 import type { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
-import type { FormConfigType } from "components/formControls/BaseControl";
-import { isArray, isEmpty, isString, merge, uniq } from "lodash";
-import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
-import type { DatasourceConfiguration } from "entities/Datasource";
 
 export enum ConditionType {
   HIDE = "hide", // When set, the component will be shown until condition is true

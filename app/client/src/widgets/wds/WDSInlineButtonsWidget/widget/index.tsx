@@ -1,21 +1,23 @@
 import React from "react";
+
+import type { AnvilConfig } from "WidgetProvider/constants";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig } from "entities/AppTheming";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+
+import { InlineButtonsComponent } from "../component";
 import {
-  metaConfig,
-  defaultsConfig,
+  anvilConfig,
   autocompleteConfig,
+  defaultsConfig,
+  metaConfig,
+  methodsConfig,
   propertyPaneContentConfig,
   settersConfig,
-  anvilConfig,
-  methodsConfig,
 } from "../config";
 import type { InlineButtonsWidgetProps } from "./types";
-import { InlineButtonsComponent } from "../component";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSInlineButtonsWidget extends BaseWidget<
   InlineButtonsWidgetProps,

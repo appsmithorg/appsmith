@@ -1,4 +1,5 @@
 import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+
 import AudioWidget from ".";
 
 const urlTests = [

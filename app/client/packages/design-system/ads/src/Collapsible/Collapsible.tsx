@@ -1,25 +1,27 @@
 import React, { useContext, useEffect, useState } from "react";
-import type {
-  CollapsibleHeaderProps,
-  CollapsibleContentProps,
-  CollapsibleProps,
-  CollapsibleContextType,
-} from "./Collapsible.types";
-import { ARROW_POSITIONS } from "./Collapsible.types";
+import { createContext } from "react";
+
+import clsx from "classnames";
+
+import { Icon } from "../Icon";
+import {
+  CollapsibleClassName,
+  CollapsibleContentClassName,
+  CollapsibleHeaderClassName,
+} from "./Collapsible.constants";
 import {
   StyledCollapsibleContainer,
   StyledCollapsibleContent,
   StyledCollapsibleHeader,
   StyledEndIcon,
 } from "./Collapsible.styles";
-import {
-  CollapsibleClassName,
-  CollapsibleContentClassName,
-  CollapsibleHeaderClassName,
-} from "./Collapsible.constants";
-import { Icon } from "../Icon";
-import { createContext } from "react";
-import clsx from "classnames";
+import type {
+  CollapsibleContentProps,
+  CollapsibleContextType,
+  CollapsibleHeaderProps,
+  CollapsibleProps,
+} from "./Collapsible.types";
+import { ARROW_POSITIONS } from "./Collapsible.types";
 
 export const CollapsibleContext = createContext<CollapsibleContextType>({
   isExpanded: false,

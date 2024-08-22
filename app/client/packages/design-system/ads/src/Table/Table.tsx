@@ -1,12 +1,14 @@
 import React from "react";
-import RcTable from "rc-table";
+
 import clsx from "classnames";
-
+import RcTable from "rc-table";
 import "rc-table/assets/index.css";
-import "./reset.css";
-
 import type { DefaultRecordType } from "rc-table/lib/interface";
-import type { TableProps } from "./Table.types";
+
+import { Flex } from "../Flex";
+import { Icon } from "../Icon";
+import { Text } from "../Text";
+import { TableWrapperClassName } from "./Table.constants";
 import {
   StyledBody,
   StyledCell,
@@ -16,10 +18,8 @@ import {
   StyledRow,
   StyledTable,
 } from "./Table.styles";
-import { TableWrapperClassName } from "./Table.constants";
-import { Icon } from "../Icon";
-import { Text } from "../Text";
-import { Flex } from "../Flex";
+import type { TableProps } from "./Table.types";
+import "./reset.css";
 
 function Table<T extends DefaultRecordType = DefaultRecordType>({
   className,

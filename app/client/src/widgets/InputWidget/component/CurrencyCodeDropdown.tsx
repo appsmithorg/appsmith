@@ -1,13 +1,15 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
-import type { CurrencyOptionProps } from "constants/Currency";
-import { CurrencyTypeOptions } from "constants/Currency";
+
+import { Classes } from "@blueprintjs/core";
 import type { DropdownOption } from "@design-system/widgets-old";
 import { Dropdown, Icon, IconSize } from "@design-system/widgets-old";
-import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";
-import { Classes } from "@blueprintjs/core";
+import type { CurrencyOptionProps } from "constants/Currency";
+import { CurrencyTypeOptions } from "constants/Currency";
+import styled, { createGlobalStyle } from "styled-components";
 import { lightenColor } from "widgets/WidgetUtils";
+
+import { countryToFlag } from "./utilities";
 
 const DropdownTriggerIconWrapper = styled.div`
   display: flex;

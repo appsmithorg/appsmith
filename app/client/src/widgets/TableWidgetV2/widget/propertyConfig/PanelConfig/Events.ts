@@ -1,11 +1,12 @@
+import { get } from "lodash";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { get } from "lodash";
+
 import {
   getBasePropertyPath,
-  showByColumnType,
-  hideByColumnType,
   getColumnPath,
+  hideByColumnType,
+  showByColumnType,
 } from "../../propertyUtils";
 
 export default {

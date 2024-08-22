@@ -1,16 +1,18 @@
-import SnapShotBannerCTA from "pages/Editor/CanvasLayoutConversion/SnapShotBannerCTA";
 import React from "react";
-import { MainContainerWrapper } from "./MainContainerWrapper";
+
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
+import SnapShotBannerCTA from "pages/Editor/CanvasLayoutConversion/SnapShotBannerCTA";
+import { useShowSnapShotBanner } from "pages/Editor/CanvasLayoutConversion/hooks/useShowSnapShotBanner";
 import { useSelector } from "react-redux";
+import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
 import {
   getCanvasWidth,
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { getAppSettingsPaneContext } from "selectors/appSettingsPaneSelectors";
-import { useShowSnapShotBanner } from "pages/Editor/CanvasLayoutConversion/hooks/useShowSnapShotBanner";
+
+import { MainContainerWrapper } from "./MainContainerWrapper";
 
 /**
  * LayoutSystemBasedPageViewer

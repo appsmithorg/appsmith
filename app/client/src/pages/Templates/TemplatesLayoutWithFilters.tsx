@@ -1,7 +1,9 @@
-import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
-import type { EventName } from "ee/utils/analyticsUtilTypes";
-import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
+
+import type { Template as TemplateInterface } from "api/TemplatesApi";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { EventName } from "ee/utils/analyticsUtilTypes";
 import { useSelector } from "react-redux";
 import {
   getTemplatesSelector,
@@ -9,7 +11,7 @@ import {
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { TemplateContent } from "./TemplateContent";
 import TemplateFilters from "./TemplateFilters";
 

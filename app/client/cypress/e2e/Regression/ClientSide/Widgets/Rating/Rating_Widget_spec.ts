@@ -1,13 +1,12 @@
 import { RATING_WIDGET } from "../../../../../locators/RatingWidgetLocators";
-
 import {
   agHelper,
-  fakerHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  deployMode,
-  propPane,
+  fakerHelper,
   locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(

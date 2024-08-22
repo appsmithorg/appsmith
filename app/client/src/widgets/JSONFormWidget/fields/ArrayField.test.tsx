@@ -1,10 +1,12 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
-import ArrayField from "./ArrayField";
-import { FormContextProvider } from "../FormContext";
 import { ThemeProvider } from "styled-components";
+
+import { FormContextProvider } from "../FormContext";
+import ArrayField from "./ArrayField";
 
 const schemaItem = {
   children: {

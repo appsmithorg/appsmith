@@ -1,27 +1,13 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
-import type { DropdownOptionType } from "../../../types";
-import {
-  getEnvironmentConfiguration,
-  isEnvironmentValid,
-} from "ee/utils/Environments";
-import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { DatasourceImage, ImageWrapper } from "../../../styles";
-import {
-  type Datasource,
-  DatasourceConnectionMode,
-  type MockDatasource,
-} from "entities/Datasource";
-import { PluginPackageName } from "entities/Action";
+
 import {
   addAndFetchMockDatasourceStructure,
   fetchDatasourceStructure,
   fetchGheetSpreadsheets,
 } from "actions/datasourceActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { invert } from "lodash";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
+import { getDatasourceConnectionMode } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { useDispatch, useSelector } from "react-redux";
 import {
   getDatasourceLoading,
   getDatasources,
@@ -29,11 +15,27 @@ import {
   getPluginIdPackageNamesMap,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import {
+  getEnvironmentConfiguration,
+  isEnvironmentValid,
+} from "ee/utils/Environments";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { getDatasourceConnectionMode } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
+import { PluginPackageName } from "entities/Action";
+import {
+  type Datasource,
+  DatasourceConnectionMode,
+  type MockDatasource,
+} from "entities/Datasource";
+import { invert } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { DatasourceImage, ImageWrapper } from "../../../styles";
+import type { DropdownOptionType } from "../../../types";
 
 interface DatasourceOptionsProps {
   widget: WidgetProps;

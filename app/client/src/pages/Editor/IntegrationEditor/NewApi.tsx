@@ -1,25 +1,27 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { connect, useSelector } from "react-redux";
-import styled from "styled-components";
+
 import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
-import PlusLogo from "assets/images/Plus-logo.svg";
-import GraphQLLogo from "assets/images/Graphql-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginPackageName, PluginType } from "entities/Action";
-import { getQueryParams } from "utils/URLUtils";
-import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Spinner } from "@appsmith/ads";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import GraphQLLogo from "assets/images/Graphql-logo.svg";
+import PlusLogo from "assets/images/Plus-logo.svg";
 import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import type { AppState } from "ee/reducers";
+import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { PluginPackageName, PluginType } from "entities/Action";
+import { connect, useSelector } from "react-redux";
+import styled from "styled-components";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { getQueryParams } from "utils/URLUtils";
+
+import { Spinner } from "@appsmith/ads";
 
 export const StyledContainer = styled.div`
   flex: 1;

@@ -1,15 +1,17 @@
+import React, { useEffect, useState } from "react";
+
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import {
   Popover,
   PopoverInteractionKind,
 } from "@blueprintjs/core/lib/esm/components/popover/popover";
-import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
 import Icon, { IconSize } from "../Icon";
 import Spinner from "../Spinner";
 import Text, { TextType } from "../Text";
-import type { CommonComponentProps } from "../types/common";
 import { Classes } from "../constants/classes";
+import type { CommonComponentProps } from "../types/common";
 
 export interface TableDropdownOption {
   id: string;

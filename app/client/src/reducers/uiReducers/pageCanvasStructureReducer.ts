@@ -1,12 +1,12 @@
-import { createImmerReducer } from "utils/ReducerUtils";
+import type { WidgetType } from "constants/WidgetConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import { createImmerReducer } from "utils/ReducerUtils";
 import { compareAndGenerateImmutableCanvasStructure } from "utils/canvasStructureHelpers";
-import type { WidgetType } from "constants/WidgetConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface CanvasStructure {
   widgetName: string;

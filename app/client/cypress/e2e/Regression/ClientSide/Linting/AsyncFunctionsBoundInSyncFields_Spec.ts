@@ -2,10 +2,10 @@ import {
   agHelper,
   apiPage,
   entityExplorer,
+  entityItems,
   jsEditor,
   locators,
   propPane,
-  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

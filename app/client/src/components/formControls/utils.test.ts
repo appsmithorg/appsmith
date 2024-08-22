@@ -1,4 +1,10 @@
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { set } from "lodash";
+import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
+
+import type { HiddenType } from "./BaseControl";
 import {
+  ViewTypes,
   actionPathFromName,
   caculateIsHidden,
   checkIfSectionCanRender,
@@ -10,12 +16,7 @@ import {
   isHidden,
   switchViewType,
   updateEvaluatedSectionConfig,
-  ViewTypes,
 } from "./utils";
-import type { HiddenType } from "./BaseControl";
-import { set } from "lodash";
-import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {

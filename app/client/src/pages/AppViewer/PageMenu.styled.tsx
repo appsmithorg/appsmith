@@ -1,13 +1,14 @@
-import styled from "styled-components";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { NavLink } from "react-router-dom";
+import styled from "styled-components";
+
 import {
   getMenuContainerBackgroundColor,
   getMenuItemBackgroundColorOnHover,
   getMenuItemBackgroundColorWhenActive,
   getMenuItemTextColor,
 } from "./utils";
-import { NavLink } from "react-router-dom";
 
 export const PageMenuContainer = styled.div<{
   primaryColor: string;

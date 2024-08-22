@@ -1,4 +1,3 @@
-import WidgetsEditor from "pages/Editor/WidgetsEditor";
 import {
   ADD_PATH,
   API_EDITOR_ID_ADD_PATH,
@@ -22,20 +21,21 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import DataSourceEditor from "pages/Editor/DataSourceEditor";
+import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
+import GeneratePage from "pages/Editor/GeneratePage";
+import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
   SAAS_EDITOR_PATH,
 } from "pages/Editor/SaaSEditor/constants";
-import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
-import DataSourceEditor from "pages/Editor/DataSourceEditor";
-import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
-import GeneratePage from "pages/Editor/GeneratePage";
-import type { RouteProps } from "react-router";
+import WidgetsEditor from "pages/Editor/WidgetsEditor";
 import { useSelector } from "react-redux";
+import type { RouteProps } from "react-router";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 export interface RouteReturnType extends RouteProps {

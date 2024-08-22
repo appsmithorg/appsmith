@@ -1,8 +1,8 @@
+import type { SetLintErrorsAction } from "actions/lintingActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { isEqual } from "lodash";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { SetLintErrorsAction } from "actions/lintingActions";
-import { isEqual } from "lodash";
 
 export type LintErrorsStore = Record<string, LintError[]>;
 

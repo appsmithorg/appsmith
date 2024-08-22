@@ -1,11 +1,12 @@
+import { useCallback, useState } from "react";
+
+import { generateSSHKeyPair, getSSHKeyPair } from "actions/gitSyncActions";
+import noop from "lodash/noop";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getSSHKeyDeployDocUrl,
   getSshKeyPair,
 } from "selectors/gitSyncSelectors";
-import { useCallback, useState } from "react";
-import { generateSSHKeyPair, getSSHKeyPair } from "actions/gitSyncActions";
-import noop from "lodash/noop";
 
 export const useSSHKeyPair = () => {
   // As SSHKeyPair fetching and generation is only done only for GitConnection part,

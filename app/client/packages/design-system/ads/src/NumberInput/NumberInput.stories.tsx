@@ -1,7 +1,9 @@
 import React from "react";
+
+import type { StoryObj } from "@storybook/react";
+
 import { NumberInput } from "./NumberInput";
 import type { NumberInputProps } from "./NumberInput.types";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Input/NumberInput",

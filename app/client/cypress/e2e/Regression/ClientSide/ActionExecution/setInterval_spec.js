@@ -1,11 +1,11 @@
+import data from "../../../../fixtures/TestDataSet1.json";
 import {
   agHelper,
-  propPane,
-  deployMode,
   assertHelper,
+  deployMode,
   locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import data from "../../../../fixtures/TestDataSet1.json";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";

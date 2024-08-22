@@ -1,5 +1,7 @@
-import type { ToolbarButtonsProps, ToolbarButtonsItem } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import type { ToolbarButtonsItem, ToolbarButtonsProps } from "@appsmith/wds";
+
 import type { ToolbarButtonsItemComponentProps } from "../component/types";
 
 export type ButtonsList = Record<string, ToolbarButtonsItemComponentProps>;

@@ -1,21 +1,9 @@
 import React from "react";
+
 import clsx from "classnames";
 
-import {
-  StyledTabs,
-  StyledTab,
-  StyledTabPanel,
-  StyledTabsList,
-} from "./Tab.styles";
-
-import { Text } from "../Text";
-import type {
-  TabPanelProps,
-  TabProps,
-  TabsListProps,
-  TabsProps,
-} from "./Tab.types";
 import { Tag } from "../Tag";
+import { Text } from "../Text";
 import {
   TabsClassName,
   TabsListClassName,
@@ -23,6 +11,18 @@ import {
   TabsListTabCountClassName,
   TabsPanelClassName,
 } from "./Tab.constants";
+import {
+  StyledTab,
+  StyledTabPanel,
+  StyledTabs,
+  StyledTabsList,
+} from "./Tab.styles";
+import type {
+  TabPanelProps,
+  TabProps,
+  TabsListProps,
+  TabsProps,
+} from "./Tab.types";
 
 /* TODO
 - border styles using ::before

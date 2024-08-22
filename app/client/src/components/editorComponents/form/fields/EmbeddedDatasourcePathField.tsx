@@ -1,65 +1,66 @@
 import type { ChangeEvent } from "react";
 import React from "react";
+
 import ReactDOM from "react-dom";
-import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
-import { change, Field, formValueSelector } from "redux-form";
+
+import type CodeMirror from "codemirror";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { AppState } from "ee/reducers";
-import { connect } from "react-redux";
-import { get, merge } from "lodash";
-import type { EmbeddedRestDatasource, Datasource } from "entities/Datasource";
-import { DEFAULT_DATASOURCE } from "entities/Datasource";
-import type CodeMirror from "codemirror";
 import type {
   EditorTheme,
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
-  TabBehaviour,
   EditorSize,
+  TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-
 import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
+import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DATASOURCE_URL_EXACT_MATCH_REGEX } from "constants/AppsmithActionConstants/ActionConstants";
-import styled from "styled-components";
-import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import * as FontFamilies from "constants/Fonts";
-import { AuthType } from "entities/Datasource/RestAPIForm";
-
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Indices } from "constants/Layers";
-import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import type { KeyValuePair } from "entities/Action";
-import equal from "fast-deep-equal/es6";
+import type { AppState } from "ee/reducers";
 import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "ee/selectors/entitiesSelector";
-import { extractApiUrlPath } from "transformers/RestActionTransformer";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { Text } from "@appsmith/ads";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isEnvironmentValid } from "ee/utils/Environments";
-import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
-import { isString } from "lodash";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   getHasCreateDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { isEnvironmentValid } from "ee/utils/Environments";
 import { isGACEnabled } from "ee/utils/planHelpers";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import type { KeyValuePair } from "entities/Action";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
+import { DEFAULT_DATASOURCE } from "entities/Datasource";
+import { AuthType } from "entities/Datasource/RestAPIForm";
+import equal from "fast-deep-equal/es6";
+import { get, merge } from "lodash";
+import { isString } from "lodash";
+import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
+import { connect } from "react-redux";
+import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
+import { Field, change, formValueSelector } from "redux-form";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled from "styled-components";
+import { extractApiUrlPath } from "transformers/RestActionTransformer";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
+import { getExpectedValue } from "utils/validation/common";
+
+import { Text } from "@appsmith/ads";
 
 interface ReduxStateProps {
   workspaceId: string;

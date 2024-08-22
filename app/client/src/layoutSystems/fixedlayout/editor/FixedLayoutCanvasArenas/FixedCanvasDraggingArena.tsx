@@ -1,10 +1,12 @@
-import type { AppState } from "ee/reducers";
+import React, { useMemo } from "react";
+
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { AppState } from "ee/reducers";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
-import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
+
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 
 export interface FixedCanvasDraggingArenaProps {

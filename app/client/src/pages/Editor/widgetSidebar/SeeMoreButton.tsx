@@ -1,5 +1,6 @@
-import { Button } from "@appsmith/ads";
 import React from "react";
+
+import { Button } from "@appsmith/ads";
 
 interface Props {
   showSeeLess: boolean;

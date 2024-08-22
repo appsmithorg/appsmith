@@ -1,10 +1,11 @@
 import React from "react";
+
 import clsx from "classnames";
 
-import type { SpinnerProps } from "./Spinner.types";
-import { StyledSpinner } from "./Spinner.styles";
 import { Icon } from "../Icon";
 import { SpinnerClassName, SpinnerIconClassName } from "./Spinner.constants";
+import { StyledSpinner } from "./Spinner.styles";
+import type { SpinnerProps } from "./Spinner.types";
 
 function Spinner(props: SpinnerProps) {
   const { className, iconProps, size: spinnerSize = "sm", ...rest } = props;

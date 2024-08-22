@@ -1,17 +1,18 @@
 import React, { useMemo } from "react";
-import * as Sentry from "@sentry/react";
-import { last } from "lodash";
 
-import ThemeEditor from "./ThemeEditor";
-import ThemeSelector from "./ThemeSelector";
+import * as Sentry from "@sentry/react";
+import BetaCard from "components/editorComponents/BetaCard";
+import { THEME_SETTINGS_SECTION_CONTENT_HEADER } from "ee/constants/messages";
+import { last } from "lodash";
+import { useSelector } from "react-redux";
 import {
   AppThemingMode,
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
-import { useSelector } from "react-redux";
-import BetaCard from "components/editorComponents/BetaCard";
+
 import { SectionTitle } from "../AppSettingsPane/AppSettings";
-import { THEME_SETTINGS_SECTION_CONTENT_HEADER } from "ee/constants/messages";
+import ThemeEditor from "./ThemeEditor";
+import ThemeSelector from "./ThemeSelector";
 
 export function ThemePropertyPane() {
   const themingStack = useSelector(getAppThemingStack);

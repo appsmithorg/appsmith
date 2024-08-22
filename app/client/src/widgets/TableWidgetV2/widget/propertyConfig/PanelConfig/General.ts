@@ -1,7 +1,11 @@
+import { ButtonVariantTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
+import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { get } from "lodash";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+
 import {
   getBasePropertyPath,
   hideByColumnType,
@@ -10,9 +14,6 @@ import {
   updateInlineEditingOptionDropdownVisibilityHook,
 } from "../../propertyUtils";
 import { isColumnTypeEditable } from "../../utilities";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { ButtonVariantTypes } from "components/constants";
-import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 
 export default {
   sectionName: "General",

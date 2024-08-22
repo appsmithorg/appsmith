@@ -1,25 +1,27 @@
-import log from "loglevel";
 import React, { useCallback } from "react";
-import styled from "styled-components";
+
 import * as Sentry from "@sentry/react";
-import { useDispatch, useSelector } from "react-redux";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
-import useWidgetFocus from "utils/hooks/useWidgetFocus";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { focusWidget } from "actions/widgetActions";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import log from "loglevel";
+import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
+import { useDispatch, useSelector } from "react-redux";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import styled from "styled-components";
+import useWidgetFocus from "utils/hooks/useWidgetFocus";
+import type { WidgetProps } from "widgets/BaseWidget";
+
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@appsmith/wds-theming";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
-import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { focusWidget } from "actions/widgetActions";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;

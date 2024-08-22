@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Icon, Text } from "@appsmith/ads";
 
 export interface InfoBlockProps {

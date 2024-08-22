@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+
 import type { ModalWidgetProps } from "../../widget/types";
 
 export const propertyPaneContentConfig = [

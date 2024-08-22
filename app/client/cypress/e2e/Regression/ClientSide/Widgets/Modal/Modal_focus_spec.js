@@ -1,10 +1,10 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const widgets = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
   const someInputText = "some text";

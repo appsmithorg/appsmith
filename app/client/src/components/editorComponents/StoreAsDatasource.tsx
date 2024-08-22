@@ -1,18 +1,20 @@
 import React from "react";
+
 import {
   setDatasourceViewMode,
   storeAsDatasource,
 } from "actions/datasourceActions";
-import { connect, useDispatch, useSelector } from "react-redux";
-import history from "utils/history";
 import { datasourcesEditorIdURL } from "ee/RouteBuilder";
-import { getQueryParams } from "utils/URLUtils";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
-  createMessage,
   EDIT_DATASOURCE,
   SAVE_DATASOURCE,
+  createMessage,
 } from "ee/constants/messages";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getQueryParams } from "utils/URLUtils";
+import history from "utils/history";
+
 import { Button } from "@appsmith/ads";
 
 interface storeDataSourceProps {

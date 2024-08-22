@@ -1,15 +1,16 @@
 import type { FunctionComponent } from "react";
 import React from "react";
+
 import type { LogItemProps } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { PluginType } from "entities/Action";
-import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   ApiMethodIcon,
   EntityIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 
 type IconProps = LogItemProps & {
   pluginImages: Record<string, string>;

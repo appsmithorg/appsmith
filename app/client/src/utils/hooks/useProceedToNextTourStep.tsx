@@ -1,8 +1,8 @@
+import { proceedToNextTourStep } from "actions/tourActions";
+import type { AppState } from "ee/reducers";
 import type { TourType } from "entities/Tour";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
-import { proceedToNextTourStep } from "actions/tourActions";
 
 export const useIsTourStepActive = (activeTourStepConfig: {
   // TODO: Fix this the next time the file is edited

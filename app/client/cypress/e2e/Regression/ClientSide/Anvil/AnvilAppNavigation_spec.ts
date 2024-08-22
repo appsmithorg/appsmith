@@ -1,13 +1,13 @@
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
+  anvilLayout,
+  appSettings,
   locators,
   propPane,
-  appSettings,
-  anvilLayout,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(

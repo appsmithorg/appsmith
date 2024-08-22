@@ -1,14 +1,15 @@
 import React from "react";
-import type { RouteComponentProps } from "react-router";
-import PageLoadingBar from "pages/common/PageLoadingBar";
-import { retryPromise } from "utils/AppsmithUtils";
+
 import type { InitAppViewerPayload } from "actions/initActions";
 import { initAppViewerAction } from "actions/initActions";
-import { APP_MODE } from "entities/App";
-import { connect } from "react-redux";
-import { getSearchQuery } from "utils/helpers";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { APP_MODE } from "entities/App";
+import PageLoadingBar from "pages/common/PageLoadingBar";
+import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { retryPromise } from "utils/AppsmithUtils";
+import { getSearchQuery } from "utils/helpers";
 
 type Props = {
   initAppViewer: (payload: InitAppViewerPayload) => void;

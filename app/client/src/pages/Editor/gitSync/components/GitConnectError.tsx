@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from "react";
+
 import { useSelector } from "react-redux";
 import {
   getConnectingErrorDocUrl,
   getGitConnectError,
 } from "selectors/gitSyncSelectors";
-import { Callout, Text } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Callout, Text } from "@appsmith/ads";
 
 const Container = styled.div`
   width: calc(100% - 39px);

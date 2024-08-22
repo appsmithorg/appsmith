@@ -1,12 +1,13 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
-import EntityProperties from "./Explorer/Entity/EntityProperties";
-import Explorer from "./Explorer";
-import OnboardingStatusbar from "./FirstTimeUserOnboarding/Statusbar";
-import Pages from "./Explorer/Pages";
 import EntityExplorerSidebar from "components/editorComponents/EntityExplorerSidebar";
+import { useSelector } from "react-redux";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+
+import Explorer from "./Explorer";
+import EntityProperties from "./Explorer/Entity/EntityProperties";
+import Pages from "./Explorer/Pages";
+import OnboardingStatusbar from "./FirstTimeUserOnboarding/Statusbar";
 
 function WidgetsEditorEntityExplorer() {
   const enableFirstTimeUserOnboarding = useSelector(

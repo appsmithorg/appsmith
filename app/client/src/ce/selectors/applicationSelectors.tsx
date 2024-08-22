@@ -1,14 +1,3 @@
-import { createSelector } from "reselect";
-import { memoize } from "lodash";
-import type { AppState } from "ee/reducers";
-import type {
-  ApplicationsReduxState,
-  creatingApplicationMap,
-} from "ee/reducers/uiReducers/applicationsReducer";
-import type { ApplicationPayload } from "entities/Application";
-import Fuse from "fuse.js";
-import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
-import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   NAVIGATION_SETTINGS,
   SIDEBAR_WIDTH,
@@ -16,6 +5,17 @@ import {
   defaultThemeSetting,
 } from "constants/AppConstants";
 import { DEFAULT_EVALUATION_VERSION } from "constants/EvalConstants";
+import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
+import type { AppState } from "ee/reducers";
+import type {
+  ApplicationsReduxState,
+  creatingApplicationMap,
+} from "ee/reducers/uiReducers/applicationsReducer";
+import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import type { ApplicationPayload } from "entities/Application";
+import Fuse from "fuse.js";
+import { memoize } from "lodash";
+import { createSelector } from "reselect";
 
 const fuzzySearchOptions = {
   keys: ["applications.name", "workspace.name", "packages.name"],

@@ -1,18 +1,21 @@
 import React from "react";
+
+import type { Meta, StoryObj } from "@storybook/react";
+
 import {
-  InlineButtons,
-  Flex,
-  objectKeys,
   BUTTON_VARIANTS,
   COLORS,
+  Flex,
+  InlineButtons,
   SIZES,
+  objectKeys,
 } from "@appsmith/wds";
-import type { Meta, StoryObj } from "@storybook/react";
+
 import {
   itemList,
+  itemListWithIcons,
   longItemList,
   semanticItemList,
-  itemListWithIcons,
 } from "./inlineButtonsData";
 
 /**

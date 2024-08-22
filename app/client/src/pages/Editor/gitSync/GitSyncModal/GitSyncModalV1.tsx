@@ -1,35 +1,37 @@
 import React, { useCallback, useEffect } from "react";
+
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
+import {
+  CONNECT_TO_GIT,
+  DEPLOY,
+  DEPLOY_YOUR_APPLICATION,
+  GIT_CONNECTION,
+  GIT_IMPORT,
+  IMPORT_FROM_GIT_REPOSITORY,
+  MERGE,
+  MERGE_CHANGES,
+  createMessage,
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { GitSyncModalTab } from "entities/GitSync";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import {
   getActiveGitSyncModalTab,
   getIsDeploying,
   getIsGitConnected,
   getIsGitSyncModalOpen,
 } from "selectors/gitSyncSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
+import styled from "styled-components";
+
+import { Modal, ModalContent, ModalHeader } from "@appsmith/ads";
+
 import Menu from "../Menu";
 import Deploy from "../Tabs/Deploy";
-import Merge from "../Tabs/Merge";
 import GitConnection from "../Tabs/GitConnection";
-
+import Merge from "../Tabs/Merge";
 import GitErrorPopup from "../components/GitErrorPopup";
-import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Modal, ModalContent, ModalHeader } from "@appsmith/ads";
-import {
-  createMessage,
-  GIT_CONNECTION,
-  DEPLOY,
-  MERGE,
-  CONNECT_TO_GIT,
-  DEPLOY_YOUR_APPLICATION,
-  MERGE_CHANGES,
-  GIT_IMPORT,
-  IMPORT_FROM_GIT_REPOSITORY,
-} from "ee/constants/messages";
-import { GitSyncModalTab } from "entities/GitSync";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;

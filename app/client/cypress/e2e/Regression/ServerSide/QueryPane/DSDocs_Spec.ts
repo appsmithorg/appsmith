@@ -1,10 +1,10 @@
 import {
   agHelper,
-  entityExplorer,
-  dataSources,
-  entityItems,
-  deployMode,
   dataManager,
+  dataSources,
+  deployMode,
+  entityExplorer,
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
 import { DataSourceKVP } from "../../../../support/Pages/DataSources";
 

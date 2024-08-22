@@ -1,5 +1,3 @@
-import type { IPanelProps } from "@blueprintjs/core";
-import equal from "fast-deep-equal/es6";
 import type { ReactElement } from "react";
 import React, {
   useCallback,
@@ -8,16 +6,8 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 
-import {
-  BINDING_WIDGET_WALKTHROUGH_DESC,
-  BINDING_WIDGET_WALKTHROUGH_TITLE,
-  createMessage,
-} from "ee/constants/messages";
-import { AB_TESTING_EVENT_KEYS } from "ee/entities/FeatureFlag";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { IPanelProps } from "@blueprintjs/core";
 import WidgetFactory from "WidgetProvider/factory";
 import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -26,9 +16,18 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
-import { Button } from "@appsmith/ads";
+import {
+  BINDING_WIDGET_WALKTHROUGH_DESC,
+  BINDING_WIDGET_WALKTHROUGH_TITLE,
+  createMessage,
+} from "ee/constants/messages";
+import { AB_TESTING_EVENT_KEYS } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import equal from "fast-deep-equal/es6";
+import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getWidgets } from "sagas/selectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
@@ -38,6 +37,9 @@ import {
   isUserSignedUpFlagSet,
   setFeatureWalkthroughShown,
 } from "utils/storage";
+
+import { Button } from "@appsmith/ads";
+
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import PropertyPaneConnections from "./PropertyPaneConnections";

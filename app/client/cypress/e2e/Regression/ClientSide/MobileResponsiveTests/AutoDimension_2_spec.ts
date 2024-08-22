@@ -1,9 +1,9 @@
 import {
   agHelper,
-  entityExplorer,
-  propPane,
   autoLayout,
   draggableWidgets,
+  entityExplorer,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

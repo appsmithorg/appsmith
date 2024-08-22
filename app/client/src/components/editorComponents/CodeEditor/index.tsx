@@ -1,51 +1,52 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+
+import type { Placement } from "@blueprintjs/popover2";
+import * as Sentry from "@sentry/react";
+import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
+import {
+  resetActiveEditorField,
+  setActiveEditorField,
+} from "actions/activeFieldActions";
+import { executeCommandAction } from "actions/apiPaneActions";
+import { startingEntityUpdate } from "actions/editorActions";
+import type { CodeEditorFocusState } from "actions/editorContextActions";
+import { setEditorFieldFocusAction } from "actions/editorContextActions";
+import classNames from "classnames";
 import type {
   Annotation,
   EditorConfiguration,
   UpdateLintingCallback,
 } from "codemirror";
 import CodeMirror from "codemirror";
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/duotone-dark.css";
-import "codemirror/theme/duotone-light.css";
-import "codemirror/addon/hint/show-hint";
-import "codemirror/addon/edit/matchbrackets";
+import "codemirror/addon/comment/comment";
+import "codemirror/addon/display/autorefresh";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
-import "codemirror/addon/display/autorefresh";
-import "codemirror/addon/mode/multiplex";
-import "codemirror/addon/tern/tern.css";
-import "codemirror/addon/lint/lint";
-import "codemirror/addon/lint/lint.css";
-import "codemirror/addon/comment/comment";
-import "codemirror/mode/sql/sql.js";
+import "codemirror/addon/edit/matchbrackets";
+import "codemirror/addon/fold/brace-fold";
+import "codemirror/addon/fold/foldgutter";
+import "codemirror/addon/fold/foldgutter.css";
+import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/sql-hint";
+import "codemirror/addon/lint/lint";
+import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/mode/multiplex";
+import "codemirror/addon/tern/tern.css";
+import "codemirror/lib/codemirror.css";
 import "codemirror/mode/css/css";
-import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/htmlmixed/htmlmixed";
-import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
-import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import type { WrappedFieldInputProps } from "redux-form";
-import _, { debounce, isEqual, isNumber } from "lodash";
-import scrollIntoView from "scroll-into-view-if-needed";
-
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { Skin } from "constants/DefaultTheme";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import "components/editorComponents/CodeEditor/sql/customMimes";
-import "components/editorComponents/CodeEditor/modes";
+import "codemirror/mode/javascript/javascript";
+import "codemirror/mode/sql/sql.js";
+import "codemirror/theme/duotone-dark.css";
+import "codemirror/theme/duotone-light.css";
 import type {
   CodeEditorBorder,
   EditorConfig,
   FieldEntityInformation,
-  Hinter,
   HintHelper,
+  Hinter,
   MarkHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -53,33 +54,90 @@ import {
   EditorSize,
   EditorTheme,
   EditorThemes,
+  TabBehaviour,
   isCloseKey,
   isModifierKey,
-  TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
+import {
+  NAVIGATE_TO_ATTRIBUTE,
+  entityMarker,
+} from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
+import {
+  bindingHintHelper,
+  sqlHint,
+} from "components/editorComponents/CodeEditor/hintHelpers";
+import "components/editorComponents/CodeEditor/modes";
+import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
+import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
+import "components/editorComponents/CodeEditor/sql/customMimes";
 import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
   IconContainer,
   PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/styledComponents";
+import { Skin } from "constants/DefaultTheme";
+import type { Indices } from "constants/Layers";
+import { CodeEditorSignPosting } from "ee/components/editorComponents/CodeEditorSignPosting";
+import { AIWindow } from "ee/components/editorComponents/GPT";
+import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
+import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
+import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
+import type { AppState } from "ee/reducers";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import {
-  entityMarker,
-  NAVIGATE_TO_ATTRIBUTE,
-} from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
+  getAllDatasourceTableKeys,
+  selectInstalledLibraries,
+} from "ee/selectors/entitiesSelector";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import type { SlashCommandPayload } from "entities/Action";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { replayHighlightClass } from "globalStyles/portals";
+import _, { debounce, isEqual, isNumber } from "lodash";
+import { debug } from "loglevel";
+import { connect } from "react-redux";
+import type { WrappedFieldInputProps } from "redux-form";
+import { getPluginIdToPlugin } from "sagas/selectors";
+import scrollIntoView from "scroll-into-view-if-needed";
+import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import {
-  bindingHintHelper,
-  sqlHint,
-} from "components/editorComponents/CodeEditor/hintHelpers";
-
-import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button } from "@appsmith/ads";
-import "codemirror/addon/fold/brace-fold";
-import "codemirror/addon/fold/foldgutter";
-import "codemirror/addon/fold/foldgutter.css";
-import * as Sentry from "@sentry/react";
+  getCodeEditorLastCursorPosition,
+  getIsInputFieldFocused,
+} from "selectors/editorContextSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getRecentEntityIds } from "selectors/globalSearchSelectors";
+import { getEntityLintErrors } from "selectors/lintingSelectors";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
+import { getEntitiesForNavigation } from "selectors/navigationSelectors";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath, isDynamicValue } from "utils/DynamicBindingUtils";
+import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { updateCustomDef } from "utils/autocomplete/customDefUtils";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import ConfigTreeActions from "utils/configTree";
+import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
+import history, { NavigationMethod } from "utils/history";
+import resizeObserver from "utils/resizeObserver";
+import type { ExpectedValueExample } from "utils/validation/common";
+
+import { Button } from "@appsmith/ads";
+
+import { EMPTY_BINDING } from "../ActionCreator/constants";
+import { showBindingPrompt } from "./BindingPromptHelper";
+import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
+import {
+  PEEK_OVERLAY_DELAY,
+  PeekOverlayPopUp,
+} from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   addEventToHighlightedElement,
   getInputValue,
@@ -88,81 +146,24 @@ import {
   shouldShowSlashCommandMenu,
 } from "./codeEditorUtils";
 import { slashCommandHintHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
-import { getPluginIdToPlugin } from "sagas/selectors";
-import type { ExpectedValueExample } from "utils/validation/common";
-import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { Placement } from "@blueprintjs/popover2";
-import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
-import { startingEntityUpdate } from "actions/editorActions";
-import type { SlashCommandPayload } from "entities/Action";
-import type { Indices } from "constants/Layers";
-import { replayHighlightClass } from "globalStyles/portals";
 import {
   CURSOR_CLASS_NAME,
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
   LintTooltipDirection,
 } from "./constants";
+import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import {
   autoIndentCode,
   getAutoIndentShortcutKey,
 } from "./utils/autoIndentUtils";
-import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
-import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import {
-  getCodeEditorLastCursorPosition,
-  getIsInputFieldFocused,
-} from "selectors/editorContextSelectors";
-import type { CodeEditorFocusState } from "actions/editorContextActions";
-import { setEditorFieldFocusAction } from "actions/editorContextActions";
-import { updateCustomDef } from "utils/autocomplete/customDefUtils";
-import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
-import { getEntityLintErrors } from "selectors/lintingSelectors";
 import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
-import { getEntitiesForNavigation } from "selectors/navigationSelectors";
-import history, { NavigationMethod } from "utils/history";
-import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
-import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
-import {
-  PeekOverlayPopUp,
-  PEEK_OVERLAY_DELAY,
-} from "./PeekOverlayPopup/PeekOverlayPopup";
-import ConfigTreeActions from "utils/configTree";
+import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
+import { getDeleteLineShortcut } from "./utils/deleteLine";
 import {
   getSaveAndAutoIndentKey,
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { AIWindow } from "ee/components/editorComponents/GPT";
-import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
-import classNames from "classnames";
-import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
-import {
-  getAllDatasourceTableKeys,
-  selectInstalledLibraries,
-} from "ee/selectors/entitiesSelector";
-import { debug } from "loglevel";
-import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
-import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
-import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
-import { getDeleteLineShortcut } from "./utils/deleteLine";
-import { CodeEditorSignPosting } from "ee/components/editorComponents/CodeEditorSignPosting";
-import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
-import resizeObserver from "utils/resizeObserver";
-import { EMPTY_BINDING } from "../ActionCreator/constants";
-import {
-  resetActiveEditorField,
-  setActiveEditorField,
-} from "actions/activeFieldActions";
-import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
-import { getCurrentPageId } from "selectors/editorSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;

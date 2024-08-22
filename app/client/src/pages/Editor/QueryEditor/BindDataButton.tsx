@@ -1,50 +1,52 @@
 import React, { useCallback, useState } from "react";
-import {
-  Button,
-  Menu,
-  MenuContent,
-  MenuItem,
-  MenuTrigger,
-  Text,
-  MenuSeparator,
-  Flex,
-} from "@appsmith/ads";
+
+import { bindDataOnCanvas } from "actions/pluginActionActions";
+import { bindDataToWidget } from "actions/propertyPaneActions";
+import { addSuggestedWidget } from "actions/widgetActions";
+import type { SuggestedWidget } from "api/ActionAPI";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import {
   ADD_NEW_WIDGET,
   CONNECT_EXISTING_WIDGET_LABEL,
   createMessage,
 } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import { getNextWidgetName } from "sagas/WidgetOperationUtils";
+import { getWidgets } from "sagas/selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCurrentApplicationId,
   getPageList,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import type { SuggestedWidget } from "api/ActionAPI";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { getWidgets } from "sagas/selectors";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { getNextWidgetName } from "sagas/WidgetOperationUtils";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { addSuggestedWidget } from "actions/widgetActions";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import listWidgetIconSvg from "widgets/ListWidget/icon.svg";
-import tableWidgetIconSvg from "widgets/TableWidgetV2/icon.svg";
-import chartWidgetIconSvg from "widgets/ChartWidget/icon.svg";
-import selectWidgetIconSvg from "widgets/SelectWidget/icon.svg";
-import textWidgetIconSvg from "widgets/TextWidget/icon.svg";
-import inputWidgetIconSvg from "widgets/InputWidgetV2/icon.svg";
-import { generateReactKey } from "utils/generators";
-import type { WidgetType } from "constants/WidgetConstants";
-import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { bindDataToWidget } from "actions/propertyPaneActions";
-import { useParams } from "react-router";
 import styled from "styled-components";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { generateReactKey } from "utils/generators";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import chartWidgetIconSvg from "widgets/ChartWidget/icon.svg";
+import inputWidgetIconSvg from "widgets/InputWidgetV2/icon.svg";
+import listWidgetIconSvg from "widgets/ListWidget/icon.svg";
+import selectWidgetIconSvg from "widgets/SelectWidget/icon.svg";
+import tableWidgetIconSvg from "widgets/TableWidgetV2/icon.svg";
+import textWidgetIconSvg from "widgets/TextWidget/icon.svg";
+import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
+
+import {
+  Button,
+  Flex,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuTrigger,
+  Text,
+} from "@appsmith/ads";
 
 interface BindDataButtonProps {
   suggestedWidgets?: SuggestedWidget[];

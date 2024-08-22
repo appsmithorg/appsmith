@@ -1,25 +1,26 @@
-import moment from "moment";
 import React, { useCallback, useContext, useEffect, useMemo } from "react";
-import { useController } from "react-hook-form";
 
+import { dateFormatOptions } from "WidgetProvider/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import moment from "moment";
+import { useController } from "react-hook-form";
 import DateComponent from "widgets/DatePickerWidget2/component";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import Field from "widgets/JSONFormWidget/component/Field";
+
 import FormContext from "../FormContext";
-import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type {
-  FieldComponentBaseProps,
   BaseFieldComponentProps,
-  FieldEventProps,
   ComponentDefaultValuesFnProps,
+  FieldComponentBaseProps,
+  FieldEventProps,
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { dateFormatOptions } from "WidgetProvider/constants";
-import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import { Colors } from "constants/Colors";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useEvents from "./useBlurAndFocusEvents";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {

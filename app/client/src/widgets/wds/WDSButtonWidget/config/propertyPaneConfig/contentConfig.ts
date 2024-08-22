@@ -1,10 +1,10 @@
 import { RecaptchaTypes } from "components/constants";
-import { isAirgapped } from "ee/utils/airgapHelpers";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
 } from "ee/constants/messages";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 export const propertyPaneContentConfig = [
   {

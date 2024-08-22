@@ -1,20 +1,22 @@
 import React, { useState } from "react";
+
+import { updateApplication } from "ee/actions/applicationActions";
+import { IN_APP_EMBED_SETTING, createMessage } from "ee/constants/messages";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
+import type { ApplicationPayload } from "entities/Application";
+import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
+  Button,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Text,
-  Button,
   Switch,
+  Text,
 } from "@appsmith/ads";
-import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
-import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import { useDispatch, useSelector } from "react-redux";
-import { updateApplication } from "ee/actions/applicationActions";
-import type { ApplicationPayload } from "entities/Application";
-import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 
 interface ConfirmEnableForkingModalProps {
   isOpen: boolean;

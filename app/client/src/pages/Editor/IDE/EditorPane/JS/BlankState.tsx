@@ -1,12 +1,13 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
-import { getPagePermissions } from "selectors/editorSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useSelector } from "react-redux";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
 import { EmptyState } from "../components/EmptyState";
 
 const BlankState: React.FC = () => {

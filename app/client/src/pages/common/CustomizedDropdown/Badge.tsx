@@ -1,5 +1,7 @@
 import React from "react";
+
 import styled from "styled-components";
+
 const BadgeWrapper = styled.div`
   &&&&& {
     display: flex;

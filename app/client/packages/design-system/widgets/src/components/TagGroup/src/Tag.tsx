@@ -1,14 +1,16 @@
-import clsx from "clsx";
 import React from "react";
+
+import clsx from "clsx";
 import {
-  Tag as HeadlessTag,
   Button as HeadlessButton,
+  Tag as HeadlessTag,
 } from "react-aria-components";
-import { getTypographyClassName } from "@appsmith/wds-theming";
 import type { TagProps as HeadlessTagProps } from "react-aria-components";
 
-import styles from "./styles.module.css";
+import { getTypographyClassName } from "@appsmith/wds-theming";
+
 import { Icon } from "../../Icon";
+import styles from "./styles.module.css";
 
 function Tag({ children, ...props }: HeadlessTagProps) {
   const textValue = typeof children === "string" ? children : undefined;

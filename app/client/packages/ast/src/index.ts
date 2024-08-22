@@ -1,12 +1,14 @@
-import type { Node, SourceLocation, Options, Comment } from "acorn";
+import type { Comment, Node, Options, SourceLocation } from "acorn";
 import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from "./constants";
-import { has, isFinite, isNil, isString, toPath } from "lodash";
-import { getStringValue, isTrueObject, sanitizeScript } from "./utils";
-import { jsObjectDeclaration } from "./jsObject";
 import { attachComments } from "astravel";
 import { generate } from "astring";
+import { has, isFinite, isNil, isString, toPath } from "lodash";
+
+import { ECMA_VERSION, NodeTypes } from "./constants";
+import { jsObjectDeclaration } from "./jsObject";
+import { getStringValue, isTrueObject, sanitizeScript } from "./utils";
+
 /*
  * Valuable links:
  *

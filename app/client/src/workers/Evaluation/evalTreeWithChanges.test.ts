@@ -1,6 +1,6 @@
+import { RenderModes } from "constants/WidgetConstants";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import { DataTreeDiffEvent } from "ee/workers/Evaluation/evaluationUtils";
-import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
@@ -8,7 +8,9 @@ import produce from "immer";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+
 import * as evalTreeWithChanges from "./evalTreeWithChanges";
+
 export const BASE_WIDGET = {
   widgetId: "randomID",
   widgetName: "randomWidgetName",

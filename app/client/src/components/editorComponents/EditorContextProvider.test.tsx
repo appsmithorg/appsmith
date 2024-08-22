@@ -1,7 +1,8 @@
 import React, { useContext } from "react";
-import store from "store";
-import TestRenderer from "react-test-renderer";
+
 import { Provider } from "react-redux";
+import TestRenderer from "react-test-renderer";
+import store from "store";
 
 import type { EditorContextType } from "./EditorContextProvider";
 import EditorContextProvider, { EditorContext } from "./EditorContextProvider";

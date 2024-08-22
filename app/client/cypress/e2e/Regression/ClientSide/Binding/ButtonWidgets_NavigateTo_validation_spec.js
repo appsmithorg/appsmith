@@ -1,11 +1,12 @@
 import {
-  entityExplorer,
-  propPane,
   agHelper,
   deployMode,
-  locators,
   draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
+
 const testdata = require("../../../../fixtures/testdata.json");
 
 describe(

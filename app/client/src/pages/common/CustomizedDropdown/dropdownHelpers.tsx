@@ -1,10 +1,10 @@
-import store from "store";
+import { PopoverPosition } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
+import log from "loglevel";
+import store from "store";
 import type { Direction } from "utils/helpers";
 import { Directions } from "utils/helpers";
-import { PopoverPosition } from "@blueprintjs/core";
 import history from "utils/history";
-import log from "loglevel";
 
 export const DropdownOnSelectActions: { [id: string]: string } = {
   REDIRECT: "redirect",

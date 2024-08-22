@@ -1,13 +1,14 @@
 import React, { useContext } from "react";
-import styles from "./styles.module.css";
-import Layout from "./Layouts";
-import Header from "./Header";
+
 import { CustomWidgetBuilderContext } from "..";
 import HTMLEditor from "./CodeEditors/HTMLEditor";
-import StyleEditor, { TitleControls } from "./CodeEditors/StyleEditor";
 import JSEditor from "./CodeEditors/JSEditor";
+import StyleEditor, { TitleControls } from "./CodeEditors/StyleEditor";
 import type { ContentProps } from "./CodeEditors/types";
+import Header from "./Header";
+import Layout from "./Layouts";
 import References from "./References";
+import styles from "./styles.module.css";
 
 export default function Editor() {
   const { isReferenceOpen } = useContext(CustomWidgetBuilderContext);

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Button, Input, toast, Text } from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
+
+import { logoutUser, updateUserDetails } from "actions/userActions";
+import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   USER_DISPLAY_NAME_CHAR_CHECK_FAILED,
@@ -11,14 +11,17 @@ import {
   USER_EMAIL_PLACEHOLDER,
   USER_RESET_PASSWORD,
 } from "ee/constants/messages";
-import { logoutUser, updateUserDetails } from "actions/userActions";
-import UserProfileImagePicker from "./UserProfileImagePicker";
-import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
+import { getIsFormLoginEnabled } from "ee/selectors/tenantSelectors";
+import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
+
+import { Button, Input, Text, toast } from "@appsmith/ads";
 import { createMessage } from "@appsmith/ads-old";
 import { notEmptyValidator } from "@appsmith/ads-old";
-import { getIsFormLoginEnabled } from "ee/selectors/tenantSelectors";
+
+import { FieldWrapper, LabelWrapper, Wrapper } from "./StyledComponents";
+import UserProfileImagePicker from "./UserProfileImagePicker";
 
 const nameValidator = (
   value: string,

@@ -1,22 +1,24 @@
 import React, { useCallback, useEffect } from "react";
-import EntityProperty from "./EntityProperty";
 
-import { useDispatch, useSelector } from "react-redux";
 import * as Sentry from "@sentry/react";
-import type { AppState } from "ee/reducers";
 import classNames from "classnames";
-import styled from "styled-components";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { EntityClassNames } from ".";
-import { Button } from "@appsmith/ads";
 import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
-import store from "store";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { useDispatch, useSelector } from "react-redux";
+import store from "store";
+import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
+
+import { EntityClassNames } from ".";
 import {
   APP_SIDEBAR_WIDTH,
   DEFAULT_EXPLORER_PANE_WIDTH,
 } from "../../../../constants/AppConstants";
+import EntityProperty from "./EntityProperty";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;

@@ -1,5 +1,5 @@
-import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import type { ActionEntity } from "ee/entities/DataTree/types";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
 export const getActionChildrenPeekData = (

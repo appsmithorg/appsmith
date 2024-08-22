@@ -1,12 +1,14 @@
 import React from "react";
-import { renderHook, act } from "@testing-library/react-hooks";
-import { useJSAdd } from "../../JS/hooks";
-import { Provider } from "react-redux";
-import type { Store } from "redux";
-import { createStore } from "redux";
+
+import { act, renderHook } from "@testing-library/react-hooks";
 import { updateCurrentPage } from "actions/pageActions";
 import rootReducer from "ee/reducers";
+import { Provider } from "react-redux";
 import * as redux from "react-redux";
+import type { Store } from "redux";
+import { createStore } from "redux";
+
+import { useJSAdd } from "../../JS/hooks";
 
 // Custom wrapper to provide any store to the provider
 function getWrapper(store: Store): React.FC {

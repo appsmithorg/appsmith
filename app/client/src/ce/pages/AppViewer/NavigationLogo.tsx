@@ -1,24 +1,25 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+
+import classNames from "classnames";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import styled from "styled-components";
-import classNames from "classnames";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import {
   getAppMode,
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { APP_MODE } from "entities/App";
 import type { ApplicationPayload } from "entities/Application";
+import { get } from "lodash";
+import { useHref } from "pages/Editor/utils";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   getCurrentPageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
-import { useHref } from "pages/Editor/utils";
-import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
-import { get } from "lodash";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+import styled from "styled-components";
 
 interface NavigationLogoProps {
   logoConfiguration: NavigationSetting["logoConfiguration"];

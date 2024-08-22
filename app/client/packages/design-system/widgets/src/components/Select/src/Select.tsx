@@ -1,14 +1,17 @@
 import React, { useRef } from "react";
+
 import clsx from "clsx";
-import { getTypographyClassName } from "@appsmith/wds-theming";
 import {
   Button,
-  ListBox,
-  Select as HeadlessSelect,
-  SelectValue,
   FieldError,
+  Select as HeadlessSelect,
+  ListBox,
+  SelectValue,
 } from "react-aria-components";
-import { Text, Icon, Spinner, Popover, Label } from "@appsmith/wds";
+
+import { Icon, Label, Popover, Spinner, Text } from "@appsmith/wds";
+import { getTypographyClassName } from "@appsmith/wds-theming";
+
 import { ListBoxItem } from "./ListBoxItem";
 import styles from "./styles.module.css";
 import type { SelectProps } from "./types";

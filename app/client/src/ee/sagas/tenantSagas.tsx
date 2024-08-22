@@ -1,10 +1,11 @@
-export * from "ce/sagas/tenantSagas";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   fetchCurrentTenantConfigSaga,
   updateTenantConfigSaga,
 } from "ce/sagas/tenantSagas";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
+
+export * from "ce/sagas/tenantSagas";
 
 export default function* tenantSagas() {
   yield all([

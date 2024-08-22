@@ -1,5 +1,6 @@
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
 describe(
   "Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur",

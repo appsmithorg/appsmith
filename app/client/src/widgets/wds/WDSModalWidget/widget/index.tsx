@@ -1,27 +1,30 @@
-import type { ModalWidgetProps } from "./types";
-import type { WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import * as config from "./../config";
-import type { AnvilConfig } from "WidgetProvider/constants";
-import { Modal, ModalContent, ModalFooter, ModalHeader } from "@appsmith/wds";
 import React from "react";
+
+import type { AnvilConfig } from "WidgetProvider/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { ModalBody } from "@appsmith/wds";
-import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
+import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
   PastePayload,
 } from "layoutSystems/anvil/utils/paste/types";
-import { call } from "redux-saga/effects";
-import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
-import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
-import styles from "./styles.module.css";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type { WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { AnvilDataAttributes } from "widgets/anvil/constants";
+import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
+
+import { Modal, ModalContent, ModalFooter, ModalHeader } from "@appsmith/wds";
+import { ModalBody } from "@appsmith/wds";
+
+import * as config from "./../config";
+import styles from "./styles.module.css";
+import type { ModalWidgetProps } from "./types";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";

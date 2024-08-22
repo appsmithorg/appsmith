@@ -1,5 +1,6 @@
-import { GridDefaults } from "constants/WidgetConstants";
 import React, { useContext, useReducer } from "react";
+
+import { GridDefaults } from "constants/WidgetConstants";
 
 interface AutoHeightLimitsUIState {
   isMaxDotDragging: boolean;

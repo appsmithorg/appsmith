@@ -1,9 +1,9 @@
-import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   jsCollectionAddURL,
   jsCollectionIdURL,
   jsCollectionListURL,
 } from "ee/RouteBuilder";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import { FocusEntity, type FocusEntityInfo } from "navigation/FocusEntity";
 
 export const getJSEntityItemUrl = (

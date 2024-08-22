@@ -1,7 +1,8 @@
-import metaReducer, { initialState } from "./index";
 import { updateMetaState } from "actions/metaActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+
+import metaReducer, { initialState } from "./index";
 
 let currentMetaState = initialState;
 

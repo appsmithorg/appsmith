@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import Entity, { EntityClassNames } from "../Entity";
 
 export const ENTITY_HEIGHT = 36;

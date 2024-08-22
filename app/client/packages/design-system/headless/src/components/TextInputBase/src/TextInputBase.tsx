@@ -1,8 +1,9 @@
 import type { Ref } from "react";
-import { mergeProps } from "@react-aria/utils";
 import React, { forwardRef, useRef } from "react";
-import { useHover } from "@react-aria/interactions";
+
 import { useFocusRing, useFocusable } from "@react-aria/focus";
+import { useHover } from "@react-aria/interactions";
+import { mergeProps } from "@react-aria/utils";
 
 import { Field } from "../../Field";
 import type { TextInputBaseProps } from "./types";

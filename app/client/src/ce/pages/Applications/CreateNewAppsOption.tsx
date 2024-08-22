@@ -1,3 +1,15 @@
+import { default as React, useEffect } from "react";
+
+import { fetchMockDatasources } from "actions/datasourceActions";
+import {
+  resetCurrentApplicationIdForCreateNewApp,
+  resetCurrentPluginIdForCreateNewApp,
+} from "actions/onboardingActions";
+import { fetchPlugins } from "actions/pluginActions";
+import type { Plugin } from "api/PluginApi";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { builderURL } from "ee/RouteBuilder";
+import { fetchingEnvironmentConfigs } from "ee/actions/environmentAction";
 import {
   GO_BACK,
   SKIP_START_WITH_USE_CASE_TEMPLATES,
@@ -7,31 +19,21 @@ import {
 } from "ee/constants/messages";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { getCurrentPluginIdForCreateNewApp } from "ee/selectors/applicationSelectors";
-import {
-  resetCurrentApplicationIdForCreateNewApp,
-  resetCurrentPluginIdForCreateNewApp,
-} from "actions/onboardingActions";
-import { fetchPlugins } from "actions/pluginActions";
-import { Flex, Link, Text } from "@appsmith/ads";
-import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
 import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { default as React, useEffect } from "react";
+import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { PluginPackageName, PluginType } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import DataSourceEditor from "pages/Editor/DataSourceEditor";
+import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
+import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import history from "utils/history";
-import { builderURL } from "ee/RouteBuilder";
-import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
-import type { Plugin } from "api/PluginApi";
-import { PluginPackageName, PluginType } from "entities/Action";
-import DataSourceEditor from "pages/Editor/DataSourceEditor";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { fetchMockDatasources } from "actions/datasourceActions";
-import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
-import type { Datasource } from "entities/Datasource";
-import { fetchingEnvironmentConfigs } from "ee/actions/environmentAction";
-import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
-import { isAirgapped } from "ee/utils/airgapHelpers";
+
+import { Flex, Link, Text } from "@appsmith/ads";
 
 const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   display: flex;

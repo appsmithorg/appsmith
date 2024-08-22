@@ -1,11 +1,12 @@
-import styled from "styled-components";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import Clusterer from "./Clusterer";
-import SearchBox from "./SearchBox";
+import styled from "styled-components";
+
 import type { MapComponentProps } from ".";
-import PickMyLocation from "./PickMyLocation";
+import Clusterer from "./Clusterer";
 import Markers from "./Markers";
+import PickMyLocation from "./PickMyLocation";
+import SearchBox from "./SearchBox";
 
 const Wrapper = styled.div`
   position: relative;

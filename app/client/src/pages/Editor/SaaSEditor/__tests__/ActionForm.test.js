@@ -1,13 +1,14 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { diff } from "deep-diff";
-import { merge } from "lodash";
-import { getAction } from "ee/selectors/entitiesSelector";
-import { getConfigInitialValues } from "components/formControls/utils";
-import { getPathAndValueFromActionDiffObject } from "utils/getPathAndValueFromActionDiffObject";
-import configureStore from "redux-mock-store";
 import { setActionProperty } from "actions/pluginActionActions";
-import initialState from "../__data__/InitialState.json";
+import { getConfigInitialValues } from "components/formControls/utils";
+import { diff } from "deep-diff";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getAction } from "ee/selectors/entitiesSelector";
+import { merge } from "lodash";
+import configureStore from "redux-mock-store";
+import { getPathAndValueFromActionDiffObject } from "utils/getPathAndValueFromActionDiffObject";
+
 import finalState from "../__data__/FinalState.json";
+import initialState from "../__data__/InitialState.json";
 
 describe("missing key: where", () => {
   test("getPathAndValueFromActionDiffObject() works correctly", () => {

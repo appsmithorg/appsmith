@@ -1,19 +1,21 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
-import { Switch, Icon, Tooltip, Link, Text } from "@appsmith/ads";
-import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
-import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
-import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
+
+import { ADMIN_SETTINGS_PATH } from "constants/routes";
+import { IN_APP_EMBED_SETTING, createMessage } from "ee/constants/messages";
+import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { defaultOptionSelected, getSnippetUrl, to } from "ee/utils";
 import PrivateEmbeddingContent, {
   PrivateEmbedRampModal,
   PrivateEmbedRampSidebar,
 } from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
+import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
+import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import { ADMIN_SETTINGS_PATH } from "constants/routes";
-import { defaultOptionSelected, to, getSnippetUrl } from "ee/utils";
-import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+
+import { Icon, Link, Switch, Text, Tooltip } from "@appsmith/ads";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {

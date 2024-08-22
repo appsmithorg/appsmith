@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import React from "react";
+
 import styled from "styled-components";
+
 const Wrapper = styled.div<{ step: number }>`
   margin-left: ${(props) => props.step * props.theme.spaces[2]}px;
   width: calc(100% - ${(props) => props.step * props.theme.spaces[2]}px);

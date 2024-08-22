@@ -1,13 +1,14 @@
 import { useCallback } from "react";
+
 import type { WidgetType } from "constants/WidgetConstants";
-import { useParams } from "react-router";
 import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
-import { useDispatch } from "react-redux";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getCurrentPageWidgets } from "ee/selectors/entitiesSelector";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import store from "store";
 import type { NavigationMethod } from "utils/history";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();

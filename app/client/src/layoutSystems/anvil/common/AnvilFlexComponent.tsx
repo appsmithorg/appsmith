@@ -1,21 +1,24 @@
 import React, { forwardRef, useMemo } from "react";
 import type { CSSProperties } from "react";
-import { Flex } from "@appsmith/wds";
+
+import type { WidgetConfigProps } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { Layers } from "constants/Layers";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { FlexProps } from "@appsmith/wds/src/components/Flex/src/types";
-import type { AnvilFlexComponentProps } from "../utils/types";
-import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
-import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
-import styles from "./styles.module.css";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { AnvilDataAttributes } from "widgets/anvil/constants";
+
+import { Flex } from "@appsmith/wds";
+import type { FlexProps } from "@appsmith/wds/src/components/Flex/src/types";
+
+import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
+import type { AnvilFlexComponentProps } from "../utils/types";
+import styles from "./styles.module.css";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",

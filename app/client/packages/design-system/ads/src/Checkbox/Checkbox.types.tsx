@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+
 import type { AriaCheckboxProps } from "@react-aria/checkbox";
 
 export type CheckboxProps = {

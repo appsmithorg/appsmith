@@ -1,37 +1,38 @@
+import type { DSLWidget } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
 import {
+  AUTO_LAYOUT_CONTAINER_PADDING,
+  DefaultDimensionMap,
   FLEXBOX_PADDING,
-  layoutConfigurations,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
-  DefaultDimensionMap,
-  AUTO_LAYOUT_CONTAINER_PADDING,
   MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
+  WIDGET_PADDING,
+  layoutConfigurations,
 } from "constants/WidgetConstants";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
 } from "layoutSystems/autolayout/utils/positionUtils";
-import { getWidgetWidth } from "./flexWidgetUtils";
-import type { DSLWidget } from "WidgetProvider/constants";
-import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
-import WidgetFactory from "WidgetProvider/factory";
-import { isFunction } from "lodash";
-import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
+import type {
+  AlignmentColumnData,
+  AlignmentColumnInfo,
+} from "layoutSystems/autolayout/utils/types";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { isFunction } from "lodash";
 import type {
-  AlignmentColumnData,
-  AlignmentColumnInfo,
-} from "layoutSystems/autolayout/utils/types";
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
+
+import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
+import { getWidgetWidth } from "./flexWidgetUtils";
 import type { FlexLayer, LayerChild } from "./types";
 
 export interface ReadableSnapShotDetails {

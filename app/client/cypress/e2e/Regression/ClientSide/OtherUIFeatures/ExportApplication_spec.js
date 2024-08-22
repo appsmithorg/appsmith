@@ -1,9 +1,9 @@
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import homePageLocators from "../../../../locators/HomePage";
 import {
+  adminSettings,
   agHelper,
   homePage,
-  adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

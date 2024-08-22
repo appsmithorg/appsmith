@@ -1,21 +1,21 @@
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { isNil, isPlainObject, merge } from "lodash";
+import moment from "moment";
 import type { LabelInValueType } from "rc-select/lib/Select";
-
 import {
-  isDynamicValue,
-  getDynamicBindings,
   combineDynamicBindings,
+  getDynamicBindings,
+  isDynamicValue,
 } from "utils/DynamicBindingUtils";
+
 import type { Column } from "../../WidgetQueryGenerators/types";
 import type { FieldThemeStylesheet, Schema, SchemaItem } from "./constants";
 import {
   ARRAY_ITEM_KEY,
   FieldType,
-  inverseFieldType,
   getBindingTemplate,
+  inverseFieldType,
 } from "./constants";
-import moment from "moment";
-import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 
 interface ConvertFormDataOptions {
   fromId: keyof SchemaItem | (keyof SchemaItem)[];

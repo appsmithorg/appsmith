@@ -1,5 +1,6 @@
-const datasource = require("../../../locators/DatasourcesEditor.json");
 import { dataSources } from "../../../support/Objects/ObjectsCore";
+
+const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe(
   "MsSQL datasource test cases",

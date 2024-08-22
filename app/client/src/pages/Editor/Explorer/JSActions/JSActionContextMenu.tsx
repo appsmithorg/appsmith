@@ -1,28 +1,29 @@
 import React, { useCallback, useContext, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
+import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
-  moveJSCollectionRequest,
   copyJSCollectionRequest,
   deleteJSCollection,
+  moveJSCollectionRequest,
 } from "actions/jsActionActions";
-import noop from "lodash/noop";
-import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
+  CONFIRM_CONTEXT_DELETE,
   CONTEXT_COPY,
   CONTEXT_DELETE,
-  CONFIRM_CONTEXT_DELETE,
-  CONTEXT_RENAME,
   CONTEXT_MOVE,
   CONTEXT_NO_PAGE,
+  CONTEXT_RENAME,
   CONTEXT_SHOW_BINDING,
   createMessage,
 } from "ee/constants/messages";
 import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
-
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import noop from "lodash/noop";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   ActionEntityContextMenuItemsEnum,
   FilesContext,

@@ -1,22 +1,24 @@
 import React from "react";
-import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+
+import {
+  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
+  createMessage,
+} from "ee/constants/messages";
+import { isString } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import {
   ORIGINAL_INDEX_KEY,
   PRIMARY_COLUMN_KEY_VALUE,
 } from "widgets/TableWidgetV2/constants";
+
 import TableInlineEditValidationControlProperty, {
   CurlyBraces,
-  StyledCode,
   InputText,
   PromptMessage,
+  StyledCode,
 } from "./TableInlineEditValidationControl";
-import { isString } from "lodash";
 import { JSToString, stringToJS } from "./utils";
-import {
-  createMessage,
-  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
-} from "ee/constants/messages";
 
 const bindingPrefix = `{{
   (

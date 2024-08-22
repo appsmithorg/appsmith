@@ -1,28 +1,28 @@
 import React, { useCallback, useEffect, useRef } from "react";
+
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
+import { updatePageAction } from "actions/pageActions";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
+import type { Page } from "entities/Page";
+import { StyledEntity } from "pages/Editor/Explorer/Common/components";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { defaultPageIcon, pageIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import PageContextMenu from "pages/Editor/Explorer/Pages/PageContextMenu";
+import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-
-import type { Page } from "entities/Page";
-import { defaultPageIcon, pageIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import PageContextMenu from "pages/Editor/Explorer/Pages/PageContextMenu";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
-import { StyledEntity } from "pages/Editor/Explorer/Common/components";
 import { toValidPageName } from "utils/helpers";
-import { updatePageAction } from "actions/pageActions";
-import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 const PageElement = ({
   onClick,

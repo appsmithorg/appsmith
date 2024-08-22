@@ -1,19 +1,22 @@
 import React, { memo } from "react";
+
 import {
-  Popover,
   Classes,
+  Popover,
   PopoverInteractionKind,
   Position,
 } from "@blueprintjs/core";
-import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
+import styled, { createGlobalStyle } from "styled-components";
+import zipcelx from "zipcelx";
+
+import { importSvg } from "@appsmith/ads-old";
+
 import type { ReactTableColumnProps } from "../../Constants";
 import { TableIconWrapper } from "../../TableStyledWrappers";
-import styled, { createGlobalStyle } from "styled-components";
 import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
-import zipcelx from "zipcelx";
-import { importSvg } from "@appsmith/ads-old";
 
 const DownloadIcon = importSvg(
   async () => import("assets/icons/control/download-data-icon.svg"),

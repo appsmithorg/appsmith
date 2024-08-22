@@ -1,29 +1,30 @@
 import React from "react";
 
+import { Classes } from "@blueprintjs/core";
+import type { AxiosProgressEvent } from "axios";
 import {
   deleteWorkspaceLogo,
   saveWorkspace,
   uploadWorkspaceLogo,
 } from "ee/actions/workspaceActions";
 import type { SaveWorkspaceRequest } from "ee/api/WorkspaceApi";
-import { debounce } from "lodash";
-import { Input } from "@appsmith/ads";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  getCurrentError,
-  getFetchedWorkspaces,
-} from "ee/selectors/workspaceSelectors";
-import { useParams } from "react-router-dom";
-import styled from "styled-components";
-import type { SetProgress, UploadCallback } from "@appsmith/ads-old";
-import { FilePickerV2, FileType, Text, TextType } from "@appsmith/ads-old";
-import { Classes } from "@blueprintjs/core";
-import { useMediaQuery } from "react-responsive";
 import {
   getIsFetchingApplications,
   selectedWorkspaceLoadingStates,
 } from "ee/selectors/selectedWorkspaceSelectors";
-import type { AxiosProgressEvent } from "axios";
+import {
+  getCurrentError,
+  getFetchedWorkspaces,
+} from "ee/selectors/workspaceSelectors";
+import { debounce } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { useMediaQuery } from "react-responsive";
+import { useParams } from "react-router-dom";
+import styled from "styled-components";
+
+import { Input } from "@appsmith/ads";
+import type { SetProgress, UploadCallback } from "@appsmith/ads-old";
+import { FilePickerV2, FileType, Text, TextType } from "@appsmith/ads-old";
 
 // This wrapper ensures that the scroll behaviour is consistent with the other tabs
 const ScrollWrapper = styled.div`

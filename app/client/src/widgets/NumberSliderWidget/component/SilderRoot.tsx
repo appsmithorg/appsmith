@@ -1,6 +1,7 @@
-import styled from "styled-components";
 import React, { forwardRef } from "react";
+
 import { LabelPosition } from "components/constants";
+import styled from "styled-components";
 
 import type { SliderSizes } from "../utils";
 import { sizeMap } from "../utils";

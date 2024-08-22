@@ -1,8 +1,5 @@
 import React from "react";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { ToggleGroupOption } from "@appsmith/ads";
-import { ToggleButtonGroup } from "@appsmith/ads";
+
 import produce from "immer";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -10,6 +7,12 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+import type { ToggleGroupOption } from "@appsmith/ads";
+import { ToggleButtonGroup } from "@appsmith/ads";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 export interface ButtonTabControlProps extends ControlProps {
   options: ToggleGroupOption[];

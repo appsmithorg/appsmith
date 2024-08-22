@@ -1,3 +1,7 @@
+import {
+  dataSources,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -5,10 +9,6 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import {
-  entityExplorer,
-  dataSources,
-} from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
 let updatedName;

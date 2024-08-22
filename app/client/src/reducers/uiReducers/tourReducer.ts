@@ -1,7 +1,7 @@
-import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { TourType } from "entities/Tour";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: TourReducerState = {
   isTourInProgress: false,

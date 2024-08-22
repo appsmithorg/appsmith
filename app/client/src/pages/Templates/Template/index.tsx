@@ -1,18 +1,21 @@
 import React, { useState } from "react";
-import styled from "styled-components";
-import history from "utils/history";
-import type { Template as TemplateInterface } from "api/TemplatesApi";
-import { Button, Tooltip, Text } from "@appsmith/ads";
-import ForkTemplateDialog from "../ForkTemplate";
-import DatasourceChip from "../DatasourceChip";
-import { createMessage, FORK_THIS_TEMPLATE } from "ee/constants/messages";
-import { templateIdUrl } from "ee/RouteBuilder";
+
 import { Position } from "@blueprintjs/core";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
+import { templateIdUrl } from "ee/RouteBuilder";
+import { FORK_THIS_TEMPLATE, createMessage } from "ee/constants/messages";
+import { useSelector } from "react-redux";
 import {
   activeLoadingTemplateId,
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
-import { useSelector } from "react-redux";
+import styled from "styled-components";
+import history from "utils/history";
+
+import { Button, Text, Tooltip } from "@appsmith/ads";
+
+import DatasourceChip from "../DatasourceChip";
+import ForkTemplateDialog from "../ForkTemplate";
 
 const TemplateWrapper = styled.div`
   border: 1px solid var(--ads-v2-color-border);

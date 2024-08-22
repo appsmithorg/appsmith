@@ -1,6 +1,8 @@
 import React from "react";
-import { ToggleButton } from "./ToggleButton";
+
 import type { StoryObj } from "@storybook/react";
+
+import { ToggleButton } from "./ToggleButton";
 import type { ToggleButtonProps } from "./ToggleButton.types";
 
 export default {

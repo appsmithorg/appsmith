@@ -1,16 +1,19 @@
+import React, { useCallback } from "react";
+
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
-  createMessage,
   SIMILAR_TEMPLATES,
   VIEW_ALL_TEMPLATES,
+  createMessage,
 } from "ee/constants/messages";
-import type { Template as TemplateInterface } from "api/TemplatesApi";
-import { Text, Link } from "@appsmith/ads";
-import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Section } from "./TemplateDescription";
-import FixedHeightTemplate from "./FixedHeightTemplate";
+
+import { Link, Text } from "@appsmith/ads";
+
 import BuildingBlock from "../BuildingBlock";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "../constants";
+import FixedHeightTemplate from "./FixedHeightTemplate";
+import { Section } from "./TemplateDescription";
 
 const SimilarTemplatesWrapper = styled.div`
   padding-right: 132px;

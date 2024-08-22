@@ -2,30 +2,32 @@
  * TODO: (Balaji) Move all the types to different file
  */
 import { IconNames } from "@blueprintjs/icons";
-import type { SpacingDimension } from "@appsmith/wds";
-import type { Responsive, SizingDimension } from "@appsmith/wds";
-import type { Theme } from "constants/DefaultTheme";
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type { WidgetTags } from "constants/WidgetConstants";
-import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
-import type { Stylesheet } from "entities/AppTheming";
-import { omit } from "lodash";
-import moment from "moment";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetFeatures } from "utils/WidgetFeatures";
-import type { WidgetProps } from "../widgets/BaseWidget";
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type { Theme } from "constants/DefaultTheme";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import type { WidgetTags } from "constants/WidgetConstants";
+import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import type { Stylesheet } from "entities/AppTheming";
 import type {
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { omit } from "lodash";
+import moment from "moment";
+import type { WidgetFeatures } from "utils/WidgetFeatures";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+
+import type { SpacingDimension } from "@appsmith/wds";
+import type { Responsive, SizingDimension } from "@appsmith/wds";
+
+import type { WidgetProps } from "../widgets/BaseWidget";
 
 export interface WidgetSizeConfig {
   viewportMinWidth: number;

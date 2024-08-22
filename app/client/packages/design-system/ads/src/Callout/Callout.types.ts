@@ -1,6 +1,7 @@
 import type React from "react";
-import type { Kind } from "../__config__/types";
+
 import type { LinkProps } from "../Link";
+import type { Kind } from "../__config__/types";
 
 export type CalloutKind = Kind;
 

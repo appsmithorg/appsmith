@@ -1,7 +1,9 @@
 import React, { createRef, useState } from "react";
-import styled from "styled-components";
-import copy from "copy-to-clipboard";
+
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
+import copy from "copy-to-clipboard";
+import styled from "styled-components";
+
 import { BaseButton } from "./BaseButton";
 
 const Wrapper = styled.div`

@@ -1,12 +1,14 @@
 import React from "react";
+
+import type { AnvilConfig } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig } from "entities/AppTheming";
 import xor from "lodash/xor";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
-import type { SetterConfig } from "entities/AppTheming";
-import type { AnvilConfig } from "WidgetProvider/constants";
+
 import { Checkbox, ToggleGroup } from "@appsmith/wds";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import {
   anvilConfig,
@@ -14,9 +16,9 @@ import {
   defaultsConfig,
   featuresConfig,
   metaConfig,
+  methodsConfig,
   propertyPaneContentConfig,
   settersConfig,
-  methodsConfig,
 } from "../config";
 import { validateInput } from "./helpers";
 import type { CheckboxGroupWidgetProps, OptionProps } from "./types";

@@ -1,11 +1,11 @@
 import {
   agHelper,
   apiPage,
-  jsEditor,
-  debuggerHelper,
   dataManager,
-  locators,
+  debuggerHelper,
   draggableWidgets,
+  jsEditor,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 

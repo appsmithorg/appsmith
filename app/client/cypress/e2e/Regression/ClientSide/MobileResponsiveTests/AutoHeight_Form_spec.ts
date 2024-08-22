@@ -3,6 +3,7 @@ import {
   MOBILE_ROW_GAP,
   ROW_GAP,
 } from "../../../../../src/layoutSystems/common/utils/constants";
+import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
   autoLayout,
@@ -10,7 +11,6 @@ import {
   entityExplorer,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 
 let childHeight = 0;
 let containerHeight = 0;

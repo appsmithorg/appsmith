@@ -1,26 +1,26 @@
-import { fetchApplication } from "ee/actions/applicationActions";
+import type { Span } from "@opentelemetry/api";
+import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import { updateBranchLocally } from "actions/gitSyncActions";
+import { restoreIDEEditorViewMode } from "actions/ideActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
-import type { ApplicationPayload } from "entities/Application";
+import { getPersistentAppStore } from "constants/AppConstants";
+import { fetchApplication } from "ee/actions/applicationActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { getPersistentAppStore } from "constants/AppConstants";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import URLGeneratorFactory from "entities/URLRedirect/factory";
+import type URLRedirect from "entities/URLRedirect/index";
 import log from "loglevel";
 import { call, put, select } from "redux-saga/effects";
 import type { InitConsolidatedApi } from "sagas/InitSagas";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultBasePageId, getDefaultPageId } from "sagas/selectors";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import history from "utils/history";
-import type URLRedirect from "entities/URLRedirect/index";
-import URLGeneratorFactory from "entities/URLRedirect/factory";
-import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { restoreIDEEditorViewMode } from "actions/ideActions";
-import type { Span } from "@opentelemetry/api";
-import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import history from "utils/history";
 
 export interface AppEnginePayload {
   applicationId?: string;

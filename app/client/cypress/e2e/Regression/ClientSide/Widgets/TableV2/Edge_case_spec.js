@@ -1,15 +1,15 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../support/Pages/EditorNavigation";
-
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   entityExplorer,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Table widget v2 edge case scenario testing",

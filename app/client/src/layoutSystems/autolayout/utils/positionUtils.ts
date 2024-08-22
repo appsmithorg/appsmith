@@ -1,23 +1,28 @@
+import WidgetFactory from "WidgetProvider/factory";
+import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import {
+  FlexLayerAlignment,
+  MOBILE_ROW_GAP,
+  Positioning,
+  ROW_GAP,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import { isFunction } from "lodash";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+
 import type {
   AlignmentChildren,
   AlignmentInfo,
   Row,
 } from "../../autolayout/utils/types";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  FlexLayerAlignment,
-  MOBILE_ROW_GAP,
-  Positioning,
-  ResponsiveBehavior,
-  ROW_GAP,
-} from "layoutSystems/common/utils/constants";
+import { getCanvasDimensions } from "./AutoLayoutUtils";
 import {
   getWidgetHeight,
   getWidgetMinMaxDimensionsInPixel,
@@ -25,14 +30,10 @@ import {
   getWidgetWidth,
   setDimensions,
 } from "./flexWidgetUtils";
-import { getCanvasDimensions } from "./AutoLayoutUtils";
-import WidgetFactory from "WidgetProvider/factory";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
-import { isFunction } from "lodash";
 import {
   getComputedHeight,
-  getDivisor,
   getContainerLikeWidgetHeight,
+  getDivisor,
   getModalHeight,
   shouldUpdateParentHeight,
   updateParentHeight,

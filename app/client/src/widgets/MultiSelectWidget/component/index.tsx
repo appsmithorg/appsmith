@@ -1,27 +1,29 @@
 /* eslint-disable no-console */
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import type { SelectProps } from "rc-select";
-import Select from "rc-select";
-import type { DraftValueType } from "rc-select/lib/Select";
-import {
-  DropdownStyles,
-  MultiSelectContainer,
-  StyledCheckbox,
-} from "./index.styled";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
+import type { Alignment } from "@blueprintjs/core";
+import { Classes } from "@blueprintjs/core";
+import { Icon } from "@design-system/widgets-old";
+import type { LabelPosition } from "components/constants";
+import { Colors } from "constants/Colors";
 import type { TextSize } from "constants/WidgetConstants";
 import {
   CANVAS_SELECTOR,
   MODAL_PORTAL_CLASSNAME,
 } from "constants/WidgetConstants";
-import debounce from "lodash/debounce";
-import { Icon } from "@design-system/widgets-old";
-import type { Alignment } from "@blueprintjs/core";
-import { Classes } from "@blueprintjs/core";
-import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import _ from "lodash";
-import { Colors } from "constants/Colors";
-import type { LabelPosition } from "components/constants";
+import debounce from "lodash/debounce";
+import type { SelectProps } from "rc-select";
+import Select from "rc-select";
+import type { DraftValueType } from "rc-select/lib/Select";
+import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+
+import {
+  DropdownStyles,
+  MultiSelectContainer,
+  StyledCheckbox,
+} from "./index.styled";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
   return <StyledCheckbox checked={props.isSelected} />;

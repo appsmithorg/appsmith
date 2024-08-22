@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import React from "react";
-import styled from "styled-components";
-import { NavLink, useRouteMatch } from "react-router-dom";
-import { MenuItem, Classes } from "@blueprintjs/core";
+
+import { Classes, MenuItem } from "@blueprintjs/core";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { NavLink, useRouteMatch } from "react-router-dom";
+import styled from "styled-components";
 
 const Content = styled.div<{ collapsed: boolean }>`
   display: flex;

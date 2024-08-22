@@ -1,12 +1,14 @@
 import * as React from "react";
-import styled from "styled-components";
+
 import type { IButtonProps } from "@blueprintjs/core";
 import { Button, ButtonGroup } from "@blueprintjs/core";
+import type { ThemeProp } from "WidgetProvider/constants";
+import styled from "styled-components";
+
+import { Icon } from "@appsmith/ads";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ThemeProp } from "WidgetProvider/constants";
-import { Icon } from "@appsmith/ads";
 
 export enum ButtonBorderRadiusTypes {
   SHARP = "SHARP",

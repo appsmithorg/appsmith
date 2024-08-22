@@ -1,6 +1,8 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
-import { Switch, Flex } from "@appsmith/wds";
+
+import { Flex, Switch } from "@appsmith/wds";
 
 /**
  * Switch is a component that allows the user to select one or more options from a set.

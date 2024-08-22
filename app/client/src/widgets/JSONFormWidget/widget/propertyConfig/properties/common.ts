@@ -10,6 +10,7 @@ import {
   FIELD_SUPPORTING_FOCUS_EVENTS,
   FieldType,
 } from "widgets/JSONFormWidget/constants";
+
 import type { JSONFormWidgetProps } from "../..";
 import { getParentPropertyPath } from "../../helper";
 import type { HiddenFnParams } from "../helper";

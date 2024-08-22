@@ -1,29 +1,31 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
-import type { DefaultTheme } from "styled-components";
-import styled, { useTheme } from "styled-components";
-import { get, isUndefined } from "lodash";
-import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
-import FilterHeader from "./FilterHeader";
-import { BlankState } from "./helpers";
-import LogItem, { getLogItemProps } from "./LogItem";
-import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+import type { IconName } from "@blueprintjs/core";
+import { setDebuggerSelectedFilter } from "actions/debuggerActions";
+import type { Theme } from "constants/DefaultTheme";
+import { thinScrollbar } from "constants/DefaultTheme";
 import {
-  createMessage,
   LOGS_FILTER_OPTION_ALL,
   LOGS_FILTER_OPTION_CONSOLE,
   LOGS_FILTER_OPTION_ERROR,
   LOGS_FILTER_OPTION_SYSTEM,
   NO_LOGS,
+  createMessage,
 } from "ee/constants/messages";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
-import bootIntercom from "utils/bootIntercom";
-import type { Theme } from "constants/DefaultTheme";
-import { thinScrollbar } from "constants/DefaultTheme";
-import type { IconName } from "@blueprintjs/core";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import { get, isUndefined } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import { getDebuggerSelectedFilter } from "selectors/debuggerSelectors";
-import { setDebuggerSelectedFilter } from "actions/debuggerActions";
+import { getCurrentUser } from "selectors/usersSelectors";
+import type { DefaultTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
+import bootIntercom from "utils/bootIntercom";
+
+import FilterHeader from "./FilterHeader";
+import LogItem, { getLogItemProps } from "./LogItem";
+import { BlankState } from "./helpers";
+import { useFilteredLogs, usePagination } from "./hooks/debuggerHooks";
 
 export const LIST_HEADER_HEIGHT = "38px";
 export const FOOTER_MARGIN = "40px";

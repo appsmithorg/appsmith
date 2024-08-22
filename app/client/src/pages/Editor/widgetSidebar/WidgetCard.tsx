@@ -1,15 +1,17 @@
 import React from "react";
-import type { WidgetCardProps } from "widgets/BaseWidget";
-import styled from "styled-components";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { generateReactKey } from "utils/generators";
-import { Text } from "@appsmith/ads";
+
 import { BUILDING_BLOCK_EXPLORER_TYPE } from "constants/WidgetConstants";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import styled from "styled-components";
 import { noop } from "utils/AppsmithUtils";
+import { generateReactKey } from "utils/generators";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import type { WidgetCardProps } from "widgets/BaseWidget";
+
+import { Text } from "@appsmith/ads";
 
 export interface CardProps {
   details: WidgetCardProps;

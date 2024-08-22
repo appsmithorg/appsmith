@@ -1,20 +1,21 @@
-import equal from "fast-deep-equal/es6";
 import type { PropsWithChildren } from "react";
 import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
+
+import { Text } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona";
 import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
-import { Text } from "@blueprintjs/core";
-import { klona } from "klona";
-
-import useFixedFooter from "./useFixedFooter";
+import styled from "styled-components";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
-import { Colors } from "constants/Colors";
-import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
+
 import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
+import { FORM_PADDING_X, FORM_PADDING_Y } from "./styleConstants";
+import useFixedFooter from "./useFixedFooter";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

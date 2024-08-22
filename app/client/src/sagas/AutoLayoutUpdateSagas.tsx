@@ -1,14 +1,46 @@
+import { flattenDSL, nestDSL } from "@shared/dsl";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
+import {
+  updateMultipleMetaWidgetPropertiesAction,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
 import { updateAndSaveLayout } from "actions/pageActions";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import { updateApplication } from "ee/actions/applicationActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import {
+  alterLayoutForDesktop,
+  alterLayoutForMobile,
+  getCanvasDimensions,
+} from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import {
+  getLeftColumn,
+  getTopRow,
+  getWidgetMinMaxDimensionsInPixel,
+  setBottomRow,
+  setRightColumn,
+} from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
+import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
+import convertDSLtoAuto from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { isEmpty } from "lodash";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import {
   all,
   call,
@@ -17,54 +49,23 @@ import {
   select,
   takeLatest,
 } from "redux-saga/effects";
-import {
-  alterLayoutForDesktop,
-  alterLayoutForMobile,
-  getCanvasDimensions,
-} from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import {
-  getCanvasAndMetaWidgets,
-  getWidgets,
-  getWidgetsMeta,
-} from "./selectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import {
   getCurrentApplicationId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
 } from "selectors/editorSelectors";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
-import convertDSLtoAuto from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
-import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
-import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
-import {
-  getLeftColumn,
-  getTopRow,
-  getWidgetMinMaxDimensionsInPixel,
-  setBottomRow,
-  setRightColumn,
-} from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  updateMultipleMetaWidgetPropertiesAction,
-  updateMultipleWidgetPropertiesAction,
-} from "actions/controlActions";
-import { isEmpty } from "lodash";
-import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
-import { updateApplication } from "ee/actions/applicationActions";
-import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
-import { getIsResizing } from "selectors/widgetSelectors";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import type { AppState } from "ee/reducers";
-import { nestDSL, flattenDSL } from "@shared/dsl";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getIsResizing } from "selectors/widgetSelectors";
+
+import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
+import {
+  getCanvasAndMetaWidgets,
+  getWidgets,
+  getWidgetsMeta,
+} from "./selectors";
 
 // Saga check : if layout system is not anvil, then run the saga
 // An alternative implementation would be to re-use shouldRunSaga,

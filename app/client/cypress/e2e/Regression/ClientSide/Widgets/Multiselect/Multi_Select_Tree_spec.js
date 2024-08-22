@@ -1,8 +1,9 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "MultiSelectTree Widget Functionality",

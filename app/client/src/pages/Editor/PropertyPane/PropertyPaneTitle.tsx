@@ -1,25 +1,26 @@
 import type { ReactElement } from "react";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+
+import { updateWidgetName } from "actions/propertyPaneActions";
+import type { WidgetType } from "constants/WidgetConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  EditableText,
-  EditInteractionKind,
-  SavingState,
-} from "@appsmith/ads-old";
-import type { TooltipPlacement } from "@appsmith/ads";
-import { Tooltip, Button } from "@appsmith/ads";
-import { updateWidgetName } from "actions/propertyPaneActions";
-import type { AppState } from "ee/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
+import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
+import styled from "styled-components";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
-import type { WidgetType } from "constants/WidgetConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
+import type { TooltipPlacement } from "@appsmith/ads";
+import { Button, Tooltip } from "@appsmith/ads";
+import {
+  EditInteractionKind,
+  EditableText,
+  SavingState,
+} from "@appsmith/ads-old";
 
 interface PropertyPaneTitleProps {
   title: string;

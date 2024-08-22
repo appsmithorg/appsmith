@@ -1,25 +1,26 @@
-export * from "ce/sagas/ApplicationSagas";
 import {
-  publishApplicationSaga,
-  updateApplicationLayoutSaga,
-  updateApplicationSaga,
   changeAppViewAccessSaga,
-  fetchAppAndPagesSaga,
-  forkApplicationSaga,
   createApplicationSaga,
-  setDefaultApplicationPageSaga,
   deleteApplicationSaga,
-  importApplicationSaga,
-  fetchReleases,
-  initDatasourceConnectionDuringImport,
-  showReconnectDatasourcesModalSaga,
-  fetchUnconfiguredDatasourceList,
-  uploadNavigationLogoSaga,
   deleteNavigationLogoSaga,
   fetchAllApplicationsOfWorkspaceSaga,
+  fetchAppAndPagesSaga,
+  fetchReleases,
+  fetchUnconfiguredDatasourceList,
+  forkApplicationSaga,
+  importApplicationSaga,
+  initDatasourceConnectionDuringImport,
+  publishApplicationSaga,
+  setDefaultApplicationPageSaga,
+  showReconnectDatasourcesModalSaga,
+  updateApplicationLayoutSaga,
+  updateApplicationSaga,
+  uploadNavigationLogoSaga,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
+
+export * from "ce/sagas/ApplicationSagas";
 
 export default function* applicationSagas() {
   yield all([

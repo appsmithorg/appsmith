@@ -1,8 +1,9 @@
 import type { SpectrumActionGroupProps } from "@react-types/actiongroup";
 import type { Key } from "@react-types/shared";
 import type { StyleProps } from "@react-types/shared";
-import type { ButtonProps } from "../../Button";
+
 import type { SIZES } from "../../../shared";
+import type { ButtonProps } from "../../Button";
 
 export const TOOLBAR_BUTTONS_ALIGNMENTS = {
   start: "Start",

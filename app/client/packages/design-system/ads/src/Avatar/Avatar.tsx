@@ -1,31 +1,32 @@
 import type { ForwardedRef } from "react";
 import React, { useState } from "react";
+
 import clsx from "classnames";
 
-import type {
-  AvatarGroupAvatarProps,
-  AvatarGroupProps,
-  AvatarProps,
-} from "./Avatar.types";
+import { Icon } from "../Icon";
+import { Menu, MenuItem, MenuTrigger } from "../Menu";
+import { MenuContent } from "../Menu";
+import type { TooltipPlacement } from "../Tooltip";
+import { Tooltip } from "../Tooltip";
+import {
+  AvatarClassName,
+  AvatarGroupClassName,
+  AvatarGroupShowMoreClassName,
+  AvatarImageClassName,
+  AvatarLetterClassName,
+  AvatarSvgClassName,
+} from "./Avatar.constants";
 import {
   AvatarEmail,
   AvatarMenuItem,
   StyledAvatar,
   StyledAvatarGroup,
 } from "./Avatar.styles";
-import { Icon } from "../Icon";
-import {
-  AvatarClassName,
-  AvatarImageClassName,
-  AvatarSvgClassName,
-  AvatarLetterClassName,
-  AvatarGroupClassName,
-  AvatarGroupShowMoreClassName,
-} from "./Avatar.constants";
-import type { TooltipPlacement } from "../Tooltip";
-import { Tooltip } from "../Tooltip";
-import { Menu, MenuItem, MenuTrigger } from "../Menu";
-import { MenuContent } from "../Menu";
+import type {
+  AvatarGroupAvatarProps,
+  AvatarGroupProps,
+  AvatarProps,
+} from "./Avatar.types";
 
 const Avatar = React.forwardRef(
   (props: AvatarProps, ref: ForwardedRef<HTMLSpanElement>) => {

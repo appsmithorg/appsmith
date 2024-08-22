@@ -1,23 +1,24 @@
 import React, { useCallback, useContext, useMemo, useRef } from "react";
-import styled from "styled-components";
-import { useController } from "react-hook-form";
 
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { isNil } from "lodash";
+import { useController } from "react-hook-form";
+import styled from "styled-components";
 import Field from "widgets/JSONFormWidget/component/Field";
-import FormContext from "../FormContext";
 import SelectComponent from "widgets/SelectWidget/component";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
+import type { DropdownOption } from "widgets/SelectWidget/constants";
+
+import FormContext from "../FormContext";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DropdownOption } from "widgets/SelectWidget/constants";
 import { isPrimitive } from "../helper";
-import { isNil } from "lodash";
-import { Colors } from "constants/Colors";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
+import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 
 interface MetaProps {
   filterText?: string;

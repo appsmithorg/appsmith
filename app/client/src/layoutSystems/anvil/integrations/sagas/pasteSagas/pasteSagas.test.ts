@@ -1,21 +1,22 @@
-import { select } from "redux-saga/effects";
-import { expectSaga } from "redux-saga-test-plan";
-import { pasteWidgetSagas } from ".";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { getCopiedWidgets } from "utils/storage";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
+import { expectSaga } from "redux-saga-test-plan";
+import { select } from "redux-saga/effects";
 import {
   getNextWidgetName,
   getSelectedWidgetWhenPasting,
 } from "sagas/WidgetOperationUtils";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { getWidgets } from "sagas/selectors";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidgets } from "sagas/selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { generateReactKey } from "utils/generators";
-import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
-import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { generateReactKey } from "utils/generators";
+import { getCopiedWidgets } from "utils/storage";
+
+import { pasteWidgetSagas } from ".";
 
 const cleanAllMocks = () => {
   jest.resetModules(); // Reset the module registry

@@ -1,9 +1,11 @@
 import React from "react";
-import { ThemeProvider } from "styled-components";
-import TestRenderer from "react-test-renderer";
-import DragLayerComponent from "./DragLayerComponent";
-import { RenderModes } from "constants/WidgetConstants";
+
 import { theme } from "constants/DefaultTheme";
+import { RenderModes } from "constants/WidgetConstants";
+import TestRenderer from "react-test-renderer";
+import { ThemeProvider } from "styled-components";
+
+import DragLayerComponent from "./DragLayerComponent";
 
 describe("DragLayerComponent", () => {
   it("it checks noPad prop", () => {

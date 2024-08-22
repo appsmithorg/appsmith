@@ -1,6 +1,7 @@
 import { useState } from "react";
-import localStorage from "utils/localStorage";
+
 import log from "loglevel";
+import localStorage from "utils/localStorage";
 
 export function useLocalStorage(key: string, initialValue?: unknown) {
   // State to store our value

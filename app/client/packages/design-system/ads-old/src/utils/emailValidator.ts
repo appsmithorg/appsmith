@@ -1,6 +1,6 @@
 import {
-  createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
+  createMessage,
 } from "../constants/messages";
 
 const isEmail = (value: string) => {

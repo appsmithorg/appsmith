@@ -1,29 +1,29 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import {
-  all,
-  call,
-  put,
-  takeLatest,
-  select,
-  putResolve,
-  take,
-} from "redux-saga/effects";
-import { setRecentAppEntities, fetchRecentAppEntities } from "utils/storage";
 import {
   restoreRecentEntitiesSuccess,
   setRecentEntities,
 } from "actions/globalSearchActions";
+import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
+import log from "loglevel";
+import type { FocusEntity, FocusEntityInfo } from "navigation/FocusEntity";
+import {
+  all,
+  call,
+  put,
+  putResolve,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
-import log from "loglevel";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import type { FocusEntity, FocusEntityInfo } from "navigation/FocusEntity";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { fetchRecentAppEntities, setRecentAppEntities } from "utils/storage";
 
 const getRecentEntitiesKey = (applicationId: string, branch?: string) =>
   branch ? `${applicationId}-${branch}` : applicationId;
@@ -73,11 +73,11 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
         recentEntity.id !== id,
     );
 
-    recentEntities.unshift(<RecentEntity>{
+    recentEntities.unshift({
       type: entity,
       id,
       pageId,
-    });
+    }) as RecentEntity;
     recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));

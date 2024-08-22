@@ -1,17 +1,24 @@
 import {
-  FlexLayerAlignment,
-  MOBILE_ROW_GAP,
-  ROW_GAP,
-} from "layoutSystems/common/utils/constants";
-import {
   FLEXBOX_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import {
+  FlexLayerAlignment,
+  MOBILE_ROW_GAP,
+  ROW_GAP,
+} from "layoutSystems/common/utils/constants";
+import type { DropZone, HighlightInfo } from "layoutSystems/common/utils/types";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+
+import type {
+  AlignmentChildren,
+  AlignmentInfo,
+} from "../../autolayout/utils/types";
+import { DEFAULT_HIGHLIGHT_SIZE } from "../common/flexCanvas/FlexBoxComponent";
 import {
   getLeftColumn,
   getRightColumn,
@@ -19,15 +26,9 @@ import {
   getWidgetHeight,
   getWidgetWidth,
 } from "./flexWidgetUtils";
-import { getAlignmentSizeInfo, getWrappedAlignmentInfo } from "./positionUtils";
-import type {
-  AlignmentChildren,
-  AlignmentInfo,
-} from "../../autolayout/utils/types";
 import { getTotalRowsOfAllChildren } from "./heightUpdateUtils";
-import { DEFAULT_HIGHLIGHT_SIZE } from "../common/flexCanvas/FlexBoxComponent";
+import { getAlignmentSizeInfo, getWrappedAlignmentInfo } from "./positionUtils";
 import type { FlexLayer, LayerChild } from "./types";
-import type { DropZone, HighlightInfo } from "layoutSystems/common/utils/types";
 
 /**
  * @param allWidgets : CanvasWidgetsReduxState

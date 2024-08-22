@@ -1,14 +1,17 @@
 import React, { forwardRef, useRef } from "react";
+import type { ForwardedRef } from "react";
+
 import { RadioGroup as HeadlessRadioGroup, Radio } from "react-aria-components";
+
 import {
-  Label,
-  Flex,
-  Text,
   ErrorMessage,
+  Flex,
+  Label,
+  Text,
   useGroupOrientation,
 } from "@appsmith/wds";
+
 import styles from "./styles.module.css";
-import type { ForwardedRef } from "react";
 import type { RadioGroupProps } from "./types";
 
 const _RadioGroup = (

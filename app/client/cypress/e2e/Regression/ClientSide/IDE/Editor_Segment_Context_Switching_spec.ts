@@ -1,5 +1,5 @@
+import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
-
 import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
@@ -7,7 +7,6 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
-import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 
 describe(
   "Editor Segment Context Switch",

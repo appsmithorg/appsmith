@@ -1,12 +1,12 @@
 import {
   agHelper,
-  locators,
+  assertHelper,
   deployMode,
   entityExplorer,
+  locators,
   propPane,
   table,
   tabs,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

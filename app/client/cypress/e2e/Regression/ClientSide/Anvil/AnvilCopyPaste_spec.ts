@@ -1,10 +1,10 @@
-import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
+import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
 import {
   agHelper,
   anvilLayout,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
-import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
+import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Paste functionality`,

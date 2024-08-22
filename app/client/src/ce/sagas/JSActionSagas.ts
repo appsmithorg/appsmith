@@ -1,17 +1,3 @@
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import { put, select, call } from "redux-saga/effects";
-import {
-  updateActionData,
-  type FetchActionsPayload,
-} from "actions/pluginActionActions";
-import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
   closeJSActionTab,
   closeJsActionTabSuccess,
@@ -25,60 +11,75 @@ import {
   moveJSCollectionError,
   moveJSCollectionSuccess,
 } from "actions/jsActionActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import {
-  getJSCollection,
-  getNewEntityName,
-  getPageNameByPageId,
-} from "ee/selectors/entitiesSelector";
-import history from "utils/history";
-import {
-  getCurrentBasePageId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import type { JSCollectionCreateUpdateResponse } from "ee/api/JSActionAPI";
-import JSActionAPI from "ee/api/JSActionAPI";
-import {
-  createMessage,
-  ERROR_JS_ACTION_COPY_FAIL,
-  ERROR_JS_ACTION_MOVE_FAIL,
-  ERROR_JS_COLLECTION_RENAME_FAIL,
-  JS_ACTION_COPY_SUCCESS,
-  JS_ACTION_DELETE_SUCCESS,
-  JS_ACTION_MOVE_SUCCESS,
-} from "ee/constants/messages";
-import { validateResponse } from "sagas/ErrorSagas";
+  type FetchActionsPayload,
+  updateActionData,
+} from "actions/pluginActionActions";
+import type { ApiResponse } from "api/ApiResponses";
 import type {
   FetchPageRequest,
   FetchPageResponse,
   PageLayout,
 } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import type { ApiResponse } from "api/ApiResponses";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
-import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "ee/RouteBuilder";
-import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import type { JSCollectionCreateUpdateResponse } from "ee/api/JSActionAPI";
+import JSActionAPI from "ee/api/JSActionAPI";
+import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
+import type {
+  EvaluationReduxAction,
+  ReduxAction,
+} from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import {
+  ERROR_JS_ACTION_COPY_FAIL,
+  ERROR_JS_ACTION_MOVE_FAIL,
+  ERROR_JS_COLLECTION_RENAME_FAIL,
+  JS_ACTION_COPY_SUCCESS,
+  JS_ACTION_DELETE_SUCCESS,
+  JS_ACTION_MOVE_SUCCESS,
+  createMessage,
+} from "ee/constants/messages";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
+import {
+  getJSCollection,
+  getNewEntityName,
+  getPageNameByPageId,
+} from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { JSAction, JSCollection } from "entities/JSCollection";
+import * as log from "loglevel";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call, put, select } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
+import FocusRetention from "sagas/FocusRetentionSaga";
+import { handleJSEntityRedirect } from "sagas/IDESaga";
 import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
 } from "sagas/helper";
-import { toast } from "@appsmith/ads";
-import { updateAndSaveLayout } from "actions/pageActions";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
-import FocusRetention from "sagas/FocusRetentionSaga";
-import { handleJSEntityRedirect } from "sagas/IDESaga";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import { IDE_TYPE } from "ee/entities/IDE/constants";
-import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
-import { getAllActionTestPayloads } from "utils/storage";
+import {
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
+import history from "utils/history";
+import { getAllActionTestPayloads } from "utils/storage";
+
+import { toast } from "@appsmith/ads";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,

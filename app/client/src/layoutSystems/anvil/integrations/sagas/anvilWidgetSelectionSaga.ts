@@ -1,7 +1,11 @@
-import type { AppState } from "ee/reducers";
 import type { DSLWidget } from "WidgetProvider/constants";
+import { setActiveEditorField } from "actions/activeFieldActions";
+import { setEvalPopupState } from "actions/editorContextActions";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import get from "lodash/get";
 import log from "loglevel";
 import { put, select, takeLatest } from "redux-saga/effects";
@@ -16,11 +20,8 @@ import {
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { NavigationMethod } from "utils/history";
 import type { WidgetProps } from "widgets/BaseWidget";
+
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
-import { setActiveEditorField } from "actions/activeFieldActions";
-import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
-import { setEvalPopupState } from "actions/editorContextActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 /**
  * This saga selects widgets in the Anvil Layout system

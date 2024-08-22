@@ -1,16 +1,19 @@
 import React, { useContext } from "react";
+
+import clsx from "clsx";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import { ThemeMode, getTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
-import { getTheme, ThemeMode } from "selectors/themeSelectors";
+
+import { Button, Icon, Text } from "@appsmith/ads";
+
+import { CustomWidgetBuilderContext } from ".";
+import { AppsmithLink } from "../AppsmithLink";
 import {
   HeaderSection,
   HeaderWrapper,
 } from "../commons/EditorHeaderComponents";
-import { AppsmithLink } from "../AppsmithLink";
 import styles from "./styles.module.css";
-import { Button, Icon, Text } from "@appsmith/ads";
-import clsx from "clsx";
-import { CustomWidgetBuilderContext } from ".";
-import { createMessage, CUSTOM_WIDGET_FEATURE } from "ee/constants/messages";
 
 const theme = getTheme(ThemeMode.LIGHT);
 

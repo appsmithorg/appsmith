@@ -1,18 +1,18 @@
-import PageList from "../../../../support/Pages/PageList";
-
-const explorer = require("../../../../locators/explorerlocators.json");
 import {
-  apiPage,
   agHelper,
+  apiPage,
   entityExplorer,
   entityItems,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
-import { EntityItems } from "../../../../support/Pages/AssertHelper";
+import PageList from "../../../../support/Pages/PageList";
+
+const explorer = require("../../../../locators/explorerlocators.json");
 
 const firstApiName = "First";
 const secondApiName = "Second";

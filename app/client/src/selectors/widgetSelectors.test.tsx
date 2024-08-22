@@ -1,9 +1,11 @@
 import React from "react";
+
+import { act, renderHook } from "@testing-library/react-hooks";
 import { Provider, useSelector } from "react-redux";
-import { shouldWidgetIgnoreClicksSelector } from "./widgetSelectors";
-import { renderHook, act } from "@testing-library/react-hooks";
-import store from "../store";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
+
+import store from "../store";
+import { shouldWidgetIgnoreClicksSelector } from "./widgetSelectors";
 
 describe("shouldWidgetIgnoreClicksSelector", () => {
   it("should return true when we are changing the auto height with limits", () => {

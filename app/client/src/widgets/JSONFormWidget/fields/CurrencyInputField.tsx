@@ -1,20 +1,21 @@
-import * as Sentry from "@sentry/react";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 
-import type { BaseInputComponentProps } from "./BaseInputField";
-import BaseInputField, { parseRegex } from "./BaseInputField";
+import * as Sentry from "@sentry/react";
+import { RenderModes } from "constants/WidgetConstants";
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
   getDefaultCurrency,
 } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
-import FormContext from "../FormContext";
-import type { BaseFieldComponentProps } from "../constants";
-import { RenderModes } from "constants/WidgetConstants";
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import derived from "widgets/CurrencyInputWidget/widget/derived";
-import { isEmpty } from "../helper";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
+
+import FormContext from "../FormContext";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import type { BaseFieldComponentProps } from "../constants";
+import { isEmpty } from "../helper";
+import type { BaseInputComponentProps } from "./BaseInputField";
+import BaseInputField, { parseRegex } from "./BaseInputField";
 
 type CurrencyInputComponentProps = BaseInputComponentProps & {
   currencyCountryCode: string;

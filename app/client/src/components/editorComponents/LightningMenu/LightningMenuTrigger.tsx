@@ -1,12 +1,14 @@
 import React from "react";
-import type { IconProps } from "constants/IconConstants";
-import {
-  createMessage,
-  LIGHTNING_MENU_DATA_TOOLTIP,
-} from "ee/constants/messages";
+
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
+import type { IconProps } from "constants/IconConstants";
+import {
+  LIGHTNING_MENU_DATA_TOOLTIP,
+  createMessage,
+} from "ee/constants/messages";
 import styled from "styled-components";
+
 import { Icon, Tooltip } from "@appsmith/ads";
 
 const LightningIconWrapper = styled.span<{

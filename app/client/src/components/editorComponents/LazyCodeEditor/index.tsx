@@ -1,16 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { LazyEditorWrapper } from "./styles";
-import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
+import assertNever from "assert-never/index";
 import type {
   EditorProps,
   EditorStyleProps,
 } from "components/editorComponents/CodeEditor";
 import type CodeEditor from "components/editorComponents/CodeEditor";
-import CodeEditorFallback from "./CodeEditorFallback";
+import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
 import { CODE_EDITOR_LOADING_ERROR } from "ee/constants/messages";
-import assertNever from "assert-never/index";
 import log from "loglevel";
+
 import { toast } from "@appsmith/ads";
+
+import CodeEditorFallback from "./CodeEditorFallback";
+import { LazyEditorWrapper } from "./styles";
 
 let CachedCodeEditor: typeof CodeEditor | undefined;
 

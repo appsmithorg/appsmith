@@ -1,8 +1,9 @@
-import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import type { JSActionEntity } from "ee/entities/DataTree/types";
+import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import TriggerEmitter, {
   jsVariableUpdatesHandlerWrapper,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";
+
 import JSObjectCollection from "../Collection";
 
 const applyJSVariableUpdatesToEvalTreeMock = jest.fn();

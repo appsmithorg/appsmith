@@ -1,33 +1,35 @@
-import { FUNC_ARGS_REGEX } from "./regex";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
-import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import {
-  getTextArgumentAtPosition,
-  getEnumArgumentAtPosition,
-  getModalName,
-  setModalName,
-  setEnumArgumentAtPosition,
-  setCallbackFunctionField,
-  getFuncExpressionAtPosition,
-  getFunctionBodyStatements,
-  setObjectAtPosition,
-  getThenCatchBlocksFromQuery,
-  setThenBlockInQuery,
-  setCatchBlockInQuery,
-  getFunctionParams,
-  setQueryParam,
-  getQueryParam,
   checkIfCatchBlockExists,
   checkIfThenBlockExists,
+  getEnumArgumentAtPosition,
+  getFuncExpressionAtPosition,
+  getFunctionBodyStatements,
+  getFunctionParams,
+  getModalName,
+  getQueryParam,
+  getTextArgumentAtPosition,
+  getThenCatchBlocksFromQuery,
+  setCallbackFunctionField,
+  setCatchBlockInQuery,
+  setEnumArgumentAtPosition,
+  setModalName,
+  setObjectAtPosition,
+  setQueryParam,
+  setThenBlockInQuery,
 } from "@shared/ast";
-import type { TreeDropdownOption } from "@appsmith/ads-old";
-import type { TActionBlock } from "./types";
-import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
-import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
-import store from "store";
-import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
-import { FIELD_CONFIG } from "./Field/FieldConfig";
 import { setGenericArgAtPostition } from "@shared/ast/src/actionCreator";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
+import store from "store";
+import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { isValidURL, matchesURLPattern } from "utils/URLUtils";
+
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+
+import { FIELD_CONFIG } from "./Field/FieldConfig";
+import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
+import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
+import { FUNC_ARGS_REGEX } from "./regex";
+import type { TActionBlock } from "./types";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);

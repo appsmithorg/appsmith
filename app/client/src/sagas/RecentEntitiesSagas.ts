@@ -1,13 +1,13 @@
-import { matchPath } from "react-router";
-import { matchBasePath } from "ee/pages/Editor/Explorer/helpers";
 import {
   API_EDITOR_ID_PATH,
-  QUERIES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
   matchBuilderPath,
 } from "constants/routes";
+import { matchBasePath } from "ee/pages/Editor/Explorer/helpers";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import { matchPath } from "react-router";
 
 export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);

@@ -1,7 +1,8 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { defaultSelectedValuesValidation } from "./validations";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+
+import { defaultSelectedValuesValidation } from "./validations";
 
 export const propertyPaneContentConfig = [
   {

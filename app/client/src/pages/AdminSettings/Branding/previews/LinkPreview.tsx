@@ -1,8 +1,11 @@
 import React from "react";
+
+import { ContentBox } from "pages/AdminSettings/components";
+
 import { Text } from "@appsmith/ads";
+
 import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
-import { ContentBox } from "pages/AdminSettings/components";
 
 const LinkPreview = (props: PreviewsProps) => {
   const { logo, shades } = props;

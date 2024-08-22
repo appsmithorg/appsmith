@@ -1,8 +1,10 @@
 import React from "react";
+
+import { DataAttrWrapper, StoryGrid } from "@design-system/storybook";
+import type { Meta, StoryObj } from "@storybook/react";
+
 import type { Checkbox } from "@appsmith/wds";
 import { RadioGroup } from "@appsmith/wds";
-import type { Meta, StoryObj } from "@storybook/react";
-import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 
 const meta: Meta<typeof RadioGroup> = {
   component: RadioGroup,

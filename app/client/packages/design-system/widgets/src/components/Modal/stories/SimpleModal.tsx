@@ -1,16 +1,19 @@
 import React, { useState } from "react";
-import {
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
-  ModalContent,
-  Button,
-} from "@appsmith/wds";
-import type { ModalProps } from "../src/types";
+
 // Since the Modal is rendered at the root of the Provider, we need to add Unstyled as a wrapper
 // so that Storybook does not break styles.
 import { Unstyled } from "@storybook/blocks";
+
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "@appsmith/wds";
+
+import type { ModalProps } from "../src/types";
 
 const fakeSubmit = async () => {
   return new Promise<void>((resolve) =>

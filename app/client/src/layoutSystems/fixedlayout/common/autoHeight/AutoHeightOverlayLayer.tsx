@@ -1,9 +1,10 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import AutoHeightOverlayContainer from "layoutSystems/fixedlayout/common/autoHeightOverlay";
+import React, { useContext } from "react";
+
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { GridDefaults } from "constants/WidgetConstants";
-import React, { useContext } from "react";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import AutoHeightOverlayContainer from "layoutSystems/fixedlayout/common/autoHeightOverlay";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import {
   getWidgetMaxAutoHeight,

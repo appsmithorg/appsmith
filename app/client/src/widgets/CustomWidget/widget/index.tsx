@@ -1,40 +1,39 @@
 import React from "react";
 
+import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-
-import CustomComponent from "../component";
-
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import type {
   AppThemeProperties,
   SetterConfig,
   Stylesheet,
 } from "entities/AppTheming";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { DEFAULT_MODEL } from "../constants";
-import defaultApp from "./defaultApp";
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import {
   CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL,
   CUSTOM_WIDGET_DOC_URL,
   CUSTOM_WIDGET_HEIGHT_DOC_URL,
 } from "pages/Editor/CustomWidgetBuilder/constants";
-import { Link } from "@appsmith/ads";
 import styled from "styled-components";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { Colors } from "constants/Colors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
-import { isAirgapped } from "ee/utils/airgapHelpers";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import { Link } from "@appsmith/ads";
+
+import CustomComponent from "../component";
+import { DEFAULT_MODEL } from "../constants";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
+import defaultApp from "./defaultApp";
 
 const StyledLink = styled(Link)`
   display: inline-block;

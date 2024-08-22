@@ -1,7 +1,9 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
+
 /* eslint-disable cypress/no-assigning-return-values */
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import EditorNavigation, { EntityType } from "./Pages/EditorNavigation";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const jsEditorLocators = require("../locators/JSEditor.json");

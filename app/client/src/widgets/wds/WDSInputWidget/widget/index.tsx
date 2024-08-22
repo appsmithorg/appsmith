@@ -1,18 +1,20 @@
 import React from "react";
-import { isNumber, merge, toString } from "lodash";
-import * as config from "../config";
-import InputComponent from "../component";
-import { INPUT_TYPES } from "../constants";
-import type { InputWidgetProps } from "./types";
-import { mergeWidgetConfig } from "utils/helpers";
-import { parseText, validateInput } from "./helper";
-import type { WidgetState } from "widgets/BaseWidget";
-import type { SetterConfig } from "entities/AppTheming";
-import derivedProperties from "./parsedDerivedProperties";
-import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
+
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { SetterConfig } from "entities/AppTheming";
+import { isNumber, merge, toString } from "lodash";
+import { mergeWidgetConfig } from "utils/helpers";
+import type { WidgetState } from "widgets/BaseWidget";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+
+import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
+import InputComponent from "../component";
+import * as config from "../config";
+import { INPUT_TYPES } from "../constants";
+import { parseText, validateInput } from "./helper";
+import derivedProperties from "./parsedDerivedProperties";
+import type { InputWidgetProps } from "./types";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static type = "WDS_INPUT_WIDGET";

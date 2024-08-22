@@ -1,3 +1,8 @@
+import {
+  agHelper,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -5,12 +10,6 @@ import EditorNavigation, {
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const testdata = require("../../../../../fixtures/testdata.json");
-
-import {
-  agHelper,
-  propPane,
-  table,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget V2 property pane feature validation",

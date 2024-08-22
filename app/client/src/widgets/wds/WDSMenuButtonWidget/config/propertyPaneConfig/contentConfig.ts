@@ -1,11 +1,12 @@
-import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { sourceDataArrayValidation } from "./validations";
-import { configureMenuItemsConfig, menuItemsConfig } from "./childPanels";
-import { updateMenuItemsSource } from "../helper";
-import type { MenuButtonWidgetProps } from "../../widget/types";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+
+import type { MenuButtonWidgetProps } from "../../widget/types";
+import { updateMenuItemsSource } from "../helper";
+import { configureMenuItemsConfig, menuItemsConfig } from "./childPanels";
+import { sourceDataArrayValidation } from "./validations";
 
 export const propertyPaneContentConfig = [
   {

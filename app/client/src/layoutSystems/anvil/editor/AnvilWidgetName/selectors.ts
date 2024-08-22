@@ -1,15 +1,16 @@
 import type { AppState } from "ee/reducers";
-import type { NameComponentStates } from "./types";
-import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import get from "lodash/get";
-import { createSelector } from "reselect";
-import { getIsDragging } from "selectors/widgetDragSelectors";
 import {
   getAnvilHighlightShown,
   getAnvilSpaceDistributionStatus,
 } from "layoutSystems/anvil/integrations/selectors";
-import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
+import get from "lodash/get";
+import { createSelector } from "reselect";
 import { isEditOnlyModeSelector } from "selectors/editorSelectors";
+import { getIsDragging } from "selectors/widgetDragSelectors";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+
+import type { NameComponentStates } from "./types";
 
 /**
  *

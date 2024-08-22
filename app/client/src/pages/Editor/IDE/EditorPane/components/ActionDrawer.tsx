@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
+
 import { ResizerCSS } from "components/editorComponents/Debugger/Resizer";
 import Resizable from "components/editorComponents/Debugger/Resizer";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import styled from "styled-components";
 
 const Container = styled.div`
   ${ResizerCSS};

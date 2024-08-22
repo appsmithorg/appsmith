@@ -1,19 +1,22 @@
 import React from "react";
-import Button from "../../AppViewerButton";
-import { useSelector } from "react-redux";
-import { ALL_APPS, createMessage } from "ee/constants/messages";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getMenuItemTextColor } from "pages/AppViewer/utils";
+
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { get } from "lodash";
-import type { ApplicationPayload } from "entities/Application";
-import { useHistory } from "react-router";
-import styled from "styled-components";
-import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { ALL_APPS, createMessage } from "ee/constants/messages";
+import type { ApplicationPayload } from "entities/Application";
+import { get } from "lodash";
+import { getMenuItemTextColor } from "pages/AppViewer/utils";
+import { useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+
 import { Icon, Tooltip } from "@appsmith/ads";
+
+import Button from "../../AppViewerButton";
 
 interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;

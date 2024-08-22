@@ -1,17 +1,18 @@
 import React from "react";
+
+import { useFocusRing } from "@react-aria/focus";
+import { useRadio, useRadioGroup } from "@react-aria/radio";
 import type { RadioGroupState } from "@react-stately/radio";
 import { useRadioGroupState } from "@react-stately/radio";
-import { useRadio, useRadioGroup } from "@react-aria/radio";
-import { useFocusRing } from "@react-aria/focus";
 import clsx from "classnames";
 
-import { StyledRadio, StyledRadioGroup } from "./Radio.styles";
-import type { RadioProps, RadioGroupProps } from "./Radio.types";
 import {
   RadioClassName,
   RadioDotClassName,
   RadioGroupClassName,
 } from "./Radio.constants";
+import { StyledRadio, StyledRadioGroup } from "./Radio.styles";
+import type { RadioGroupProps, RadioProps } from "./Radio.types";
 
 const RadioContext = React.createContext({} as RadioGroupState);
 

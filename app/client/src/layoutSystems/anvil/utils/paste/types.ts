@@ -1,8 +1,9 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { WidgetLayoutPositionInfo } from "../layouts/widgetPositionUtils";
 import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import type { LayoutProps } from "../anvilTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+
+import type { LayoutProps } from "../anvilTypes";
+import type { WidgetLayoutPositionInfo } from "../layouts/widgetPositionUtils";
 
 export interface CopiedWidgetData {
   hierarchy: number;

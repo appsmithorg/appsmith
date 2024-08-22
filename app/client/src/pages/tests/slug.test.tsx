@@ -1,7 +1,11 @@
 import React from "react";
-import { ApplicationVersion } from "ee/actions/applicationActions";
+
+import { updateCurrentPage } from "actions/pageActions";
+import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import { builderURL } from "ee/RouteBuilder";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
@@ -11,6 +15,9 @@ import {
   matchPath_BuilderCustomSlug,
   matchPath_ViewerCustomSlug,
 } from "utils/helpers";
+
+import { Button } from "@appsmith/ads";
+
 import {
   mockApplicationPayload,
   setMockApplication,
@@ -19,10 +26,6 @@ import {
   updatedApplicationPayload,
   updatedPagePayload,
 } from "./mockData";
-import ManualUpgrades from "components/BottomBar/ManualUpgrades";
-import { updateCurrentPage } from "actions/pageActions";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { Button } from "@appsmith/ads";
 
 describe("URL slug names", () => {
   beforeEach(async () => {

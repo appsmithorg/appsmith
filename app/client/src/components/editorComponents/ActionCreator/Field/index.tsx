@@ -1,11 +1,16 @@
+import React from "react";
+
+import { getFunctionName } from "@shared/ast";
+
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+
+import type { DropdownOption } from "../../../constants";
 import {
   AppsmithFunction,
+  DEFAULT_SELECTOR_VIEW_TEXT,
   FieldType,
   ViewTypes,
-  DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
-import type { TreeDropdownOption } from "@appsmith/ads-old";
-import { getFunctionName } from "@shared/ast";
 import type {
   FieldProps,
   KeyValueViewProps,
@@ -13,15 +18,13 @@ import type {
   TabViewProps,
   TextViewProps,
 } from "../types";
-import type { DropdownOption } from "../../../constants";
-import React from "react";
-import { SelectorView } from "../viewComponents/SelectorView";
-import { KeyValueView } from "../viewComponents/KeyValueView";
-import { TextView } from "../viewComponents/TextView";
-import { TabView } from "../viewComponents/TabView";
-import { FIELD_CONFIG } from "./FieldConfig";
-import { ActionSelectorView } from "../viewComponents/ActionSelectorView";
 import { getEvaluationVersion, sortSubMenuOptions } from "../utils";
+import { ActionSelectorView } from "../viewComponents/ActionSelectorView";
+import { KeyValueView } from "../viewComponents/KeyValueView";
+import { SelectorView } from "../viewComponents/SelectorView";
+import { TabView } from "../viewComponents/TabView";
+import { TextView } from "../viewComponents/TextView";
+import { FIELD_CONFIG } from "./FieldConfig";
 
 const views = {
   [ViewTypes.SELECTOR_VIEW]: (props: SelectorViewProps) => (

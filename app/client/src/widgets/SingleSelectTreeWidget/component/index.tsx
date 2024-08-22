@@ -6,29 +6,31 @@ import React, {
   useRef,
   useState,
 } from "react";
-import type { TreeSelectProps as SelectProps } from "rc-tree-select";
-import TreeSelect from "rc-tree-select";
-import {
-  TreeSelectContainer,
-  DropdownStyles,
-  StyledIcon,
-  InputContainer,
-} from "./index.styled";
-import "rc-tree-select/assets/index.less";
-import type { DefaultValueType } from "rc-tree-select/lib/interface";
-import type { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
-import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
-import styled from "styled-components";
-import type { RenderMode, TextSize } from "constants/WidgetConstants";
+
 import type { Alignment } from "@blueprintjs/core";
 import { Button, Classes, InputGroup } from "@blueprintjs/core";
-import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Icon } from "@design-system/widgets-old";
-import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
-import useDropdown from "widgets/useDropdown";
-import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import { Colors } from "constants/Colors";
+import type { RenderMode, TextSize } from "constants/WidgetConstants";
 import { isNil } from "lodash";
+import type { TreeSelectProps as SelectProps } from "rc-tree-select";
+import TreeSelect from "rc-tree-select";
+import "rc-tree-select/assets/index.less";
+import type { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
+import type { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
+import type { DefaultValueType } from "rc-tree-select/lib/interface";
+import styled from "styled-components";
+import { WidgetContainerDiff, labelMargin } from "widgets/WidgetUtils";
+import LabelWithTooltip from "widgets/components/LabelWithTooltip";
+import useDropdown from "widgets/useDropdown";
+
+import {
+  DropdownStyles,
+  InputContainer,
+  StyledIcon,
+  TreeSelectContainer,
+} from "./index.styled";
 
 export interface TreeSelectProps
   extends Required<

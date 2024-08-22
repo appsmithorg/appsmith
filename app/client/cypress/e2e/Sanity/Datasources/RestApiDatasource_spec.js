@@ -1,9 +1,10 @@
-const testdata = require("../../../fixtures/testdata.json");
 import {
   agHelper,
-  locators,
   apiPage,
+  locators,
 } from "../../../support/Objects/ObjectsCore";
+
+const testdata = require("../../../fixtures/testdata.json");
 
 describe(
   "Create a rest datasource",

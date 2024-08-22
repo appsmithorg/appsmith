@@ -1,7 +1,7 @@
 import React from "react";
 
-import Marker from "./Marker";
 import type { MapComponentProps } from ".";
+import Marker from "./Marker";
 
 type MarkersProps = {
   map?: google.maps.Map;

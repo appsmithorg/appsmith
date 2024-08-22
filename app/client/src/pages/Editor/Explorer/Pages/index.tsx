@@ -5,39 +5,41 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { EntityClassNames } from "../Entity";
-import { createNewPageFromEntities } from "actions/pageActions";
-import { ADD_PAGE_TOOLTIP, createMessage } from "ee/constants/messages";
-import type { Page } from "entities/Page";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { getExplorerPinned } from "selectors/explorerSelector";
+
 import { setExplorerPinnedAction } from "actions/explorerActions";
-import { selectAllPages } from "ee/selectors/entitiesSelector";
+import { createNewPageFromEntities } from "actions/pageActions";
+import { getInstanceId } from "ee//selectors/tenantSelectors";
+import { ADD_PAGE_TOOLTIP, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "ee/pages/Editor/Explorer/helpers";
-import AddPageContextMenu from "./AddPageContextMenu";
-import { useLocation } from "react-router";
 import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { selectAllPages } from "ee/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "ee//selectors/tenantSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasCreatePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { Page } from "entities/Page";
+import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { getExplorerPinned } from "selectors/explorerSelector";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
 import {
   ENTITY_HEIGHT,
   RelativeContainer,
   StyledEntity,
 } from "../Common/components";
-import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
-import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { EntityClassNames } from "../Entity";
+import AddPageContextMenu from "./AddPageContextMenu";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);

@@ -1,6 +1,9 @@
 /* eslint-disable no-console */
 import React from "react";
+
+import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 import { importRemixIcon, importSvg } from "./loadables";
+
 const AddMoreIcon = importRemixIcon(
   async () => import("remixicon-react/AddCircleLineIcon"),
 );
@@ -1062,8 +1065,6 @@ const MinimizeV3Icon = importSvg(
 const MaximizeV3Icon = importSvg(
   async () => import("../__assets__/icons/ads/maximize-v3-icon.svg"),
 );
-
-import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
   return (

@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import { Link, Tag, Text, Tooltip } from "@appsmith/ads";
+
+import type { EnvironmentType } from "constants/EnvironmentContants";
+import { environmentList } from "constants/EnvironmentContants";
+import { DisabledTooltipContent } from "ee/components/SwitchEnvironment";
 import { BUSINESS_TAG, createMessage } from "ee/constants/messages";
-import { capitalizeFirstLetter } from "utils/helpers";
 import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
 import {
   RAMP_NAME,
   RampFeature,
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
-import { useSelector } from "react-redux";
-import type { EnvironmentType } from "constants/EnvironmentContants";
-import { environmentList } from "constants/EnvironmentContants";
-import { DisabledTooltipContent } from "ee/components/SwitchEnvironment";
+import { capitalizeFirstLetter } from "utils/helpers";
+
+import { Link, Tag, Text, Tooltip } from "@appsmith/ads";
 
 export const Container = styled.div`
   display: flex;

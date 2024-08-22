@@ -1,10 +1,12 @@
+import React from "react";
+
 import { RenderModes } from "constants/WidgetConstants";
 import { CanvasViewerWrapper } from "layoutSystems/common/canvasViewer/CanvasViewerWrapper";
-import React from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
+
 import { AutoLayoutCanvasView } from "./AutoLayoutCanvasView";
 import { getDirection } from "./utils";
 

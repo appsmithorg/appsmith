@@ -1,20 +1,21 @@
 import { useCallback } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import type { GroupedAddOperations } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
-import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import type { UseRoutes } from "ee/entities/IDE/constants";
-import JSEditor from "pages/Editor/JSEditor";
-import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import { ADD_PATH } from "ee/constants/routes/appRoutes";
-import history from "utils/history";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
+import type { UseRoutes } from "ee/entities/IDE/constants";
 import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import type { GroupedAddOperations } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
+import JSEditor from "pages/Editor/JSEditor";
 import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import history from "utils/history";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);

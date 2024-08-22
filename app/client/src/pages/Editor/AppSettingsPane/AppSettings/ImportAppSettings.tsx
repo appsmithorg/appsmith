@@ -1,15 +1,17 @@
+import React from "react";
+
 import {
   UPDATE_VIA_IMPORT_SETTING,
   createMessage,
 } from "ee/constants/messages";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { Text, Button } from "@appsmith/ads";
 import ImportModal from "pages/common/ImportModal";
-import React from "react";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+
+import { Button, Text } from "@appsmith/ads";
 
 const SettingWrapper = styled.div`
   display: flex;

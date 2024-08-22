@@ -1,8 +1,8 @@
 import React from "react";
-import Pagination from "rc-pagination";
-import styled, { css } from "styled-components";
 
 import { Icon, IconSize } from "@design-system/widgets-old";
+import Pagination from "rc-pagination";
+import styled, { css } from "styled-components";
 
 const locale = {
   // Options.jsx

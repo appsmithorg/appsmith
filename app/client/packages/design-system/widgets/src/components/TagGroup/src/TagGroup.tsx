@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   Label as HeadlessLabel,
   TagGroup as HeadlessTagGroup,
@@ -10,9 +11,10 @@ import type {
   TagListProps as HeadlessTagListProps,
 } from "react-aria-components";
 
+import { getTypographyClassName } from "@appsmith/wds-theming";
+
 import { Text } from "../../Text";
 import styles from "./styles.module.css";
-import { getTypographyClassName } from "@appsmith/wds-theming";
 
 export interface TagGroupProps<T>
   extends Omit<HeadlessTagGroupProps, "children">,

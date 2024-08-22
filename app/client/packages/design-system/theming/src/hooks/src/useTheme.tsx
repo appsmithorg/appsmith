@@ -1,10 +1,11 @@
-import Color from "colorjs.io";
 import { useEffect, useState } from "react";
-import { TokensAccessor, defaultTokens, tokensConfigs } from "../../token";
-import { useSizing, useSpacing, useTypography } from "./";
+
+import Color from "colorjs.io";
 
 import type { ColorMode } from "../../color";
-import type { TokenSource, FontFamily, IconStyle } from "../../token";
+import { TokensAccessor, defaultTokens, tokensConfigs } from "../../token";
+import type { FontFamily, IconStyle, TokenSource } from "../../token";
+import { useSizing, useSpacing, useTypography } from "./";
 import { useIconDensity } from "./useIconDensity";
 import { useIconSizing } from "./useIconSizing";
 

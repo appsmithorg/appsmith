@@ -1,10 +1,11 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+
 import type { WidgetType } from "../WidgetProvider/factory";
 import WidgetFactory from "../WidgetProvider/factory";
 

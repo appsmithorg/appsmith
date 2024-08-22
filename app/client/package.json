@@ -38,7 +38,7 @@
     "g:lint": "cd $INIT_CWD && eslint --cache .",
     "lint:ci": "yarn workspaces foreach -ptv run lint",
     "prettier": "prettier --check ./src && prettier --check ./cypress",
-    "g:prettier": "cd $INIT_CWD && prettier --check .",
+    "g:prettier": "cd $INIT_CWD && prettier --check ./src",
     "prettier:ci": "yarn workspaces foreach -ptv run prettier",
     "check-types": "yarn tsc --noEmit",
     "init-husky": "cd ../.. && husky install app/client/.husky",

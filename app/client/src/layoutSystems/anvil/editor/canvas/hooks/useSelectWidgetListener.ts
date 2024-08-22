@@ -1,6 +1,7 @@
+import { useCallback, useEffect } from "react";
+
 import { selectAnvilWidget } from "layoutSystems/anvil/integrations/actions";
 import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
-import { useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 /**

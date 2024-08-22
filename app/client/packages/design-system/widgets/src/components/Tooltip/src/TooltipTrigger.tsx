@@ -1,8 +1,8 @@
 import React, { forwardRef } from "react";
 
 import type {
-  TooltipTriggerRef as HeadlessTooltipTriggerRef,
   TooltipTriggerProps as HeadlessTooltipTriggerProps,
+  TooltipTriggerRef as HeadlessTooltipTriggerRef,
 } from "@appsmith/wds-headless";
 import { TooltipTrigger as HeadlessTooltipTrigger } from "@appsmith/wds-headless";
 

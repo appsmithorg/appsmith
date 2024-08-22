@@ -1,6 +1,8 @@
-import { Icon } from "@appsmith/ads";
 import React from "react";
+
 import styled from "styled-components";
+
+import { Icon } from "@appsmith/ads";
 
 const StyledIncreaseIcon = styled(Icon)`
   display: flex;

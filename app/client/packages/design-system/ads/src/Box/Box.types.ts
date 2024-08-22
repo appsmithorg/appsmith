@@ -1,8 +1,12 @@
 import type React from "react";
+
 import type {
   BackgroundsProps as BackgroundProps,
   BordersProps as BorderProps,
   EffectsProps,
+  FlexboxGridsProps,
+  FlexboxesProps,
+  GridsProps,
   ITheme,
   InteractivityProps,
   LayoutProps,
@@ -11,9 +15,6 @@ import type {
   SystemProp,
   Theme,
   TransformsProps,
-  FlexboxesProps,
-  FlexboxGridsProps,
-  GridsProps,
 } from "@xstyled/styled-components";
 import type * as CSS from "csstype";
 

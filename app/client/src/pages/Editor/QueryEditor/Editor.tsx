@@ -1,46 +1,48 @@
 import React from "react";
-import type { RouteComponentProps } from "react-router";
-import { connect } from "react-redux";
-import { getFormValues } from "redux-form";
-import styled from "styled-components";
-import type { QueryEditorRouteParams } from "constants/routes";
-import QueryEditorForm from "./Form";
+
+import { initFormEvaluations } from "actions/evaluationActions";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import {
   deleteAction,
   runAction,
-  setActionResponseDisplayFormat,
   setActionProperty,
+  setActionResponseDisplayFormat,
 } from "actions/pluginActionActions";
-import type { AppState } from "ee/reducers";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
-import type { Datasource } from "entities/Datasource";
-import {
-  getPluginIdsOfPackageNames,
-  getPlugins,
-  getActionByBaseId,
-  getActionResponses,
-  getDatasourceByPluginId,
-  getDBAndRemoteDatasources,
-} from "ee/selectors/entitiesSelector";
-import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
-import type { QueryAction, SaaSAction } from "entities/Action";
-import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { initFormEvaluations } from "actions/evaluationActions";
-import { getUIComponent } from "./helpers";
+import Spinner from "components/editorComponents/Spinner";
+import { getConfigInitialValues } from "components/formControls/utils";
+import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
+import type { QueryEditorRouteParams } from "constants/routes";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
-import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { getConfigInitialValues } from "components/formControls/utils";
-import { merge } from "lodash";
-import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
+import type { AppState } from "ee/reducers";
+import {
+  getActionByBaseId,
+  getActionResponses,
+  getDBAndRemoteDatasources,
+  getDatasourceByPluginId,
+  getPluginIdsOfPackageNames,
+  getPlugins,
+} from "ee/selectors/entitiesSelector";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { QueryAction, SaaSAction } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import { merge } from "lodash";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { getFormValues } from "redux-form";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import styled from "styled-components";
+
+import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
+import QueryEditorForm from "./Form";
 import { QueryEditorContext } from "./QueryEditorContext";
+import { getUIComponent } from "./helpers";
 
 const EmptyStateContainer = styled.div`
   display: flex;

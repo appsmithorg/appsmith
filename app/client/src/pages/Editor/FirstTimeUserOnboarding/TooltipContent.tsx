@@ -1,24 +1,26 @@
+import React, { useEffect } from "react";
+
+import { showSignpostingTooltip } from "actions/onboardingActions";
 import {
-  createMessage,
   ONBOARDING_CHECKLIST_HEADER,
-  SIGNPOSTING_TOOLTIP,
   SIGNPOSTING_LAST_STEP_TOOLTIP,
   SIGNPOSTING_SUCCESS_POPUP,
+  SIGNPOSTING_TOOLTIP,
+  createMessage,
 } from "ee/constants/messages";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
-  getCurrentPageId,
-  getApplicationLastDeployedAt,
-} from "selectors/editorSelectors";
-import {
-  getPageActions,
   getCanvasWidgets,
+  getPageActions,
   getSavedDatasources,
 } from "ee/selectors/entitiesSelector";
-import { showSignpostingTooltip } from "actions/onboardingActions";
-import { SIGNPOSTING_STEP } from "./Utils";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getApplicationLastDeployedAt,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
+
+import { SIGNPOSTING_STEP } from "./Utils";
 
 const SIGNPOSTING_STEPS = [
   SIGNPOSTING_STEP.CONNECT_A_DATASOURCE,

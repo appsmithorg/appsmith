@@ -1,13 +1,15 @@
-import {
-  ReduxActionErrorTypes,
-  type ReduxAction,
-} from "ee/constants/ReduxActionConstants";
-import { updateAndSaveLayout } from "actions/pageActions";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { AnvilReduxActionTypes } from "../actions/actionTypes";
+import { updateAndSaveLayout } from "actions/pageActions";
+import {
+  type ReduxAction,
+  ReduxActionErrorTypes,
+} from "ee/constants/ReduxActionConstants";
+import { ZoneMinColumnWidth } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
+import {
+  getDefaultSpaceDistributed,
+  redistributeSpaceWithDynamicMinWidth,
+} from "layoutSystems/anvil/sectionSpaceDistributor/utils/spaceRedistributionSagaUtils";
+import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import {
   MAX_ZONE_COUNT,
   MIN_ZONE_COUNT,
@@ -16,12 +18,11 @@ import {
   addNewZonesToSection,
   mergeLastZonesOfSection,
 } from "layoutSystems/anvil/utils/sectionOperationUtils";
-import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import {
-  getDefaultSpaceDistributed,
-  redistributeSpaceWithDynamicMinWidth,
-} from "layoutSystems/anvil/sectionSpaceDistributor/utils/spaceRedistributionSagaUtils";
-import { ZoneMinColumnWidth } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { getWidgets } from "sagas/selectors";
+
+import { AnvilReduxActionTypes } from "../actions/actionTypes";
 
 // function to update the zone count of a section widget
 function* updateZonesCountOfSectionSaga(

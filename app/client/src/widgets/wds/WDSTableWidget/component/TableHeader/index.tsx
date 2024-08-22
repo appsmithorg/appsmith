@@ -1,11 +1,12 @@
 import React, { useRef } from "react";
+
 import { Flex } from "@appsmith/wds";
 
-import { Search } from "./Search";
-import styles from "./styles.module.css";
-import type { SearchProps } from "./Search";
 import type { PaginationProps } from "./Pagination";
 import { Pagination } from "./Pagination";
+import { Search } from "./Search";
+import type { SearchProps } from "./Search";
+import styles from "./styles.module.css";
 
 interface TableHeaderProps extends SearchProps, PaginationProps {}
 

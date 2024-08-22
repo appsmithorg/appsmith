@@ -1,12 +1,14 @@
 import React from "react";
-import {
-  Button,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipRoot as Tooltip,
-} from "@appsmith/wds";
+
 import { StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
+
+import {
+  Button,
+  TooltipRoot as Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@appsmith/wds";
 
 const meta: Meta<typeof Tooltip> = {
   component: Tooltip,

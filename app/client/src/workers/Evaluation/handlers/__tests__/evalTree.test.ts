@@ -1,6 +1,7 @@
-import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
-import { evalTreeTransmissionErrorHandler } from "../evalTree";
 import { isFunction } from "lodash";
+import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
+
+import { evalTreeTransmissionErrorHandler } from "../evalTree";
 
 const mockEvalErrorHandler = jest.fn();
 const mockSendMessage = jest.fn();

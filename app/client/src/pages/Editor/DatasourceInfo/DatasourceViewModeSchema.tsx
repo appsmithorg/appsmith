@@ -1,42 +1,50 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { DatasourceStructureContainer as DatasourceStructureList } from "./DatasourceStructureContainer";
+import React, { useEffect, useRef, useState } from "react";
+
+import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
+import { generateTemplateToUpdatePage } from "actions/pageActions";
+import {
+  DATASOURCE_GENERATE_PAGE_BUTTON,
+  createMessage,
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { useEditorType } from "ee/hooks";
+import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getNumberOfEntitiesInCurrentPage,
   getSelectedTableName,
 } from "ee/selectors/entitiesSelector";
-import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import { Button } from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
-  DATASOURCE_GENERATE_PAGE_BUTTON,
-  createMessage,
-} from "ee/constants/messages";
-import Table from "pages/Editor/QueryEditor/Table";
-import { generateTemplateToUpdatePage } from "actions/pageActions";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
-import { useDatasourceQuery } from "../DataSourceEditor/hooks";
+  getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type {
   Datasource,
   DatasourceTable,
   QueryTemplate,
 } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { AppState } from "ee/reducers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import Table from "pages/Editor/QueryEditor/Table";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+  getCurrentApplicationId,
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Button } from "@appsmith/ads";
+
+import { useDatasourceQuery } from "../DataSourceEditor/hooks";
+import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
+import { DatasourceStructureContainer as DatasourceStructureList } from "./DatasourceStructureContainer";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
 import RenderInterimDataState from "./RenderInterimDataState";
 import {
   ButtonContainer,
@@ -47,11 +55,6 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
-import { useEditorType } from "ee/hooks";
-import history from "utils/history";
-import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
-import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   datasource: Datasource;

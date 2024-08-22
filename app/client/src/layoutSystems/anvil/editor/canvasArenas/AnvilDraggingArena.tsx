@@ -1,18 +1,20 @@
-import type { LayoutElementPositions } from "layoutSystems/common/types";
 import React, { useContext } from "react";
+
 import type {
   DraggedWidget,
   HighlightPayload,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
-import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
-import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
+import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { useSelector } from "react-redux";
 import { isEditOnlyModeSelector } from "selectors/editorSelectors";
-import { useAnvilDnDListenerStates } from "./hooks/useAnvilDnDListenerStates";
+
 import { AnvilDnDStatesContext } from "../canvas/AnvilEditorCanvas";
 import type { AnvilGlobalDnDStates } from "../canvas/hooks/useAnvilGlobalDnDStates";
+import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
+import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
+import { useAnvilDnDListenerStates } from "./hooks/useAnvilDnDListenerStates";
+import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 
 interface AnvilCanvasDraggingArenaProps {
   widgetId: string;

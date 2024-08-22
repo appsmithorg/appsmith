@@ -1,9 +1,9 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
-import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Autocomplete using slash command and mustache tests",

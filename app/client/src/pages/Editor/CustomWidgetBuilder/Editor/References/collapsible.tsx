@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import styles from "./styles.module.css";
+
 import { Icon, Tooltip } from "@appsmith/ads";
+
+import styles from "./styles.module.css";
 
 interface Props {
   label: string;

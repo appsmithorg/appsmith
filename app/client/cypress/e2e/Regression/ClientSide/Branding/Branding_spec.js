@@ -1,13 +1,14 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import {
+  adminSettings,
   agHelper,
   homePage,
-  adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+
+const commonlocators = require("../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 const locators = {
   LeftPaneBrandingLink: ".t--settings-category-branding",

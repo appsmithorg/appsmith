@@ -1,18 +1,19 @@
-import React, { useEffect, useState, useRef } from "react";
-import styled from "styled-components";
-import type { ChartComponentConnectedProps } from ".";
-import { chartOptions, dataClickCallbackHelper } from "./helpers";
-import { ChartErrorComponent } from "./ChartErrorComponent";
-import usePrevious from "utils/hooks/usePrevious";
-import equal from "fast-deep-equal/es6";
+import React, { useEffect, useRef, useState } from "react";
 
 import type * as echarts from "echarts";
+import equal from "fast-deep-equal/es6";
+import styled from "styled-components";
+import usePrevious from "utils/hooks/usePrevious";
+
+import type { ChartComponentConnectedProps } from ".";
 import type {
   CustomEChartClickEventData,
   CustomEChartErrorData,
   CustomEChartIFrameMessage,
   CustomEChartIFrameMessageData,
 } from "../constants";
+import { ChartErrorComponent } from "./ChartErrorComponent";
+import { chartOptions, dataClickCallbackHelper } from "./helpers";
 
 export const IframeContainer = styled.iframe`
   position: relative;

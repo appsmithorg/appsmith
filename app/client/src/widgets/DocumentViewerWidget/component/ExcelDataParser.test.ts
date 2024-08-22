@@ -1,4 +1,4 @@
-import type { RawSheetData, ExcelData, HeaderCell } from "./ExcelDataParser";
+import type { ExcelData, HeaderCell, RawSheetData } from "./ExcelDataParser";
 import { parseExcelData } from "./ExcelDataParser";
 
 describe("parseExcelData", () => {

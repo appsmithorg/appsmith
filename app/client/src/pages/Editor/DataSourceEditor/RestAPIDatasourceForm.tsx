@@ -1,25 +1,25 @@
 import React from "react";
-import styled from "styled-components";
-import { DATASOURCE_REST_API_FORM } from "ee/constants/forms";
-import type { Datasource } from "entities/Datasource";
-import type { InjectedFormProps } from "redux-form";
-import { getFormMeta, reduxForm } from "redux-form";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import FormControl from "pages/Editor/FormControl";
-import { StyledInfo } from "components/formControls/InputTextControl";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { Callout } from "@appsmith/ads";
+
 import {
   createDatasourceFromForm,
   toggleSaveActionFlag,
   updateDatasource,
 } from "actions/datasourceActions";
+import { updateReplayEntity } from "actions/pageActions";
+import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
+import FormLabel from "components/editorComponents/FormLabel";
+import { StyledInfo } from "components/formControls/InputTextControl";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  datasourceToFormValues,
-  formValuesToDatasource,
-} from "transformers/RestAPIDatasourceFormTransformer";
+import { DATASOURCE_REST_API_FORM } from "ee/constants/forms";
+import { INVALID_URL, createMessage } from "ee/constants/messages";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { Datasource } from "entities/Datasource";
 import type {
   ApiDatasourceForm,
   AuthorizationCode,
@@ -30,18 +30,21 @@ import {
   AuthType,
   GrantType,
 } from "entities/Datasource/RestAPIForm";
-import { createMessage, INVALID_URL } from "ee/constants/messages";
-import Collapsible from "./Collapsible";
 import _ from "lodash";
-import FormLabel from "components/editorComponents/FormLabel";
-import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { updateReplayEntity } from "actions/pageActions";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import FormControl from "pages/Editor/FormControl";
+import { connect } from "react-redux";
+import type { InjectedFormProps } from "redux-form";
+import { getFormMeta, reduxForm } from "redux-form";
+import styled from "styled-components";
+import {
+  datasourceToFormValues,
+  formValuesToDatasource,
+} from "transformers/RestAPIDatasourceFormTransformer";
+
+import { Callout } from "@appsmith/ads";
+
+import Collapsible from "./Collapsible";
 import { Form } from "./DBForm";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface DatasourceRestApiEditorProps {
   // TODO: Fix this the next time the file is edited

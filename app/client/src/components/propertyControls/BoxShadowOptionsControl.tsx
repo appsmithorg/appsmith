@@ -1,8 +1,5 @@
 import * as React from "react";
 
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { Icon, SegmentedControl } from "@appsmith/ads";
 import { boxShadowOptions, sizeMappings } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -10,6 +7,12 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+import { Icon, SegmentedControl } from "@appsmith/ads";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }

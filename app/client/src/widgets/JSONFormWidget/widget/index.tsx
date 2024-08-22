@@ -1,41 +1,6 @@
 import React from "react";
-import equal from "fast-deep-equal/es6";
-import { debounce, difference, isEmpty, merge, noop } from "lodash";
-import { klona } from "klona";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import JSONFormComponent from "../component";
-import { contentConfig, styleConfig } from "./propertyConfig";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { FieldState, FieldThemeStylesheet, Schema } from "../constants";
-import { ActionUpdateDependency, ROOT_SCHEMA_KEY } from "../constants";
-import {
-  ComputedSchemaStatus,
-  computeSchema,
-  dynamicPropertyPathListFromSchema,
-  generateFieldState,
-} from "./helper";
-import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
-import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import {
-  convertSchemaItemToFormData,
-  generateSchemaWithDefaultValues,
-} from "../helper";
-import type {
-  ButtonStyles,
-  ChildStylesheet,
-  SetterConfig,
-  Stylesheet,
-} from "entities/AppTheming";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-} from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -43,32 +8,67 @@ import type {
   SnipingModeProperty,
 } from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { ButtonVariantTypes } from "components/constants";
-import { Colors } from "constants/Colors";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
-import { DynamicHeight } from "utils/WidgetFeatures";
-
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-
-import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { ButtonVariantTypes } from "components/constants";
+import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { createMessage } from "ee/constants/messages";
+import type {
+  ButtonStyles,
+  ChildStylesheet,
+  SetterConfig,
+  Stylesheet,
+} from "entities/AppTheming";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import { debounce, difference, isEmpty, merge, noop } from "lodash";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+} from "widgets/WidgetUtils";
+
 import { toast } from "@appsmith/ads";
+
+import JSONFormComponent from "../component";
+import type { FieldState, FieldThemeStylesheet, Schema } from "../constants";
+import { ActionUpdateDependency, ROOT_SCHEMA_KEY } from "../constants";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
   ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "ee/constants/messages";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import {
+  convertSchemaItemToFormData,
+  generateSchemaWithDefaultValues,
+} from "../helper";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
+import {
+  ComputedSchemaStatus,
+  computeSchema,
+  dynamicPropertyPathListFromSchema,
+  generateFieldState,
+} from "./helper";
+import { contentConfig, styleConfig } from "./propertyConfig";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,

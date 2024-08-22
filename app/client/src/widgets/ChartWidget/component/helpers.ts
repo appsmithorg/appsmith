@@ -1,9 +1,10 @@
 import { get } from "lodash";
-import type { ChartType, ChartSelectedDataPoint } from "../constants";
-import { omit, cloneDeep } from "lodash";
+import { cloneDeep, omit } from "lodash";
+
 import type { ChartComponentProps } from ".";
-import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
+import type { ChartSelectedDataPoint, ChartType } from "../constants";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
+import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

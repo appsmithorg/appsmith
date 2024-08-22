@@ -1,3 +1,5 @@
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
 /**
  * This spec test the working of select and multiselect within an
  * Object or Array field
@@ -6,7 +8,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const fieldPrefix = ".t--jsonformfield";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
 let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
 let propPane = ObjectsRegistry.PropertyPane;

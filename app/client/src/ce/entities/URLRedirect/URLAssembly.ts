@@ -1,4 +1,3 @@
-import { ApplicationVersion } from "ee/actions/applicationActions";
 import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
@@ -9,10 +8,11 @@ import {
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 import { APP_MODE } from "entities/App";
+import { isNil } from "lodash";
 import { generatePath } from "react-router";
 import getQueryParamsObject from "utils/getQueryParamsObject";
-import { isNil } from "lodash";
 
 export interface URLBuilderParams {
   suffix?: string;

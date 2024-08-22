@@ -1,19 +1,21 @@
 import React, { useContext, useMemo } from "react";
-import { Icon } from "@appsmith/ads";
-import history from "utils/history";
-import { integrationEditorURL } from "ee/RouteBuilder";
-import { INTEGRATION_TABS } from "constants/routes";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { useParams } from "react-router";
-import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
-import type { WidgetProps } from "widgets/BaseWidget";
-import {
-  createMessage,
-  DATASOURCE_DROPDOWN_OPTIONS,
-} from "ee/constants/messages";
+
 import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import { INTEGRATION_TABS } from "constants/routes";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import {
+  DATASOURCE_DROPDOWN_OPTIONS,
+  createMessage,
+} from "ee/constants/messages";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useParams } from "react-router";
+import history from "utils/history";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { Icon } from "@appsmith/ads";
 
 interface OtherOptionsProps {
   widget: WidgetProps;

@@ -1,8 +1,9 @@
-import { get, isEmpty } from "lodash";
 import { diff as deepDiff } from "deep-diff";
+import { get, isEmpty } from "lodash";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import { dataTreeEvaluator } from "../handlers/evalTree";
 import { getType } from "utils/TypeHelpers";
+
+import { dataTreeEvaluator } from "../handlers/evalTree";
 
 type JSUpdates = Record<string, JSUpdate>;
 

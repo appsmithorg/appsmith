@@ -1,3 +1,5 @@
+import React from "react";
+
 import { Alignment } from "@blueprintjs/core";
 import type {
   AutocompletionDefinitions,
@@ -15,12 +17,12 @@ import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
-import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
+
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import DropDownComponent from "../component";

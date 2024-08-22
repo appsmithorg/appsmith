@@ -1,11 +1,12 @@
+import apiEditor from "../../../../locators/ApiEditor";
+import { agHelper, apiPage } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
-import { agHelper, apiPage } from "../../../../support/Objects/ObjectsCore";
-import apiEditor from "../../../../locators/ApiEditor";
+
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/getstudents";
 

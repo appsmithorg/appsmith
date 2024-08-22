@@ -1,8 +1,11 @@
 import React from "react";
-import { Text, TextInput } from "@appsmith/wds";
-import type { CurrencyInputComponentProps } from "./types";
-import { CurrencyTypeOptions } from "constants/Currency";
+
 import { useDebouncedValue } from "@mantine/hooks";
+import { CurrencyTypeOptions } from "constants/Currency";
+
+import { Text, TextInput } from "@appsmith/wds";
+
+import type { CurrencyInputComponentProps } from "./types";
 
 const DEBOUNCE_TIME = 300;
 

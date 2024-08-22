@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+
 import type { PopoverContentProps as RadixPopoverContentProps } from "@radix-ui/react-popover";
+
 import type { Sizes } from "../__config__/types";
 
 export type PopoverSize = Extract<Sizes, "sm" | "md">;

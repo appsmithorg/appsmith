@@ -1,9 +1,10 @@
-import { RenderModes } from "constants/WidgetConstants";
-import { getPropertiesToUpdateForReset } from "./utils";
-import ButtonWidget from "widgets/ButtonWidget";
-import TableWidget from "widgets/TableWidget";
-import JSONFormWidget from "widgets/JSONFormWidget";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import { RenderModes } from "constants/WidgetConstants";
+import ButtonWidget from "widgets/ButtonWidget";
+import JSONFormWidget from "widgets/JSONFormWidget";
+import TableWidget from "widgets/TableWidget";
+
+import { getPropertiesToUpdateForReset } from "./utils";
 
 describe("AppThemingSaga test", () => {
   beforeAll(() => {

@@ -1,14 +1,16 @@
-import { RenderModes } from "constants/WidgetConstants";
 import React from "react";
+
+import { RenderModes } from "constants/WidgetConstants";
 import * as editorSelectors from "selectors/editorSelectors";
+import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
 import { WidgetTypeFactories } from "test/factories/Widgets/WidgetTypeFactories";
 import { render } from "test/testUtils";
 import InputWidget from "widgets/InputWidgetV2/widget";
 import { ModalWidget } from "widgets/ModalWidget/widget";
 import { WDSModalWidget } from "widgets/wds/WDSModalWidget/widget";
-import { withLayoutSystemWidgetHOC } from "./withLayoutSystemWidgetHOC";
+
 import { LayoutSystemTypes } from "./types";
-import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
+import { withLayoutSystemWidgetHOC } from "./withLayoutSystemWidgetHOC";
 
 describe("Layout System HOC's Tests", () => {
   describe("Fixed Layout Layers", () => {

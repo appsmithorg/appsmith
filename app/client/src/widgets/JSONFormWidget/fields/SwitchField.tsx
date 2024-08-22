@@ -1,22 +1,23 @@
 import React, { useCallback, useContext, useMemo } from "react";
+
+import type { AlignWidget, AlignWidgetTypes } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
 import { useController } from "react-hook-form";
+import Field from "widgets/JSONFormWidget/component/Field";
+import SwitchComponent from "widgets/SwitchWidget/component";
 
 import FormContext from "../FormContext";
-import Field from "widgets/JSONFormWidget/component/Field";
-import useEvents from "./useBlurAndFocusEvents";
-import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import type { AlignWidget, AlignWidgetTypes } from "WidgetProvider/constants";
+import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
 import { ActionUpdateDependency } from "../constants";
-import SwitchComponent from "widgets/SwitchWidget/component";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Colors } from "constants/Colors";
-import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import { LabelPosition } from "components/constants";
+import useEvents from "./useBlurAndFocusEvents";
+import useRegisterFieldValidity from "./useRegisterFieldValidity";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &
   FieldEventProps & {

@@ -1,7 +1,13 @@
 import React from "react";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import { toggleInstaller } from "actions/JSLibraryActions";
+import { setPreviewModeInitAction } from "actions/editorActions";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { setGlobalSearchCategory } from "actions/globalSearchActions";
+import { redoAction, undoAction } from "actions/pageActions";
+import { runActionViaShortcut } from "actions/pluginActionActions";
+import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -12,41 +18,34 @@ import {
   pasteWidget,
 } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { getSelectedText, isMacOrIOS } from "utils/helpers";
-import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { WIDGETS_SEARCH_ID } from "constants/Explorer";
-import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
-
-import { runActionViaShortcut } from "actions/pluginActionActions";
 import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
 import {
-  filterCategories,
   SEARCH_CATEGORY_ID,
+  filterCategories,
 } from "components/editorComponents/GlobalSearch/utils";
-import { redoAction, undoAction } from "actions/pageActions";
-
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import type { APP_MODE } from "entities/App";
-
-import {
-  createMessage,
-  SAVE_HOTKEY_TOASTER_MESSAGE,
-} from "ee/constants/messages";
-import { previewModeSelector } from "selectors/editorSelectors";
-import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { GitSyncModalTab } from "entities/GitSync";
-import { matchBuilderPath } from "constants/routes";
-import { toggleInstaller } from "actions/JSLibraryActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "@appsmith/ads";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { WIDGETS_SEARCH_ID } from "constants/Explorer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { matchBuilderPath } from "constants/routes";
+import {
+  SAVE_HOTKEY_TOASTER_MESSAGE,
+  createMessage,
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { APP_MODE } from "entities/App";
+import { GitSyncModalTab } from "entities/GitSync";
+import { connect } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { previewModeSelector } from "selectors/editorSelectors";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { setPreviewModeInitAction } from "actions/editorActions";
+import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import { getSelectedText, isMacOrIOS } from "utils/helpers";
+
+import { toast } from "@appsmith/ads";
 
 interface Props {
   copySelectedWidget: () => void;

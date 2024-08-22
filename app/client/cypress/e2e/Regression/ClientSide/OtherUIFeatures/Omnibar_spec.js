@@ -1,12 +1,12 @@
+import {
+  agHelper,
+  assertHelper,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const omnibar = require("../../../../locators/Omnibar.json");
-import {
-  agHelper,
-  assertHelper,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";

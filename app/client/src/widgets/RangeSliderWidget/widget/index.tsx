@@ -1,26 +1,26 @@
 import * as React from "react";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import { TAILWIND_COLORS } from "constants/ThemeConstants";
-
-import type { RangeSliderComponentProps } from "../component/RangeSlider";
-import RangeSliderComponent from "../component/RangeSlider";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import contentConfig from "./propertyConfig/contentConfig";
-import styleConfig from "./propertyConfig/styleConfig";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { Alignment } from "@blueprintjs/core";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { TAILWIND_COLORS } from "constants/ThemeConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import type { RangeSliderComponentProps } from "../component/RangeSlider";
+import RangeSliderComponent from "../component/RangeSlider";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import contentConfig from "./propertyConfig/contentConfig";
+import styleConfig from "./propertyConfig/styleConfig";
 
 export interface RangeSliderWidgetProps
   extends WidgetProps,

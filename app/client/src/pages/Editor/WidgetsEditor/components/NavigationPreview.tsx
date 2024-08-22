@@ -1,12 +1,13 @@
 import type { LegacyRef } from "react";
 import React, { forwardRef } from "react";
+
 import classNames from "classnames";
-import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { EditorState } from "ee/entities/IDE/constants";
 import { Navigation } from "pages/AppViewer/Navigation";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { EditorState } from "ee/entities/IDE/constants";
+import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 /**
  * NavigationPreview

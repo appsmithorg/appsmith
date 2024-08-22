@@ -1,30 +1,19 @@
-import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import microDiff from "microdiff";
-
+import type { Diff } from "deep-diff";
 import type {
+  JSActionEntity,
+  PrivateWidgets,
   WidgetEntity,
   WidgetEntityConfig,
-  PrivateWidgets,
-  JSActionEntity,
 } from "ee/entities/DataTree/types";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
-import type {
-  ConfigTree,
-  DataTreeEntity,
-  DataTree,
-} from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import { convertMicroDiffToDeepDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
+  DataTreeDiffEvent,
   addErrorToEntityProperty,
   convertJSFunctionsToString,
-  DataTreeDiffEvent,
   getAllPaths,
   getAllPrivateWidgetsInDataTree,
   getDataTreeWithoutPrivateWidgets,
@@ -32,21 +21,31 @@ import {
   makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
 } from "ee/workers/Evaluation/evaluationUtils";
-import { warn as logWarn } from "loglevel";
-import type { Diff } from "deep-diff";
-import _, { flatten, set } from "lodash";
 import {
-  overrideWidgetProperties,
   findDatatype,
+  overrideWidgetProperties,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import TableWidget from "widgets/TableWidget";
-import InputWidget from "widgets/InputWidgetV2";
-import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
-import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import { Severity } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  EvaluationSubstitutionType,
+} from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
+import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import _, { flatten, set } from "lodash";
+import { warn as logWarn } from "loglevel";
+import microDiff from "microdiff";
+import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import InputWidget from "widgets/InputWidgetV2";
+import TableWidget from "widgets/TableWidget";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.

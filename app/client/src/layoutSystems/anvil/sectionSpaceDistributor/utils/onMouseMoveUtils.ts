@@ -1,11 +1,13 @@
 import type { MutableRefObject } from "react";
+
+import memoize from "micro-memoize";
+import { getBrowserInfo } from "utils/helpers";
+
 import { SectionColumns, ZoneMinColumnWidth } from "../constants";
 import {
   convertFlexGrowToFlexBasis,
   convertFlexGrowToFlexBasisForPropPane,
 } from "./spaceDistributionEditorUtils";
-import { getBrowserInfo } from "utils/helpers";
-import memoize from "micro-memoize";
 
 // Interface representing the DOM elements associated with a space distribution zone
 export interface SpaceDistributionZoneDomCollection {

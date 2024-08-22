@@ -1,44 +1,47 @@
-import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import React, { useEffect, useRef } from "react";
-import styled from "styled-components";
+
 import { thinScrollbar } from "constants/DefaultTheme";
-import type { AppState } from "ee/reducers";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "ee/utils/planHelpers";
-import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
-  getDatasources,
-  getMockDatasources,
-} from "ee/selectors/entitiesSelector";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { connect } from "react-redux";
-import type { Datasource, MockDatasource } from "entities/Datasource";
-import scrollIntoView from "scroll-into-view-if-needed";
-import { Text } from "@appsmith/ads";
-import MockDataSources from "./MockDataSources";
-import NewApiScreen from "./NewApi";
-import NewQueryScreen from "./NewQuery";
-import { isAirgapped } from "ee/utils/airgapHelpers";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import {
-  createMessage,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
   SAMPLE_DATASOURCES,
+  createMessage,
 } from "ee/constants/messages";
-import { Divider } from "@appsmith/ads";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import type { AppState } from "ee/reducers";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
 } from "ee/selectors/applicationSelectors";
-import { useEditorType } from "ee/hooks";
-import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
-import AIDataSources from "./AIDataSources";
+import {
+  getDatasources,
+  getMockDatasources,
+} from "ee/selectors/entitiesSelector";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import type { Datasource, MockDatasource } from "entities/Datasource";
+import { connect } from "react-redux";
+import scrollIntoView from "scroll-into-view-if-needed";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
+import { Divider } from "@appsmith/ads";
+
 import Debugger from "../DataSourceEditor/Debugger";
+import AIDataSources from "./AIDataSources";
+import AddDatasourceSecurely from "./AddDatasourceSecurely";
+import MockDataSources from "./MockDataSources";
+import NewApiScreen from "./NewApi";
+import NewQueryScreen from "./NewQuery";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};

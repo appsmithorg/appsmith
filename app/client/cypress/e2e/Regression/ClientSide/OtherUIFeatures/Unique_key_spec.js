@@ -1,5 +1,6 @@
-const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
+
+const widgetsPage = require("../../../../locators/Widgets.json");
 
 // Since we cannot test the root cause as it does not show up on the DOM, we are testing the sideEffects
 // the root cause is when widget has same keys, which are not visible in DOM but confuses React when the list is modified.

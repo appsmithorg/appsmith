@@ -1,13 +1,13 @@
 import {
   agHelper,
+  dataManager,
+  dataSources,
+  deployMode,
+  draggableWidgets,
   entityExplorer,
   entityItems,
-  dataSources,
-  dataManager,
-  draggableWidgets,
-  propPane,
-  deployMode,
   locators,
+  propPane,
   table,
 } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {

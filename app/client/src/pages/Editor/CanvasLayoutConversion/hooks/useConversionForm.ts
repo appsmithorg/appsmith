@@ -1,8 +1,9 @@
 import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
+
+import type { ConversionProps } from "../ConversionForm";
 import { useAutoToFixedLayoutFlow } from "./useAutoToFixedLayoutFlow";
 import { useFixedToAutoLayoutFlow } from "./useFixedToAutoLayoutFlow";
-import type { ConversionProps } from "../ConversionForm";
 
 //Hook that helps with rendering of conversion form based on the Flow
 export const useConversionForm = (hookProps?: {

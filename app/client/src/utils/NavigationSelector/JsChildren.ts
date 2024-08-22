@@ -1,13 +1,14 @@
-import type { JSActionEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { keyBy } from "lodash";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { jsCollectionIdURL } from "ee/RouteBuilder";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { keyBy } from "lodash";
 import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
+
 import { createNavData } from "./common";
 
 export const getJsChildrenNavData = (

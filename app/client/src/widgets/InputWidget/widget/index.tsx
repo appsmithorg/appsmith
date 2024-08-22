@@ -1,8 +1,5 @@
-import {
-  FIELD_REQUIRED_ERROR,
-  INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
-  createMessage,
-} from "ee/constants/messages";
+import React from "react";
+
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type {
@@ -24,9 +21,13 @@ import {
 } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  FIELD_REQUIRED_ERROR,
+  INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+  createMessage,
+} from "ee/constants/messages";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
-import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -35,6 +36,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
+
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";

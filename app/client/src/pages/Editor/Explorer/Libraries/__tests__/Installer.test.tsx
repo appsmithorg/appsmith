@@ -1,13 +1,14 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+
 import "@testing-library/jest-dom/extend-expect";
-import { Provider } from "react-redux";
-import store from "store";
-import { ThemeProvider } from "styled-components";
-import { lightTheme } from "selectors/themeSelectors";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
+import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
+import { lightTheme } from "selectors/themeSelectors";
+import store from "store";
+import { ThemeProvider } from "styled-components";
 
 export const fetchApplicationMockResponse = {
   responseMeta: {

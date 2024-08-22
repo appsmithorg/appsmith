@@ -1,7 +1,9 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
-import { AnnouncementModal } from "./AnnouncementModal";
+
 import { Button } from "../Button";
+import { AnnouncementModal } from "./AnnouncementModal";
 
 export default {
   title: "ADS/Components/Announcement",

@@ -1,10 +1,11 @@
 import React, { forwardRef } from "react";
+import type { Ref } from "react";
+
+import clsx from "clsx";
+
 import { filterDataProps } from "../../../utils";
 import { flexCss } from "./flexCss";
 import styles from "./styles.module.css";
-import clsx from "clsx";
-
-import type { Ref } from "react";
 import type { FlexProps } from "./types";
 
 const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {

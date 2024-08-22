@@ -1,7 +1,7 @@
 import {
   agHelper,
-  draggableWidgets,
   deployMode,
+  draggableWidgets,
   entityExplorer,
   locators,
   propPane,

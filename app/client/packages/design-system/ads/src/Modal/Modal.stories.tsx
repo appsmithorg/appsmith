@@ -1,18 +1,20 @@
 import React, { useState } from "react";
+
+import type { DialogProps } from "@radix-ui/react-dialog";
 import { useArgs } from "@storybook/preview-api";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalTrigger,
-} from "./Modal";
+import type { StoryObj } from "@storybook/react";
+
 import { Button } from "../Button";
 import { Text } from "../Text";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalTrigger,
+} from "./Modal";
 import type { ModalHeaderProps } from "./Modal.types";
-import type { StoryObj } from "@storybook/react";
-import type { DialogProps } from "@radix-ui/react-dialog";
 
 export default {
   title: "ADS/Components/Modal",

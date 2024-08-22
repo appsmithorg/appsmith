@@ -1,7 +1,8 @@
-import { getWidgetErrorCount } from "./selectors";
 import { RenderModes } from "constants/WidgetConstants";
-import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import set from "lodash/set";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+
+import { getWidgetErrorCount } from "./selectors";
 
 const extraWidgetEntityProperties = {
   meta: {},

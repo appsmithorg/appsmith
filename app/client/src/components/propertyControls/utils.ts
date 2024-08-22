@@ -1,5 +1,6 @@
-import type { WidgetProps } from "widgets/BaseWidget";
 import { get } from "lodash";
+import type { WidgetProps } from "widgets/BaseWidget";
+
 import {
   EVAL_ERROR_PATH,
   getDynamicBindings,

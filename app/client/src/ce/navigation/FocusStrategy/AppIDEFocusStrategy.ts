@@ -1,22 +1,23 @@
-import { all, select, take } from "redux-saga/effects";
-import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
-import type { AppsmithLocationState } from "utils/history";
-import { NavigationMethod } from "utils/history";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import type { FocusEntityInfo } from "navigation/FocusEntity";
-import {
-  FocusEntity,
-  FocusStoreHierarchy,
-  identifyEntityFromPath,
-} from "navigation/FocusEntity";
-import { EditorState } from "ee/entities/IDE/constants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   datasourcesEditorURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
 } from "ee/RouteBuilder";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { EditorState } from "ee/entities/IDE/constants";
+import type { FocusEntityInfo } from "navigation/FocusEntity";
+import {
+  FocusEntity,
+  FocusStoreHierarchy,
+  identifyEntityFromPath,
+} from "navigation/FocusEntity";
+import { all, select, take } from "redux-saga/effects";
+import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import type { AppsmithLocationState } from "utils/history";
+import { NavigationMethod } from "utils/history";
+
 import AppIDEFocusElements from "../FocusElements/AppIDE";
 
 function shouldSetState(

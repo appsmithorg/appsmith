@@ -1,9 +1,10 @@
 import type { AnvilDragMeta } from "layoutSystems/anvil/editor/canvasArenas/types";
-import type { WidgetProps } from "widgets/BaseWidget";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
 } from "layoutSystems/anvil/utils/anvilTypes";
+import type { WidgetProps } from "widgets/BaseWidget";
+
 import type {
   AnvilMoveWidgetsPayload,
   AnvilNewWidgetsPayload,

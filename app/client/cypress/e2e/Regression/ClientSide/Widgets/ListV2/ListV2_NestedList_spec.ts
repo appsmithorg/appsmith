@@ -1,10 +1,10 @@
 import { WIDGET } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
-  deployMode,
-  propPane,
   appSettings,
+  deployMode,
   locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

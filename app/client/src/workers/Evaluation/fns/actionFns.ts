@@ -1,6 +1,7 @@
-import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
-import { promisify } from "./utils/Promisify";
 import type { ActionEntity } from "ee/entities/DataTree/types";
+import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
+
+import { promisify } from "./utils/Promisify";
 
 function runFnDescriptor(
   this: ActionEntity,

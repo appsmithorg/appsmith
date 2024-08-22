@@ -1,11 +1,13 @@
 import React from "react";
-import BaseLayoutComponent from "../../BaseLayoutComponent";
+
 import {
   type DeriveHighlightsFn,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import type { FlexLayoutProps } from "../FlexLayout";
 import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedRowHighlights";
+
+import BaseLayoutComponent from "../../BaseLayoutComponent";
+import type { FlexLayoutProps } from "../FlexLayout";
 import AlignedWidgetRowComp from "./AlignedWidgetRowComp";
 import styles from "./styles.module.css";
 

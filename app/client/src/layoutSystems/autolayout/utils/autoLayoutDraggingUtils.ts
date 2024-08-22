@@ -1,6 +1,7 @@
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { isArray } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+
 import { updateWidgetPositions } from "./positionUtils";
 import type { FlexLayer, LayerChild } from "./types";
 

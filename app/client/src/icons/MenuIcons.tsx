@@ -1,9 +1,11 @@
 import React from "react";
+
+import { Icon } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
+
 import { Icon as DSIcon } from "@appsmith/ads";
 import { importRemixIcon, importSvg } from "@appsmith/ads-old";
 

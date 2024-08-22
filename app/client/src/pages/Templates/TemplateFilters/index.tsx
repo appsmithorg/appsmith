@@ -1,11 +1,13 @@
-import { SEARCH_TEMPLATES, createMessage } from "ee/constants/messages";
+import React, { useEffect, useMemo } from "react";
+
 import {
   filterTemplates,
   setTemplateSearchQuery,
 } from "actions/templateActions";
-import { Icon, SearchInput } from "@appsmith/ads";
+import { SEARCH_TEMPLATES, createMessage } from "ee/constants/messages";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { debounce } from "lodash";
-import React, { useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getFilterListSelector,
@@ -13,7 +15,9 @@ import {
   getTemplateSearchQuery,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import { Icon, SearchInput } from "@appsmith/ads";
+
 import {
   FilterCategoryWrapper,
   FilterItemText,
@@ -23,7 +27,6 @@ import {
   SearchWrapper,
   StyledFilterCategory,
 } from "./StyledComponents";
-import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 
 export interface Filter {
   label: string;

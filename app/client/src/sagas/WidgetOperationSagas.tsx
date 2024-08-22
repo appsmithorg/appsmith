@@ -1,14 +1,6 @@
-import type {
-  ReduxAction,
-  ReduxActionType,
-} from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-  WidgetReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import WidgetFactory from "WidgetProvider/factory";
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type {
   BatchUpdateDynamicPropertyUpdates,
   BatchUpdateWidgetDynamicPropertyPayload,
@@ -24,7 +16,10 @@ import {
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import type { WidgetResize } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
+import { stopReflowAction } from "actions/reflowActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
+import { shouldShowSlashCommandMenu } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 import {
   GridDefaults,
@@ -32,47 +27,16 @@ import {
   RenderModes,
   WIDGET_ID_SHOW_WALKTHROUGH,
 } from "constants/WidgetConstants";
-import _, { cloneDeep, get, isString, set, uniq } from "lodash";
-import log from "loglevel";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import {
-  actionChannel,
-  all,
-  call,
-  fork,
-  put,
-  select,
-  take,
-  takeEvery,
-  takeLatest,
-  takeLeading,
-} from "redux-saga/effects";
-import {
-  getCanvasWidth,
-  getCurrentBasePageId,
-  getIsAutoLayout,
-  getIsAutoLayoutMobileBreakPoint,
-} from "selectors/editorSelectors";
-import { convertToString } from "utils/AppsmithUtils";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import {
-  getEntityDynamicBindingPathList,
-  getWidgetDynamicPropertyPathList,
-  getWidgetDynamicTriggerPathList,
-  isChildPropertyPath,
-  isDynamicValue,
-  isPathADynamicBinding,
-  isPathDynamicTrigger,
-} from "utils/DynamicBindingUtils";
-import { generateReactKey } from "utils/generators";
-import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
-
 import { builderURL } from "ee/RouteBuilder";
+import type {
+  ReduxAction,
+  ReduxActionType,
+} from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+  WidgetReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import {
   ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT,
   ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT,
@@ -85,27 +49,81 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { stopReflowAction } from "actions/reflowActions";
-import { toast } from "@appsmith/ads";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getAllPathsFromPropertyConfig,
   nextAvailableRowInContainer,
 } from "entities/Widget/utils";
+import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import { getWidgetWidth } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import {
+  updatePositionsOfParentAndSiblings,
+  updateWidgetPositions,
+} from "layoutSystems/autolayout/utils/positionUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "layoutSystems/common/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import _, { cloneDeep, get, isString, set, uniq } from "lodash";
+import log from "loglevel";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
+import {
+  actionChannel,
+  all,
+  call,
+  fork,
+  put,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+  takeLeading,
+} from "redux-saga/effects";
 import type { GridProps, SpaceMap } from "reflow/reflowTypes";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getCanvasWidth,
+  getCurrentBasePageId,
+  getIsAutoLayout,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
+import { convertToString } from "utils/AppsmithUtils";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import {
+  getEntityDynamicBindingPathList,
+  getWidgetDynamicPropertyPathList,
+  getWidgetDynamicTriggerPathList,
+  isChildPropertyPath,
+  isDynamicValue,
+  isPathADynamicBinding,
+  isPathDynamicTrigger,
+} from "utils/DynamicBindingUtils";
+import { generateReactKey } from "utils/generators";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
+import localStorage from "utils/localStorage";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
+import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+import type { WidgetProps } from "widgets/BaseWidget";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+
+import { toast } from "@appsmith/ads";
+
 import {
   addChildToPastedFlexLayers,
   getFlexLayersForSelectedWidgets,
@@ -120,6 +138,7 @@ import {
   partialExportSaga,
   partialImportSaga,
 } from "./PartialImportExportSagas";
+import { getNewPositions } from "./PasteWidgetUtils";
 import widgetAdditionSagas from "./WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
@@ -149,26 +168,7 @@ import {
   purgeOrphanedDynamicPaths,
 } from "./WidgetOperationUtils";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
-
-import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
-import { shouldShowSlashCommandMenu } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import { getWidgetWidth } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import {
-  updatePositionsOfParentAndSiblings,
-  updateWidgetPositions,
-} from "layoutSystems/autolayout/utils/positionUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import {
-  FlexLayerAlignment,
-  LayoutDirection,
-} from "layoutSystems/common/utils/constants";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import localStorage from "utils/localStorage";
-import { getNewPositions } from "./PasteWidgetUtils";
+import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {

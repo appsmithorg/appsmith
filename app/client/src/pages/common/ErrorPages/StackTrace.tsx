@@ -1,8 +1,10 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { Text } from "@appsmith/ads";
+
 import type { AppState } from "ee/reducers";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+
+import { Text } from "@appsmith/ads";
 
 const StyledWrapper = styled.div`
   height: 100vh;

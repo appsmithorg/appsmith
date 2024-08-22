@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
 const { AggregateHelper: agHelper, CommonLocators } = ObjectsRegistry;
 
 describe(

@@ -1,6 +1,7 @@
 import React from "react";
-import styled from "styled-components";
+
 import { isUndefined } from "lodash";
+import styled from "styled-components";
 
 const DividerWrapper = styled.div<{
   isHorizontal: boolean;

@@ -1,5 +1,7 @@
 import * as React from "react";
+
 import styled from "styled-components";
+
 import type { UseThemeProps } from "@appsmith/wds-theming";
 import { ThemeProvider, useTheme } from "@appsmith/wds-theming";
 

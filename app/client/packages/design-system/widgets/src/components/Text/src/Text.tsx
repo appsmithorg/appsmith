@@ -1,13 +1,15 @@
-import clsx from "clsx";
-import {
-  getTypographyClassName,
-  type TYPOGRAPHY_FONT_WEIGHTS,
-} from "@appsmith/wds-theming";
 import type { Ref } from "react";
 import React, { forwardRef } from "react";
 
-import type { TextProps } from "./types";
+import clsx from "clsx";
+
+import {
+  type TYPOGRAPHY_FONT_WEIGHTS,
+  getTypographyClassName,
+} from "@appsmith/wds-theming";
+
 import styles from "./styles.module.css";
+import type { TextProps } from "./types";
 
 const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
   const {

@@ -1,8 +1,8 @@
+import type { Diff } from "deep-diff";
 import type { AppsmithEntity as TAppsmithEntity } from "ee/entities/DataTree/types";
+import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
 import type { EntityDiffGenerator } from "plugins/Linting/utils/diffGenerator";
 import type { EntityParser } from "plugins/Linting/utils/entityParser";
-import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
-import type { Diff } from "deep-diff";
 
 export class AppsmithEntity implements IEntity {
   private entity: TAppsmithEntity;

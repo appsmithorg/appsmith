@@ -1,14 +1,14 @@
 /// <reference types="Cypress" />
 import {
-  homePage,
-  dataSources,
-  table,
   agHelper,
-  deployMode,
-  propPane,
-  locators,
   assertHelper,
+  dataSources,
+  deployMode,
   draggableWidgets,
+  homePage,
+  locators,
+  propPane,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

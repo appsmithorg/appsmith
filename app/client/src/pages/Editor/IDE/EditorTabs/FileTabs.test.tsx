@@ -1,10 +1,12 @@
 import React from "react";
-import { fireEvent, render } from "test/testUtils";
-import FileTabs from "./FileTabs";
+
 import { EditorState, type EntityItem } from "ee/entities/IDE/constants";
 import { PluginType } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
+import { fireEvent, render } from "test/testUtils";
 import { sanitizeString } from "utils/URLUtils";
+
+import FileTabs from "./FileTabs";
 
 describe("FileTabs", () => {
   const mockTabs: EntityItem[] = [

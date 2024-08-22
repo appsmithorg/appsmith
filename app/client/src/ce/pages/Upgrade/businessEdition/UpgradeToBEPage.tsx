@@ -1,11 +1,13 @@
 import React from "react";
-import styled from "styled-components";
-import { createMessage, MOVE_TO_BUSINESS_EDITION } from "ee/constants/messages";
-import { FooterComponent } from "../Footer";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
+
 import { Colors } from "constants/Colors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { MOVE_TO_BUSINESS_EDITION, createMessage } from "ee/constants/messages";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import styled from "styled-components";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
+
+import { FooterComponent } from "../Footer";
 
 export const UpgradeToBEPageWrapper = styled.div`
   width: 100%;

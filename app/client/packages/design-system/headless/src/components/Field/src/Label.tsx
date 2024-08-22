@@ -1,8 +1,9 @@
 import React, { forwardRef } from "react";
-import { useDOMRef } from "@react-spectrum/utils";
+
 import { filterDOMProps } from "@react-aria/utils";
-import type { DOMRef, StyleProps } from "@react-types/shared";
+import { useDOMRef } from "@react-spectrum/utils";
 import type { SpectrumLabelProps } from "@react-types/label";
+import type { DOMRef, StyleProps } from "@react-types/shared";
 
 export type LabelProps = Omit<
   SpectrumLabelProps,

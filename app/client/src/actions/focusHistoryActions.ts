@@ -1,7 +1,7 @@
-import type { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Location } from "history";
+import type { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import type { AppsmithLocationState } from "utils/history";
 
 export interface RouteChangeActionPayload {

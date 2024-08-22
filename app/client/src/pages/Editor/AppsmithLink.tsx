@@ -1,9 +1,11 @@
 import React from "react";
-import { Link, Tooltip } from "@appsmith/ads";
-import styled from "styled-components";
-import { LOGO_TOOLTIP, createMessage } from "ee/constants/messages";
-import { APPLICATIONS_URL } from "constants/routes";
+
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
+import { APPLICATIONS_URL } from "constants/routes";
+import { LOGO_TOOLTIP, createMessage } from "ee/constants/messages";
+import styled from "styled-components";
+
+import { Link, Tooltip } from "@appsmith/ads";
 
 export const StyledLink = styled((props) => {
   // we are removing non input related props before passing them in the components

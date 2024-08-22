@@ -1,10 +1,11 @@
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import setters from "../setters";
-import TableWidget from "widgets/TableWidgetV2/widget";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import { RenderModes } from "constants/WidgetConstants";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
+import TableWidget from "widgets/TableWidgetV2/widget";
+
 import { createEvaluationContext } from "../evaluate";
-import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import setters from "../setters";
 
 registerWidgets([TableWidget]);
 

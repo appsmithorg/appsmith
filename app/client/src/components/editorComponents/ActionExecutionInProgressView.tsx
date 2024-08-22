@@ -1,12 +1,15 @@
 import React from "react";
+
+import ActionAPI from "api/ActionAPI";
 import {
   ACTION_EXECUTION_CANCEL,
   ACTION_EXECUTION_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
-import ActionAPI from "api/ActionAPI";
-import { Button, Spinner, Text } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Button, Spinner, Text } from "@appsmith/ads";
+
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import LoadingOverlayScreen from "./LoadingOverlayScreen";
 

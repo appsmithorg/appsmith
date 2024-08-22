@@ -1,12 +1,10 @@
 import React from "react";
-import type { Carousel, Header } from "./types";
-import UpgradePage from "./UpgradePage";
+
 import DebuggingImage from "assets/svg/upgrade/audit-logs/debugging.svg";
 import IncidentManagementImage from "assets/svg/upgrade/audit-logs/incident-management.svg";
 import SecurityAndComplianceImage from "assets/svg/upgrade/audit-logs/security-and-compliance.svg";
 import {
   AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING,
-  createMessage,
   DEBUGGING,
   DEBUGGING_DETAIL1,
   EXCLUSIVE_TO_BUSINESS,
@@ -16,9 +14,13 @@ import {
   SECURITY_AND_COMPLIANCE,
   SECURITY_AND_COMPLIANCE_DETAIL1,
   SECURITY_AND_COMPLIANCE_DETAIL2,
+  createMessage,
 } from "ee/constants/messages";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
+
+import UpgradePage from "./UpgradePage";
+import type { Carousel, Header } from "./types";
 
 export function AuditLogsUpgradePage() {
   const { onUpgrade } = useOnUpgrade({

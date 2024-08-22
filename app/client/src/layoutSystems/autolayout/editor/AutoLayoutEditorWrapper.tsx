@@ -1,7 +1,9 @@
 import React, { useMemo } from "react";
+
 import type { WidgetProps } from "widgets/BaseWidget";
-import { AutoLayoutEditorWidgetOnion } from "./AutoLayoutEditorWidgetOnion";
+
 import { AutoLayoutEditorModalOnion } from "./AutoLayoutEditorModalOnion";
+import { AutoLayoutEditorWidgetOnion } from "./AutoLayoutEditorWidgetOnion";
 
 /**
  * AutoLayoutEditorWrapper

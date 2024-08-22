@@ -1,13 +1,15 @@
 import React from "react";
-import styled from "styled-components";
+
+import type { ControlProps } from "components/formControls/BaseControl";
+import { isHidden, isKVArray } from "components/formControls/utils";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import type { Datasource } from "entities/Datasource";
 import _ from "lodash";
+import log from "loglevel";
+import styled from "styled-components";
+
 import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
-import type { ControlProps } from "components/formControls/BaseControl";
-import type { Datasource } from "entities/Datasource";
-import { isHidden, isKVArray } from "components/formControls/utils";
-import log from "loglevel";
-import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
 export const FormContainer = styled.div`
   display: flex;

@@ -1,21 +1,31 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Container, Space } from "../components/StyledComponents";
 
+import {
+  fetchBranchesInit,
+  fetchMergeStatusInit,
+  mergeBranchInit,
+  resetMergeStatus,
+} from "actions/gitSyncActions";
+import type { Theme } from "constants/DefaultTheme";
 import {
   BRANCH_PROTECTION_PROTECTED,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
-  createMessage,
   FETCH_GIT_STATUS,
   FETCH_MERGE_STATUS,
   IS_MERGING,
-  MERGE_CHANGES,
   MERGED_SUCCESSFULLY,
+  MERGE_CHANGES,
   SELECT_BRANCH_TO_MERGE,
+  createMessage,
 } from "ee/constants/messages";
-
-import styled, { useTheme } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
+import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
+import SuccessTick from "pages/common/SuccessTick";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
@@ -28,32 +38,23 @@ import {
   getMergeStatus,
   getProtectedBranchesSelector,
 } from "selectors/gitSyncSelectors";
-import type { DropdownOptions } from "../../GeneratePage/components/constants";
-import {
-  fetchBranchesInit,
-  fetchMergeStatusInit,
-  mergeBranchInit,
-  resetMergeStatus,
-} from "actions/gitSyncActions";
-import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
-import ConflictInfo from "../components/ConflictInfo";
-import Statusbar, {
-  StatusbarWrapper,
-} from "pages/Editor/gitSync/components/Statusbar";
-import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
-import { Classes } from "../constants";
-import SuccessTick from "pages/common/SuccessTick";
+import styled, { useTheme } from "styled-components";
+
 import {
   Button,
+  Icon,
+  ModalBody,
+  ModalFooter,
   Option,
   Select,
   Text,
-  Icon,
-  ModalFooter,
-  ModalBody,
 } from "@appsmith/ads";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { Theme } from "constants/DefaultTheme";
+
+import type { DropdownOptions } from "../../GeneratePage/components/constants";
+import ConflictInfo from "../components/ConflictInfo";
+import MergeStatus, { MERGE_STATUS_STATE } from "../components/MergeStatus";
+import { Container, Space } from "../components/StyledComponents";
+import { Classes } from "../constants";
 
 const Row = styled.div`
   display: flex;

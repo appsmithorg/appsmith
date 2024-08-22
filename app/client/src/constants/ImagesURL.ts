@@ -1,5 +1,6 @@
-import { ASSETS_CDN_URL } from "./ThirdPartyConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+
+import { ASSETS_CDN_URL } from "./ThirdPartyConstants";
 
 export const getInfoThumbnail = () =>
   getAssetUrl(`${ASSETS_CDN_URL}/crud/crud_info_thumbnail.png`);

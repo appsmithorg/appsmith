@@ -1,8 +1,8 @@
+import type { WidgetConfigProps } from "WidgetProvider/constants";
 import Api from "api/Api";
+import type { AxiosPromise } from "axios";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { AxiosPromise } from "axios";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
 
 export interface WidgetConfigsResponse {
   config: Record<WidgetType, Partial<WidgetProps> & WidgetConfigProps>;

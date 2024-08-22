@@ -1,15 +1,15 @@
-import { ENTITY_TYPE, type JSActionEntity } from "ee/entities/DataTree/types";
 import WidgetFactory from "WidgetProvider/factory";
+import { ENTITY_TYPE, type JSActionEntity } from "ee/entities/DataTree/types";
 import type {
   DataTreeEntityObject,
   JSActionEntityConfig,
   WidgetEntity,
 } from "ee/entities/DataTree/types";
-import { isFunction } from "lodash";
-import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
-import ConfigTreeActions from "utils/configTree";
-import store from "store";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
+import { isFunction } from "lodash";
+import store from "store";
+import ConfigTreeActions from "utils/configTree";
 
 export interface EntityProperty {
   propertyName: string;

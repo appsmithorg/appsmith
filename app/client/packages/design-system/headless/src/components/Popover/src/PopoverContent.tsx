@@ -1,13 +1,14 @@
 import React, { forwardRef, useEffect } from "react";
+import type { Ref } from "react";
+
 import {
   FloatingFocusManager,
   FloatingPortal,
   useMergeRefs,
   useTransitionStatus,
 } from "@floating-ui/react";
-import { usePopoverContext } from "./PopoverContext";
 
-import type { Ref } from "react";
+import { usePopoverContext } from "./PopoverContext";
 import type { PopoverContentProps } from "./types";
 
 const _PopoverContent = (props: PopoverContentProps, ref: Ref<HTMLElement>) => {

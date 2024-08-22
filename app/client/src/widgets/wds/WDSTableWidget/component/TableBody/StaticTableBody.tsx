@@ -1,10 +1,12 @@
 import React from "react";
-import { EmptyRows, Row } from "./Row";
+
 import type {
-  TableBodyProps,
-  TableBodyPropGetter,
   Row as ReactTableRowType,
+  TableBodyPropGetter,
+  TableBodyProps,
 } from "react-table";
+
+import { EmptyRows, Row } from "./Row";
 
 export interface StaticTableProps {
   getTableBodyProps(

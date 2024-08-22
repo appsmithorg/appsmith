@@ -1,12 +1,13 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 
 import { closeAppThemingBetaCard } from "actions/appThemingActions";
 import {
-  createMessage,
-  APP_THEME_BETA_CARD_HEADING,
   APP_THEME_BETA_CARD_CONTENT,
+  APP_THEME_BETA_CARD_HEADING,
+  createMessage,
 } from "ee/constants/messages";
+import { useDispatch } from "react-redux";
+
 import { Button } from "@appsmith/ads";
 
 export function ThemeBetaCard() {

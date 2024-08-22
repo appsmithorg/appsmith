@@ -1,6 +1,8 @@
-import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import React from "react";
+
+import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import styled from "styled-components";
+
 import PaneHeader from "../IDE/LeftPane/PaneHeader";
 
 type EditorSettingsPaneContainerProps = React.PropsWithChildren<{

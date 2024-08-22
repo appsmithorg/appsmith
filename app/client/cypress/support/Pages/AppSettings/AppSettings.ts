@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
 import { AppSidebar, AppSidebarButton } from "../EditorNavigation";
+
 export class AppSettings {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private theme = ObjectsRegistry.ThemeSettings;

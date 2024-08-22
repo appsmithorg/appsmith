@@ -1,16 +1,15 @@
 /// <reference types="Cypress" />
-
+import {
+  agHelper,
+  dataSources,
+  entityExplorer,
+  entityItems,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
-import {
-  dataSources,
-  entityExplorer,
-  agHelper,
-  entityItems,
-} from "../../../../support/Objects/ObjectsCore";
+const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 const pageid = "MyPage";
 let datasourceName;

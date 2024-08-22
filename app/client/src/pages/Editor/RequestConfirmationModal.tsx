@@ -1,12 +1,19 @@
 import React from "react";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
+
 import { Keys } from "@blueprintjs/core";
 import {
-  showActionConfirmationModal,
-  cancelActionConfirmationModal,
   acceptActionConfirmationModal,
+  cancelActionConfirmationModal,
+  showActionConfirmationModal,
 } from "actions/pluginActionActions";
+import {
+  QUERY_CONFIRMATION_MODAL_MESSAGE,
+  createMessage,
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import { connect } from "react-redux";
+import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
+
 import {
   Button,
   Modal,
@@ -15,11 +22,6 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@appsmith/ads";
-import {
-  createMessage,
-  QUERY_CONFIRMATION_MODAL_MESSAGE,
-} from "ee/constants/messages";
-import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 interface Props {
   modals: ModalInfo[];

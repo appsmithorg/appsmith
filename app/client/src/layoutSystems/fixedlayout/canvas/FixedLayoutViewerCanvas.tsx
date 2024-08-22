@@ -1,15 +1,17 @@
+import React, { useMemo } from "react";
+
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { Positioning } from "layoutSystems/common/utils/constants";
 import { CanvasViewerWrapper } from "layoutSystems/common/canvasViewer/CanvasViewerWrapper";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
+import { Positioning } from "layoutSystems/common/utils/constants";
 import { compact, sortBy } from "lodash";
-import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+
 import type { AdditionalFixedLayoutProperties } from "./types";
 
 export type CanvasProps = ContainerWidgetProps<WidgetProps>;

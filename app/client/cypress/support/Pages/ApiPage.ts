@@ -1,3 +1,5 @@
+import ApiEditor from "../../locators/ApiEditor";
+import * as _ from "../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../Objects/Registry";
 import {
   AppSidebar,
@@ -5,8 +7,6 @@ import {
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";
-import * as _ from "../Objects/ObjectsCore";
-import ApiEditor from "../../locators/ApiEditor";
 
 type RightPaneTabs = "datasources" | "connections";
 

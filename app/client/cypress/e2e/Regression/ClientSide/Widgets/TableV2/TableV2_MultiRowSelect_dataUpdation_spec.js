@@ -1,5 +1,6 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 /*
 Selected row stays selected after data updation

@@ -1,3 +1,4 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
   AppSidebarButton,
@@ -6,7 +7,6 @@ import {
 } from "../../../../support/Pages/EditorNavigation";
 
 const dsl = require("../../../../fixtures/widgetSelection.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Widget Selection", { tags: ["@tag.Widget"] }, function () {
   before(() => {

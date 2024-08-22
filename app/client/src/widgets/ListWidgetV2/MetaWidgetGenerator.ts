@@ -1,24 +1,30 @@
-import hash from "object-hash";
-import { klona } from "klona";
-import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
 import type { VirtualizerOptions } from "@tanstack/virtual-core";
 import {
+  Virtualizer,
   elementScroll,
   observeElementOffset,
   observeElementRect,
-  Virtualizer,
 } from "@tanstack/virtual-core";
-import isEqual from "fast-deep-equal/es6";
-
-import Queue from "./Queue";
-import { extractTillNestedListWidget } from "./widget/helper";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { generateReactKey } from "utils/generators";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   GridDefaults,
   RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import isEqual from "fast-deep-equal/es6";
+import { klona } from "klona";
+import { difference, get, isEmpty, isNil, isString, omit, set } from "lodash";
+import hash from "object-hash";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
+import { generateReactKey } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import Queue from "./Queue";
 import type {
   LevelData,
   ListWidgetProps,
@@ -28,13 +34,7 @@ import type {
   MetaWidgets,
 } from "./widget";
 import { DEFAULT_TEMPLATE_HEIGHT, DynamicPathType } from "./widget";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import {
-  combineDynamicBindings,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
-import WidgetFactory from "WidgetProvider/factory";
+import { extractTillNestedListWidget } from "./widget/helper";
 
 type TemplateWidgets =
   ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];

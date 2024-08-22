@@ -1,5 +1,5 @@
-import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import type { AppState } from "ee/reducers";
+import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import { createSelector } from "reselect";
 

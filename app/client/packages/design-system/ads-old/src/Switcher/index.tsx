@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+
 import styled, { css } from "styled-components";
+
 import type { CommonComponentProps } from "../types/common";
 
 /** Styles **/

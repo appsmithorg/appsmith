@@ -1,37 +1,40 @@
 import React, { useMemo, useState } from "react";
-import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import EntityAddButton from "../Entity/AddButton";
-import styled from "styled-components";
-import history from "utils/history";
-import { generateTemplateFormURL } from "ee/RouteBuilder";
-import { useParams } from "react-router";
-import { useDispatch } from "react-redux";
-import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
+
 import { showTemplatesModal } from "actions/templateActions";
+import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
+import { generateTemplateFormURL } from "ee/RouteBuilder";
 import {
   ADD_PAGE_FROM_TEMPLATE,
   ADD_PAGE_TOOLTIP,
   CANVAS_NEW_PAGE_CARD,
-  createMessage,
   CREATE_PAGE,
   GENERATE_PAGE_ACTION_TITLE,
+  createMessage,
 } from "ee/constants/messages";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { ButtonSizes } from "@appsmith/ads";
-import {
-  Menu,
-  MenuContent,
-  MenuTrigger,
-  MenuItem,
-  Tooltip,
-  Text,
-} from "@appsmith/ads";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
 } from "layoutSystems/common/useLayoutSystemFeatures";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router";
+import styled from "styled-components";
+import history from "utils/history";
+
+import type { ButtonSizes } from "@appsmith/ads";
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Text,
+  Tooltip,
+} from "@appsmith/ads";
+
+import { AddButtonWrapper, EntityClassNames } from "../Entity";
+import EntityAddButton from "../Entity/AddButton";
 
 const Wrapper = styled.div`
   .title {

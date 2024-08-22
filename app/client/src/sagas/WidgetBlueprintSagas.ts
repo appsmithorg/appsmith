@@ -1,18 +1,18 @@
 import type { WidgetBlueprint } from "WidgetProvider/constants";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { generateReactKey } from "utils/generators";
-import { call, select } from "redux-saga/effects";
-import { get } from "lodash";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import WidgetFactory from "WidgetProvider/factory";
-
 import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import * as log from "loglevel";
-import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
+import { get } from "lodash";
+import * as log from "loglevel";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { call, select } from "redux-saga/effects";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { generateReactKey } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { toast } from "@appsmith/ads";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];

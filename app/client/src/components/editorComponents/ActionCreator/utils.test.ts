@@ -1,26 +1,26 @@
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+
 import { EMPTY_BINDING_WITH_EMPTY_OBJECT } from "./constants";
+import {
+  JSToString,
+  argsStringToArray,
+  enumTypeGetter,
+  enumTypeSetter,
+  isValueValidURL,
+  modalGetter,
+  modalSetter,
+  objectSetter,
+  sortSubMenuOptions,
+  stringToJS,
+  textGetter,
+  textSetter,
+} from "./utils";
 
 jest.mock("sagas/ActionExecution/NavigateActionSaga", () => ({
   __esModule: true,
   default: "",
   NavigationTargetType: { SAME_WINDOW: "" },
 }));
-
-import {
-  argsStringToArray,
-  enumTypeSetter,
-  enumTypeGetter,
-  JSToString,
-  modalGetter,
-  modalSetter,
-  stringToJS,
-  textGetter,
-  textSetter,
-  isValueValidURL,
-  objectSetter,
-  sortSubMenuOptions,
-} from "./utils";
-import type { TreeDropdownOption } from "@appsmith/ads-old";
 
 describe("Test argStringToArray", () => {
   const cases = [

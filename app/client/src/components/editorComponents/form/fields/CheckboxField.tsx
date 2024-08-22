@@ -1,8 +1,10 @@
-import type { CheckboxProps } from "@appsmith/ads-old";
-import { Checkbox } from "@appsmith/ads-old";
 import React from "react";
+
 import type { BaseFieldProps } from "redux-form";
 import { Field } from "redux-form";
+
+import type { CheckboxProps } from "@appsmith/ads-old";
+import { Checkbox } from "@appsmith/ads-old";
 
 type RenderComponentProps = CheckboxProps & {
   input?: {

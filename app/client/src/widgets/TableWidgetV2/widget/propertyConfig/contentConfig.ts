@@ -1,15 +1,17 @@
-import {
-  createMessage,
-  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
-} from "ee/constants/messages";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
+  createMessage,
+} from "ee/constants/messages";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+
+import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
+import Widget from "../index";
 import {
   tableDataValidation,
   totalRecordsCountValidation,
@@ -20,7 +22,6 @@ import {
   updateInlineEditingSaveOptionHook,
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
-import Widget from "../index";
 
 export default [
   {

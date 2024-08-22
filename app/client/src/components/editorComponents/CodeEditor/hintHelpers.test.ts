@@ -1,10 +1,11 @@
-import {
-  bindingHintHelper,
-  SqlHintHelper,
-} from "components/editorComponents/CodeEditor/hintHelpers";
-import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
-import { random } from "lodash";
 import "codemirror/addon/hint/sql-hint";
+import {
+  SqlHintHelper,
+  bindingHintHelper,
+} from "components/editorComponents/CodeEditor/hintHelpers";
+import { random } from "lodash";
+
+import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
 import { MAX_NUMBER_OF_SQL_HINTS } from "./utils/sqlHint";
 
 jest.mock("./codeEditorUtils", () => {

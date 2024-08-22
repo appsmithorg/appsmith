@@ -1,10 +1,12 @@
-import type { AppState } from "ee/reducers";
 import type { CSSProperties } from "react";
 import React, { memo } from "react";
+
+import type { AppState } from "ee/reducers";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
+
 import AutoHeightOverlayWithStateContext from "./AutoHeightOverlayWithStateContext";
 
 export interface MinMaxHeightProps {

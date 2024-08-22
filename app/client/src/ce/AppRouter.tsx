@@ -1,7 +1,9 @@
 import React, { Suspense, useEffect } from "react";
-import history from "utils/history";
-import AppHeader from "ee/pages/common/AppHeader";
-import { Redirect, Route, Router, Switch } from "react-router-dom";
+
+import * as Sentry from "@sentry/react";
+import RouteChangeListener from "RouteChangeListener";
+import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
+import Walkthrough from "components/featureWalkthrough";
 import {
   ADMIN_SETTINGS_CATEGORY_PATH,
   ADMIN_SETTINGS_PATH,
@@ -30,40 +32,39 @@ import {
   VIEWER_PATH_DEPRECATED,
   WORKSPACE_URL,
 } from "constants/routes";
-import WorkspaceLoader from "pages/workspace/loader";
-import ApplicationListLoader from "pages/Applications/loader";
-import EditorLoader from "pages/Editor/loader";
+import type { ERROR_CODES } from "ee/constants/ApiConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AppHeader from "ee/pages/common/AppHeader";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
+import SettingsLoader from "pages/AdminSettings/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
-import LandingScreen from "../LandingScreen";
+import ApplicationListLoader from "pages/Applications/loader";
+import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
+import EditorLoader from "pages/Editor/loader";
+import TemplatesListLoader from "pages/Templates/loader";
 import UserAuth from "pages/UserAuth";
-import Users from "pages/users";
+import UserProfile from "pages/UserProfile";
 import ErrorPage from "pages/common/ErrorPage";
+import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import PageNotFound from "pages/common/ErrorPages/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
-import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import { useDispatch, useSelector } from "react-redux";
-
-import * as Sentry from "@sentry/react";
-import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
-import UserProfile from "pages/UserProfile";
 import Setup from "pages/setup";
-import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
-import type { ERROR_CODES } from "ee/constants/ApiConstants";
-import TemplatesListLoader from "pages/Templates/loader";
-import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
-import useBrandingTheme from "utils/hooks/useBrandingTheme";
-import RouteChangeListener from "RouteChangeListener";
-import { initCurrentPage } from "../actions/initActions";
-import Walkthrough from "components/featureWalkthrough";
-import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
-import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
+import Users from "pages/users";
+import WorkspaceLoader from "pages/workspace/loader";
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect, Route, Router, Switch } from "react-router-dom";
+import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import { getIsConsolidatedPageLoading } from "selectors/ui";
+import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
+import history from "utils/history";
+import useBrandingTheme from "utils/hooks/useBrandingTheme";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { useFeatureFlagOverride } from "utils/hooks/useFeatureFlagOverride";
+
+import LandingScreen from "../LandingScreen";
+import { initCurrentPage } from "../actions/initActions";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 

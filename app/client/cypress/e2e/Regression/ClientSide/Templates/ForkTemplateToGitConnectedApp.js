@@ -1,17 +1,18 @@
-import template from "../../../../locators/TemplatesLocators.json";
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
-import widgetLocators from "../../../../locators/Widgets.json";
-let repoName;
-let newWorkspaceName;
-let branchName = "test/template";
-const jsObject = "Utils";
 import homePage from "../../../../locators/HomePage";
+import template from "../../../../locators/TemplatesLocators.json";
+import widgetLocators from "../../../../locators/Widgets.json";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import PageList from "../../../../support/Pages/PageList";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
+
+let repoName;
+let newWorkspaceName;
+let branchName = "test/template";
+const jsObject = "Utils";
 
 describe(
   "Fork a template to the current app",

@@ -1,20 +1,20 @@
-import classNames from "classnames";
-import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
 import React, { memo, useContext, useEffect, useMemo, useRef } from "react";
 
-import { getSelectedWidgets } from "selectors/ui";
-import { tailwindLayers } from "constants/Layers";
-import WidgetPropertyPane from "pages/Editor/PropertyPane";
-import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
-import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
-import styled from "styled-components";
+import * as Sentry from "@sentry/react";
+import classNames from "classnames";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { tailwindLayers } from "constants/Layers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import CanvasPropertyPane from "pages/Editor/CanvasPropertyPane";
+import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
+import WidgetPropertyPane from "pages/Editor/PropertyPane";
+import { useSelector } from "react-redux";
+import { getIsDraggingForSelection } from "selectors/canvasSelectors";
+import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
+import { getSelectedWidgets } from "selectors/ui";
+import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
+import styled from "styled-components";
+import useHorizontalResize from "utils/hooks/useHorizontalResize";
 
 export const PROPERTY_PANE_ID = "t--property-pane-sidebar";
 

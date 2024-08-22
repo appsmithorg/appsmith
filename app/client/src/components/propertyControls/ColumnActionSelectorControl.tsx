@@ -1,12 +1,14 @@
 import React from "react";
+
+import ActionCreator from "components/editorComponents/ActionCreator";
+import { InputText } from "components/propertyControls/InputTextControl";
 import styled from "styled-components";
+import { generateReactKey } from "utils/generators";
+
+import { Button } from "@appsmith/ads";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { generateReactKey } from "utils/generators";
-import { InputText } from "components/propertyControls/InputTextControl";
-import ActionCreator from "components/editorComponents/ActionCreator";
-import { Button } from "@appsmith/ads";
 
 export interface ColumnAction {
   label?: string;

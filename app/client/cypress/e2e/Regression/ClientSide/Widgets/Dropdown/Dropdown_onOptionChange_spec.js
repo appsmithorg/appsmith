@@ -1,3 +1,10 @@
+import {
+  agHelper,
+  dataSources,
+  deployMode,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -7,13 +14,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
-import {
-  agHelper,
-  locators,
-  propPane,
-  deployMode,
-  dataSources,
-} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Dropdown Widget",

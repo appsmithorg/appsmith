@@ -1,11 +1,12 @@
-import { fetchGheetColumns } from "actions/datasourceActions";
-import type { AppState } from "ee/reducers";
-import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
-import { isNumber } from "lodash";
 import { useCallback, useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getDatasource } from "ee/selectors/entitiesSelector";
+
+import { fetchGheetColumns } from "actions/datasourceActions";
+import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import { isValidGsheetConfig } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
+import type { AppState } from "ee/reducers";
+import { getDatasource } from "ee/selectors/entitiesSelector";
+import { isNumber } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 
 export function useTableHeaderIndex() {
   const dispatch = useDispatch();

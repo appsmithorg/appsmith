@@ -1,11 +1,11 @@
 import {
-  entityExplorer,
-  propPane,
   agHelper,
-  draggableWidgets,
   deployMode,
-  table,
+  draggableWidgets,
+  entityExplorer,
   locators,
+  propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const readTableLocalColumnOrder = (columnOrderKey: string) => {

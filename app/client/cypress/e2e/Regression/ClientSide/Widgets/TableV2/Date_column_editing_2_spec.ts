@@ -1,3 +1,4 @@
+import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
   dataSources,
@@ -5,8 +6,6 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

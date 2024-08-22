@@ -1,29 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { ThemeProvider } from "styled-components";
-import type { ApplicationPayload } from "entities/Application";
-import { useDispatch, useSelector } from "react-redux";
+
+import { setAppViewHeaderHeight } from "actions/appViewActions";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import type { Theme } from "constants/DefaultTheme";
+import type { User } from "constants/userConstants";
+import { builderURL } from "ee/RouteBuilder";
 import type { AppState } from "ee/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { ApplicationPayload } from "entities/Application";
+import PageMenu from "pages/AppViewer/PageMenu";
+import { useHref } from "pages/Editor/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 import {
   getCurrentBasePageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { ThemeMode, getThemeDetails } from "selectors/themeSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { User } from "constants/userConstants";
-import type { Theme } from "constants/DefaultTheme";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import HtmlTitle from "../AppViewerHtmlTitle";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import PageMenu from "pages/AppViewer/PageMenu";
-import { useHref } from "pages/Editor/utils";
-import { builderURL } from "ee/RouteBuilder";
-import TopHeader from "./components/TopHeader";
-import Sidebar from "./Sidebar";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { ThemeProvider } from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { setAppViewHeaderHeight } from "actions/appViewActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import HtmlTitle from "../AppViewerHtmlTitle";
+import Sidebar from "./Sidebar";
+import TopHeader from "./components/TopHeader";
 
 export function Navigation() {
   const { search } = useLocation();

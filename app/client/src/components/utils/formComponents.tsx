@@ -1,5 +1,6 @@
-import { Menu } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { Menu } from "@appsmith/ads";
 
 export const MenuWrapper = styled.div`
   display: flex;

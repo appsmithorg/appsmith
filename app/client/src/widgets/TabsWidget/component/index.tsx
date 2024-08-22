@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
-import React, { useRef, useState, useCallback } from "react";
-import styled from "styled-components";
+import React, { useCallback, useRef, useState } from "react";
+
 import type { MaybeElement } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import type { ComponentProps } from "widgets/BaseComponent";
 import { Icon, IconSize } from "@design-system/widgets-old";
-import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
-import PageTabs from "./PageTabs";
+import styled from "styled-components";
+import { generateClassName, getCanvasClassName } from "utils/generators";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { scrollCSS } from "widgets/WidgetUtils";
+
+import PageTabs from "./PageTabs";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;

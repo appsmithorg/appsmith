@@ -1,18 +1,18 @@
 import React from "react";
-import { renderHook, act } from "@testing-library/react-hooks/dom";
-import { Provider } from "react-redux";
+
+import { act, renderHook } from "@testing-library/react-hooks/dom";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";
-import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import type { AppState } from "ee/reducers";
-
-import { createMemoryHistory, type MemoryHistory } from "history";
+import { type MemoryHistory, createMemoryHistory } from "history";
+import { Provider } from "react-redux";
 import { Router } from "react-router";
-
-import { getIDEViewMode } from "../../selectors/ideSelectors";
-import { setIdeEditorViewMode } from "../../actions/ideActions";
-import { testStore } from "../../store";
 import type { Store } from "redux";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+
+import { setIdeEditorViewMode } from "../../actions/ideActions";
+import { getIDEViewMode } from "../../selectors/ideSelectors";
+import { testStore } from "../../store";
+import { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";
 
 const JS_COLLECTION_EDITOR_PATH =
   "/app/app-name/page-665dd1103e4483728c9ed11a/edit/jsObjects";

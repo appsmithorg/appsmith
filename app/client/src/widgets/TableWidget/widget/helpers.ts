@@ -1,10 +1,11 @@
-import type { TableWidgetProps } from "../constants";
+import type { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import type { Stylesheet } from "entities/AppTheming";
+
+import type { TableWidgetProps } from "../constants";
 
 /**
  * this is a getter function to get stylesheet value of the property from the config

@@ -1,11 +1,14 @@
 import type { PropsWithChildren } from "react";
 import React from "react";
+
 import { Collapse } from "@blueprintjs/core";
-import styled from "styled-components";
-import { LOG_CATEGORY } from "entities/AppsmithConsole";
-import { getTypographyByKey } from "@appsmith/ads-old";
-import ReactJson from "react-json-view";
 import { Colors } from "constants/Colors";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import ReactJson from "react-json-view";
+import styled from "styled-components";
+
+import { getTypographyByKey } from "@appsmith/ads-old";
+
 import LogAdditionalInfo from "./LogAdditionalInfo";
 
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`

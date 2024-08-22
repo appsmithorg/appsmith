@@ -1,5 +1,6 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import { agHelper, table } from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Table widget inline editing functionality",

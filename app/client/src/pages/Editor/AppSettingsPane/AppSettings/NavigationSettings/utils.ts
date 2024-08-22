@@ -3,8 +3,9 @@ import type {
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
 import { keysOfNavigationSetting } from "constants/AppConstants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_NAVIGATION_SETTING, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { toast } from "@appsmith/ads";
 
 export const logEvent = (

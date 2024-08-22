@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import { ModalContent } from "../Modal";
 
 export const StyledModalContent = styled(ModalContent)`

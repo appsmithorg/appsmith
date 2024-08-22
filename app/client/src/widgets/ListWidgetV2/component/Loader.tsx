@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-import { range } from "lodash";
+
 import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { range } from "lodash";
+import styled from "styled-components";
 
 interface LoaderProps {
   pageSize: number;

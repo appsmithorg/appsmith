@@ -1,6 +1,8 @@
 import React from "react";
+
 import classNames from "classnames";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
+
 import { HeaderSection } from "./commons/EditorHeaderComponents";
 
 export const HelperBarInHeader = ({

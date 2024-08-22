@@ -1,15 +1,17 @@
+import React, { useCallback, useEffect } from "react";
+
+import { COMMUNITY_PORTAL } from "constants/TemplatesConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   COMMUNITY_TEMPLATES,
   LEARN_MORE,
   createMessage,
 } from "ee/constants/messages";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { Button, Icon, Text } from "@appsmith/ads";
-import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { COMMUNITY_PORTAL } from "constants/TemplatesConstants";
+
+import { Button, Icon, Text } from "@appsmith/ads";
 
 interface Props {
   onPublishClick: () => void;

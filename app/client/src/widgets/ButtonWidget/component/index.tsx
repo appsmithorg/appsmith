@@ -1,40 +1,40 @@
 import React, { useRef, useState } from "react";
-import styled, { createGlobalStyle, css } from "styled-components";
-import Interweave from "interweave";
+
 import type { IButtonProps, MaybeElement } from "@blueprintjs/core";
-import { Button, Alignment, Position, Classes } from "@blueprintjs/core";
-import { Popover2 } from "@blueprintjs/popover2";
+import { Alignment, Button, Classes, Position } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-
-import type { ComponentProps } from "widgets/BaseComponent";
-
-import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
-import {
-  GOOGLE_RECAPTCHA_KEY_ERROR,
-  GOOGLE_RECAPTCHA_DOMAIN_ERROR,
-  createMessage,
-} from "ee/constants/messages";
-
-import ReCAPTCHA from "react-google-recaptcha";
-import { Colors } from "constants/Colors";
-import _ from "lodash";
+import { Popover2 } from "@blueprintjs/popover2";
+import type { ThemeProp } from "WidgetProvider/constants";
 import type {
   ButtonPlacement,
   ButtonVariant,
   RecaptchaType,
 } from "components/constants";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
+import { Colors } from "constants/Colors";
 import {
+  GOOGLE_RECAPTCHA_DOMAIN_ERROR,
+  GOOGLE_RECAPTCHA_KEY_ERROR,
+  createMessage,
+} from "ee/constants/messages";
+import Interweave from "interweave";
+import _ from "lodash";
+import ReCAPTCHA from "react-google-recaptcha";
+import styled, { createGlobalStyle, css } from "styled-components";
+import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
+import type { ComponentProps } from "widgets/BaseComponent";
+import {
+  getAlignText,
+  getComplementaryGrayscaleColor,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomJustifyContent,
-  getAlignText,
-  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
+
+import { toast } from "@appsmith/ads";
+
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
-import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "@appsmith/ads";
 
 const RecaptchaWrapper = styled.div`
   position: relative;

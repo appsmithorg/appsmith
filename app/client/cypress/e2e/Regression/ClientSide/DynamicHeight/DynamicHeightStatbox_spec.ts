@@ -2,8 +2,8 @@ import {
   agHelper,
   assertHelper,
   draggableWidgets,
-  locators,
   entityExplorer,
+  locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {

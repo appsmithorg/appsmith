@@ -1,9 +1,16 @@
+import type { ApiResponse, ResponseMeta } from "api/ApiResponses";
+import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
 } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { CreateDatasourceConfig } from "api/DatasourcesApi";
+import {
+  ActionParentEntityType,
+  type ActionParentEntityTypeInterface,
+} from "ee/entities/Engine/actionHelpers";
+import type { PluginType } from "entities/Action";
 import type {
   AuthenticationStatus,
   Datasource,
@@ -11,13 +18,6 @@ import type {
   FilePickerActionStatus,
   MockDatasource,
 } from "entities/Datasource";
-import type { PluginType } from "entities/Action";
-import type { ApiResponse, ResponseMeta } from "api/ApiResponses";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import {
-  ActionParentEntityType,
-  type ActionParentEntityTypeInterface,
-} from "ee/entities/Engine/actionHelpers";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,

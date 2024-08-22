@@ -1,16 +1,16 @@
 import {
-  homePage,
   agHelper,
   autoLayout,
-  gitSync,
-  entityExplorer,
   draggableWidgets,
+  entityExplorer,
+  gitSync,
+  homePage,
 } from "../../../../../support/Objects/ObjectsCore";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
-import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch";

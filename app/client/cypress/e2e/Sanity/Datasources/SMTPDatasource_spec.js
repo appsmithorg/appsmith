@@ -1,8 +1,8 @@
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation from "../../../support/Pages/EditorNavigation";
 
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
-import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "SMTP datasource test cases using ted",

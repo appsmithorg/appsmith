@@ -1,30 +1,32 @@
+import React from "react";
+
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   ADD_PAGE_FROM_TEMPLATE_MODAL,
   createMessage,
 } from "ee/constants/messages";
-import type { Template as TemplateInterface } from "api/TemplatesApi";
-import React from "react";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 import { useSelector } from "react-redux";
 import {
   getSearchedTemplateList,
   getTemplateFilterSelector,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
+
 import BuildingBlock from "../BuildingBlock";
+import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 import RequestTemplate from "../Template/RequestTemplate";
 import LoadingScreen from "../TemplatesModal/LoadingScreen";
 import {
   TEMPLATE_ALL_FILTER_FUNCTION_VALUE,
   TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
 } from "../constants";
-import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   HorizontalLine,
   SubheadingText,
   TemplateGrid,
   Wrapper,
 } from "./StyledComponents";
-import FixedHeightTemplate from "../Template/FixedHeightTemplate";
 
 interface TemplateListProps {
   isForkingEnabled: boolean;

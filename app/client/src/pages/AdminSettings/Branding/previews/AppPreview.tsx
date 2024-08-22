@@ -1,9 +1,11 @@
-import { ContentBox } from "pages/AdminSettings/components";
 import React from "react";
+
+import { ContentBox } from "pages/AdminSettings/components";
+
+import { Icon } from "@appsmith/ads";
 
 import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
-import { Icon } from "@appsmith/ads";
 
 const AppPreview = (props: PreviewsProps) => {
   const { logo, shades } = props;

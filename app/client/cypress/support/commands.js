@@ -1,20 +1,28 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-/* eslint-disable cypress/no-assigning-return-values */
-/* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
-import { ANVIL_EDITOR_TEST } from "./Constants.js";
 
+/* eslint-disable cypress/no-assigning-return-values */
+
+/* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
+import { v4 as uuidv4 } from "uuid";
+
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
+import ApiEditor from "../locators/ApiEditor";
+import homePage from "../locators/HomePage";
+import { ObjectsRegistry } from "../support/Objects/Registry";
+import { ANVIL_EDITOR_TEST } from "./Constants.js";
+import { featureFlagIntercept } from "./Objects/FeatureFlags";
 import EditorNavigation, {
-  EntityType,
   AppSidebar,
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "./Pages/EditorNavigation";
+import RapidMode from "./RapidMode";
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
 const path = require("path");
-import { v4 as uuidv4 } from "uuid";
 
 const dayjs = require("dayjs");
 const {
@@ -22,12 +30,9 @@ const {
 } = require("cypress-image-snapshot/command");
 const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
-import homePage from "../locators/HomePage";
 
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
-import ApiEditor from "../locators/ApiEditor";
-import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -37,9 +42,6 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../support/Objects/Registry";
-import RapidMode from "./RapidMode";
-import { featureFlagIntercept } from "./Objects/FeatureFlags";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;

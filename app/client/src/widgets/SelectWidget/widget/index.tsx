@@ -1,20 +1,40 @@
+import React from "react";
+
 import { Alignment } from "@blueprintjs/core";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import type {
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
-import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
-import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { findIndex, isArray, isNil, isNumber, isString } from "lodash";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
-  isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
   isCompactMode,
 } from "widgets/WidgetUtils";
+
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import SelectComponent from "../component";
@@ -27,35 +47,16 @@ import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
 } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
-import {
-  defaultOptionValueValidation,
-  labelKeyValidation,
-  getLabelValueAdditionalAutocompleteData,
-  getLabelValueKeyOptions,
-  valueKeyValidation,
-} from "./propertyUtils";
-import type {
-  WidgetQueryConfig,
-  WidgetQueryGenerationFormConfig,
-} from "WidgetQueryGenerators/types";
-import { DynamicHeight } from "utils/WidgetFeatures";
-import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
-
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import derivedProperties from "./parseDerivedProperties";
+import {
+  defaultOptionValueValidation,
+  getLabelValueAdditionalAutocompleteData,
+  getLabelValueKeyOptions,
+  labelKeyValidation,
+  valueKeyValidation,
+} from "./propertyUtils";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {

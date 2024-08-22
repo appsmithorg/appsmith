@@ -1,29 +1,32 @@
 import React from "react";
-import styled from "styled-components";
+
 import { Colors } from "constants/Colors";
-import { MenuItem } from "@appsmith/ads-old";
-import { Text, Avatar } from "@appsmith/ads";
+import { DISCORD_URL } from "constants/ThirdPartyConstants";
+import { getAppsmithConfigs } from "ee/configs";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  ADMIN_SETTINGS,
+  APPSMITH_DISPLAY_VERSION,
+  DOCUMENTATION,
+  createMessage,
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
+import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
+import { useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
 import { getInitials } from "utils/AppsmithUtils";
+import { howMuchTimeBeforeText } from "utils/helpers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Avatar, Text } from "@appsmith/ads";
+import { MenuItem } from "@appsmith/ads-old";
+
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { useSelector } from "react-redux";
-import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  ADMIN_SETTINGS,
-  APPSMITH_DISPLAY_VERSION,
-  createMessage,
-  DOCUMENTATION,
-} from "ee/constants/messages";
-import { getAppsmithConfigs } from "ee/configs";
-import { howMuchTimeBeforeText } from "utils/helpers";
-import { getTenantPermissions } from "ee/selectors/tenantSelectors";
-import { DISCORD_URL } from "constants/ThirdPartyConstants";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 
 interface MobileSideBarProps {
   name: string;

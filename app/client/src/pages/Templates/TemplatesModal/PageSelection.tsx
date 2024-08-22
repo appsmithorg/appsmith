@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from "react";
+
+import { importTemplateIntoApplication } from "actions/templateActions";
+import type { Template } from "api/TemplatesApi";
 import type { ApplicationPagePayload } from "ee/api/ApplicationApi";
 import {
   FILTER_SELECTALL,
@@ -8,14 +12,12 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { importTemplateIntoApplication } from "actions/templateActions";
-import type { Template } from "api/TemplatesApi";
-import { Button, Checkbox, Divider, Icon, Text } from "@appsmith/ads";
-import React, { useEffect, useState } from "react";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import { Button, Checkbox, Divider, Icon, Text } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   width: 280px;

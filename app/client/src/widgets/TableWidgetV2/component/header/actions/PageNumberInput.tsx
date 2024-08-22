@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect } from "react";
-import styled from "styled-components";
-import { NumericInput, Keys } from "@blueprintjs/core";
+
+import { Keys, NumericInput } from "@blueprintjs/core";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import styled from "styled-components";
 import { lightenColor } from "widgets/WidgetUtils";
 
 const PageNumberInputWrapper = styled(NumericInput)<{

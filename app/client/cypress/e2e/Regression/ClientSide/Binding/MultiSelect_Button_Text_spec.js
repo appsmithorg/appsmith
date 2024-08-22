@@ -1,15 +1,13 @@
 /// <reference types="Cypress" />
-
+import {
+  PROPERTY_SELECTOR,
+  WIDGET,
+  getWidgetSelector,
+} from "../../../../locators/WidgetLocators";
+import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-
-import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
-import {
-  WIDGET,
-  PROPERTY_SELECTOR,
-  getWidgetSelector,
-} from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
   [WIDGET.MULTISELECT]: {

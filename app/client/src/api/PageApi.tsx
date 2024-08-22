@@ -1,14 +1,15 @@
+import type { DSLWidget } from "WidgetProvider/constants";
 import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise, CancelTokenSource } from "axios";
 import axios from "axios";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { DSLWidget } from "WidgetProvider/constants";
 import type { FetchApplicationResponse } from "ee/api/ApplicationApi";
 import type { APP_MODE } from "entities/App";
+
+import type { ApiResponse } from "./ApiResponses";
 
 export interface FetchPageRequest {
   pageId: string;

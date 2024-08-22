@@ -1,9 +1,9 @@
 import _ from "lodash";
 
 import {
-  minValueValidation,
-  maxValueValidation,
   defaultValueValidation,
+  maxValueValidation,
+  minValueValidation,
 } from ".";
 import type { InputWidgetProps } from "../../../widget/types";
 

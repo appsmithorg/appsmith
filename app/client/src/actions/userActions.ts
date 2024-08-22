@@ -1,15 +1,15 @@
+import type { ApiResponse } from "api/ApiResponses";
+import type { UpdateUserRequest, VerifyTokenRequest } from "ee/api/UserApi";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { UpdateUserRequest, VerifyTokenRequest } from "ee/api/UserApi";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   ProductAlert,
   ProductAlertConfig,
   ProductAlertState,
 } from "reducers/uiReducers/usersReducer";
-import type { ApiResponse } from "api/ApiResponses";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,

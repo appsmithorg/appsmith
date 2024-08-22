@@ -1,8 +1,8 @@
 import {
   agHelper,
   appSettings,
-  locators,
   gitSync,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,

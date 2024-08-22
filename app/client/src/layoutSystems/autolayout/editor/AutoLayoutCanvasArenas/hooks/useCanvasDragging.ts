@@ -1,20 +1,21 @@
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type React from "react";
 import { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
 
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
+import { modifyBlockDimension } from "layoutSystems/common/utils/canvasDraggingUtils";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
+import { useSelector } from "react-redux";
 import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
+
 import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaTypes";
+import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
+import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
-import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
-import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
-import { modifyBlockDimension } from "layoutSystems/common/utils/canvasDraggingUtils";
-import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 /**
  * useCanvasDragging hook is utilized to handle all drag and drop related functions that are required to give user the sense of dragging and dropping while moving a widget on canvas

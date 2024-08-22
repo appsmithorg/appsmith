@@ -1,8 +1,12 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
 
-import BranchButton from "./BranchButton";
-
+import {
+  discardChanges,
+  gitPullInit,
+  setGitSettingsModalOpenAction,
+  setIsGitSyncModalOpen,
+} from "actions/gitSyncActions";
+import { Colors } from "constants/Colors";
 import {
   CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES,
   COMING_SOON,
@@ -10,24 +14,20 @@ import {
   CONFLICTS_FOUND,
   CONNECT_GIT_BETA,
   CONTACT_ADMIN_FOR_GIT,
-  createMessage,
   DISCARD_AND_PULL_SUCCESS,
   GIT_SETTINGS,
   MERGE,
-  NO_COMMITS_TO_PULL,
   NOT_LIVE_FOR_YOU_YET,
+  NO_COMMITS_TO_PULL,
   PULL_CHANGES,
+  createMessage,
 } from "ee/constants/messages";
-
-import { Colors } from "constants/Colors";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  discardChanges,
-  gitPullInit,
-  setGitSettingsModalOpenAction,
-  setIsGitSyncModalOpen,
-} from "actions/gitSyncActions";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { GitSyncModalTab } from "entities/GitSync";
+import SpinnerLoader from "pages/common/SpinnerLoader";
+import { useDispatch, useSelector } from "react-redux";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import {
   getCountOfChangesToCommit,
   getGitMetadataSelector,
@@ -39,15 +39,15 @@ import {
   getPullFailed,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
-import SpinnerLoader from "pages/common/SpinnerLoader";
-import { getTypographyByKey } from "@appsmith/ads-old";
-import { Button, Icon, Tooltip } from "@appsmith/ads";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import AutocommitStatusbar from "./AutocommitStatusbar";
+
+import { Button, Icon, Tooltip } from "@appsmith/ads";
+import { getTypographyByKey } from "@appsmith/ads-old";
+
 import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import AutocommitStatusbar from "./AutocommitStatusbar";
+import BranchButton from "./BranchButton";
 
 interface QuickActionButtonProps {
   className?: string;

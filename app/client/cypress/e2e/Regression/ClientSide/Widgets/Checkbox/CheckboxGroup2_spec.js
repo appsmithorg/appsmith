@@ -1,10 +1,11 @@
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 import {
   agHelper,
-  propPane,
   deployMode,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+
+const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+const publish = require("../../../../../locators/publishWidgetspage.json");
 
 describe(
   "Checkbox Group Widget Functionality",

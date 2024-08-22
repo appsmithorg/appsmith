@@ -1,9 +1,9 @@
 import {
+  agHelper,
+  draggableWidgets,
   entityExplorer,
   locators,
-  agHelper,
   propPane,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

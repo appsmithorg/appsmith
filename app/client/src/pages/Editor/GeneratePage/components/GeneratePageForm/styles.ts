@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import { getTypographyByKey } from "@appsmith/ads-old";
 
 export const SelectWrapper = styled.div<{ width: string }>`

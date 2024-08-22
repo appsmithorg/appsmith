@@ -1,30 +1,31 @@
-import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import {
-  createMessage,
-  ERROR_MESSAGE_CREATE_APPLICATION,
-} from "ee/constants/messages";
-import type {
-  AppEmbedSetting,
-  PageDefaultMeta,
-  UpdateApplicationRequest,
-} from "ee/api/ApplicationApi";
-import type { CreateApplicationFormValues } from "pages/Applications/helpers";
-import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
-import type { IconNames } from "@appsmith/ads";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import {
   defaultNavigationSetting,
   defaultThemeSetting,
 } from "constants/AppConstants";
+import type {
+  AppEmbedSetting,
+  PageDefaultMeta,
+  UpdateApplicationRequest,
+} from "ee/api/ApplicationApi";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import {
+  ERROR_MESSAGE_CREATE_APPLICATION,
+  createMessage,
+} from "ee/constants/messages";
+import type { ApplicationPayload } from "entities/Application";
 import produce from "immer";
 import { isEmpty } from "lodash";
-import type { ApplicationPayload } from "entities/Application";
+import type { CreateApplicationFormValues } from "pages/Applications/helpers";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import { createReducer } from "utils/ReducerUtils";
+
+import type { IconNames } from "@appsmith/ads";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,

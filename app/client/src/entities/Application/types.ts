@@ -1,13 +1,13 @@
-import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { ApplicationVersion } from "ee/actions/applicationActions";
-import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { EvaluationVersion } from "constants/EvalConstants";
+import type { ApplicationVersion } from "ee/actions/applicationActions";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
 } from "ee/api/ApplicationApi";
+import type { LayoutSystemTypeConfig } from "layoutSystems/types";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export interface ApplicationPayload {
   id: string;

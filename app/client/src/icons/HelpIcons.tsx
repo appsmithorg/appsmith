@@ -1,8 +1,10 @@
 import type { JSXElementConstructor } from "react";
 import React from "react";
+
+import { Icon } from "@blueprintjs/core";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import { Icon } from "@blueprintjs/core";
+
 import { importRemixIcon, importSvg } from "@appsmith/ads-old";
 
 const UpdatesIcon = importSvg(

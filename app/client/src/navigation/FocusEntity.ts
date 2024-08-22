@@ -1,12 +1,12 @@
-import type { match } from "react-router";
-import { matchPath } from "react-router";
-import { ADD_PATH } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { ADD_PATH } from "constants/routes";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import type { IDEType } from "ee/entities/IDE/constants";
 import { EditorState, EntityPaths } from "ee/entities/IDE/constants";
 import { getBaseUrlsForIDEType, getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { memoize } from "lodash";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import type { match } from "react-router";
+import { matchPath } from "react-router";
 
 export enum FocusEntity {
   API = "API",

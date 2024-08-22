@@ -1,28 +1,30 @@
 import React from "react";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { createMessage, NO_USERS_INVITED } from "ee/constants/messages";
-import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
-import { Avatar, Icon, Spinner, Text, Tooltip } from "@appsmith/ads";
-import { getInitialsFromName } from "utils/AppsmithUtils";
-import ManageUsers from "pages/workspace/ManageUsers";
+
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { importSvg } from "@appsmith/ads-old";
+import { NO_USERS_INVITED, createMessage } from "ee/constants/messages";
 import type { WorkspaceUserRoles } from "ee/constants/workspaceConstants";
-import InviteUsersForm from "ee/pages/workspace/InviteUsersForm";
 import { ENTITY_TYPE } from "ee/constants/workspaceConstants";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import InviteUsersForm from "ee/pages/workspace/InviteUsersForm";
+import type { AppState } from "ee/reducers";
 import {
   getAllAppUsers,
   getApplicationLoadingStates,
 } from "ee/selectors/applicationSelectors";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   getAllUsersOfWorkspace,
   selectedWorkspaceLoadingStates,
 } from "ee/selectors/selectedWorkspaceSelectors";
-import type { AppState } from "ee/reducers";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
+import ManageUsers from "pages/workspace/ManageUsers";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { getInitialsFromName } from "utils/AppsmithUtils";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Avatar, Icon, Spinner, Text, Tooltip } from "@appsmith/ads";
+import { importSvg } from "@appsmith/ads-old";
 
 const NoEmailConfigImage = importSvg(
   async () => import("assets/images/email-not-configured.svg"),

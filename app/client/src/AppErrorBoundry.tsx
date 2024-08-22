@@ -1,9 +1,11 @@
 import React, { Component } from "react";
-import styled from "styled-components";
-import AppCrashImage from "assets/images/404-image.png";
+
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
+import AppCrashImage from "assets/images/404-image.png";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import log from "loglevel";
+import styled from "styled-components";
+
 import { Button } from "@appsmith/ads";
 
 const Wrapper = styled.div`

@@ -1,37 +1,39 @@
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { sortBy } from "lodash";
+
 import {
   Alignment,
+  Classes as CoreClass,
   Icon,
   Menu,
   MenuItem,
-  Classes as CoreClass,
   Spinner,
 } from "@blueprintjs/core";
-import { Classes, Popover2 } from "@blueprintjs/popover2";
 import type { IconName } from "@blueprintjs/icons";
-import tinycolor from "tinycolor2";
-import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
+import type { ThemeProp } from "WidgetProvider/constants";
 import type {
+  ButtonPlacement,
   ButtonStyleType,
   ButtonVariant,
-  ButtonPlacement,
 } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
+import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
+import { sortBy } from "lodash";
 import styled, { createGlobalStyle } from "styled-components";
+import tinycolor from "tinycolor2";
+import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import {
+  getComplementaryGrayscaleColor,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomJustifyContent,
-  getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
-import type { RenderMode } from "constants/WidgetConstants";
-import { RenderModes } from "constants/WidgetConstants";
-import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
+
 import { buttonHoverActiveStyles } from "../../ButtonWidget/component/utils";
-import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import type { ThemeProp } from "WidgetProvider/constants";
 
 // Utility functions
 interface ButtonData {

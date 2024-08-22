@@ -1,33 +1,32 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-import script from "!!raw-loader!./customWidgetscript.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
-
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import script from "!!raw-loader!./customWidgetscript.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
-import type { AppThemeProperties } from "entities/AppTheming";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
-import { connect } from "react-redux";
+import { GridDefaults } from "constants/WidgetConstants";
+import { getAppsmithConfigs } from "ee/configs";
 import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { AppThemeProperties } from "entities/AppTheming";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { connect } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { EVENTS } from "./customWidgetscript";
+import styled from "styled-components";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { getAppsmithConfigs } from "ee/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
-import { GridDefaults } from "constants/WidgetConstants";
-import { LayoutSystemTypes } from "layoutSystems/types";
+
+import { EVENTS } from "./customWidgetscript";
 
 const StyledIframe = styled.iframe<{
   componentWidth: number;

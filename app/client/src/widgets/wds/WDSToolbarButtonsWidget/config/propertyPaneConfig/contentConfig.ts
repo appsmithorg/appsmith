@@ -1,8 +1,8 @@
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
 } from "ee/constants/messages";
-import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneContentConfig = [
   {

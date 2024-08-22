@@ -1,12 +1,15 @@
 import React from "react";
+
 import type {
   NavigationSetting,
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
-import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
-import { Switch } from "@appsmith/ads";
-import type { UpdateSetting } from ".";
 import kebabCase from "lodash/kebabCase";
+
+import { Switch } from "@appsmith/ads";
+
+import type { UpdateSetting } from ".";
+import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
 import { logEvent } from "./utils";
 
 const SwitchSetting = (props: {

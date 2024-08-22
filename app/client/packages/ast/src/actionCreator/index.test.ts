@@ -1,16 +1,16 @@
 import {
-  getFuncExpressionAtPosition,
-  setCallbackFunctionField,
+  canTranslateToUI,
   getActionBlocks,
+  getEnumArgumentAtPosition,
+  getFuncExpressionAtPosition,
   getFunctionBodyStatements,
   getFunctionName,
   getMainAction,
   getThenCatchBlocksFromQuery,
-  setThenBlockInQuery,
+  setCallbackFunctionField,
   setCatchBlockInQuery,
   setTextArgumentAtPosition,
-  getEnumArgumentAtPosition,
-  canTranslateToUI,
+  setThenBlockInQuery,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {

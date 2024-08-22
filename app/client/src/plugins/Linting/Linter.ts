@@ -1,4 +1,5 @@
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
+
 import type { ILinter } from "./linters";
 import { WorkerLinter } from "./linters";
 import type { LintTreeRequestPayload, updateJSLibraryProps } from "./types";

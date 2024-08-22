@@ -1,5 +1,7 @@
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
+
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(

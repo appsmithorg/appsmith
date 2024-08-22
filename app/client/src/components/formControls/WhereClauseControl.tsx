@@ -1,14 +1,17 @@
 import React, { useEffect, useRef } from "react";
-import FormControl from "pages/Editor/FormControl";
-import styled from "styled-components";
-import { FieldArray, getFormValues } from "redux-form";
-import type { ControlProps } from "./BaseControl";
-import _ from "lodash";
-import { useSelector } from "react-redux";
+
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
-import { WhereClauseSubComponent } from "./utils";
+import _ from "lodash";
+import FormControl from "pages/Editor/FormControl";
+import { useSelector } from "react-redux";
+import { FieldArray, getFormValues } from "redux-form";
+import styled from "styled-components";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
+
 import { Button, Tooltip } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import { WhereClauseSubComponent } from "./utils";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value

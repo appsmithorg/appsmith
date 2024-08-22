@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
+
+import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
+import { BackButton } from "components/utils/helperComponents";
+import { GIT_PROFILE_ROUTE } from "constants/routes";
 import PageWrapper from "pages/common/PageWrapper";
+import { useDispatch } from "react-redux";
+import { useLocation } from "react-router";
 import styled from "styled-components";
-import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
+
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
+
 import General from "./General";
 import GitConfig from "./GitConfig";
-import { useLocation } from "react-router";
-import { GIT_PROFILE_ROUTE } from "constants/routes";
-import { BackButton } from "components/utils/helperComponents";
-import { useDispatch } from "react-redux";
-import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 
 const ProfileWrapper = styled.div`
   width: 978px;

@@ -1,17 +1,18 @@
 import React, { useState } from "react";
+
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { kebabCase } from "lodash";
+import type { noop } from "lodash";
 
 import {
   MenuItem,
-  MenuSub,
-  MenuSubTrigger,
-  MenuSubContent,
   MenuSeparator,
+  MenuSub,
+  MenuSubContent,
+  MenuSubTrigger,
 } from "@appsmith/ads";
-import type { noop } from "lodash";
-
 import type { CommonComponentProps } from "@appsmith/ads-old";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { MenuTypes } from "./types";
 
 export interface MenuItemData {

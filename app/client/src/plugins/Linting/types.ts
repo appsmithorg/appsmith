@@ -4,12 +4,12 @@ import type {
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
-import type {
-  createEvaluationContext,
-  EvaluationScriptType,
-} from "workers/Evaluation/evaluate";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
+import type {
+  EvaluationScriptType,
+  createEvaluationContext,
+} from "workers/Evaluation/evaluate";
 import type { JSLibrary } from "workers/common/JSLibrary";
 
 export enum LINT_WORKER_ACTIONS {

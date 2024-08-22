@@ -1,23 +1,24 @@
+import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import WidgetFactory from "WidgetProvider/factory";
+import { RenderModes } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import type {
+  ActionEntity,
+  ActionEntityConfig,
   WidgetEntity,
   WidgetEntityConfig,
-  ActionEntityConfig,
-  ActionEntity,
 } from "ee/entities/DataTree/types";
-import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
+import { PluginType } from "entities/Action";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
-import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
-import { RenderModes } from "constants/WidgetConstants";
-import { PluginType } from "entities/Action";
-import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { ValidationTypes } from "constants/WidgetValidation";
-import WidgetFactory from "WidgetProvider/factory";
+import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import { sortObjectWithArray } from "../../../utils/treeUtils";
 import klona from "klona";
+import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
+
+import { sortObjectWithArray } from "../../../utils/treeUtils";
 
 const klonaFullSpy = jest.fn();
 jest.mock("klona/full", () => ({

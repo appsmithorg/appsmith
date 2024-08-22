@@ -1,10 +1,11 @@
 import React, { forwardRef, useState } from "react";
+
 import clsx from "classnames";
 
-import type { ToggleButtonProps } from "./ToggleButton.types";
-import { StyledToggleButton } from "./ToggleButton.styles";
-import { ToggleClassName, ToggleIconClassName } from "./ToggleButton.constants";
 import { Icon } from "../Icon";
+import { ToggleClassName, ToggleIconClassName } from "./ToggleButton.constants";
+import { StyledToggleButton } from "./ToggleButton.styles";
+import type { ToggleButtonProps } from "./ToggleButton.types";
 
 const ToggleButton = forwardRef<HTMLButtonElement, ToggleButtonProps>(
   (props, ref) => {

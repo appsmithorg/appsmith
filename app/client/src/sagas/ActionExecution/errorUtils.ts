@@ -1,19 +1,19 @@
-import {
-  createMessage,
-  TRIGGER_ACTION_VALIDATION_ERROR,
-} from "ee/constants/messages";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import type { ApiResponse } from "api/ApiResponses";
-import { isString } from "lodash";
-import type { Types } from "utils/TypeHelpers";
-import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns/index";
-import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns/index";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import {
+  TRIGGER_ACTION_VALIDATION_ERROR,
+  createMessage,
+} from "ee/constants/messages";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import store from "store";
-import showToast from "sagas/ToastSagas";
+import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns/index";
+import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns/index";
+import { isString } from "lodash";
 import { call } from "redux-saga/effects";
+import showToast from "sagas/ToastSagas";
+import store from "store";
+import type { Types } from "utils/TypeHelpers";
 
 /*
  * The base trigger error that also logs the errors in the debugger.

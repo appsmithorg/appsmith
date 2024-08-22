@@ -1,12 +1,14 @@
 import React, { useMemo } from "react";
-import type { AnvilFlexComponentProps } from "../utils/types";
-import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
-import { widgetTypeClassname } from "widgets/WidgetUtils";
+
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
-import { useAnvilWidgetStyles } from "./hooks/useAnvilWidgetStyles";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
+
+import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
+import type { AnvilFlexComponentProps } from "../utils/types";
 import { useAnvilWidgetClick } from "./hooks/useAnvilWidgetClick";
 import { useAnvilWidgetDrag } from "./hooks/useAnvilWidgetDrag";
 import { useAnvilWidgetHover } from "./hooks/useAnvilWidgetHover";
+import { useAnvilWidgetStyles } from "./hooks/useAnvilWidgetStyles";
 import styles from "./styles.module.css";
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {

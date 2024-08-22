@@ -1,8 +1,11 @@
 import React from "react";
-import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
+
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import DropdownWrapper from "./DropdownWrapper";
+
 import type { SelectOptionProps } from "@appsmith/ads";
+
+import DropdownWrapper from "./DropdownWrapper";
 
 const renderComponent = (
   componentProps: SelectFieldProps & {

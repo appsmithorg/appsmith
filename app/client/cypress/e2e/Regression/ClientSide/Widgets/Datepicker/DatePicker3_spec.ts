@@ -1,3 +1,6 @@
+import { format } from "date-fns";
+
+import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
   dataSources,
@@ -7,9 +10,6 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import { format } from "date-fns";
-import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import React, { useContext } from "react";
-import styled from "styled-components";
 
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
+import styled from "styled-components";
 
 interface Props {
   children: ReactNode;

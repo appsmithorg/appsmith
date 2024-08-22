@@ -1,37 +1,38 @@
-import { call, delay, put, select } from "redux-saga/effects";
-import { getWidgetByID } from "sagas/selectors";
-import type { WidgetProps } from "widgets/BaseWidget";
-import PaneNavigation from "../PaneNavigation";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getPropertyControlFocusElement } from "utils/editorContextUtils";
-import type {
-  EntityInfo,
-  IPanelStack,
-  PropertyPaneNavigationConfig,
-} from "../types";
 import WidgetFactory from "WidgetProvider/factory";
-import {
-  getPropertyPanePanelNavigationConfig,
-  getSectionId,
-  getSelectedTabIndex,
-} from "./utils";
+import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
 import {
   setPropertySectionState,
   setSelectedPropertyPanel,
   unsetSelectedPropertyPanel,
 } from "actions/propertyPaneActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { evaluateHiddenProperty } from "pages/Editor/PropertyPane/helpers";
+import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
+import { call, delay, put, select } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidgetByID } from "sagas/selectors";
 import {
   getSelectedPropertyPanel,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
-import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { NAVIGATION_DELAY } from "../costants";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
-import { evaluateHiddenProperty } from "pages/Editor/PropertyPane/helpers";
+import { getPropertyControlFocusElement } from "utils/editorContextUtils";
 import { NavigationMethod } from "utils/history";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import PaneNavigation from "../PaneNavigation";
+import { NAVIGATION_DELAY } from "../costants";
+import type {
+  EntityInfo,
+  IPanelStack,
+  PropertyPaneNavigationConfig,
+} from "../types";
+import {
+  getPropertyPanePanelNavigationConfig,
+  getSectionId,
+  getSelectedTabIndex,
+} from "./utils";
 
 export default class PropertyPaneNavigation extends PaneNavigation {
   widget!: WidgetProps;

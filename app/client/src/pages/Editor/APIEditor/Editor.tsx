@@ -1,40 +1,42 @@
 import React from "react";
-import { connect } from "react-redux";
-import { submit } from "redux-form";
-import RestApiEditorForm from "./RestAPIForm";
+
+import * as Sentry from "@sentry/react";
+import { changeApi } from "actions/apiPaneActions";
+import type { Plugin } from "api/PluginApi";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import Spinner from "components/editorComponents/Spinner";
+import type { APIEditorRouteParams } from "constants/routes";
+import { saasEditorApiIdURL } from "ee/RouteBuilder";
 import type { AppState } from "ee/reducers";
-import type { RouteComponentProps } from "react-router";
 import type {
   ActionData,
   ActionDataState,
 } from "ee/reducers/entityReducers/actionsReducer";
-import _ from "lodash";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageName,
-} from "selectors/editorSelectors";
-import type { Plugin } from "api/PluginApi";
-import type { Action, PaginationType } from "entities/Action";
-import { PluginPackageName } from "entities/Action";
-import Spinner from "components/editorComponents/Spinner";
-import type { CSSProperties } from "styled-components";
-import styled from "styled-components";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { changeApi } from "actions/apiPaneActions";
-import * as Sentry from "@sentry/react";
-import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import type { ApplicationPayload } from "entities/Application";
 import {
   getActionByBaseId,
   getPageList,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
+import type { Action, PaginationType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
+import type { ApplicationPayload } from "entities/Application";
+import _ from "lodash";
+import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
+import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { submit } from "redux-form";
+import {
+  getCurrentApplicationId,
+  getCurrentPageName,
+} from "selectors/editorSelectors";
+import type { CSSProperties } from "styled-components";
+import styled from "styled-components";
 import history from "utils/history";
-import { saasEditorApiIdURL } from "ee/RouteBuilder";
-import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
-import type { APIEditorRouteParams } from "constants/routes";
+
 import { ApiEditorContext } from "./ApiEditorContext";
+import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
+import RestApiEditorForm from "./RestAPIForm";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;

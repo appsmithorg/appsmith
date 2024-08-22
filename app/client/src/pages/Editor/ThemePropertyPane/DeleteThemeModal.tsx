@@ -1,18 +1,19 @@
 import React from "react";
 
 import {
-  createMessage,
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
+  createMessage,
 } from "ee/constants/messages";
+
 import {
   Button,
   Modal,
-  ModalHeader,
+  ModalBody,
   ModalContent,
   ModalFooter,
+  ModalHeader,
   Text,
-  ModalBody,
 } from "@appsmith/ads";
 
 interface DeleteThemeModalProps {

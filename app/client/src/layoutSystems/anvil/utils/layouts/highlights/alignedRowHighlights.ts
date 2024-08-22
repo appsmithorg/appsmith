@@ -1,7 +1,12 @@
+import type {
+  LayoutElementPosition,
+  LayoutElementPositions,
+} from "layoutSystems/common/types";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
@@ -11,6 +16,8 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE } from "../../constants";
+import { getAlignmentLayoutId } from "../layoutUtils";
+import { getRelativeDimensions } from "./dimensionUtils";
 import {
   getNonDraggedWidgets,
   getStartPosition,
@@ -22,12 +29,6 @@ import {
   extractMetaInformation,
   getHighlightsForWidgetsRow,
 } from "./rowHighlights";
-import { getAlignmentLayoutId } from "../layoutUtils";
-import { getRelativeDimensions } from "./dimensionUtils";
-import type {
-  LayoutElementPosition,
-  LayoutElementPositions,
-} from "layoutSystems/common/types";
 
 export const deriveAlignedRowHighlights =
   (layoutProps: LayoutProps, canvasId: string, layoutOrder: string[]) =>

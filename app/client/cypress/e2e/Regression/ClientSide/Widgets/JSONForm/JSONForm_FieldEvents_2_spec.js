@@ -1,18 +1,18 @@
 /**
  * Spec to test the events made available by each field type
  */
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  locators,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import {
-  agHelper,
-  deployMode,
-  entityExplorer,
-  propPane,
-  locators,
-} from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;

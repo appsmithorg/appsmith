@@ -1,11 +1,11 @@
-import { get, set, split, unset } from "lodash";
-import { klona } from "klona";
-
-import { createImmerReducer } from "utils/ReducerUtils";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { klona } from "klona";
+import { get, set, split, unset } from "lodash";
+import { createImmerReducer } from "utils/ReducerUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+
 import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer";
 
 export interface MetaWidgetsReduxState {

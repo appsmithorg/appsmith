@@ -1,23 +1,24 @@
 import type { ValidationConfig } from "constants/PropertyControlConstants";
-import { Severity } from "entities/AppsmithConsole";
+import type { ValidationResponse } from "constants/WidgetValidation";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import {
-  isPathDynamicTrigger,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
 import {
   addErrorToEntityProperty,
   getEntityNameAndPropertyPath,
   resetValidationErrorsForEntityProperty,
 } from "ee/workers/Evaluation/evaluationUtils";
+import { Severity } from "entities/AppsmithConsole";
+import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import {
+  PropertyEvaluationErrorType,
+  isPathDynamicTrigger,
+} from "utils/DynamicBindingUtils";
 import { validate } from "workers/Evaluation/validations";
+
 import type { EvalProps } from ".";
-import type { ValidationResponse } from "constants/WidgetValidation";
 
 export function validateAndParseWidgetProperty({
   configTree,

@@ -1,15 +1,15 @@
 import {
   agHelper,
-  locators,
-  entityItems,
   apiPage,
+  dataManager,
   dataSources,
   debuggerHelper,
-  dataManager,
-  propPane,
-  table,
   draggableWidgets,
   entityExplorer,
+  entityItems,
+  locators,
+  propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import {

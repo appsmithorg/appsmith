@@ -1,4 +1,7 @@
 import styled, { css } from "styled-components";
+
+import { iconSizes } from "../Icon";
+import { Text } from "../Text";
 import {
   InputEndIconClassName,
   InputEndIconDisabledClassName,
@@ -7,8 +10,6 @@ import {
   InputStartIconDisabledClassName,
 } from "./Input.constants";
 import type { InputSizes } from "./Input.types";
-import { Text } from "../Text";
-import { iconSizes } from "../Icon";
 
 const Variables = css`
   --input-color-border: var(--ads-v2-colors-control-field-default-border);

@@ -1,15 +1,14 @@
-import { ConfigFactory } from "pages/AdminSettings/config/ConfigFactory";
-
-import { config as GeneralConfig } from "ee/pages/AdminSettings/config/general";
-import { config as EmailConfig } from "pages/AdminSettings/config/email";
+import { config as UserListing } from "ee/pages/AdminSettings/config//userlisting";
 import { config as DeveloperSettings } from "ee/pages/AdminSettings/config/DeveloperSettings";
-import { config as VersionConfig } from "pages/AdminSettings/config/version";
-import { config as AdvancedConfig } from "pages/AdminSettings/config/advanced";
+import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlogs";
 import { config as Authentication } from "ee/pages/AdminSettings/config/authentication";
 import { config as BrandingConfig } from "ee/pages/AdminSettings/config/branding";
+import { config as GeneralConfig } from "ee/pages/AdminSettings/config/general";
 import { config as ProvisioningConfig } from "ee/pages/AdminSettings/config/provisioning";
-import { config as UserListing } from "ee/pages/AdminSettings/config//userlisting";
-import { config as AuditLogsConfig } from "ee/pages/AdminSettings/config/auditlogs";
+import { ConfigFactory } from "pages/AdminSettings/config/ConfigFactory";
+import { config as AdvancedConfig } from "pages/AdminSettings/config/advanced";
+import { config as EmailConfig } from "pages/AdminSettings/config/email";
+import { config as VersionConfig } from "pages/AdminSettings/config/version";
 
 ConfigFactory.register(GeneralConfig);
 ConfigFactory.register(EmailConfig);

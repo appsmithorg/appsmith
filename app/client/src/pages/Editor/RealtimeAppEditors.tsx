@@ -1,18 +1,20 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
-import { getTypographyByKey } from "@appsmith/ads-old";
-import ProfileImage from "pages/common/ProfileImage";
-import UserApi from "ee/api/UserApi";
-import styled from "styled-components";
+
 import {
+  collabResetAppEditors,
   collabStartEditingAppEvent,
   collabStopEditingAppEvent,
-  collabResetAppEditors,
 } from "actions/appCollabActions";
+import UserApi from "ee/api/UserApi";
+import ProfileImage from "pages/common/ProfileImage";
+import { useDispatch, useSelector } from "react-redux";
+import { getRealtimeAppEditors } from "selectors/appCollabSelectors";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
+import styled from "styled-components";
+
 import { Tooltip } from "@appsmith/ads";
+import { getTypographyByKey } from "@appsmith/ads-old";
 
 const UserImageContainer = styled.div`
   display: flex;

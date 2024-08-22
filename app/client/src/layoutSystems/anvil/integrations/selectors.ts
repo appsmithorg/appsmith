@@ -1,10 +1,11 @@
-import type { AppState } from "ee/reducers";
-import { LayoutComponentTypes, type LayoutProps } from "../utils/anvilTypes";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { createSelector } from "reselect";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+
+import { LayoutComponentTypes, type LayoutProps } from "../utils/anvilTypes";
 
 export const getIsAnvilLayoutEnabled = (state: AppState) => {
   return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);

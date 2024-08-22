@@ -1,13 +1,14 @@
 import React from "react";
-import { render } from "@testing-library/react";
-import ConnectionSuccess from "../ConnectionSuccess";
 
-import configureStore from "redux-mock-store";
-import { Provider } from "react-redux";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
-import { BrowserRouter } from "react-router-dom";
+import { render } from "@testing-library/react";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { Provider } from "react-redux";
+import { BrowserRouter } from "react-router-dom";
+import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import configureStore from "redux-mock-store";
+
+import ConnectionSuccess from "../ConnectionSuccess";
 
 const initialState = {
   ui: {

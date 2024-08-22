@@ -1,10 +1,10 @@
 import {
   agHelper,
+  deployMode,
   draggableWidgets,
   entityExplorer,
-  deployMode,
-  propPane,
   locators,
+  propPane,
   widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {

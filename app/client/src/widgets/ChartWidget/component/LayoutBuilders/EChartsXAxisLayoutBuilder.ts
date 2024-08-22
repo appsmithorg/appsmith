@@ -3,6 +3,7 @@ import type {
   ChartType,
   LongestLabelParams,
 } from "widgets/ChartWidget/constants";
+
 import { getTextWidth, labelKeyForChart } from "../helpers";
 
 interface XAxisLayoutBuilderParams {

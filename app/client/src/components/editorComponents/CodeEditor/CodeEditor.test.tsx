@@ -1,18 +1,19 @@
-import CodeEditor from "./index";
-import store from "store";
-import TestRenderer from "react-test-renderer";
 import React from "react";
-import { Provider } from "react-redux";
 
-import EvaluatedValuePopup from "./EvaluatedValuePopup";
+import { light, theme } from "constants/DefaultTheme";
+import { Provider } from "react-redux";
+import TestRenderer from "react-test-renderer";
+import store from "store";
 import { ThemeProvider } from "styled-components";
-import { theme, light } from "constants/DefaultTheme";
+
 import {
+  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
-  EditorModes,
 } from "./EditorConfig";
+import EvaluatedValuePopup from "./EvaluatedValuePopup";
+import CodeEditor from "./index";
 
 describe("CodeEditor", () => {
   it("should check EvaluatedValuePopup's hideEvaluatedValue  is false when hideEvaluatedValue is passed as false to codeditor", () => {

@@ -1,5 +1,6 @@
-import styled, { css } from "styled-components";
 import { Link as RouterLink } from "react-router-dom";
+import styled, { css } from "styled-components";
+
 import { Icon } from "../Icon";
 import type { LinkKind } from "./Link.types";
 

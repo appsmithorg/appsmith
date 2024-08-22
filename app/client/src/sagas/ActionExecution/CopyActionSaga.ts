@@ -1,7 +1,7 @@
 import copy from "copy-to-clipboard";
-import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
-import { getType, Types } from "utils/TypeHelpers";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { Types, getType } from "utils/TypeHelpers";
 import type { TCopyToClipboardDescription } from "workers/Evaluation/fns/copyToClipboard";
 
 export default function copySaga(action: TCopyToClipboardDescription) {

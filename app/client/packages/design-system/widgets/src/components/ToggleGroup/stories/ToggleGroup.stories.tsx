@@ -1,6 +1,8 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
-import { Checkbox, ToggleGroup, Flex, Switch } from "@appsmith/wds";
+
+import { Checkbox, Flex, Switch, ToggleGroup } from "@appsmith/wds";
 
 /**
  * Toggle Group is a group of Checkboxes or Switches that can be selected together.

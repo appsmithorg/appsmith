@@ -1,3 +1,4 @@
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   CLOSE,
   CONVERSION_ERROR,
@@ -8,19 +9,18 @@ import {
   CONVERSION_ERROR_TEXT,
   CONVERSION_SUCCESS_HEADER,
   CONVERSION_SUCCESS_TEXT,
-  createMessage,
   MORE_DETAILS,
   REFRESH_THE_APP,
   SEND_REPORT,
+  createMessage,
 } from "ee/constants/messages";
-import type { ConversionProps } from "../ConversionForm";
-
-import type { Dispatch } from "redux";
 import {
   AlertType,
   CONVERSION_STATES,
 } from "reducers/uiReducers/layoutConversionReducer";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Dispatch } from "redux";
+
+import type { ConversionProps } from "../ConversionForm";
 
 //returns props for common conversion flows based on which the Conversion Form can be rendered
 export const commonConversionFlows = (

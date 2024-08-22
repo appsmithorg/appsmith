@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { isString } from "lodash";
+
 import type { DSLWidget } from "../types";
 import { DATA_BIND_REGEX_GLOBAL } from "../utils";
 

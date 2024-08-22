@@ -1,3 +1,4 @@
+import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -7,7 +8,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Binding the multiple input Widget",

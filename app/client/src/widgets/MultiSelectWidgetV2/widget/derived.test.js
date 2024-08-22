@@ -1,4 +1,5 @@
 import _ from "lodash";
+
 import derivedProperty from "./derived";
 
 describe("Derived property - MultiSelect Widget", () => {

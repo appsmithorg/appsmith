@@ -1,12 +1,14 @@
-import type { AppState } from "ee/reducers";
+import React, { useEffect } from "react";
+
 import * as Sentry from "@sentry/react";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { getAllTemplates, getTemplateFilters } from "actions/templateActions";
 import { setHeaderMeta } from "actions/themeActions";
-import { Text } from "@appsmith/ads";
+import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
+import type { AppState } from "ee/reducers";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { isEmpty } from "lodash";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import {
@@ -16,11 +18,11 @@ import {
 import styled from "styled-components";
 import { editorInitializer } from "utils/editor/EditorUtils";
 
-import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
-import TemplateFilters from "./TemplateFilters";
+import { Text } from "@appsmith/ads";
+
 import { TemplateContent } from "./TemplateContent";
+import TemplateFilters from "./TemplateFilters";
 import TemplateView from "./TemplateView";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 

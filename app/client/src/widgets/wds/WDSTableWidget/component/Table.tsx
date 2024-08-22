@@ -1,31 +1,33 @@
 import React, { useCallback, useMemo } from "react";
+
+import { Classes } from "@blueprintjs/core";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
 import { reduce } from "lodash";
 import type { Row as ReactTableRowType } from "react-table";
 import {
-  useTable,
-  usePagination,
   useBlockLayout,
+  usePagination,
   useResizeColumns,
   useRowSelect,
+  useTable,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import { TableHeader } from "./TableHeader";
-import { Classes } from "@blueprintjs/core";
+import "simplebar-react/dist/simplebar.min.css";
+import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
+
+import type { EditableCell, TableVariant } from "../constants";
+import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
 import type {
+  AddNewRowActions,
+  CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
-  CompactMode,
-  AddNewRowActions,
   StickyType,
 } from "./Constants";
-import { TABLE_SIZES, CompactModeTypes } from "./Constants";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { EditableCell, TableVariant } from "../constants";
-import "simplebar-react/dist/simplebar.min.css";
+import { CompactModeTypes, TABLE_SIZES } from "./Constants";
 import StaticTable from "./StaticTable";
-import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
-import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
-import { createMessage, CONNECT_BUTTON_TEXT } from "ee/constants/messages";
+import { TableHeader } from "./TableHeader";
 import styles from "./styles.module.css";
 
 export interface TableProps {

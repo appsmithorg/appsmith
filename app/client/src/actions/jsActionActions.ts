@@ -1,13 +1,13 @@
+import type { ApiResponse } from "api/ApiResponses";
+import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
 import {
   type EvaluationReduxAction,
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import type { JSCollection } from "entities/JSCollection";
-import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
-import type { ApiResponse } from "api/ApiResponses";
+import type { JSCollection } from "entities/JSCollection";
 
 export interface FetchJSCollectionsPayload {
   applicationId: string;

@@ -1,12 +1,11 @@
-import { createSelector } from "reselect";
-import { get, set } from "lodash";
 import type { AppState } from "ee/reducers";
-
+import { get, set } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { createSelector } from "reselect";
 import {
+  WidgetEnhancementType,
   getParentWithEnhancementFn,
   getWidgetEnhancementFn,
-  WidgetEnhancementType,
 } from "sagas/WidgetEnhancementHelpers";
 import { getWidgets } from "sagas/selectors";
 

@@ -1,12 +1,15 @@
 import type { Ref } from "react";
 import React, { useCallback } from "react";
+
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
+
+import { importSvg } from "@appsmith/ads-old";
+
 import type { BaseCellComponentProps } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
-import { importSvg } from "@appsmith/ads-old";
 
 const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),

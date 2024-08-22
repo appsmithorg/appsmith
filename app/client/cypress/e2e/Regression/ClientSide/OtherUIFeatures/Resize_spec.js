@@ -1,5 +1,6 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Canvas Resize", function () {
   before(() => {

@@ -1,5 +1,6 @@
-import type { RadioGroupProps } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
+
+import type { RadioGroupProps } from "@appsmith/wds";
 
 export interface RadioGroupWidgetProps extends WidgetProps {
   options: RadioGroupProps["items"];

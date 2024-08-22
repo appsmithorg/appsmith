@@ -1,12 +1,13 @@
 import type CodeMirror from "codemirror";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { WidgetEntity, ActionEntity } from "ee/entities/DataTree/types";
-import { trim } from "lodash";
-import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
-import { EditorSize } from "./EditorConfig";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import store from "store";
+import type { ActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { trim } from "lodash";
+import store from "store";
+import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
+
+import { EditorSize } from "./EditorConfig";
 import { SlashCommandMenuOnFocusWidgetProps } from "./constants";
 
 // TODO: Fix this the next time the file is edited

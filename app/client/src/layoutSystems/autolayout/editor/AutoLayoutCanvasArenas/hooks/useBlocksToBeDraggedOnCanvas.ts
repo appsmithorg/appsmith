@@ -1,35 +1,37 @@
+import { useContext, useEffect, useRef } from "react";
+
+import type { WidgetSpace } from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { AppState } from "ee/reducers";
-import { getSelectedWidgets } from "selectors/ui";
-import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
-import type { WidgetSpace } from "constants/CanvasEditorConstants";
-import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
-import { widgetOperationParams } from "utils/WidgetPropsUtils";
-import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
-import equal from "fast-deep-equal/es6";
-import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { useContext, useEffect, useRef } from "react";
-import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
-import type { HighlightInfo } from "layoutSystems/common/utils/types";
-import {
-  LayoutDirection,
-  AlignItems,
-} from "layoutSystems/common/utils/constants";
+import type { AppState } from "ee/reducers";
+import equal from "fast-deep-equal/es6";
+import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import {
   getBlocksToDraw,
-  getParentDiff,
-  getRelativeStartPoints,
   getBoundUpdateRelativeRowsMethod,
   getDragCenterSpace,
+  getParentDiff,
+  getRelativeStartPoints,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
-import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import {
+  AlignItems,
+  LayoutDirection,
+} from "layoutSystems/common/utils/constants";
+import type { HighlightInfo } from "layoutSystems/common/utils/types";
+import { useDispatch, useSelector } from "react-redux";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
+import { getSelectedWidgets } from "selectors/ui";
+import { widgetOperationParams } from "utils/WidgetPropsUtils";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+
+import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,

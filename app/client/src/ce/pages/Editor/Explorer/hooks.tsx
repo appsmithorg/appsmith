@@ -1,26 +1,27 @@
 import { useEffect, useMemo } from "react";
-import { useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { compact, get, groupBy } from "lodash";
-import type { Datasource } from "entities/Datasource";
-import { isStoredDatasource } from "entities/Action";
-import type { WidgetProps } from "widgets/BaseWidget";
-import log from "loglevel";
-import produce from "immer";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getActions, getDatasources } from "ee/selectors/entitiesSelector";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import { matchPath, useLocation } from "react-router";
+
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import {
   API_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
-import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { basePathForActiveAction } from "ee/constants/routes/appRoutes";
 import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
-import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
+import { basePathForActiveAction } from "ee/constants/routes/appRoutes";
+import type { AppState } from "ee/reducers";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import { getActions, getDatasources } from "ee/selectors/entitiesSelector";
+import { isStoredDatasource } from "entities/Action";
+import type { Datasource } from "entities/Datasource";
+import produce from "immer";
+import { compact, get, groupBy } from "lodash";
+import log from "loglevel";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import { useSelector } from "react-redux";
+import { matchPath, useLocation } from "react-router";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface UseConvertToModulesOptionsProps {
   id: string;

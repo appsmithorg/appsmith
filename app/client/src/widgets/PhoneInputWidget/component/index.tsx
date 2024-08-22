@@ -1,12 +1,14 @@
 import React from "react";
+
+import type { CountryCode } from "libphonenumber-js";
+import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
+import BaseInputComponent from "widgets/BaseInputWidget/component";
+import { InputTypes } from "widgets/BaseInputWidget/constants";
+
 import ISDCodeDropdown, {
   ISDCodeDropdownOptions,
   getSelectedISDCode,
 } from "./ISDCodeDropdown";
-import type { BaseInputComponentProps } from "widgets/BaseInputWidget/component";
-import BaseInputComponent from "widgets/BaseInputWidget/component";
-import type { CountryCode } from "libphonenumber-js";
-import { InputTypes } from "widgets/BaseInputWidget/constants";
 
 class PhoneInputComponent extends React.PureComponent<PhoneInputComponentProps> {
   onTextChange = (

@@ -1,7 +1,8 @@
+import { isNil, isPlainObject, isString } from "lodash";
+import moment from "moment";
+
 import type { TableColumnProps } from "./Constants";
 import { ColumnTypes } from "./Constants";
-import { isPlainObject, isNil, isString } from "lodash";
-import moment from "moment";
 
 export function sortTableFunction(
   filteredTableData: Array<Record<string, unknown>>,

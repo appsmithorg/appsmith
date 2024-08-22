@@ -1,13 +1,14 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { get } from "lodash";
+import { TableSelectColumnOptionKeys } from "widgets/TableWidgetV2/component/Constants";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+
 import {
   getBasePropertyPath,
   hideByColumnType,
   selectColumnOptionsValidation,
 } from "../../propertyUtils";
-import { TableSelectColumnOptionKeys } from "widgets/TableWidgetV2/component/Constants";
 
 export default {
   sectionName: "Select properties",

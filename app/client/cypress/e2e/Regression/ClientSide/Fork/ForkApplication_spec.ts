@@ -1,20 +1,20 @@
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import applicationLocators from "../../../../locators/Applications.json";
-import signupPageLocators from "../../../../locators/SignupPage.json";
+import homepagelocators from "../../../../locators/HomePage";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
-import homepagelocators from "../../../../locators/HomePage";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import signupPageLocators from "../../../../locators/SignupPage.json";
 import {
+  adminSettings,
   agHelper,
   appSettings,
-  adminSettings,
   assertHelper,
+  dataSources,
   deployMode,
   embedSettings,
   fakerHelper,
   homePage,
   inviteModal,
-  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   AppSidebar,

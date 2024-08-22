@@ -1,7 +1,8 @@
+import type { RecaptchaType } from "components/constants";
+
+import type { ButtonComponentProps } from ".";
 import { RecaptchaV2 } from "./RecaptchaV2";
 import { RecaptchaV3 } from "./RecaptchaV3";
-import type { ButtonComponentProps } from ".";
-import type { RecaptchaType } from "components/constants";
 
 export interface UseRecaptchaProps {
   recaptchaKey?: string;

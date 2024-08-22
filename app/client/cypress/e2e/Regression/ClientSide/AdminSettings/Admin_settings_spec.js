@@ -1,7 +1,7 @@
 import adminsSettings from "../../../../locators/AdminsSettings";
 import {
-  agHelper,
   adminSettings as adminSettingsHelper,
+  agHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 const {

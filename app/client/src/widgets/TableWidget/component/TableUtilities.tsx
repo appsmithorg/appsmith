@@ -1,51 +1,50 @@
 import React, { useState } from "react";
+
 import type { Alignment } from "@blueprintjs/core";
-import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
-import {
-  CellWrapper,
-  CellCheckboxWrapper,
-  CellCheckbox,
-  ActionWrapper,
-  DraggableHeaderWrapper,
-  IconButtonWrapper,
-} from "./TableStyledWrappers";
-import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-
-import type {
-  ColumnProperties,
-  CellLayoutProperties,
-  TableStyles,
-  MenuItems,
-} from "./Constants";
-import {
-  ColumnTypes,
-  CellAlignmentTypes,
-  VerticalAlignmentTypes,
-} from "./Constants";
-import { isString, isEmpty, findIndex, isNil, isNaN, get, set } from "lodash";
-import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
-import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
-import { ControlIcons } from "icons/ControlIcons";
-
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import type { DropdownOption } from "widgets/DropdownWidget/constants";
+import { Button as BButton, Classes, MenuItem } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import type { IItemRendererProps } from "@blueprintjs/select";
 import { Select } from "@blueprintjs/select";
-import { FontStyleTypes } from "constants/WidgetConstants";
-import { noop } from "utils/AppsmithUtils";
-
 import type { ButtonVariant } from "components/constants";
-
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import { Colors } from "constants/Colors";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import { ControlIcons } from "icons/ControlIcons";
+import { findIndex, get, isEmpty, isNaN, isNil, isString, set } from "lodash";
+import styled from "styled-components";
+import tinycolor from "tinycolor2";
+import { noop } from "utils/AppsmithUtils";
+import { stopClickEventPropagation } from "utils/helpers";
+import type { DropdownOption } from "widgets/DropdownWidget/constants";
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";
-import MenuButtonTableComponent from "./components/menuButtonTableComponent";
-import { stopClickEventPropagation } from "utils/helpers";
-import tinycolor from "tinycolor2";
-import { generateTableColumnId } from "./TableHelpers";
+import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
+import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
+
 import { importSvg } from "@appsmith/ads-old";
+
+import type {
+  CellLayoutProperties,
+  ColumnProperties,
+  MenuItems,
+  TableStyles,
+} from "./Constants";
+import {
+  CellAlignmentTypes,
+  ColumnTypes,
+  VerticalAlignmentTypes,
+} from "./Constants";
+import { generateTableColumnId } from "./TableHelpers";
+import {
+  ActionWrapper,
+  CellCheckbox,
+  CellCheckboxWrapper,
+  CellWrapper,
+  DraggableHeaderWrapper,
+  IconButtonWrapper,
+} from "./TableStyledWrappers";
+import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 
 const CheckBoxLineIcon = importSvg(
   async () => import("assets/icons/widget/table/checkbox-line.svg"),

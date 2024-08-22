@@ -1,10 +1,13 @@
 import React, { createRef, useEffect, useState } from "react";
+
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
-import type { CellAlignment, VerticalAlignment } from "../Constants";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+
 import { importSvg } from "@appsmith/ads-old";
+
+import type { CellAlignment, VerticalAlignment } from "../Constants";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),

@@ -1,22 +1,21 @@
 import commonLocators from "../../../../../locators/commonlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
-
 import {
   agHelper,
-  entityExplorer,
-  jsEditor,
-  deployMode,
-  gitSync,
   apiPage,
   dataSources,
+  deployMode,
+  entityExplorer,
+  gitSync,
+  jsEditor,
 } from "../../../../../support/Objects/ObjectsCore";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
-import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch",

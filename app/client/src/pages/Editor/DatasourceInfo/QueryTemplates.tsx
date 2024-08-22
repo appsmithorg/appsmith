@@ -1,37 +1,38 @@
 import React, { useCallback, useContext } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
 import { createActionRequest } from "actions/pluginActionActions";
-import type { AppState } from "ee/reducers";
-import {
-  getCurrentApplicationId,
-  getCurrentBasePageId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import type { QueryAction } from "entities/Action";
-import history from "utils/history";
-import type { Datasource, QueryTemplate } from "entities/Datasource";
-import type { DatasourceStructureContext } from "entities/Datasource";
+import type { Plugin } from "api/PluginApi";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { INTEGRATION_TABS } from "constants/routes";
+import { diff } from "deep-diff";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
+import { SUGGESTED_TAG, createMessage } from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import {
   getAction,
   getDatasource,
   getPlugin,
 } from "ee/selectors/entitiesSelector";
-import { integrationEditorURL } from "ee/RouteBuilder";
-import { MenuItem, Tag } from "@appsmith/ads";
-import type { Plugin } from "api/PluginApi";
-
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { setFeatureWalkthroughShown } from "utils/storage";
-import styled from "styled-components";
-import { change, getFormValues } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
-import { diff } from "deep-diff";
-import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { SUGGESTED_TAG, createMessage } from "ee/constants/messages";
+import type { QueryAction } from "entities/Action";
+import type { Datasource, QueryTemplate } from "entities/Datasource";
+import type { DatasourceStructureContext } from "entities/Datasource";
 import { transformTextToSentenceCase } from "pages/Editor/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { change, getFormValues } from "redux-form";
+import {
+  getCurrentApplicationId,
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import styled from "styled-components";
+import history from "utils/history";
+import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
+import { setFeatureWalkthroughShown } from "utils/storage";
+
+import { MenuItem, Tag } from "@appsmith/ads";
 
 interface QueryTemplatesProps {
   templates: QueryTemplate[];

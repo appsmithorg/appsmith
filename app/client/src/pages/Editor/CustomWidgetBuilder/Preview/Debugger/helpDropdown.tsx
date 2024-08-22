@@ -1,16 +1,19 @@
 import React from "react";
-import {
-  Icon,
-  Button,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  List,
-} from "@appsmith/ads";
-import styles from "./styles.module.css";
-import type { DebuggerLog } from "../../types";
+
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+
+import {
+  Button,
+  Icon,
+  List,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@appsmith/ads";
+
 import { CUSTOM_WIDGET_DOC_URL } from "../../constants";
+import type { DebuggerLog } from "../../types";
+import styles from "./styles.module.css";
 
 export default function HelpDropdown(props: DebuggerLog) {
   const { args } = props;

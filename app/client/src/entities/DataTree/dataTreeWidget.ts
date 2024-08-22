@@ -1,26 +1,26 @@
-import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _, { get, isEmpty } from "lodash";
-import memoize from "micro-memoize";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
+import WidgetFactory from "WidgetProvider/factory";
 import type {
-  WidgetEntityConfig,
   WidgetEntity,
+  WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import { ENTITY_TYPE } from "./dataTreeFactory";
 import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
 } from "ee/entities/DataTree/types";
 import { OverridingPropertyType } from "ee/entities/DataTree/types";
-
 import { setOverridingProperty } from "ee/entities/DataTree/utils";
-import { error } from "loglevel";
-import WidgetFactory from "WidgetProvider/factory";
+import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
-import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import _, { get, isEmpty } from "lodash";
+import { error } from "loglevel";
+import memoize from "micro-memoize";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
+
+import { ENTITY_TYPE } from "./dataTreeFactory";
 
 /**
  *

@@ -1,11 +1,11 @@
-import clsx from "clsx";
 import React, { useRef } from "react";
+
 import { injectGlobal } from "@emotion/css";
+import clsx from "clsx";
 
 import { useCssTokens } from "../../hooks";
-import { ThemeContext } from "./ThemeContext";
 import { globalFontStack } from "../../utils/globalFontStack";
-
+import { ThemeContext } from "./ThemeContext";
 import type { ThemeProviderProps } from "./types";
 
 injectGlobal(globalFontStack());

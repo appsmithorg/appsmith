@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+
+import Interweave from "interweave";
 import mammoth from "mammoth/mammoth.browser";
 import styled from "styled-components";
-import Interweave from "interweave";
 
 const StyledViewer = styled.div`
   width: 100%;

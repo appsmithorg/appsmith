@@ -1,25 +1,27 @@
 import { useRef, useState } from "react";
 import * as React from "react";
+
 import {
   Button,
-  Text,
-  ToggleGroup,
   Checkbox,
+  Flex,
+  IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  RadioGroup,
+  Switch,
+  Text,
+  TextArea,
+  ToggleGroup,
+  ToolbarButtons,
+  TooltipContent,
   TooltipRoot,
   TooltipTrigger,
-  TooltipContent,
-  ToolbarButtons,
-  Flex,
-  Switch,
-  RadioGroup,
-  IconButton,
-  TextArea,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalContent,
 } from "@appsmith/wds";
+
 // This component is used only for testing purpose and is not used in the prod
 
 export const ComplexForm = () => {

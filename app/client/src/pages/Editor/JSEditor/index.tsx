@@ -1,20 +1,22 @@
 import React, { useMemo } from "react";
-import type { RouteComponentProps } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import JsEditorForm from "./Form";
+
 import * as Sentry from "@sentry/react";
+import { saveJSObjectName } from "actions/jsActionActions";
+import { updateFunctionProperty } from "actions/jsPaneActions";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import Spinner from "components/editorComponents/Spinner";
+import { useDispatch, useSelector } from "react-redux";
+import type { RouteComponentProps } from "react-router";
 import {
   getCurrentPageId,
   getJSCollectionDataByBaseId,
 } from "selectors/editorSelectors";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
+
 import EntityNotFoundPane from "../EntityNotFoundPane";
 import AppJSEditorContextMenu from "./AppJSEditorContextMenu";
-import { updateFunctionProperty } from "actions/jsPaneActions";
+import JsEditorForm from "./Form";
 import type { OnUpdateSettingsProps } from "./JSFunctionSettings";
-import { saveJSObjectName } from "actions/jsActionActions";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;

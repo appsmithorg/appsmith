@@ -1,6 +1,6 @@
-import { createGlobalStyle } from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
 import { Classes } from "@blueprintjs/core";
+import type { Theme } from "constants/DefaultTheme";
+import { createGlobalStyle } from "styled-components";
 
 export const GLOBAL_STYLE_TOOLTIP_CLASSNAME = "ads-global-tooltip";
 

@@ -1,29 +1,28 @@
-import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { snipingModeBindToSelector } from "selectors/editorSelectors";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   batchUpdateWidgetDynamicProperty,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-
+import { setSnipingMode } from "actions/propertyPaneActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   SNIPING_NOT_SUPPORTED,
   SNIPING_SELECT_WIDGET_AGAIN,
 } from "ee/constants/messages";
-
-import WidgetFactory from "WidgetProvider/factory";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { setSnipingMode } from "actions/propertyPaneActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "@appsmith/ads";
-import type { PropertyUpdates } from "WidgetProvider/constants";
-import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getModuleInstanceById } from "ee/selectors/moduleInstanceSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLeading } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { snipingModeBindToSelector } from "selectors/editorSelectors";
+
+import { toast } from "@appsmith/ads";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{

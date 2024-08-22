@@ -1,10 +1,11 @@
-import styled, { css } from "styled-components";
 import * as RadixMenu from "@radix-ui/react-dropdown-menu";
-import type { MenuSizes } from "./Menu.types";
+import styled, { css } from "styled-components";
+
 import {
   MenuItemChildrenClassName,
   MenuItemEndIconClassName,
 } from "./Menu.constants";
+import type { MenuSizes } from "./Menu.types";
 
 const Variables = css`
   --menu-item-padding: var(--ads-v2-spaces-3);

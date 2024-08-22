@@ -1,6 +1,8 @@
-import ConflictInfo from "./ConflictInfo";
-import { render, screen } from "test/testUtils";
 import React from "react";
+
+import { render, screen } from "test/testUtils";
+
+import ConflictInfo from "./ConflictInfo";
 
 describe("ConflictInfo", () => {
   it("renders properly", async () => {

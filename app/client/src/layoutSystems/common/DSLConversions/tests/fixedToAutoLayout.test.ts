@@ -1,8 +1,9 @@
+import type { DSLWidget } from "WidgetProvider/constants";
 import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { DSLWidget } from "WidgetProvider/constants";
+
 import {
   fitChildWidgetsIntoLayers,
   getAutoCanvasWidget,

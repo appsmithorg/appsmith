@@ -1,7 +1,9 @@
 import React from "react";
+
+import { ENTERPRISE_TAG, createMessage } from "ee/constants/messages";
+
 import type { TagSizes } from "@appsmith/ads";
 import { Tag } from "@appsmith/ads";
-import { ENTERPRISE_TAG, createMessage } from "ee/constants/messages";
 
 const EnterpriseTag = ({
   classes = "",

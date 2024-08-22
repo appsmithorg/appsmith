@@ -1,37 +1,39 @@
 import React, {
-  useEffect,
-  useRef,
-  useMemo,
-  useState,
   useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
-import styled from "styled-components";
-import { Switch } from "@appsmith/ads";
+
 import {
-  Popover,
-  InputGroup,
-  PopoverInteractionKind,
   Classes,
+  InputGroup,
+  Popover,
+  PopoverInteractionKind,
 } from "@blueprintjs/core";
-import { debounce, get } from "lodash";
-import { useSelector } from "react-redux";
-import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
 import {
   colorsPropertyName,
   getThemePropertyBinding,
 } from "constants/ThemeConstants";
+import { TAILWIND_COLORS } from "constants/ThemeConstants";
+import { FULL_COLOR_PICKER_LABEL, createMessage } from "ee/constants/messages";
+import { getBrandColors } from "ee/selectors/tenantSelectors";
+import FocusTrap from "focus-trap-react";
+import { debounce, get } from "lodash";
+import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
+import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
+import styled from "styled-components";
+import { DSEventTypes } from "utils/AppsmithUtils";
 import {
   extractColorsFromString,
   isEmptyOrNill,
   isValidColor,
 } from "utils/helpers";
-import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
-import { DSEventTypes } from "utils/AppsmithUtils";
-import { getBrandColors } from "ee/selectors/tenantSelectors";
-import FocusTrap from "focus-trap-react";
-import { createMessage, FULL_COLOR_PICKER_LABEL } from "ee/constants/messages";
+
+import { Switch } from "@appsmith/ads";
 
 const MAX_COLS = 10;
 

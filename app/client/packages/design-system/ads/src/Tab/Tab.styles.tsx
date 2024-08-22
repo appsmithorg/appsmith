@@ -1,5 +1,5 @@
-import styled, { css } from "styled-components";
 import * as RadixTabs from "@radix-ui/react-tabs";
+import styled, { css } from "styled-components";
 
 const Variables = css`
   --ads-v2-colors-content-tab-baseline-default-border: var(

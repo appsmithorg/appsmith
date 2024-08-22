@@ -1,5 +1,3 @@
-import { Colors } from "constants/Colors";
-import { isNil } from "lodash";
 import React, {
   useCallback,
   useLayoutEffect,
@@ -7,20 +5,24 @@ import React, {
   useRef,
   useState,
 } from "react";
+
+import * as Sentry from "@sentry/react";
+import { Colors } from "constants/Colors";
+import { isNil } from "lodash";
 import styled from "styled-components";
+import { getLocale } from "utils/helpers";
 import type { InputHTMLType } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import type { EditableCell } from "widgets/TableWidgetV2/constants";
-import type { VerticalAlignment } from "../Constants";
-import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
 } from "widgets/WidgetUtils";
-import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
-import * as Sentry from "@sentry/react";
-import { getLocale } from "utils/helpers";
+
+import type { VerticalAlignment } from "../Constants";
+import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
 
 const FOCUS_CLASS = "has-focus";
 

@@ -1,12 +1,12 @@
 import {
   agHelper,
-  locators,
-  jsEditor,
-  propPane,
-  deployMode,
   apiPage,
   dataManager,
   dataSources,
+  deployMode,
+  jsEditor,
+  locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

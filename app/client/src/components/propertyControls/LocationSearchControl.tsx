@@ -1,12 +1,13 @@
-import log from "loglevel";
 import React, { useState } from "react";
-import styled from "styled-components";
-import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
-import { InputGroup } from "./StyledControls";
+import { Status, Wrapper } from "@googlemaps/react-wrapper";
+import log from "loglevel";
+import styled from "styled-components";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
+import { InputGroup } from "./StyledControls";
 
 const MapStatusText = styled.span`
   font-size: 14px;

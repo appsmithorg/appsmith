@@ -1,6 +1,8 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
+
 import type { SelectorViewProps } from "../../types";
 import { SelectorView } from "./index";
 

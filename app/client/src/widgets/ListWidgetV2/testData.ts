@@ -1,6 +1,6 @@
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 export const simpleListInput = {
   containerParentId: "c9cgrw1iky",

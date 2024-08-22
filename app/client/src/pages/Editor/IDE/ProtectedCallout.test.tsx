@@ -1,12 +1,14 @@
 import React from "react";
+
+import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { merge } from "lodash";
 import { Provider } from "react-redux";
-import configureStore from "redux-mock-store";
-import IDE from ".";
 import { BrowserRouter } from "react-router-dom";
-import "@testing-library/jest-dom";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import configureStore from "redux-mock-store";
+
+import IDE from ".";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

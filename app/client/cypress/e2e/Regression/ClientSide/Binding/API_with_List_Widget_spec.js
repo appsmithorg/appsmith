@@ -1,12 +1,10 @@
 /// <reference types="Cypress" />
-
 import apiLocators from "../../../../locators/ApiEditor";
-
 import {
   agHelper,
-  entityExplorer,
-  deployMode,
   apiPage,
+  deployMode,
+  entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

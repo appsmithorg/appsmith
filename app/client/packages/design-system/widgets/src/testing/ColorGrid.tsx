@@ -1,14 +1,17 @@
 import * as React from "react";
+
+import Color from "colorjs.io";
+
+import { Text } from "@appsmith/wds";
 import {
+  DarkModeTheme,
+  LightModeTheme,
   ThemeProvider,
   TokensAccessor,
-  LightModeTheme,
-  DarkModeTheme,
 } from "@appsmith/wds-theming";
-import Color from "colorjs.io";
-import { Text } from "@appsmith/wds";
-import styles from "./styles.module.css";
+
 import { COLORS as appsmithColors } from "./colors";
+import styles from "./styles.module.css";
 
 const clean = (value: number) => {
   return Math.round(parseFloat((value * 10 ** 3).toFixed(3))) / 10 ** 3;

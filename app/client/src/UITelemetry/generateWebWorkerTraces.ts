@@ -1,6 +1,7 @@
+import type { TimeInput } from "@opentelemetry/api";
+
 import type { OtlpSpan, SpanAttributes } from "./generateTraces";
 import { startNestedSpan } from "./generateTraces";
-import type { TimeInput } from "@opentelemetry/api";
 
 export interface WebworkerSpanData {
   attributes: SpanAttributes;

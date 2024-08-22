@@ -1,19 +1,20 @@
-import { getCurrentBasePageId } from "selectors/editorSelectors";
-import PaneNavigation from "../PaneNavigation";
-import type { JSCollection } from "entities/JSCollection";
-import { call, delay, put, select } from "redux-saga/effects";
-import history from "utils/history";
-import { jsCollectionIdURL } from "ee/RouteBuilder";
-import type { EntityInfo, IJSPaneNavigationConfig } from "../types";
-import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
-import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
-import { NAVIGATION_DELAY } from "../costants";
 import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
+import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
+import { jsCollectionIdURL } from "ee/RouteBuilder";
 import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import { getJSCollection } from "ee/selectors/entitiesSelector";
+import type { JSCollection } from "entities/JSCollection";
+import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import { call, delay, put, select } from "redux-saga/effects";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
+import history from "utils/history";
+
+import PaneNavigation from "../PaneNavigation";
+import { NAVIGATION_DELAY } from "../costants";
+import type { EntityInfo, IJSPaneNavigationConfig } from "../types";
 
 export default class JSObjectsPaneNavigation extends PaneNavigation {
   jsCollection!: JSCollection;

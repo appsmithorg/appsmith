@@ -1,13 +1,17 @@
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import type { AnyReduxAction } from "ee/constants/ReduxActionConstants";
+import { JS_EXECUTION_FAILURE, createMessage } from "ee/constants/messages";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import type {
-  ConfigTree,
-  DataTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeTypes";
+import type { ActionEntityConfig } from "ee/entities/DataTree/types";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
@@ -16,31 +20,28 @@ import {
   isAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
+import { APP_MODE } from "entities/App";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
+import type { JSAction, JSCollection } from "entities/JSCollection";
+import { find, get, some } from "lodash";
+import log from "loglevel";
+import { call, put, select } from "redux-saga/effects";
+import AppsmithConsole from "utils/AppsmithConsole";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { find, get, some } from "lodash";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { call, put, select } from "redux-saga/effects";
-import type { AnyReduxAction } from "ee/constants/ReduxActionConstants";
-import AppsmithConsole from "utils/AppsmithConsole";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { createMessage, JS_EXECUTION_FAILURE } from "ee/constants/messages";
-import log from "loglevel";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
-import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import type { JSAction, JSCollection } from "entities/JSCollection";
-import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
-import type { ActionEntityConfig } from "ee/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
-import { logActionExecutionError } from "./ActionExecution/errorUtils";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "ee/selectors/tenantSelectors";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
+
+import { logActionExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 

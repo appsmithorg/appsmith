@@ -1,14 +1,15 @@
 import React from "react";
+
 import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import styled from "styled-components";
-import Rating from "react-rating";
+import { TooltipComponent } from "@design-system/widgets-old";
 import _ from "lodash";
+import Rating from "react-rating";
+import styled from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
 
 import type { RateSize } from "../constants";
 import { RATE_SIZES } from "../constants";
-import { TooltipComponent } from "@design-system/widgets-old";
-import type { ComponentProps } from "widgets/BaseComponent";
 
 /*
   Note:

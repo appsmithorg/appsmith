@@ -1,8 +1,9 @@
 import { combineReducers } from "redux";
-import evaluatedTreeReducer from "./treeReducer";
+
 import evaluationDependencyReducer from "./dependencyReducer";
-import loadingEntitiesReducer from "./loadingEntitiesReducer";
 import formEvaluationReducer from "./formEvaluationReducer";
+import loadingEntitiesReducer from "./loadingEntitiesReducer";
+import evaluatedTreeReducer from "./treeReducer";
 import triggerReducer from "./triggerReducer";
 
 export default combineReducers({

@@ -1,8 +1,8 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   SaveWorkspaceLogo,
   SaveWorkspaceRequest,
 } from "ee/api/WorkspaceApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 interface FetchAllWorkspacesParams {
   fetchEntities?: boolean;

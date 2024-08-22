@@ -1,22 +1,24 @@
-import React, { useState, useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
+import type { Theme } from "constants/DefaultTheme";
 import type { noop } from "lodash";
+import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
+import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { useTheme } from "styled-components";
+
+import { Menu, MenuTrigger, toast } from "@appsmith/ads";
 import type {
   CommonComponentProps,
   EditInteractionKind,
 } from "@appsmith/ads-old";
 import { SavingState } from "@appsmith/ads-old";
+
 import EditableName from "./EditableName";
 import { NavigationMenu } from "./NavigationMenu";
-import { Menu, toast, MenuTrigger } from "@appsmith/ads";
-import type { Theme } from "constants/DefaultTheme";
-import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
-import { Container, StyledIcon } from "./components";
-import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import type { NavigationMenuDataProps } from "./useNavigationMenuData";
 import type { MenuItemData } from "./NavigationMenuItem";
-import { useTheme } from "styled-components";
+import { Container, StyledIcon } from "./components";
+import type { NavigationMenuDataProps } from "./useNavigationMenuData";
 
 type EditorNameProps = CommonComponentProps & {
   applicationId?: string | undefined;

@@ -1,7 +1,9 @@
+import React from "react";
+
+import styled from "styled-components";
+
 import { Callout } from "@appsmith/ads";
 import { Text, TextType } from "@appsmith/ads-old";
-import React from "react";
-import styled from "styled-components";
 
 const Container = styled.div`
   margin: 8px 0 16px;

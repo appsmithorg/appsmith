@@ -1,3 +1,7 @@
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+
+import TriggerEmitter, { BatchKey } from "../TriggerEmitter";
+
 const pingMock = jest.fn();
 jest.mock("../Messenger.ts", () => ({
   ...jest.requireActual("../Messenger.ts"),
@@ -11,9 +15,6 @@ jest.mock("../Messenger.ts", () => ({
     };
   },
 }));
-
-import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
-import TriggerEmitter, { BatchKey } from "../TriggerEmitter";
 
 describe("Tests all trigger events", () => {
   it("Should invoke the right callback", () => {

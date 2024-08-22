@@ -1,3 +1,4 @@
+import clocators from "../../../../../locators/commonlocators.json";
 import {
   agHelper,
   apiPage,
@@ -11,8 +12,6 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
-
-import clocators from "../../../../../locators/commonlocators.json";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";

@@ -1,9 +1,11 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { LayoutProvider } from "./LayoutProvider";
 import React from "react";
-import { isEditOnlyModeSelector } from "selectors/editorSelectors";
+
 import { useSelector } from "react-redux";
+import { isEditOnlyModeSelector } from "selectors/editorSelectors";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { AnvilModalDropArena } from "../editor/canvasArenas/AnvilModalDropArena";
+import { LayoutProvider } from "./LayoutProvider";
 
 export const ModalLayoutProvider = (props: BaseWidgetProps) => {
   const isEditOnlyMode = useSelector(isEditOnlyModeSelector);

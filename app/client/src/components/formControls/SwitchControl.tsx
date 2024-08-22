@@ -1,11 +1,14 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import { Switch } from "@appsmith/ads";
+
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import styled from "styled-components";
+
+import { Switch } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 type SwitchFieldProps = WrappedFieldProps & {
   label: string;

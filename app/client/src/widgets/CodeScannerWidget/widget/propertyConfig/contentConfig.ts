@@ -1,8 +1,6 @@
+import { DefaultMobileCameraTypes } from "WidgetProvider/constants";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
-import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
 import {
   BACK_CAMERA_LABEL,
   DEFAULT_CAMERA_LABEL,
@@ -10,7 +8,10 @@ import {
   FRONT_CAMERA_LABEL,
   createMessage,
 } from "ee/constants/messages";
-import { DefaultMobileCameraTypes } from "WidgetProvider/constants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
+import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
+
 export default [
   {
     sectionName: "Basic",

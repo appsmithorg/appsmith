@@ -1,10 +1,30 @@
-import React, { lazy, Suspense } from "react";
+import React, { Suspense, lazy } from "react";
+
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "WidgetProvider/constants";
+import Skeleton from "components/utils/Skeleton";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { Stylesheet } from "entities/AppTheming";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
+import { retryPromise } from "utils/AppsmithUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import Skeleton from "components/utils/Skeleton";
-import { retryPromise } from "utils/AppsmithUtils";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { contentConfig, styleConfig } from "./propertyConfig";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { generateReactKey } from "widgets/WidgetUtils";
+
+import type { ChartComponentProps } from "../component";
+import { ChartErrorComponent } from "../component/ChartErrorComponent";
+import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
+import { EmptyChartData } from "../component/EmptyChartData";
 import {
   DefaultEChartConfig,
   DefaultEChartsBasicChartsData,
@@ -12,29 +32,11 @@ import {
   messages,
 } from "../constants";
 import type { ChartSelectedDataPoint } from "../constants";
-import type { ChartComponentProps } from "../component";
-import { Colors } from "constants/Colors";
-import type { Stylesheet } from "entities/AppTheming";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  WidgetCallout,
-} from "WidgetProvider/constants";
-import { ChartErrorComponent } from "../component/ChartErrorComponent";
-import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
-import { EmptyChartData } from "../component/EmptyChartData";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
-import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
+import { syntaxErrorsFromProps } from "./SyntaxErrorsEvaluation";
+import { contentConfig, styleConfig } from "./propertyConfig";
 
 const ChartComponent = lazy(async () =>
   retryPromise(

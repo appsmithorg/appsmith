@@ -1,18 +1,20 @@
 import React from "react";
+
 import { Classes as BPClasses } from "@blueprintjs/core";
-import type { Dispatch } from "redux";
-import { useDispatch } from "react-redux";
-import type { Message, SourceEntity } from "entities/AppsmithConsole";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "ee/configs";
 import {
-  createMessage,
   DEBUGGER_APPSMITH_SUPPORT,
   DEBUGGER_INTERCOM_TEXT,
   DEBUGGER_OPEN_DOCUMENTATION,
   TROUBLESHOOT_ISSUE,
+  createMessage,
 } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Message, SourceEntity } from "entities/AppsmithConsole";
+import { useDispatch } from "react-redux";
+import type { Dispatch } from "redux";
+import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+
 import {
   Menu,
   MenuContent,
@@ -20,8 +22,9 @@ import {
   MenuTrigger,
   Tooltip,
 } from "@appsmith/ads";
-import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 
 const { intercomAppID } = getAppsmithConfigs();
 

@@ -1,14 +1,14 @@
-import BaseWidget from "widgets/BaseWidget";
-import type { WidgetState } from "widgets/BaseWidget";
-import type { WidgetType } from "constants/WidgetConstants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import BaseWidget from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/BaseWidget";
 
 import * as config from "../config";
 import type { BaseInputWidgetProps } from "./types";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
 class WDSBaseInputWidget<
   T extends BaseInputWidgetProps,

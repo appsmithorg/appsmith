@@ -1,5 +1,5 @@
-import { render, screen } from "test/testUtils";
 import "jest-styled-components";
+import { render, screen } from "test/testUtils";
 
 import { RemoteBranchList } from "./RemoteBranchList";
 

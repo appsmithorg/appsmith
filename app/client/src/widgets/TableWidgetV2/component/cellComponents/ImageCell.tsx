@@ -1,8 +1,9 @@
 import React from "react";
+
 import { isString, noop } from "lodash";
 
-import { CellWrapper } from "../TableStyledWrappers";
 import type { BaseCellComponentProps, ImageSize } from "../Constants";
+import { CellWrapper } from "../TableStyledWrappers";
 
 /*
  * Function to split the CSV of image url's

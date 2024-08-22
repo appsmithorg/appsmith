@@ -1,13 +1,13 @@
+import { Colors } from "constants/Colors";
+
 import type { ChartComponentProps } from ".";
 import type { AllChartData, LongestLabelParams } from "../constants";
 import {
-  LabelOrientation,
   type ChartData,
+  LabelOrientation,
   XAxisCategory,
   messages,
 } from "../constants";
-
-import { Colors } from "constants/Colors";
 import { EChartsLayoutBuilder } from "./LayoutBuilders/EChartsLayoutBuilder";
 
 export class EChartsConfigurationBuilder {

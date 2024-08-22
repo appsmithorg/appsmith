@@ -1,19 +1,20 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import { call, put } from "redux-saga/effects";
+import { safeCrashAppRequest } from "actions/errorActions";
 import type { APIResponseError, ApiResponse } from "api/ApiResponses";
 import type { UpdateTenantConfigRequest } from "ee/api/TenantApi";
 import { TenantApi } from "ee/api/TenantApi";
-import { validateResponse } from "sagas/ErrorSagas";
-import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ee/reducers/tenantReducer";
-import { toast } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { call, put } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
+
+import { toast } from "@appsmith/ads";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga(action?: {

@@ -1,7 +1,9 @@
 import React from "react";
+
 import { Tooltip } from "@blueprintjs/core";
-import { IconWrapper } from "constants/IconConstants";
 import { Colors } from "constants/Colors";
+import { IconWrapper } from "constants/IconConstants";
+
 import { TableIconWrapper } from "./TableStyledWrappers";
 
 interface TableActionIconProps {

@@ -1,23 +1,26 @@
 import React, { useCallback, useState } from "react";
-import SegmentAddHeader from "../components/SegmentAddHeader";
+
+import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
-import type { ListItemProps } from "@appsmith/ads";
-import { Flex, SearchInput } from "@appsmith/ads";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import GroupedList from "../components/GroupedList";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import {
   useGroupedAddJsOperations,
   useJSAdd,
 } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
-import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
-import { createAddClassName, fuzzySearchInObjectItems } from "../utils";
 import { FocusEntity } from "navigation/FocusEntity";
-import type { GroupedListProps } from "../components/types";
-import { EmptySearchResult } from "../components/EmptySearchResult";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
+
+import type { ListItemProps } from "@appsmith/ads";
+import { Flex, SearchInput } from "@appsmith/ads";
 import type { FlexProps } from "@appsmith/ads";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+
+import { EmptySearchResult } from "../components/EmptySearchResult";
+import GroupedList from "../components/GroupedList";
+import SegmentAddHeader from "../components/SegmentAddHeader";
+import type { GroupedListProps } from "../components/types";
+import { createAddClassName, fuzzySearchInObjectItems } from "../utils";
 
 const AddJS = () => {
   const dispatch = useDispatch();

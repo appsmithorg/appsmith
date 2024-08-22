@@ -1,12 +1,14 @@
 import React from "react";
-import type { BaseCellComponentProps, CellAlignment } from "../Constants";
-import { ALIGN_ITEMS, JUSTIFY_CONTENT } from "../Constants";
-import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
+
+import { Tooltip } from "@blueprintjs/core";
+import { AlignWidgetTypes } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
 import SwitchComponent from "widgets/SwitchWidget/component";
-import { AlignWidgetTypes } from "WidgetProvider/constants";
-import { Tooltip } from "@blueprintjs/core";
+
+import type { BaseCellComponentProps, CellAlignment } from "../Constants";
+import { ALIGN_ITEMS, JUSTIFY_CONTENT } from "../Constants";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;

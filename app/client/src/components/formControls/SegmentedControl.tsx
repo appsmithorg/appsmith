@@ -1,18 +1,21 @@
 import React from "react";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import styled from "styled-components";
+
 import type { ControlType } from "constants/PropertyControlConstants";
+import type { AppState } from "ee/reducers";
+import type { Action } from "entities/Action";
 import { isNil } from "lodash";
+import { connect } from "react-redux";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
-import type { Action } from "entities/Action";
+import { getDynamicFetchedValues } from "selectors/formSelectors";
+import styled from "styled-components";
+
 import type { SelectOptionProps } from "@appsmith/ads";
 import { SegmentedControl } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const SegmentedControlWrapper = styled.div<{
   width: string;

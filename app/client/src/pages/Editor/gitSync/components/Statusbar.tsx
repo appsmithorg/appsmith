@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Statusbar } from "@appsmith/ads-old";
+
 import styled from "styled-components";
+
+import { Statusbar } from "@appsmith/ads-old";
 
 interface StatusbarProps {
   completed: boolean;

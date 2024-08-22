@@ -1,11 +1,13 @@
 import React, { useRef } from "react";
-import styled from "styled-components";
-import AutoHeightLimitHandleBorder from "./ui/AutoHeightLimitHandleBorder";
+
 import { useDrag } from "react-use-gesture";
-import { heightToRows } from "./utils";
-import AutoHeightLimitHandleLabel from "./ui/AutoHeightLimitHandleLabel";
+import styled from "styled-components";
+
 import type { onDragCallbacksProps, onMouseHoverCallbacksProps } from "./types";
+import AutoHeightLimitHandleBorder from "./ui/AutoHeightLimitHandleBorder";
 import AutoHeightLimitHandleDot from "./ui/AutoHeightLimitHandleDot";
+import AutoHeightLimitHandleLabel from "./ui/AutoHeightLimitHandleLabel";
+import { heightToRows } from "./utils";
 
 const AutoHeightLimitHandleGroupContainer = styled.div`
   position: absolute;

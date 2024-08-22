@@ -1,4 +1,5 @@
 import type * as RadixMenu from "@radix-ui/react-dropdown-menu";
+
 import type { Sizes } from "../__config__/types";
 
 export type MenuSizes = Extract<Sizes, "sm" | "md">;

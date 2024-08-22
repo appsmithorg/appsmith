@@ -1,14 +1,15 @@
-import { GridDefaults } from "constants/WidgetConstants";
 import type { ReactNode } from "react";
 import React from "react";
-import styled from "styled-components";
+
+import { GridDefaults } from "constants/WidgetConstants";
 import { getAlignmentMarginInfo } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
-  MOBILE_ROW_GAP,
-  type LayoutDirection,
-  ROW_GAP,
   FlexLayerAlignment,
+  type LayoutDirection,
+  MOBILE_ROW_GAP,
+  ROW_GAP,
 } from "layoutSystems/common/utils/constants";
+import styled from "styled-components";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.

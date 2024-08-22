@@ -1,11 +1,13 @@
 import * as React from "react";
-import styled from "styled-components";
-import { CopyLink } from "./CopyLink";
+import type { ReactNode } from "react";
+
 import isArray from "lodash/isArray";
 import isString from "lodash/isString";
+import styled from "styled-components";
 
 import type { Token } from "@appsmith/wds-theming";
-import type { ReactNode } from "react";
+
+import { CopyLink } from "./CopyLink";
 
 export const StyledLinePreview = styled.div`
   height: var(--sizing-4);

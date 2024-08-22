@@ -1,3 +1,9 @@
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+
+import ExecutionMetaData from "../ExecutionMetaData";
+import { promisify } from "../Promisify";
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 const requestMock = jest.fn(async (...args: any) => Promise.resolve("success"));
 
@@ -17,11 +23,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
     };
   },
 }));
-
-import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import ExecutionMetaData from "../ExecutionMetaData";
-import { promisify } from "../Promisify";
 
 describe("Tests for promisify util", () => {
   const triggerMeta = {

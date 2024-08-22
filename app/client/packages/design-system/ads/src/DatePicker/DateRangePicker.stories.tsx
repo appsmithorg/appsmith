@@ -1,6 +1,8 @@
 import React from "react";
-import { DateRangePicker } from "./DatePicker";
+
 import type { StoryObj } from "@storybook/react";
+
+import { DateRangePicker } from "./DatePicker";
 import type { DateRangePickerProps } from "./DatePicker.types";
 
 export default {

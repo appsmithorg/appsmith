@@ -1,15 +1,18 @@
 import React from "react";
+
 import styled from "styled-components";
-import type { ControlData, ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { SegmentedControlOption } from "@appsmith/ads";
-import { SegmentedControl } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
+
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   > .ads-v2-segmented-control__segments-container {

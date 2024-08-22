@@ -1,15 +1,17 @@
 import React from "react";
-import { Tabs, TabsList, Tab, TabPanel } from "./Tab";
+
+import type { StoryObj } from "@storybook/react";
+
+import { Button } from "../Button";
+import { Input } from "../Input";
+import { Text } from "../Text";
+import { Tab, TabPanel, Tabs, TabsList } from "./Tab";
 import type {
   TabPanelProps,
   TabProps,
   TabsListProps,
   TabsProps,
 } from "./Tab.types";
-import { Text } from "../Text";
-import { Input } from "../Input";
-import { Button } from "../Button";
-import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Components/Tab",

@@ -1,6 +1,5 @@
-import styled from "styled-components";
-
 import { Colors } from "constants/Colors";
+import styled from "styled-components";
 
 interface StyledWrapperProps {
   backgroundColor?: string;

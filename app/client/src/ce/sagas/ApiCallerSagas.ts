@@ -1,6 +1,6 @@
-import JSActionAPI from "ee/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
+import JSActionAPI from "ee/api/JSActionAPI";
 import type { Action } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 

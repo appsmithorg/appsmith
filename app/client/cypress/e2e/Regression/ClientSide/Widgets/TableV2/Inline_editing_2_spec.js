@@ -1,17 +1,17 @@
+import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
+import {
+  agHelper,
+  draggableWidgets,
+  entityExplorer,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-  table,
-  draggableWidgets,
-} from "../../../../../support/Objects/ObjectsCore";
-import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Table widget inline editing functionality",

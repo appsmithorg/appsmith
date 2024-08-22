@@ -1,4 +1,5 @@
 import type { MouseEventHandler } from "react";
+
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export const objectCollapseAnalytics: MouseEventHandler = (ev) => {

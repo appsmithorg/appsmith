@@ -1,17 +1,6 @@
 import React, { useState } from "react";
-import { Button, ModalBody, ModalFooter } from "@appsmith/ads";
-import Steps from "./Steps";
-import type { GitProvider } from "./ChooseGitProvider";
-import ChooseGitProvider from "./ChooseGitProvider";
-import GenerateSSH from "./GenerateSSH";
-import AddDeployKey from "./AddDeployKey";
-import styled from "styled-components";
-import { GIT_CONNECT_STEPS } from "./constants";
-import { useGitConnect } from "../../hooks";
-import { isValidGitRemoteUrl } from "../../utils";
+
 import { importAppFromGit } from "actions/gitSyncActions";
-import { useDispatch, useSelector } from "react-redux";
-import { getIsImportingApplicationViaGit } from "selectors/gitSyncSelectors";
 import {
   ADD_DEPLOY_KEY_STEP,
   CHOOSE_A_GIT_PROVIDER_STEP,
@@ -23,8 +12,22 @@ import {
   PREVIOUS_STEP,
   createMessage,
 } from "ee/constants/messages";
-import GitSyncStatusbar from "../../components/Statusbar";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import { getIsImportingApplicationViaGit } from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
+import { Button, ModalBody, ModalFooter } from "@appsmith/ads";
+
+import GitSyncStatusbar from "../../components/Statusbar";
+import { useGitConnect } from "../../hooks";
+import { isValidGitRemoteUrl } from "../../utils";
+import AddDeployKey from "./AddDeployKey";
+import type { GitProvider } from "./ChooseGitProvider";
+import ChooseGitProvider from "./ChooseGitProvider";
+import GenerateSSH from "./GenerateSSH";
+import Steps from "./Steps";
+import { GIT_CONNECT_STEPS } from "./constants";
 
 const StyledModalBody = styled(ModalBody)`
   flex: 1;

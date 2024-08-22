@@ -8,15 +8,38 @@ import {
   debuggerLogInit,
   deleteErrorLog,
 } from "actions/debuggerActions";
+import type { Plugin } from "api/PluginApi";
+import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import {
+  transformAddErrorLogsSaga,
+  transformDeleteErrorLogsSaga,
+} from "ee/sagas/helpers";
+import {
+  getAction,
+  getAppMode,
+  getJSCollection,
+  getPlugin,
+} from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
+import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
+import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
 import type {
   Log,
   LogActionPayload,
   LogObject,
 } from "entities/AppsmithConsole";
 import { LOG_CATEGORY } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
+import type { JSCollection } from "entities/JSCollection";
+import { findIndex, get, isEmpty, isMatch, set } from "lodash";
+import * as log from "loglevel";
 import {
   all,
   call,
@@ -26,36 +49,14 @@ import {
   take,
   takeEvery,
 } from "redux-saga/effects";
-import { findIndex, get, isEmpty, isMatch, set } from "lodash";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
-import {
-  getAction,
-  getPlugin,
-  getJSCollection,
-  getAppMode,
-} from "ee/selectors/entitiesSelector";
-import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
-import type { JSCollection } from "entities/JSCollection";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
-import { getConfigTree } from "selectors/dataTreeSelectors";
-import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { getWidget } from "./selectors";
-import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
-import type { Plugin } from "api/PluginApi";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
-import * as log from "loglevel";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
-import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
-import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";
-import {
-  transformAddErrorLogsSaga,
-  transformDeleteErrorLogsSaga,
-} from "ee/sagas/helpers";
+import { getConfigTree } from "selectors/dataTreeSelectors";
+import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import AppsmithConsole from "utils/AppsmithConsole";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { getWidget } from "./selectors";
 
 let blockedSource: string | null = null;
 

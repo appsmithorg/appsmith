@@ -1,11 +1,13 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
-import { render, screen } from "test/testUtils";
 import userEvent from "@testing-library/user-event";
-import FormControl from "../FormControl";
-import { createMessage, INVALID_URL } from "ee/constants/messages";
-import FormControlRegistry from "utils/formControl/FormControlRegistry";
+import { INVALID_URL, createMessage } from "ee/constants/messages";
 import { reduxForm } from "redux-form";
+import { render, screen } from "test/testUtils";
+import FormControlRegistry from "utils/formControl/FormControlRegistry";
+
+import FormControl from "../FormControl";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

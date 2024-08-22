@@ -1,9 +1,10 @@
 import React from "react";
+
 import clsx from "classnames";
 
-import type { GridProps } from "./Grid.types";
-import { GridClassName } from "./Grid.constants";
 import { Box } from "../Box";
+import { GridClassName } from "./Grid.constants";
+import type { GridProps } from "./Grid.types";
 
 function Grid({ children, className, ...rest }: GridProps) {
   return (

@@ -1,4 +1,5 @@
 import styled, { css } from "styled-components";
+
 import { ToggleIconClassName } from "./ToggleButton.constants";
 import type { ToggleButtonSizes } from "./ToggleButton.types";
 

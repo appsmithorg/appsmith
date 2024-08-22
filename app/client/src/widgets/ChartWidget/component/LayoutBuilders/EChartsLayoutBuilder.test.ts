@@ -1,4 +1,5 @@
 import { LabelOrientation } from "widgets/ChartWidget/constants";
+
 import { EChartsLayoutBuilder } from "./EChartsLayoutBuilder";
 
 const font = "14px Nunito Sans";

@@ -1,12 +1,14 @@
+import React, { useMemo } from "react";
+
 import { GridDefaults } from "constants/WidgetConstants";
 import type { RenderModes } from "constants/WidgetConstants";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
-import React, { useMemo } from "react";
+import type { LayoutDirection } from "layoutSystems/common/utils/constants";
+import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import FlexBoxComponent from "../common/flexCanvas/FlexBoxComponent";
 import type { AdditionalAutoLayoutProperties } from "./types";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { LayoutDirection } from "layoutSystems/common/utils/constants";
 
 /**
  * This is the view component used by Canvas of Auto Layout both in Edit/View mode.

@@ -1,39 +1,40 @@
 import * as React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+
 import {
   Alignment,
+  Classes as BlueprintClasses,
+  MenuItem as BlueprintMenuItem,
   Button,
   Icon,
   Menu,
-  MenuItem as BlueprintMenuItem,
-  Classes as BlueprintClasses,
 } from "@blueprintjs/core";
-import { Classes, Popover2 } from "@blueprintjs/popover2";
 import type { IconName } from "@blueprintjs/icons";
-import tinycolor from "tinycolor2";
-
-import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
+import type { ThemeProp } from "WidgetProvider/constants";
 import type { ButtonPlacement, ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
+import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import styled, { createGlobalStyle } from "styled-components";
+import tinycolor from "tinycolor2";
+import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
 import {
+  WidgetContainerDiff,
+  getAlignText,
+  getComplementaryGrayscaleColor,
   getCustomBackgroundColor,
   getCustomBorderColor,
   getCustomHoverColor,
-  getComplementaryGrayscaleColor,
   getCustomJustifyContent,
-  getAlignText,
-  WidgetContainerDiff,
   lightenColor,
 } from "widgets/WidgetUtils";
-import type { RenderMode } from "constants/WidgetConstants";
-import { DragContainer } from "widgets/ButtonWidget/component/DragContainer";
-import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+
 import type {
   MenuButtonComponentProps,
   MenuItem,
   PopoverContentProps,
 } from "../constants";
-import type { ThemeProp } from "WidgetProvider/constants";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;

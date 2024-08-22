@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+
 import type { SizeConfig } from "WidgetProvider/constants";
 import type { WidgetType } from "WidgetProvider/factory";
 

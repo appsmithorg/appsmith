@@ -1,39 +1,40 @@
-import { select } from "redux-saga/effects";
-import { moveWidgetsSaga } from ".";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { generateReactKey } from "@shared/dsl/src/migrate/utils";
-import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
-import { expectSaga } from "redux-saga-test-plan";
-import { getWidgets } from "sagas/selectors";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-import { WDSButtonWidget } from "widgets/wds/WDSButtonWidget";
-import {
-  getCanvasWidth,
-  getIsAutoLayoutMobileBreakPoint,
-} from "selectors/editorSelectors";
-import { getCurrentlyOpenAnvilDetachedWidgets } from "../../modalSelectors";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
-import { getIsAnvilLayout } from "../../selectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
-import { generateMockDataWithTwoSections } from "./mockData.helper";
-import type { AnvilMoveWidgetsPayload } from "../../actions/actionTypes";
-import {
-  AnvilReduxActionTypes,
-  type AnvilNewWidgetsPayload,
-} from "../../actions/actionTypes";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { AnvilDraggedWidgetTypesEnum } from "layoutSystems/anvil/editor/canvasArenas/types";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
+import { expectSaga } from "redux-saga-test-plan";
+import { select } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidgets } from "sagas/selectors";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import {
+  getCanvasWidth,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { WDSButtonWidget } from "widgets/wds/WDSButtonWidget";
+import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
+
+import { moveWidgetsSaga } from ".";
+import type { AnvilMoveWidgetsPayload } from "../../actions/actionTypes";
+import {
+  type AnvilNewWidgetsPayload,
+  AnvilReduxActionTypes,
+} from "../../actions/actionTypes";
+import { getCurrentlyOpenAnvilDetachedWidgets } from "../../modalSelectors";
+import { getIsAnvilLayout } from "../../selectors";
 import { addWidgetsSaga } from "../anvilWidgetAdditionSagas";
+import { generateMockDataWithTwoSections } from "./mockData.helper";
 
 describe("", () => {
   beforeAll(() => {

@@ -1,5 +1,11 @@
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type {
+  LayoutElementPosition,
+  LayoutElementPositions,
+} from "layoutSystems/common/types";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+
+import type {
   AnvilHighlightInfo,
   DeriveHighlightsFn,
   DraggedWidget,
@@ -8,16 +14,11 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { getStartPosition } from "./highlightUtils";
 import {
   DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT,
   HIGHLIGHT_SIZE,
 } from "../../constants";
-import type {
-  LayoutElementPosition,
-  LayoutElementPositions,
-} from "layoutSystems/common/types";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import { getStartPosition } from "./highlightUtils";
 
 /**
  *

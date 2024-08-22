@@ -1,7 +1,8 @@
-import { PluginType, type Action } from "entities/Action";
-import type { EntityInfo } from "../types";
 import { getAction } from "ee/selectors/entitiesSelector";
+import { type Action, PluginType } from "entities/Action";
 import { select } from "redux-saga/effects";
+
+import type { EntityInfo } from "../types";
 import {
   ActionPaneNavigation,
   ApiPaneNavigation,

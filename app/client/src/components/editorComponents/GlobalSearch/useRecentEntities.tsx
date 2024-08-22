@@ -1,17 +1,19 @@
-import { useSelector } from "react-redux";
+import { useMemo } from "react";
+
+import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
 import type { AppState } from "ee/reducers";
-import { getPageList } from "selectors/editorSelectors";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import {
   getActions,
   getAllWidgetsMap,
   getJSCollections,
 } from "ee/selectors/entitiesSelector";
-import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { FocusEntity } from "navigation/FocusEntity";
-import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
-import { useMemo } from "react";
+import { useSelector } from "react-redux";
+import { getPageList } from "selectors/editorSelectors";
+
+import { SEARCH_ITEM_TYPES } from "./utils";
 
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities || [];

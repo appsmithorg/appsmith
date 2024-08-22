@@ -1,13 +1,13 @@
 import {
-  getTabbableDescendants,
-  getNextTabbableDescendant,
-  getFocussableElementOfWidget,
-  JSONFORM_WIDGET,
-  WIDGET_SELECTOR,
-  getNextTabbableDescendantForRegularWidgets,
-  CHECKBOXGROUP_WIDGET,
-  SWITCHGROUP_WIDGET,
   BUTTONGROUP_WIDGET,
+  CHECKBOXGROUP_WIDGET,
+  JSONFORM_WIDGET,
+  SWITCHGROUP_WIDGET,
+  WIDGET_SELECTOR,
+  getFocussableElementOfWidget,
+  getNextTabbableDescendant,
+  getNextTabbableDescendantForRegularWidgets,
+  getTabbableDescendants,
 } from "./tabbable";
 
 export function handleTab(event: KeyboardEvent) {

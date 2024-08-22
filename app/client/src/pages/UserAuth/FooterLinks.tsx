@@ -1,6 +1,8 @@
 import React from "react";
-import { Link } from "@appsmith/ads";
+
 import styled from "styled-components";
+
+import { Link } from "@appsmith/ads";
 
 const FooterWrapper = styled.div`
   width: 85%;

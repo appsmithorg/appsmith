@@ -1,4 +1,12 @@
 import React from "react";
+
+import type { PopoverProps } from "@radix-ui/react-popover";
+import type { StoryObj } from "@storybook/react";
+import styled from "styled-components";
+
+import { Button } from "../Button";
+import { Input } from "../Input";
+import { Text } from "../Text";
 import {
   Popover,
   PopoverBody,
@@ -6,13 +14,7 @@ import {
   PopoverHeader,
   PopoverTrigger,
 } from "./Popover";
-import { Button } from "../Button";
-import { Input } from "../Input";
-import { Text } from "../Text";
-import styled from "styled-components";
 import type { PopoverContentProps, PopoverHeaderProps } from "./Popover.types";
-import type { StoryObj } from "@storybook/react";
-import type { PopoverProps } from "@radix-ui/react-popover";
 
 export default {
   title: "ADS/Components/Popover",

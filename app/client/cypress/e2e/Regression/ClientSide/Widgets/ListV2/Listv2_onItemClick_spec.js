@@ -1,5 +1,3 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   draggableWidgets,
@@ -7,6 +5,10 @@ import {
   locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
+
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;

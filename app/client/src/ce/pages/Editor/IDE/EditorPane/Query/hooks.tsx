@@ -1,20 +1,9 @@
 import { useCallback, useMemo } from "react";
-import history from "utils/history";
-import { useLocation } from "react-router";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useDispatch, useSelector } from "react-redux";
+
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
-import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 import {
   ADD_PATH,
   API_EDITOR_ID_PATH,
@@ -22,17 +11,30 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import ApiEditor from "pages/Editor/APIEditor";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { UseRoutes } from "ee/entities/IDE/constants";
-import QueryEditor from "pages/Editor/QueryEditor";
-import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
+import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 import type { AppState } from "ee/reducers";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import keyBy from "lodash/keyBy";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import ApiEditor from "pages/Editor/APIEditor";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "@appsmith/ads";
+import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
+import QueryEditor from "pages/Editor/QueryEditor";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
+import { useDispatch, useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import type { ListItemProps } from "@appsmith/ads";
 
 export const useQueryAdd = () => {
   const location = useLocation();

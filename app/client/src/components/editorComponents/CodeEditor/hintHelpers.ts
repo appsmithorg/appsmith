@@ -1,20 +1,21 @@
 import type { Hints } from "codemirror";
 import CodeMirror from "codemirror";
-import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { isEmpty, isString } from "lodash";
+import KeyboardShortcuts from "constants/KeyboardShortcuts";
+import { isAISlashCommand } from "ee/components/editorComponents/GPT/trigger";
 import type { getAllDatasourceTableKeys } from "ee/selectors/entitiesSelector";
+import { isEmpty, isString } from "lodash";
+import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
+
 import {
   filterCompletions,
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
-import { isAISlashCommand } from "ee/components/editorComponents/GPT/trigger";
 
 export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {

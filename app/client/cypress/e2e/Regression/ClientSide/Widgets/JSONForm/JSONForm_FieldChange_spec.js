@@ -1,10 +1,12 @@
+import { datePickerlocators } from "../../../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
 const locators = ObjectsRegistry.CommonLocators;
 const {
   agHelper,
@@ -12,7 +14,7 @@ const {
   entityExplorer,
   propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
-import { datePickerlocators } from "../../../../../locators/WidgetLocators";
+
 const fieldPrefix = ".t--jsonformfield";
 
 describe(

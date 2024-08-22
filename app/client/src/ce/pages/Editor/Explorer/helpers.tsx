@@ -1,25 +1,24 @@
 import type { IPopoverSharedProps } from "@blueprintjs/core";
-import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
-  QUERIES_EDITOR_ID_PATH,
-  JS_COLLECTION_ID_PATH,
+  BUILDER_VIEWER_PATH_PREFIX,
   DATA_SOURCES_EDITOR_ID_PATH,
+  JS_COLLECTION_ID_PATH,
+  QUERIES_EDITOR_ID_PATH,
   matchBuilderPath,
   matchViewerPath,
-  BUILDER_VIEWER_PATH_PREFIX,
 } from "constants/routes";
-
+import { EDITOR_PATHS } from "ee/entities/IDE/utils";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import type { PluginType } from "entities/Action";
 import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import type { PluginType } from "entities/Action";
-import localStorage from "utils/localStorage";
-import { EDITOR_PATHS } from "ee/entities/IDE/utils";
 import type { Match } from "path-to-regexp";
+import { matchPath, useLocation } from "react-router";
+import localStorage from "utils/localStorage";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {

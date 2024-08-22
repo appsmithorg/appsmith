@@ -1,9 +1,11 @@
 import React from "react";
-import type { ControlProps } from "components/formControls/BaseControl";
-import FormControl from "./FormControl";
-import log from "loglevel";
+
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { ControlProps } from "components/formControls/BaseControl";
+import log from "loglevel";
 import styled from "styled-components";
+
+import FormControl from "./FormControl";
 
 interface ActionSettingsProps {
   // TODO: Fix this the next time the file is edited

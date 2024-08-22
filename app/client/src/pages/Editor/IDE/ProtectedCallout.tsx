@@ -1,16 +1,9 @@
 import React from "react";
-import { Callout } from "@appsmith/ads";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
+
 import {
   setShowBranchPopupAction,
   updateGitProtectedBranchesInit,
 } from "actions/gitSyncActions";
-import {
-  getCurrentGitBranch,
-  getIsUpdateProtectedBranchesLoading,
-  getProtectedBranchesSelector,
-} from "selectors/gitSyncSelectors";
 import {
   BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH,
   BRANCH_PROTECTION_CALLOUT_MSG,
@@ -18,6 +11,15 @@ import {
   BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING,
   createMessage,
 } from "ee/constants/messages";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getCurrentGitBranch,
+  getIsUpdateProtectedBranchesLoading,
+  getProtectedBranchesSelector,
+} from "selectors/gitSyncSelectors";
+import styled from "styled-components";
+
+import { Callout } from "@appsmith/ads";
 
 const StyledCallout = styled(Callout)`
   height: 70px;

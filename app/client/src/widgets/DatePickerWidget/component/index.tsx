@@ -1,25 +1,27 @@
 import React from "react";
-import styled from "styled-components";
+
+import { Classes, ControlGroup, Label } from "@blueprintjs/core";
+import { DateInput } from "@blueprintjs/datetime";
+import { TimePrecision } from "@blueprintjs/datetime";
+import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { Colors } from "constants/Colors";
 import {
+  IntentColors,
   getBorderCSSShorthand,
   labelStyle,
-  IntentColors,
 } from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
-import type { ComponentProps } from "widgets/BaseComponent";
-import { DateInput } from "@blueprintjs/datetime";
-import moment from "moment";
-import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import type { DatePickerType } from "../constants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { TimePrecision } from "@blueprintjs/datetime";
-import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
-  createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
+  createMessage,
 } from "ee/constants/messages";
+import moment from "moment";
+import styled from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
+
+import type { DatePickerType } from "../constants";
 
 const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
   &&& {

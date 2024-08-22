@@ -1,7 +1,7 @@
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { AnvilReduxAction } from "layoutSystems/anvil/integrations/actions/actionTypes";
-import { createImmerReducer } from "utils/ReducerUtils";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 const initialState: LayoutElementPositions = {};
 

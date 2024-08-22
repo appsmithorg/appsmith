@@ -1,10 +1,11 @@
-import type { ControlType } from "constants/PropertyControlConstants";
+import React from "react";
+
 import type {
   ControlBuilder,
-  ControlProps,
   ControlData,
+  ControlProps,
 } from "components/formControls/BaseControl";
-import React from "react";
+import type { ControlType } from "constants/PropertyControlConstants";
 import log from "loglevel";
 
 // Static class to generate form controls based on the control type passed from JSON

@@ -1,14 +1,14 @@
-import { isEmpty, merge } from "lodash";
 import { BaseQueryGenerator } from "WidgetQueryGenerators/BaseQueryGenerator";
 import { QUERY_TYPE } from "WidgetQueryGenerators/types";
 import type {
-  WidgetQueryGenerationConfig,
-  WidgetQueryGenerationFormConfig,
   ActionConfigurationMongoDB,
   MongoDBFormData,
+  WidgetQueryGenerationConfig,
+  WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import { removeSpecialChars } from "utils/helpers";
 import { DatasourceConnectionMode } from "entities/Datasource";
+import { isEmpty, merge } from "lodash";
+import { removeSpecialChars } from "utils/helpers";
 
 enum COMMAND_TYPES {
   "FIND" = "FIND",

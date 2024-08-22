@@ -1,14 +1,15 @@
 import React from "react";
+
+import type { AnvilConfig } from "WidgetProvider/constants";
 import type { SetterConfig } from "entities/AppTheming";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-
-import * as config from "../config";
-import { StatsComponent } from "../component";
-import type { StatsWidgetProps } from "./types";
-import type { AnvilConfig } from "WidgetProvider/constants";
-import { Elevations } from "widgets/anvil/constants";
 import { ContainerComponent } from "widgets/anvil/Container";
+import { Elevations } from "widgets/anvil/constants";
+
+import { StatsComponent } from "../component";
+import * as config from "../config";
+import type { StatsWidgetProps } from "./types";
 
 class WDSStatsWidget extends BaseWidget<StatsWidgetProps, WidgetState> {
   constructor(props: StatsWidgetProps) {

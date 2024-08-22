@@ -1,9 +1,12 @@
-import { Flex } from "@appsmith/ads";
 import React, { useCallback, useState } from "react";
-import ActionToolbar from "./ActionToolbar";
-import ActionDrawer from "./ActionDrawer";
-import { useDispatch } from "react-redux";
+
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
+import { useDispatch } from "react-redux";
+
+import { Flex } from "@appsmith/ads";
+
+import ActionDrawer from "./ActionDrawer";
+import ActionToolbar from "./ActionToolbar";
 
 interface Props {
   children: React.ReactNode;

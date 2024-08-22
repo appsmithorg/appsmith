@@ -1,3 +1,5 @@
+import React from "react";
+
 import type {
   AutocompletionDefinitions,
   WidgetCallout,
@@ -10,9 +12,9 @@ import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig } from "entities/AppTheming";
 import moment from "moment";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
-import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import DatePickerComponent from "../component";

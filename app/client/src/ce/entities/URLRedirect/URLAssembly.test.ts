@@ -1,8 +1,9 @@
+import { APP_MODE } from "entities/App";
+
 import urlBuilder, {
   URLBuilder,
   getQueryStringfromObject,
 } from "./URLAssembly";
-import { APP_MODE } from "entities/App";
 
 describe("URLBuilder", () => {
   beforeEach(() => {

@@ -1,5 +1,6 @@
-const dsl = require("../../../../../fixtures/textNewDsl.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const dsl = require("../../../../../fixtures/textNewDsl.json");
 
 describe(
   "Text Widget Truncate Functionality",

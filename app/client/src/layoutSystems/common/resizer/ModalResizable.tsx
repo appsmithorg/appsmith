@@ -1,13 +1,14 @@
-import { isHandleResizeAllowed } from "layoutSystems/common/resizer/ResizableUtils";
 import type { CSSProperties, ReactNode } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+
+import { isHandleResizeAllowed } from "layoutSystems/common/resizer/ResizableUtils";
+import {
+  ResizeWrapper,
+  getWrapperStyle,
+} from "layoutSystems/common/resizer/common";
 import { Spring } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import { ReflowDirection } from "reflow/reflowTypes";
-import {
-  getWrapperStyle,
-  ResizeWrapper,
-} from "layoutSystems/common/resizer/common";
 import type { StyledComponent } from "styled-components";
 
 const getSnappedValues = (

@@ -1,11 +1,11 @@
+import apiLocators from "../../../../locators/ApiEditor";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import apiLocators from "../../../../locators/ApiEditor";
-import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Bind a button and Api usecase",

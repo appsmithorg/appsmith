@@ -1,32 +1,33 @@
 /* eslint-disable no-console */
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import { addDataTreeToContext } from "ee/workers/Evaluation/Actions";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import { Severity } from "entities/AppsmithConsole";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
+import { klona } from "klona";
+import { set } from "lodash";
+import unescapeJS from "unescape-js";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import unescapeJS from "unescape-js";
-import { Severity } from "entities/AppsmithConsole";
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
-import indirectEval from "./indirectEval";
-import DOM_APIS from "./domApis";
+
 import {
   JSLibraryAccessor,
   libraryReservedIdentifiers,
 } from "../common/JSLibrary";
+import DOM_APIS from "./domApis";
 import {
   ActionInDataFieldErrorModifier,
-  errorModifier,
   FoundPromiseInSyncEvalError,
   PrimitiveErrorModifier,
   TypeErrorModifier,
+  errorModifier,
 } from "./errorModifier";
-import { addDataTreeToContext } from "ee/workers/Evaluation/Actions";
-import { set } from "lodash";
-import { klona } from "klona";
-import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import indirectEval from "./indirectEval";
 
 export interface EvalResult {
   // TODO: Fix this the next time the file is edited

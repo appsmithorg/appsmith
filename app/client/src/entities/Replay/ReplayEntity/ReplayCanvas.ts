@@ -1,17 +1,18 @@
 import type { Diff } from "deep-diff";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import ReplayEntity from "../index";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { AppTheme } from "entities/AppTheming";
 import { set } from "lodash";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+
+import ReplayEntity from "../index";
 import {
-  addToArray,
   FOCUSES,
-  setPropertyUpdate,
   TOASTS,
   UPDATES,
   WIDGETS,
+  addToArray,
+  setPropertyUpdate,
 } from "../replayUtils";
-import type { AppTheme } from "entities/AppTheming";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 export interface Canvas {
   widgets: CanvasWidgetsReduxState;

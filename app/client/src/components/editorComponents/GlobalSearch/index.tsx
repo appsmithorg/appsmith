@@ -5,26 +5,66 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { shallowEqual, useDispatch, useSelector } from "react-redux";
-import styled, { ThemeProvider } from "styled-components";
-import { useParams } from "react-router";
-import history, { NavigationMethod } from "utils/history";
-import type { AppState } from "ee/reducers";
-import SearchModal from "./SearchModal";
-import SearchBox from "./SearchBox";
-import SearchResults from "./SearchResults";
-import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
-import SearchContext from "./GlobalSearchContext";
-import Description from "./Description";
-import ResultsNotFound from "./ResultsNotFound";
-import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
+
 import {
   setGlobalSearchFilterContext,
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
+import {
+  DatasourceCreateEntryPoints,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
+import {
+  builderURL,
+  datasourcesEditorIdURL,
+  jsCollectionIdURL,
+} from "ee/RouteBuilder";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
+import type { AppState } from "ee/reducers";
+import { getPlugins } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { noop } from "lodash";
+import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
+import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
+import {
+  getBasePageIdToPageIdMap,
+  getPageIdToBasePageIdMap,
+} from "selectors/pageListSelectors";
+import { lightTheme } from "selectors/themeSelectors";
+import { getLastSelectedWidget } from "selectors/ui";
+import styled, { ThemeProvider } from "styled-components";
+import { getQueryParams } from "utils/URLUtils";
+import history, { NavigationMethod } from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import Description from "./Description";
+import SearchContext from "./GlobalSearchContext";
+import {
+  useFilteredActions,
+  useFilteredFileOperations,
+  useFilteredJSCollections,
+  useFilteredPages,
+  useFilteredWidgets,
+} from "./GlobalSearchHooks";
+import GlobalSearchHotKeys from "./GlobalSearchHotKeys";
+import ResultsNotFound from "./ResultsNotFound";
+import SearchBox from "./SearchBox";
+import SearchModal from "./SearchModal";
+import SearchResults from "./SearchResults";
+import useRecentEntities from "./useRecentEntities";
 import type { SearchCategory, SearchItem, SelectEvent } from "./utils";
 import {
+  SEARCH_CATEGORY_ID,
+  SEARCH_ITEM_TYPES,
   algoliaHighlightTag,
   filterCategories,
   getEntityId,
@@ -36,45 +76,7 @@ import {
   isMatching,
   isMenu,
   isNavigation,
-  SEARCH_CATEGORY_ID,
-  SEARCH_ITEM_TYPES,
 } from "./utils";
-import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
-import { getLastSelectedWidget } from "selectors/ui";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import useRecentEntities from "./useRecentEntities";
-import { noop } from "lodash";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { getQueryParams } from "utils/URLUtils";
-import { lightTheme } from "selectors/themeSelectors";
-import {
-  useFilteredActions,
-  useFilteredFileOperations,
-  useFilteredJSCollections,
-  useFilteredPages,
-  useFilteredWidgets,
-} from "./GlobalSearchHooks";
-import {
-  builderURL,
-  datasourcesEditorIdURL,
-  jsCollectionIdURL,
-} from "ee/RouteBuilder";
-import { getPlugins } from "ee/selectors/entitiesSelector";
-import {
-  DatasourceCreateEntryPoints,
-  TEMP_DATASOURCE_ID,
-} from "constants/Datasource";
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import {
-  getBasePageIdToPageIdMap,
-  getPageIdToBasePageIdMap,
-} from "selectors/pageListSelectors";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   max-height: 530px;

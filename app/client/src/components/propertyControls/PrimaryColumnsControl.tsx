@@ -1,30 +1,33 @@
 import React, { Component } from "react";
-import type { AppState } from "ee/reducers";
-import { connect } from "react-redux";
-import type { Placement } from "popper.js";
+
 import * as Sentry from "@sentry/react";
-import _ from "lodash";
-import type { ControlProps } from "./BaseControl";
-import BaseControl from "./BaseControl";
-import type { Indices } from "constants/Layers";
-import EmptyDataState from "components/utils/EmptyDataState";
-import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
+import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import EmptyDataState from "components/utils/EmptyDataState";
+import type { Indices } from "constants/Layers";
+import type { AppState } from "ee/reducers";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import _ from "lodash";
+import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
+import type { Placement } from "popper.js";
+import { connect } from "react-redux";
+import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
 import {
   getDefaultColumnProperties,
   getTableStyles,
 } from "widgets/TableWidget/component/TableUtilities";
-import { reorderColumns } from "widgets/TableWidget/component/TableHelpers";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { getEvalErrorPath } from "utils/DynamicBindingUtils";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+
 import { Button } from "@appsmith/ads";
+
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 interface ReduxStateProps {
   dynamicData: DataTree;

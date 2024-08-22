@@ -1,19 +1,22 @@
-import { css } from "styled-components";
-import type { Color } from "./Colors";
-import { Colors } from "./Colors";
-import * as FontFamilies from "./Fonts";
-import tinycolor from "tinycolor2";
-import { Alignment, Classes } from "@blueprintjs/core";
-import type { Typography, TypographyKeys } from "./typography";
-import { typography } from "./typography";
+import React from "react";
 
+import { Alignment, Classes } from "@blueprintjs/core";
 import type { LabelPosition } from "components/constants";
+import { css } from "styled-components";
+import tinycolor from "tinycolor2";
 import {
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SCROLLBAR_WIDTH,
 } from "widgets/TableWidgetV2/component/Constants";
+
 import { Icon } from "@appsmith/ads";
-import React from "react";
+
+import type { Color } from "./Colors";
+import { Colors } from "./Colors";
+import * as FontFamilies from "./Fonts";
+import type { Typography, TypographyKeys } from "./typography";
+import { typography } from "./typography";
+
 export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
 export const IntentColors: Record<string, Color> = {

@@ -1,69 +1,74 @@
-import type {
-  DataTreeEvaluationProps,
-  EvalError as TEvalError,
-  EvaluationError,
-} from "utils/DynamicBindingUtils";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
 import {
-  EvalErrorTypes,
-  getDynamicBindings,
-  getEntityDynamicBindingPathList,
-  getEntityId,
-  getEntityName,
-  getEvalErrorPath,
-  getEvalValuePath,
-  isChildPropertyPath,
-  isDynamicValue,
-  isPathDynamicTrigger,
-  PropertyEvaluationErrorType,
-} from "utils/DynamicBindingUtils";
+  type WebworkerSpanData,
+  profileFn,
+} from "UITelemetry/generateWebWorkerTraces";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
+import {
+  EXECUTION_PARAM_KEY,
+  EXECUTION_PARAM_REFERENCE_REGEX,
+  THIS_DOT_PARAMS_KEY,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import type {
-  WidgetEntity,
-  WidgetEntityConfig,
+  ActionValidationConfigMap,
+  ValidationConfig,
+} from "constants/PropertyControlConstants";
+import type { Diff } from "deep-diff";
+import { applyChange, diff } from "deep-diff";
+import type {
   ActionEntity,
-  JSActionEntityConfig,
-  PrivateWidgets,
   ActionEntityConfig,
   DataTreeEntityConfig,
+  JSActionEntityConfig,
+  PrivateWidgets,
+  WidgetEntity,
+  WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import type {
-  DataTree,
-  DataTreeEntity,
-  ConfigTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
   getAllPathsBasedOnDiffPaths,
 } from "ee/workers/Evaluation/evaluationUtils";
-
 import {
+  CrashingError,
+  DataTreeDiffEvent,
   addDependantsOfNestedPropertyPaths,
   addErrorToEntityProperty,
+  convertJSFunctionsToString,
   convertPathToString,
-  CrashingError,
+  getAllPaths,
   getEntityNameAndPropertyPath,
   getImmediateParentsOfPropertyPaths,
+  getStaleMetaStateIds,
+  isAPathDynamicBindingPath,
   isAction,
+  isAnyJSAction,
   isDynamicLeaf,
   isJSAction,
+  isNewEntity,
+  isNotEntity,
   isWidget,
+  overrideWidgetProperties,
+  resetValidationErrorsForEntityProperty,
   translateDiffEventToDataTreeDiffEvent,
   trimDependantChangePaths,
-  overrideWidgetProperties,
-  getAllPaths,
-  isNewEntity,
-  getStaleMetaStateIds,
-  convertJSFunctionsToString,
-  DataTreeDiffEvent,
-  resetValidationErrorsForEntityProperty,
-  isAPathDynamicBindingPath,
-  isAnyJSAction,
-  isNotEntity,
 } from "ee/workers/Evaluation/evaluationUtils";
+import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import { Severity } from "entities/AppsmithConsole";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
+import DependencyMap from "entities/DependencyMap";
+import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
+import { klona } from "klona/full";
+import { klona as klonaJSON } from "klona/json";
 import {
   difference,
   flatten,
@@ -78,70 +83,63 @@ import {
   union,
   unset,
 } from "lodash";
-
-import type { Diff } from "deep-diff";
-import { applyChange, diff } from "deep-diff";
-import {
-  EXECUTION_PARAM_KEY,
-  EXECUTION_PARAM_REFERENCE_REGEX,
-  THIS_DOT_PARAMS_KEY,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import type { EvalResult, EvaluateContext } from "workers/Evaluation/evaluate";
-import evaluateSync, {
-  evaluateAsync,
-  setEvalContext,
-} from "workers/Evaluation/evaluate";
-import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
-import { Severity } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
-import type { JSUpdate } from "utils/JSPaneUtils";
-
+import microDiff from "microdiff";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import type {
-  ActionValidationConfigMap,
-  ValidationConfig,
-} from "constants/PropertyControlConstants";
-import { klona } from "klona/full";
-import { klona as klonaJSON } from "klona/json";
-import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+  DataTreeEvaluationProps,
+  EvaluationError,
+  EvalError as TEvalError,
+} from "utils/DynamicBindingUtils";
 import {
-  updateDependencyMap,
-  createDependencyMap,
-} from "workers/common/DependencyMap";
+  EvalErrorTypes,
+  PropertyEvaluationErrorType,
+  getDynamicBindings,
+  getEntityDynamicBindingPathList,
+  getEntityId,
+  getEntityName,
+  getEvalErrorPath,
+  getEvalValuePath,
+  isChildPropertyPath,
+  isDynamicValue,
+  isPathDynamicTrigger,
+} from "utils/DynamicBindingUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
 import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
+import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
+import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
+import DataStore from "workers/Evaluation/dataStore";
+import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
+import { errorModifier } from "workers/Evaluation/errorModifier";
+import type { EvalResult, EvaluateContext } from "workers/Evaluation/evaluate";
+import evaluateSync, {
+  evaluateAsync,
+  setEvalContext,
+} from "workers/Evaluation/evaluate";
+import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
+import userLogs from "workers/Evaluation/fns/overrides/console";
+import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
+import {
+  createDependencyMap,
+  updateDependencyMap,
+} from "workers/common/DependencyMap";
+
 import {
   getFixedTimeDifference,
   getIsNewWidgetAdded,
   getOnlyAffectedJSObjects,
   replaceThisDotParams,
 } from "./utils";
-import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   validateActionProperty,
   validateAndParseWidgetProperty,
   validateWidgetProperty,
 } from "./validationUtils";
-import { errorModifier } from "workers/Evaluation/errorModifier";
-import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
-import userLogs from "workers/Evaluation/fns/overrides/console";
-import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import DependencyMap from "entities/DependencyMap";
-import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
-import DataStore from "workers/Evaluation/dataStore";
-import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
-import microDiff from "microdiff";
-import {
-  profileFn,
-  type WebworkerSpanData,
-} from "UITelemetry/generateWebWorkerTraces";
-import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
-import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {

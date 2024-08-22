@@ -1,5 +1,6 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Table Widget property pane feature validation",

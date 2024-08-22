@@ -5,11 +5,11 @@ import {
   deleteErrorLogsInit,
 } from "actions/debuggerActions";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import type { LogActionPayload, Log } from "entities/AppsmithConsole";
-import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
+import type { Log, LogActionPayload } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
+import { isEmpty } from "lodash";
 import moment from "moment";
 import store from "store";
-import { isEmpty } from "lodash";
 
 // * @param payload - payload of the error
 //  * @param severity - severity of the error

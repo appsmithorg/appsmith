@@ -1,21 +1,22 @@
-import styled, { css } from "styled-components";
-import type {
-  CellLayoutProperties,
-  CellAlignment,
-  VerticalAlignment,
-  ImageSize,
-} from "./Constants";
-import {
-  TABLE_SIZES,
-  ImageSizes,
-  MULTISELECT_CHECKBOX_WIDTH,
-} from "./Constants";
+import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { invisible } from "constants/DefaultTheme";
-import { lightenColor, darkenColor } from "widgets/WidgetUtils";
-import { FontStyleTypes } from "constants/WidgetConstants";
-import { Classes } from "@blueprintjs/core";
 import { Layers } from "constants/Layers";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import styled, { css } from "styled-components";
+import { darkenColor, lightenColor } from "widgets/WidgetUtils";
+
+import type {
+  CellAlignment,
+  CellLayoutProperties,
+  ImageSize,
+  VerticalAlignment,
+} from "./Constants";
+import {
+  ImageSizes,
+  MULTISELECT_CHECKBOX_WIDTH,
+  TABLE_SIZES,
+} from "./Constants";
 
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";

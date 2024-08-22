@@ -1,39 +1,39 @@
 import React from "react";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
 import {
-  FileDataTypes,
   DefaultMobileCameraTypes,
+  FileDataTypes,
 } from "WidgetProvider/constants";
-
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import CameraComponent from "../component";
-import type { CameraMode } from "../constants";
-import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   BACK_CAMERA_LABEL,
-  createMessage,
   DEFAULT_CAMERA_LABEL,
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
+  createMessage,
 } from "ee/constants/messages";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { base64ToBlob, createBlobUrl } from "utils/AppsmithUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+
+import CameraComponent from "../component";
+import type { CameraMode } from "../constants";
+import { CameraModeTypes, MediaCaptureStatusTypes } from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
   static type = "CAMERA_WIDGET";

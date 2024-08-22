@@ -1,16 +1,17 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
-import { useSelector } from "react-redux";
 import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { useSelector } from "react-redux";
+import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
+import type { WidgetProps } from "widgets/BaseWidget";
 
-import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { useCanvasWidthAutoResize } from "../../hooks/useCanvasWidthAutoResize";
+import { PageView, PageViewWrapper } from "./AppPage.styled";
 
 interface AppPageProps {
   appName?: string;

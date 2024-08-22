@@ -1,26 +1,27 @@
-import { get } from "lodash";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { DynamicHeight, RegisteredWidgetFeatures } from "utils/WidgetFeatures";
-import type { WidgetProps } from "widgets/BaseWidget";
-import {
-  getNumberOfChildListWidget,
-  getNumberOfParentListWidget,
-} from "./helper";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   FlexLayerAlignment,
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { get } from "lodash";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import { DynamicHeight, RegisteredWidgetFeatures } from "utils/WidgetFeatures";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import {
+  getNumberOfChildListWidget,
+  getNumberOfParentListWidget,
+} from "./helper";
 
 const DEFAULT_LIST_DATA = [
   {

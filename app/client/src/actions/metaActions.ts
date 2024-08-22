@@ -1,13 +1,13 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
-import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
-  WidgetEntity,
   DataTreeEntityConfig,
+  WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 
 export interface UpdateWidgetMetaPropertyPayload {
   widgetId: string;

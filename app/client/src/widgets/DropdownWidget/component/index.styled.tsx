@@ -1,13 +1,13 @@
 import { Alignment, Label } from "@blueprintjs/core";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import type { TextSize } from "constants/WidgetConstants";
-import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
-import { LabelPosition } from "components/constants";
 import {
   LABEL_MAX_WIDTH_RATE,
   TooltipComponent as Tooltip,
 } from "@design-system/widgets-old";
+import { LabelPosition } from "components/constants";
+import { Colors } from "constants/Colors";
+import type { TextSize } from "constants/WidgetConstants";
+import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import styled from "styled-components";
 
 export const TextLabelWrapper = styled.div<{
   compactMode: boolean;

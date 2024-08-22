@@ -1,8 +1,10 @@
-import type {
-  TYPOGRAPHY_VARIANTS,
-  TYPOGRAPHY_FONT_WEIGHTS,
-} from "@appsmith/wds-theming";
 import type { ReactNode } from "react";
+
+import type {
+  TYPOGRAPHY_FONT_WEIGHTS,
+  TYPOGRAPHY_VARIANTS,
+} from "@appsmith/wds-theming";
+
 import type { COLORS } from "../../../shared";
 
 export interface TextProps {

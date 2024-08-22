@@ -1,12 +1,16 @@
+import React, { useEffect, useMemo, useRef } from "react";
+
+import { createPortal } from "react-dom";
+
 import type { AppState } from "ee/reducers";
-import { Icon } from "@appsmith/ads";
 import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";
-import React, { useEffect, useMemo, useRef } from "react";
-import { createPortal } from "react-dom";
-import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
+import { ThemeMode, getThemeDetails } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { generateReactKey } from "utils/generators";
+
+import { Icon } from "@appsmith/ads";
+
 import { draggableElement } from "./utils";
 
 export interface PopperProps {

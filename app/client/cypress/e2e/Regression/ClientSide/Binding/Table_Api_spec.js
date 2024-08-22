@@ -1,14 +1,14 @@
+import apiLocators from "../../../../locators/ApiEditor";
+import {
+  agHelper,
+  apiPage,
+  deployMode,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
-import apiLocators from "../../../../locators/ApiEditor";
-import {
-  apiPage,
-  agHelper,
-  deployMode,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Test Create Api and Bind to Table widget",

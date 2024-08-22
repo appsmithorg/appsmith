@@ -1,32 +1,33 @@
-import type { FocusEntityInfo } from "navigation/FocusEntity";
-import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import {
   setIdeEditorViewMode,
   setJSTabs,
   setQueryTabs,
 } from "actions/ideActions";
-import history from "../utils/history";
 import {
   jsCollectionAddURL,
   jsCollectionListURL,
   queryAddURL,
   queryListURL,
 } from "ee/RouteBuilder";
-import type { EntityItem } from "ee/entities/IDE/constants";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
-import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
-import log from "loglevel";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import type { EditorViewMode } from "ee/entities/IDE/constants";
-import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 import {
   selectJSSegmentEditorTabs,
   selectQuerySegmentEditorTabs,
 } from "ee/selectors/appIDESelectors";
+import log from "loglevel";
+import type { FocusEntityInfo } from "navigation/FocusEntity";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
+import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
+
+import history from "../utils/history";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id, params } = entityInfo;

@@ -1,30 +1,32 @@
-import React, { useEffect, useCallback } from "react";
-import styled from "styled-components";
-import { Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
-import type {
-  ReactTableColumnProps,
-  ReactTableFilter,
-  Operator,
-} from "../../../Constants";
-import { OperatorTypes, DEFAULT_FILTER } from "../../../Constants";
-import type { DropdownOption } from ".";
-import CascadeFields from "./CascadeFields";
-import {
-  createMessage,
-  TABLE_FILTER_COLUMN_TYPE_CALLOUT,
-} from "ee/constants/messages";
-import { Icon, IconSize } from "@design-system/widgets-old";
-import { StyledButton as Button } from "widgets/ButtonWidget/component";
-import { ButtonVariantTypes } from "components/constants";
+import React, { useCallback, useEffect } from "react";
 
+import { Classes } from "@blueprintjs/core";
+import { Icon, IconSize } from "@design-system/widgets-old";
+import { ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import {
+  TABLE_FILTER_COLUMN_TYPE_CALLOUT,
+  createMessage,
+} from "ee/constants/messages";
 import { cloneDeep } from "lodash";
+import styled from "styled-components";
+import { generateReactKey } from "utils/generators";
+import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import {
   ColumnTypes,
   FilterableColumnTypes,
 } from "widgets/TableWidgetV2/constants";
-import { generateReactKey } from "utils/generators";
+
 import { importRemixIcon } from "@appsmith/ads-old";
+
+import type { DropdownOption } from ".";
+import type {
+  Operator,
+  ReactTableColumnProps,
+  ReactTableFilter,
+} from "../../../Constants";
+import { DEFAULT_FILTER, OperatorTypes } from "../../../Constants";
+import CascadeFields from "./CascadeFields";
 
 const AddIcon = importRemixIcon(
   async () => import("remixicon-react/AddLineIcon"),

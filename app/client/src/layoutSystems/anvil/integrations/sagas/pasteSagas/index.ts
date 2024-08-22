@@ -1,31 +1,32 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
-import { getWidgets } from "sagas/selectors";
-import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
+import WidgetFactory from "WidgetProvider/factory";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { builderURL } from "ee/RouteBuilder";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
+import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUtils";
+import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select, takeLeading } from "redux-saga/effects";
+import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidgets } from "sagas/selectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history from "utils/history";
+import { getCopiedWidgets } from "utils/storage";
+
+import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
   PastePayload,
 } from "../../../utils/paste/types";
-import { getCopiedWidgets } from "utils/storage";
-import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUtils";
-import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "../../selectors";
-import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
 
 function* pasteAnvilModalWidgets(
   allWidgets: CanvasWidgetsReduxState,

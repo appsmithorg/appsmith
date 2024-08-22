@@ -1,39 +1,40 @@
 import * as React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+
 import {
   Alignment,
-  Button,
+  Classes as BlueprintClasses,
   Classes as BlueprintCoreClasses,
+  MenuItem as BlueprintMenuItem,
+  Button,
   Icon,
   Menu,
-  MenuItem as BlueprintMenuItem,
-  Classes as BlueprintClasses,
 } from "@blueprintjs/core";
-import { Classes, Popover2 } from "@blueprintjs/popover2";
 import type { IconName } from "@blueprintjs/icons";
-import {
-  getCustomBackgroundColor,
-  getCustomBorderColor,
-  getCustomHoverColor,
-  lightenColor,
-  getComplementaryGrayscaleColor,
-} from "widgets/WidgetUtils";
-import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import { Classes, Popover2 } from "@blueprintjs/popover2";
+import type { ThemeProp } from "WidgetProvider/constants";
 import type { ButtonVariant } from "components/constants";
 import { ButtonVariantTypes } from "components/constants";
-import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
-import {
-  getBooleanPropertyValue,
-  getPropertyValue,
-} from "widgets/TableWidgetV2/widget/utilities";
-import type { ThemeProp } from "WidgetProvider/constants";
+import { darkenActive, darkenHover } from "constants/DefaultTheme";
+import styled, { createGlobalStyle } from "styled-components";
+import tinycolor from "tinycolor2";
 import type {
   ConfigureMenuItems,
   MenuItem,
   MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
+import {
+  getBooleanPropertyValue,
+  getPropertyValue,
+} from "widgets/TableWidgetV2/widget/utilities";
+import {
+  getComplementaryGrayscaleColor,
+  getCustomBackgroundColor,
+  getCustomBorderColor,
+  getCustomHoverColor,
+  lightenColor,
+} from "widgets/WidgetUtils";
 
 const MenuButtonContainer = styled.div`
   width: 100%;

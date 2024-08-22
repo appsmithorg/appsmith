@@ -1,3 +1,10 @@
+import {
+  agHelper,
+  dataSources,
+  entityExplorer,
+  table,
+} from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
@@ -6,13 +13,6 @@ const queryEditor = require("../../../../locators/QueryEditor.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import {
-  entityExplorer,
-  agHelper,
-  dataSources,
-  table,
-} from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Addwidget from Query and bind with other widgets",

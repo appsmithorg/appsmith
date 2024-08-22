@@ -1,5 +1,6 @@
-import type { DSLWidget } from "../types";
 import has from "lodash/has";
+
+import type { DSLWidget } from "../types";
 
 export const migrateInputValidation = (currentDSL: DSLWidget) => {
   if (currentDSL.type === "INPUT_WIDGET") {

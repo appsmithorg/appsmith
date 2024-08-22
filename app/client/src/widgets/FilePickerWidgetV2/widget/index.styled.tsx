@@ -1,10 +1,10 @@
+import "@uppy/core/dist/style.css";
+import "@uppy/dashboard/dist/style.css";
+import "@uppy/webcam/dist/style.css";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "styled-components";
-import "@uppy/core/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
-import "@uppy/webcam/dist/style.css";
 
 // Using the `&&` trick (which duplicates the selector) to increase specificity of custom styles. Otherwise,
 // the custom styles may be overridden by @uppy/*.css imports – they have the same specificity,

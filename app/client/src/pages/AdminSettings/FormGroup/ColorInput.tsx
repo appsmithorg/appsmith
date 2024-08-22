@@ -1,19 +1,21 @@
-import React, { memo, useRef, useCallback, useState } from "react";
+import React, { memo, useCallback, useRef, useState } from "react";
+
+import { Classes, InputGroup } from "@blueprintjs/core";
+import Color from "colorjs.io";
+import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import { startCase } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { startCase } from "lodash";
-import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { Icon, Text, Tooltip } from "@appsmith/ads";
-import { InputGroup, Classes } from "@blueprintjs/core";
-import Color from "colorjs.io";
-
-import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
-import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import tinycolor from "tinycolor2";
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
+
+import { Icon, Text, Tooltip } from "@appsmith/ads";
+
 import type { brandColorsKeys } from "../Branding/BrandingPage";
 import { ContentBox } from "../components";
+import type { SettingComponentProps } from "./Common";
+import { FormGroup } from "./Common";
 
 export const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {

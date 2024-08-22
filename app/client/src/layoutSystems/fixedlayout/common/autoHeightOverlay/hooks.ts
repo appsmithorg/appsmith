@@ -1,26 +1,28 @@
+import type { CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
 import { focusWidget } from "actions/widgetActions";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   WidgetHeightLimits,
 } from "constants/WidgetConstants";
-import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import type { AppState } from "ee/reducers";
+import { useSelector } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getParentToOpenSelector } from "selectors/widgetSelectors";
 import { CallbackHandlerEventType } from "utils/CallbackHandler/CallbackHandlerEventType";
 import DynamicHeightCallbackHandler from "utils/CallbackHandler/DynamicHeightCallbackHandler";
-import { useAutoHeightLimitsDispatch, useAutoHeightLimitsState } from "./store";
-import type { onMouseHoverCallbacksProps } from "./types";
-import { getSnappedValues } from "./utils";
-import type { AppState } from "ee/reducers";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { useSelector } from "react-redux";
+import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
 import {
   useShowPropertyPane,
   useShowTableFilterPane,
 } from "utils/hooks/dragResizeHooks";
-import { getParentToOpenSelector } from "selectors/widgetSelectors";
-import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+
+import { useAutoHeightLimitsDispatch, useAutoHeightLimitsState } from "./store";
+import type { onMouseHoverCallbacksProps } from "./types";
+import { getSnappedValues } from "./utils";
 
 type UseHoverStateReturnType = [boolean, onMouseHoverCallbacksProps];
 

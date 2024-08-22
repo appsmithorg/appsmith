@@ -1,11 +1,11 @@
 import type { AppState } from "ee/reducers";
-import { createSelector } from "reselect";
-import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
 import type { Branch } from "entities/GitSync";
+import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
+import { createSelector } from "reselect";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;

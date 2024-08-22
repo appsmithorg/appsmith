@@ -1,14 +1,16 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import { keyBy } from "lodash";
-import type { LogItemProps } from "../ErrorLogItem";
-import { Colors } from "constants/Colors";
-import { getPlugins } from "ee/selectors/entitiesSelector";
-import EntityLink from "../../EntityLink";
+
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
+import { Colors } from "constants/Colors";
 import { getIconForEntity } from "ee/components/editorComponents/Debugger/ErrorLogs/getLogIconForEntity";
+import { getPlugins } from "ee/selectors/entitiesSelector";
+import { keyBy } from "lodash";
 import { getPluginImagesFromPlugins } from "pages/Editor/utils";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+
+import EntityLink from "../../EntityLink";
+import type { LogItemProps } from "../ErrorLogItem";
 
 const EntityLinkWrapper = styled.div`
   display: flex;

@@ -1,6 +1,6 @@
 import {
-  dataSources,
   autoLayout,
+  dataSources,
   draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 

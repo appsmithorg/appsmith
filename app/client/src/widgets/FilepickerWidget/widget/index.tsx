@@ -1,3 +1,5 @@
+import React from "react";
+
 import type { Uppy } from "@uppy/core";
 import type Dashboard from "@uppy/dashboard";
 import type {
@@ -15,10 +17,10 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
 import log from "loglevel";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
-import React from "react";
 import shallowequal from "shallowequal";
 import { importUppy, isUppyLoaded } from "utils/importUppy";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import FilePickerComponent from "../component";

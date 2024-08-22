@@ -1,4 +1,11 @@
+import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
+import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
+import { mockButtonProps } from "mocks/widgetProps/button";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import ButtonWidget from "widgets/ButtonWidget/widget";
+
 import type {
   AnvilHighlightInfo,
   LayoutComponentProps,
@@ -10,12 +17,6 @@ import {
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
 } from "./layoutUtils";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
-import { mockButtonProps } from "mocks/widgetProps/button";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import ButtonWidget from "widgets/ButtonWidget/widget";
 
 describe("layoutUtils tests", () => {
   describe("getLayoutId", () => {

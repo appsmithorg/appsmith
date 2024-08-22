@@ -1,16 +1,18 @@
-const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
-const dslWithCurrencyWidget = require("../../../../../../fixtures/Listv2/simpleListWithCurrencyWidget.json");
 import {
   agHelper,
-  locators,
-  entityExplorer,
-  propPane,
-  draggableWidgets,
   deployMode,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
 } from "../../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../../support/Pages/EditorNavigation";
+
+const dsl = require("../../../../../../fixtures/Listv2/simpleLargeListv2.json");
+const dslWithCurrencyWidget = require("../../../../../../fixtures/Listv2/simpleListWithCurrencyWidget.json");
+
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 

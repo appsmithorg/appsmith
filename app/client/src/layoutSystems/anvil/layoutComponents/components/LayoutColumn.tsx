@@ -1,11 +1,12 @@
-import BaseLayoutComponent from "../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
   LayoutComponentTypes,
   type LayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import type { FlexLayoutProps } from "./FlexLayout";
 import { deriveColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/columnHighlights";
+
+import BaseLayoutComponent from "../BaseLayoutComponent";
+import type { FlexLayoutProps } from "./FlexLayout";
 
 class LayoutColumn extends BaseLayoutComponent {
   static type: LayoutComponentTypes = LayoutComponentTypes.LAYOUT_COLUMN;

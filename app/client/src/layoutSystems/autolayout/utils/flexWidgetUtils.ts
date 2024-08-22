@@ -1,7 +1,7 @@
+import type { WidgetSizeConfig } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import store from "store";
-import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetSizeConfig } from "WidgetProvider/constants";
 
 export interface MinMaxSize {
   minHeight: number | string;

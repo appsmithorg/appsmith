@@ -1,4 +1,5 @@
-import type { ReactNode, CSSProperties, MouseEventHandler } from "react";
+import type { CSSProperties, MouseEventHandler, ReactNode } from "react";
+
 import type { SizingDimension, SpacingDimension } from "./dimensions";
 
 export interface ResponsiveProp<T> {

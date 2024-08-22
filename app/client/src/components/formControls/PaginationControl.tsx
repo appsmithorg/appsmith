@@ -1,12 +1,14 @@
 import React from "react";
+
+import FormLabel from "components/editorComponents/FormLabel";
+import { PaginationSubComponent } from "components/formControls/utils";
+import type { ControlType } from "constants/PropertyControlConstants";
+import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
+import FormControl from "pages/Editor/FormControl";
+import styled from "styled-components";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
-import FormControl from "pages/Editor/FormControl";
-import FormLabel from "components/editorComponents/FormLabel";
-import styled from "styled-components";
-import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
-import { PaginationSubComponent } from "components/formControls/utils";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;

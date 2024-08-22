@@ -1,22 +1,24 @@
 import React from "react";
+
+import type { ControlProps } from "components/formControls/BaseControl";
 import {
+  ViewTypes,
   alternateViewTypeInputConfig,
   getViewType,
   switchViewType,
-  ViewTypes,
 } from "components/formControls/utils";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
-import type { ControlProps } from "components/formControls/BaseControl";
+import { get } from "lodash";
 import { connect, useSelector } from "react-redux";
-import { getFormValues } from "redux-form";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
+import { getFormValues } from "redux-form";
 import { change } from "redux-form";
-import { get } from "lodash";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "ee/constants/messages";
-import { ToggleButton, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
+
+import { ToggleButton, Tooltip } from "@appsmith/ads";
 
 interface Props {
   viewType: ViewTypes;

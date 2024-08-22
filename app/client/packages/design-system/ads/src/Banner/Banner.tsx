@@ -1,7 +1,7 @@
 import React from "react";
 
-import type { BannerProps } from "./Banner.types";
 import { StyledBanner } from "./Banner.styles";
+import type { BannerProps } from "./Banner.types";
 
 function Banner({ link, ...props }: BannerProps) {
   return (

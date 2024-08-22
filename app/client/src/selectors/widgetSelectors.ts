@@ -1,28 +1,28 @@
-import { createSelector } from "reselect";
+import WidgetFactory from "WidgetProvider/factory";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppState } from "ee/reducers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { get } from "lodash";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import { createSelector } from "reselect";
 import { getExistingWidgetNames } from "sagas/selectors";
+import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 
-import WidgetFactory from "WidgetProvider/factory";
+import { combinedPreviewModeSelector } from "./editorSelectors";
+import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
 import {
   getAltBlockWidgetSelection,
   getFocusedWidget,
   getLastSelectedWidget,
   getSelectedWidgets,
 } from "./ui";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { get } from "lodash";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
-import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
-import { getIsPropertyPaneVisible } from "./propertyPaneSelectors";
-import { combinedPreviewModeSelector } from "./editorSelectors";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;

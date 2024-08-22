@@ -11,11 +11,11 @@ import {
   locators,
   table,
 } from "../../support/Objects/ObjectsCore";
-import PageList from "../../support/Pages/PageList";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../support/Pages/EditorNavigation";
+import PageList from "../../support/Pages/PageList";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-all";

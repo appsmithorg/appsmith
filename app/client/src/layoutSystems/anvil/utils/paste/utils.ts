@@ -1,19 +1,20 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { cloneDeep } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
-import type { CopiedWidgetData } from "./types";
+
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import WidgetFactory from "WidgetProvider/factory";
 import { widgetHierarchy } from "../constants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { CopiedWidgetData } from "./types";
 
 export function* addPastedWidgets(
   arr: CopiedWidgetData,

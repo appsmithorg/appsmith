@@ -1,21 +1,22 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { Text } from "@appsmith/ads";
-import { useSelector } from "react-redux";
 
-import CardList from "pages/Applications/CardList";
-import { PaddingWrapper } from "pages/Applications/CommonElements";
-import { NoAppsFound } from "ee/pages/Applications";
-import ApplicationCard from "pages/Applications/ApplicationCard";
-import type { ApplicationPayload } from "entities/Application";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   APPLICATION_CARD_LIST_ZERO_STATE,
   createMessage,
 } from "ee/constants/messages";
+import { NoAppsFound } from "ee/pages/Applications";
 import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import type { ApplicationPayload } from "entities/Application";
+import ApplicationCard from "pages/Applications/ApplicationCard";
+import CardList from "pages/Applications/CardList";
+import { PaddingWrapper } from "pages/Applications/CommonElements";
+import { useSelector } from "react-redux";
+
+import { Text } from "@appsmith/ads";
 
 interface ApplicationCardListProps {
   applications: ApplicationPayload[];

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+
 import { Collapse } from "@blueprintjs/core";
 import {
   Button,
@@ -8,6 +8,8 @@ import {
   Text,
   TextType,
 } from "@design-system/widgets-old";
+import styled from "styled-components";
+
 import { messages } from "../constants";
 
 const ChartErrorContainer = styled.div`

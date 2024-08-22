@@ -1,9 +1,9 @@
 import {
   agHelper,
+  dataManager,
   dataSources,
   locators,
   propPane,
-  dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(

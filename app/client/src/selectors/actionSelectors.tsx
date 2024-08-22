@@ -1,13 +1,14 @@
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { createSelector } from "reselect";
-import WidgetFactory from "WidgetProvider/factory";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import type { JSLibrary } from "workers/common/JSLibrary";
-import { getDataTree } from "./dataTreeSelectors";
+import WidgetFactory from "WidgetProvider/factory";
 import {
   getExistingPageNames,
   selectInstalledLibraries,
 } from "ee/selectors/entitiesSelector";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { createSelector } from "reselect";
+import type { JSLibrary } from "workers/common/JSLibrary";
+
+import { getDataTree } from "./dataTreeSelectors";
 import {
   getErrorForApiName,
   getErrorForJSObjectName,

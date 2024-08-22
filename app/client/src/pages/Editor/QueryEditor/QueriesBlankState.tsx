@@ -1,8 +1,9 @@
 import React from "react";
+
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+
 import { Flex, Text } from "@appsmith/ads";
 import { importSvg } from "@appsmith/ads-old";
-
-import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 
 const QueriesBlankState = () => {
   const BlankStateIllustration = importSvg(

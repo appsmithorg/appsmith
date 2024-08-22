@@ -1,10 +1,11 @@
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { createImmerReducer } from "utils/ReducerUtils";
-import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
+import { createImmerReducer } from "utils/ReducerUtils";
+
+import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
 
 const initialState: WidgetDragResizeState = {
   isDragging: false,

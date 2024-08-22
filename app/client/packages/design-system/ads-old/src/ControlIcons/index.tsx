@@ -1,9 +1,10 @@
 import type { JSXElementConstructor } from "react";
 import React from "react";
+
+import PlayIcon from "../assets/icons/control/play-icon.png";
 import type { IconProps } from "../constants/Icon";
 import { IconWrapper } from "../constants/Icon";
 import { importRemixIcon, importSvg } from "../utils/icon-loadables";
-import PlayIcon from "../assets/icons/control/play-icon.png";
 
 const DeleteIcon = importSvg(
   async () => import("../assets/icons/control/delete.svg"),

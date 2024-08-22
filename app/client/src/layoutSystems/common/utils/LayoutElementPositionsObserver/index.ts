@@ -1,5 +1,14 @@
-import { debounce } from "lodash";
 import type { RefObject } from "react";
+
+import {
+  deleteLayoutElementPositions,
+  readLayoutElementPositions,
+} from "layoutSystems/anvil/integrations/actions";
+import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { debounce } from "lodash";
+import ResizeObserver from "resize-observer-polyfill";
+import store from "store";
+
 import {
   ANVIL_WIDGET,
   LAYOUT,
@@ -8,13 +17,7 @@ import {
   getAnvilLayoutDOMId,
   getAnvilWidgetDOMId,
 } from "./utils";
-import store from "store";
-import {
-  deleteLayoutElementPositions,
-  readLayoutElementPositions,
-} from "layoutSystems/anvil/integrations/actions";
-import ResizeObserver from "resize-observer-polyfill";
-import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+
 // Note: We have a singleton observer in `utils/resizeObserver.ts`. I noticed this too late and the API is not easy to adapt in this file.
 // Adding this to the list of things to fix in the future.
 /**

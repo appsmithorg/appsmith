@@ -1,13 +1,15 @@
-import React, { useEffect, useRef, useCallback } from "react";
-import styled from "styled-components";
-import { SearchInput } from "@appsmith/ads";
+import React, { useCallback, useEffect, useRef } from "react";
+
+import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import {
   getShouldFocusPanelPropertySearch,
   getShouldFocusPropertySearch,
 } from "selectors/propertyPaneSelectors";
+import styled from "styled-components";
 import { isCurrentFocusOnInput } from "utils/editorContextUtils";
-import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "ee/constants/messages";
+
+import { SearchInput } from "@appsmith/ads";
 
 const Container = styled.div`
   position: sticky;

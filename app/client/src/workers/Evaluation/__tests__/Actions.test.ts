@@ -1,14 +1,15 @@
 import type { ActionEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { PluginType } from "entities/Action";
-import type { EvalContext } from "workers/Evaluation/evaluate";
-import { createEvaluationContext } from "workers/Evaluation/evaluate";
-import { MessageType } from "utils/MessageUtil";
 import {
   addDataTreeToContext,
   addPlatformFunctionsToEvalContext,
 } from "ee/workers/Evaluation/Actions";
+import { PluginType } from "entities/Action";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { MessageType } from "utils/MessageUtil";
+import type { EvalContext } from "workers/Evaluation/evaluate";
+import { createEvaluationContext } from "workers/Evaluation/evaluate";
+
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 
 jest.mock("lodash/uniqueId");

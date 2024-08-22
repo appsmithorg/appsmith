@@ -1,11 +1,14 @@
 import React, { useMemo } from "react";
-import styles from "./styles.module.css";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { getAnvilCanvasId } from "./utils";
+
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { AnvilDetachedWidgets } from "./AnvilDetachedWidgets";
 import styled from "styled-components";
+import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
+
+import { AnvilDetachedWidgets } from "./AnvilDetachedWidgets";
+import styles from "./styles.module.css";
+import { getAnvilCanvasId } from "./utils";
 
 const appMaxWidthToCSSValue = (maxWidth: AppMaxWidth): string => {
   switch (maxWidth) {

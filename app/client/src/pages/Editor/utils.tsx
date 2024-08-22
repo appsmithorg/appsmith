@@ -1,45 +1,48 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router";
-import { debounce, random } from "lodash";
+
+import ReactDOM from "react-dom";
+
+import WidgetFactory from "WidgetProvider/factory";
+import type { ActionResponse } from "api/ActionAPI";
+import type { Plugin } from "api/PluginApi";
+import ImageAlt from "assets/images/placeholder-image.svg";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import ResizeObserver from "resize-observer-polyfill";
-import WidgetFactory from "WidgetProvider/factory";
-import {
-  createMessage,
-  WIDGET_DEPRECATION_MESSAGE,
-} from "ee/constants/messages";
-import type { URLBuilderParams } from "ee/entities/URLRedirect/URLAssembly";
-import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import type { WidgetCardProps } from "widgets/BaseWidget";
-import type { ActionResponse } from "api/ActionAPI";
 import type { Module } from "ee/constants/ModuleConstants";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import {
-  ENTITY_ICON_SIZE,
-  EntityIcon,
-  JsFileIconV2,
-  dbQueryIcon,
-} from "pages/Editor/Explorer/ExplorerIcons";
-import { PluginType } from "entities/Action";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import type { Plugin } from "api/PluginApi";
-import ImageAlt from "assets/images/placeholder-image.svg";
-import { Icon } from "@appsmith/ads";
+  WIDGET_DEPRECATION_MESSAGE,
+  createMessage,
+} from "ee/constants/messages";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorState,
   EditorViewMode,
 } from "ee/entities/IDE/constants";
+import type { URLBuilderParams } from "ee/entities/URLRedirect/URLAssembly";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { PluginType } from "entities/Action";
+import { debounce, random } from "lodash";
 import { FocusEntity } from "navigation/FocusEntity";
+import {
+  ENTITY_ICON_SIZE,
+  EntityIcon,
+  JsFileIconV2,
+  dbQueryIcon,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
+import ResizeObserver from "resize-observer-polyfill";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import type { WidgetCardProps } from "widgets/BaseWidget";
+
+import { Icon } from "@appsmith/ads";
 
 export const draggableElement = (
   id: string,

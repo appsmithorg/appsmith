@@ -1,7 +1,8 @@
 import React from "react";
+
 import type { TooltipOptions } from "@appsmith/wds-headless";
 
-import { TooltipRoot, TooltipContent, TooltipTrigger } from "./";
+import { TooltipContent, TooltipRoot, TooltipTrigger } from "./";
 
 export type TooltipProps = {
   tooltip?: React.ReactNode;

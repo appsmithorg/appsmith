@@ -1,13 +1,14 @@
 import React, { useCallback, useRef, useState } from "react";
-import styled, { css } from "styled-components";
-import { Alignment, Classes, Label } from "@blueprintjs/core";
 
-import { LabelPosition } from "components/constants";
-import { FontStyleTypes } from "constants/WidgetConstants";
+import { Alignment, Classes, Label } from "@blueprintjs/core";
 import { TooltipComponent as Tooltip } from "@design-system/widgets-old";
-import { isEllipsisActive } from "utils/helpers";
+import { LabelPosition } from "components/constants";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import styled, { css } from "styled-components";
+import { isEllipsisActive } from "utils/helpers";
+
 import { importSvg } from "@appsmith/ads-old";
 
 const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));

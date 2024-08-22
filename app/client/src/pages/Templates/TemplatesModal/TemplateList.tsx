@@ -1,19 +1,21 @@
+import React from "react";
+
+import type { Template } from "api/TemplatesApi";
 import {
   FETCHING_TEMPLATE_LIST,
   FORKING_TEMPLATE,
   createMessage,
 } from "ee/constants/messages";
-import type { Template } from "api/TemplatesApi";
-import React from "react";
 import { useSelector } from "react-redux";
 import {
   isFetchingTemplatesSelector,
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import LoadingScreen from "./LoadingScreen";
-import TemplateFilters from "../TemplateFilters";
+
 import { TemplateContent } from "../TemplateContent";
+import TemplateFilters from "../TemplateFilters";
+import LoadingScreen from "./LoadingScreen";
 
 const Wrapper = styled.div`
   display: flex;

@@ -1,14 +1,14 @@
+import {
+  agHelper,
+  entityExplorer,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-} from "../../../../support/Objects/ObjectsCore";
 
 before(() => {
   agHelper.AddDsl("formWithInputdsl");

@@ -1,19 +1,20 @@
 import React, { useMemo } from "react";
-import styled from "styled-components";
-import type { ControllerRenderProps } from "react-hook-form";
+
 import { sortBy } from "lodash";
+import type { ControllerRenderProps } from "react-hook-form";
+import styled from "styled-components";
 
 import Accordion from "../component/Accordion";
 import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import FieldRenderer from "./FieldRenderer";
 import NestedFormWrapper from "../component/NestedFormWrapper";
-import useUpdateAccessor from "./useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import type {
   BaseFieldComponentProps,
   FieldComponent,
   FieldComponentBaseProps,
 } from "../constants";
+import FieldRenderer from "./FieldRenderer";
+import useUpdateAccessor from "./useObserveAccessor";
 
 type ObjectComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;

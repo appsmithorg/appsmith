@@ -1,13 +1,14 @@
+import { useContext, useEffect } from "react";
+
 import * as Sentry from "@sentry/react";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { klona } from "klona";
 import { set } from "lodash";
 import type { ControllerProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
-import { useContext, useEffect } from "react";
-import { klona } from "klona";
 
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;

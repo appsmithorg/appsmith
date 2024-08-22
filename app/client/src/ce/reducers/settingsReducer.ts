@@ -3,9 +3,9 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
-import type { TenantReduxState } from "ee/reducers/tenantReducer";
 import { tenantConfigConnection } from "ee/constants/tenantConstants";
+import type { TenantReduxState } from "ee/reducers/tenantReducer";
+import { createReducer } from "utils/ReducerUtils";
 
 export const initialState: SettingsReduxState = {
   isLoading: true,

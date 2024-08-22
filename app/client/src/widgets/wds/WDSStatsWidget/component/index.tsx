@@ -1,7 +1,8 @@
 import React from "react";
-import type { StatsComponentProps } from "./types";
 
 import { Flex, Icon, Text } from "@appsmith/wds";
+
+import type { StatsComponentProps } from "./types";
 
 export const StatsComponent = (props: StatsComponentProps) => {
   const {

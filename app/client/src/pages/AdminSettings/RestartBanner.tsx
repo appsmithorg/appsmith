@@ -1,23 +1,25 @@
 import React from "react";
-import { hexToRgba } from "@appsmith/ads-old";
-import { Button, Icon, Spinner, Text } from "@appsmith/ads";
+
+import { Colors } from "constants/Colors";
+import { retryServerRestart } from "ee/actions/settingsAction";
 import {
-  getIsRestartFailed,
-  getRestartingState,
-} from "selectors/settingsSelectors";
-import { useSelector } from "react-redux";
-import styled from "styled-components";
-import {
-  createMessage,
-  RETRY_BUTTON,
   RESTART_BANNER_BODY,
   RESTART_BANNER_HEADER,
   RESTART_ERROR_BODY,
   RESTART_ERROR_HEADER,
+  RETRY_BUTTON,
+  createMessage,
 } from "ee/constants/messages";
-import { Colors } from "constants/Colors";
-import { retryServerRestart } from "ee/actions/settingsAction";
+import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
+import {
+  getIsRestartFailed,
+  getRestartingState,
+} from "selectors/settingsSelectors";
+import styled from "styled-components";
+
+import { Button, Icon, Spinner, Text } from "@appsmith/ads";
+import { hexToRgba } from "@appsmith/ads-old";
 
 const RestartBannerWrapper = styled.div`
   position: fixed;

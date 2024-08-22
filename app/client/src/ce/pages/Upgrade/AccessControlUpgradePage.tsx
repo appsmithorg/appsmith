@@ -1,13 +1,11 @@
 import React from "react";
-import type { Carousel, Header } from "./types";
-import UpgradePage from "./UpgradePage";
-import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
-import RestrictPublicExposureImage from "assets/images/upgrade/access-control/restrict-public-exposure.png";
+
 import PreventAccidentalDamageImage from "assets/images/upgrade/access-control/prevent-accidental-damage.png";
+import RestrictPublicExposureImage from "assets/images/upgrade/access-control/restrict-public-exposure.png";
+import SecureAppsLeastPrivilegeImage from "assets/images/upgrade/access-control/secure-apps-least-privilege.png";
 import {
   ACCESS_CONTROL_UPGRADE_PAGE_FOOTER,
   ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING,
-  createMessage,
   GRANULAR_ACCESS_CONTROL_FOR_TEAMS,
   INTRODUCING,
   PREVENT_ACCIDENTAL_DAMAGE,
@@ -16,9 +14,13 @@ import {
   RESTRICT_PUBLIC_EXPOSURE_DETAIL1,
   SECURITY_APPS_LEAST_PRIVILEGE,
   SECURITY_APPS_LEAST_PRIVILEGE_DETAIL1,
+  createMessage,
 } from "ee/constants/messages";
-import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
+import useOnUpgrade from "utils/hooks/useOnUpgrade";
+
+import UpgradePage from "./UpgradePage";
+import type { Carousel, Header } from "./types";
 
 export function AccessControlUpgradePage() {
   const { onUpgrade } = useOnUpgrade({

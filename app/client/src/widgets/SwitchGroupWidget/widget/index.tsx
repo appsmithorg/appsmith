@@ -1,31 +1,32 @@
 import React from "react";
-import { Alignment } from "@blueprintjs/core";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { isString, xor } from "lodash";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
 
-import { LabelPosition } from "components/constants";
-import type { TextSize } from "constants/WidgetConstants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import {
-  isAutoHeightEnabledForWidget,
-  isCompactMode,
-} from "widgets/WidgetUtils";
-import type { OptionProps } from "../component";
-import SwitchGroupComponent from "../component";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { Alignment } from "@blueprintjs/core";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
+import { isString, xor } from "lodash";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import {
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+
+import type { OptionProps } from "../component";
+import SwitchGroupComponent from "../component";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 class SwitchGroupWidget extends BaseWidget<
   SwitchGroupWidgetProps,

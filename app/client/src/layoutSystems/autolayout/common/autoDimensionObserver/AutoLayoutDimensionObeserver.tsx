@@ -1,7 +1,8 @@
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import type { PropsWithChildren } from "react";
+
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import styled from "styled-components";
 
 const SimpleContainer = styled.div`

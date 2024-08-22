@@ -1,8 +1,8 @@
 import type { RefObject } from "react";
 import React, { forwardRef, useEffect, useRef } from "react";
-import styled from "styled-components";
 
 import ResizeObserver from "resize-observer-polyfill";
+import styled from "styled-components";
 
 interface StickyCanvasArenaProps {
   showCanvas: boolean;

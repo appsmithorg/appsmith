@@ -1,36 +1,37 @@
-import type Dashboard from "@uppy/dashboard";
-import type { Uppy } from "@uppy/core";
-import type { UppyFile } from "@uppy/utils";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona";
-import _, { findIndex } from "lodash";
-import log from "loglevel";
-
 import React from "react";
-import shallowequal from "shallowequal";
-import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { importUppy, isUppyLoaded } from "utils/importUppy";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import FilePickerComponent from "../component";
-import FileDataTypes from "../constants";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import type { Uppy } from "@uppy/core";
+import type Dashboard from "@uppy/dashboard";
+import type { UppyFile } from "@uppy/utils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import parseFileData from "./FileParser";
-import { FilePickerGlobalStyles } from "./index.styled";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { klona } from "klona";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import _, { findIndex } from "lodash";
+import log from "loglevel";
+import shallowequal from "shallowequal";
+import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
+import { importUppy, isUppyLoaded } from "utils/importUppy";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+
+import FilePickerComponent from "../component";
+import FileDataTypes from "../constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import parseFileData from "./FileParser";
+import { FilePickerGlobalStyles } from "./index.styled";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 

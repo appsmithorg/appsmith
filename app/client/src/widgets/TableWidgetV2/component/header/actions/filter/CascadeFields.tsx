@@ -1,23 +1,24 @@
-import React, { useState, useEffect, useCallback } from "react";
-import styled from "styled-components";
-import { InputGroup } from "@blueprintjs/core";
-import { debounce, isNaN } from "lodash";
+import React, { useCallback, useEffect, useState } from "react";
 
-import CustomizedDropdown from "pages/common/CustomizedDropdown";
-import { Directions } from "utils/helpers";
+import { InputGroup } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
-import AutoToolTipComponent from "../../../cellComponents/AutoToolTipComponent";
-import type { Condition, Operator, ReactTableFilter } from "../../../Constants";
-import { OperatorTypes } from "../../../Constants";
-import type { DropdownOption } from "./index";
-import { RenderOptionWrapper } from "../../../TableStyledWrappers";
-
+import { debounce, isNaN } from "lodash";
+import CustomizedDropdown from "pages/common/CustomizedDropdown";
+import styled from "styled-components";
+import { Directions } from "utils/helpers";
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
+
 import { importRemixIcon } from "@appsmith/ads-old";
+
+import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
+import type { Condition, Operator, ReactTableFilter } from "../../../Constants";
+import { OperatorTypes } from "../../../Constants";
+import { RenderOptionWrapper } from "../../../TableStyledWrappers";
+import AutoToolTipComponent from "../../../cellComponents/AutoToolTipComponent";
+import type { DropdownOption } from "./index";
 
 const CloseIcon = importRemixIcon(
   async () => import("remixicon-react/CloseCircleFillIcon"),

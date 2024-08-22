@@ -1,18 +1,19 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
+import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
+import { mockCanvasProps } from "mocks/widgetProps/canvas";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+
 import type {
   LayoutComponentProps,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import { mockCanvasProps } from "mocks/widgetProps/canvas";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { moveWidgets, updateWidgetRelationships } from "./moveUtils";
-import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import {
   extractWidgetIdsFromLayoutProps,
   registerLayoutComponents,
 } from "../layoutUtils";
+import { moveWidgets, updateWidgetRelationships } from "./moveUtils";
 
 describe("Layouts - moveUtils test", () => {
   beforeAll(() => {

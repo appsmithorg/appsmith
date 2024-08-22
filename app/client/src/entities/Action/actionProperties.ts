@@ -1,10 +1,7 @@
-import type { Action } from "entities/Action/index";
-import _ from "lodash";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
+  ViewTypes,
   alternateViewTypeInputConfig,
   isHidden,
-  ViewTypes,
 } from "components/formControls/utils";
 import {
   PaginationSubComponent,
@@ -13,10 +10,13 @@ import {
   allowedControlTypes,
   getViewType,
 } from "components/formControls/utils";
-import formControlTypes from "utils/formControl/formControlTypes";
+import type { Action } from "entities/Action/index";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorBindingPaths";
 import EditorControlTypes from "utils/editor/EditorControlTypes";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import formControlTypes from "utils/formControl/formControlTypes";
 
 const dynamicFields = [
   formControlTypes.QUERY_DYNAMIC_TEXT,

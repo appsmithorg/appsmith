@@ -1,8 +1,7 @@
 import React, { useCallback } from "react";
-import styled from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 
 import { updateApplicationLayout } from "ee/actions/applicationActions";
+import { useDispatch, useSelector } from "react-redux";
 import type {
   AppLayoutConfig,
   SupportedLayouts,
@@ -11,6 +10,8 @@ import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
+import styled from "styled-components";
+
 import { Icon, SegmentedControl, Tooltip } from "@appsmith/ads";
 
 const StyledSegmentedControl = styled(SegmentedControl)`

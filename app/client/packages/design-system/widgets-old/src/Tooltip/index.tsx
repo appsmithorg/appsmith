@@ -1,13 +1,15 @@
 import type { PropsWithChildren } from "react";
 import React, { useMemo } from "react";
-import type { CommonComponentProps } from "../types/common";
+
 import type { PopperBoundary } from "@blueprintjs/core/lib/esm/components/popover/popoverSharedProps";
 import { PopoverPosition } from "@blueprintjs/core/lib/esm/components/popover/popoverSharedProps";
 import { Tooltip } from "@blueprintjs/core/lib/esm/components/tooltip/tooltip";
-import type { Modifiers } from "popper.js";
 import type noop from "lodash/noop";
-import "./styles.module.css";
+import type { Modifiers } from "popper.js";
 import styled from "styled-components";
+
+import type { CommonComponentProps } from "../types/common";
+import "./styles.module.css";
 
 type Variant = "dark" | "light";
 

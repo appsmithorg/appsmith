@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 import { useRef } from "react";
+
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import { emitDSEvent } from "utils/AppsmithUtils";
 

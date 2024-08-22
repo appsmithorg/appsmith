@@ -1,11 +1,12 @@
 import type { Ref } from "react";
 import React, { useCallback, useRef } from "react";
+
 import { useTextField } from "@react-aria/textfield";
 import { chain, useLayoutEffect } from "@react-aria/utils";
 import { useControlledState } from "@react-stately/utils";
 
-import type { TextAreaProps } from "./types";
 import { TextInputBase } from "../../TextInputBase";
+import type { TextAreaProps } from "./types";
 
 export type TextAreaRef = Ref<HTMLDivElement>;
 

@@ -1,22 +1,24 @@
-import React, { useEffect, useCallback } from "react";
-import styled from "styled-components";
-import { Icon, NumericInput, Keys, Classes } from "@blueprintjs/core";
-import {
-  RowWrapper,
-  PaginationWrapper,
-  PaginationItemWrapper,
-  CommonFunctionsMenuWrapper,
-} from "./TableStyledWrappers";
+import React, { useCallback, useEffect } from "react";
+
+import { Classes, Icon, Keys, NumericInput } from "@blueprintjs/core";
 import { SearchComponent } from "@design-system/widgets-old";
-import TableFilters from "./TableFilters";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import styled from "styled-components";
+
 import type {
   ReactTableColumnProps,
-  TableSizes,
   ReactTableFilter,
+  TableSizes,
 } from "./Constants";
 import TableDataDownload from "./TableDataDownload";
-import { Colors } from "constants/Colors";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import TableFilters from "./TableFilters";
+import {
+  CommonFunctionsMenuWrapper,
+  PaginationItemWrapper,
+  PaginationWrapper,
+  RowWrapper,
+} from "./TableStyledWrappers";
 
 const PageNumberInputWrapper = styled(NumericInput)<{
   borderRadius: string;

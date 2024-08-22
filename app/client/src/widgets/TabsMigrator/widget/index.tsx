@@ -1,3 +1,11 @@
+import * as Sentry from "@sentry/react";
+import type { DSLWidget } from "WidgetProvider/constants";
+import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { cloneDeep, get, isString } from "lodash";
+import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { generateReactKey } from "utils/generators";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type {
@@ -5,14 +13,6 @@ import type {
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
 import { selectedTabValidation } from "widgets/TabsWidget/widget";
-import { cloneDeep, get, isString } from "lodash";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { generateReactKey } from "utils/generators";
-import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import * as Sentry from "@sentry/react";
-import type { DSLWidget } from "WidgetProvider/constants";
-import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 
 function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
   if (currentDSL.type === "TABS_WIDGET" && currentDSL.version === 1) {

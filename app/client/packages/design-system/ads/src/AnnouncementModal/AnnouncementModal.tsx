@@ -1,17 +1,8 @@
 import React from "react";
-import { Modal } from "../Modal";
 
-import type { AnnouncementModalProps } from "./AnnouncementModal.types";
-import {
-  StyledModalContent,
-  BannerImage,
-  BannerContent,
-  BannerData,
-  BannerTitle,
-  BannerFooter,
-} from "./AnnouncementModal.styles";
-import { Text } from "../Text";
+import { Modal } from "../Modal";
 import { Tag } from "../Tag";
+import { Text } from "../Text";
 import {
   AnnouncementModalBannerClassName,
   AnnouncementModalClassName,
@@ -19,6 +10,15 @@ import {
   AnnouncementModalContentDataClassName,
   AnnouncementModalContentFooterClassName,
 } from "./AnnouncementModal.constants";
+import {
+  BannerContent,
+  BannerData,
+  BannerFooter,
+  BannerImage,
+  BannerTitle,
+  StyledModalContent,
+} from "./AnnouncementModal.styles";
+import type { AnnouncementModalProps } from "./AnnouncementModal.types";
 
 function AnnouncementModal({
   banner,

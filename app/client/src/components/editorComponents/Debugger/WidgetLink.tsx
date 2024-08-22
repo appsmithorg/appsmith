@@ -1,8 +1,10 @@
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import React, { useCallback } from "react";
-import { useDispatch } from "react-redux";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { navigateToEntity } from "actions/editorActions";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch } from "react-redux";
+
 import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 
 export default function WidgetLink(props: EntityLinkProps) {

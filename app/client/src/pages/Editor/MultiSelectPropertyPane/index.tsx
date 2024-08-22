@@ -1,16 +1,18 @@
 import React from "react";
+
 import * as Sentry from "@sentry/react";
 import {
-  createMessage,
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
   WIDGET_MULTI_SELECT,
+  createMessage,
 } from "ee/constants/messages";
-import { Text, Button } from "@appsmith/ads";
-import { useSelector } from "react-redux";
 import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import { useSelector } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+
+import { Button, Text } from "@appsmith/ads";
 
 function MultiSelectPropertyPane() {
   const { focusWidget, selectWidget } = useWidgetSelection();

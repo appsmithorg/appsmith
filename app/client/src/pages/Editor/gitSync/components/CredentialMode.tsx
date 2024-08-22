@@ -1,17 +1,20 @@
+import React, { useCallback, useEffect, useState } from "react";
+
+import { Colors } from "constants/Colors";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import styled from "styled-components";
+
+import { Icon } from "@appsmith/ads";
 import {
   Classes as AdsClasses,
-  Text,
   Case,
   FontWeight,
+  Text,
   TextType,
   TooltipComponent,
 } from "@appsmith/ads-old";
-import { Colors } from "constants/Colors";
-import React, { useState, useEffect, useCallback } from "react";
-import styled from "styled-components";
+
 import { CREDENTIAL_MODE } from "../constants";
-import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { Icon } from "@appsmith/ads";
 
 const Container = styled.div`
   margin-top: ${(props) => props.theme.spaces[7]}px;

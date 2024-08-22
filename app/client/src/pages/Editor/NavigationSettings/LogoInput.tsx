@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { Text } from "@appsmith/ads";
-import { createMessage, APP_NAVIGATION_SETTING } from "ee/constants/messages";
-import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+
 import type { NavigationSetting } from "constants/AppConstants";
-import { logoImageValidation } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
+import { getAppsmithConfigs } from "ee/configs";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { APP_NAVIGATION_SETTING, createMessage } from "ee/constants/messages";
+import { DeleteLogoButton } from "ee/pages/Editor/NavigationSettings/DeleteLogoButton";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "ee/selectors/applicationSelectors";
 import { getTenantConfig } from "ee/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "ee/configs";
-import { DeleteLogoButton } from "ee/pages/Editor/NavigationSettings/DeleteLogoButton";
+import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
+import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
+import { logoImageValidation } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+
+import { Text } from "@appsmith/ads";
 
 export interface ButtonGroupSettingProps {
   updateSetting: UpdateSetting;

@@ -1,8 +1,11 @@
 import React from "react";
-import { Text } from "@appsmith/ads";
-import PreviewBox from "./PreviewBox";
-import type { PreviewsProps } from ".";
+
 import { ContentBox } from "pages/AdminSettings/components";
+
+import { Text } from "@appsmith/ads";
+
+import type { PreviewsProps } from ".";
+import PreviewBox from "./PreviewBox";
 
 const NotFoundPreview = (props: PreviewsProps) => {
   const { shades } = props;

@@ -1,13 +1,15 @@
 import React from "react";
-import styled from "styled-components";
-import { Button } from "@appsmith/ads";
+
 import PageUnavailableImage from "assets/images/invalid-page.png";
 import {
-  PAGE_NOT_FOUND_ERROR,
   INVALID_URL_ERROR,
+  PAGE_NOT_FOUND_ERROR,
   createMessage,
 } from "ee/constants/messages";
 import { useHistory } from "react-router-dom";
+import styled from "styled-components";
+
+import { Button } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   display: flex;

@@ -5,32 +5,35 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
-import { Entity, EntityClassNames } from "../Entity/index";
+
+import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
+import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
-  createMessage,
   ADD_QUERY_JS_BUTTON,
+  ADD_QUERY_JS_TOOLTIP,
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
-  ADD_QUERY_JS_TOOLTIP,
+  createMessage,
 } from "ee/constants/messages";
-import { useDispatch, useSelector } from "react-redux";
-import { ExplorerActionEntity } from "../Actions/ActionEntity";
-import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
+import { ExplorerModuleInstanceEntity } from "ee/pages/Editor/Explorer/ModuleInstanceEntity";
 import {
   getExplorerStatus,
   saveExplorerStatus,
 } from "ee/pages/Editor/Explorer/helpers";
-import { AddEntity, EmptyComponent } from "../common";
-import ExplorerSubMenu from "./Submenu";
-import { Icon, Text } from "@appsmith/ads";
-import styled from "styled-components";
-import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
-import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { ExplorerModuleInstanceEntity } from "ee/pages/Editor/Explorer/ModuleInstanceEntity";
-import { FilesContext } from "./FilesContextProvider";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { selectFilesForExplorer as default_selectFilesForExplorer } from "ee/selectors/entitiesSelector";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+
+import { Icon, Text } from "@appsmith/ads";
+
+import { ExplorerActionEntity } from "../Actions/ActionEntity";
+import { Entity, EntityClassNames } from "../Entity/index";
+import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
+import { AddEntity, EmptyComponent } from "../common";
+import { FilesContext } from "./FilesContextProvider";
+import ExplorerSubMenu from "./Submenu";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);

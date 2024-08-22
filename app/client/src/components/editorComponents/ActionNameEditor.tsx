@@ -1,29 +1,29 @@
 import React, { memo } from "react";
-import { useSelector } from "react-redux";
 
-import { useParams } from "react-router-dom";
+import { saveActionName } from "actions/pluginActionActions";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { removeSpecialChars } from "utils/helpers";
-import type { AppState } from "ee/reducers";
-
-import { saveActionName } from "actions/pluginActionActions";
-import { Flex } from "@appsmith/ads";
-import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,
   IconWrapper,
   NameWrapper,
 } from "components/utils/NameEditorComponent";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ACTION_ID_NOT_FOUND_IN_URL,
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { removeSpecialChars } from "utils/helpers";
+
+import { Flex } from "@appsmith/ads";
 
 interface SaveActionNameParams {
   id: string;

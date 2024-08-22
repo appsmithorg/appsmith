@@ -1,24 +1,26 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
+
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { Colors } from "constants/Colors";
+import { Layers } from "constants/Layers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import { get } from "lodash";
 import * as log from "loglevel";
-import type { AppState } from "ee/reducers";
+import Popper from "pages/Editor/Popper";
+import { connect } from "react-redux";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidgetMetaProps } from "sagas/selectors";
+import { getTableFilterState } from "selectors/tableFilterSelectors";
+import { ThemeMode, getCurrentThemeMode } from "selectors/themeSelectors";
 import styled from "styled-components";
+import { generateClassName } from "utils/generators";
+import type { WidgetProps } from "widgets/BaseWidget";
 
-import { Colors } from "constants/Colors";
+import { importSvg } from "@appsmith/ads-old";
+
 import type { ReactTableColumnProps, ReactTableFilter } from "./Constants";
 import TableFilterPaneContent from "./TableFilterPaneContent";
-import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
-import { Layers } from "constants/Layers";
-import Popper from "pages/Editor/Popper";
-import { generateClassName } from "utils/generators";
-import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { getWidgetMetaProps } from "sagas/selectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { importSvg } from "@appsmith/ads-old";
 
 const DragHandleIcon = importSvg(
   async () => import("assets/icons/ads/app-icons/draghandler.svg"),

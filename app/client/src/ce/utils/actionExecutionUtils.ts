@@ -1,14 +1,14 @@
-import type { Action } from "entities/Action";
-import { ActionExecutionContext } from "entities/Action";
-import type { JSAction, JSCollection } from "entities/JSCollection";
-import type { ApplicationPayload } from "entities/Application";
-import store from "store";
+import type { Plugin } from "api/PluginApi";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDatasource } from "ee/selectors/entitiesSelector";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
-import type { Plugin } from "api/PluginApi";
+import type { Action } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
+import type { ApplicationPayload } from "entities/Application";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import { get, isNil } from "lodash";
-import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import store from "store";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;

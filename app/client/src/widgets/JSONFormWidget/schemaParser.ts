@@ -1,3 +1,4 @@
+import { klona } from "klona";
 import {
   difference,
   isEmpty,
@@ -7,14 +8,13 @@ import {
   sortBy,
   startCase,
 } from "lodash";
-import { klona } from "klona";
-
 import { sanitizeKey } from "widgets/WidgetUtils";
+
 import type {
   FieldComponentBaseProps,
+  FieldThemeStylesheet,
   Schema,
   SchemaItem,
-  FieldThemeStylesheet,
 } from "./constants";
 import {
   ARRAY_ITEM_KEY,
@@ -23,9 +23,9 @@ import {
   FIELD_MAP,
   FIELD_TYPE_TO_POTENTIAL_DATA,
   FieldType,
-  getBindingTemplate,
   RESTRICTED_KEYS,
   ROOT_SCHEMA_KEY,
+  getBindingTemplate,
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
 

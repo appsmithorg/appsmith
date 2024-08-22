@@ -1,25 +1,27 @@
 import React, { useState } from "react";
-import styled from "styled-components";
-import { find, noop } from "lodash";
-import type { DropdownOption } from "components/constants";
-import { StyledMenu } from "@appsmith/ads-old";
+
 import type { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import {
   Button as BlueprintButton,
-  PopoverInteractionKind,
-  PopoverPosition,
-  Popover,
   Classes,
   MenuItem,
+  Popover,
+  PopoverInteractionKind,
+  PopoverPosition,
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
+import type { DropdownOption } from "components/constants";
 import { Colors } from "constants/Colors";
+import { SIDEBAR_ID } from "constants/Explorer";
+import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
+import { find, noop } from "lodash";
 import {
   EntityClassNames,
   entityTooltipCSS,
 } from "pages/Editor/Explorer/Entity";
-import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
-import { SIDEBAR_ID } from "constants/Explorer";
+import styled from "styled-components";
+
+import { StyledMenu } from "@appsmith/ads-old";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;

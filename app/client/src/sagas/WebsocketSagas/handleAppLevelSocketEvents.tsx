@@ -1,8 +1,8 @@
-import { put } from "redux-saga/effects";
-import { APP_LEVEL_SOCKET_EVENTS } from "./socketEvents";
-
 import { collabSetAppEditors } from "actions/appCollabActions";
 import { getAppsmithConfigs } from "ee/configs";
+import { put } from "redux-saga/effects";
+
+import { APP_LEVEL_SOCKET_EVENTS } from "./socketEvents";
 import { handleVersionUpdate } from "./versionUpdatePrompt";
 
 // TODO: Fix this the next time the file is edited

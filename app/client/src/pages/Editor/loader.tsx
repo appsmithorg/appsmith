@@ -1,14 +1,16 @@
 import React from "react";
-import PageLoadingBar from "pages/common/PageLoadingBar";
-import { retryPromise } from "utils/AppsmithUtils";
-import { connect } from "react-redux";
+
 import type { InitEditorActionPayload } from "actions/initActions";
 import { initEditorAction } from "actions/initActions";
-import { getSearchQuery } from "../../utils/helpers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import PageLoadingBar from "pages/common/PageLoadingBar";
+import { connect } from "react-redux";
+import type { RouteComponentProps } from "react-router";
+import { retryPromise } from "utils/AppsmithUtils";
+
 import { GIT_BRANCH_QUERY_KEY } from "../../constants/routes";
 import { APP_MODE } from "../../entities/App";
-import type { RouteComponentProps } from "react-router";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getSearchQuery } from "../../utils/helpers";
 
 type Props = {
   initEditor: (payload: InitEditorActionPayload) => void;

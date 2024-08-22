@@ -1,11 +1,12 @@
 import styled, { css } from "styled-components";
-import type { ListSizes } from "./List.types";
+
 import {
   ListItemBDescClassName,
   ListItemIDescClassName,
   ListItemTextOverflowClassName,
   ListItemTitleClassName,
 } from "./List.constants";
+import type { ListSizes } from "./List.types";
 
 const Variables = css`
   --listitem-title-font-size: var(--ads-v2-font-size-4);

@@ -1,4 +1,5 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+
 import {
   deselectAll,
   pushPopWidgetSelection,

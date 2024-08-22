@@ -1,10 +1,10 @@
+import HomepageLocators from "../../../../locators/HomePage";
 import {
+  adminSettings,
   agHelper,
   homePage,
   locators,
-  adminSettings,
 } from "../../../../support/Objects/ObjectsCore";
-import HomepageLocators from "../../../../locators/HomePage";
 
 describe(
   "Validate Homepage Experience V2 changes",

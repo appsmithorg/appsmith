@@ -1,11 +1,5 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import {
-  GO_BACK,
-  START_WITH_TEMPLATE_CONNECT_HEADING,
-  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
-  createMessage,
-} from "ee/constants/messages";
-import type { AppState } from "ee/reducers";
+import React, { useEffect, useRef, useState } from "react";
+
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import {
   getAllTemplates,
@@ -14,17 +8,18 @@ import {
   setActiveLoadingTemplateId,
 } from "actions/templateActions";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
-  Link,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-} from "@appsmith/ads";
+  GO_BACK,
+  START_WITH_TEMPLATE_CONNECT_HEADING,
+  START_WITH_TEMPLATE_CONNECT_SUBHEADING,
+  createMessage,
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
-import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   activeLoadingTemplateId,
@@ -33,7 +28,15 @@ import {
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
+import {
+  Link,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@appsmith/ads";
+
 import { StartWithTemplatesHeader } from "../StartWithTemplatesWrapper";
 
 interface CreateNewAppFromTemplatesModalProps {

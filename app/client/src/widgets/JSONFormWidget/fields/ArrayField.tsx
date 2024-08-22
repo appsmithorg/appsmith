@@ -5,21 +5,23 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled from "styled-components";
+
+import { Icon } from "@blueprintjs/core";
+import { Colors } from "constants/Colors";
+import { klona } from "klona";
+import { get, set } from "lodash";
+import log from "loglevel";
 import type { ControllerRenderProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
-import { get, set } from "lodash";
-import { Icon } from "@blueprintjs/core";
-import { klona } from "klona";
-import log from "loglevel";
+import styled from "styled-components";
+import { generateReactKey } from "utils/generators";
+import useDeepEffect from "utils/hooks/useDeepEffect";
 
+import FormContext from "../FormContext";
 import Accordion from "../component/Accordion";
 import FieldLabel, { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
-import FieldRenderer from "./FieldRenderer";
-import FormContext from "../FormContext";
 import NestedFormWrapper from "../component/NestedFormWrapper";
-import useDeepEffect from "utils/hooks/useDeepEffect";
-import useUpdateAccessor from "./useObserveAccessor";
+import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import type {
   BaseFieldComponentProps,
   FieldComponent,
@@ -28,10 +30,9 @@ import type {
   SchemaItem,
 } from "../constants";
 import { ARRAY_ITEM_KEY } from "../constants";
-import { Colors } from "constants/Colors";
-import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
-import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
+import FieldRenderer from "./FieldRenderer";
+import useUpdateAccessor from "./useObserveAccessor";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;

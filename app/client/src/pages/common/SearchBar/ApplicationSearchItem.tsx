@@ -1,11 +1,14 @@
-import type { ApplicationPayload } from "entities/Application";
-import { Text } from "@appsmith/ads";
 import React from "react";
-import { SearchListItem } from "./WorkspaceSearchItems";
+
+import type { ApplicationPayload } from "entities/Application";
 import styled from "styled-components";
+import { getApplicationIcon } from "utils/AppsmithUtils";
+
+import { Text } from "@appsmith/ads";
 import type { AppIconName } from "@appsmith/ads-old";
 import { AppIcon, Size } from "@appsmith/ads-old";
-import { getApplicationIcon } from "utils/AppsmithUtils";
+
+import { SearchListItem } from "./WorkspaceSearchItems";
 
 const CircleAppIcon = styled(AppIcon)`
   display: flex;

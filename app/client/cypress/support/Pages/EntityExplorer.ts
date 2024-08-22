@@ -2,9 +2,9 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
-  EntityType,
-  AppSidebarButton,
   AppSidebar,
+  AppSidebarButton,
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";

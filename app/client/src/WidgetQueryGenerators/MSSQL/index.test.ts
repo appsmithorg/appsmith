@@ -1,4 +1,5 @@
 import { DatasourceConnectionMode } from "entities/Datasource";
+
 import MSSQL from ".";
 
 describe("MSSQL WidgetQueryGenerator", () => {

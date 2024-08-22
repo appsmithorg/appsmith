@@ -1,34 +1,36 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
-import { isObject, isString } from "lodash";
-import equal from "fast-deep-equal/es6";
-import Popper from "pages/Editor/Popper";
-import ReactJson from "react-json-view";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { Placement } from "popper.js";
-import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { Classes, Collapse } from "@blueprintjs/core";
-import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import copy from "copy-to-clipboard";
-
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { setEvalPopupState } from "actions/editorContextActions";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor/index";
+import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
+import copy from "copy-to-clipboard";
+import type { AppState } from "ee/reducers";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import equal from "fast-deep-equal/es6";
+import { isObject, isString } from "lodash";
+import Popper from "pages/Editor/Popper";
+import type { Placement } from "popper.js";
+import ReactJson from "react-json-view";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import type { AppState } from "ee/reducers";
-import { setEvalPopupState } from "actions/editorContextActions";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
-import { modText } from "utils/helpers";
-import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
-import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
+import styled from "styled-components";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { modText } from "utils/helpers";
+import { UNDEFINED_VALIDATION } from "utils/validation/common";
+
+import { Button, Icon, Link, Tooltip, toast } from "@appsmith/ads";
+
 import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {

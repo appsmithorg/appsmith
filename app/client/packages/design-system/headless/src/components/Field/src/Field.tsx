@@ -1,9 +1,12 @@
 import type { ReactNode, Ref } from "react";
 import React, { forwardRef } from "react";
-import type { SpectrumFieldProps } from "@react-types/label";
 
-import { Label } from "./Label";
+import type { SpectrumFieldProps } from "@react-types/label";
+import type { ValidationState } from "@react-types/shared";
+
 import { HelpText } from "./HelpText";
+import { Label } from "./Label";
+
 export type FieldProps = Pick<
   SpectrumFieldProps,
   | "contextualHelp"
@@ -28,8 +31,6 @@ export type FieldProps = Pick<
   children: ReactNode;
   isReadOnly?: boolean;
 };
-
-import type { ValidationState } from "@react-types/shared";
 
 export type FieldRef = Ref<HTMLDivElement>;
 

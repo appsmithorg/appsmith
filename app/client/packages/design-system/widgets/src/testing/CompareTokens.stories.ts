@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import { CompareTokens } from "./CompareTokens";
 
 const meta: Meta<typeof CompareTokens> = {

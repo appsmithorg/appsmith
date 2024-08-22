@@ -1,13 +1,15 @@
+import React from "react";
+
 import { RenderModes } from "constants/WidgetConstants";
 import * as editorSelectors from "selectors/editorSelectors";
-import { buildChildren } from "test/factories/WidgetFactoryUtils";
-import { renderAppsmithCanvas } from "./CanvasFactory";
-import { render } from "test/testUtils";
-import React from "react";
-import store from "store";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { LayoutSystemTypes } from "./types";
 import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
+import store from "store";
+import { buildChildren } from "test/factories/WidgetFactoryUtils";
+import { render } from "test/testUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import { renderAppsmithCanvas } from "./CanvasFactory";
+import { LayoutSystemTypes } from "./types";
 
 describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
   it("Render Fixed Layout Editor Canvas when layoutSystemType/appPositioningType is FIXED and render mode is CANVAS/PAGE", () => {

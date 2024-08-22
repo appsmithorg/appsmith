@@ -1,8 +1,3 @@
-import type { Workspace } from "ee/constants/workspaceConstants";
-import type { AppState } from "ee/reducers";
-import { getDefaultPlugins } from "ee/selectors/entitiesSelector";
-import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
-import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import type { FilterKeys, Template } from "api/TemplatesApi";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,
@@ -10,6 +5,11 @@ import {
   DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
   WIDGET_TAGS,
 } from "constants/WidgetConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import type { AppState } from "ee/reducers";
+import { getDefaultPlugins } from "ee/selectors/entitiesSelector";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import Fuse from "fuse.js";
 import type { Filter } from "pages/Templates/TemplateFilters";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "pages/Templates/constants";

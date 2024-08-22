@@ -1,25 +1,27 @@
-import { last } from "lodash";
-import classNames from "classnames";
-import styled from "styled-components";
-import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
+import * as Sentry from "@sentry/react";
 import {
   changeSelectedAppThemeAction,
   deleteAppThemeAction,
 } from "actions/appThemingActions";
+import classNames from "classnames";
+import { Colors } from "constants/Colors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { AppTheme } from "entities/AppTheming";
+import { last } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import {
   AppThemingMode,
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
-import type { AppTheme } from "entities/AppTheming";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import DeleteThemeModal from "./DeleteThemeModal";
-import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { Colors } from "constants/Colors";
+import styled from "styled-components";
+import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
+
 import { importRemixIcon } from "@appsmith/ads-old";
+
+import DeleteThemeModal from "./DeleteThemeModal";
 
 const DeleteIcon = importRemixIcon(
   async () => import("remixicon-react/DeleteBinLineIcon"),

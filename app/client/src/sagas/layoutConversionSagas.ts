@@ -1,32 +1,33 @@
+import * as Sentry from "@sentry/react";
+import { nestDSL } from "@shared/dsl";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
+import { updateApplicationLayout } from "ee/actions/applicationActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Page } from "entities/Page";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
+import { saveAllPagesSaga } from "ee/sagas/PageSagas";
+import { getPageWidgets } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { Page } from "entities/Page";
+import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
+import convertToAutoLayout from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import log from "loglevel";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getPageWidgets } from "ee/selectors/entitiesSelector";
-import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
-import convertToAutoLayout from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
-import type { DSLWidget } from "WidgetProvider/constants";
-import {
-  createSnapshotSaga,
-  deleteApplicationSnapshotSaga,
-} from "./SnapshotSagas";
-import * as Sentry from "@sentry/react";
-import log from "loglevel";
-import { saveAllPagesSaga } from "ee/sagas/PageSagas";
-import { updateApplicationLayout } from "ee/actions/applicationActions";
 import {
   getCurrentApplicationId,
   getPageList,
 } from "selectors/editorSelectors";
+
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { nestDSL } from "@shared/dsl";
+import {
+  createSnapshotSaga,
+  deleteApplicationSnapshotSaga,
+} from "./SnapshotSagas";
 
 /**
  * This method is used to convert from auto-layout to fixed layout

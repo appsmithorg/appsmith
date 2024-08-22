@@ -1,6 +1,8 @@
 import React from "react";
-import { Spinner } from "./Spinner";
+
 import type { StoryObj } from "@storybook/react";
+
+import { Spinner } from "./Spinner";
 import type { SpinnerProps } from "./Spinner.types";
 
 export default {

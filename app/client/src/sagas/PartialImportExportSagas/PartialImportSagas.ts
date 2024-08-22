@@ -1,3 +1,6 @@
+import { pasteWidget } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { ApiResponse } from "api/ApiResponses";
 import {
   importPartialApplicationSuccess,
   initDatasourceConnectionDuringImportRequest,
@@ -8,10 +11,6 @@ import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
 import { areEnvironmentsFetched } from "ee/selectors/environmentSelectors";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { pasteWidget } from "actions/widgetActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ApiResponse } from "api/ApiResponses";
-import { toast } from "@appsmith/ads";
 import { call, fork, put, select } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
@@ -19,6 +18,9 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
+
+import { toast } from "@appsmith/ads";
+
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
 

@@ -1,15 +1,14 @@
-import React, { useRef, useEffect, useState } from "react";
-import styled from "styled-components";
-import { get } from "lodash";
-import { isEllipsisActive } from "utils/helpers";
+import React, { useEffect, useRef, useState } from "react";
+
 import {
-  getTypographyByKey,
   TooltipComponent,
+  getTypographyByKey,
 } from "@design-system/widgets-old";
-
+import { get } from "lodash";
 import { useSelector } from "react-redux";
-
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import styled from "styled-components";
+import { isEllipsisActive } from "utils/helpers";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 
 const PageTab = styled.div`

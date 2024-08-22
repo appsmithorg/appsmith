@@ -1,25 +1,26 @@
-import { isArray } from "lodash";
 import type { CSSProperties, ReactNode } from "react";
 import React, { useMemo } from "react";
 
+import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import { APP_MODE } from "entities/App";
+import type {
+  AlignmentColumnInfo,
+  FlexBoxAlignmentColumnInfo,
+} from "layoutSystems/autolayout/utils/types";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   FlexLayerAlignment,
   LayoutDirection,
   MOBILE_ROW_GAP,
   ROW_GAP,
 } from "layoutSystems/common/utils/constants";
-import { APP_MODE } from "entities/App";
-import { useSelector } from "react-redux";
-import { getAppMode } from "ee/selectors/entitiesSelector";
-import AutoLayoutLayer from "./AutoLayoutLayer";
-import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
-import type {
-  AlignmentColumnInfo,
-  FlexBoxAlignmentColumnInfo,
-} from "layoutSystems/autolayout/utils/types";
-import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
 import { WidgetNameComponentHeight } from "layoutSystems/common/widgetName";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import { isArray } from "lodash";
+import { useSelector } from "react-redux";
+import { getColumnsForAllLayers } from "selectors/autoLayoutSelectors";
+
+import AutoLayoutLayer from "./AutoLayoutLayer";
 
 export interface FlexBoxProps {
   direction: LayoutDirection;

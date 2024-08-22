@@ -1,19 +1,19 @@
-import { difference } from "lodash";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import { RenderModes } from "constants/WidgetConstants";
 import { klona } from "klona";
+import { difference } from "lodash";
+import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
+import CanvasWidget from "widgets/CanvasWidget";
+import ContainerWidget from "widgets/ContainerWidget";
+import ImageWidget from "widgets/ImageWidget";
+import ListWidget from "widgets/ListWidgetV2";
+import TextWidget from "widgets/TextWidget";
 
 import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
 import MetaWidgetGenerator from "./MetaWidgetGenerator";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { nestedListInput, simpleListInput } from "./testData";
-import { RenderModes } from "constants/WidgetConstants";
-import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";
 import type { LevelData } from "./widget";
-import ImageWidget from "widgets/ImageWidget";
-import TextWidget from "widgets/TextWidget";
-import ListWidget from "widgets/ListWidgetV2";
-import CanvasWidget from "widgets/CanvasWidget";
-import ContainerWidget from "widgets/ContainerWidget";
-import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 interface Validator {
   widgetType: string;

@@ -1,22 +1,23 @@
+import * as Sentry from "@sentry/react";
+import { Colors } from "constants/Colors";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+
+import WidgetFactory from "../WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
+  captureInvalidDynamicBindingPath,
+  concatWithArray,
+  extractColorsFromString,
   flattenObject,
   getLocale,
   getSubstringBetweenTwoWords,
-  captureInvalidDynamicBindingPath,
-  mergeWidgetConfig,
-  extractColorsFromString,
   isNameValid,
+  mergeWidgetConfig,
   pushToArray,
-  concatWithArray,
 } from "./helpers";
-import WidgetFactory from "../WidgetProvider/factory";
-import * as Sentry from "@sentry/react";
-import { Colors } from "constants/Colors";
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {

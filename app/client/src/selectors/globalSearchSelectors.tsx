@@ -1,7 +1,6 @@
-import { createSelector } from "reselect";
-
-import type { AppState } from "ee/reducers";
 import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import type { AppState } from "ee/reducers";
+import { createSelector } from "reselect";
 
 export const getRecentEntities = (state: AppState) =>
   state.ui.globalSearch.recentEntities;

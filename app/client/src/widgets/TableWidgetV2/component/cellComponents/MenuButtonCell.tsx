@@ -1,18 +1,19 @@
 import React from "react";
-import type { IconName } from "@blueprintjs/icons";
-import type { Alignment } from "@blueprintjs/core";
 
-import type { BaseCellComponentProps } from "../Constants";
+import type { Alignment } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
-import { CellWrapper } from "../TableStyledWrappers";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import MenuButtonTableComponent from "./menuButtonTableComponent";
 import type {
   ConfigureMenuItems,
   MenuItem,
   MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
+
+import type { BaseCellComponentProps } from "../Constants";
+import { CellWrapper } from "../TableStyledWrappers";
+import MenuButtonTableComponent from "./menuButtonTableComponent";
 
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
   action?: ColumnAction;

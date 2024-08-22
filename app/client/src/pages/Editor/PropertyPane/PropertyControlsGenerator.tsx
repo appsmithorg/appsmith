@@ -1,24 +1,26 @@
+import React from "react";
+
 import type { IPanelProps } from "@blueprintjs/core";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import type { WidgetType } from "constants/WidgetConstants";
-import React from "react";
-import PropertyControl from "./PropertyControl";
-import PropertySection from "./PropertySection";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { EmptySearchResult } from "./EmptySearchResult";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import equal from "fast-deep-equal/es6";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { searchPropertyPaneConfig } from "./propertyPaneSearch";
-import { evaluateHiddenProperty } from "./helpers";
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
-import equal from "fast-deep-equal/es6";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { EmptySearchResult } from "./EmptySearchResult";
+import PropertyControl from "./PropertyControl";
+import PropertySection from "./PropertySection";
+import { evaluateHiddenProperty } from "./helpers";
+import { searchPropertyPaneConfig } from "./propertyPaneSearch";
 
 export interface PropertyControlsGeneratorProps {
   id: string;

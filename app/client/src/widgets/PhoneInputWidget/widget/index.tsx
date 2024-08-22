@@ -1,44 +1,46 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
-import type { PhoneInputComponentProps } from "../component";
-import PhoneInputComponent from "../component";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import {
-  getCountryCode,
-  ISDCodeDropdownOptions,
-} from "../component/ISDCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import _ from "lodash";
-import BaseInputWidget from "widgets/BaseInputWidget";
-import derivedProperties from "./parsedDerivedProperties";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
-import { mergeWidgetConfig } from "utils/helpers";
-import type { CountryCode } from "libphonenumber-js";
-import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
+
 import * as Sentry from "@sentry/react";
-import log from "loglevel";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-  isCompactMode,
-} from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { CountryCode } from "libphonenumber-js";
+import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
+import _ from "lodash";
+import log from "loglevel";
 import { DynamicHeight } from "utils/WidgetFeatures";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { mergeWidgetConfig } from "utils/helpers";
+import BaseInputWidget from "widgets/BaseInputWidget";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import type { WidgetState } from "widgets/BaseWidget";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+
+import type { PhoneInputComponentProps } from "../component";
+import PhoneInputComponent from "../component";
+import {
+  ISDCodeDropdownOptions,
+  getCountryCode,
+} from "../component/ISDCodeDropdown";
 import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import derivedProperties from "./parsedDerivedProperties";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited

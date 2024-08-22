@@ -1,10 +1,11 @@
-import { get } from "lodash";
+import { ICON_NAMES } from "WidgetProvider/constants";
+import { ButtonVariantTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType, getBasePropertyPath } from "../../propertyUtils";
-import { ButtonVariantTypes } from "components/constants";
-import { ICON_NAMES } from "WidgetProvider/constants";
+
+import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
 
 export default {
   sectionName: "Save Button",

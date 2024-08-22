@@ -1,4 +1,5 @@
 import { diff as deepDiff } from "deep-diff";
+
 import ReplayCanvas from "./ReplayEntity/ReplayCanvas";
 
 describe("Checks ReplayDSL functionality", () => {

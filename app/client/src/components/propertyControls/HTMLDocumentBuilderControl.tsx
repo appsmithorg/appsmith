@@ -1,5 +1,7 @@
 import React from "react";
+
 import { Button } from "@appsmith/ads";
+
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 

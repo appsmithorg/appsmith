@@ -1,19 +1,21 @@
 import React, { useCallback } from "react";
-import { Button, Icon, Tooltip } from "@appsmith/ads";
+
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import classNames from "classnames";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   LOCK_ENTITY_EXPLORER_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
-import { modText } from "utils/helpers";
-import classNames from "classnames";
-import {
-  setExplorerActiveAction,
-  setExplorerPinnedAction,
-} from "actions/explorerActions";
-import { getExplorerPinned } from "selectors/explorerSelector";
 import { useDispatch, useSelector } from "react-redux";
+import { getExplorerPinned } from "selectors/explorerSelector";
 import styled from "styled-components";
+import { modText } from "utils/helpers";
+
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 
 export const SidebarNavButton = styled(Button)`
   .ads-v2-button__content {

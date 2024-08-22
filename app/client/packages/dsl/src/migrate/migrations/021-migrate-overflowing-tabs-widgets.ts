@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { omit, omitBy } from "lodash";
+
 import type { DSLWidget } from "../types";
 
 const MAIN_CONTAINER_WIDGET_ID = "0";

@@ -1,7 +1,9 @@
 import React from "react";
+
+import { DataAttrWrapper, StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
-import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
-import { Button, BUTTON_VARIANTS, COLORS, objectKeys } from "@appsmith/wds";
+
+import { BUTTON_VARIANTS, Button, COLORS, objectKeys } from "@appsmith/wds";
 
 const variants = objectKeys(BUTTON_VARIANTS);
 const colors = Object.values(COLORS);

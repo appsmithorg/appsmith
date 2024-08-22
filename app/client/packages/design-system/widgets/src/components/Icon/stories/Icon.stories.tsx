@@ -1,6 +1,8 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
-import { Flex, Icon, ICONS, SIZES } from "@appsmith/wds";
+
+import { Flex, ICONS, Icon, SIZES } from "@appsmith/wds";
 
 /**
  * Icon is a component that just displays an icon.

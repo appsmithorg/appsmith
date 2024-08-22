@@ -1,15 +1,16 @@
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { CopiedWidgetData, PasteDestinationInfo } from "./types";
 import type {
   AnvilConfig,
   FlattenedWidgetProps,
 } from "WidgetProvider/constants";
-import type { LayoutProps } from "../anvilTypes";
-import { all, call } from "redux-saga/effects";
-import { addPastedWidgets } from "./utils";
 import WidgetFactory from "WidgetProvider/factory";
 import { handleWidgetMovement } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call } from "redux-saga/effects";
+
+import type { LayoutProps } from "../anvilTypes";
 import { defaultHighlightRenderInfo } from "../constants";
+import type { CopiedWidgetData, PasteDestinationInfo } from "./types";
+import { addPastedWidgets } from "./utils";
 
 export function* pasteWidgetsInZone(
   allWidgets: CanvasWidgetsReduxState,

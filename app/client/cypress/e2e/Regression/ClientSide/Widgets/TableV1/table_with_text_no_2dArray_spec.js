@@ -1,6 +1,7 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import { seconds, testTimeout } from "../../../../../support/timeout";
+
+const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "Table widget edge case scenario testing",

@@ -1,30 +1,31 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
-import { useParams } from "react-router-dom";
-import { removeSpecialChars } from "utils/helpers";
-import type { AppState } from "ee/reducers";
-import {
-  getJsCollectionByBaseId,
-  getPlugin,
-} from "ee/selectors/entitiesSelector";
-import {
-  ACTION_NAME_PLACEHOLDER,
-  JSOBJECT_ID_NOT_FOUND_IN_URL,
-  createMessage,
-} from "ee/constants/messages";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { Flex } from "@appsmith/ads";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
 import NameEditorComponent, {
   IconBox,
   IconWrapper,
   NameWrapper,
 } from "components/utils/NameEditorComponent";
-import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ACTION_NAME_PLACEHOLDER,
+  JSOBJECT_ID_NOT_FOUND_IN_URL,
+  createMessage,
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
+import {
+  getJsCollectionByBaseId,
+  getPlugin,
+} from "ee/selectors/entitiesSelector";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
+import { removeSpecialChars } from "utils/helpers";
+
+import { Flex } from "@appsmith/ads";
 
 export interface SaveActionNameParams {
   id: string;

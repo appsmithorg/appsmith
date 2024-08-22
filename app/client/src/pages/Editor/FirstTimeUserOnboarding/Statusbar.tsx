@@ -1,21 +1,23 @@
 import { useEffect } from "react";
+
+import { signpostingStepUpdateInit } from "actions/onboardingActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  getCanvasWidgets,
+  getPageActions,
+  getSavedDatasources,
+} from "ee/selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getApplicationLastDeployedAt,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
-  getCanvasWidgets,
-  getPageActions,
-  getSavedDatasources,
-} from "ee/selectors/entitiesSelector";
-import { SIGNPOSTING_STEP } from "./Utils";
-import {
   getFirstTimeUserOnboardingComplete,
   isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { signpostingStepUpdateInit } from "actions/onboardingActions";
+
+import { SIGNPOSTING_STEP } from "./Utils";
 
 const useStatusListener = () => {
   const datasources = useSelector(getSavedDatasources);

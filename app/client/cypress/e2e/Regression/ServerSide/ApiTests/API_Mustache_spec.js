@@ -1,10 +1,10 @@
+import { agHelper } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Moustache test Functionality",

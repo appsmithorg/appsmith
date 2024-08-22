@@ -1,6 +1,14 @@
+import type React from "react";
+
+import { dateFormatOptions } from "WidgetProvider/constants";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
+import log from "loglevel";
+import moment from "moment";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
+
 import type {
   CellLayoutProperties,
   ColumnProperties,
@@ -13,17 +21,11 @@ import {
   ColumnTypes,
   DEFAULT_BUTTON_COLOR,
   DEFAULT_COLUMN_WIDTH,
-  TABLE_COLUMN_ORDER_KEY,
   ORIGINAL_INDEX_KEY,
+  TABLE_COLUMN_ORDER_KEY,
 } from "../constants";
-import { SelectColumnOptionsValidations } from "./propertyUtils";
 import type { TableWidgetProps } from "../constants";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import { dateFormatOptions } from "WidgetProvider/constants";
-import moment from "moment";
-import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
-import log from "loglevel";
-import type React from "react";
+import { SelectColumnOptionsValidations } from "./propertyUtils";
 
 type TableData = Array<Record<string, unknown>>;
 

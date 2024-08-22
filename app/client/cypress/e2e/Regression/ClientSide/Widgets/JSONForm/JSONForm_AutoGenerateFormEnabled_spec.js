@@ -1,3 +1,9 @@
+import {
+  deployMode,
+  entityExplorer,
+  propPane,
+} from "../../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -5,12 +11,7 @@ import EditorNavigation, {
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 const fieldPrefix = ".t--jsonformfield";
-import {
-  entityExplorer,
-  deployMode,
-  propPane,
-} from "../../../../../support/Objects/ObjectsCore";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
 let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
 

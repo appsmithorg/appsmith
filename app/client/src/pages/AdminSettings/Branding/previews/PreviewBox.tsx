@@ -1,5 +1,7 @@
 import React from "react";
+
 import { ContentBox } from "pages/AdminSettings/components";
+
 import { Text } from "@appsmith/ads";
 
 interface PreviewBoxProps {

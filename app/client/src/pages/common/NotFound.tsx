@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-import Button from "components/editorComponents/Button";
+
 import IntegrationUnavailableImage from "assets/images/404-image.png";
+import Button from "components/editorComponents/Button";
+import styled from "styled-components";
 
 const Wrapper = styled.div`
   text-align: center;

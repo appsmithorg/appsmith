@@ -1,5 +1,6 @@
 import { RenderModes } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
+
 import {
   getCanvasBottomRow,
   getCanvasWidgetHeightsToUpdate,

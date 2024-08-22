@@ -1,10 +1,11 @@
-import { all, put, select, takeLatest } from "redux-saga/effects";
-import { AnvilReduxActionTypes } from "../actions/actionTypes";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { getWidgets } from "sagas/selectors";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, put, select, takeLatest } from "redux-saga/effects";
+import { getWidgets } from "sagas/selectors";
+
+import { AnvilReduxActionTypes } from "../actions/actionTypes";
 
 /**
  * function to redistribute spaces among zones within a section.

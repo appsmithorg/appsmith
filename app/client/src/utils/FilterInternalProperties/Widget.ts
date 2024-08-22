@@ -1,12 +1,12 @@
+import WidgetFactory from "WidgetProvider/factory";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type { EntityDefinitionsOptions } from "ee/utils/autocomplete/EntityDefinitions";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { isFunction } from "lodash";
 import type { Def } from "tern";
-import WidgetFactory from "WidgetProvider/factory";
 import { addSettersToDefinitions } from "utils/autocomplete/defCreatorUtils";
 
 export const getWidgetChildrenPeekData = (

@@ -1,11 +1,13 @@
 import React from "react";
-import styled from "styled-components";
-import { Card as BlueprintCard, Classes } from "@blueprintjs/core";
-import { omit } from "lodash";
-import { AppIcon, Size, TextType, Text } from "@appsmith/ads-old";
 import type { PropsWithChildren } from "react";
+
+import { Card as BlueprintCard, Classes } from "@blueprintjs/core";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
+import { omit } from "lodash";
+import styled from "styled-components";
+
 import { Button, type MenuItemProps } from "@appsmith/ads";
+import { AppIcon, Size, Text, TextType } from "@appsmith/ads-old";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 

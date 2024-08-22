@@ -1,14 +1,16 @@
 import React, { type ReactNode, useCallback } from "react";
+
+import CurlLogo from "assets/images/Curl-logo.svg";
+import { CURL_IMPORT_FORM } from "ee/constants/forms";
+import { IMPORT_BTN_LABEL, createMessage } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
+import { submit } from "redux-form";
 import {
   getIsCurlModalOpen,
   getIsImportingCurl,
 } from "selectors/curlImportSelectors";
-import { submit } from "redux-form";
-import { CURL_IMPORT_FORM } from "ee/constants/forms";
-import { closeCurlImportModal, openCurlImportModal } from "./helpers";
-import CurlLogo from "assets/images/Curl-logo.svg";
-import { createMessage, IMPORT_BTN_LABEL } from "ee/constants/messages";
+import styled from "styled-components";
+
 import {
   Button,
   Flex,
@@ -18,7 +20,8 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@appsmith/ads";
-import styled from "styled-components";
+
+import { closeCurlImportModal, openCurlImportModal } from "./helpers";
 
 const ActionButtons = styled.div`
   justify-self: flex-end;

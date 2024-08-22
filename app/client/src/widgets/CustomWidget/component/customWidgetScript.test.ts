@@ -1,7 +1,7 @@
 import {
+  EVENTS,
   createChannelToParent,
   generateAppsmithCssVariables,
-  EVENTS,
   main,
 } from "./customWidgetscript";
 

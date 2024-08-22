@@ -1,4 +1,5 @@
 import type { Validation } from "widgets/wds/WDSInputWidget/widget/types";
+
 import type { RadioGroupWidgetProps } from "./types";
 
 export function validateInput(props: RadioGroupWidgetProps): Validation {

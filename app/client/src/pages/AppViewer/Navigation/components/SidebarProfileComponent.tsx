@@ -1,9 +1,11 @@
 import React from "react";
+
+import classNames from "classnames";
+import type { NavigationSetting } from "constants/AppConstants";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import ProfileDropdown from "pages/common/ProfileDropdown";
-import type { NavigationSetting } from "constants/AppConstants";
-import classNames from "classnames";
+
 import {
   StyledContainer,
   StyledText,

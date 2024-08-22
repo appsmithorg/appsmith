@@ -1,11 +1,12 @@
+import React from "react";
+
+import type CodeMirror from "codemirror";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type {
   FieldEntityInformation,
   TEditorModes,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
-import React from "react";
-import type CodeMirror from "codemirror";
 
 export type AIEditorContext = Partial<{
   functionName: string;

@@ -1,7 +1,9 @@
 import React from "react";
-import { Switch } from "@appsmith/wds";
+
+import { DataAttrWrapper, StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
-import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
+
+import { Switch } from "@appsmith/wds";
 
 const meta: Meta<typeof Switch> = {
   component: Switch,

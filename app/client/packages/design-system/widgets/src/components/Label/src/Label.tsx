@@ -1,7 +1,10 @@
-import clsx from "clsx";
 import React from "react";
-import { Text, ContextualHelp } from "@appsmith/wds";
+
+import clsx from "clsx";
 import { Label as HeadlessLabel } from "react-aria-components";
+
+import { ContextualHelp, Text } from "@appsmith/wds";
+
 import styles from "./styles.module.css";
 import type { LabelProps } from "./types";
 

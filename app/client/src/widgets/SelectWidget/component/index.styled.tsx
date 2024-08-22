@@ -1,19 +1,20 @@
 import type { PropsWithChildren } from "react";
-import { Classes, ControlGroup } from "@blueprintjs/core";
-import styled, { createGlobalStyle } from "styled-components";
-import { Colors } from "constants/Colors";
 
-import type { DropdownOption } from "../constants";
+import { Classes, ControlGroup } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
+import { LABEL_MARGIN_OLD_SELECT, LabelPosition } from "components/constants";
+import { Colors } from "constants/Colors";
 import { BlueprintCSSTransform } from "constants/DefaultTheme";
-import { isEmptyOrNill } from "../../../utils/helpers";
-import { LabelPosition, LABEL_MARGIN_OLD_SELECT } from "components/constants";
-import {
-  labelLayoutStyles,
-  LABEL_CONTAINER_CLASS,
-} from "widgets/components/LabelWithTooltip";
-import { lightenColor } from "widgets/WidgetUtils";
+import styled, { createGlobalStyle } from "styled-components";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
+import { lightenColor } from "widgets/WidgetUtils";
+import {
+  LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
+} from "widgets/components/LabelWithTooltip";
+
+import { isEmptyOrNill } from "../../../utils/helpers";
+import type { DropdownOption } from "../constants";
 import { CLASSNAMES } from "../constants";
 
 export const StyledDiv = styled.div`

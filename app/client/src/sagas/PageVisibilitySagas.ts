@@ -1,7 +1,7 @@
+import { pageVisibilityAppEvent } from "actions/pageVisibilityActions";
 import type { EventChannel } from "redux-saga";
 import { eventChannel } from "redux-saga";
 import { call, fork, put, take } from "redux-saga/effects";
-import { pageVisibilityAppEvent } from "actions/pageVisibilityActions";
 
 // Track page visibility
 // https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API

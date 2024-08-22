@@ -1,14 +1,14 @@
-import styled from "styled-components";
 import React from "react";
 
 import Edit from "assets/images/EditPen.svg";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   FIELD_REQUIRED_ERROR,
-  VALID_FUNCTION_NAME_ERROR,
   UNIQUE_NAME_ERROR,
+  VALID_FUNCTION_NAME_ERROR,
   createMessage,
 } from "ee/constants/messages";
+import styled from "styled-components";
 
 const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
   align-items: center;

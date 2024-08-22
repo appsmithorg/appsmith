@@ -1,7 +1,9 @@
 import React from "react";
-import styled from "styled-components";
+
 import type { ISwitchProps } from "@blueprintjs/core";
 import { Switch } from "@blueprintjs/core";
+import styled from "styled-components";
+
 import { replayHighlightClass } from "../constants/classes";
 
 const StyledSwitch = styled(Switch)<{

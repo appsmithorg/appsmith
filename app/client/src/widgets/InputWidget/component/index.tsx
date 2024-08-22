@@ -1,28 +1,38 @@
 import type { MutableRefObject } from "react";
 import React from "react";
-import styled from "styled-components";
-import type { ComponentProps } from "widgets/BaseComponent";
-import type { TextSize } from "constants/WidgetConstants";
-import { TEXT_SIZES } from "constants/WidgetConstants";
-import type { Alignment, Intent, IconName, IRef } from "@blueprintjs/core";
+
+import type { Alignment, IRef, IconName, Intent } from "@blueprintjs/core";
 import {
-  NumericInput,
-  InputGroup,
   Classes,
   ControlGroup,
-  TextArea,
+  InputGroup,
+  NumericInput,
   Tag,
+  TextArea,
 } from "@blueprintjs/core";
-
+import { Icon } from "@design-system/widgets-old";
+import { LabelPosition } from "components/constants";
+// TODO(abhinav): All of the following imports should not be in widgets.
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import { Colors } from "constants/Colors";
-import _ from "lodash";
+import type { TextSize } from "constants/WidgetConstants";
+import { TEXT_SIZES } from "constants/WidgetConstants";
+import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import {
-  createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
+  createMessage,
 } from "ee/constants/messages";
+import _ from "lodash";
+import styled from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
+import { checkInputTypeText } from "widgets/BaseInputWidget/utils";
+import LabelWithTooltip, {
+  LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
+} from "widgets/components/LabelWithTooltip";
+
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
-
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
   getSelectedCurrency,
@@ -31,18 +41,7 @@ import ISDCodeDropdown, {
   ISDCodeDropdownOptions,
   getSelectedISDCode,
 } from "./ISDCodeDropdown";
-
-// TODO(abhinav): All of the following imports should not be in widgets.
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import { limitDecimalValue, getSeparators } from "./utilities";
-import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
-import { LabelPosition } from "components/constants";
-import { Icon } from "@design-system/widgets-old";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-  LABEL_CONTAINER_CLASS,
-} from "widgets/components/LabelWithTooltip";
-import { checkInputTypeText } from "widgets/BaseInputWidget/utils";
+import { getSeparators, limitDecimalValue } from "./utilities";
 
 /**
  * All design system component specific logic goes here.

@@ -1,13 +1,14 @@
 import React, { type ReactNode, useCallback, useMemo } from "react";
+
+import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { useDispatch, useSelector } from "react-redux";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
   combinedPreviewModeSelector,
   getIsAutoLayout,
 } from "selectors/editorSelectors";
-import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
-import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 
 export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
   const allowDragToSelect = useAllowEditorDragToSelect();

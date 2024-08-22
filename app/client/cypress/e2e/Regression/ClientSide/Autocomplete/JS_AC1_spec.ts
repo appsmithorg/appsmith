@@ -1,11 +1,11 @@
 import {
   agHelper,
   apiPage,
+  dataManager,
   dataSources,
   draggableWidgets,
   entityExplorer,
   entityItems,
-  dataManager,
   jsEditor,
   locators,
 } from "../../../../support/Objects/ObjectsCore";

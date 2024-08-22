@@ -1,6 +1,8 @@
 import React from "react";
-import { IconButton, Text } from "@appsmith/wds";
+
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+
+import { IconButton, Text } from "@appsmith/wds";
 
 import type { ReactTableColumnProps } from "../Constants";
 import { PageNumberInput } from "./PageNumberInput";

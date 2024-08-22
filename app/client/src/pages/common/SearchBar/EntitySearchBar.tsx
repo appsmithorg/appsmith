@@ -1,41 +1,43 @@
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
+import EditorButton from "components/editorComponents/Button";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Button } from "@appsmith/ads";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import styled from "styled-components";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import EditorButton from "components/editorComponents/Button";
-import history from "utils/history";
-import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import { useDispatch, useSelector } from "react-redux";
-import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { viewerURL } from "ee/RouteBuilder";
+import { resetSearchEntity, searchEntities } from "ee/actions/workspaceActions";
+import type { PageDefaultMeta } from "ee/api/ApplicationApi";
+import { useOutsideClick } from "ee/hooks";
 import {
   getCurrentApplication,
   getCurrentApplicationIdForCreateNewApp,
 } from "ee/selectors/applicationSelectors";
-import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { debounce, get } from "lodash";
-import HomepageHeaderAction from "pages/common/SearchBar/HomepageHeaderAction";
-import ProfileDropdown from "pages/common/ProfileDropdown";
-import MobileSideBar from "pages/common/MobileSidebar";
-import { resetSearchEntity, searchEntities } from "ee/actions/workspaceActions";
-import type { ApplicationPayload } from "entities/Application";
-import { viewerURL } from "ee/RouteBuilder";
+import { getPackagesList } from "ee/selectors/packageSelectors";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
 import {
   getIsFetchingEntities,
   getSearchedApplications,
   getSearchedWorkflows,
   getSearchedWorkspaces,
 } from "ee/selectors/workspaceSelectors";
-import DesktopEntitySearchField from "pages/common/SearchBar/DesktopEntitySearchField";
-import MobileEntitySearchField from "pages/common/SearchBar/MobileEntitySearchField";
-import { getPackagesList } from "ee/selectors/packageSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { ApplicationPayload } from "entities/Application";
 import Fuse from "fuse.js";
-import { useOutsideClick } from "ee/hooks";
-import type { PageDefaultMeta } from "ee/api/ApplicationApi";
+import { debounce, get } from "lodash";
+import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
+import MobileSideBar from "pages/common/MobileSidebar";
+import ProfileDropdown from "pages/common/ProfileDropdown";
+import DesktopEntitySearchField from "pages/common/SearchBar/DesktopEntitySearchField";
+import HomepageHeaderAction from "pages/common/SearchBar/HomepageHeaderAction";
+import MobileEntitySearchField from "pages/common/SearchBar/MobileEntitySearchField";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation } from "react-router-dom";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import styled from "styled-components";
+import history from "utils/history";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+
+import { Button } from "@appsmith/ads";
 
 const HeaderSection = styled.div`
   display: flex;

@@ -1,9 +1,11 @@
-import React, { useState, useCallback, useEffect } from "react";
-import styled from "styled-components";
+import React, { useCallback, useEffect, useState } from "react";
+
 import { noop } from "lodash";
+import styled from "styled-components";
+
 import {
-  EditableTextSubComponent,
   EditInteractionKind,
+  EditableTextSubComponent,
   SavingState,
 } from "../EditableTextSubComponent";
 import type { CommonComponentProps } from "../types/common";

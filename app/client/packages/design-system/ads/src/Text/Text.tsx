@@ -1,8 +1,10 @@
 import React from "react";
+
 import clsx from "classnames";
-import type { TextProps } from "./Text.types";
-import { StyledEditableInput, StyledText } from "./Text.styles";
+
 import { TextClassName } from "./Text.constants";
+import { StyledEditableInput, StyledText } from "./Text.styles";
+import type { TextProps } from "./Text.types";
 
 /*
 TODO:

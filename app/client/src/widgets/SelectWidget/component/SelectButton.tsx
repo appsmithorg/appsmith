@@ -1,11 +1,12 @@
 import React, { memo } from "react";
-import { Icon, IconSize } from "@design-system/widgets-old";
+
 import { Button } from "@blueprintjs/core";
+import { Icon, IconSize } from "@design-system/widgets-old";
 import { Colors } from "constants/Colors";
 
 import { isEmptyOrNill } from "../../../utils/helpers";
-import { StyledDiv } from "./index.styled";
 import { CLASSNAMES } from "../constants";
+import { StyledDiv } from "./index.styled";
 
 export interface SelectButtonProps {
   disabled?: boolean;

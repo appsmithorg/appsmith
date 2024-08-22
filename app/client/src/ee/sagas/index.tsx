@@ -1,9 +1,10 @@
-export * from "ce/sagas";
+import * as sentry from "@sentry/react";
 import { sagas as CE_Sagas } from "ce/sagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { call, all, spawn, race, take } from "redux-saga/effects";
 import log from "loglevel";
-import * as sentry from "@sentry/react";
+import { all, call, race, spawn, take } from "redux-saga/effects";
+
+export * from "ce/sagas";
 
 const sagasArr = [...CE_Sagas];
 

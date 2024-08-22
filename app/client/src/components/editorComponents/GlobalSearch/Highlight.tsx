@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Text } from "@appsmith/ads";
 
 function Highlight({

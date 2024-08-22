@@ -1,17 +1,18 @@
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { expectSaga } from "redux-saga-test-plan";
+import { select } from "redux-saga/effects";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
+
 import {
   addChildReferenceToParent,
   getUniqueWidgetName,
   runBlueprintOperationsOnWidgets,
   updateWidgetListWithNewWidget,
 } from "./helpers";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { expectSaga } from "redux-saga-test-plan";
-import { select } from "redux-saga/effects";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import WidgetFactory from "WidgetProvider/factory";
 
 describe("addChildReferenceToParent", () => {
   it("should add a new child reference to the parent widget", () => {

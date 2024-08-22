@@ -1,20 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import { getActionBlocks, getCallExpressions } from "@shared/ast";
+import { diff } from "deep-diff";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+
+import { generateReactKey } from "../../../utils/generators";
+import { AppsmithFunction } from "./constants";
+import { useApisQueriesAndJsActionOptions } from "./helpers";
 import type { ActionCreatorProps, ActionTree } from "./types";
 import {
   getCodeFromMoustache,
   getSelectedFieldFromValue,
   isEmptyBlock,
 } from "./utils";
-import { diff } from "deep-diff";
 import Action from "./viewComponents/Action";
-import { useSelector } from "react-redux";
-import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
-import { generateReactKey } from "../../../utils/generators";
-import { useApisQueriesAndJsActionOptions } from "./helpers";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getActionTypeLabel } from "./viewComponents/ActionBlockTree/utils";
-import { AppsmithFunction } from "./constants";
 
 export const ActionCreatorContext = React.createContext<{
   label: string;

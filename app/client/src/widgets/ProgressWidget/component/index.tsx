@@ -1,7 +1,9 @@
 import React from "react";
-import styled, { css, keyframes } from "styled-components";
 
 import { Colors } from "constants/Colors";
+import _ from "lodash";
+import styled, { css, keyframes } from "styled-components";
+
 import {
   INDETERMINATE_SIZE,
   INDETERMINATE_THICKNESS,
@@ -16,7 +18,6 @@ import {
   VIEWBOX_HEIGHT_HALF,
   VIEWBOX_WIDTH,
 } from "../constants";
-import _ from "lodash";
 
 // Utilities
 // Conditional render method

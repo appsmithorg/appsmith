@@ -1,11 +1,12 @@
-import type { InputProps } from "../Input";
+import type React from "react";
+
 import type {
-  ReactDatePickerProps,
   ReactDatePickerCustomHeaderProps,
+  ReactDatePickerProps,
 } from "react-datepicker";
 
+import type { InputProps } from "../Input";
 import type { Sizes } from "../__config__/types";
-import type React from "react";
 
 interface CommonProps {
   /** The class name to apply to the button component. */

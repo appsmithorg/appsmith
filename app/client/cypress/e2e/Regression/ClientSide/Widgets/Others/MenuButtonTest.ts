@@ -1,12 +1,12 @@
+import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 import {
   agHelper,
-  locators,
   deployMode,
   entityExplorer,
+  locators,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
-import { buttongroupwidgetlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,

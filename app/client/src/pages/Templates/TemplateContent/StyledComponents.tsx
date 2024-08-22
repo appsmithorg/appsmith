@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 import { Text } from "@appsmith/ads";
 
 export const Wrapper = styled.div<{ isModalLayout?: boolean }>`

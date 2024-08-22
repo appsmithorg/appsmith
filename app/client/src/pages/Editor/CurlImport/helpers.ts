@@ -1,6 +1,7 @@
-import { submitCurlImportForm } from "../../../actions/importActions";
-import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+
+import { submitCurlImportForm } from "../../../actions/importActions";
 
 export interface CurlImportFormValues {
   curl: string;

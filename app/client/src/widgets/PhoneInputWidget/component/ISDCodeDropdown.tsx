@@ -1,14 +1,16 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
+
+import { Classes } from "@blueprintjs/core";
 import type { DropdownOption } from "@design-system/widgets-old";
 import { Dropdown, Icon, IconSize } from "@design-system/widgets-old";
-import { countryToFlag } from "./utilities";
+import { Colors } from "constants/Colors";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
-import { Colors } from "constants/Colors";
-import { Classes } from "@blueprintjs/core";
-import { lightenColor } from "widgets/WidgetUtils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import styled, { createGlobalStyle } from "styled-components";
+import { lightenColor } from "widgets/WidgetUtils";
+
+import { countryToFlag } from "./utilities";
 
 interface DropdownTriggerIconWrapperProp {
   allowDialCodeChange: boolean;

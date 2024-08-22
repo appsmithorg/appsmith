@@ -1,4 +1,5 @@
 import { DatasourceConnectionMode } from "entities/Datasource";
+
 import PostgreSQL from ".";
 
 describe("PostgreSQL WidgetQueryGenerator", () => {

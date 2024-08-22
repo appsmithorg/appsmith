@@ -1,4 +1,5 @@
 import React from "react";
+
 import { importSvg } from "@appsmith/ads-old";
 
 const AppsmithLogo = importSvg(

@@ -1,17 +1,19 @@
 import React from "react";
-import { Text, Link, Button, Icon } from "@appsmith/ads";
-import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
-import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
+
+import EnterpriseTag from "components/EnterpriseTag";
+import { IN_APP_EMBED_SETTING, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
+import { useSelector } from "react-redux";
 import {
   RAMP_NAME,
   RampFeature,
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
-import { useSelector } from "react-redux";
-import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import EnterpriseTag from "components/EnterpriseTag";
+
+import { Button, Icon, Link, Text } from "@appsmith/ads";
 
 function PrivateEmbeddingContent(props: {
   // TODO: Fix this the next time the file is edited

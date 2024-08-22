@@ -1,13 +1,13 @@
 import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
 import type {
-  FlexLayerAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
-import type {
   LayoutElementPosition,
   LayoutElementPositions,
 } from "layoutSystems/common/types";
+import type {
+  FlexLayerAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 
 export type LayoutComponentType =
   | "ALIGNED_LAYOUT_COLUMN"

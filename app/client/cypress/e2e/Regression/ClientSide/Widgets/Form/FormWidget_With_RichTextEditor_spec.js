@@ -1,5 +1,7 @@
-const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
+const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
+
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(

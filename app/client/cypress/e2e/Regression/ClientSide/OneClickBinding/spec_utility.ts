@@ -1,8 +1,8 @@
+import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 import {
   agHelper,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
-import oneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
 
 export class OneClickBinding {
   public ChooseAndAssertForm(

@@ -1,10 +1,12 @@
 import React from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
+
+import { COLORS, Flex, Text } from "@appsmith/wds";
 import {
-  TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
+  TYPOGRAPHY_VARIANTS,
 } from "@appsmith/wds-theming";
-import { Text, Flex, COLORS } from "@appsmith/wds";
 
 /**
  * Text is a component that renders a capsized text.

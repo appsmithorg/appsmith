@@ -1,11 +1,12 @@
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
-import { APP_MODE } from "entities/App";
-import { select } from "redux-saga/effects";
 import { fillPathname, viewerURL } from "ee/RouteBuilder";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
+import { select } from "redux-saga/effects";
 import { getPageByBaseId } from "selectors/editorSelectors";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
+
 import URLRedirect from ".";
 
 export class SlugURLRedirect extends URLRedirect {

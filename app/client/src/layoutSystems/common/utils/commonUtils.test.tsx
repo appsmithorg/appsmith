@@ -3,13 +3,14 @@ import type {
   AutoDimensionValues,
   AutoLayoutConfig,
 } from "WidgetProvider/constants";
+import { mockInputProps } from "mocks/widgetProps/input";
+import ButtonWidget from "widgets/ButtonWidget/widget";
+import InputWidget from "widgets/InputWidgetV2/widget";
+
 import {
   getAutoDimensionsConfig,
   restructureWidgetSizeConfig,
 } from "./commonUtils";
-import InputWidget from "widgets/InputWidgetV2/widget";
-import ButtonWidget from "widgets/ButtonWidget/widget";
-import { mockInputProps } from "mocks/widgetProps/input";
 
 describe("Common Utils tests", () => {
   describe("getAutoDimensionsConfig", () => {

@@ -1,6 +1,8 @@
 import React from "react";
-import { getMenuItemTextColor } from "pages/AppViewer/utils";
+
 import type { NavigationSetting } from "constants/AppConstants";
+import { getMenuItemTextColor } from "pages/AppViewer/utils";
+
 import { Icon } from "@appsmith/ads";
 
 interface MobileNavToggleProps {

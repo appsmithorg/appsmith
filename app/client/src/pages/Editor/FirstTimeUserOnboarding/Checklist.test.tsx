@@ -1,18 +1,20 @@
-const history = jest.fn();
-const dispatch = jest.fn();
+import React from "react";
 
+import "@testing-library/jest-dom";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
+import { INTEGRATION_TABS } from "constants/routes";
 import { builderURL, integrationEditorURL } from "ee/RouteBuilder";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { INTEGRATION_TABS } from "constants/routes";
-import React from "react";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { Provider } from "react-redux";
+import * as onboardingSelectors from "selectors/onboardingSelectors";
 import { fireEvent, render, screen } from "test/testUtils";
+
 import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import "@testing-library/jest-dom";
-import * as onboardingSelectors from "selectors/onboardingSelectors";
+
+const history = jest.fn();
+const dispatch = jest.fn();
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

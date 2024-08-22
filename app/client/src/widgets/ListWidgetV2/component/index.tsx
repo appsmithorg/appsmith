@@ -1,8 +1,8 @@
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { RefObject } from "react";
 import React from "react";
-import styled from "styled-components";
 
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import styled from "styled-components";
 import { scrollCSS } from "widgets/WidgetUtils";
 
 type ListComponentProps = React.PropsWithChildren<{

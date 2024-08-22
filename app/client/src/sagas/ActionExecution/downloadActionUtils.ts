@@ -1,4 +1,4 @@
-import { getType, isURL, Types } from "utils/TypeHelpers";
+import { Types, getType, isURL } from "utils/TypeHelpers";
 
 const BASE64_STRING_REGEX =
   /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/;

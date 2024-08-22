@@ -1,16 +1,16 @@
-import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
-} from "ee/constants/ReduxActionConstants";
-import moment from "moment";
+import type { UpdateCanvasPayload } from "actions/pageActions";
+import type { UpdatePageResponse } from "api/PageApi";
 import type {
   LayoutOnLoadActionErrors,
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { UpdatePageResponse } from "api/PageApi";
-import type { UpdateCanvasPayload } from "actions/pageActions";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import moment from "moment";
+import { createReducer } from "utils/ReducerUtils";
 
 export const initialState: EditorReduxState = {
   widgetConfigBuilt: false,

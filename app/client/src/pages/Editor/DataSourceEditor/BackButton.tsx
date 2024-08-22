@@ -1,14 +1,16 @@
 import React from "react";
-import styled from "styled-components";
-import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+
 import { builderURL, generateTemplateFormURL } from "ee/RouteBuilder";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { Link } from "@appsmith/ads";
+import styled from "styled-components";
+import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
-import { useHistory } from "react-router-dom";
+
+import { Link } from "@appsmith/ads";
 
 const Back = styled(Link)`
   display: flex;

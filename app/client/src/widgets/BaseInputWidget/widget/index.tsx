@@ -1,28 +1,29 @@
+import React from "react";
+
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import { LabelPosition } from "components/constants";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import React from "react";
-import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import type { InputWidgetProps } from "widgets/InputWidgetV2/widget";
-import { isInputTypeEmailOrPassword } from "widgets/InputWidgetV2/widget/Utilities";
-import BaseInputComponent from "../component";
-import { InputTypes } from "../constants";
-import { checkInputTypeTextByProps } from "../utils";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-
-import IconSVG from "../icon.svg";
 import type {
   WidgetBaseConfiguration,
   WidgetDefaultProps,
 } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import type { InputWidgetProps } from "widgets/InputWidgetV2/widget";
+import { isInputTypeEmailOrPassword } from "widgets/InputWidgetV2/widget/Utilities";
+
+import BaseInputComponent from "../component";
+import { InputTypes } from "../constants";
+import IconSVG from "../icon.svg";
+import { checkInputTypeTextByProps } from "../utils";
 
 class BaseInputWidget<
   T extends BaseInputWidgetProps,

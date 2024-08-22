@@ -1,10 +1,12 @@
-import { createMessage } from "ee/constants/messages";
 import React from "react";
-import styled from "styled-components";
-import { Icon, Tooltip, Text } from "@appsmith/ads";
-import type { Setting } from "ee/pages/AdminSettings/config/types";
-import EnterpriseTag from "components/EnterpriseTag";
+
 import BusinessTag from "components/BusinessTag";
+import EnterpriseTag from "components/EnterpriseTag";
+import { createMessage } from "ee/constants/messages";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import styled from "styled-components";
+
+import { Icon, Text, Tooltip } from "@appsmith/ads";
 
 interface FieldHelperProps {
   setting: Setting;

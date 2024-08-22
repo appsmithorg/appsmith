@@ -5,33 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Container, Space } from "../components/StyledComponents";
-import {
-  CONNECT_BTN_LABEL,
-  CONNECT_TO_GIT_SUBTITLE,
-  CONNECTING_REPO,
-  createMessage,
-  GENERATE_KEY,
-  IMPORT_BTN_LABEL,
-  IMPORT_URL_INFO,
-  IMPORTING_APP_FROM_GIT,
-  LEARN_MORE,
-  PASTE_SSH_URL_INFO,
-  REMOTE_URL,
-  REMOTE_URL_INFO,
-  REMOTE_URL_INPUT_PLACEHOLDER,
-  UPDATE_CONFIG,
-} from "ee/constants/messages";
-import styled from "styled-components";
-import { emailValidator } from "@appsmith/ads-old";
-import UserGitProfileSettings from "../components/UserGitProfileSettings";
-import { AUTH_TYPE_OPTIONS, Classes } from "../constants";
-import { useDispatch, useSelector } from "react-redux";
-import copy from "copy-to-clipboard";
-import {
-  getCurrentAppGitMetaData,
-  getCurrentApplication,
-} from "ee/selectors/applicationSelectors";
+
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -43,7 +17,33 @@ import {
   setIsGitSyncModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
+import copy from "copy-to-clipboard";
+import {
+  CONNECTING_REPO,
+  CONNECT_BTN_LABEL,
+  CONNECT_TO_GIT_SUBTITLE,
+  GENERATE_KEY,
+  IMPORTING_APP_FROM_GIT,
+  IMPORT_BTN_LABEL,
+  IMPORT_URL_INFO,
+  LEARN_MORE,
+  PASTE_SSH_URL_INFO,
+  REMOTE_URL,
+  REMOTE_URL_INFO,
+  REMOTE_URL_INPUT_PLACEHOLDER,
+  UPDATE_CONFIG,
+  createMessage,
+} from "ee/constants/messages";
+import {
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+} from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import equal from "fast-deep-equal/es6";
+import Statusbar, {
+  StatusbarWrapper,
+} from "pages/Editor/gitSync/components/Statusbar";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getGitConnectError,
   getGlobalGitConfig,
@@ -54,23 +54,26 @@ import {
   getTempRemoteUrl,
   getUseGlobalProfile,
 } from "selectors/gitSyncSelectors";
-import Statusbar, {
-  StatusbarWrapper,
-} from "pages/Editor/gitSync/components/Statusbar";
-import Keys from "../components/ssh-key";
-import GitConnectError from "../components/GitConnectError";
+import styled from "styled-components";
+
 import {
   Button,
   Input,
-  Text,
-  Tooltip,
   Link,
   ModalBody,
   ModalFooter,
+  Text,
+  Tooltip,
 } from "@appsmith/ads";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
+import { emailValidator } from "@appsmith/ads-old";
+
+import GitConnectError from "../components/GitConnectError";
+import { Container, Space } from "../components/StyledComponents";
+import UserGitProfileSettings from "../components/UserGitProfileSettings";
+import Keys from "../components/ssh-key";
+import { AUTH_TYPE_OPTIONS, Classes } from "../constants";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
+import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 
 const UrlContainer = styled.div<{
   isConnected: boolean;

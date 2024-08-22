@@ -1,3 +1,5 @@
+import React, { useCallback, useEffect, useState } from "react";
+
 import {
   importPartialApplication,
   openPartialImportModal,
@@ -14,13 +16,13 @@ import {
   getIsImportingPartialApplication,
   getPartialImportExportLoadingState,
 } from "ee/selectors/applicationSelectors";
+import Statusbar from "pages/Editor/gitSync/components/Statusbar";
+import { useDispatch, useSelector } from "react-redux";
+import styled, { css } from "styled-components";
+
 import { Icon, Modal, ModalContent, ModalHeader, Text } from "@appsmith/ads";
 import type { SetProgress } from "@appsmith/ads-old";
 import { FilePickerV2, FileType } from "@appsmith/ads-old";
-import Statusbar from "pages/Editor/gitSync/components/Statusbar";
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import styled, { css } from "styled-components";
 
 const TextWrapper = styled.div`
   padding: 0;

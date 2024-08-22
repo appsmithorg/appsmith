@@ -1,25 +1,26 @@
+import type {
+  DataTreeEntityConfig,
+  WidgetEntity,
+} from "ee/entities/DataTree/types";
+import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import {
   getEntityNameAndPropertyPath,
   isWidget,
   overrideWidgetProperties,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
-import { evalTreeWithChanges } from "./evalTreeWithChanges";
-import { dataTreeEvaluator } from "./handlers/evalTree";
-import { get, set } from "lodash";
-import { validate } from "./validations";
-import type {
-  DataTreeEntityConfig,
-  WidgetEntity,
-} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
+import { get, set } from "lodash";
+
+import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { shouldAddSetter } from "./evaluate";
-import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
+import { dataTreeEvaluator } from "./handlers/evalTree";
+import { validate } from "./validations";
 
 class Setters {
   /** stores the setter method accessor as key and true as value

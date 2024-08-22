@@ -1,13 +1,14 @@
+import type { LayoutElementPositions } from "layoutSystems/common/types";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
+
 import {
-  LayoutComponentTypes,
   type LayoutComponentProps,
+  LayoutComponentTypes,
   type WidgetLayoutProps,
 } from "../../anvilTypes";
-import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { registerLayoutComponents } from "../layoutUtils";
+import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
 
 describe("AlignedColumnHighlights tests", () => {
   beforeAll(() => {

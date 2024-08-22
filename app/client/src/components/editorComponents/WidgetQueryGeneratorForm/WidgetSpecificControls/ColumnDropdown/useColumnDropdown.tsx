@@ -1,8 +1,10 @@
 import React, { useCallback, useMemo } from "react";
+
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 

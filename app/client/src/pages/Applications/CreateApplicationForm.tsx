@@ -1,23 +1,25 @@
 import React from "react";
-import { connect } from "react-redux";
-import type { InjectedFormProps } from "redux-form";
-import { Form, reduxForm, Field } from "redux-form";
+
+import FormFooter from "components/editorComponents/form/FormFooter";
+import FormGroup from "components/editorComponents/form/FormGroup";
+import FormMessage from "components/editorComponents/form/FormMessage";
+import TextField from "components/editorComponents/form/fields/TextField";
 import { CREATE_APPLICATION_FORM_NAME } from "ee/constants/forms";
 import {
-  createMessage,
   ERROR_MESSAGE_NAME_EMPTY,
   NAME_SPACE_ERROR,
+  createMessage,
 } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
+import { connect } from "react-redux";
+import type { InjectedFormProps } from "redux-form";
+import { Field, Form, reduxForm } from "redux-form";
+
 import type { CreateApplicationFormValues } from "./helpers";
 import {
-  createApplicationFormSubmitHandler,
   CREATE_APPLICATION_FORM_NAME_FIELD,
+  createApplicationFormSubmitHandler,
 } from "./helpers";
-import TextField from "components/editorComponents/form/fields/TextField";
-import FormGroup from "components/editorComponents/form/FormGroup";
-import FormFooter from "components/editorComponents/form/FormFooter";
-import FormMessage from "components/editorComponents/form/FormMessage";
 
 type Props = InjectedFormProps<
   CreateApplicationFormValues,

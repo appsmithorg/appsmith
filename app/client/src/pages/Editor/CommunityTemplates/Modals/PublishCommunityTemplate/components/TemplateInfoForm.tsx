@@ -1,13 +1,16 @@
 import React from "react";
-import {
-  TemplateInfoFormLabelWrapper,
-  TemplateInfoFormFieldWrapper,
-  TemplateInfoFormWrapper,
-} from "../StyledComponents";
-import { Input, Select, Option } from "@appsmith/ads";
+
 import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { allTemplatesFiltersSelector } from "selectors/templatesSelectors";
+
+import { Input, Option, Select } from "@appsmith/ads";
+
+import {
+  TemplateInfoFormFieldWrapper,
+  TemplateInfoFormLabelWrapper,
+  TemplateInfoFormWrapper,
+} from "../StyledComponents";
 
 interface Props {
   setTemplateDescription: (templateDescription: string) => void;

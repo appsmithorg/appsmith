@@ -1,19 +1,3 @@
-import { builderURL } from "ee/RouteBuilder";
-import {
-  fetchApplication,
-  showReconnectDatasourceModal,
-} from "ee/actions/applicationActions";
-import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
-import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { findDefaultPage } from "ee/sagas/ApplicationSagas";
-import { fetchPageDSLSaga } from "ee/sagas/PageSagas";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { isAirgapped } from "ee/utils/airgapHelpers";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchJSCollections } from "actions/jsActionActions";
@@ -34,8 +18,23 @@ import type {
   TemplateFiltersResponse,
 } from "api/TemplatesApi";
 import TemplatesAPI from "api/TemplatesApi";
-import { toast } from "@appsmith/ads";
+import { builderURL } from "ee/RouteBuilder";
+import {
+  fetchApplication,
+  showReconnectDatasourceModal,
+} from "ee/actions/applicationActions";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { findDefaultPage } from "ee/sagas/ApplicationSagas";
+import { fetchPageDSLSaga } from "ee/sagas/PageSagas";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { APP_MODE } from "entities/App";
+import type { ApplicationPayload } from "entities/Application";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import history from "utils/history";
@@ -43,6 +42,9 @@ import {
   getTemplateNotificationSeen,
   setTemplateNotificationSeen,
 } from "utils/storage";
+
+import { toast } from "@appsmith/ads";
+
 import { validateResponse } from "./ErrorSagas";
 import { failFastApiCalls } from "./InitSagas";
 import { getAllPageIdentities } from "./selectors";

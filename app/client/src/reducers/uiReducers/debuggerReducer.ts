@@ -1,11 +1,11 @@
-import { createImmerReducer } from "utils/ReducerUtils";
-import type { Log } from "entities/AppsmithConsole";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { omit, isUndefined, isEmpty } from "lodash";
+import type { Log } from "entities/AppsmithConsole";
 import equal from "fast-deep-equal";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { klona } from "klona";
+import { isEmpty, isUndefined, omit } from "lodash";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export const DefaultDebuggerContext = {
   scrollPosition: 0,

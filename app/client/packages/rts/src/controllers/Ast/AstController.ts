@@ -1,8 +1,7 @@
-import type { Response, Request } from "express";
-import { StatusCodes } from "http-status-codes";
-
 import BaseController from "@controllers/BaseController";
 import AstService from "@services/AstService";
+import type { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 
 interface ScriptToIdentifiersType {
   script: string;

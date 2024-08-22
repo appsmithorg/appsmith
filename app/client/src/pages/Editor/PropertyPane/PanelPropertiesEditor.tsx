@@ -1,23 +1,24 @@
 import React, { useEffect, useMemo } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { IPanelProps } from "@blueprintjs/core";
+import { unsetSelectedPropertyPanel } from "actions/propertyPaneActions";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { PanelConfig } from "constants/PropertyControlConstants";
-import PropertyControlsGenerator from "./PropertyControlsGenerator";
+import { get, isNumber, isPlainObject, isString } from "lodash";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getSelectedPropertyPanel,
   getWidgetPropsForPropertyPane,
 } from "selectors/propertyPaneSelectors";
-import { get, isNumber, isPlainObject, isString } from "lodash";
-import type { IPanelProps } from "@blueprintjs/core";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import PropertyPaneTitle from "./PropertyPaneTitle";
-import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
-import { updateConfigPaths, useSearchText } from "./helpers";
+import type { WidgetProps } from "widgets/BaseWidget";
+
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { PropertyPaneTab } from "./PropertyPaneTab";
+import PropertyPaneTitle from "./PropertyPaneTitle";
+import { updateConfigPaths, useSearchText } from "./helpers";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
-import { unsetSelectedPropertyPanel } from "actions/propertyPaneActions";
 
 const PanelWrapper = styled.div`
   margin-top: 44px;

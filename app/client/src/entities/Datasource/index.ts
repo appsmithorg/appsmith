@@ -1,6 +1,7 @@
 import type { APIResponseError } from "api/ApiResponses";
 import type { ActionConfig, Property, StoredDatasource } from "entities/Action";
 import _ from "lodash";
+
 import type { SSL } from "./RestAPIForm";
 
 export enum AuthType {
@@ -111,7 +112,7 @@ export const isEmbeddedRestDatasource = (
 ): val is EmbeddedRestDatasource => {
   if (!_.isObject(val)) return false;
   if (!("datasourceConfiguration" in val)) return false;
-  val = <EmbeddedRestDatasource>val;
+  val = val as EmbeddedRestDatasource;
   // Object should exist and have value
   if (!val.datasourceConfiguration) return false;
   //url might exist as a key but not have value, so we won't check value

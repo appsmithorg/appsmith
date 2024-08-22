@@ -1,12 +1,14 @@
 import React, { memo } from "react";
+
+import type { Row as ReactTableRowType } from "react-table";
+import styled from "styled-components";
 import { getDragHandlers } from "widgets/TableWidgetV2/widget/utilities";
-import { HeaderCell } from "../cellComponents/HeaderCell";
+
 import type { ReactTableColumnProps } from "../Constants";
 import { StickyType } from "../Constants";
-import type { Row as ReactTableRowType } from "react-table";
-import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
-import styled from "styled-components";
+import { HeaderCell } from "../cellComponents/HeaderCell";
+import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 
 export interface TableColumnHeaderProps {
   enableDrag: () => void;

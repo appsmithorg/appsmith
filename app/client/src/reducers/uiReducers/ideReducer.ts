@@ -1,9 +1,9 @@
-import { createImmerReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { klona } from "klona";
 import { get, remove, set } from "lodash";
+import { createImmerReducer } from "utils/ReducerUtils";
 
 export const IDETabsDefaultValue = {
   [EditorEntityTab.JS]: [],

@@ -1,15 +1,17 @@
 import React from "react";
+
+import "@testing-library/jest-dom";
+import { fireEvent, waitFor } from "@testing-library/react";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import {
   UI_ELEMENT_PANEL_SEARCH_TEXT,
   createMessage,
 } from "ee/constants/messages";
-import "@testing-library/jest-dom";
-import { fireEvent, waitFor } from "@testing-library/react";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { render } from "test/testUtils";
+
 import UIEntitySidebar from "../UIEntitySidebar";
 import { cards, groupedCards } from "./UIEntitySidebar.fixture";
-import { render } from "test/testUtils";
-import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 
 jest.mock("utils/hooks/useFeatureFlag", () => ({
   useFeatureFlag: jest.fn(),

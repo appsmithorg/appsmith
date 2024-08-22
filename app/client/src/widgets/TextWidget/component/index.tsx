@@ -1,18 +1,20 @@
 import * as React from "react";
+
 import { Text } from "@blueprintjs/core";
-import styled from "styled-components";
-import type { ComponentProps } from "widgets/BaseComponent";
-import Interweave from "interweave";
-import { UrlMatcher, EmailMatcher } from "interweave-autolink";
-import type { TextSize } from "constants/WidgetConstants";
-import { DEFAULT_FONT_SIZE, FontStyleTypes } from "constants/WidgetConstants";
 import { Icon, IconSize } from "@design-system/widgets-old";
-import { get } from "lodash";
-import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
+import type { TextSize } from "constants/WidgetConstants";
+import { DEFAULT_FONT_SIZE, FontStyleTypes } from "constants/WidgetConstants";
+import equal from "fast-deep-equal/es6";
+import Interweave from "interweave";
+import { EmailMatcher, UrlMatcher } from "interweave-autolink";
+import { get } from "lodash";
+import styled from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
 import { fontSizeUtility } from "widgets/WidgetUtils";
+
 import { OverflowTypes } from "../constants";
 import LinkFilter from "./filters/LinkFilter";
 

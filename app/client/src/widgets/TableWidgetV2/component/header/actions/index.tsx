@@ -1,25 +1,27 @@
 import React from "react";
-import styled from "styled-components";
-import { Icon, Classes } from "@blueprintjs/core";
-import {
-  TableHeaderContentWrapper,
-  PaginationWrapper,
-  PaginationItemWrapper,
-  CommonFunctionsMenuWrapper,
-} from "../../TableStyledWrappers";
+
+import { Classes, Icon } from "@blueprintjs/core";
 import { SearchComponent } from "@design-system/widgets-old";
-import TableFilters from "./filter";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import styled from "styled-components";
+import { lightenColor } from "widgets/WidgetUtils";
+
 import type {
   ReactTableColumnProps,
-  TableSizes,
   ReactTableFilter,
+  TableSizes,
 } from "../../Constants";
-import TableDataDownload from "./Download";
-import { Colors } from "constants/Colors";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { lightenColor } from "widgets/WidgetUtils";
-import { PageNumberInput } from "./PageNumberInput";
+import {
+  CommonFunctionsMenuWrapper,
+  PaginationItemWrapper,
+  PaginationWrapper,
+  TableHeaderContentWrapper,
+} from "../../TableStyledWrappers";
 import ActionItem from "./ActionItem";
+import TableDataDownload from "./Download";
+import { PageNumberInput } from "./PageNumberInput";
+import TableFilters from "./filter";
 
 const SearchComponentWrapper = styled.div<{
   borderRadius: string;

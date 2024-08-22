@@ -2,17 +2,18 @@ import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUt
 import { get, isEmpty, set } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { LintError } from "utils/DynamicBindingUtils";
-import { globalData } from "./globalData";
-import lintBindingPath from "./utils/lintBindingPath";
-import lintTriggerPath from "./utils/lintTriggerPath";
-import lintJSObjectBody from "./utils/lintJSObjectBody";
-import sortLintingPathsByType from "./utils/sortLintingPathsByType";
-import lintJSObjectProperty from "./utils/lintJSObjectProperty";
 import setters from "workers/Evaluation/setters";
+
+import { globalData } from "./globalData";
 import type {
   getLintErrorsFromTreeProps,
   getLintErrorsFromTreeResponse,
 } from "./types";
+import lintBindingPath from "./utils/lintBindingPath";
+import lintJSObjectBody from "./utils/lintJSObjectBody";
+import lintJSObjectProperty from "./utils/lintJSObjectProperty";
+import lintTriggerPath from "./utils/lintTriggerPath";
+import sortLintingPathsByType from "./utils/sortLintingPathsByType";
 
 export function getLintErrorsFromTree({
   asyncJSFunctionsInDataFields,

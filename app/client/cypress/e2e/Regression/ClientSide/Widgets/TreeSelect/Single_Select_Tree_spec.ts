@@ -1,8 +1,7 @@
 import formWidgetsPage from "../../../../../locators/FormWidgets.json";
-import publish from "../../../../../locators/publishWidgetspage.json";
-import commonlocators from "../../../../../locators/commonlocators.json";
 import widgetsPage from "../../../../../locators/Widgets.json";
-
+import commonlocators from "../../../../../locators/commonlocators.json";
+import publish from "../../../../../locators/publishWidgetspage.json";
 import {
   agHelper,
   deployMode,

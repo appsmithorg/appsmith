@@ -1,32 +1,34 @@
 import React from "react";
-import styled from "styled-components";
-import { IntentColors } from "constants/DefaultTheme";
-import type { IRef, Alignment } from "@blueprintjs/core";
-import { ControlGroup, Classes } from "@blueprintjs/core";
-import type { ComponentProps } from "widgets/BaseComponent";
+
+import type { Alignment, IRef } from "@blueprintjs/core";
+import { Classes, ControlGroup } from "@blueprintjs/core";
 import { DateInput } from "@blueprintjs/datetime";
-import moment from "moment";
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import type { DatePickerType } from "../constants";
-import { TimePrecision } from "../constants";
-import type { TextSize } from "constants/WidgetConstants";
-import { Colors } from "constants/Colors";
-import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import {
-  createMessage,
-  DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "ee/constants/messages";
 import { LabelPosition } from "components/constants";
-import { parseDate } from "./utils";
-import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
+import ErrorTooltip from "components/editorComponents/ErrorTooltip";
+import { Colors } from "constants/Colors";
+import { IntentColors } from "constants/DefaultTheme";
+import type { TextSize } from "constants/WidgetConstants";
+import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
+import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import {
+  DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
+  createMessage,
+} from "ee/constants/messages";
+import moment from "moment";
+import styled from "styled-components";
+import { required } from "utils/validation/common";
+import type { ComponentProps } from "widgets/BaseComponent";
+import { PopoverStyles, lightenColor } from "widgets/WidgetUtils";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";
 
+import type { DatePickerType } from "../constants";
+import { TimePrecision } from "../constants";
+import { parseDate } from "./utils";
+
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
-import { required } from "utils/validation/common";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 function hasFulfilledRequiredCondition(
   isRequired: boolean | undefined,

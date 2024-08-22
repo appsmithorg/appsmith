@@ -1,26 +1,20 @@
 import type { Context, ReactNode } from "react";
 import React, { createContext, useCallback, useMemo, useRef } from "react";
-import { connect } from "react-redux";
-import { get, set } from "lodash";
 
-import type { WidgetOperation } from "widgets/BaseWidget";
-
-import { updateWidget } from "actions/pageActions";
 import {
-  executeTrigger,
-  disableDragAction,
-  focusWidget,
-} from "actions/widgetActions";
+  checkContainersForAutoHeightAction,
+  updateWidgetAutoHeightAction,
+} from "actions/autoHeightActions";
+import {
+  updatePositionsOnTabChange,
+  updateWidgetDimensionAction,
+} from "actions/autoLayoutActions";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import {
-  updateWidgetPropertyRequest,
-  deleteWidgetProperty as deletePropertyAction,
   batchUpdateWidgetProperty as batchUpdatePropertyAction,
+  deleteWidgetProperty as deletePropertyAction,
+  updateWidgetPropertyRequest,
 } from "actions/controlActions";
-
-import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
-import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-
 import type { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
 import {
   resetChildrenMetaProperty,
@@ -29,29 +23,31 @@ import {
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 import {
-  modifyMetaWidgets,
   deleteMetaWidgets,
+  modifyMetaWidgets,
   updateMetaWidgetProperty,
 } from "actions/metaWidgetActions";
-import type {
-  ModifyMetaWidgetPayload,
-  DeleteMetaWidgetsPayload,
-  UpdateMetaWidgetPropertyPayload,
-} from "reducers/entityReducers/metaWidgetsReducer";
-import type { RenderMode } from "constants/WidgetConstants";
-import { RenderModes } from "constants/WidgetConstants";
-
+import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
+import { updateWidget } from "actions/pageActions";
 import {
-  checkContainersForAutoHeightAction,
-  updateWidgetAutoHeightAction,
-} from "actions/autoHeightActions";
+  disableDragAction,
+  executeTrigger,
+  focusWidget,
+} from "actions/widgetActions";
 import type { WidgetSelectionRequest } from "actions/widgetSelectionActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import {
-  updatePositionsOnTabChange,
-  updateWidgetDimensionAction,
-} from "actions/autoLayoutActions";
-import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
+import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
+import { get, set } from "lodash";
+import { connect } from "react-redux";
+import type {
+  DeleteMetaWidgetsPayload,
+  ModifyMetaWidgetPayload,
+  UpdateMetaWidgetPropertyPayload,
+} from "reducers/entityReducers/metaWidgetsReducer";
+import type { WidgetOperation } from "widgets/BaseWidget";
 
 export interface EditorContextType<TCache = unknown> {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;

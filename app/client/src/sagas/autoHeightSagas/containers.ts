@@ -1,23 +1,24 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { GridDefaults } from "constants/WidgetConstants";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
-import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
   isAutoHeightEnabledForWidget,
 } from "widgets/WidgetUtils";
+
+import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
 import { getChildOfContainerLikeWidget } from "./helpers";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getLayoutTree } from "./layoutTree";
-import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
 
 export function* dynamicallyUpdateContainersSaga(
   action?: ReduxAction<{ resettingTabs: boolean }>,

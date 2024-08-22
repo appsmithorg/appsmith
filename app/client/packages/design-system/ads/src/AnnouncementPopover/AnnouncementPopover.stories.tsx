@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+
 import type { Meta, StoryObj } from "@storybook/react";
 
+import { Button } from "../Button";
+import { Flex } from "../Flex";
 import {
   AnnouncementPopover,
   AnnouncementPopoverContent,
   AnnouncementPopoverTrigger,
 } from "./AnnouncementPopover";
-import { Button } from "../Button";
-import { Flex } from "../Flex";
 
 export default {
   title: "ADS/Components/Announcement",

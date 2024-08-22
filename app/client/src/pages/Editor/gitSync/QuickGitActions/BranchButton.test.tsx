@@ -1,6 +1,8 @@
-import { render, screen } from "test/testUtils";
-import BranchButton from "./BranchButton";
 import React from "react";
+
+import { render, screen } from "test/testUtils";
+
+import BranchButton from "./BranchButton";
 
 describe("BranchButton", () => {
   it("renders properly", async () => {

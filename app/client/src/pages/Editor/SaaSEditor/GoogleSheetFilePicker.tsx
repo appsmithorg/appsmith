@@ -1,14 +1,15 @@
-import { removeClassFromDocumentRoot } from "pages/utils";
-import React, { useState, useEffect } from "react";
-import { FilePickerActionStatus } from "entities/Datasource";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+
 import { filePickerCallbackAction } from "actions/datasourceActions";
 import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
-  createMessage,
   GOOGLE_SHEETS_FILE_PICKER_TITLE,
+  createMessage,
 } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { FilePickerActionStatus } from "entities/Datasource";
+import { removeClassFromDocumentRoot } from "pages/utils";
+import { useDispatch } from "react-redux";
 
 interface Props {
   datasourceId: string;

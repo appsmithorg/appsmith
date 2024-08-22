@@ -1,17 +1,19 @@
 import React, { useCallback } from "react";
+
+import type { Alignment } from "@blueprintjs/core";
+import { Classes, Radio, RadioGroup } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
+import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
+import type { TextSize } from "constants/WidgetConstants";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";
-import type { Alignment } from "@blueprintjs/core";
-import { RadioGroup, Radio, Classes } from "@blueprintjs/core";
-import type { TextSize } from "constants/WidgetConstants";
-import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
-import { LabelPosition } from "components/constants";
-import type { RadioOption } from "../constants";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-  LABEL_CONTAINER_CLASS,
-} from "widgets/components/LabelWithTooltip";
 import { darkenColor } from "widgets/WidgetUtils";
+import LabelWithTooltip, {
+  LABEL_CONTAINER_CLASS,
+  labelLayoutStyles,
+} from "widgets/components/LabelWithTooltip";
+
+import type { RadioOption } from "../constants";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;

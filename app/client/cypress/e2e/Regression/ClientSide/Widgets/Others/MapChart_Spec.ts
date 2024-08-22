@@ -2,11 +2,11 @@
 import viewWidgetsPage from "../../../../../locators/ViewWidgets.json";
 import {
   agHelper,
-  entityExplorer,
-  propPane,
-  draggableWidgets,
   deployMode,
+  draggableWidgets,
+  entityExplorer,
   locators,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,

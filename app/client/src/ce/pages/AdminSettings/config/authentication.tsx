@@ -1,28 +1,16 @@
 import React from "react";
+
+import Github from "assets/images/Github.png";
+import Google from "assets/images/Google.png";
+import Lock from "assets/images/lock-password-line.svg";
+import OIDC from "assets/images/oidc.svg";
+import SamlSso from "assets/images/saml.svg";
 import {
   EMAIL_SETUP_DOC,
   GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
-import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
-import {
-  CategoryType,
-  SettingCategories,
-  SettingSubtype,
-  SettingTypes,
-} from "ee/pages/AdminSettings/config/types";
-import type { AuthMethodType } from "pages/AdminSettings/Authentication/AuthPage";
-import { AuthPage } from "pages/AdminSettings/Authentication/AuthPage";
-import Google from "assets/images/Google.png";
-import SamlSso from "assets/images/saml.svg";
-import OIDC from "assets/images/oidc.svg";
-import Github from "assets/images/Github.png";
-import Lock from "assets/images/lock-password-line.svg";
-import { useSelector } from "react-redux";
-import {
-  getThirdPartyAuths,
-  getIsFormLoginEnabled,
-} from "ee/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "ee/configs";
 import {
   FORM_LOGIN_DESC,
   GITHUB_AUTH_DESC,
@@ -31,11 +19,26 @@ import {
   SAML_AUTH_DESC,
   createMessage,
 } from "ee/constants/messages";
-import { isSAMLEnabled, isOIDCEnabled } from "ee/utils/planHelpers";
+import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
+import {
+  CategoryType,
+  SettingCategories,
+  SettingSubtype,
+  SettingTypes,
+} from "ee/pages/AdminSettings/config/types";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "ee/selectors/tenantSelectors";
+import { isOIDCEnabled, isSAMLEnabled } from "ee/utils/planHelpers";
+import type { AuthMethodType } from "pages/AdminSettings/Authentication/AuthPage";
+import { AuthPage } from "pages/AdminSettings/Authentication/AuthPage";
+import { useSelector } from "react-redux";
 import store from "store";
+
 const featureFlags = selectFeatureFlags(store.getState());
-import { getAppsmithConfigs } from "ee/configs";
+
 const { mailEnabled } = getAppsmithConfigs();
 
 const FormAuth: AdminConfigType = {

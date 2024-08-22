@@ -1,16 +1,18 @@
 import React from "react";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+
 import { deleteBranchInit } from "actions/gitSyncActions";
-import { useDispatch, useSelector } from "react-redux";
+import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import {
-  createMessage,
   DELETE,
   DELETE_BRANCH_WARNING_CHECKED_OUT,
   DELETE_BRANCH_WARNING_DEFAULT,
+  createMessage,
 } from "ee/constants/messages";
-import type { Dispatch } from "redux";
-import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useDispatch, useSelector } from "react-redux";
+import type { Dispatch } from "redux";
+
 import {
   Button,
   Menu,

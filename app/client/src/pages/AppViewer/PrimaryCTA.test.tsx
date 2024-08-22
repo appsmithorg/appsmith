@@ -1,11 +1,13 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+
 import "@testing-library/jest-dom/extend-expect";
+import { render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
-import { lightTheme } from "selectors/themeSelectors";
-import PrimaryCTA from "./PrimaryCTA";
 import configureStore from "redux-mock-store";
+import { lightTheme } from "selectors/themeSelectors";
+import { ThemeProvider } from "styled-components";
+
+import PrimaryCTA from "./PrimaryCTA";
 
 jest.mock("react-router", () => ({
   ...jest.requireActual("react-router"),

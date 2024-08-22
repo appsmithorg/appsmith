@@ -1,7 +1,8 @@
-import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { getViableDropPositions } from "./utils";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
+import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+
+import { getViableDropPositions } from "./utils";
 
 describe("Highlight selection algos", () => {
   describe("getViableDropPositions", () => {

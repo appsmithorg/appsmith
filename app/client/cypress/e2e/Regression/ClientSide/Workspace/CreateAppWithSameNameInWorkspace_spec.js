@@ -1,9 +1,10 @@
 /// <reference types="Cypress" />
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import homePage from "../../../../locators/HomePage";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-const application = require("../../../../locators/Applications.json");
-import * as _ from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
+const application = require("../../../../locators/Applications.json");
 
 describe(
   "Create workspace and a new app / delete and recreate app",

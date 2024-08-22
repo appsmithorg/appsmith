@@ -1,37 +1,38 @@
 import React, { useCallback, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+
+import type { IconName } from "@blueprintjs/icons";
 import {
-  moveJSCollectionRequest,
   copyJSCollectionRequest,
   deleteJSCollection,
+  moveJSCollectionRequest,
 } from "actions/jsActionActions";
-import noop from "lodash/noop";
-import {
-  CONTEXT_COPY,
-  CONTEXT_DELETE,
-  CONFIRM_CONTEXT_DELETE,
-  CONTEXT_MOVE,
-  createMessage,
-} from "ee/constants/messages";
-import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
+import { updateJSCollectionBody } from "actions/jsPaneActions";
 import {
   autoIndentCode,
   getAutoIndentShortcutKeyText,
 } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
+import {
+  CONFIRM_CONTEXT_DELETE,
+  CONTEXT_COPY,
+  CONTEXT_DELETE,
+  CONTEXT_MOVE,
+  createMessage,
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { updateJSCollectionBody } from "actions/jsPaneActions";
-import type { IconName } from "@blueprintjs/icons";
-
-import type { ContextMenuOption } from "./JSEditorContextMenu";
-import JSEditorContextMenu from "./JSEditorContextMenu";
-import equal from "fast-deep-equal/es6";
 import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { JSCollection } from "entities/JSCollection";
+import equal from "fast-deep-equal/es6";
+import noop from "lodash/noop";
+import { useDispatch, useSelector } from "react-redux";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import type { ContextMenuOption } from "./JSEditorContextMenu";
+import JSEditorContextMenu from "./JSEditorContextMenu";
 
 interface AppJSEditorContextMenuProps {
   pageId: string;

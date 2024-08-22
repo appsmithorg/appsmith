@@ -1,6 +1,7 @@
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 import { TABLE_DATA_DYNAMIC } from "../../../../../support/Constants";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(

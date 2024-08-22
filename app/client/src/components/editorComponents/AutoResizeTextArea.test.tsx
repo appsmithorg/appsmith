@@ -1,7 +1,9 @@
 import React from "react";
+
 import "@testing-library/jest-dom";
 import "jest-styled-components";
 import renderer from "react-test-renderer";
+
 import AutoResizeTextArea from "./AutoResizeTextArea";
 
 describe("<AutoResizeTextArea />", () => {

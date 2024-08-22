@@ -1,15 +1,15 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
-import { updatePhoto, removePhoto, updatePhotoId } from "actions/userActions";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { DisplayImageUpload } from "@appsmith/ads-old";
+import React, { useEffect, useRef, useState } from "react";
 
 import type Uppy from "@uppy/core";
+import { removePhoto, updatePhoto, updatePhotoId } from "actions/userActions";
+import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
-import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import { USER_DISPLAY_PICTURE_FILE_INVALID } from "ee/constants/messages";
+import { useDispatch, useSelector } from "react-redux";
+import type { ErrorActionPayload } from "sagas/ErrorSagas";
+import { getCurrentUser } from "selectors/usersSelectors";
+
+import { DisplayImageUpload } from "@appsmith/ads-old";
 
 function FormDisplayImage() {
   // TODO: Fix this the next time the file is edited

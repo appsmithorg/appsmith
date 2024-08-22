@@ -4,8 +4,8 @@ import type {
   JSActionEntityConfig,
 } from "ee/entities/DataTree/types";
 import {
-  type WidgetEntityConfig,
   ENTITY_TYPE,
+  type WidgetEntityConfig,
 } from "ee/entities/DataTree/types";
 import type { PluginType } from "entities/Action";
 

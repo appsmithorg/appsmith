@@ -1,18 +1,19 @@
-import {
-  apiRequestInterceptor,
-  apiSuccessResponseInterceptor,
-  apiFailureResponseInterceptor,
-  axiosConnectionAbortedCode,
-} from "./ApiUtils";
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import * as Sentry from "@sentry/react";
 import type { ActionExecutionResponse } from "api/ActionAPI";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
 import {
-  createMessage,
   ERROR_0,
   SERVER_API_TIMEOUT_ERROR,
+  createMessage,
 } from "ee/constants/messages";
-import { ERROR_CODES } from "ee/constants/ApiConstants";
-import * as Sentry from "@sentry/react";
+
+import {
+  apiFailureResponseInterceptor,
+  apiRequestInterceptor,
+  apiSuccessResponseInterceptor,
+  axiosConnectionAbortedCode,
+} from "./ApiUtils";
 
 describe("axios api interceptors", () => {
   describe("Axios api request interceptor", () => {

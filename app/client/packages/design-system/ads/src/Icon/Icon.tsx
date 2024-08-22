@@ -1,10 +1,11 @@
 import React from "react";
+
 import clsx from "classnames";
 
+import { IconClassName } from "./Icon.constants";
+import { IconProvider } from "./Icon.provider";
 import { IconContainer } from "./Icon.styles";
 import type { IconProps, IconSizes } from "./Icon.types";
-import { IconProvider } from "./Icon.provider";
-import { IconClassName } from "./Icon.constants";
 
 export const iconSizes: Record<IconSizes, string> = {
   sm: "12px",

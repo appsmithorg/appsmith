@@ -1,6 +1,9 @@
 import React, { useState } from "react";
+
 import styled from "styled-components";
+
 import { Icon } from "@appsmith/ads";
+
 import Text, { TextType } from "../Text";
 import { Classes } from "../constants/classes";
 

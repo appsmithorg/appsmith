@@ -1,6 +1,7 @@
 import type React from "react";
-import type { LinkProps as RouterLinkProps } from "react-router-dom";
+
 import type { AriaLinkOptions } from "@react-aria/link";
+import type { LinkProps as RouterLinkProps } from "react-router-dom";
 
 export type LinkKind = "primary" | "secondary";
 

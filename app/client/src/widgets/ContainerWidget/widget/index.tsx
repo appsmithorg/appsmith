@@ -1,48 +1,50 @@
 import type { MouseEventHandler } from "react";
 import React from "react";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { ContainerStyle } from "../component";
-import ContainerComponent from "../component";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { compact, get, map, sortBy } from "lodash";
-import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { getSnappedGrid } from "sagas/WidgetOperationUtils";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+
 import {
-  isAutoHeightEnabledForWidget,
-  DefaultAutocompleteDefinitions,
-  isAutoHeightEnabledForWidgetWithLimits,
-} from "widgets/WidgetUtils";
-import {
-  BlueprintOperationTypes,
   type AnvilConfig,
-  type AutocompletionDefinitions,
   type AutoLayoutConfig,
+  type AutocompletionDefinitions,
+  BlueprintOperationTypes,
+  type FlattenedWidgetProps,
   type WidgetBaseConfiguration,
   type WidgetDefaultProps,
-  type FlattenedWidgetProps,
 } from "WidgetProvider/constants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { ButtonBoxShadowTypes } from "components/constants";
 import { Colors } from "constants/Colors";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import {
   FlexVerticalAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
-import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { compact, get, map, sortBy } from "lodash";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import {
+  DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
+
+import type { ContainerStyle } from "../component";
+import ContainerComponent from "../component";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,

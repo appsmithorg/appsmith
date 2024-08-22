@@ -1,15 +1,7 @@
 import type {
-  JSActionEntityConfig,
   JSActionEntity,
+  JSActionEntityConfig,
 } from "ee/entities/DataTree/types";
-import type {
-  ConfigTree,
-  DataTree,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { unset, set, get, find } from "lodash";
 import type {
   BatchedJSExecutionData,
   BatchedJSExecutionErrors,
@@ -17,13 +9,22 @@ import type {
   JSExecutionData,
   JSExecutionError,
 } from "ee/reducers/entityReducers/jsActionsReducer";
-import { select } from "redux-saga/effects";
-import type { JSAction } from "entities/JSCollection";
 import { getAllJSCollections } from "ee/selectors/entitiesSelector";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
 } from "ee/workers/Evaluation/evaluationUtils";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type {
+  ConfigTree,
+  DataTree,
+  DataTreeEntity,
+} from "entities/DataTree/dataTreeTypes";
+import type { JSAction } from "entities/JSCollection";
+import { find, get, set, unset } from "lodash";
+import { select } from "redux-saga/effects";
+import type { ParsedBody, ParsedJSSubAction } from "utils/JSPaneUtils";
+
 import JSObjectCollection from "./Collection";
 
 /**

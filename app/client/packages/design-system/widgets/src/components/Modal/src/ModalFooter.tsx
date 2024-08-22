@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { usePopoverContext } from "@appsmith/wds-headless";
-import { Flex } from "../../Flex";
-import { Button } from "../../Button";
 
+import { usePopoverContext } from "@appsmith/wds-headless";
+
+import { Button } from "../../Button";
+import { Flex } from "../../Flex";
 import type { ModalFooterProps } from "./types";
 
 export const ModalFooter = (props: ModalFooterProps) => {

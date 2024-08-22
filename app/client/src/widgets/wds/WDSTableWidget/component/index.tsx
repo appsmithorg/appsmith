@@ -1,5 +1,12 @@
 import React from "react";
-import Table from "./Table";
+import { useCallback } from "react";
+
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import equal from "fast-deep-equal/es6";
+import type { Row } from "react-table";
+
+import type { EditableCell, TableVariant } from "../constants";
+import { ColumnTypes } from "../constants";
 import type {
   AddNewRowActions,
   CompactMode,
@@ -7,13 +14,7 @@ import type {
   ReactTableFilter,
   StickyType,
 } from "./Constants";
-import type { Row } from "react-table";
-
-import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import equal from "fast-deep-equal/es6";
-import type { EditableCell, TableVariant } from "../constants";
-import { ColumnTypes } from "../constants";
-import { useCallback } from "react";
+import Table from "./Table";
 
 interface ReactTableComponentProps {
   widgetId: string;

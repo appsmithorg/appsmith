@@ -1,12 +1,14 @@
 import React from "react";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { Icon, Text } from "@appsmith/ads";
+
 import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,
   createMessage,
 } from "ee/constants/messages";
+import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
+
+import { Icon, Text } from "@appsmith/ads";
 
 const TitleText = styled(Text)`
   font-weight: 500;

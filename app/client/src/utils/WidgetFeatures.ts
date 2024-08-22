@@ -1,10 +1,10 @@
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
 } from "constants/PropertyControlConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import { GridDefaults, WidgetHeightLimits } from "constants/WidgetConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type BaseWidget from "widgets/BaseWidget";
 

@@ -1,24 +1,24 @@
-import { set } from "lodash";
-import { createReducer } from "utils/ReducerUtils";
 import type {
-  UpdateWidgetMetaPropertyPayload,
-  ResetWidgetMetaPayload,
   BatchUpdateWidgetMetaPropertyPayload,
+  ResetWidgetMetaPayload,
+  UpdateWidgetMetaPropertyPayload,
 } from "actions/metaActions";
-
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import produce from "immer";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import produce from "immer";
+import { set } from "lodash";
+import { createReducer } from "utils/ReducerUtils";
+
 import {
   getMetaWidgetResetObj,
   getNextMetaStateWithUpdates,
   setMetaValuesOnResetFromEval,
 } from "./metaReducerUtils";
-import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;

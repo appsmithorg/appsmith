@@ -1,8 +1,8 @@
-import { get } from "lodash";
-
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";
 import { ARRAY_ITEM_KEY, FieldType } from "widgets/JSONFormWidget/constants";
+
 import type { JSONFormWidgetProps } from "../..";
 import { getStylesheetValue } from "../helper";
 

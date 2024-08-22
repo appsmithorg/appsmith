@@ -1,15 +1,17 @@
+import React from "react";
+
+import type { Template } from "api/TemplatesApi";
 import {
   START_WITH_TEMPLATE_CONNECT_HEADING,
   START_WITH_TEMPLATE_CONNECT_SUBHEADING,
   createMessage,
 } from "ee/constants/messages";
-import type { Template } from "api/TemplatesApi";
-import { Flex, Text } from "@appsmith/ads";
 import TemplatesLayoutWithFilters from "pages/Templates/TemplatesLayoutWithFilters";
-import React from "react";
 import { useSelector } from "react-redux";
 import { getForkableWorkspaces } from "selectors/templatesSelectors";
 import styled from "styled-components";
+
+import { Flex, Text } from "@appsmith/ads";
 
 interface Props {
   setSelectedTemplate: (id: string) => void;

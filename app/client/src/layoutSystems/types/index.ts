@@ -1,4 +1,5 @@
 import type { ForwardRefExoticComponent, RefAttributes } from "react";
+
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 

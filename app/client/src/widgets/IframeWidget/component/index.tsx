@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import { hexToRgba } from "widgets/WidgetUtils";
 
-import type { ComponentProps } from "widgets/BaseComponent";
-import { useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { getAppMode } from "ee/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
 import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "ee/configs";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import styled from "styled-components";
+import type { ComponentProps } from "widgets/BaseComponent";
+import { hexToRgba } from "widgets/WidgetUtils";
 
 interface IframeContainerProps {
   borderColor?: string;

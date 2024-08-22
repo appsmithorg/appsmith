@@ -1,3 +1,13 @@
+import type CodeMirror from "codemirror";
+import type { Doc } from "codemirror";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
+import type { Def } from "tern";
+
+import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
+import { AutocompleteDataType } from "../AutocompleteDataType";
+import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
 import type {
   Completion,
   DataTreeDefEntityInformation,
@@ -6,15 +16,6 @@ import CodemirrorTernService, {
   createCompletionHeader,
   extractFinalObjectPath,
 } from "../CodemirrorTernService";
-import { AutocompleteDataType } from "../AutocompleteDataType";
-import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
-import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
-import type CodeMirror from "codemirror";
-import type { Def } from "tern";
-import type { Doc } from "codemirror";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 
 jest.mock("utils/getCodeMirrorNamespace", () => {
   const actual = jest.requireActual("utils/getCodeMirrorNamespace");

@@ -1,5 +1,7 @@
 import React from "react";
+
 import styled, { keyframes } from "styled-components";
+
 import type { IconSize } from "../Icon";
 import { sizeHandler } from "../Icon";
 import { Classes } from "../constants/classes";

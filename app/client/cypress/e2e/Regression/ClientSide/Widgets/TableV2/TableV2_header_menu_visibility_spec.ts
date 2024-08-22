@@ -1,12 +1,12 @@
+import { TABLE_DATA_STATIC } from "../../../../../support/Constants";
 import {
+  agHelper,
+  deployMode,
+  draggableWidgets,
   entityExplorer,
   propPane,
-  agHelper,
-  draggableWidgets,
-  deployMode,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
-import { TABLE_DATA_STATIC } from "../../../../../support/Constants";
 
 describe(
   "Table widget v2",

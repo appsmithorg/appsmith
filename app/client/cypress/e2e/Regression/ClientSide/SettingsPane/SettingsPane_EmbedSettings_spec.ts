@@ -1,11 +1,11 @@
 import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
-  embedSettings,
-  inviteModal,
   agHelper,
   appSettings,
+  embedSettings,
+  inviteModal,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe("In-app embed settings", { tags: ["@tag.Settings"] }, () => {
   function ValidateSyncWithInviteModal(showNavigationBar: "On" | "Off") {

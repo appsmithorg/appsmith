@@ -1,10 +1,8 @@
 import React from "react";
-import clsx from "classnames";
-
-import type { LinkProps } from "./Link.types";
-import { StyledAnchor, StyledIcon, StyledRouterLink } from "./Link.styles";
 
 import { useLink } from "@react-aria/link";
+import clsx from "classnames";
+
 import { Text } from "../Text";
 import {
   LinkClassName,
@@ -12,6 +10,8 @@ import {
   LinkStartIconClassName,
   LinkTextClassName,
 } from "./Link.constants";
+import { StyledAnchor, StyledIcon, StyledRouterLink } from "./Link.styles";
+import type { LinkProps } from "./Link.types";
 
 /**
  *

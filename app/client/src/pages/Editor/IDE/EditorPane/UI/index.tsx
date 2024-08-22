@@ -1,8 +1,6 @@
 import React from "react";
-import { Flex } from "@appsmith/ads";
-import { Switch, useRouteMatch } from "react-router";
 
-import { SentryRoute } from "ee/AppRouter";
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import {
   ADD_PATH,
   BUILDER_CUSTOM_PATH,
@@ -11,14 +9,18 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
-import ListWidgets from "./List";
-import AddWidgets from "./Add";
-import { useSelector } from "react-redux";
-import { getPagePermissions } from "selectors/editorSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { SentryRoute } from "ee/AppRouter";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import { useSelector } from "react-redux";
+import { Switch, useRouteMatch } from "react-router";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+
+import { Flex } from "@appsmith/ads";
+
+import AddWidgets from "./Add";
+import ListWidgets from "./List";
 
 const UISegment = () => {
   const { path } = useRouteMatch();

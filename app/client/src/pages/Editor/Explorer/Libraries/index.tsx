@@ -1,6 +1,33 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
+
+import { Collapse } from "@blueprintjs/core";
+import {
+  clearInstalls,
+  toggleInstaller,
+  uninstallLibraryInit,
+} from "actions/JSLibraryActions";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import {
+  selectInstallationStatus,
+  selectIsInstallerOpen,
+  selectLibrariesForExplorer,
+} from "ee/selectors/entitiesSelector";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { useDispatch, useSelector } from "react-redux";
+import { animated, useTransition } from "react-spring";
+import { InstallState } from "reducers/uiReducers/libraryReducer";
+import {
+  getCurrentPageId,
+  getPagePermissions,
+} from "selectors/editorSelectors";
 import styled from "styled-components";
+import useClipboard from "utils/hooks/useClipboard";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import type { JSLibrary } from "workers/common/JSLibrary";
+
 import {
   Button,
   Icon,
@@ -10,38 +37,14 @@ import {
   PopoverHeader,
   PopoverTrigger,
   Spinner,
-  toast,
   Tooltip,
+  toast,
 } from "@appsmith/ads";
+
 import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
-import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  selectInstallationStatus,
-  selectIsInstallerOpen,
-  selectLibrariesForExplorer,
-} from "ee/selectors/entitiesSelector";
-import { InstallState } from "reducers/uiReducers/libraryReducer";
-import { Collapse } from "@blueprintjs/core";
-import useClipboard from "utils/hooks/useClipboard";
-import {
-  clearInstalls,
-  toggleInstaller,
-  uninstallLibraryInit,
-} from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
-import type { JSLibrary } from "workers/common/JSLibrary";
-import {
-  getCurrentPageId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import recommendedLibraries from "./recommendedLibraries";
-import { useTransition, animated } from "react-spring";
-import { isAirgapped } from "ee/utils/airgapHelpers";
 import { Installer } from "./Installer";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import recommendedLibraries from "./recommendedLibraries";
 
 const docsURLMap = recommendedLibraries.reduce(
   (acc, lib) => {

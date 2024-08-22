@@ -1,6 +1,7 @@
 import { klona } from "klona";
 import { isEmpty, startCase } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+
 import type { FieldThemeStylesheet, SchemaItem } from "./constants";
 import {
   ARRAY_ITEM_KEY,
