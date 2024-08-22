@@ -82,7 +82,9 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
     yield put({
       type: ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR,
       payload: {
-        error: "Error exporting application",
+        error: {
+          message: "Error exporting application",
+        },
       },
     });
   }

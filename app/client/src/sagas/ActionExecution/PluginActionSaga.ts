@@ -9,9 +9,9 @@ import {
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type { updateActionDataPayloadType } from "actions/pluginActionActions";
-import { executePageLoadActions } from "actions/pluginActionActions";
 import {
   clearActionResponse,
+  executePageLoadActions,
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
@@ -72,8 +72,7 @@ import {
 } from "sagas/ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
-import { ActionExecutionContext } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { ActionExecutionContext, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   ACTION_EXECUTION_CANCELLED,
@@ -173,6 +172,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
+import { LOG_CATEGORY, Severity } from "../../entities/AppsmithConsole";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1267,10 +1267,13 @@ function* executePageLoadActionsSaga(
     checkAndLogErrorsIfCyclicDependency(layoutOnLoadActionErrors);
   } catch (e) {
     log.error(e);
-
-    toast.show(createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS), {
-      kind: "error",
-    });
+    AppsmithConsole.addErrors([
+      {
+        payload: { text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS) },
+        severity: Severity.ERROR,
+        category: LOG_CATEGORY.PLATFORM_GENERATED,
+      },
+    ]);
   }
   endSpan(span);
 }

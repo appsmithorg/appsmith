@@ -468,12 +468,9 @@ export function* deleteDatasourceSaga(
       yield select(getDatasource, actionPayload.payload.id),
       `Datasource not found for id - ${actionPayload.payload.id}`,
     );
-    toast.show((error as Error).message, {
-      kind: "error",
-    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
-      payload: { error, id: actionPayload.payload.id, show: false },
+      payload: { error, id: actionPayload.payload.id },
     });
     AppsmithConsole.error({
       text: (error as Error).message,
@@ -733,12 +730,12 @@ function* getOAuthAccessTokenSaga(
   if (!appsmithToken) {
     // Error out because auth token should been here
     log.error(OAUTH_APPSMITH_TOKEN_NOT_FOUND);
-    toast.show(OAUTH_AUTHORIZATION_APPSMITH_ERROR, {
-      kind: "error",
-    });
     yield put({
-      type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
-      payload: { datasourceId: datasourceId },
+      type: ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
+      payload: {
+        datasourceId: datasourceId,
+        message: OAUTH_AUTHORIZATION_APPSMITH_ERROR,
+      },
     });
     return;
   }
@@ -797,11 +794,11 @@ function* getOAuthAccessTokenSaga(
     }
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
-      payload: { datasourceId: datasourceId },
-    });
-    toast.show(OAUTH_AUTHORIZATION_FAILED, {
-      kind: "error",
+      type: ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
+      payload: {
+        datasourceId: datasourceId,
+        message: OAUTH_AUTHORIZATION_FAILED,
+      },
     });
     log.error(e);
   }
@@ -910,25 +907,19 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       }
       if (responseData.invalids && responseData.invalids.length) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
-          datasoureId: datasource?.id,
+          datasourceId: datasource?.id,
           environmentId: currentEnvironment,
           environmentName: currentEnvDetails.name,
           pluginName: plugin?.name,
           errorMessages: responseData.invalids,
           messages: responseData.messages,
         });
-        responseData.invalids.forEach((message: string) => {
-          toast.show(message, {
-            kind: "error",
-          });
-        });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
           payload: {
-            show: false,
             id: datasource.id,
             environmentId: currentEnvironment,
-            messages: messages,
+            message: responseData.invalids.join(", "),
           },
         });
         AppsmithConsole.error({
@@ -2100,10 +2091,7 @@ function* updateDatasourceAuthStateSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
-      payload: { error },
-    });
-    toast.show(OAUTH_AUTHORIZATION_FAILED, {
-      kind: "error",
+      payload: { error, message: OAUTH_AUTHORIZATION_FAILED },
     });
   }
 }

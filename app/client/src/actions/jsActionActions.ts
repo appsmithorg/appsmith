@@ -8,6 +8,7 @@ import type { JSCollection } from "entities/JSCollection";
 import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { ApiResponse } from "api/ApiResponses";
+import type { ErrorPayloadType } from "../sagas/ErrorSagas";
 
 export interface FetchJSCollectionsPayload {
   applicationId: string;
@@ -65,6 +66,7 @@ export const copyJSCollectionSuccess = (payload: JSCollection) => {
 export const copyJSCollectionError = (payload: {
   id: string;
   destinationPageId: string;
+  error?: ErrorPayloadType;
 }) => {
   return {
     type: ReduxActionErrorTypes.COPY_JS_ACTION_ERROR,
@@ -93,6 +95,7 @@ export const moveJSCollectionSuccess = (payload: JSCollection) => {
 export const moveJSCollectionError = (payload: {
   id: string;
   originalPageId: string;
+  error?: ErrorPayloadType;
 }) => {
   return {
     type: ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR,
