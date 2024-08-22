@@ -351,9 +351,11 @@ jobs:
             cd app/client
             npx cypress-repeat run -n ${{ inputs.run_count }} --force \
                 --spec ${{ env.specs_to_run }} \
-                --config-file "cypress_ci_custom.config.ts" 
-            FAILED_REPEAT_COUNT=$(echo "$output" | grep -oP '\d+ out of \d+ failed' | sed -E 's/([0-9]+) out of [0-9]+ failed/\1/')
-            echo "FAILED_REPEAT_COUNT=$FAILED_REPEAT_COUNT" >> $GITHUB_ENV
+                --config-file "cypress_ci_custom.config.ts" \
+                > cypress-output.log 2>&1
+            FAILED_TEST_COUNT=$(grep -oP 'repeat: run \d+ of \d+ \K\d+ failed' cypress-output.log | tail -n 1)
+            echo "Failed test count: $FAILED_TEST_COUNT"
+            echo "FAILED_TEST_COUNT=$FAILED_TEST_COUNT" >> $GITHUB_ENV
             
       - name: Extract Fail Count
         id: extract-fail-count
