@@ -51,7 +51,6 @@ export const EditorWrapper = styled.div<{
   AIEnabled?: boolean;
   mode: string;
   maxHeight?: string | number;
-  minHeight?: string;
 }>`
   // Bottom border was getting clipped
   .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {
@@ -69,7 +68,7 @@ export const EditorWrapper = styled.div<{
   top: 0;
   `
       : `position: relative;`}
-  min-height: ${({ minHeight }) => minHeight || "36px"};
+  min-height: 36px;
   max-height: ${(props) => props.maxHeight || "auto"};
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) =>
