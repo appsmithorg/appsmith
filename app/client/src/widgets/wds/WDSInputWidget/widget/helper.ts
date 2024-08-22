@@ -14,6 +14,8 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { InputWidgetProps, Validation } from "./types";
 import { INPUT_TYPE_TO_WIDGET_TYPE_MAP, INPUT_TYPES } from "../constants";
 import type { PropertyUpdates } from "WidgetProvider/constants";
+import { getDefaultISDCode } from "widgets/wds/WDSPhoneInputWidget/constants";
+import { getDefaultCurrency } from "widgets/wds/WDSCurrencyInputWidget/constants";
 
 /**
  * parses text to number if inputType is number
@@ -153,6 +155,30 @@ export function inputTypeUpdateHook(
     propertyPath: "type",
     propertyValue: INPUT_TYPE_TO_WIDGET_TYPE_MAP[propertyValue],
   });
+
+  // in casd we are chaging to phone input type & there is no
+  // defaultDiaCode property in the widget, we will default the country code to US
+  if (
+    props.defaultDialCode === undefined &&
+    propertyValue === INPUT_TYPES.PHONE_NUMBER
+  ) {
+    updates.push({
+      propertyPath: "defaultDialCode",
+      propertyValue: getDefaultISDCode().dial_code,
+    });
+  }
+
+  // in case we are changing to currency input type & there is no
+  // defaultCurrency property in the widget, we will default the currency to USD
+  if (
+    props.defaultCurrencyCode === undefined &&
+    propertyValue === INPUT_TYPES.CURRENCY
+  ) {
+    updates.push({
+      propertyPath: "defaultCurrencyCode",
+      propertyValue: getDefaultCurrency().currency,
+    });
+  }
 
   return updates;
 }

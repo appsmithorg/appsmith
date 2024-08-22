@@ -2,14 +2,20 @@ import { ISDCodeOptions } from "constants/ISDCodes_v2";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { propertyPaneContentConfig as WdsInputWidgetPropertyPaneContentConfig } from "widgets/wds/WDSInputWidget/config/propertyPaneConfig/contentConfig";
 
 import { countryToFlag } from "../../widget/helpers";
 import { defaultValueValidation } from "./validations";
+
+const inputTypeConfig = WdsInputWidgetPropertyPaneContentConfig.find(
+  (config) => config.sectionName === "Data",
+)?.children.find((child) => child.propertyName === "inputType");
 
 export const propertyPaneContentConfig = [
   {
     sectionName: "Data",
     children: [
+      inputTypeConfig,
       {
         helpText:
           "Sets the default text of the widget. The text is updated if the default text changes",
