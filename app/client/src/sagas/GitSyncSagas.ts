@@ -1,5 +1,4 @@
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
 } from "ee/constants/ReduxActionConstants";
@@ -137,6 +136,7 @@ import { toast } from "@appsmith/ads";
 import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { ApplicationPayload } from "entities/Application";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
