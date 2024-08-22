@@ -4,5 +4,5 @@ export const metaConfig = {
   name: "Select",
   tags: [WIDGET_TAGS.INPUTS],
   needsMeta: true,
-  searchTags: ["choice", "option", "choose", "pick", "group", "select"],
+  searchTags: ["choice", "option", "choose", "pick", "select", "dropdown"],
 };
