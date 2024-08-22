@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   hasDeleteApplicationPermission,
   isPermitted,

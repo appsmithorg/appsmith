@@ -1,6 +1,6 @@
 import { fetchApplication } from "ee/actions/applicationActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

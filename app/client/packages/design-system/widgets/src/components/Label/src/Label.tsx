@@ -13,6 +13,7 @@ export const Label = (props: LabelProps) => {
 
   return (
     <HeadlessLabel
+      aria-label={text}
       className={clsx(className, styles.label)}
       data-disabled={isDisabled}
       data-field-label-wrapper

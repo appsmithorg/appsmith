@@ -1,7 +1,5 @@
-import type {
-  ApplicationPayload,
-  Page,
-} from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
 import { fillPathname, viewerURL } from "ee/RouteBuilder";
