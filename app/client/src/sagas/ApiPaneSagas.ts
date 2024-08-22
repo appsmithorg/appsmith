@@ -6,7 +6,6 @@ import omit from "lodash/omit";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "ee/constants/ReduxActionConstants";
@@ -85,6 +84,7 @@ import {
 import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/AppsmithAIEditorConstants";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import type { ApplicationPayload } from "entities/Application";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
