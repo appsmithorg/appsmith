@@ -4,11 +4,12 @@
  * when looping through the keys. This function returns an array of keys with the correct type information.
  *
  * with classic Object.keys: Object.keys({ a: 1, b: 2 }) -> string[]
- * with objeetKeys: objectKeys({ a: 1, b: 2 }) -> ("a" | "b")[]
+ * with objectKeys: objectKeys({ a: 1, b: 2 }) -> ("a" | "b")[]
  *
  * @param object
  * @returns array of keys with correct type information
  */
-export function objectKeys<T extends object>(object: T) {
+
+export function objectKeys<T extends object>(object: T): Array<keyof T> {
   return Object.keys(object) as Array<keyof T>;
 }
