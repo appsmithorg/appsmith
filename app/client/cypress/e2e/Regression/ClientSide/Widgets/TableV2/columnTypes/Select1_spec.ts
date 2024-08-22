@@ -32,7 +32,6 @@ describe(
     });
 
     it("2. should check that select column returns value if no option is provided", () => {
-      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.readTableV2data(0, 0).then((val) => {
         expect(val).to.equal("#1");
       });
