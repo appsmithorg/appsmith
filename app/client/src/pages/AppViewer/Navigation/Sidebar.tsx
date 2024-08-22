@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import type {
-  ApplicationPayload,
-  Page,
-} from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
