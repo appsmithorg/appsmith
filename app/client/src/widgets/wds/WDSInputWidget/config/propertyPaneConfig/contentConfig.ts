@@ -40,6 +40,14 @@ export const propertyPaneContentConfig = [
             label: "Email",
             value: "EMAIL",
           },
+          {
+            label: "Phone number",
+            value: "PHONE_NUMBER",
+          },
+          {
+            label: "Currency",
+            value: "CURRENCY",
+          },
         ],
         isBindProperty: false,
         isTriggerProperty: false,
