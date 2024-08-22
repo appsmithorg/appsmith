@@ -191,6 +191,15 @@ public class PostgresPluginTest {
                         + "    texts VARCHAR[2] ,\n"
                         + "    rating FLOAT4 \n"
                         + ")");
+
+                statement.execute("CREATE TABLE \"testing-table-data\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -234,6 +243,12 @@ public class PostgresPluginTest {
                 statement.execute("INSERT INTO dataTypeTest VALUES ("
                         + "1, '{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}',"
                         + "'{\"country\":\"japan\", \"city\":\"kyoto\"}', 'A Lincoln'"
+                        + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(
+                        "INSERT INTO \"testing-table-data\" VALUES (" 
+                        + " 1, '', 30, '', '2023-07-31', 75000.00" 
                         + ")");
             }
 
@@ -688,6 +703,75 @@ public class PostgresPluginTest {
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM sample_schema.\"sample_table\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure_containing_hyphen() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    assertEquals(6, structure.getTables().size());
+
+                    System.out.println("table present" + structure.getTables());
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.testing-table-data");
+                    System.out.println("sampletable" + sampleTable);
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"testing-table-data_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("testing-table-data_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"testing-table-data\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"testing-table-data\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"testing-table-data\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"testing-table-data\"\n"
                                                 + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
                                         false),
                             },
