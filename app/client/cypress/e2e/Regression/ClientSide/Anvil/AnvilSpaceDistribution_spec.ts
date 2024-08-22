@@ -175,7 +175,8 @@ describe(
       );
 
       const zone1Selector = anvilLocators.anvilWidgetNameSelector("Zone1");
-      const section1Selector = anvilLocators.anvilWidgetNameSelector("Section1");
+      const section1Selector =
+        anvilLocators.anvilWidgetNameSelector("Section1");
 
       anvilLayout.sections.mouseDownSpaceDistributionHandle("Section1", 1);
       // outline color of zone while distributing space should be transparent
