@@ -91,7 +91,7 @@ class DropDownControl extends BaseControl<Props> {
 
     return (
       <DropdownSelect
-        className={`t--${this?.props?.configProperty}`}
+        className={`t--${this?.props?.configProperty} uqi-dropdown-select`}
         data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}

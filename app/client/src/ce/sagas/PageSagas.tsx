@@ -1,9 +1,5 @@
 import type { AppState } from "ee/reducers";
-import type {
-  Page,
-  ReduxAction,
-  UpdateCanvasPayload,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -18,6 +14,7 @@ import type {
   SetPageOrderActionPayload,
   SetupPageActionPayload,
   SetupPublishedPageActionPayload,
+  UpdateCanvasPayload,
   UpdatePageActionPayload,
 } from "actions/pageActions";
 import {
@@ -148,6 +145,7 @@ import { ActionExecutionContext } from "entities/Action";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import type { Page } from "entities/Page";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,

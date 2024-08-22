@@ -1,4 +1,4 @@
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   CHANGES_SINCE_LAST_DEPLOYMENT,
   createMessage,
