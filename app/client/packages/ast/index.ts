@@ -1,78 +1,74 @@
 import type {
-  ObjectExpression,
-  PropertyNode,
-  MemberExpressionData,
-  IdentifierInfo,
   AssignmentExpressionData,
   CallExpressionData,
+  IdentifierInfo,
   MemberCallExpressionData,
+  MemberExpressionData,
+  ObjectExpression,
+  PropertyNode,
 } from "./src";
 import {
-  isIdentifierNode,
-  isVariableDeclarator,
-  isObjectExpression,
-  isLiteralNode,
-  isPropertyNode,
-  isPropertyAFunctionNode,
-  isCallExpressionNode,
-  getAST,
-  extractIdentifierInfoFromCode,
   entityRefactorFromCode,
   extractExpressionsFromCode,
+  extractIdentifierInfoFromCode,
+  getAST,
   getFunctionalParamsFromNode,
-  isTypeOfFunction,
-  isFunctionPresent,
   getMemberExpressionObjectFromProperty,
+  isCallExpressionNode,
+  isFunctionPresent,
+  isIdentifierNode,
+  isLiteralNode,
+  isObjectExpression,
+  isPropertyAFunctionNode,
+  isPropertyNode,
+  isTypeOfFunction,
+  isVariableDeclarator,
 } from "./src";
-
-// constants
-import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
-
-// JSObjects
-import type {
-  TParsedJSProperty,
-  JSPropertyPosition,
-  JSVarProperty,
-  JSFunctionProperty,
-} from "./src/jsObject";
-import {
-  parseJSObject,
-  isJSFunctionProperty,
-  addPropertiesToJSObjectCode,
-} from "./src/jsObject";
-
 // action creator
 import {
-  getTextArgumentAtPosition,
-  setTextArgumentAtPosition,
-  getEnumArgumentAtPosition,
-  setEnumArgumentAtPosition,
-  getModalName,
-  setModalName,
-  getFuncExpressionAtPosition,
-  getFunction,
-  replaceActionInQuery,
-  setCallbackFunctionField,
-  getActionBlocks,
-  getFunctionBodyStatements,
-  getMainAction,
-  getFunctionName,
-  setObjectAtPosition,
-  getThenCatchBlocksFromQuery,
-  setThenBlockInQuery,
-  setCatchBlockInQuery,
-  getFunctionArguments,
-  getFunctionNameFromJsObjectExpression,
-  getCallExpressions,
   canTranslateToUI,
-  getFunctionParams,
-  getQueryParam,
-  setQueryParam,
+  checkIfArgumentExistAtPosition,
   checkIfCatchBlockExists,
   checkIfThenBlockExists,
-  checkIfArgumentExistAtPosition,
+  getActionBlocks,
+  getCallExpressions,
+  getEnumArgumentAtPosition,
+  getFuncExpressionAtPosition,
+  getFunction,
+  getFunctionArguments,
+  getFunctionBodyStatements,
+  getFunctionName,
+  getFunctionNameFromJsObjectExpression,
+  getFunctionParams,
+  getMainAction,
+  getModalName,
+  getQueryParam,
+  getTextArgumentAtPosition,
+  getThenCatchBlocksFromQuery,
+  replaceActionInQuery,
+  setCallbackFunctionField,
+  setCatchBlockInQuery,
+  setEnumArgumentAtPosition,
+  setModalName,
+  setObjectAtPosition,
+  setQueryParam,
+  setTextArgumentAtPosition,
+  setThenBlockInQuery,
 } from "./src/actionCreator";
-
+// constants
+import { ECMA_VERSION, NodeTypes, SourceType } from "./src/constants";
+// JSObjects
+import type {
+  JSFunctionProperty,
+  JSPropertyPosition,
+  JSVarProperty,
+  TParsedJSProperty,
+} from "./src/jsObject";
+import {
+  addPropertiesToJSObjectCode,
+  isJSFunctionProperty,
+  parseJSObject,
+} from "./src/jsObject";
 // peekOverlay
 import type { PeekOverlayExpressionIdentifierOptions } from "./src/peekOverlay";
 import { PeekOverlayExpressionIdentifier } from "./src/peekOverlay";
