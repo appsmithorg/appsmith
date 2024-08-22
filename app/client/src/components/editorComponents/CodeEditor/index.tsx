@@ -247,6 +247,7 @@ export type EditorProps = EditorStyleProps &
     ignoreBinding?: boolean;
     ignoreAutoComplete?: boolean;
     maxHeight?: string | number;
+    minHeight?: string;
 
     // Custom gutter
     customGutter?: CodeEditorGutter;
@@ -1578,6 +1579,7 @@ class CodeEditor extends Component<Props, State> {
       hideEvaluatedValue,
       hoverInteraction,
       maxHeight,
+      minHeight,
       showLightningMenu,
       size,
       theme,
@@ -1711,6 +1713,7 @@ class CodeEditor extends Component<Props, State> {
               isRawView={this.props.isRawView}
               isReadOnly={this.props.isReadOnly}
               maxHeight={maxHeight}
+              minHeight={minHeight}
               mode={this.props.mode}
               onMouseMove={this.handleLintTooltip}
               onMouseOver={this.handleMouseMove}
