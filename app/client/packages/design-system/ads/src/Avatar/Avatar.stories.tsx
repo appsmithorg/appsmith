@@ -16,7 +16,6 @@ const Template = (args: AvatarProps) => {
 export const AvatarStory = Template.bind({}) as StoryObj;
 AvatarStory.storyName = "Avatar";
 AvatarStory.args = {
-  image: "https://picsum.photos/200/300",
   label: "Avatar",
   isTooltipEnabled: true,
 };
