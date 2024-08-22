@@ -7,7 +7,7 @@ import CardList from "pages/Applications/CardList";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
 import { NoAppsFound } from "ee/pages/Applications";
 import ApplicationCard from "pages/Applications/ApplicationCard";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   APPLICATION_CARD_LIST_ZERO_STATE,

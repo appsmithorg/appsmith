@@ -14,7 +14,7 @@ import {
  */
 const meta: Meta<typeof Button> = {
   component: Button,
-  title: "Design-system/Widgets/Button",
+  title: "WDS/Widgets/Button",
 };
 
 export default meta;

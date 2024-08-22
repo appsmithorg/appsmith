@@ -7,7 +7,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getApplicationNameTextColor } from "pages/AppViewer/utils";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   APPLICATION_INVITE,
   createMessage,
