@@ -77,7 +77,7 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
       type: entity,
       id,
       pageId,
-    }) as RecentEntity;
+    } as RecentEntity);
     recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));
