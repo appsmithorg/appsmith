@@ -48,7 +48,7 @@ describe(
     });
 
     it("3. shows correct number of items", () => {
-      _.agHelper.AddDsl("Listv2/simpleList");
+      cy.dragAndDropToCanvas("listwidgetv2", { x: 200, y: 200 });
       cy.get(publishLocators.containerWidget).should("have.length", 3);
       cy.get(publishLocators.imageWidget).should("have.length", 3);
       cy.get(publishLocators.textWidget).should("have.length", 6);
