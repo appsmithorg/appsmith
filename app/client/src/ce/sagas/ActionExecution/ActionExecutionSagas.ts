@@ -1,49 +1,51 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  clearActionResponse,
+  updateActionData,
+} from "actions/pluginActionActions";
 import type {
   EventType,
   ExecuteTriggerPayload,
+  ExecutionResultPalyoadWithDetails,
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import { getAction } from "ee/selectors/entitiesSelector";
+import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import * as log from "loglevel";
 import {
   all,
   call,
   put,
+  select,
   takeEvery,
   takeLatest,
-  select,
 } from "redux-saga/effects";
-import {
-  evaluateActionSelectorFieldSaga,
-  evaluateAndExecuteDynamicTrigger,
-  setAppVersionOnWorkerSaga,
-} from "sagas/EvaluationsSaga";
-import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
-import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import copySaga from "sagas/ActionExecution/CopyActionSaga";
-import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
-import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
-import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
-import {
-  clearActionResponse,
-  updateActionData,
-} from "actions/pluginActionActions";
-import {
-  closeModalSaga,
-  openModalSaga,
-} from "sagas/ActionExecution/ModalSagas";
-import AppsmithConsole from "utils/AppsmithConsole";
+import downloadSaga from "sagas/ActionExecution/DownloadActionSaga";
 import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
 } from "sagas/ActionExecution/geolocationSaga";
+import {
+  closeModalSaga,
+  openModalSaga,
+} from "sagas/ActionExecution/ModalSagas";
+import navigateActionSaga from "sagas/ActionExecution/NavigateActionSaga";
+import executePluginActionTriggerSaga from "sagas/ActionExecution/PluginActionSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import type { ActionDescription } from "ee/workers/Evaluation/fns";
-import type { AppState } from "ee/reducers";
-import { getAction } from "ee/selectors/entitiesSelector";
+import resetWidgetActionSaga from "sagas/ActionExecution/ResetWidgetActionSaga";
+import showAlertSaga from "sagas/ActionExecution/ShowAlertActionSaga";
+import {
+  evaluateActionSelectorFieldSaga,
+  evaluateAndExecuteDynamicTrigger,
+  setAppVersionOnWorkerSaga,
+} from "sagas/EvaluationsSaga";
+import AppsmithConsole from "utils/AppsmithConsole";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 
 export interface TriggerMeta {
   source?: TriggerSource;
@@ -176,13 +178,28 @@ function* initiateActionTriggerExecution(
     { id: `${source?.id}-${triggerPropertyName}` },
   ]);
   try {
-    yield call(executeAppAction, action.payload);
+    const returnobj: ExecutionResultPalyoadWithDetails = yield call(
+      executeAppAction,
+      action.payload,
+    );
     if (event.callback) {
-      event.callback({ success: true });
+      const hasErrors = returnobj.errors && returnobj.errors.length > 0;
+      event.callback({
+        ...returnobj,
+        success: !hasErrors,
+      });
     }
   } catch (e) {
     if (event.callback) {
-      event.callback({ success: false });
+      event.callback({
+        success: false,
+        result: undefined,
+        errors: [
+          {
+            errorMessage: { name: "Caught Exception", message: e },
+          } as EvaluationError,
+        ],
+      });
     }
     log.error(e);
   }
