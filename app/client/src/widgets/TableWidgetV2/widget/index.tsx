@@ -1,6 +1,6 @@
-import React, { lazy, Suspense } from "react";
 import log from "loglevel";
 import memoizeOne from "memoize-one";
+import React, { lazy, Suspense } from "react";
 
 import _, {
   filter,
@@ -19,16 +19,64 @@ import _, {
   xorWith,
 } from "lodash";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
+import type { IconName } from "@blueprintjs/icons";
+import { IconNames } from "@blueprintjs/icons";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import Skeleton from "components/utils/Skeleton";
+import {
+  EventType,
+  type ExecutionResultPalyoadWithDetails,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import { Colors } from "constants/Colors";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   RenderModes,
   WIDGET_PADDING,
   WIDGET_TAGS,
 } from "constants/WidgetConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import Skeleton from "components/utils/Skeleton";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import equal from "fast-deep-equal/es6";
+import { klona as clone } from "klona";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { noop, retryPromise } from "utils/AppsmithUtils";
+import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import localStorage from "utils/localStorage";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+} from "WidgetProvider/constants";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
+import type { MenuItem } from "widgets/MenuButtonWidget/constants";
+import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import {
+  DefaultAutocompleteDefinitions,
+  sanitizeKey,
+} from "widgets/WidgetUtils";
+import { ButtonCell } from "../component/cellComponents/ButtonCell";
+import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
+import { DateCell } from "../component/cellComponents/DateCell";
+import { EditActionCell } from "../component/cellComponents/EditActionsCell";
+import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
+import { ImageCell } from "../component/cellComponents/ImageCell";
+import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
+import PlainTextCell from "../component/cellComponents/PlainTextCell";
+import { SelectCell } from "../component/cellComponents/SelectCell";
+import { SwitchCell } from "../component/cellComponents/SwitchCell";
+import { VideoCell } from "../component/cellComponents/VideoCell";
 import type {
   ColumnProperties,
   ReactTableColumnProps,
@@ -42,6 +90,7 @@ import {
   SortOrderTypes,
   StickyType,
 } from "../component/Constants";
+import { CellWrapper } from "../component/TableStyledWrappers";
 import type {
   EditableCell,
   OnColumnEventArgs,
@@ -63,7 +112,18 @@ import {
   PaginationDirection,
   TABLE_COLUMN_ORDER_KEY,
 } from "../constants";
+import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import derivedProperties from "./parseDerivedProperties";
+import contentConfig from "./propertyConfig/contentConfig";
+import styleConfig from "./propertyConfig/styleConfig";
+import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
+import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
+import type {
+  tableData,
+  transformDataWithEditableCell,
+} from "./reactTableUtils/transformDataPureFn";
+import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
 import {
   createEditActionColumn,
   deleteLocalTableColumnOrderByWidgetId,
@@ -83,63 +143,6 @@ import {
   isColumnTypeEditable,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
-import contentConfig from "./propertyConfig/contentConfig";
-import styleConfig from "./propertyConfig/styleConfig";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { IconName } from "@blueprintjs/icons";
-import { IconNames } from "@blueprintjs/icons";
-import { Colors } from "constants/Colors";
-import equal from "fast-deep-equal/es6";
-import {
-  DefaultAutocompleteDefinitions,
-  sanitizeKey,
-} from "widgets/WidgetUtils";
-import PlainTextCell from "../component/cellComponents/PlainTextCell";
-import { ButtonCell } from "../component/cellComponents/ButtonCell";
-import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
-import { ImageCell } from "../component/cellComponents/ImageCell";
-import { VideoCell } from "../component/cellComponents/VideoCell";
-import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
-import { EditActionCell } from "../component/cellComponents/EditActionsCell";
-import { klona as clone } from "klona";
-import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
-import { SwitchCell } from "../component/cellComponents/SwitchCell";
-import { SelectCell } from "../component/cellComponents/SelectCell";
-import { CellWrapper } from "../component/TableStyledWrappers";
-import localStorage from "utils/localStorage";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { DateCell } from "../component/cellComponents/DateCell";
-import type { MenuItem } from "widgets/MenuButtonWidget/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
-import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
-import type {
-  tableData,
-  transformDataWithEditableCell,
-} from "./reactTableUtils/transformDataPureFn";
-import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
-import type {
-  WidgetQueryConfig,
-  WidgetQueryGenerationFormConfig,
-} from "WidgetQueryGenerators/types";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import {
-  FlexVerticalAlignment,
-  ResponsiveBehavior,
-} from "layoutSystems/common/utils/constants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -2838,14 +2841,15 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     let triggerPropertyName, action, eventType;
 
-    const onComplete = () => {
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+    const onComplete = (result: ExecutionResultPalyoadWithDetails) => {
+      if (result.success) {
+        const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
-      pushBatchMetaUpdates("isAddRowInProgress", false);
-      pushBatchMetaUpdates("newRowContent", undefined);
-      pushBatchMetaUpdates("newRow", undefined);
-      commitBatchMetaUpdates();
-
+        pushBatchMetaUpdates("isAddRowInProgress", false);
+        pushBatchMetaUpdates("newRowContent", undefined);
+        pushBatchMetaUpdates("newRow", undefined);
+        commitBatchMetaUpdates();
+      }
       onActionComplete();
     };
 
@@ -2869,7 +2873,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       });
     } else {
-      onComplete();
+      onComplete({ success: true } as ExecutionResultPalyoadWithDetails);
     }
   };
 
