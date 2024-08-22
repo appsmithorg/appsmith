@@ -11,7 +11,7 @@ import {
   StyledMenuItemInDropdown,
   StyleMoreDropdownButton,
 } from "./MoreDropdownButton.styled";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
