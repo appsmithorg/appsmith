@@ -95,41 +95,6 @@ module.exports = async (on, config) => {
       launchOptions.preferences.resizable = false;
       return launchOptions;
     }
-
-    if (browser.name === "chrome" && browser.isHeadless) {
-      const video = path.join(
-        "cypress",
-        "fixtures",
-        "Videos",
-        "webCamVideo.y4m",
-      );
-      launchOptions.args.push("--disable-dev-shm-usage");
-      launchOptions.args.push("--window-size=1400,1100");
-      launchOptions.args.push("--use-fake-ui-for-media-stream");
-      launchOptions.args.push("--use-fake-device-for-media-stream");
-      //Stream default video source for camera & code scanner
-      launchOptions.args.push(`--use-file-for-fake-video-capture=${video}`);
-      launchOptions.args.push('--force-device-scale-factor=1');
-      return launchOptions;
-    }
-
-    if (browser.name === "chromium" && browser.isHeadless) {
-      const video = path.join(
-        "cypress",
-        "fixtures",
-        "Videos",
-        "webCamVideo.y4m",
-      );
-      launchOptions.args.push("--disable-dev-shm-usage");
-      launchOptions.args.push("--window-size=1400,1100");
-      launchOptions.args.push("--use-fake-ui-for-media-stream");
-      launchOptions.args.push("--use-fake-device-for-media-stream");
-      //Stream default video source for camera & code scanner
-      launchOptions.args.push(`--use-file-for-fake-video-capture=${video}`);
-      launchOptions.args.push('--force-device-scale-factor=1');
-      return launchOptions;
-    }
-
   });
   // module.exports = (on, config) => {
   //   on("after:spec", (spec, results) => {
