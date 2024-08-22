@@ -11,7 +11,7 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { call } from "redux-saga/effects";
 
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 
