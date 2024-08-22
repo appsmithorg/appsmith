@@ -23,17 +23,17 @@ You can create one by following the [official ESLint custom rule](https://eslint
        docs: {
          description: "A description of what the rule does",
          category: "Best Practices",
-         recommended: false
+         recommended: false,
        },
        fixable: null, // or "code" if the rule can fix issues automatically
-       schema: [] // JSON Schema for rule options
+       schema: [], // JSON Schema for rule options
      },
      create(context) {
        return {
          // Define the rule's behavior here
          // e.g., "Identifier": (node) => { /* logic */ }
        };
-     }
+     },
    };
    ```
 
@@ -44,12 +44,12 @@ You can create one by following the [official ESLint custom rule](https://eslint
 2. Import your custom rule and add it to the rules object in `index.js`. For example:
 
    ```js
-   const customRule = require('./custom-rule/rule.js');
+   const customRule = require("./custom-rule/rule.js");
 
    module.exports = {
      rules: {
-       'custom-rule': customRule
-     }
+       "custom-rule": customRule,
+     },
    };
    ```
 
@@ -64,21 +64,21 @@ You can create one by following the [official ESLint custom rule](https://eslint
 2. Open `custom-rule/rule.test.js` and write tests using a testing framework like Mocha or Jest. Here's a basic example using ESLint's `RuleTester`:
 
    ```js
-   const rule = require('./rule');
-   const RuleTester = require('eslint').RuleTester;
+   const rule = require("./rule");
+   const RuleTester = require("eslint").RuleTester;
 
    const ruleTester = new RuleTester();
 
-   ruleTester.run('custom-rule', rule, {
+   ruleTester.run("custom-rule", rule, {
      valid: [
        // Examples of valid code
      ],
      invalid: [
        {
-         code: 'const foo = 1;',
-         errors: [{ message: 'Your custom error message' }]
-       }
-     ]
+         code: "const foo = 1;",
+         errors: [{ message: "Your custom error message" }],
+       },
+     ],
    });
    ```
 
