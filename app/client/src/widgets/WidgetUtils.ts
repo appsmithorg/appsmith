@@ -1,5 +1,3 @@
-// import React, { JSXElementConstructor } from "react";
-// import { IconProps, IconWrapper } from "constants/IconConstants";
 import type React from "react";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
@@ -112,7 +110,6 @@ export const hexToRgba = (color: string, alpha: number) => {
 };
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
-// const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
 export const generateReactKey = ({
   prefix = "",

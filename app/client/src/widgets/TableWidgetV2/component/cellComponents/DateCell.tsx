@@ -169,6 +169,7 @@ export const DateCell = (props: DateComponentProps) => {
     isCellEditable,
     isCellEditMode,
     isCellVisible,
+    isEditableCellValid,
     isHidden,
     isNewRow,
     isRequired,
@@ -195,6 +196,10 @@ export const DateCell = (props: DateComponentProps) => {
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const isCellCompletelyValid = useMemo(
+    () => isEditableCellValid && isValid,
+    [isEditableCellValid, isValid],
+  );
 
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
@@ -272,16 +277,16 @@ export const DateCell = (props: DateComponentProps) => {
         accentColor={accentColor}
         allowCellWrapping={allowCellWrapping}
         className={`${hasFocus ? FOCUS_CLASS : ""} t--inlined-cell-editor ${
-          !isValid && "t--inlined-cell-editor-has-error"
+          !isCellCompletelyValid && "t--inlined-cell-editor-has-error"
         }`}
         compactMode={compactMode}
-        isEditableCellValid={isValid}
+        isEditableCellValid={isCellCompletelyValid}
         paddedInput
         textSize={textSize}
         verticalAlignment={verticalAlignment}
       >
         <ErrorTooltip
-          isOpen={showRequiredError && !isValid}
+          isOpen={showRequiredError && !isCellCompletelyValid}
           message={
             validationErrorMessage ||
             createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)

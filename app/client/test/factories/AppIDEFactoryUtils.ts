@@ -2,7 +2,6 @@ import store from "store";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
 import MockPluginsState from "test/factories/MockPluginsState";
-import type { Page } from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import type {
   IDETabs,
@@ -13,6 +12,7 @@ import type { JSCollection } from "entities/JSCollection";
 import type { FocusHistory } from "reducers/uiReducers/focusHistoryReducer";
 import type { Datasource } from "entities/Datasource";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import type { Page } from "entities/Page";
 
 interface IDEStateArgs {
   ideView?: EditorViewMode;

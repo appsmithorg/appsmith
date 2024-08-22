@@ -13,7 +13,7 @@ import {
  */
 const meta: Meta<typeof Tooltip> = {
   component: Tooltip,
-  title: "Design-system/Widgets/Tooltip",
+  title: "WDS/Widgets/Tooltip",
   subcomponents: {
     //@ts-expect-error: don't need props to pass here
     TooltipRoot,

@@ -123,7 +123,6 @@ export function EditorName(props: EditorNameProps) {
               defaultValue={defaultValue}
               editInteractionKind={props.editInteractionKind}
               fill={props.fill}
-              hideEditIcon
               inputValidation={inputValidation}
               isEditing={isEditing}
               isEditingDefault={isEditingDefault}
