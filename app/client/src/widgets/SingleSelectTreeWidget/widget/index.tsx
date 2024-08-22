@@ -665,9 +665,7 @@ class SingleSelectTreeWidget extends BaseWidget<
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
     const isDefaultValueRequired: boolean =
-      this.props.isRequired &&
-      this.props.selectedOptionValue === "" &&
-      this.props.defaultOptionValue === "";
+      this.props.isRequired && this.props.selectedOptionValue === "";
     const isInvalid: boolean =
       isDefaultValueRequired ||
       ("isValid" in this.props && !this.props.isValid && !!this.props.isDirty);

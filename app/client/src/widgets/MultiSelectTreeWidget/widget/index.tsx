@@ -707,9 +707,7 @@ class MultiSelectTreeWidget extends BaseWidget<
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
     const isDefaultValueRequired: boolean =
-      this.props.isRequired &&
-      this.props.defaultOptionValue.length <= 0 &&
-      this.props.selectedOptionValues.length <= 0;
+      this.props.isRequired && this.props.selectedOptionValues.length <= 0;
     const isInvalid: boolean =
       isDefaultValueRequired ||
       ("isValid" in this.props && !this.props.isValid && !!this.props.isDirty);

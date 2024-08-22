@@ -847,9 +847,7 @@ class MultiSelectWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.props;
     const values = this.mergeLabelAndValue();
     const isDefaultValueRequired: boolean =
-      this.props.isRequired &&
-      this.props.defaultOptionValue.length <= 0 &&
-      values.length <= 0;
+      this.props.isRequired && values.length <= 0;
     const isInvalid: boolean =
       isDefaultValueRequired ||
       ("isValid" in this.props && !this.props.isValid && !!this.props.isDirty);

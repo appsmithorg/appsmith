@@ -96,7 +96,6 @@ describe("<SelectWidget />", () => {
       labelText: "select label",
       filterText: "",
       selectedOptionLabel: "",
-      defaultOptionValue: "",
       selectedOptionValue: "",
       isWidgetSelected: true,
     };
@@ -137,7 +136,6 @@ describe("<SelectWidget />", () => {
       labelText: "select label",
       filterText: "",
       selectedOptionLabel: "",
-      defaultOptionValue: "M",
       selectedOptionValue: "M",
       isWidgetSelected: true,
     };
