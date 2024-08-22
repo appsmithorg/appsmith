@@ -26,7 +26,7 @@ const LayoutContainer = styled.div<{ name: string }>`
 
 function UnanimatedLayout() {
   const isProtectedMode = useSelector(protectedModeSelector);
-  const { areas, columns, rows } = useGridLayoutTemplate();
+  const { areas, columns } = useGridLayoutTemplate();
 
   return (
     <>
@@ -38,7 +38,6 @@ function UnanimatedLayout() {
               .map((area) => `"${area.join(" ")}"`)
               .join("\n"),
             gridTemplateColumns: columns.join(" "),
-            gridTemplateRows: rows.join(" "),
           }}
         >
           <LayoutContainer name={Areas.Sidebar}>

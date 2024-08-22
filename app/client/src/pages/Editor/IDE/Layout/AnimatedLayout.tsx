@@ -10,7 +10,7 @@ import RightPane from "../RightPane";
 import { Areas } from "./constants";
 
 function AnimatedLayout() {
-  const { areas, columns, rows } = useGridLayoutTemplate();
+  const { areas, columns } = useGridLayoutTemplate();
   return (
     <>
       <EditorWrapperContainer>
@@ -18,7 +18,6 @@ function AnimatedLayout() {
           areas={areas}
           columns={columns}
           height="100%"
-          rows={rows}
           width="100vw"
         >
           <LayoutArea name={Areas.Sidebar}>
