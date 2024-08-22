@@ -3,9 +3,6 @@ import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
 import React, { memo, useContext, useEffect, useMemo, useRef } from "react";
 
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { getSelectedWidgets } from "selectors/ui";
 import { tailwindLayers } from "constants/Layers";
 import WidgetPropertyPane from "pages/Editor/PropertyPane";
@@ -75,11 +72,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   prevSelectedWidgetId.current =
     selectedWidgetIds.length === 1 ? selectedWidgetIds[0] : undefined;
 
-  PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
-  useEffect(() => {
-    PerformanceTracker.stopTracking();
-  });
-
   /**
    * renders the property pane:
    * 2. if no widget is selected -> CanvasPropertyPane
@@ -148,7 +140,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         <div
           className={classNames({
             "h-full p-0 overflow-y-auto min-w-72 max-w-104": true,
-            "transition-all duration-100": !resizing,
+            "transition-all duration-400": !resizing,
           })}
           style={{ width: props.width }}
         >

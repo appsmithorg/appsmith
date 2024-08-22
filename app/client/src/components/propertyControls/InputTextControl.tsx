@@ -24,6 +24,8 @@ export function InputText(props: {
   onBlur?: () => void;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   onFocus?: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   placeholder?: string;
@@ -153,6 +155,8 @@ export interface InputControlProps extends ControlProps {
   inputType: InputType;
   validationMessage?: string;
   isDisabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   onFocus?: () => void;
   onBlur?: () => void;

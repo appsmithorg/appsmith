@@ -1,4 +1,4 @@
-import { Icon, Text, Button, Divider } from "design-system";
+import { Icon, Text, Button, Divider } from "@appsmith/ads";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { PADDING_HIGHLIGHT, getPosition } from "./utils";
@@ -10,7 +10,7 @@ import type {
 import WalkthroughContext, {
   isFeatureFooterDetails,
 } from "./walkthroughContext";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { showIndicator } from "components/utils/Indicator";
 
 const CLIPID = "clip__feature";
@@ -232,25 +232,23 @@ const WalkthroughRenderer = ({
           <clipPath id={CLIPID}>
             <polygon
               // See the comments above the component declaration to understand the below points assignment.
-              points={`0 0, 
-                    0 ${targetBounds.bh}, 
+              points={`0 0,
+                    0 ${targetBounds.bh},
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
                       if (boundingRect) {
-                        acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
-                        ${boundingRect.tx} ${boundingRect.ty}, 
+                        acc = `${acc} ${boundingRect.tx} ${boundingRect.bh},
+                        ${boundingRect.tx} ${boundingRect.ty},
                         ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
                         ${boundingRect.tx + boundingRect.tw} ${
                           boundingRect.ty + boundingRect.th
-                        }, 
-                        ${boundingRect.tx} ${
-                          boundingRect.ty + boundingRect.th
-                        }, 
+                        },
+                        ${boundingRect.tx} ${boundingRect.ty + boundingRect.th},
                         ${boundingRect.tx} ${boundingRect.bh},`;
                       }
                       return acc;
                     }, "")}
-                    ${targetBounds.bw} ${targetBounds.bh}, 
+                    ${targetBounds.bw} ${targetBounds.bh},
                     ${targetBounds.bw} 0
                   `}
             />

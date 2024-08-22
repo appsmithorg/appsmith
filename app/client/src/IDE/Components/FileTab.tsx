@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import clsx from "classnames";
 
-import { Flex, Icon } from "design-system";
+import { Flex, Icon } from "@appsmith/ads";
 import { sanitizeString } from "utils/URLUtils";
 
 interface FileTabProps {

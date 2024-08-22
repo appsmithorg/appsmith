@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import React, { useCallback, useEffect } from "react";
 import styled, { useTheme, css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import {
   createMessage,
   IMPORT_APP_FROM_FILE_MESSAGE,
@@ -11,13 +11,13 @@ import {
   IMPORT_APP_FROM_GIT_TITLE,
   IMPORT_FROM_GIT_DISABLED_IN_ANVIL,
   UPLOADING_JSON,
-} from "@appsmith/constants/messages";
-import { FilePickerV2, FileType } from "design-system-old";
+} from "ee/constants/messages";
+import { FilePickerV2, FileType } from "@appsmith/ads-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 import {
   Callout,
@@ -26,9 +26,9 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
-import useMessages from "@appsmith/hooks/importModal/useMessages";
-import useMethods from "@appsmith/hooks/importModal/useMethods";
+} from "@appsmith/ads";
+import useMessages from "ee/hooks/importModal/useMessages";
+import useMethods from "ee/hooks/importModal/useMethods";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 const TextWrapper = styled.div`
@@ -75,7 +75,7 @@ const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
       height: 100%;
       justify-content: flex-start;
 
-      .cs-icon {
+      .ads-v2-icon {
         border-radius: 50%;
         width: ${(props) => props.theme.spaces[12] + 2}px;
         height: ${(props) => props.theme.spaces[12] + 2}px;
@@ -146,7 +146,7 @@ const StatusbarWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  .cs-icon {
+  .ads-v2-icon {
     margin: auto;
     border-radius: var(--ads-v2-border-radius-circle);
     width: 32px;

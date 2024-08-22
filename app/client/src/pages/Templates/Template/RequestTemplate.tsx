@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { Text, TextType } from "design-system-old";
-import { Button } from "design-system";
+import { Text, TextType } from "@appsmith/ads-old";
+import { Button } from "@appsmith/ads";
 import RequestTemplateSvg from "assets/images/request-template.svg";
 import {
   COULDNT_FIND_TEMPLATE,
@@ -9,8 +9,8 @@ import {
   COULDNT_FIND_TEMPLATE_DESCRIPTION,
   REQUEST_TEMPLATE,
   REQUEST_BUILDING_BLOCK,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   border: 1px solid var(--ads-v2-color-border);

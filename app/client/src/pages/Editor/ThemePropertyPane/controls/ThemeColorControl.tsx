@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 
 import type { AppTheme } from "entities/AppTheming";
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 import { capitalizeFirstLetter } from "utils/helpers";
 

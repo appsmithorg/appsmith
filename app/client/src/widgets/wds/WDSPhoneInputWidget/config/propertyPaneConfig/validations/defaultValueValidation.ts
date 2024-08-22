@@ -2,6 +2,8 @@ import type { LoDashStatic } from "lodash";
 import type { PhoneInputWidgetProps } from "../../../widget/types";
 
 export function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: PhoneInputWidgetProps,
   _: LoDashStatic,

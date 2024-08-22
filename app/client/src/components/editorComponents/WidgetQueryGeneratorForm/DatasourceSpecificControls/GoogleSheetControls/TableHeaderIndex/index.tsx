@@ -2,15 +2,15 @@ import {
   createMessage,
   GEN_CRUD_TABLE_HEADER_LABEL,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
-import { Tooltip } from "design-system";
+import { Icon } from "@appsmith/ads";
+import { Tooltip } from "@appsmith/ads";
 import React, { memo } from "react";
 import { Label, Row, RowHeading, SelectWrapper } from "../../../styles";
 import styled from "styled-components";
 import { useTableHeaderIndex } from "./useTableHeader";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 
 const RoundBg = styled.div`
   width: 16px;

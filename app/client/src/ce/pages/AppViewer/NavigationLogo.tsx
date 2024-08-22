@@ -8,17 +8,17 @@ import classNames from "classnames";
 import {
   getAppMode,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/selectors/applicationSelectors";
+import type { ApplicationPayload } from "entities/Application";
 import {
   getCurrentPageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { get } from "lodash";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 interface NavigationLogoProps {
   logoConfiguration: NavigationSetting["logoConfiguration"];
@@ -40,7 +40,7 @@ function NavigationLogo(props: NavigationLogoProps) {
   const pageUrl = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
     {
-      pageId: defaultPage?.pageId,
+      basePageId: defaultPage?.basePageId,
     },
   );
   const logoAssetId = get(

@@ -1,11 +1,11 @@
 import React, { forwardRef, useMemo } from "react";
 import type { CSSProperties } from "react";
-import { Flex } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
+import type { FlexProps } from "@appsmith/wds/src/components/Flex/src/types";
 import type { AnvilFlexComponentProps } from "../utils/types";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -49,6 +49,8 @@ export const AnvilFlexComponent = forwardRef(
       widgetSize,
       widgetType,
     }: AnvilFlexComponentProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ref: any,
   ) => {
     const _className = `${className} ${styles.anvilWidgetWrapper}`;

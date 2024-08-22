@@ -1,14 +1,14 @@
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getPageWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getPageWidgets } from "ee/selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
 import type { DSLWidget } from "WidgetProvider/constants";
@@ -18,14 +18,14 @@ import {
 } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { saveAllPagesSaga } from "@appsmith/sagas/PageSagas";
-import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
+import { saveAllPagesSaga } from "ee/sagas/PageSagas";
+import { updateApplicationLayout } from "ee/actions/applicationActions";
 import {
   getCurrentApplicationId,
   getPageList,
 } from "selectors/editorSelectors";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
 
 /**
@@ -89,6 +89,8 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
     if (error) {
@@ -170,6 +172,8 @@ function* convertFromFixedToAutoSaga() {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
     if (error) {

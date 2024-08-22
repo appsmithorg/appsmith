@@ -140,3 +140,11 @@ export type Typography = {
 };
 
 export type IconStyle = "outlined" | "filled";
+
+export const APP_MAX_WIDTH = {
+  Unlimited: "UNLIMITED",
+  Large: "LARGE",
+  Medium: "MEDIUM",
+} as const;
+
+export type AppMaxWidth = (typeof APP_MAX_WIDTH)[keyof typeof APP_MAX_WIDTH];

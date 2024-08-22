@@ -147,7 +147,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                 .cache();
 
         Mono<Application> branchedApplicationMono = applicationService
-                .findByBranchNameAndDefaultApplicationId(
+                .findByBranchNameAndBaseApplicationId(
                         finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
                 .cache();
 
@@ -166,7 +166,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                     Application defaultApplication = tuple2.getT1();
                     Application branchedApplication = tuple2.getT2();
                     return commonGitService
-                            .fetchRemoteChanges(defaultApplication, branchedApplication, finalBranchName, true)
+                            .fetchRemoteChanges(defaultApplication, branchedApplication, true)
                             .flatMap(branchTrackingStatus -> {
                                 if (branchTrackingStatus.getBehindCount() > 0) {
                                     log.debug(

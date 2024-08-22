@@ -4,11 +4,11 @@ import type { noop } from "lodash";
 import type {
   CommonComponentProps,
   EditInteractionKind,
-} from "design-system-old";
-import { SavingState } from "design-system-old";
+} from "@appsmith/ads-old";
+import { SavingState } from "@appsmith/ads-old";
 import EditableName from "./EditableName";
 import { NavigationMenu } from "./NavigationMenu";
-import { Menu, toast, MenuTrigger } from "design-system";
+import { Menu, toast, MenuTrigger } from "@appsmith/ads";
 import type { Theme } from "constants/DefaultTheme";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { Container, StyledIcon } from "./components";
@@ -123,7 +123,6 @@ export function EditorName(props: EditorNameProps) {
               defaultValue={defaultValue}
               editInteractionKind={props.editInteractionKind}
               fill={props.fill}
-              hideEditIcon
               inputValidation={inputValidation}
               isEditing={isEditing}
               isEditingDefault={isEditingDefault}

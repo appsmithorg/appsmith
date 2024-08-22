@@ -32,7 +32,7 @@
           "buttonLabel": "Upload Files",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "MULTIPLE_FILE_PICKER",
-          "labelVisibleWithFiles":  "To use files, create a new AI query with \"Generate text\" action and select files under \"Use file context\" section. Using file context on AI queries will generate accurate responses that are grounded in file contents.",
+          "labelVisibleWithFiles": "To use files, create a new AI query with \"Generate text\" action and select files under \"Use file context\" section. Using file context on AI queries will generate accurate responses that are grounded in file contents.",
           "allowedFileTypes": [
             "application/pdf",
             "text/plain",

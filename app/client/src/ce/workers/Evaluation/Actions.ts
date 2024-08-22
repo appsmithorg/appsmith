@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import set from "lodash/set";
-import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
@@ -13,7 +13,7 @@ import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import {
   getEntityFunctions,
   getPlatformFunctions,
-} from "@appsmith/workers/Evaluation/fns";
+} from "ee/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
 import { isEmpty } from "lodash";
@@ -118,6 +118,8 @@ export const addEntityFunctionsToEvalContext = (
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const fnDef of getPlatformFunctions()) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));

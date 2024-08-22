@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuContent } from "design-system";
+import { MenuContent } from "@appsmith/ads";
 import styled from "styled-components";
 import Checklist from "./Checklist";
 import HelpMenu from "./HelpMenu";

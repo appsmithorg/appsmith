@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Checkbox, ToggleGroup, Flex, Switch } from "@design-system/widgets";
+import { Checkbox, ToggleGroup, Flex, Switch } from "@appsmith/wds";
 
 /**
  * Toggle Group is a group of Checkboxes or Switches that can be selected together.
  */
 const meta: Meta<typeof ToggleGroup> = {
   component: ToggleGroup,
-  title: "Design-system/Widgets/ToggleGroup",
+  title: "WDS/Widgets/ToggleGroup",
 };
 
 export default meta;

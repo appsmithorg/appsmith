@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import {
   closePropertyPane,
@@ -16,7 +16,7 @@ import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { getSelectedText, isMacOrIOS } from "utils/helpers";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 
@@ -28,20 +28,20 @@ import {
 } from "components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
 
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
 
 import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
@@ -127,6 +127,8 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + f"
           global
           label="Search entities"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             const widgetSearchInput =
               document.getElementById(WIDGETS_SEARCH_ID);
@@ -176,6 +178,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Copy widget"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
@@ -200,6 +204,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Delete widget"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
@@ -211,6 +217,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Delete widget"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.deleteSelectedWidget();
@@ -222,6 +230,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Cut Widget"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.cutSelectedWidget();
@@ -234,6 +244,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Select all Widget"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             if (matchBuilderPath(window.location.pathname)) {
               this.props.selectAllWidgetsInit();
@@ -246,6 +258,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Deselect all Widget"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             this.props.resetSnipingMode();
             if (matchBuilderPath(window.location.pathname)) {
@@ -260,6 +274,8 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="v"
           global
           label="Edit Mode"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             this.props.resetSnipingMode();
             e.preventDefault();
@@ -303,6 +319,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Cut Widgets for grouping"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.groupSelectedWidget();
@@ -356,6 +374,8 @@ const mapStateToProps = (state: AppState) => ({
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
     copySelectedWidget: () => dispatch(copyWidget(true)),

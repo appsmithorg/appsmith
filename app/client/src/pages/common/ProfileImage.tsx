@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import styled, { ThemeContext } from "styled-components";
 import { Colors } from "constants/Colors";
-import { Avatar } from "design-system";
+import { Avatar } from "@appsmith/ads";
 
 export const Profile = styled.div<{ backgroundColor?: string; size?: number }>`
   /* width: ${(props) => props.size || 34}px;
@@ -47,6 +47,7 @@ export default function ProfileImage(props: {
       firstLetter={props.commonName || initialsAndColorCode[0]}
       image={props.source}
       label={props.commonName || initialsAndColorCode[0]}
+      // @ts-expect-error Fix this the next time the file is edited
       size={props.size}
     />
   );

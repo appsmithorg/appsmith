@@ -6,12 +6,12 @@ import type { noop } from "lodash";
 import type {
   CommonComponentProps,
   EditInteractionKind,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import {
   EditableTextSubComponent,
   SavingState,
   UNFILLED_WIDTH,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 
 export type EditableAppNameProps = CommonComponentProps & {
   defaultValue: string;
@@ -22,7 +22,6 @@ export type EditableAppNameProps = CommonComponentProps & {
   onBlur?: (value: string) => void;
   isEditingDefault?: boolean;
   inputValidation?: (value: string) => string | boolean;
-  hideEditIcon?: boolean;
   fill?: boolean;
   isError?: boolean;
   isEditing: boolean;

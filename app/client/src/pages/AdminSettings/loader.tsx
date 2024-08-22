@@ -9,6 +9,8 @@ const Page = React.lazy(async () =>
   ),
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const AdminSettingsLoader = (props: any) => {
   return (
     <React.Suspense fallback={<PageLoadingBar />}>

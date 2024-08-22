@@ -89,6 +89,7 @@ import * as m85 from "../migrations/085-migrate-default-values-for-custom-echart
 import * as m86 from "../migrations/086-migrate-table-server-side-filtering";
 import * as m87 from "../migrations/087-migrate-chart-widget-customechartdata";
 import * as m88 from "../migrations/088-migrate-custom-widget-dynamic-height";
+import * as m89 from "../migrations/089-migrage-table-widget-v2-currentRow-binding";
 
 interface Migration {
   functionLookup: {
@@ -919,6 +920,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 88,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: m89,
+        functionName: "migrateTableWidgetV2CurrentRowInValidationsBinding",
+      },
+    ],
+    version: 89,
   },
 ];
 

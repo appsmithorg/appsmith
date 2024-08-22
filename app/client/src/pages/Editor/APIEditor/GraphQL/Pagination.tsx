@@ -4,12 +4,12 @@ import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
@@ -21,7 +21,7 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
-import { Select, Option, Checkbox, Text, Tooltip, Link } from "design-system";
+import { Select, Option, Checkbox, Text, Tooltip, Link } from "@appsmith/ads";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";
@@ -32,8 +32,14 @@ interface PaginationProps {
   theme?: EditorTheme;
   query: string;
   formName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   change: (formName: string, id: string, value: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cursorBased?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   limitBased?: any;
 }
 
@@ -128,6 +134,8 @@ const ErrorMsg = styled.span`
 `;
 
 const graphqlParseVariables = (queryBody: string) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const variables: any = {};
   try {
     const variableString = queryBody.match(/\((\$[^)]*?)\)/);
@@ -155,8 +163,14 @@ interface PaginationTypeBasedWrapperProps {
   actionName: string;
   className: string;
   dataReplayId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onInputChange?: (value: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSelectVariable: (_: any, dropdownOption: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSeparateKeyChange?: (value: any) => void;
   selectedVariable: {
     label?: string;
@@ -170,6 +184,8 @@ interface PaginationTypeBasedWrapperProps {
   valuePath: string;
   valuePlaceholder?: string;
   valueLabel: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   variableOptions: Array<any>;
   variableLabel: string;
   variableTooltip?: string;
@@ -245,7 +261,9 @@ function PaginationTypeBasedWrapper({
           value={
             (selectedVariable.label && selectedVariable.value
               ? selectedVariable
-              : undefined) as any
+              : // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                undefined) as any
           }
         >
           {dropdownOptions.map((option) => {
@@ -317,6 +335,8 @@ function PaginationTypeBasedWrapper({
 }
 
 function Pagination(props: PaginationProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [variablesList, setVariablesList] = useState<any>(
     graphqlParseVariables(props.query),
   );
@@ -325,11 +345,15 @@ function Pagination(props: PaginationProps) {
     setVariablesList(graphqlParseVariables(props.query));
   }, [props.query]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const variableOptions = Object.keys(variablesList).map((variable: any) => ({
     label: variable,
     value: variable,
   }));
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setPaginationValue = (keyPath: string, key: string, value: any) => {
     props.change(
       props.formName,
@@ -347,6 +371,8 @@ function Pagination(props: PaginationProps) {
     actualKeyPath: string;
     dependentKeyPath: string;
     isSeparateEnabled: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any;
   }) => {
     if (!isSeparateEnabled) {
@@ -404,6 +430,8 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Limit}.value`,
                   )}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onInputChange={(value: any) => {
                     setPaginationValue(
                       `${LIMITBASED_PREFIX}.${PaginationSubComponent.Limit}`,
@@ -411,6 +439,8 @@ function Pagination(props: PaginationProps) {
                       value,
                     );
                   }}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
@@ -440,6 +470,8 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.${PaginationSubComponent.Offset}.value`,
                   )}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onInputChange={(value: any) => {
                     setPaginationValue(
                       `${LIMITBASED_PREFIX}.${PaginationSubComponent.Offset}`,
@@ -447,6 +479,8 @@ function Pagination(props: PaginationProps) {
                       value,
                     );
                   }}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
@@ -496,6 +530,8 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Limit}.value`,
                   )}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onInputChange={(value: any) => {
                     setSeparateOrSameLimitValue({
                       actualKeyPath: `${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Limit}.value`,
@@ -504,6 +540,8 @@ function Pagination(props: PaginationProps) {
                       isSeparateEnabled: !!paginationNext?.limit?.isSeparate,
                     });
                   }}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
@@ -533,6 +571,8 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Cursor}.value`,
                   )}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onInputChange={(value: any) => {
                     setPaginationValue(
                       `${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Cursor}`,
@@ -540,6 +580,8 @@ function Pagination(props: PaginationProps) {
                       value,
                     );
                   }}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
@@ -574,6 +616,8 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}.value`,
                   )}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onInputChange={(value: any) => {
                     setPaginationValue(
                       `${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}`,
@@ -581,6 +625,8 @@ function Pagination(props: PaginationProps) {
                       value,
                     );
                   }}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {
@@ -591,6 +637,8 @@ function Pagination(props: PaginationProps) {
                       );
                     });
                   }}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSeparateKeyChange={(value: any) => {
                     setPaginationValue(
                       `${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}`,
@@ -621,6 +669,8 @@ function Pagination(props: PaginationProps) {
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Cursor}.value`,
                   )}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onInputChange={(value: any) => {
                     setPaginationValue(
                       `${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Cursor}`,
@@ -628,6 +678,8 @@ function Pagination(props: PaginationProps) {
                       value,
                     );
                   }}
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
                     Object.keys(values).forEach((key: string) => {

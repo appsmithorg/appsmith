@@ -1,5 +1,5 @@
-import type { PackageMetadata } from "@appsmith/constants/PackageConstants";
-import type { AppState } from "@appsmith/reducers";
+import type { PackageMetadata } from "ee/constants/PackageConstants";
+import type { AppState } from "ee/reducers";
 
 const DEFAULT_PACKAGE_LIST: PackageMetadata[] = [];
 

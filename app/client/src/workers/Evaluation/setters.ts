@@ -2,8 +2,8 @@ import {
   getEntityNameAndPropertyPath,
   isWidget,
   overrideWidgetProperties,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { get, set } from "lodash";
@@ -11,7 +11,7 @@ import { validate } from "./validations";
 import type {
   DataTreeEntityConfig,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
@@ -19,7 +19,7 @@ import type {
 } from "entities/DataTree/dataTreeTypes";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 import { shouldAddSetter } from "./evaluate";
-import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 
 class Setters {
   /** stores the setter method accessor as key and true as value
@@ -171,6 +171,8 @@ class Setters {
     entityName: string,
     entity: DataTreeEntity,
   ) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setterMethodMap: Record<string, any> = {};
     if (!entityConfig) return setterMethodMap;
 

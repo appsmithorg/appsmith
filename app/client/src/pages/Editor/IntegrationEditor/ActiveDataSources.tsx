@@ -1,21 +1,21 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
-import { Text, TextType } from "design-system-old";
-import { Button } from "design-system";
+import { Text, TextType } from "@appsmith/ads-old";
+import { Button } from "@appsmith/ads";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
 import {
   createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
-} from "@appsmith/constants/messages";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/constants/messages";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -42,7 +42,7 @@ const EmptyActiveDatasource = styled.div`
 
 interface ActiveDataSourcesProps {
   dataSources: Datasource[];
-  pageId: string;
+  basePageId: string;
   location: {
     search: string;
   };

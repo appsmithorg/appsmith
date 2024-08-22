@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
-import type { ButtonProps, COLORS } from "@design-system/widgets";
-import { Button } from "@design-system/widgets";
+import type { ButtonProps, COLORS } from "@appsmith/wds";
+import { Button } from "@appsmith/wds";
 
 import type { BaseCellComponentProps } from "../Constants";
 

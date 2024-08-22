@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
-import { FieldError } from "design-system-old";
+import { FieldError } from "@appsmith/ads-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import { FormGroup, type SettingComponentProps } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
 import { Position } from "@blueprintjs/core";
-import type { RadioProps } from "design-system";
-import { Icon, Link, Radio, RadioGroup, Tag, Text } from "design-system";
+import type { RadioProps } from "@appsmith/ads";
+import { Icon, Link, Radio, RadioGroup, Tag, Text } from "@appsmith/ads";
 
 type RadioOption = {
   node?: ReactElement;
@@ -29,7 +29,7 @@ export interface RadioOptionProps {
 }
 
 const StyledTag = styled(Tag)<{ selected?: boolean }>`
-  /* 
+  /*
   TODO: handle the colors on the Tag with the new component which will get introduced
   background-color: ${(props) =>
     props.selected ? "var(--ads-v2-color-bg-warning)" : "inital"}; */
@@ -114,6 +114,8 @@ function RadioFieldWrapper(
       });
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function onInputNodeChangeHandler(value?: any) {
     componentProps.input.onChange &&
       componentProps.input.onChange({
@@ -134,6 +136,8 @@ function RadioFieldWrapper(
   }, [componentProps.input.value]);
 
   return (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <RadioGroup onChange={onChangeHandler as any} value={value}>
       <PopoverStyles />
       {componentProps.options.map((item) => {

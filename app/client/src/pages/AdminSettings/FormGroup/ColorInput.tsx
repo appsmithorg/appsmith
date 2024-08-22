@@ -4,7 +4,7 @@ import { Field } from "redux-form";
 import { startCase } from "lodash";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { Icon, Text, Tooltip } from "design-system";
+import { Icon, Text, Tooltip } from "@appsmith/ads";
 import { InputGroup, Classes } from "@blueprintjs/core";
 import Color from "colorjs.io";
 
@@ -80,6 +80,8 @@ const StyledText = styled(Text)`
 
 interface ColorInputProps {
   value: Record<brandColorsKeys, string>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange?: (value: any) => void;
   className?: string;
   tooltips?: Record<brandColorsKeys, string>;

@@ -5,8 +5,8 @@ import {
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
   OPEN_REPO,
-} from "@appsmith/constants/messages";
-import { Button, Callout } from "design-system";
+} from "ee/constants/messages";
+import { Button, Callout } from "@appsmith/ads";
 import { Space } from "./StyledComponents";
 
 const Row = styled.div`

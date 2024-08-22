@@ -3,7 +3,7 @@ import { getAppStoreName } from "constants/AppConstants";
 import localStorage from "utils/localStorage";
 import { updateAppStore } from "actions/pageActions";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { getAppStoreData } from "@appsmith/selectors/entitiesSelector";
+import { getAppStoreData } from "ee/selectors/entitiesSelector";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { AppStoreState } from "reducers/entityReducers/appReducer";

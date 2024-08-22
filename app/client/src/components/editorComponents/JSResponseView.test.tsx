@@ -1,20 +1,20 @@
 import React from "react";
 import { queryByText, render } from "@testing-library/react";
 import JSResponseView from "./JSResponseView";
-import * as actionExecutionUtils from "@appsmith/utils/actionExecutionUtils";
+import * as actionExecutionUtils from "ee/utils/actionExecutionUtils";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { PluginType } from "entities/Action";
 import "@testing-library/jest-dom/extend-expect";
-import { EMPTY_RESPONSE_LAST_HALF } from "@appsmith/constants/messages";
+import { EMPTY_RESPONSE_LAST_HALF } from "ee/constants/messages";
 
-jest.mock("@appsmith/utils/actionExecutionUtils");
+jest.mock("ee/utils/actionExecutionUtils");
 
 const mockStore = configureStore([]);
 
@@ -69,6 +69,7 @@ const collectionData: JSCollectionData = {
   isLoading: false,
   config: {
     id: "12",
+    baseId: "b12",
     applicationId: "app1",
     workspaceId: "w1234",
     name: "asas",
@@ -82,6 +83,8 @@ const collectionData: JSCollectionData = {
 };
 
 describe("JSResponseView", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
 
   beforeEach(() => {

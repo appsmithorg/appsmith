@@ -1,10 +1,12 @@
 import type { TourType } from "entities/Tour";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { proceedToNextTourStep } from "actions/tourActions";
 
 export const useIsTourStepActive = (activeTourStepConfig: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key in TourType]?: any;
 }) => {
   const activeTourType = useSelector(getActiveTourType);
@@ -21,6 +23,8 @@ export const useIsTourStepActive = (activeTourStepConfig: {
 };
 
 const useProceedToNextTourStep = (activeTourStepConfig: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key in TourType]?: any;
 }) => {
   const dispatch = useDispatch();

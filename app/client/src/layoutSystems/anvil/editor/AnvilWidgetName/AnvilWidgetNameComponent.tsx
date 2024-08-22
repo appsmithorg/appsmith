@@ -7,7 +7,7 @@ import {
   ANVIL_WIDGET_NAME_DEBUG_CLICK,
   ANVIL_WIDGET_NAME_TOGGLE_PARENT,
 } from "layoutSystems/anvil/common/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { debugWidget } from "layoutSystems/anvil/integrations/actions";
 import { useDispatch } from "react-redux";
 import { NavigationMethod } from "utils/history";
@@ -61,7 +61,7 @@ export function _AnvilWidgetNameComponent(
   const { selectWidget } = useWidgetSelection();
   const handleSelectParent = useCallback(() => {
     parentId && selectWidget(SelectionRequestType.One, [parentId]);
-  }, [parentId]);
+  }, [parentId, selectWidget]);
 
   const handleSelectWidget = useCallback(() => {
     selectWidget(
@@ -69,11 +69,11 @@ export function _AnvilWidgetNameComponent(
       [props.widgetId],
       NavigationMethod.CanvasClick,
     );
-  }, [props.widgetId]);
+  }, [props.widgetId, selectWidget]);
 
   const handleDebugClick = useCallback(() => {
     dispatch(debugWidget(props.widgetId));
-  }, [props.widgetId]);
+  }, [props.widgetId, dispatch]);
   /** EO Widget Selection Handlers */
 
   const leftToggle = useMemo(() => {
@@ -93,7 +93,13 @@ export function _AnvilWidgetNameComponent(
   }, [props.showError, handleDebugClick]);
 
   return (
-    <div draggable onDragStart={props.onDragStart} ref={ref} style={styles}>
+    <div
+      data-testid="t--anvil-draggable-widget-name"
+      draggable
+      onDragStart={props.onDragStart}
+      ref={ref}
+      style={styles}
+    >
       <SplitButton
         bGCSSVar={props.bGCSSVar}
         colorCSSVar={props.colorCSSVar}

@@ -21,13 +21,13 @@ import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
-import { Button, Icon, Link, toast, Tooltip } from "design-system";
+import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 
@@ -209,6 +209,8 @@ function CollapseToggle(props: { isOpen: boolean }) {
 }
 
 function copyContent(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any,
   onCopyContentText = `Evaluated value copied to clipboard`,
 ) {
@@ -227,6 +229,8 @@ interface Props {
   isOpen: boolean;
   hasError: boolean;
   expected?: CodeEditorExpected;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   children: JSX.Element;
   errors: EvaluationError[];
@@ -247,6 +251,8 @@ interface PopoverContentProps {
   expected?: CodeEditorExpected;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue: any;
   theme: EditorTheme;
   onMouseEnter: () => void;
@@ -310,6 +316,8 @@ export function PreparedStatementViewer(props: {
 
 export function CurrentValueViewer(props: {
   theme: EditorTheme;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue: any;
   hideLabel?: boolean;
   preparedStatementViewer?: boolean;
@@ -335,6 +343,8 @@ export function CurrentValueViewer(props: {
 const ControlledCurrentValueViewer = memo(
   function ControlledCurrentValueViewer(props: {
     theme: EditorTheme;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     evaluatedValue: any;
     openEvaluatedValue: boolean;
     setOpenEvaluatedValue?: (a: boolean) => void;
@@ -392,6 +402,8 @@ const ControlledCurrentValueViewer = memo(
             },
             collapsed: 2,
             collapseStringsAfterLength,
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
               return index >= 2;

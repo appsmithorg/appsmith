@@ -1,5 +1,5 @@
 import { Tooltip } from "@blueprintjs/core";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import React, { createRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";

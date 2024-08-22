@@ -25,7 +25,6 @@ public class FieldNameCE {
     public static final String LAYOUT_ID = "layoutId";
     public static final String APPLICATION_ID = "applicationId";
     public static final String SOURCE_APPLICATION_ID = "sourceApplicationId";
-    public static final String DEFAULT_RESOURCES = "defaultResources";
     public static final String PLUGIN_ID = "pluginId";
     public static final String DATASOURCE = "datasource";
     public static final String CONFIG = "config";
@@ -152,6 +151,9 @@ public class FieldNameCE {
     public static final String ACTION_EXECUTION_REQUEST_PARAMS_COUNT = "actionExecutionRequestParamsCount";
     public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
+    public static final String ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP = "actionExecutionRequestParamsValueMap";
+    public static final String ACTION_EXECUTION_INVERT_PARAMETER_MAP = "actionExecutionInvertParameterMap";
+    public static final String ACTION_CONFIGURATION = "actionConfiguration";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
     public static final String SOURCE = "source";
@@ -202,6 +204,4 @@ public class FieldNameCE {
     public static final String ARTIFACT_CONTEXT = "artifactContext";
     public static final String ARTIFACT_ID = "artifactId";
     public static final String BODY = "body";
-
-    public static final String CREATE = "save";
 }

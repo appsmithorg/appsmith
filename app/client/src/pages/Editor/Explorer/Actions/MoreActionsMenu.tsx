@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 import {
   moveActionRequest,
@@ -15,7 +15,7 @@ import {
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_MOVE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Button,
   Menu,
@@ -25,14 +25,15 @@ import {
   MenuSubContent,
   MenuSubTrigger,
   MenuTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import { useToggle } from "@mantine/hooks";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
 
 interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
-  pageId: string;
+  basePageId: string;
   isChangePermitted?: boolean;
   isDeletePermitted?: boolean;
   prefixAdditionalMenus?: React.ReactNode | React.ReactNode[];
@@ -42,6 +43,9 @@ interface EntityContextMenuProps {
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const propPageId = useSelector((state) =>
+    convertToPageIdSelector(state, props.basePageId),
+  );
   const {
     isChangePermitted = false,
     isDeletePermitted = false,
@@ -71,11 +75,11 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
         moveActionRequest({
           id: actionId,
           destinationPageId,
-          originalPageId: props.pageId,
+          originalPageId: propPageId ?? "",
           name: actionName,
         }),
       ),
-    [dispatch, props.pageId],
+    [dispatch, propPageId],
   );
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string) => {
@@ -92,6 +96,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     return state.entities.pageList.pages.map((page) => ({
       label: page.pageName,
       id: page.pageId,
+      baseId: page.basePageId,
       value: page.pageName,
     }));
   });
@@ -122,7 +127,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
               {menuPages.map((page) => {
                 return (
                   <MenuItem
-                    key={page.id}
+                    key={page.baseId}
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                     //@ts-ignore
                     onSelect={() =>
@@ -145,11 +150,11 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
               {/* Isn't it better ux to perform this check outside the menu and then simply not show the option?*/}
               {menuPages.length > 1 ? (
                 menuPages
-                  .filter((page) => page.id !== props.pageId) // Remove current page from the list
+                  .filter((page) => page.baseId !== props.basePageId) // Remove current page from the list
                   .map((page) => {
                     return (
                       <MenuItem
-                        key={page.id}
+                        key={page.baseId}
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         //@ts-ignore
                         onSelect={() =>

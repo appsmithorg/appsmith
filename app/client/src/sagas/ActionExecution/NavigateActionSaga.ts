@@ -1,18 +1,16 @@
 import { call, put, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import {
-  ReduxActionTypes,
-  type Page,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
+import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
 import history from "utils/history";
-import { setDataUrl } from "@appsmith/sagas/PageSagas";
+import { setDataUrl } from "ee/sagas/PageSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { TriggerFailureError } from "./errorUtils";
 import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
@@ -49,11 +47,11 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     const path =
       appMode === APP_MODE.EDIT
         ? builderURL({
-            pageId: page.pageId,
+            basePageId: page.basePageId,
             params,
           })
         : viewerURL({
-            pageId: page.pageId,
+            basePageId: page.basePageId,
             params,
           });
 

@@ -4,10 +4,10 @@ import {
   createMessage,
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
   WIDGET_MULTI_SELECT,
-} from "@appsmith/constants/messages";
-import { Text, Button } from "design-system";
+} from "ee/constants/messages";
+import { Text, Button } from "@appsmith/ads";
 import { useSelector } from "react-redux";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

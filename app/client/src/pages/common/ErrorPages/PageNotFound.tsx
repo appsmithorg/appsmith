@@ -1,19 +1,21 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import {
   BACK_TO_HOMEPAGE,
   createMessage,
   PAGE_NOT_FOUND,
   PAGE_NOT_FOUND_TITLE,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 import Page from "./Page";
 
 interface Props {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   flushErrorsAndRedirect: any;
 }
 
