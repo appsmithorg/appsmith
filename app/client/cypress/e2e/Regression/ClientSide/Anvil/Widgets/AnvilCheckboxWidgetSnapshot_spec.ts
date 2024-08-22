@@ -25,6 +25,7 @@ describe(
 
     it("3. Deploy Mode", () => {
       anvilSnapshot.matchSnapshotForDeployMode("CheckboxWidget");
+      expect("6").to.be.equal("5");
     });
   },
 );
