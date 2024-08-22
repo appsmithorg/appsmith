@@ -51,9 +51,11 @@ function* handleInstallationFailure(
     );
   }
 
-  AppsmithConsole.error({
-    text: `Failed to install library script at ${url}`,
-  });
+  AppsmithConsole.addErrors([
+    {
+      payload: { text: `Failed to install library script at ${url}` },
+    },
+  ]);
   const applicationid: ReturnType<typeof getCurrentApplicationId> =
     yield select(getCurrentApplicationId);
   yield put({
@@ -274,9 +276,13 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       accessor,
     );
     if (!success) {
-      AppsmithConsole.error({
-        text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
-      });
+      AppsmithConsole.addErrors([
+        {
+          payload: {
+            text: createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
+          },
+        },
+      ]);
     }
 
     try {
