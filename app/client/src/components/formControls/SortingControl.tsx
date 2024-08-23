@@ -5,11 +5,11 @@ import { Classes } from "@appsmith/ads-old";
 import styled from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
 import type { ControlProps } from "./BaseControl";
-import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
-import { SortingSubComponent } from "./utils";
+import { SortingSubComponent } from "@appsmith/types";
 import { get, isArray } from "lodash";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Button } from "@appsmith/ads";
+import { convertPathToString } from "@appsmith/evaluation";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -162,16 +162,14 @@ function SortingComponent(props: any) {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props.fields.map((field: any, index: number) => {
-          const columnPath = getBindingOrConfigPathsForSortingControl(
+          const columnPath = convertPathToString([
+            field,
             SortingSubComponent.Column,
+          ]);
+          const OrderPath = convertPathToString([
             field,
-            undefined,
-          );
-          const OrderPath = getBindingOrConfigPathsForSortingControl(
             SortingSubComponent.Order,
-            field,
-            undefined,
-          );
+          ]);
           return (
             <SortingDropdownContainer key={index} size={size}>
               <ColumnDropdownContainer>

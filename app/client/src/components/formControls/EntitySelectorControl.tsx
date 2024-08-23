@@ -2,9 +2,9 @@ import React, { useRef } from "react";
 import FormControl from "pages/Editor/FormControl";
 import styled from "styled-components";
 import type { ControlProps, FormConfigType } from "./BaseControl";
-import { allowedControlTypes } from "components/formControls/utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Colors } from "constants/Colors";
+import { ENTITY_SELECTOR_CONTROL_TYPES } from "@appsmith/types";
 
 const dropDownFieldConfig: Partial<FormConfigType> = {
   label: "",
@@ -128,7 +128,7 @@ function EntitySelectorComponent(props: any) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         visibleSchemas.map((singleSchema: any, index: number) => {
           return (
-            allowedControlTypes.includes(singleSchema.controlType) &&
+            ENTITY_SELECTOR_CONTROL_TYPES.includes(singleSchema.controlType) &&
             !singleSchema.hidden && (
               <EntitySelectorWrapper
                 index={index}

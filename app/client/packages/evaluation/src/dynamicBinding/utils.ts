@@ -4,11 +4,19 @@ import { extractIdentifierInfoFromCode } from "@shared/ast";
 import {
   convertPathToString,
   EvalErrorTypes,
+  EvaluationSubstitutionType,
   RESERVED_KEYWORDS_AND_INDENTIFIERS,
   type BindingsInfo,
   type EvalError,
 } from "../common";
 import { toPath, union } from "lodash";
+import {
+  GRPAPHQL_CURSORBASED_PREFIX,
+  GRPAPHQL_CURSOR_NEXT_PREFIX,
+  GRPAPHQL_CURSOR_PREVIOUS_PREFIX,
+  GRPAPHQL_LIMITBASED_PREFIX,
+  PaginationSubComponent,
+} from "@appsmith/types";
 
 function isJSAction(entity: { ENTITY_TYPE: string }) {
   return (
@@ -188,4 +196,40 @@ const getPrunedReferences = (
     prunedReferences.add(reference);
   });
   return Array.from(prunedReferences);
+};
+
+/* 
+  Getting All Graphql Pagination Binding Paths
+  --------------------------------------------
+  The need to add graphql binding paths was because there was no such control type present in the Form Registry that handles such scenario. If we wanted to add such control type in Form Control types then there has to be a separate Component present for such control type as well. But there is no need for a new control type to handle graphql pagination. So to tackle the similar problem, a new control types i.e. Editor Control Types are added which should have E_ as a prefix for every control type to indicate that it is an editor control type. 
+*/
+export const getAllBindingPathsForGraphqlPagination = (
+  configProperty: string,
+) => {
+  return [
+    {
+      key: `${configProperty}.${GRPAPHQL_LIMITBASED_PREFIX}.${PaginationSubComponent.Limit}.value`,
+      value: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+    {
+      key: `${configProperty}.${GRPAPHQL_LIMITBASED_PREFIX}.${PaginationSubComponent.Offset}.value`,
+      value: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+    {
+      key: `${configProperty}.${GRPAPHQL_CURSORBASED_PREFIX}.${GRPAPHQL_CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Limit}.value`,
+      value: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+    {
+      key: `${configProperty}.${GRPAPHQL_CURSORBASED_PREFIX}.${GRPAPHQL_CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Cursor}.value`,
+      value: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+    {
+      key: `${configProperty}.${GRPAPHQL_CURSORBASED_PREFIX}.${GRPAPHQL_CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}.value`,
+      value: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+    {
+      key: `${configProperty}.${GRPAPHQL_CURSORBASED_PREFIX}.${GRPAPHQL_CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Cursor}.value`,
+      value: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+  ];
 };

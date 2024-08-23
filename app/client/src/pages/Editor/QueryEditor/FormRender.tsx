@@ -15,7 +15,6 @@ import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
   extractConditionalOutput,
-  isHidden,
   modifySectionConfig,
   updateEvaluatedSectionConfig,
 } from "components/formControls/utils";
@@ -25,6 +24,7 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import { Spinner } from "@appsmith/ads";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import { Section, Zone } from "../ActionForm";
+import { isFormControlHidden } from "@appsmith/utils";
 
 interface Props {
   // TODO: Fix this the next time the file is edited
@@ -217,7 +217,8 @@ const FormRender = (props: Props) => {
     (section: any): any => {
       return section.children.map(
         (formControlOrSection: ControlProps, idx: number) => {
-          if (isHidden(formData, section.hidden, undefined, false)) return null;
+          if (isFormControlHidden(formData, section.hidden, undefined, false))
+            return null;
           if (formControlOrSection.hasOwnProperty("children")) {
             return renderEachConfig(formName)(formControlOrSection);
           } else {

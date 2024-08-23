@@ -2,11 +2,7 @@ import React from "react";
 import type { Datasource } from "entities/Datasource";
 import { map, get, isArray } from "lodash";
 import styled from "styled-components";
-import {
-  formatFileSize,
-  isHidden,
-  isKVArray,
-} from "components/formControls/utils";
+import { formatFileSize, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 import type { AppState } from "ee/reducers";
@@ -21,6 +17,7 @@ import { isMultipleEnvEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { Text } from "@appsmith/ads";
 import { Table } from "@appsmith/ads-old";
+import { isFormControlHidden } from "@appsmith/utils";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -143,7 +140,7 @@ export function renderDatasourceSection(
     <React.Fragment key={datasource.id}>
       {map(section.children, (section) => {
         if (
-          isHidden(
+          isFormControlHidden(
             datasource.datasourceStorages[currentEnvironment],
             section.hidden,
             undefined,

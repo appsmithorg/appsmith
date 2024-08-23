@@ -1,9 +1,7 @@
 import React from "react";
 import {
   alternateViewTypeInputConfig,
-  getViewType,
   switchViewType,
-  ViewTypes,
 } from "components/formControls/utils";
 import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
@@ -17,6 +15,8 @@ import { get } from "lodash";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "ee/constants/messages";
 import { ToggleButton, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
+import { ViewTypes } from "@appsmith/types";
+import { getFormControlViewType } from "@appsmith/utils";
 
 interface Props {
   viewType: ViewTypes;
@@ -44,7 +44,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
     getFormValues(props.formName)(state),
   );
 
-  const viewType = getViewType(formValues, props.configProperty);
+  const viewType = getFormControlViewType(formValues, props.configProperty);
   // variable to control
   let configPropertyPathJsonValue = "";
 

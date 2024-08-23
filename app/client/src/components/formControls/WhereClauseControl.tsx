@@ -5,10 +5,10 @@ import { FieldArray, getFormValues } from "redux-form";
 import type { ControlProps } from "./BaseControl";
 import _ from "lodash";
 import { useSelector } from "react-redux";
-import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
-import { WhereClauseSubComponent } from "./utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
 import { Button, Tooltip } from "@appsmith/ads";
+import { convertPathToString } from "@appsmith/evaluation";
+import { WhereClauseSubComponent } from "@appsmith/types";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -229,18 +229,18 @@ const GroupConditionBox = styled.div<{ size: string }>`
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
 
-  const keyPath = getBindingOrConfigPathsForWhereClauseControl(
+  const keyPath = convertPathToString([
     props.field,
     WhereClauseSubComponent.Key,
-  );
-  const valuePath = getBindingOrConfigPathsForWhereClauseControl(
+  ]);
+  const valuePath = convertPathToString([
     props.field,
     WhereClauseSubComponent.Value,
-  );
-  const conditionPath = getBindingOrConfigPathsForWhereClauseControl(
+  ]);
+  const conditionPath = convertPathToString([
     props.field,
     WhereClauseSubComponent.Condition,
-  );
+  ]);
 
   return (
     <ConditionBox key={index} size={props.size}>
@@ -340,10 +340,10 @@ function ConditionBlock(props: any) {
   if (props.logicalTypes.length === 1) {
     isDisabled = true;
   }
-  const logicalFieldPath = getBindingOrConfigPathsForWhereClauseControl(
+  const logicalFieldPath = convertPathToString([
     props.configProperty,
     WhereClauseSubComponent.Condition,
-  );
+  ]);
   const logicalFieldValue = _.get(formValues, logicalFieldPath);
 
   return (

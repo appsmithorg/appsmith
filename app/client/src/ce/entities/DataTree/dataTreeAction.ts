@@ -3,7 +3,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
-  getDataTreeActionConfigPath,
+  renameActionConfigToConfig,
 } from "entities/Action/actionProperties";
 import type {
   ActionEntity,
@@ -20,11 +20,6 @@ export const generateDataTreeAction = (
   unEvalEntity: ActionEntity;
   configEntity: ActionEntityConfig;
 } => {
-  console.log(">>> generateDataTreeAction", {
-    action,
-    editorConfig,
-    dependencyConfig,
-  });
   let dynamicBindingPathList: DynamicPath[] = [];
   let datasourceUrl = "";
 
@@ -48,8 +43,8 @@ export const generateDataTreeAction = (
 
   const dependencyMap: DependencyMap = {};
   Object.entries(dependencyConfig).forEach(([dependent, dependencies]) => {
-    dependencyMap[getDataTreeActionConfigPath(dependent)] = dependencies.map(
-      getDataTreeActionConfigPath,
+    dependencyMap[renameActionConfigToConfig(dependent)] = dependencies.map(
+      renameActionConfigToConfig,
     );
   });
 

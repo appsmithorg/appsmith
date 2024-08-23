@@ -51,6 +51,7 @@
     "@appsmith/ads": "workspace:^",
     "@appsmith/ads-old": "workspace:^",
     "@appsmith/evaluation": "workspace:^",
+    "@appsmith/types": "workspace:^",
     "@appsmith/utils": "workspace:^",
     "@appsmith/wds": "workspace:^",
     "@appsmith/wds-theming": "workspace:^",

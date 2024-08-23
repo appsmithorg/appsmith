@@ -17,7 +17,7 @@ import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
 import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
-import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
+import { renameActionConfigToConfig } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
@@ -208,7 +208,7 @@ function* fetchDynamicValueSaga(
           ?.jsSnippets[0];
         // we convert this action Diff path into the same format as it is stored in the dataTree i.e. config.formData.sheetUrl.data
         const dataTreeActionConfigPath =
-          getDataTreeActionConfigPath(dynamicBindingValue);
+          renameActionConfigToConfig(dynamicBindingValue);
         // then we get the value of the current parameter from the evaluatedValues in the action object stored in the dataTree.
         // TODOD: Find a better way to pass the workspaceId
         const evaluatedValue = get(

@@ -1,0 +1,15 @@
+{
+  "name": "@appsmith/types",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier",
+    "build": "tsc"
+  },
+  "types": "src/index.ts"
+}

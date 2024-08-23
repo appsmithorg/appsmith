@@ -228,6 +228,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@appsmith/eslint-plugin@workspace:^, @appsmith/eslint-plugin@workspace:packages/eslint-plugin":
+  version: 0.0.0-use.local
+  resolution: "@appsmith/eslint-plugin@workspace:packages/eslint-plugin"
+  languageName: unknown
+  linkType: soft
+
 "@appsmith/evaluation@workspace:^, @appsmith/evaluation@workspace:packages/evaluation":
   version: 0.0.0-use.local
   resolution: "@appsmith/evaluation@workspace:packages/evaluation"
@@ -236,9 +242,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@appsmith/eslint-plugin@workspace:^, @appsmith/eslint-plugin@workspace:packages/eslint-plugin":
+"@appsmith/types@workspace:^, @appsmith/types@workspace:packages/types":
   version: 0.0.0-use.local
-  resolution: "@appsmith/eslint-plugin@workspace:packages/eslint-plugin"
+  resolution: "@appsmith/types@workspace:packages/types"
   languageName: unknown
   linkType: soft
 
@@ -13166,8 +13172,9 @@ __metadata:
   dependencies:
     "@appsmith/ads": "workspace:^"
     "@appsmith/ads-old": "workspace:^"
-    "@appsmith/evaluation": "workspace:^"
     "@appsmith/eslint-plugin": "workspace:^"
+    "@appsmith/evaluation": "workspace:^"
+    "@appsmith/types": "workspace:^"
     "@appsmith/utils": "workspace:^"
     "@appsmith/wds": "workspace:^"
     "@appsmith/wds-theming": "workspace:^"

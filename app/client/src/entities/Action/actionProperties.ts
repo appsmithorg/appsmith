@@ -1,39 +1,37 @@
 import type { Action } from "entities/Action/index";
-import _ from "lodash";
-import { EvaluationSubstitutionType } from "@appsmith/evaluation";
+import get from "lodash/get";
 import {
-  alternateViewTypeInputConfig,
-  isHidden,
+  convertPathToString,
+  EvaluationSubstitutionType,
+  getAllBindingPathsForGraphqlPagination,
+} from "@appsmith/evaluation";
+import {
   ViewTypes,
-} from "components/formControls/utils";
-import {
   PaginationSubComponent,
+  FormControlTypes,
   SortingSubComponent,
   WhereClauseSubComponent,
-  allowedControlTypes,
-  getViewType,
-} from "components/formControls/utils";
-import formControlTypes from "utils/formControl/formControlTypes";
-import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorBindingPaths";
-import EditorControlTypes from "utils/editor/EditorControlTypes";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+  EditorControlTypes,
+  ENTITY_SELECTOR_CONTROL_TYPES,
+} from "@appsmith/types";
+import { getFormControlViewType, isFormControlHidden } from "@appsmith/utils";
 
 const dynamicFields = [
-  formControlTypes.QUERY_DYNAMIC_TEXT,
-  formControlTypes.QUERY_DYNAMIC_INPUT_TEXT,
+  FormControlTypes.QUERY_DYNAMIC_TEXT,
+  FormControlTypes.QUERY_DYNAMIC_INPUT_TEXT,
 ];
 
 type ReactivePaths = Record<string, EvaluationSubstitutionType>;
 type BindingPaths = ReactivePaths;
 const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
-  if (substitutionType) {
-    if (substitutionType === EvaluationSubstitutionType.SMART_SUBSTITUTE) {
+  switch (substitutionType) {
+    case EvaluationSubstitutionType.SMART_SUBSTITUTE:
       return EvaluationSubstitutionType.SMART_SUBSTITUTE;
-    } else if (substitutionType === EvaluationSubstitutionType.PARAMETER) {
+    case EvaluationSubstitutionType.PARAMETER:
       return EvaluationSubstitutionType.PARAMETER;
-    }
+    default:
+      return EvaluationSubstitutionType.TEMPLATE;
   }
-  return EvaluationSubstitutionType.TEMPLATE;
 };
 
 export const getBindingAndReactivePathsOfAction = (
@@ -41,7 +39,10 @@ export const getBindingAndReactivePathsOfAction = (
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfig?: any[],
-  dynamicBindingPathList?: DynamicPath[],
+  dynamicBindingPathList?: {
+    key: string;
+    value?: string;
+  }[],
 ): { reactivePaths: ReactivePaths; bindingPaths: BindingPaths } => {
   let reactivePaths: ReactivePaths = {
     data: EvaluationSubstitutionType.TEMPLATE,
@@ -73,9 +74,9 @@ export const getBindingAndReactivePathsOfAction = (
     if (formConfig.children) {
       formConfig.children.forEach(recursiveFindBindingPaths);
     } else {
-      const configPath = getDataTreeActionConfigPath(formConfig.configProperty);
+      const configPath = renameActionConfigToConfig(formConfig.configProperty);
       if (dynamicFields.includes(formConfig.controlType)) {
-        if (!isHidden(action, formConfig.hidden)) {
+        if (!isFormControlHidden(action, formConfig.hidden)) {
           bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
             formConfig.evaluationSubstitutionType,
           );
@@ -87,13 +88,12 @@ export const getBindingAndReactivePathsOfAction = (
         Array.isArray(formConfig.alternateViewTypes) &&
         formConfig.alternateViewTypes.length > 0 &&
         formConfig.alternateViewTypes.includes(ViewTypes.JSON) &&
-        getViewType(action, formConfig.configProperty) === ViewTypes.JSON
+        getFormControlViewType(action, formConfig.configProperty) ===
+          ViewTypes.JSON
       ) {
-        bindingPaths[configPath] = getCorrectEvaluationSubstitutionType(
-          alternateViewTypeInputConfig().evaluationSubstitutionType,
-        );
-      } else if (formConfig.controlType === formControlTypes.ARRAY_FIELD) {
-        let actionValue = _.get(action, formConfig.configProperty);
+        bindingPaths[configPath] = EvaluationSubstitutionType.TEMPLATE;
+      } else if (formConfig.controlType === FormControlTypes.ARRAY_FIELD) {
+        let actionValue = get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
           actionValue = actionValue.filter((val) => val);
           for (let i = 0; i < actionValue.length; i++) {
@@ -113,7 +113,7 @@ export const getBindingAndReactivePathsOfAction = (
             });
           }
         }
-      } else if (formConfig.controlType === formControlTypes.WHERE_CLAUSE) {
+      } else if (formConfig.controlType === FormControlTypes.WHERE_CLAUSE) {
         const recursiveFindBindingPathsForWhereClause = (
           newConfigPath: string,
           // TODO: Fix this the next time the file is edited
@@ -128,30 +128,28 @@ export const getBindingAndReactivePathsOfAction = (
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             actionValue.children.forEach((value: any, index: number) => {
-              const childrenPath = getBindingOrConfigPathsForWhereClauseControl(
+              const childrenPath = convertPathToString([
                 newConfigPath,
                 WhereClauseSubComponent.Children,
                 index,
-              );
+              ]);
               recursiveFindBindingPathsForWhereClause(childrenPath, value);
             });
           } else {
             if (actionValue.hasOwnProperty("key")) {
-              const keyPath = getBindingOrConfigPathsForWhereClauseControl(
+              const keyPath = convertPathToString([
                 newConfigPath,
                 WhereClauseSubComponent.Key,
-                undefined,
-              );
+              ]);
               bindingPaths[keyPath] = getCorrectEvaluationSubstitutionType(
                 formConfig.evaluationSubstitutionType,
               );
             }
             if (actionValue.hasOwnProperty("value")) {
-              const valuePath = getBindingOrConfigPathsForWhereClauseControl(
+              const valuePath = convertPathToString([
                 newConfigPath,
                 WhereClauseSubComponent.Value,
-                undefined,
-              );
+              ]);
               bindingPaths[valuePath] = getCorrectEvaluationSubstitutionType(
                 formConfig.evaluationSubstitutionType,
               );
@@ -159,7 +157,7 @@ export const getBindingAndReactivePathsOfAction = (
           }
         };
 
-        const actionValue = _.get(action, formConfig.configProperty);
+        const actionValue = get(action, formConfig.configProperty);
         if (
           actionValue &&
           actionValue.hasOwnProperty("children") &&
@@ -168,64 +166,64 @@ export const getBindingAndReactivePathsOfAction = (
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           actionValue.children.forEach((value: any, index: number) => {
-            const childrenPath = getBindingOrConfigPathsForWhereClauseControl(
+            const childrenPath = convertPathToString([
               configPath,
               WhereClauseSubComponent.Children,
               index,
-            );
+            ]);
             recursiveFindBindingPathsForWhereClause(childrenPath, value);
           });
         }
-      } else if (formConfig.controlType === formControlTypes.PAGINATION) {
-        const limitPath = getBindingOrConfigPathsForPaginationControl(
+      } else if (formConfig.controlType === FormControlTypes.PAGINATION) {
+        const limitPath = convertPathToString([
+          configPath,
           PaginationSubComponent.Offset,
+        ]);
+        const offsetPath = convertPathToString([
           configPath,
-        );
-        const offsetPath = getBindingOrConfigPathsForPaginationControl(
           PaginationSubComponent.Limit,
-          configPath,
-        );
+        ]);
         bindingPaths[limitPath] = getCorrectEvaluationSubstitutionType(
           formConfig.evaluationSubstitutionType,
         );
         bindingPaths[offsetPath] = getCorrectEvaluationSubstitutionType(
           formConfig.evaluationSubstitutionType,
         );
-      } else if (formConfig.controlType === formControlTypes.SORTING) {
-        const actionValue = _.get(action, formConfig.configProperty);
+      } else if (formConfig.controlType === FormControlTypes.SORTING) {
+        const actionValue = get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           actionValue.forEach((fieldConfig: any, index: number) => {
-            const columnPath = getBindingOrConfigPathsForSortingControl(
-              SortingSubComponent.Column,
+            const columnPath = convertPathToString([
               configPath,
               index,
-            );
+              SortingSubComponent.Column,
+            ]);
             bindingPaths[columnPath] = getCorrectEvaluationSubstitutionType(
               formConfig.evaluationSubstitutionType,
             );
-            const OrderPath = getBindingOrConfigPathsForSortingControl(
-              SortingSubComponent.Order,
+            const OrderPath = convertPathToString([
               configPath,
               index,
-            );
+              SortingSubComponent.Order,
+            ]);
             bindingPaths[OrderPath] = getCorrectEvaluationSubstitutionType(
               formConfig.evaluationSubstitutionType,
             );
           });
         }
-      } else if (formConfig.controlType === formControlTypes.ENTITY_SELECTOR) {
+      } else if (formConfig.controlType === FormControlTypes.ENTITY_SELECTOR) {
         if (Array.isArray(formConfig.schema)) {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           formConfig.schema.forEach((schemaField: any) => {
             let columnPath = "";
             if (
-              allowedControlTypes.includes(schemaField.controlType) &&
+              ENTITY_SELECTOR_CONTROL_TYPES.includes(schemaField.controlType) &&
               !!schemaField.configProperty
             ) {
-              columnPath = getBindingOrConfigPathsForEntitySelectorControl(
+              columnPath = renameActionConfigToConfig(
                 schemaField.configProperty,
               );
             }
@@ -246,6 +244,7 @@ export const getBindingAndReactivePathsOfAction = (
       }
     }
   };
+
   formConfig.forEach(recursiveFindBindingPaths);
   reactivePaths = {
     ...reactivePaths,
@@ -254,48 +253,5 @@ export const getBindingAndReactivePathsOfAction = (
   return { reactivePaths, bindingPaths };
 };
 
-export const getBindingOrConfigPathsForSortingControl = (
-  fieldName: SortingSubComponent.Order | SortingSubComponent.Column,
-  baseConfigProperty: string,
-  index?: number,
-): string => {
-  if (_.isNumber(index)) {
-    return `${baseConfigProperty}[${index}].${fieldName}`;
-  } else {
-    return `${baseConfigProperty}.${fieldName}`;
-  }
-};
-
-export const getBindingOrConfigPathsForPaginationControl = (
-  fieldName: PaginationSubComponent.Limit | PaginationSubComponent.Offset,
-  baseConfigProperty: string,
-): string => {
-  return `${baseConfigProperty}.${fieldName}`;
-};
-
-export const getBindingOrConfigPathsForWhereClauseControl = (
-  configPath: string,
-  fieldName:
-    | WhereClauseSubComponent.Children
-    | WhereClauseSubComponent.Condition
-    | WhereClauseSubComponent.Key
-    | WhereClauseSubComponent.Value,
-  index?: number,
-): string => {
-  if (fieldName === "children" && _.isNumber(index)) {
-    return `${configPath}.${fieldName}[${index}]`;
-  } else if (configPath && fieldName) {
-    return `${configPath}.${fieldName}`;
-  }
-  return "";
-};
-
-export const getBindingOrConfigPathsForEntitySelectorControl = (
-  baseConfigProperty: string,
-): string => {
-  // Entity selector schemas/components have their own distinct configProperties and have little to do with their parents(They are independent entities).
-  return getDataTreeActionConfigPath(baseConfigProperty);
-};
-
-export const getDataTreeActionConfigPath = (propertyPath: string) =>
+export const renameActionConfigToConfig = (propertyPath: string) =>
   propertyPath.replace("actionConfiguration.", "config.");

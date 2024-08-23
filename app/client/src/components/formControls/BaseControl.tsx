@@ -3,7 +3,7 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import type { InputType } from "components/constants";
 import type { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { DropdownOption } from "@appsmith/ads-old";
-import type { ViewTypes } from "./utils";
+import type { ViewTypes } from "@appsmith/types";
 import type { FeatureFlag } from "ee/entities/FeatureFlag";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<

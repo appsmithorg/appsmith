@@ -5,9 +5,10 @@ import FormControl from "../FormControl";
 import Collapsible from "./Collapsible";
 import type { ControlProps } from "components/formControls/BaseControl";
 import type { Datasource } from "entities/Datasource";
-import { isHidden, isKVArray } from "components/formControls/utils";
+import { isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { isFormControlHidden } from "@appsmith/utils";
 
 export const FormContainer = styled.div`
   display: flex;
@@ -84,7 +85,7 @@ export class JSONtoForm<
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
     if (
-      isHidden(
+      isFormControlHidden(
         this.props.formData.datasourceStorages[this.props.currentEnvironment],
         section.hidden,
         this.props?.featureFlags,
@@ -155,7 +156,7 @@ export class JSONtoForm<
           // TODO: remove hidden config property as well as this param,
           // when feature flag is removed
           if (
-            isHidden(
+            isFormControlHidden(
               this.props.formData.datasourceStorages[
                 this.props.currentEnvironment
               ],

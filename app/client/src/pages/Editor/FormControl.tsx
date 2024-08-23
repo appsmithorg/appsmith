@@ -1,10 +1,5 @@
 import React, { memo, useEffect, useMemo, useState } from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
-import {
-  getViewType,
-  isHidden,
-  ViewTypes,
-} from "components/formControls/utils";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { getFormValues, change } from "redux-form";
 import FormControlFactory from "utils/formControl/FormControlFactory";
@@ -31,6 +26,8 @@ import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
 import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import { getCurrentEditingEnvironmentId } from "ee/selectors/environmentSelectors";
+import { ViewTypes } from "@appsmith/types";
+import { getFormControlViewType, isFormControlHidden } from "@appsmith/utils";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -52,13 +49,19 @@ function FormControl(props: FormControlProps) {
   // adding this to prevent excessive rerendering
   const [convertFormToRaw, setConvertFormToRaw] = useState(false);
 
-  const viewType = getViewType(formValues, props.config.configProperty);
+  const viewType = getFormControlViewType(
+    formValues,
+    props.config.configProperty,
+  );
   let formValueForEvaluatingHiddenObj = formValues;
   if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
     formValueForEvaluatingHiddenObj = (formValues as Datasource)
       .datasourceStorages[currentEditingEnvId];
   }
-  const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
+  const hidden = isFormControlHidden(
+    formValueForEvaluatingHiddenObj,
+    props.config.hidden,
+  );
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
       getConfigErrors(state, {

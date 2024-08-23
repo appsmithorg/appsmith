@@ -5,8 +5,8 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import FormControl from "pages/Editor/FormControl";
 import FormLabel from "components/editorComponents/FormLabel";
 import styled from "styled-components";
-import { getBindingOrConfigPathsForPaginationControl } from "entities/Action/actionProperties";
-import { PaginationSubComponent } from "components/formControls/utils";
+import { convertPathToString } from "@appsmith/evaluation";
+import { PaginationSubComponent } from "@appsmith/types";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
@@ -81,14 +81,14 @@ export function Pagination(props: {
     tooltip,
   } = props;
 
-  const offsetPath = getBindingOrConfigPathsForPaginationControl(
+  const offsetPath = convertPathToString([
+    configProperty,
     PaginationSubComponent.Offset,
+  ]);
+  const limitPath = convertPathToString([
     configProperty,
-  );
-  const limitPath = getBindingOrConfigPathsForPaginationControl(
     PaginationSubComponent.Limit,
-    configProperty,
-  );
+  ]);
 
   const defaultStyles = {
     // width: "280px",

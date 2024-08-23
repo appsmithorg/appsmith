@@ -28,7 +28,7 @@ import type { SortingControlProps } from "components/formControls/SortingControl
 import SortingControl from "components/formControls/SortingControl";
 import type { EntitySelectorControlProps } from "components/formControls/EntitySelectorControl";
 import EntitySelectorControl from "components/formControls/EntitySelectorControl";
-import formControlTypes from "./formControlTypes";
+import { FormControlTypes } from "@appsmith/types";
 import SegmentedControl from "components/formControls/SegmentedControl";
 import type { SegmentedControlProps } from "components/formControls/SegmentedControl";
 import FormTemplateControl from "components/formControls/FormTemplateControl";
@@ -42,13 +42,13 @@ import type { MultipleFilePickerControlProps } from "components/formControls/Mul
  */
 class FormControlRegistry {
   static registerFormControlBuilders() {
-    FormControlFactory.registerControlBuilder(formControlTypes.INPUT_TEXT, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.INPUT_TEXT, {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputTextControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder(
-      formControlTypes.FIXED_KEY_INPUT,
+      FormControlTypes.FIXED_KEY_INPUT,
       {
         buildPropertyControl(
           controlProps: FixedKeyInputControlProps,
@@ -59,38 +59,38 @@ class FormControlRegistry {
       },
     );
     FormControlFactory.registerControlBuilder(
-      formControlTypes.SEGMENTED_CONTROL,
+      FormControlTypes.SEGMENTED_CONTROL,
       {
         buildPropertyControl(controlProps: SegmentedControlProps): JSX.Element {
           return <SegmentedControl {...controlProps} />;
         },
       },
     );
-    FormControlFactory.registerControlBuilder(formControlTypes.DROP_DOWN, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.DROP_DOWN, {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return <DropDownControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.SWITCH, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.SWITCH, {
       buildPropertyControl(controlProps: SwitchControlProps): JSX.Element {
         return <SwitchControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.KEYVALUE_ARRAY, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.KEYVALUE_ARRAY, {
       buildPropertyControl(
         controlProps: KeyValueArrayControlProps,
       ): JSX.Element {
         return <KeyValueArrayControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.FILE_PICKER, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.FILE_PICKER, {
       buildPropertyControl(controlProps: FilePickerControlProps): JSX.Element {
         //used by redshift datasource
         return <FilePickerControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder(
-      formControlTypes.QUERY_DYNAMIC_TEXT,
+      FormControlTypes.QUERY_DYNAMIC_TEXT,
       {
         buildPropertyControl(controlProps: DynamicTextFieldProps): JSX.Element {
           return <DynamicTextControl {...controlProps} />;
@@ -98,7 +98,7 @@ class FormControlRegistry {
       },
     );
     FormControlFactory.registerControlBuilder(
-      formControlTypes.QUERY_DYNAMIC_INPUT_TEXT,
+      FormControlTypes.QUERY_DYNAMIC_INPUT_TEXT,
       {
         buildPropertyControl(
           controlProps: DynamicInputControlProps,
@@ -107,29 +107,29 @@ class FormControlRegistry {
         },
       },
     );
-    FormControlFactory.registerControlBuilder(formControlTypes.CHECKBOX, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.CHECKBOX, {
       buildPropertyControl(controlProps: CheckboxControlProps): JSX.Element {
         //used in API datasource form only
         return <CheckboxControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.NUMBER_INPUT, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.NUMBER_INPUT, {
       buildPropertyControl(controlProps: InputControlProps): JSX.Element {
         return <InputTextControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.ARRAY_FIELD, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.ARRAY_FIELD, {
       buildPropertyControl(controlProps: FieldArrayControlProps): JSX.Element {
         return <FieldArrayControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.WHERE_CLAUSE, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.WHERE_CLAUSE, {
       buildPropertyControl(controlProps: WhereClauseControlProps): JSX.Element {
         return <WhereClauseControl {...controlProps} />;
       },
     });
     FormControlFactory.registerControlBuilder(
-      formControlTypes.ENTITY_SELECTOR,
+      FormControlTypes.ENTITY_SELECTOR,
       {
         buildPropertyControl(
           controlProps: EntitySelectorControlProps,
@@ -139,17 +139,17 @@ class FormControlRegistry {
       },
     );
 
-    FormControlFactory.registerControlBuilder(formControlTypes.PAGINATION, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.PAGINATION, {
       buildPropertyControl(controlProps: PaginationControlProps): JSX.Element {
         return <PaginationControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.SORTING, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.SORTING, {
       buildPropertyControl(controlProps: SortingControlProps): JSX.Element {
         return <SortingControl {...controlProps} />;
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.PROJECTION, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.PROJECTION, {
       buildPropertyControl(controlProps: DropDownControlProps): JSX.Element {
         return (
           <DropDownControl
@@ -166,7 +166,7 @@ class FormControlRegistry {
         );
       },
     });
-    FormControlFactory.registerControlBuilder(formControlTypes.FORM_TEMPLATE, {
+    FormControlFactory.registerControlBuilder(FormControlTypes.FORM_TEMPLATE, {
       buildPropertyControl(
         controlProps: FormTemplateControlProps,
       ): JSX.Element {
@@ -174,7 +174,7 @@ class FormControlRegistry {
       },
     });
     FormControlFactory.registerControlBuilder(
-      formControlTypes.MULTIPLE_FILE_PICKER,
+      FormControlTypes.MULTIPLE_FILE_PICKER,
       {
         buildPropertyControl(
           controlProps: MultipleFilePickerControlProps,

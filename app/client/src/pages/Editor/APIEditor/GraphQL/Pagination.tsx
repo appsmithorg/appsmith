@@ -20,8 +20,8 @@ import {
   CURSOR_NEXT_PREFIX,
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
-import { PaginationSubComponent } from "components/formControls/utils";
 import { Select, Option, Checkbox, Text, Tooltip, Link } from "@appsmith/ads";
+import { PaginationSubComponent } from "@appsmith/types";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";

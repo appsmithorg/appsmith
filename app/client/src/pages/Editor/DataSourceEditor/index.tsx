@@ -75,7 +75,6 @@ import {
   getConfigInitialValues,
   getIsFormDirty,
   getTrimmedData,
-  isHidden,
   normalizeValues,
   validate,
 } from "components/formControls/utils";
@@ -104,6 +103,7 @@ import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
+import { isFormControlHidden } from "@appsmith/utils";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;
@@ -421,7 +421,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           this.props.formData &&
           this.props.pluginDatasourceForm !==
             DatasourceComponentTypes.RestAPIDatasourceForm &&
-          isHidden(
+          isFormControlHidden(
             (this.props.formData as Datasource).datasourceStorages[
               this.getEnvironmentId()
             ],
@@ -459,7 +459,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         this.props.formData &&
         this.props.pluginDatasourceForm !==
           DatasourceComponentTypes.RestAPIDatasourceForm &&
-        isHidden(
+        isFormControlHidden(
           (this.props.formData as Datasource).datasourceStorages[
             this.getEnvironmentId()
           ],
