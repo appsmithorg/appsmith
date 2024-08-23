@@ -89,7 +89,6 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //some more time for all rows with images to be populated
     const rowIndex = 0;
     table.ReadTableRowColumnData(rowIndex, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -118,7 +117,6 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //some more time for all rows with images to be populated
     const rowIndex = 1;
     table.ReadTableRowColumnData(rowIndex, 0).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
@@ -148,7 +146,6 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(14000); //some more time for rows to rearrange!
     const rowIndex = 1;
     table.ReadTableRowColumnData(rowIndex, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
@@ -171,8 +168,7 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.ClickButton("DeleteQuery", 1);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //Allowing time for delete to be success
-    agHelper.Sleep(6000); //Allwowing time for delete to be success
+    agHelper.WaitUntilEleDisappear(locators._btnSpinner); //Allowing time for delete to be success
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1");
     });
@@ -180,7 +176,6 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     //Deleting all records from .table
     agHelper.GetNClick(locators._deleteIcon);
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
@@ -198,7 +193,6 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
