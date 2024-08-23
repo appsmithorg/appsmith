@@ -17,15 +17,15 @@ import {
   propertyPaneStyle,
   methodsConfig,
   autocompleteConfig,
-} from "./config";
+} from "../config";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import BaseWidget from "widgets/BaseWidget";
 import type { ReactNode } from "react";
 import React from "react";
-import { ContainerComponent } from "widgets/anvil/Container";
+import { ContainerComponent } from "widgets/wds/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { Elevations, anvilWidgets } from "widgets/anvil/constants";
+import { Elevations, anvilWidgets } from "widgets/wds/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
@@ -35,7 +35,7 @@ import type {
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
 
-class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
+class WDSSectionWidget extends BaseWidget<WDSSectionWidgetProps, WidgetState> {
   static type = anvilWidgets.SECTION_WIDGET;
 
   static getConfig(): WidgetBaseConfiguration {
@@ -152,8 +152,9 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 }
 
-export interface SectionWidgetProps extends ContainerWidgetProps<WidgetProps> {
+export interface WDSSectionWidgetProps
+  extends ContainerWidgetProps<WidgetProps> {
   layout: LayoutProps[];
 }
 
-export default SectionWidget;
+export default WDSSectionWidget;
