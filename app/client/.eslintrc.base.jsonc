@@ -12,7 +12,6 @@
   "plugins": [
     "react",
     "@typescript-eslint",
-    "prettier",
     "sort-destructure-keys",
     "cypress",
     "testing-library",
@@ -23,10 +22,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:cypress/recommended",
     "plugin:testing-library/react",
-    "plugin:react-hooks/recommended",
-    // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
-    // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
-    "plugin:prettier/recommended"
+    "plugin:react-hooks/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
@@ -41,7 +37,9 @@
       "warn",
       {
         "testIdPattern": "^t--[a-zA-Z0-9_.-]*$",
-        "testIdAttribute": ["data-testid"]
+        "testIdAttribute": [
+          "data-testid"
+        ]
       }
     ],
     "@typescript-eslint/consistent-type-definitions": "error",
@@ -61,7 +59,9 @@
     "react/jsx-no-useless-fragment": "error",
     "sort-destructure-keys/sort-destructure-keys": [
       "error",
-      { "caseSensitive": false }
+      {
+        "caseSensitive": false
+      }
     ],
     "no-console": "error",
     "no-debugger": "error",
@@ -70,16 +70,24 @@
       {
         "patterns": [
           {
-            "group": ["@blueprintjs/core/lib/esnext/*"],
+            "group": [
+              "@blueprintjs/core/lib/esnext/*"
+            ],
             "message": "Reason: @blueprintjs/core has both lib/esnext and lib/esm directories which export the same components. To avoid duplicating components in the bundle, please import only from the lib/esm directory."
           },
           {
-            "group": ["*.svg"],
-            "importNames": ["ReactComponent"],
+            "group": [
+              "*.svg"
+            ],
+            "importNames": [
+              "ReactComponent"
+            ],
             "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
           },
           {
-            "group": ["remixicon-react/*"],
+            "group": [
+              "remixicon-react/*"
+            ],
             "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
           }
         ]

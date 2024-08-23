@@ -1,6 +1,6 @@
 {
 	"plugins": [
-		"@trivago/prettier-plugin-sort-imports"
+		"@ianvs/prettier-plugin-sort-imports"
 	],
 	"printWidth": 80,
 	"tabWidth": 2,
@@ -12,8 +12,11 @@
 	"importOrder": [
 		"^react$",
 		"^react-dom$",
+		"",
 		"<THIRD_PARTY_MODULES>",
+		"",
 		"^@appsmith/.*$",
+		"",
 		"^[./]"
 	],
 	"importOrderSeparation": true,
@@ -22,5 +25,13 @@
 		"typescript",
 		"jsx",
 		"decorators-legacy"
+	],
+	"overrides": [
+		{
+			"files": "**/*.test.{ts,tsx}",
+			"options": {
+				"importOrder": []
+			}
+		}
 	]
 }

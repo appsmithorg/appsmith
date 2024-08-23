@@ -5,7 +5,7 @@ const path = require("path");
 const JSON5 = require("json5");
 
 const baseEslintConfig = JSON5.parse(
-  fs.readFileSync(path.join(__dirname, "./.eslintrc.base.json"), "utf8"),
+  fs.readFileSync(path.join(__dirname, "./.eslintrc.base.jsonc"), "utf8"),
 );
 const baseNoRestrictedImports =
   baseEslintConfig.rules["@typescript-eslint/no-restricted-imports"][1];
