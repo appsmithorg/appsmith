@@ -30,7 +30,13 @@
     "sourceMap": true,
     "baseUrl": "./cypress",
     "noFallthroughCasesInSwitch": true,
-    "types": ["cypress", "node", "cypress-tags", "cypress-real-events"]
+    "types": [
+      "cypress",
+      "node",
+      "cypress-tags",
+      "cypress-real-events",
+      "@simonsmith/cypress-image-snapshot/types"
+    ]
   },
   "include": ["./", "../packages/rts/src/version.js"]
 }

@@ -8572,6 +8572,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@simonsmith/cypress-image-snapshot@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "@simonsmith/cypress-image-snapshot@npm:9.1.0"
+  dependencies:
+    "@types/jest-image-snapshot": ^6.1.0
+    chalk: ^4.1.2
+    jest-image-snapshot: ^6.1.0
+  peerDependencies:
+    cypress: ">10.0.0"
+  checksum: cb81eb96f0dbe29627f3bf555b3fadb16fbbcc276c0f682bb3800261d3287093eda2ce0a13778ef73e9ee052ae0a6cb2c46cee3640d4145f22ebed1e8fc2b56d
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.23.3":
   version: 0.23.5
   resolution: "@sinclair/typebox@npm:0.23.5"
@@ -10903,6 +10916,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jest-image-snapshot@npm:^6.1.0":
+  version: 6.4.0
+  resolution: "@types/jest-image-snapshot@npm:6.4.0"
+  dependencies:
+    "@types/jest": "*"
+    "@types/pixelmatch": "*"
+    ssim.js: ^3.1.1
+  checksum: db751a487f3a8aef7a6f7d4209378fb147670a8d5f7bb08739426ce6cc6a034bc02dca12b9eefcb7a9fe0deec4dc0a809d436445ca405d3e796d6058da4e0568
+  languageName: node
+  linkType: hard
+
 "@types/jest@npm:*, @types/jest@npm:^29.2.3":
   version: 29.4.0
   resolution: "@types/jest@npm:29.4.0"
@@ -11147,6 +11171,15 @@ __metadata:
     pg-protocol: "*"
     pg-types: ^4.0.1
   checksum: 49da89f64cec1bd12a3fbc0c72b17d685c2fee579726a529f62fcab395dbc5696d80455073409947a577164b3c53a90181a331e4a5d9357679f724d4ce37f4b9
+  languageName: node
+  linkType: hard
+
+"@types/pixelmatch@npm:*":
+  version: 5.2.6
+  resolution: "@types/pixelmatch@npm:5.2.6"
+  dependencies:
+    "@types/node": "*"
+  checksum: 8299207286913414bfd95ac980418342f58e7bc93dc78befbd48ccab110b0341b400712f89fea2b0f0a3a4ad0b1aed18e98e26100b529abe60d4bcc14e11d2e3
   languageName: node
   linkType: hard
 
@@ -13187,6 +13220,7 @@ __metadata:
     "@sentry/webpack-plugin": ^1.18.9
     "@shared/ast": "workspace:^"
     "@shared/dsl": "workspace:^"
+    "@simonsmith/cypress-image-snapshot": ^9.1.0
     "@tanstack/virtual-core": ^3.0.0-beta.18
     "@testing-library/jest-dom": 5.16.1
     "@testing-library/react": 12.1.2
@@ -23023,6 +23057,27 @@ __metadata:
   peerDependencies:
     jest: ">=20 <=26"
   checksum: 55c696955a75ef79a4a06fb18910a1238510fd4458a5322e1d82149c07bb7588762623730e9f8613c90fd0ab142f105809676f3ef787558ed6336a967a7ec021
+  languageName: node
+  linkType: hard
+
+"jest-image-snapshot@npm:^6.1.0":
+  version: 6.4.0
+  resolution: "jest-image-snapshot@npm:6.4.0"
+  dependencies:
+    chalk: ^4.0.0
+    get-stdin: ^5.0.1
+    glur: ^1.1.2
+    lodash: ^4.17.4
+    pixelmatch: ^5.1.0
+    pngjs: ^3.4.0
+    rimraf: ^2.6.2
+    ssim.js: ^3.1.1
+  peerDependencies:
+    jest: ">=20 <=29"
+  peerDependenciesMeta:
+    jest:
+      optional: true
+  checksum: f3b8a0cbba6e4bd4c19080e8cb807b4dd03e60d43bc69e0bf5898c09dbbb0ee812c04ad66d027ee64121f169bb5ef0cd81d5903efd2772e085e619aa6415676b
   languageName: node
   linkType: hard
 

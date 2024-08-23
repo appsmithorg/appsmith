@@ -1,4 +1,5 @@
 import { defineConfig } from "cypress";
+import { addMatchImageSnapshotPlugin } from "@simonsmith/cypress-image-snapshot/plugin";
 
 export default defineConfig({
   watchForFileChanges: false,
@@ -32,6 +33,7 @@ export default defineConfig({
       grepOmitFiltered: true,
     },
     setupNodeEvents(on, config) {
+      addMatchImageSnapshotPlugin(on);
       require("@cypress/grep/src/plugin")(config);
       require("./cypress/plugins/index.js")(on, config);
       return config;
