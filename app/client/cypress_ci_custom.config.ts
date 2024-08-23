@@ -66,5 +66,7 @@ export default defineConfig({
       "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
       "cypress/e2e/Sanity/Datasources/MsSQL_Basic_Spec.ts",
     ],
+    screenshotsFolder: 'cypress/snapshots', // Define the directory for snapshots
+    trashAssetsBeforeRuns: true, // Optionally delete previous snapshots before new runs
   },
 });
