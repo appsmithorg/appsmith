@@ -190,7 +190,7 @@ const getErrorMessageFromActionType = (
 enum ErrorEffectTypes {
   SHOW_ALERT = "SHOW_ALERT",
   SAFE_CRASH = "SAFE_CRASH",
-  LOG_ERROR = "LOG_ERROR",
+  LOG_TO_CONSOLE = "LOG_TO_CONSOLE",
   LOG_TO_SENTRY = "LOG_TO_SENTRY",
 }
 
@@ -202,9 +202,9 @@ export interface ErrorActionPayload {
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
-  const effects = [ErrorEffectTypes.LOG_ERROR];
+  const effects = [ErrorEffectTypes.LOG_TO_CONSOLE];
   const { payload, type } = errorAction;
-  const { error, logToSentry, show = true } = payload || {};
+  const { error, logToSentry, show } = payload || {};
   const message = getErrorMessageFromActionType(type, error);
 
   if (show) {
@@ -222,7 +222,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 
   for (const effect of effects) {
     switch (effect) {
-      case ErrorEffectTypes.LOG_ERROR: {
+      case ErrorEffectTypes.LOG_TO_CONSOLE: {
         logErrorSaga(errorAction);
         break;
       }
@@ -230,9 +230,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         // This is the toast that is rendered when any page load API fails.
         yield call(showToast, message, { kind: "error" });
 
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window as any).Cypress) {
+        if ("Cypress" in window) {
           if (message === "" || message === null) {
             yield put(
               safeCrashApp({
