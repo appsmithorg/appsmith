@@ -12,7 +12,7 @@ import type { InputWidgetProps } from "../../widget/types";
 
 export const propertyPaneContentConfig = [
   {
-    sectionName: "Data",
+    sectionName: "Type",
     children: [
       {
         helpText: "Changes the type of data captured in the input",
@@ -54,6 +54,11 @@ export const propertyPaneContentConfig = [
         updateHook: inputTypeUpdateHook,
         dependencies: ["defaultText"],
       },
+    ],
+  },
+  {
+    sectionName: "Data",
+    children: [
       {
         helpText:
           "Sets the default text of the widget. The text is updated if the default text changes",

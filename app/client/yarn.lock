@@ -13117,6 +13117,7 @@ __metadata:
     figmagic: ^4.5.13
     fs-extra: ^11.2.0
     svgo: ^3.2.0
+    ts-node: ^10.9.1
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown

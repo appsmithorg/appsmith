@@ -6,15 +6,15 @@ import { propertyPaneContentConfig as WdsInputWidgetPropertyPaneContentConfig } 
 import * as validations from "./validations";
 import { countryToFlag } from "../../widget/helpers";
 
-const inputTypeConfig = WdsInputWidgetPropertyPaneContentConfig.find(
-  (config) => config.sectionName === "Data",
-)?.children.find((child) => child.propertyName === "inputType");
+const inputTypeSectionConfig = WdsInputWidgetPropertyPaneContentConfig.find(
+  (config) => config.sectionName === "Type",
+);
 
 export const propertyPaneContentConfig = [
+  inputTypeSectionConfig,
   {
     sectionName: "Data",
     children: [
-      inputTypeConfig,
       {
         helpText:
           "Sets the default text of the widget. The text is updated if the default text changes",
