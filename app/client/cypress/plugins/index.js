@@ -55,6 +55,10 @@ module.exports = async (on, config) => {
 
   on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
+  return {
+    ...config,
+    screenshotsFolder: 'cypress/snapshots', // Define the directory for snapshots
+  };
 
   on("before:browser:launch", (browser = {}, launchOptions) => {
     /*
