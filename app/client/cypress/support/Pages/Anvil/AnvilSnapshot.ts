@@ -40,11 +40,7 @@ export class AnvilSnapshot {
       `anvil_${name}$_${mode}${theme == "dark" ? "_dark" : ""}${size ? `_${size}` : ""}`,
     );
 
-    this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName, {
-      comparisonMethod: "ssim",
-      failureThreshold: 0.01,
-      failureThresholdType: "percent",
-    });
+    this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName);
   }
 
   public matchSnapshotForCanvasMode = (

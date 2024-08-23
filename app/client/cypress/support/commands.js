@@ -12,16 +12,11 @@ import EditorNavigation, {
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
-//require('cy-verify-downloads').addCustomCommand();
 const path = require("path");
 import { v4 as uuidv4 } from "uuid";
 
 const dayjs = require("dayjs");
-const {
-  addMatchImageSnapshotCommand,
-} = require("cypress-image-snapshot/command");
 const loginPage = require("../locators/LoginPage.json");
-const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 
 const commonlocators = require("../locators/commonlocators.json");
@@ -32,11 +27,9 @@ import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
-const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
-const publishWidgetspage = require("../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
 import { featureFlagIntercept } from "./Objects/FeatureFlags";
@@ -51,7 +44,6 @@ const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
 const table = ObjectsRegistry.Table;
 
-let pageidcopy = " ";
 const chainStart = Symbol();
 
 export const initLocalstorage = () => {
@@ -98,16 +90,6 @@ export const addIndexedDBKey = (key, value) => {
     };
   });
 };
-
-// Cypress.Commands.add("goToEditFromPublish", () => {
-//   cy.url().then((url) => {
-//     const urlObject = new URL(url);
-//     if (!urlObject.pathname.includes("edit")) {
-//       urlObject.pathname = urlObject.pathname + "/edit";
-//       cy.visit(urlObject.toString());
-//     }
-//   });
-// });
 
 Cypress.Commands.add("stubPostHeaderReq", () => {
   cy.intercept("POST", "/api/v1/users/invite", (req) => {
@@ -234,13 +216,6 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
 
 Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
   agHelper.WaitUntilAllToastsDisappear();
-  //Since these are coming in every self-hosted 1st time login, commenting for CI runs
-  // agHelper.AssertElementAbsence(
-  //   locators._specificToast("There was an unexpected error"),
-  // );
-  // agHelper.AssertElementAbsence(
-  //   locators._specificToast("Internal server error while processing request"),
-  // );
 
   // Logout is a POST request in CE
   let httpMethod = "POST";
@@ -322,28 +297,6 @@ Cypress.Commands.add(
     }
   },
 );
-
-// Cypress.Commands.add("PublishtheApp", (validateSavedState = true) => {
-//   //cy.server();
-//   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
-//   // Wait before publish
-//   // eslint-disable-next-line cypress/no-unnecessary-waiting
-//   cy.wait(2000);
-//   cy.assertPageSave(validateSavedState);
-
-//   // Stubbing window.open to open in the same tab
-//   cy.window().then((window) => {
-//     cy.stub(window, "open").callsFake((url) => {
-//       window.location.href = Cypress.config().baseUrl + url.substring(1);
-//       window.location.target = "_self";
-//     });
-//   });
-
-//   cy.get(homePage.publishButton).click();
-//   cy.wait("@publishApp");
-//   cy.log("pagename: " + localStorage.getItem("PageName"));
-//   cy.wait(1000); //wait time for page to load!
-// });
 
 Cypress.Commands.add("tabPopertyUpdate", (tabId, newTabName) => {
   cy.get("[data-rbd-draggable-id='" + tabId + "'] input")
@@ -760,10 +713,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     },
   ).as("connectGitLocalRepo");
 
-  // cy.intercept({
-  //   method: "PUT",
-  // }).as("sucessSave");
-
   cy.intercept("POST", "https://api.segment.io/v1/b", (req) => {
     req.reply({
       statusCode: 200,
@@ -1026,12 +975,6 @@ Cypress.Commands.add(
       });
     }
     cy.EvaluateCurrentValue(valueToType, isDynamic);
-    // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
-    //   textF = fieldValue.innerText
-    //   fieldValue.innerText = ""
-    // }).then(() => {
-    //   cy.log("current field value is : '" + textF + "'")
-    // })
   },
 );
 
@@ -1061,15 +1004,6 @@ Cypress.Commands.add(
           cy.wrap($field).invoke("text");
         });
     }
-    //cy.wait(3000); //Increasing wait time to evaluate non-undefined values
-    // if (isDynamicValue) {
-    //   const val = cy
-    //     .get(commonlocators.evaluatedCurrentValue)
-    //     .first()
-    //     .should("be.visible")
-    //     .invoke("text");
-    //   if (toValidate) expect(val).to.eq(currentValue);
-    // }
     if (currentValue) expect(val).to.eq(currentValue);
 
     return val;
@@ -1113,8 +1047,6 @@ Cypress.Commands.add("getEntityName", () => {
 });
 
 Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
-  // Give this element 10 seconds to appear
-  //cy.wait(10000)
   cy.xpath(
     "//div[@class='Toastify']//span[contains(text(),'" +
       errorMsgToVerifyAbsence +
@@ -1124,8 +1056,6 @@ Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
 });
 
 Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
-  // Give this element 10 seconds to appear
-  //cy.wait(10000)
   cy.xpath(
     "//div[@class='Toastify']//span[contains(text(),'" +
       errorMsgToVerifyAbsence +
@@ -1139,18 +1069,6 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
   cy.xpath(queryLocators.query).click();
 });
-
-// Cypress.Commands.add('isNotInViewport', element => {
-//   cy.xpath(element).then($el => {
-//     const bottom = Cypress.$(cy.state('window')).height()
-//     const rect = $el[0].getBoundingClientRect()
-
-//     expect(rect.top).to.be.greaterThan(bottom)
-//     expect(rect.bottom).to.be.greaterThan(bottom)
-//     expect(rect.top).to.be.greaterThan(bottom)
-//     expect(rect.bottom).to.be.greaterThan(bottom)
-//   })
-// })
 
 Cypress.Commands.add("isInViewport", (element) => {
   cy.xpath(element)
@@ -1168,16 +1086,6 @@ Cypress.Commands.add("isInViewport", (element) => {
 
 Cypress.Commands.add("validateEvaluatedValue", (value) => {
   cy.get(".t-property-evaluated-value").should("contain", value);
-});
-
-// Cypress.Commands.overwrite("type", (originalFn, element, text, options) => {
-//   const clearedText = '{selectall}{backspace}'+`${text}`;
-//   return originalFn(element, clearedText, options);
-// });
-
-addMatchImageSnapshotCommand({
-  failureThreshold: 0.15, // threshold for entire image
-  failureThresholdType: "percent",
 });
 
 Cypress.Commands.add("DeleteEntityStateLocalStorage", () => {
