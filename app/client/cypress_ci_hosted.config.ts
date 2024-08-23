@@ -1,3 +1,4 @@
+import { addMatchImageSnapshotPlugin } from "@simonsmith/cypress-image-snapshot/plugin";
 import { defineConfig } from "cypress";
 import fs from "fs";
 
@@ -31,6 +32,7 @@ export default defineConfig({
   e2e: {
     baseUrl: "https://regression.test.appsmith.com/",
     setupNodeEvents(on, config) {
+      addMatchImageSnapshotPlugin(on);
       require("cypress-mochawesome-reporter/plugin")(on);
       on(
         "after:spec",
