@@ -305,5 +305,26 @@ describe(
         1,
       );
     });
+
+    it("10. Validate using function inside label key works correctly", () => {
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+      propPane.ToggleJSMode("Label key", true);
+      propPane.UpdatePropertyFieldValue("Label key", "{{(() => 'name')()}}");
+      agHelper.SelectDropDown("Blue");
+      agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+        expect($selectedValue).to.eq("Blue");
+      });
+    });
+
+    it("11. Validate using function inside value key works correctly", () => {
+      EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+      propPane.ToggleJSMode("Value key", true);
+      propPane.UpdatePropertyFieldValue("Value key", "{{(() => 'code')()}}");
+      agHelper.SelectDropDown("Blue");
+      agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
+        expect($selectedValue).to.eq("Blue");
+      });
+    });
   },
 );
