@@ -253,6 +253,15 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         parentId,
       );
 
+      /**
+       * This change ensures that meta widgets are deleted before the main widget.
+       * By handling meta widget deletion within the deleteWidget saga, we prevent
+       * lint evaluation from detecting orphaned meta widgets, which previously
+       * caused errors in the in-app debugger. This resolves the issue of transient
+       * errors appearing after widget deletion.
+       *
+       * For more details, refer to the PR: https://github.com/appsmithorg/appsmith/pull/35820
+       */
       if (widget.hasMetaWidgets) {
         yield put({
           type: ReduxActionTypes.DELETE_META_WIDGETS,
