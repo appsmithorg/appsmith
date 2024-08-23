@@ -161,8 +161,6 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   });
 
   it("6. Deleting records - binarytype", () => {
-    //entityExplorer.SelectEntityByName("Page1");//commenting 2 lines since case 6th is skipped!
-    //deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
