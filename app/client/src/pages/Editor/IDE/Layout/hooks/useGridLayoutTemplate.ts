@@ -17,9 +17,6 @@ import {
   APP_SIDEBAR_WIDTH,
 } from "constants/AppConstants";
 import { useEditorStateLeftPaneWidth } from "./useEditorStateLeftPaneWidth";
-import { IDE_HEADER_HEIGHT } from "IDE";
-import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
-import { PROTECTED_CALLOUT_HEIGHT } from "../../ProtectedCallout";
 import { type Area, Areas, SIDEBAR_WIDTH } from "../constants";
 
 interface ReturnValue {
@@ -35,9 +32,9 @@ function useGridLayoutTemplate(): ReturnValue {
     ];
   }, []);
   const [columns, setColumns] = React.useState<AnimatedGridUnit[]>([]);
-  const [rows, setRows] = React.useState<AnimatedGridUnit[]>([]);
+  const [rows] = React.useState<AnimatedGridUnit[]>(["1fr"]);
 
-  const [windowWidth, windowHeight] = useWindowDimensions();
+  const [windowWidth] = useWindowDimensions();
   const editorStateLeftPaneWidth = useEditorStateLeftPaneWidth();
   const PropertyPaneWidth = useSelector(getPropertyPaneWidth);
   const { segment } = useCurrentEditorState();
@@ -45,24 +42,6 @@ function useGridLayoutTemplate(): ReturnValue {
   const isPreviewMode = useSelector(previewModeSelector);
   const editorMode = useSelector(getIDEViewMode);
   const isProtectedMode = useSelector(protectedModeSelector);
-
-  React.useEffect(
-    function updateIDERows() {
-      const IDE_BODY_HEIGHT =
-        windowHeight - IDE_HEADER_HEIGHT - BOTTOM_BAR_HEIGHT;
-
-      if (isProtectedMode) {
-        setRows([
-          (IDE_BODY_HEIGHT -
-            PROTECTED_CALLOUT_HEIGHT +
-            "px") as AnimatedGridUnit,
-        ]);
-      } else {
-        setRows([(IDE_BODY_HEIGHT + "px") as AnimatedGridUnit]);
-      }
-    },
-    [isProtectedMode, windowHeight],
-  );
 
   React.useEffect(
     function updateIDEColumns() {

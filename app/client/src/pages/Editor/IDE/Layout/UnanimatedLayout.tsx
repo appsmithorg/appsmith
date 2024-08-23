@@ -34,6 +34,7 @@ function UnanimatedLayout() {
       <EditorWrapperContainer>
         <GridContainer
           style={{
+            gridTemplateRows: "100%",
             gridTemplateAreas: areas
               .map((area) => `"${area.join(" ")}"`)
               .join("\n"),
