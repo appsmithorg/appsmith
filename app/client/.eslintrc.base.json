@@ -69,7 +69,6 @@
     ],
     "no-console": "error",
     "no-debugger": "error",
-    "react/display-name": "off",
     "react-perf/jsx-no-new-array-as-prop": "warn",
     "react-perf/jsx-no-new-function-as-prop": "warn",
     "react-perf/jsx-no-jsx-as-prop": "warn",
