@@ -204,19 +204,20 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByApplicationIdAndPluginType(
-            String applicationId, List<String> pluginTypes, AclPermission aclPermission, Sort sort) {
+            String applicationId, List<String> excludedPluginTypes, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
-                .criteria(getCriterionForFindByApplicationIdAndPluginType(applicationId, pluginTypes))
+                .criteria(getCriterionForFindByApplicationIdAndPluginType(applicationId, excludedPluginTypes))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
     }
 
     protected BridgeQuery<NewAction> getCriterionForFindByApplicationIdAndPluginType(
-            String applicationId, List<String> pluginTypes) {
+            String applicationId, List<String> excludedPluginTypes) {
         final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
         q.and(Bridge.or(
-                Bridge.in(NewAction.Fields.pluginType, pluginTypes), Bridge.isNull(NewAction.Fields.pluginType)));
+                Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
+                Bridge.isNull(NewAction.Fields.pluginType)));
 
         return q;
     }
