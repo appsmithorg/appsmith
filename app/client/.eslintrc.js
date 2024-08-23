@@ -11,7 +11,7 @@ const baseNoRestrictedImports =
   baseEslintConfig.rules["@typescript-eslint/no-restricted-imports"][1];
 
 const eslintConfig = {
-  extends: ["./.eslintrc.base.json"],
+  extends: ["./.eslintrc.base.jsonc"],
   rules: {
     "testing-library/no-container": "off",
     "testing-library/no-node-access": "off",
