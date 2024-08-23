@@ -190,8 +190,8 @@
 
   &[data-size="medium"] {
     min-inline-size: var(--sizing-9);
-    padding-inline: var(--inner-spacing-3);
-    padding-block: var(--inner-spacing-3);
+    padding-inline: var(--inner-spacing-8);
+    padding-block: var(--inner-spacing-8);
   }
 
   &[data-size="medium"]:has([data-icon]):has([data-text]) {
