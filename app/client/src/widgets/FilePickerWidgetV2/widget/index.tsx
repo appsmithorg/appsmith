@@ -742,16 +742,23 @@ class FilePickerWidget extends BaseWidget<
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.props.selectedFiles?.forEach((fileItem: any) => {
-      uppy.addFile({
+      const file = {
         name: fileItem.name,
         type: fileItem.type,
+        preview: "",
         data: new Blob([fileItem.data]),
         meta: {
           // Adding this flag to distinguish a file in the files-added event
           isInitializing: true,
         },
-      });
+      };
+
+      if (fileItem.type.startsWith("image/")) {
+        file.preview = fileItem.data;
+      }
+      uppy.addFile(file);
     });
+
   }
 
   async componentDidMount() {
