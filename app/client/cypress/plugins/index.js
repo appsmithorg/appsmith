@@ -55,7 +55,7 @@ module.exports = async (on, config) => {
       browser,
       launchOptions.args,
     );
-    if (browser.name === "chrome") {
+    if (browser.name === "chrome" || browser.name === "chromium") {
       const video = path.join(
         "cypress",
         "fixtures",
@@ -68,11 +68,6 @@ module.exports = async (on, config) => {
       launchOptions.args.push("--use-fake-device-for-media-stream");
       //Stream default video source for camera & code scanner
       launchOptions.args.push(`--use-file-for-fake-video-capture=${video}`);
-      return launchOptions;
-    }
-
-    if (browser.name === "chromium") {
-      launchOptions.args.push("--window-size=1400,1100");
       return launchOptions;
     }
 
