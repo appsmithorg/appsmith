@@ -8,8 +8,8 @@ import {
   fork,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
+import type { ApplicationPayload } from "entities/Application";
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "ee/constants/ReduxActionConstants";

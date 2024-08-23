@@ -51,6 +51,7 @@
     "@appsmith/ads": "workspace:^",
     "@appsmith/ads-old": "workspace:^",
     "@appsmith/evaluation": "workspace:^",
+    "@appsmith/utils": "workspace:^",
     "@appsmith/wds": "workspace:^",
     "@appsmith/wds-theming": "workspace:^",
     "@aws-sdk/client-s3": "^3.622.0",
@@ -252,6 +253,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@appsmith/eslint-plugin": "workspace:^",
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
     "@babel/helper-string-parser": "^7.19.4",
     "@craco/craco": "^7.0.0",
