@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import React from "react";
+import React, { type ReactNode } from "react";
 
 import type {
   AnvilConfig,
@@ -12,33 +11,29 @@ import type {
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
+import { SectionColumns } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { ContainerComponent } from "widgets/wds/Container";
+import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
+import { Elevations, anvilWidgets } from "widgets/wds/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
   PastePayload,
 } from "layoutSystems/anvil/utils/paste/types";
+import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerComponent } from "widgets/anvil/Container";
 import { Elevations, anvilWidgets } from "widgets/anvil/constants";
 
-import {
-  anvilConfig,
-  autocompleteConfig,
-  baseConfig,
-  defaultConfig,
-  methodsConfig,
-  propertyPaneContent,
-  propertyPaneStyle,
-} from "./config";
-
-class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
-  static type = anvilWidgets.SECTION_WIDGET;
+class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
+  static type = anvilWidgets.ZONE_WIDGET;
 
   static getConfig(): WidgetBaseConfiguration {
     return baseConfig;
@@ -57,6 +52,10 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return propertyPaneStyle;
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -96,12 +95,11 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
     return anvilConfig;
   }
 
-  static getMethods() {
-    return methodsConfig;
-  }
-
   static getStylesheetConfig(): Stylesheet {
-    return {};
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -111,14 +109,12 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
     newWidget: FlattenedWidgetProps,
     widgetIdMap: Record<string, string>,
   ): FlattenedWidgetProps | null {
-    const widget: FlattenedWidgetProps = { ...newWidget };
-    if (widget.spaceDistributed) {
-      const newSpaceDistribution: { [key: string]: string } = {};
-      Object.keys(widget.spaceDistributed).forEach((key: string) => {
-        if (widgetIdMap[key])
-          newSpaceDistribution[widgetIdMap[key]] = widget.spaceDistributed[key];
-      });
-      widget.spaceDistributed = newSpaceDistribution;
+    let widget: FlattenedWidgetProps = { ...newWidget };
+
+    if (widget.flexGrow && widget.flexGrow === SectionColumns) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { flexGrow, ...rest } = widget;
+      widget = rest;
     }
     return widget;
   }
@@ -131,7 +127,7 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
     reverseWidgetIdMap: Record<string, string>,
   ) {
     const res: PastePayload = yield call(
-      pasteWidgetsInSection,
+      pasteWidgetsInZone,
       allWidgets,
       copiedWidgets,
       destinationInfo,
@@ -145,7 +141,7 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
     return (
       <ContainerComponent
         elevatedBackground={this.props.elevatedBackground}
-        elevation={Elevations.SECTION_ELEVATION}
+        elevation={Elevations.ZONE_ELEVATION}
         {...this.props}
       >
         <LayoutProvider {...this.props} />
@@ -154,8 +150,8 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 }
 
-export interface SectionWidgetProps extends ContainerWidgetProps<WidgetProps> {
+export interface WDSZoneWidgetProps extends ContainerWidgetProps<WidgetProps> {
   layout: LayoutProps[];
 }
 
-export default SectionWidget;
+export default WDSZoneWidget;

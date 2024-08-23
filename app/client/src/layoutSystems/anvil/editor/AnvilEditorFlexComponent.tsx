@@ -49,7 +49,6 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
     props.widgetName,
     props.isVisible,
     props.widgetType,
-    !!props.elevatedBackground,
     ref,
   );
   useAnvilWidgetDrag(props.widgetId, props.widgetType, props.layoutId, ref);

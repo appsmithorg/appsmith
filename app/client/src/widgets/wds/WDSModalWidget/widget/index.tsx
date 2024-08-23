@@ -16,8 +16,7 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { AnvilDataAttributes } from "widgets/anvil/constants";
-import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 import { Modal, ModalContent, ModalFooter, ModalHeader } from "@appsmith/wds";
 import { ModalBody } from "@appsmith/wds";

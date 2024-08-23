@@ -1,5 +1,8 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { COLORS, BUTTON_VARIANTS } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 
 import { BUTTON_VARIANTS, COLORS, objectKeys } from "@appsmith/wds";
 

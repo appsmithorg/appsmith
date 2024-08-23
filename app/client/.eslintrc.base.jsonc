@@ -15,13 +15,15 @@
     "sort-destructure-keys",
     "cypress",
     "testing-library",
-    "jest"
+    "jest",
+    "@appsmith"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
     "plugin:cypress/recommended",
     "plugin:testing-library/react",
+    "plugin:@appsmith/recommended",
     "plugin:react-hooks/recommended"
   ],
   "parserOptions": {

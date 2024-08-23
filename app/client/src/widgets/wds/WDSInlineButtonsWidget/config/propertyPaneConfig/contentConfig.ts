@@ -1,9 +1,10 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
 } from "ee/constants/messages";
 import { capitalize } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 
 import { BUTTON_VARIANTS, COLORS, objectKeys } from "@appsmith/wds";
 

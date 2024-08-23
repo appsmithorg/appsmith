@@ -8,8 +8,10 @@ import {
   Flex,
   IconButton,
   SIZES,
-  objectKeys,
+  BUTTON_VARIANTS,
+  COLORS,
 } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 
 /**
  * Icon Button is a button component that only contains an icon.

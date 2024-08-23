@@ -14,7 +14,10 @@ import { expectSaga } from "redux-saga-test-plan";
 import { select } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getWidgets } from "sagas/selectors";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import { WDSSectionWidget } from "widgets/wds/WDSSectionWidget";
+import { WDSZoneWidget } from "widgets/wds/WDSZoneWidget";
+import { WDSButtonWidget } from "widgets/wds/WDSButtonWidget";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
@@ -40,8 +43,8 @@ describe("", () => {
   beforeAll(() => {
     registerLayoutComponents();
     registerWidgets([
-      SectionWidget,
-      ZoneWidget,
+      WDSSectionWidget,
+      WDSZoneWidget,
       WDSButtonWidget,
       WDSModalWidget,
     ]);

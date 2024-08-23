@@ -66,6 +66,16 @@ import { WDSButtonWidget } from "./wds/WDSButtonWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
 import { WDSCheckboxWidget } from "./wds/WDSCheckboxWidget";
 import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
+import { WDSToolbarButtonsWidget } from "./wds/WDSToolbarButtonsWidget";
+import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
+import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
+import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
+import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
+import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
+import { WDSMenuButtonWidget } from "./wds/WDSMenuButtonWidget";
+import CustomWidget from "./CustomWidget";
+import { WDSSectionWidget } from "./wds/WDSSectionWidget";
+import { WDSZoneWidget } from "./wds/WDSZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSIconButtonWidget } from "./wds/WDSIconButtonWidget";
 import { WDSInlineButtonsWidget } from "./wds/WDSInlineButtonsWidget";
@@ -165,8 +175,8 @@ const WDSWidgets = [
   WDSRadioGroupWidget,
   WDSMenuButtonWidget,
   CustomWidget,
-  SectionWidget,
-  ZoneWidget,
+  WDSSectionWidget,
+  WDSZoneWidget,
   WDSParagraphWidget,
   WDSHeadingWidget,
   WDSModalWidget,

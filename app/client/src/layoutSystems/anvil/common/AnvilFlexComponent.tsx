@@ -19,6 +19,7 @@ import type { FlexProps } from "@appsmith/wds/src/components/Flex/src/types";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 import type { AnvilFlexComponentProps } from "../utils/types";
 import styles from "./styles.module.css";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",

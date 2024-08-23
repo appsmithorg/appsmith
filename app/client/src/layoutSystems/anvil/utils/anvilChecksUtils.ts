@@ -1,6 +1,8 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { anvilWidgets } from "widgets/wds/constants";
 import {
   updateSectionWithDefaultSpaceDistribution,
   updateSectionsDistributedSpace,

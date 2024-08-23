@@ -15,6 +15,11 @@ import { addWidgetsToChildTemplate, getAffectedLayout } from "./additionUtils";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import { createSectionAndAddWidget } from "./sectionUtils";
 
+import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
+import { anvilWidgets } from "widgets/wds/constants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
+
 /**
  * This function adds a detached widget to the main canvas.
  * This is a different saga because we don't need to generate sections, zones, etc

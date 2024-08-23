@@ -1,8 +1,9 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
-
-import { BUTTON_VARIANTS, objectKeys } from "@appsmith/wds";
+import { hideByColumnType } from "../../../widget/propertyUtils";
+import { BUTTON_VARIANTS } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 
 import { hideByColumnType } from "../../../widget/propertyUtils";
 

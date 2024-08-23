@@ -8,7 +8,10 @@ import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { AnvilDraggedWidgetTypesEnum } from "../types";
+import { anvilWidgets } from "widgets/wds/constants";
+import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 
 import { AnvilDraggedWidgetTypesEnum } from "../types";
 

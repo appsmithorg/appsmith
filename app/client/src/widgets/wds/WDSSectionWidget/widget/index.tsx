@@ -1,4 +1,5 @@
-import React, { type ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 
 import type {
   AnvilConfig,
@@ -11,18 +12,17 @@ import type {
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { SectionColumns } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
 import type {
   CopiedWidgetData,
   PasteDestinationInfo,
   PastePayload,
 } from "layoutSystems/anvil/utils/paste/types";
-import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
-import BaseWidget from "widgets/BaseWidget";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerComponent } from "widgets/anvil/Container";
 import { Elevations, anvilWidgets } from "widgets/anvil/constants";
@@ -35,10 +35,28 @@ import {
   methodsConfig,
   propertyPaneContent,
   propertyPaneStyle,
-} from "./config";
+  methodsConfig,
+  autocompleteConfig,
+} from "../config";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
+import BaseWidget from "widgets/BaseWidget";
+import type { ReactNode } from "react";
+import React from "react";
+import { ContainerComponent } from "widgets/wds/Container";
+import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
+import { Elevations, anvilWidgets } from "widgets/wds/constants";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CopiedWidgetData,
+  PasteDestinationInfo,
+  PastePayload,
+} from "layoutSystems/anvil/utils/paste/types";
+import { call } from "redux-saga/effects";
+import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
 
-class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
-  static type = anvilWidgets.ZONE_WIDGET;
+class WDSSectionWidget extends BaseWidget<WDSSectionWidgetProps, WidgetState> {
+  static type = anvilWidgets.SECTION_WIDGET;
 
   static getConfig(): WidgetBaseConfiguration {
     return baseConfig;
@@ -57,10 +75,6 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return propertyPaneStyle;
-  }
-
-  static getMethods() {
-    return methodsConfig;
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -100,11 +114,12 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
     return anvilConfig;
   }
 
+  static getMethods() {
+    return methodsConfig;
+  }
+
   static getStylesheetConfig(): Stylesheet {
-    return {
-      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
-    };
+    return {};
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -114,12 +129,14 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
     newWidget: FlattenedWidgetProps,
     widgetIdMap: Record<string, string>,
   ): FlattenedWidgetProps | null {
-    let widget: FlattenedWidgetProps = { ...newWidget };
-
-    if (widget.flexGrow && widget.flexGrow === SectionColumns) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { flexGrow, ...rest } = widget;
-      widget = rest;
+    const widget: FlattenedWidgetProps = { ...newWidget };
+    if (widget.spaceDistributed) {
+      const newSpaceDistribution: { [key: string]: string } = {};
+      Object.keys(widget.spaceDistributed).forEach((key: string) => {
+        if (widgetIdMap[key])
+          newSpaceDistribution[widgetIdMap[key]] = widget.spaceDistributed[key];
+      });
+      widget.spaceDistributed = newSpaceDistribution;
     }
     return widget;
   }
@@ -132,7 +149,7 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
     reverseWidgetIdMap: Record<string, string>,
   ) {
     const res: PastePayload = yield call(
-      pasteWidgetsInZone,
+      pasteWidgetsInSection,
       allWidgets,
       copiedWidgets,
       destinationInfo,
@@ -146,7 +163,7 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
     return (
       <ContainerComponent
         elevatedBackground={this.props.elevatedBackground}
-        elevation={Elevations.ZONE_ELEVATION}
+        elevation={Elevations.SECTION_ELEVATION}
         {...this.props}
       >
         <LayoutProvider {...this.props} />
@@ -155,8 +172,9 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   }
 }
 
-export interface ZoneWidgetProps extends ContainerWidgetProps<WidgetProps> {
+export interface WDSSectionWidgetProps
+  extends ContainerWidgetProps<WidgetProps> {
   layout: LayoutProps[];
 }
 
-export default ZoneWidget;
+export default WDSSectionWidget;

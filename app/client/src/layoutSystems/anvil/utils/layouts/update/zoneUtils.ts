@@ -14,6 +14,7 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { isLargeWidget } from "../../widgetUtils";
+import { anvilWidgets } from "widgets/wds/constants";
 import {
   hasWidgetJsPropertiesEnabled,
   isEmptyWidget,

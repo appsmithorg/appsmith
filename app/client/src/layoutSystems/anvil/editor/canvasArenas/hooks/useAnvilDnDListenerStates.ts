@@ -11,10 +11,8 @@ import { useSelector } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getWidgets } from "sagas/selectors";
-import { getSelectedWidgets } from "selectors/ui";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-
-import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
+import { useMemo } from "react";
+import { WDSZoneWidget } from "widgets/wds/WDSZoneWidget";
 import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
 import { type AnvilDragMeta, AnvilDropTargetTypesEnum } from "../types";
 import { canActivateCanvasForDraggedWidget } from "../utils/utils";
@@ -146,7 +144,7 @@ export const useAnvilDnDListenerStates = ({
   }, [widgetProps, allWidgets]);
 
   const isElevatedWidget = useMemo(() => {
-    if (widgetProps.type === ZoneWidget.type) {
+    if (widgetProps.type === WDSZoneWidget.type) {
       const isAnyZoneElevated = allSiblingsWidgetIds.some(
         (each) => !!elevatedWidgets[each],
       );

@@ -20,6 +20,9 @@ import {
   PropertyPaneConfigTemplates,
   WidgetFeaturePropertyPaneEnhancements,
 } from "../../utils/WidgetFeatures";
+import { generateReactKey } from "utils/generators";
+import { DEFAULT_WIDGET_ON_CANVAS_UI } from "widgets/wds/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export enum PropertyPaneConfigTypes {
   STYLE = "STYLE",

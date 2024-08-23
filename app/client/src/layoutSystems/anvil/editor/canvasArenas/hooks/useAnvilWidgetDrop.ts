@@ -7,7 +7,8 @@ import {
 } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useDispatch } from "react-redux";
-import { anvilWidgets } from "widgets/anvil/constants";
+import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
+import { anvilWidgets } from "widgets/wds/constants";
 
 import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
 

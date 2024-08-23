@@ -10,6 +10,9 @@ import { Elevations } from "widgets/anvil/constants";
 import { StatsComponent } from "../component";
 import * as config from "../config";
 import type { StatsWidgetProps } from "./types";
+import type { AnvilConfig } from "WidgetProvider/constants";
+import { Elevations } from "widgets/wds/constants";
+import { ContainerComponent } from "widgets/wds/Container";
 
 class WDSStatsWidget extends BaseWidget<StatsWidgetProps, WidgetState> {
   constructor(props: StatsWidgetProps) {

@@ -1,5 +1,6 @@
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import { anvilWidgets } from "widgets/anvil/constants";
+import type { HighlightPayload, HighlightRenderInfo } from "./anvilTypes";
+import { anvilWidgets } from "widgets/wds/constants";
 
 import type { HighlightPayload, HighlightRenderInfo } from "./anvilTypes";
 

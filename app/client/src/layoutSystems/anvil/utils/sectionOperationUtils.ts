@@ -16,6 +16,8 @@ import { getUpdatedListOfWidgetsAfterAddingNewWidget } from "../integrations/sag
 import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "../layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../utils/constants";
+import { anvilWidgets } from "widgets/wds/constants";
+import { getUpdatedListOfWidgetsAfterAddingNewWidget } from "../integrations/sagas/anvilWidgetAdditionSagas";
 
 /**
  * Function to get the highlight information for the last column of a Section Widget
