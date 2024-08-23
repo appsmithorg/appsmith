@@ -28,6 +28,8 @@ function UnanimatedLayout() {
   const isProtectedMode = useSelector(protectedModeSelector);
   const { areas, columns } = useGridLayoutTemplate();
 
+  const isSidebarVisible = columns[0] !== "0px";
+
   return (
     <>
       {isProtectedMode && <ProtectedCallout />}
@@ -42,7 +44,7 @@ function UnanimatedLayout() {
           }}
         >
           <LayoutContainer name={Areas.Sidebar}>
-            <Sidebar />
+            {isSidebarVisible ? <Sidebar /> : <div />}
           </LayoutContainer>
           <LayoutContainer name={Areas.Explorer}>
             <LeftPane />
