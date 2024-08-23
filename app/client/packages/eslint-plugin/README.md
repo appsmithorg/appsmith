@@ -18,11 +18,11 @@ You can create one by following the [official ESLint custom rule](https://eslint
 3. Open `src/custom-rule/rule.ts` and define your rule. Here's a basic template to get you started:
 
    ```ts
-    import type { TSESLint } from "@typescript-eslint/utils";
+   import type { TSESLint } from "@typescript-eslint/utils";
 
-    export const customRule: TSESLint.RuleModule<"useObjectKeys"> = {
-      defaultOptions: [],
-      meta: {
+   export const customRule: TSESLint.RuleModule<"useObjectKeys"> = {
+     defaultOptions: [],
+     meta: {
        type: "problem", // or "suggestion" or "layout"
        docs: {
          description: "A description of what the rule does",
@@ -32,13 +32,13 @@ You can create one by following the [official ESLint custom rule](https://eslint
        fixable: null, // or "code" if the rule can fix issues automatically
        schema: [], // JSON Schema for rule options
      },
-      create(context) {
-        return {
+     create(context) {
+       return {
          // Define the rule's behavior here
          // e.g., "Identifier": (node) => { /* logic */ }
        };
-      },
-    };
+     },
+   };
    ```
 
 ## Step 2: Update the Plugin Index File
@@ -48,23 +48,22 @@ You can create one by following the [official ESLint custom rule](https://eslint
 2. Import your custom rule and add it to the rules object in `index.ts`. For example:
 
    ```ts
-    import { customRule } from "./custom-rule/rule";
+   import { customRule } from "./custom-rule/rule";
 
-    const plugin = {
-      rules: {
-        "custom-rule": customRule,
-      },
-      configs: {
-        recommended: {
-          rules: {
-            "@appsmith/custom-rule": "warn", // Add this in recommended if you want to add this rule by default to the repository as a recommended rule.
-          },
-        },
-      },
-    };
+   const plugin = {
+     rules: {
+       "custom-rule": customRule,
+     },
+     configs: {
+       recommended: {
+         rules: {
+           "@appsmith/custom-rule": "warn", // Add this in recommended if you want to add this rule by default to the repository as a recommended rule.
+         },
+       },
+     },
+   };
 
-    module.exports = plugin;
-
+   module.exports = plugin;
    ```
 
 ## Step 3: Add Tests for Your Custom Rule
@@ -72,13 +71,13 @@ You can create one by following the [official ESLint custom rule](https://eslint
 1. Open `src/custom-rule/rule.test.ts` and write tests using a testing framework like Jest. Here's a basic example using ESLint's `RuleTester`:
 
    ```ts
-    import { TSESLint } from "@typescript-eslint/utils";
-    import { customRule } from "./rule";
+   import { TSESLint } from "@typescript-eslint/utils";
+   import { customRule } from "./rule";
 
-    const ruleTester = new TSESLint.RuleTester();
+   const ruleTester = new TSESLint.RuleTester();
 
-    ruleTester.run("custom-rule", customRule, {
-      valid: [
+   ruleTester.run("custom-rule", customRule, {
+     valid: [
        // Examples of valid code
      ],
      invalid: [
@@ -87,10 +86,10 @@ You can create one by following the [official ESLint custom rule](https://eslint
          errors: [{ message: "Your custom error message" }],
        },
      ],
-    });
+   });
    ```
 
-3. Run your tests to ensure your rule works as expected:
+2. Run your tests to ensure your rule works as expected:
 
    ```bash
    yarn run test:unit
