@@ -200,6 +200,31 @@ public class PostgresPluginTest {
                         + "    join_date DATE,\n"
                         + "    salary FLOAT4\n"
                         + ")");
+                statement.execute("CREATE TABLE \"table_name-123\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
+                statement.execute("CREATE TABLE \"table-name.with.dots\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
+
+                statement.execute("CREATE TABLE \"table@name#special$chars\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -247,9 +272,19 @@ public class PostgresPluginTest {
             }
             try (Statement statement = connection.createStatement()) {
                 statement.execute(
-                        "INSERT INTO \"testing-table-data\" VALUES (" 
-                        + " 1, '', 30, '', '2023-07-31', 75000.00" 
-                        + ")");
+                        "INSERT INTO \"testing-table-data\" VALUES (" + " 1, '', 30, '', '2023-07-31', 75000.00" + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO \"table_name-123\" VALUES ("
+                        + " 1, 'John Doe', 30, 'john.doe@example.com', '2023-07-31', 75000.00" + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO \"table-name.with.dots\" VALUES ("
+                        + " 1, 'Jane Doe', 28, 'jane.doe@example.com', '2023-08-01', 65000.00" + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO \"table@name#special$chars\" VALUES ("
+                        + " 1, 'Alice Smith', 35, 'alice.smith@example.com', '2023-08-15', 80000.00" + ")");
             }
 
         } catch (SQLException throwable) {
@@ -312,6 +347,198 @@ public class PostgresPluginTest {
             }
         }
         return tableFound;
+    }
+
+    @Test
+    public void testStructure_containing_special_chars() throws SQLException {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.table@name#special$chars");
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"table@name#special$chars_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("table@name#special$chars_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"table@name#special$chars\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"table@name#special$chars\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"table@name#special$chars\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"table@name#special$chars\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure_containing_underscore_and_hyphen() throws SQLException {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.table_name-123");
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"table_name-123_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("table_name-123_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"table_name-123\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"table_name-123\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"table_name-123\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"table_name-123\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure_containing_dots() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.table-name.with.dots");
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"table-name.with.dots_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("table-name.with.dots_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"table-name.with.dots\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"table-name.with.dots\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"table-name.with.dots\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"table-name.with.dots\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -516,7 +743,7 @@ public class PostgresPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(5, structure.getTables().size());
+                    assertEquals(9, structure.getTables().size());
 
                     DatasourceStructure.Table campusTable = findTableByName(structure.getTables(), "public.campus");
                     assertNotNull(campusTable);
@@ -722,12 +949,10 @@ public class PostgresPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(6, structure.getTables().size());
+                    assertEquals(9, structure.getTables().size());
 
-                    System.out.println("table present" + structure.getTables());
                     DatasourceStructure.Table sampleTable =
                             findTableByName(structure.getTables(), "public.testing-table-data");
-                    System.out.println("sampletable" + sampleTable);
                     assertNotNull(sampleTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
                     assertArrayEquals(
