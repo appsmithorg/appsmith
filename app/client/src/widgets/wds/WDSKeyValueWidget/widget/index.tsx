@@ -1,3 +1,4 @@
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 import { KeyValueIcon, KeyValueThumbnail } from "appsmith-icons";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
@@ -9,6 +10,7 @@ class WDSKeyValueWidget extends WDSInputWidget {
     return {
       ...super.getConfig(),
       displayOrder: undefined,
+      tags: [WIDGET_TAGS.INPUTS],
       name: "KeyValue",
     };
   }

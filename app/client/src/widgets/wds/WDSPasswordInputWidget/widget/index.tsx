@@ -1,3 +1,4 @@
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 import { InputIcon, InputThumbnail } from "appsmith-icons";
 import { INPUT_TYPES } from "widgets/wds/WDSInputWidget/constants";
@@ -10,6 +11,7 @@ class WDSPasswordInputWidget extends WDSInputWidget {
     return {
       ...super.getConfig(),
       displayOrder: undefined,
+      tags: [WIDGET_TAGS.INPUTS],
       name: "Password Input",
     };
   }

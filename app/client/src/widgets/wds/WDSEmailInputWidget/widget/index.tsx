@@ -1,5 +1,6 @@
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 import { InputIcon, InputThumbnail } from "appsmith-icons";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { INPUT_TYPES } from "widgets/wds/WDSInputWidget/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
@@ -10,6 +11,7 @@ class WDSEmailInputWidget extends WDSInputWidget {
     return {
       ...super.getConfig(),
       displayOrder: undefined,
+      tags: [WIDGET_TAGS.INPUTS],
       name: "Email Input",
     };
   }
