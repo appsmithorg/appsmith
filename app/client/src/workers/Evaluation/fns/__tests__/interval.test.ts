@@ -1,3 +1,5 @@
+jest.useFakeTimers();
+
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ActionEntity } from "ee/entities/DataTree/types";
 import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
@@ -8,8 +10,6 @@ import { createEvaluationContext } from "workers/Evaluation/evaluate";
 
 import { overrideWebAPIs } from "../overrides";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
-
-jest.useFakeTimers();
 
 const dataTree: DataTree = {
   action1: {

@@ -1,11 +1,11 @@
+const updateAndSaveLayoutMock = jest.fn();
+
 import {
   batchUpdateWidgetDynamicPropertySaga,
   handleUpdateWidgetDynamicProperty,
   removeDynamicBindingProperties,
   setWidgetDynamicPropertySaga,
 } from "./WidgetOperationSagas";
-
-const updateAndSaveLayoutMock = jest.fn();
 
 const widget = {
   isVisible: "true",

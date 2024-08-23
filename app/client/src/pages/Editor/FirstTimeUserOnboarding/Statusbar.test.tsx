@@ -1,3 +1,5 @@
+const dispatch = jest.fn();
+
 import React from "react";
 
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
@@ -9,8 +11,6 @@ import { render } from "test/testUtils";
 import OnboardingStatusbar from "./Statusbar";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { getStore } from "./testUtils";
-
-const dispatch = jest.fn();
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

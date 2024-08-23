@@ -8,21 +8,21 @@ import React, {
 
 import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
-import { builderURL, viewerURL } from "ee/RouteBuilder";
 import type {
   ApplicationPagePayload,
   UpdateApplicationPayload,
 } from "ee/api/ApplicationApi";
 import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import {
   getIsErroredSavingAppName,
   getIsSavingAppName,
 } from "ee/selectors/applicationSelectors";
 import {
-  PERMISSION_TYPE,
   hasDeleteApplicationPermission,
   isPermitted,
+  PERMISSION_TYPE,
 } from "ee/utils/permissionHelpers";
 import type { ApplicationPayload } from "entities/Application";
 import { noop } from "lodash";
@@ -43,13 +43,13 @@ import {
   MenuContent,
   MenuItem,
   MenuTrigger,
+  toast,
 } from "@appsmith/ads";
-import { toast } from "@appsmith/ads";
 import type { AppIconName } from "@appsmith/ads-old";
 import {
   ColorSelector,
-  EditInteractionKind,
   EditableText,
+  EditInteractionKind,
   IconSelector,
   SavingState,
 } from "@appsmith/ads-old";

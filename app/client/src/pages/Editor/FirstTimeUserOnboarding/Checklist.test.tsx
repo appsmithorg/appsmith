@@ -1,3 +1,6 @@
+const history = jest.fn();
+const dispatch = jest.fn();
+
 import React from "react";
 
 import "@testing-library/jest-dom";
@@ -12,9 +15,6 @@ import { fireEvent, render, screen } from "test/testUtils";
 
 import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
-
-const history = jest.fn();
-const dispatch = jest.fn();
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
