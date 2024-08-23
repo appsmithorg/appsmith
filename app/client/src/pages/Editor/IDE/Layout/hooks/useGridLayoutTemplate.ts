@@ -47,31 +47,62 @@ function useGridLayoutTemplate(): ReturnValue {
     function updateIDEColumns() {
       switch (appState) {
         case EditorState.DATA:
-          setColumns([
-            SIDEBAR_WIDTH,
-            "300px",
-            (windowWidth - 300 - 50 + "px") as AnimatedGridUnit,
-            "0px",
-          ]);
+          if (isPreviewMode || isProtectedMode) {
+            setColumns([
+              "0px",
+              "0px",
+              (windowWidth + "px") as AnimatedGridUnit,
+              "0px",
+            ]);
+          } else {
+            setColumns([
+              SIDEBAR_WIDTH,
+              "300px",
+              (windowWidth - 300 - 50 + "px") as AnimatedGridUnit,
+              "0px",
+            ]);
+          }
+
           break;
         case EditorState.SETTINGS:
-          setColumns([
-            SIDEBAR_WIDTH,
-            (APP_SETTINGS_PANE_WIDTH + "px") as AnimatedGridUnit,
-            (windowWidth -
-              APP_SIDEBAR_WIDTH -
-              APP_SETTINGS_PANE_WIDTH +
-              "px") as AnimatedGridUnit,
-            "0px",
-          ]);
+          if (isPreviewMode || isProtectedMode) {
+            setColumns([
+              "0px",
+              "0px",
+              (windowWidth + "px") as AnimatedGridUnit,
+              "0px",
+            ]);
+          } else {
+            setColumns([
+              SIDEBAR_WIDTH,
+              (APP_SETTINGS_PANE_WIDTH + "px") as AnimatedGridUnit,
+              (windowWidth -
+                APP_SIDEBAR_WIDTH -
+                APP_SETTINGS_PANE_WIDTH +
+                "px") as AnimatedGridUnit,
+              "0px",
+            ]);
+          }
           break;
         case EditorState.LIBRARIES:
-          setColumns([
-            SIDEBAR_WIDTH,
-            "255px",
-            (windowWidth - APP_SIDEBAR_WIDTH - 255 + "px") as AnimatedGridUnit,
-            "0px",
-          ]);
+          if (isPreviewMode || isProtectedMode) {
+            setColumns([
+              "0px",
+              "0px",
+              (windowWidth + "px") as AnimatedGridUnit,
+              "0px",
+            ]);
+          } else {
+            setColumns([
+              SIDEBAR_WIDTH,
+              "255px",
+              (windowWidth -
+                APP_SIDEBAR_WIDTH -
+                255 +
+                "px") as AnimatedGridUnit,
+              "0px",
+            ]);
+          }
           break;
         case EditorState.EDITOR:
           if (isPreviewMode || isProtectedMode) {
