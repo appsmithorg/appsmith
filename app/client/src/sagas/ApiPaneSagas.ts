@@ -746,6 +746,7 @@ function* handleApiNameChangeSuccessSaga(
       type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       payload: {
         actionId,
+        show: true,
         error: { message: createMessage(ERROR_ACTION_RENAME_FAIL, "") },
         logToSentry: true,
       },

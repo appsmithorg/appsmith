@@ -172,7 +172,6 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
-import { LOG_CATEGORY, Severity } from "../../entities/AppsmithConsole";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1267,13 +1266,9 @@ function* executePageLoadActionsSaga(
     checkAndLogErrorsIfCyclicDependency(layoutOnLoadActionErrors);
   } catch (e) {
     log.error(e);
-    AppsmithConsole.addErrors([
-      {
-        payload: { text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS) },
-        severity: Severity.ERROR,
-        category: LOG_CATEGORY.PLATFORM_GENERATED,
-      },
-    ]);
+    AppsmithConsole.error({
+      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
+    });
   }
   endSpan(span);
 }

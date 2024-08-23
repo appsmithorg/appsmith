@@ -707,6 +707,7 @@ function* moveActionSaga(
       moveActionError({
         id: action.payload.id,
         originalPageId: action.payload.originalPageId,
+        show: true,
         error: {
           message: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
         },
@@ -799,6 +800,7 @@ function* copyActionSaga(
     yield put(
       copyActionError({
         ...action.payload,
+        show: true,
         error: { message: createMessage(ERROR_ACTION_COPY_FAIL, actionName) },
       }),
     );

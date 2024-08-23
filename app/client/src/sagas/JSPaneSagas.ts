@@ -374,6 +374,7 @@ function* handleJSObjectNameChangeSuccessSaga(
       type: ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR,
       payload: {
         actionId,
+        show: true,
         error: {
           message: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
         },

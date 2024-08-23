@@ -195,6 +195,7 @@ export function* copyJSCollectionSaga(
     yield put(
       copyJSCollectionError({
         ...action.payload,
+        show: true,
         error: {
           message: createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName),
         },
@@ -273,6 +274,7 @@ export function* moveJSCollectionSaga(
       moveJSCollectionError({
         id: action.payload.id,
         originalPageId: actionObject.pageId,
+        show: true,
         error: {
           message: createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name),
         },
@@ -379,6 +381,7 @@ export function* saveJSObjectName(
       payload: {
         actionId: action.payload.id,
         oldName: collection.config.name,
+        show: true,
         error: {
           message: createMessage(
             ERROR_JS_COLLECTION_RENAME_FAIL,

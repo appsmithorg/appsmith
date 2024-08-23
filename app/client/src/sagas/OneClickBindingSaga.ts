@@ -378,6 +378,7 @@ function* BindWidgetToDatasource(
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR,
       payload: {
+        show: true,
         error: {
           message: e instanceof Error ? e.message : "Failed to Bind to widget",
         },

@@ -470,7 +470,7 @@ export function* deleteDatasourceSaga(
     );
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
-      payload: { error, id: actionPayload.payload.id },
+      payload: { error, id: actionPayload.payload.id, show: true },
     });
     AppsmithConsole.error({
       text: (error as Error).message,
@@ -732,9 +732,12 @@ function* getOAuthAccessTokenSaga(
     log.error(OAUTH_APPSMITH_TOKEN_NOT_FOUND);
     yield put({
       type: ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
+      show: true,
       payload: {
         datasourceId: datasourceId,
-        message: OAUTH_AUTHORIZATION_APPSMITH_ERROR,
+        error: {
+          message: OAUTH_AUTHORIZATION_APPSMITH_ERROR,
+        },
       },
     });
     return;
@@ -919,7 +922,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           payload: {
             id: datasource.id,
             environmentId: currentEnvironment,
-            message: responseData.invalids.join(", "),
+            show: true,
+            error: { message: responseData.invalids.join(", ") },
           },
         });
         AppsmithConsole.error({
@@ -2091,7 +2095,7 @@ function* updateDatasourceAuthStateSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
-      payload: { error, message: OAUTH_AUTHORIZATION_FAILED },
+      payload: { error, show: true, message: OAUTH_AUTHORIZATION_FAILED },
     });
   }
 }

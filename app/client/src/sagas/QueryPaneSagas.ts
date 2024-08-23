@@ -495,6 +495,7 @@ function* handleNameChangeSuccessSaga(
     yield put({
       type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
       payload: {
+        show: true,
         error: {
           message: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
         },
