@@ -951,10 +951,8 @@ public class PostgresPluginTest {
                     assertNotNull(structure);
                     assertEquals(9, structure.getTables().size());
 
-                    System.out.println("table present" + structure.getTables());
                     DatasourceStructure.Table sampleTable =
                             findTableByName(structure.getTables(), "public.testing-table-data");
-                    System.out.println("sampletable" + sampleTable);
                     assertNotNull(sampleTable);
                     assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
                     assertArrayEquals(
