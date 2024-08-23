@@ -68,7 +68,7 @@ function renderComponent(
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       ref={props.reference}
-      size="md"
+      size="sm"
       type={props.dataType}
       value={props.input.value}
     />

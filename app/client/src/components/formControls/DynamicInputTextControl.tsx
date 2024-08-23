@@ -90,6 +90,7 @@ export function InputText(props: {
         dataTreePath={dataTreePath}
         disabled={props.disabled}
         evaluatedPopUpLabel={props?.label || ""}
+        height="24px"
         name={name}
         placeholder={placeholder}
         showLightningMenu={false}

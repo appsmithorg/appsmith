@@ -293,7 +293,7 @@ function ConditionComponent(props: any, index: number) {
           e.stopPropagation();
           props.onDeletePressed(index);
         }}
-        size="md"
+        size="sm"
         startIcon="close"
       />
     </ConditionBox>
@@ -414,7 +414,7 @@ function ConditionBlock(props: any) {
                       e.stopPropagation();
                       onDeletePressed(index);
                     }}
-                    size="md"
+                    size="sm"
                     startIcon="close"
                     top={"24px"}
                   />
@@ -449,7 +449,7 @@ function ConditionBlock(props: any) {
               })
             // Add empty and key and value as it will be required to create binding paths in getBindingPathsOfAction() at ActionProperties.ts
           }
-          size="md"
+          size="sm"
           startIcon="add-more"
         >
           Add condition
@@ -480,7 +480,7 @@ function ConditionBlock(props: any) {
                 });
               }
             }}
-            size="md"
+            size="sm"
             startIcon="add-more"
           >
             Add group condition

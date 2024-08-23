@@ -99,7 +99,7 @@ function RenderFilePicker(props: RenderFilePickerProps) {
           onClick={() => {
             setIsOpen(true);
           }}
-          size="md"
+          size="sm"
         >
           Select
         </Button>

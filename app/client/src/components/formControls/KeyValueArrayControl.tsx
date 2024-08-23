@@ -156,7 +156,7 @@ function KeyValueRow(
                   className={"help-icon"}
                   color="var(--ads-v2-color-fg)"
                   name="question-line"
-                  size="md"
+                  size="sm"
                 />
               </Tooltip>
             )}
@@ -175,7 +175,7 @@ function KeyValueRow(
                   className={"help-icon"}
                   color="var(--ads-v2-color-fg)"
                   name="question-line"
-                  size="md"
+                  size="sm"
                 />
               </Tooltip>
             )}
@@ -243,7 +243,7 @@ function KeyValueRow(
                 isIconButton
                 kind="tertiary"
                 onClick={() => props.fields.remove(index)}
-                size="md"
+                size="sm"
                 startIcon="delete"
               />
             )}
@@ -266,7 +266,7 @@ function KeyValueRow(
         className="t--add-field t--addApiHeader btn-add-more"
         kind="tertiary"
         onClick={addRow}
-        size="md"
+        size="sm"
         startIcon="add-more"
       >
         Add more
@@ -334,7 +334,7 @@ function renderInput(
       name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
-      size="md"
+      size="sm"
       type={props.dataType}
       value={props.input.value}
     />

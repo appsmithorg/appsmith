@@ -105,7 +105,7 @@ function NestedComponents(props: any) {
                   e.stopPropagation();
                   props.fields.remove(index);
                 }}
-                size="md"
+                size="sm"
                 startIcon="close"
                 top={index === 0 ? "20px" : ""}
               />

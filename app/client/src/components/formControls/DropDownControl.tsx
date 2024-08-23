@@ -258,6 +258,7 @@ function renderDropdown(
       onSelect={(value) => onSelectOptions(value)}
       placeholder={props?.placeholderText}
       showSearch={props.isSearchable}
+      size="sm"
       value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
     >
       {options.map((option) => {
