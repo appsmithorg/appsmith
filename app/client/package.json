@@ -342,6 +342,7 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-perf": "^3.3.2",
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "eslint-plugin-storybook": "^0.6.15",
     "eslint-plugin-testing-library": "^6.2.0",
