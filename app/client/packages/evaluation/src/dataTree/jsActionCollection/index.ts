@@ -1,5 +1,5 @@
 import { EvaluationSubstitutionType, type DependencyMap } from "../../common";
-import { ENTITY_TYPE } from "../ee";
+import { ENTITY_TYPE } from "@appsmith/types";
 
 interface JSConfig {
   id: string;

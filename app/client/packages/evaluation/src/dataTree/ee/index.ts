@@ -1,1 +1,2 @@
-export * from "./enum";
+export * from "./moduleInput";
+export * from "./moduleInstance";

@@ -12,7 +12,7 @@ import {
   isJSAction,
   isWidget,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { Module } from "ee/constants/ModuleConstants";
+
 interface SetOverridingPropertyParams {
   key: string;
   value: string;
@@ -63,16 +63,6 @@ export const setOverridingProperty = ({
   if (type === OverridingPropertyType.META && defaultPropertyName) {
     overridingPropertyPaths[defaultPropertyName].push(overridingPropertyKey);
   }
-};
-
-export const generateDataTreeModuleInputs = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  moduleInputs: Module["inputsForm"],
-) => {
-  return {
-    unEvalEntity: null,
-    configEntity: null,
-  };
 };
 
 export function isWidgetActionOrJsObject(

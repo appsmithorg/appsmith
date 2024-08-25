@@ -4,7 +4,7 @@ import {
   EvaluationSubstitutionType,
   type DependencyMap,
 } from "../../common";
-import { ENTITY_TYPE } from "../ee";
+import { ENTITY_TYPE } from "@appsmith/types";
 import type { PluginType } from "@appsmith/types";
 import {
   ViewTypes,

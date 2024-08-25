@@ -2,8 +2,6 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "@appsmith/evaluation";
-
-import { generateDataTreeModuleInputs } from "ee/entities/DataTree/utils";
 import type {
   DataTreeSeed,
   AppsmithEntity,
@@ -15,7 +13,6 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import isEmpty from "lodash/isEmpty";
-import { generateModuleInstance } from "ee/entities/DataTree/dataTreeModuleInstance";
 import {
   endSpan,
   startNestedSpan,
@@ -24,6 +21,8 @@ import {
 import {
   generateDataTreeJSAction,
   generateDataTreeAction,
+  generateDataTreeModuleInputs,
+  generateModuleInstance,
 } from "@appsmith/evaluation";
 
 export class DataTreeFactory {
