@@ -4,7 +4,7 @@ import React, { useCallback } from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
-import { PluginType, SlashCommand } from "entities/Action";
+import { SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
@@ -21,6 +21,7 @@ import history, { NavigationMethod } from "utils/history";
 import type { Plugin } from "api/PluginApi";
 import { EDIT, createMessage } from "ee/constants/messages";
 import { getShowHintOptions } from "./commandsHelper";
+import { PluginType } from "@appsmith/types";
 
 export enum Shortcuts {
   PLUS = "PLUS",

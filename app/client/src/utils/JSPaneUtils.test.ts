@@ -1,4 +1,4 @@
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import type { JSCollection } from "entities/JSCollection";
 import type { ParsedBody } from "./JSPaneUtils";
 import { getDifferenceInJSCollection } from "./JSPaneUtils";

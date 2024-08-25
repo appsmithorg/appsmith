@@ -7,7 +7,6 @@ import type { Plugin } from "api/PluginApi";
 import {
   ActionCreationSourceTypeEnum,
   ActionExecutionContext,
-  PluginType,
   type Action,
   type QueryActionConfig,
 } from "entities/Action";
@@ -50,6 +49,7 @@ import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { fetchActions, runAction } from "actions/pluginActionActions";
 import { toast } from "@appsmith/ads";
 import WidgetFactory from "WidgetProvider/factory";
+import { PluginType } from "@appsmith/types";
 
 export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },

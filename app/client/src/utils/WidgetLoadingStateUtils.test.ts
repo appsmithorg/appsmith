@@ -1,4 +1,4 @@
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import type {
   WidgetEntity,
   ActionEntity,

@@ -9,7 +9,7 @@ import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
 import { getPlugin } from "ee/selectors/entitiesSelector";
 import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 import { getDefaultEnvId } from "ee/api/ApiUtils";
 import { EnvConfigSection } from "ee/components/EnvConfigSection";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";

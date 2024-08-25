@@ -1,6 +1,6 @@
 import { getJSEntityItemUrl, getJSUrl } from "./utils";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { EditorState } from "ee/entities/IDE/constants";

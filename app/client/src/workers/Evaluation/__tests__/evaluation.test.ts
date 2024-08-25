@@ -9,7 +9,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "@appsmith/evaluation";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { RenderModes } from "constants/WidgetConstants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { ValidationTypes } from "constants/WidgetValidation";
 import WidgetFactory from "WidgetProvider/factory";

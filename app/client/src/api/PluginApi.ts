@@ -1,7 +1,8 @@
 import Api from "api/Api";
 import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
-import type { PluginPackageName, PluginType } from "entities/Action";
+import type { PluginPackageName } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "ee/constants/ApiConstants";
 

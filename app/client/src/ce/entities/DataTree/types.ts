@@ -1,7 +1,8 @@
 import type { ActionResponse } from "api/ActionAPI";
 import type { PluginId } from "api/PluginApi";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
-import type { ActionConfig, PluginType } from "entities/Action";
+import type { ActionConfig } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";

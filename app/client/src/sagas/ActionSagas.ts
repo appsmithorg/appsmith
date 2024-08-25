@@ -64,12 +64,7 @@ import type {
   SlashCommandPayload,
 } from "entities/Action";
 import { isGraphqlPlugin, ActionCreationSourceTypeEnum } from "entities/Action";
-import {
-  isAPIAction,
-  PluginPackageName,
-  PluginType,
-  SlashCommand,
-} from "entities/Action";
+import { isAPIAction, PluginPackageName, SlashCommand } from "entities/Action";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import {
   getAction,
@@ -148,6 +143,7 @@ import {
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { PluginType } from "@appsmith/types";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",

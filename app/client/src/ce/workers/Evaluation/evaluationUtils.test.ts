@@ -43,7 +43,7 @@ import TableWidget from "widgets/TableWidget";
 import InputWidget from "widgets/InputWidgetV2";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import { Severity } from "entities/AppsmithConsole";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 
 // to check if logWarn was called.

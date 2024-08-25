@@ -6,7 +6,7 @@ import {
 } from "ee/constants/forms";
 import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
 import { diff } from "deep-diff";
-import { PluginName, PluginPackageName, PluginType } from "entities/Action";
+import { PluginName, PluginPackageName } from "entities/Action";
 import type {
   Datasource,
   DatasourceStructure,
@@ -27,6 +27,8 @@ import {
   NOSQL_PLUGINS_DEFAULT_TEMPLATE_TYPE,
   SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE,
 } from "constants/Datasource";
+import { PluginType } from "@appsmith/types";
+
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(

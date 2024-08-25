@@ -3,9 +3,9 @@ import type { AxiosPromise } from "axios";
 import type { JSCollection } from "entities/JSCollection";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
-import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import type { PluginType } from "@appsmith/types";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse<JSCollection>;
 

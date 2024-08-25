@@ -1,14 +1,14 @@
-import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import {
-  getBindingAndReactivePathsOfAction,
-  renameActionConfigToConfig,
-} from "entities/Action/actionProperties";
 import type {
   ActionEntity,
   ActionEntityConfig,
 } from "ee/entities/DataTree/types";
+import {
+  getBindingAndReactivePathsOfAction,
+  renameActionConfigToConfig,
+} from "@appsmith/evaluation";
 
 export const generateDataTreeAction = (
   action: ActionData,
@@ -20,7 +20,10 @@ export const generateDataTreeAction = (
   unEvalEntity: ActionEntity;
   configEntity: ActionEntityConfig;
 } => {
-  let dynamicBindingPathList: DynamicPath[] = [];
+  let dynamicBindingPathList: {
+    key: string;
+    value?: string;
+  }[] = [];
   let datasourceUrl = "";
 
   // update paths

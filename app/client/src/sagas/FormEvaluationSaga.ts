@@ -17,7 +17,6 @@ import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
 import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
-import { renameActionConfigToConfig } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
@@ -31,6 +30,7 @@ import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import { renameActionConfigToConfig } from "@appsmith/evaluation";
 
 export interface FormEvalActionPayload {
   formId: string;

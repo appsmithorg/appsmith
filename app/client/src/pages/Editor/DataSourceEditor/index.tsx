@@ -82,7 +82,7 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "ee/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";

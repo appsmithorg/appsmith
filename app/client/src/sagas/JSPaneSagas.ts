@@ -62,7 +62,7 @@ import {
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
@@ -100,6 +100,7 @@ import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { updateJSCollectionAPICall } from "ee/sagas/ApiCallerSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { PluginType } from "@appsmith/types";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;

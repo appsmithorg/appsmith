@@ -7,7 +7,7 @@ import { getJsCollectionByBaseId } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 import { jsCollectionIdURL } from "ee/RouteBuilder";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router";

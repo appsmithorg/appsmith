@@ -49,7 +49,7 @@ import type {
   ApiAction,
   CreateApiActionDefaultsParams,
 } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import log from "loglevel";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
@@ -85,6 +85,7 @@ import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { ApplicationPayload } from "entities/Application";
+import { PluginType } from "@appsmith/types";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,

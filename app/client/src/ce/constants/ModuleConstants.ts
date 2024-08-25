@@ -1,4 +1,4 @@
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 
 type ID = string;
 

@@ -1,4 +1,4 @@
-import { PluginType, type Action } from "entities/Action";
+import { type Action } from "entities/Action";
 import type { EntityInfo } from "../types";
 import { getAction } from "ee/selectors/entitiesSelector";
 import { select } from "redux-saga/effects";
@@ -7,6 +7,7 @@ import {
   ApiPaneNavigation,
   QueryPaneNavigation,
 } from "./exports";
+import { PluginType } from "@appsmith/types";
 
 export default class ActionPaneNavigationFactory {
   static *create(entityInfo: EntityInfo) {

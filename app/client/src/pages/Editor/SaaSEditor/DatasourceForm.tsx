@@ -42,7 +42,7 @@ import {
   isEnabledForPreviewData,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";

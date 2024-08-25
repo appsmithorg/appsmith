@@ -1,4 +1,4 @@
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import { generateDataTreeJSAction } from "@appsmith/evaluation";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 

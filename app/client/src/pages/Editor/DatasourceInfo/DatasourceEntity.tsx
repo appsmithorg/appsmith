@@ -9,7 +9,7 @@ import history, { NavigationMethod } from "utils/history";
 import { updateDatasourceName } from "actions/datasourceActions";
 import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
-import { isStoredDatasource, PluginType } from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import { getAction } from "ee/selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
@@ -19,6 +19,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";
+import { PluginType } from "@appsmith/types";
 
 interface ExplorerDatasourceEntityProps {
   plugin: Plugin;

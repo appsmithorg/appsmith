@@ -14,7 +14,7 @@ import {
 } from "ee/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { Icon } from "@appsmith/ads";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";

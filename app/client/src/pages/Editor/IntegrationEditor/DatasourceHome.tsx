@@ -23,7 +23,7 @@ import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { Spinner } from "@appsmith/ads";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import {
@@ -33,6 +33,7 @@ import {
 import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import history from "utils/history";
+import { PluginType } from "@appsmith/types";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {

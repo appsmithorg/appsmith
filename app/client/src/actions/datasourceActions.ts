@@ -11,7 +11,7 @@ import type {
   FilePickerActionStatus,
   MockDatasource,
 } from "entities/Datasource";
-import type { PluginType } from "entities/Action";
+import type { PluginType } from "@appsmith/types";
 import type { ApiResponse, ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {

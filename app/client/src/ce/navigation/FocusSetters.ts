@@ -4,7 +4,7 @@ import {
   datasourcesEditorIdURL,
   jsCollectionIdURL,
 } from "ee/RouteBuilder";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils";

@@ -1,7 +1,8 @@
 import * as Factory from "factory.ts";
 import type { SaaSAction } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { PluginIDs } from "test/factories/MockPluginsState";
+import { PluginType } from "@appsmith/types";
 
 const pageId = "0123456789abcdef00000000";
 export const GoogleSheetFactory = Factory.Sync.makeFactory<SaaSAction>({

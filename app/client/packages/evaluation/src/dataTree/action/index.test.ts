@@ -1,9 +1,7 @@
-import type { Action } from "entities/Action/index";
-import { PluginType } from "entities/Action/index";
-import { getBindingAndReactivePathsOfAction } from "entities/Action/actionProperties";
-import { EvaluationSubstitutionType } from "@appsmith/evaluation";
+import { EvaluationSubstitutionType } from "../../common";
+import { getBindingAndReactivePathsOfAction } from "./index";
 
-const DEFAULT_ACTION: Action = {
+const DEFAULT_ACTION = {
   actionConfiguration: {},
   cacheResponse: "",
   datasource: {
@@ -22,7 +20,7 @@ const DEFAULT_ACTION: Action = {
   pageId: "",
   pluginId: "",
   messages: [],
-  pluginType: PluginType.DB,
+  pluginType: "DB",
 };
 
 describe("getReactivePathsOfAction", () => {
@@ -148,7 +146,6 @@ describe("getReactivePathsOfAction", () => {
     };
 
     const response = getBindingAndReactivePathsOfAction(
-      // @ts-expect-error: Types are not available
       basicAction,
       config,
     ).reactivePaths;
@@ -206,7 +203,6 @@ describe("getReactivePathsOfAction", () => {
     };
 
     const response = getBindingAndReactivePathsOfAction(
-      // @ts-expect-error: Types are not available
       basicAction,
       config,
     ).reactivePaths;

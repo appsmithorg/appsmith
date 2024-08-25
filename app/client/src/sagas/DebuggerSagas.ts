@@ -35,7 +35,6 @@ import {
   getAppMode,
 } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
@@ -56,6 +55,7 @@ import {
   transformAddErrorLogsSaga,
   transformDeleteErrorLogsSaga,
 } from "ee/sagas/helpers";
+import { PluginType } from "@appsmith/types";
 
 let blockedSource: string | null = null;
 

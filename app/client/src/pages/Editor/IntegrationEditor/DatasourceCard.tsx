@@ -1,5 +1,5 @@
 import type { Datasource } from "entities/Datasource";
-import { isStoredDatasource, PluginType } from "entities/Action";
+import { isStoredDatasource } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { debounce, isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -57,6 +57,7 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useEditorType } from "ee/hooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { PluginType } from "@appsmith/types";
 
 const Wrapper = styled.div`
   padding: 15px;

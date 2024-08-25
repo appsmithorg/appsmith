@@ -1,6 +1,6 @@
 import type { EntityItem } from "ee/entities/IDE/constants";
 import { groupAndSortEntitySegmentList } from "./appIDESelectors";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 
 describe("groupAndSortEntitySegmentList", () => {
   it("should group and sort entity segment list alphabetically", () => {

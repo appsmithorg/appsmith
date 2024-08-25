@@ -8,7 +8,7 @@ import {
   getPlugin,
 } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import {
   generateTemplateFormURL,

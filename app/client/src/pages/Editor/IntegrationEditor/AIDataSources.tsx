@@ -5,7 +5,7 @@ import { createTempDatasourceFromForm } from "actions/datasourceActions";
 import type { AppState } from "ee/reducers";
 import type { Plugin } from "api/PluginApi";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 export const StyledContainer = styled.div`

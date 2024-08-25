@@ -24,7 +24,7 @@ import {
   isMatching,
   SEARCH_ITEM_TYPES,
 } from "./utils";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import { integrationEditorURL } from "ee/RouteBuilder";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";

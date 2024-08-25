@@ -6,7 +6,7 @@ import {
 } from "ee/constants/messages";
 import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { EntityTypeValue } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "ee/selectors/entitiesSelector";
@@ -29,6 +29,7 @@ import {
   createNewJSCollectionBasedOnParentEntity,
 } from "ee/actions/helpers";
 import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
+import { PluginType } from "@appsmith/types";
 
 export type SelectEvent =
   | React.MouseEvent

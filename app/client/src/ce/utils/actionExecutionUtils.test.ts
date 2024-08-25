@@ -1,6 +1,6 @@
 import { getTestPayloadFromCollectionData } from "./actionExecutionUtils";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import configureStore from "redux-mock-store";
 
 describe("getTestPayloadFromCollectionData", () => {

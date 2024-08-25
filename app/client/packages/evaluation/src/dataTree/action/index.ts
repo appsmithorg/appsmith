@@ -1,10 +1,11 @@
-import type { Action } from "entities/Action/index";
 import get from "lodash/get";
 import {
   convertPathToString,
   EvaluationSubstitutionType,
-  getAllBindingPathsForGraphqlPagination,
-} from "@appsmith/evaluation";
+  type DependencyMap,
+} from "../../common";
+import { ENTITY_TYPE } from "../ee";
+import type { PluginType } from "@appsmith/types";
 import {
   ViewTypes,
   PaginationSubComponent,
@@ -15,6 +16,7 @@ import {
   ENTITY_SELECTOR_CONTROL_TYPES,
 } from "@appsmith/types";
 import { getFormControlViewType, isFormControlHidden } from "@appsmith/utils";
+import { getAllBindingPathsForGraphqlPagination } from "../../dynamicBinding";
 
 const dynamicFields = [
   FormControlTypes.QUERY_DYNAMIC_TEXT,
@@ -35,7 +37,11 @@ const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
 };
 
 export const getBindingAndReactivePathsOfAction = (
-  action: Action,
+  action: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    actionConfiguration: any;
+  },
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfig?: any[],
@@ -255,3 +261,130 @@ export const getBindingAndReactivePathsOfAction = (
 
 export const renameActionConfigToConfig = (propertyPath: string) =>
   propertyPath.replace("actionConfiguration.", "config.");
+
+export const generateDataTreeAction = (
+  action: {
+    isLoading: boolean;
+    config: {
+      id: string;
+      name: string;
+      pluginId: string;
+      dynamicBindingPathList: { key: string; value?: string }[];
+      datasource: { datasourceConfiguration?: { url?: string } };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      actionConfiguration: any;
+      pluginType: PluginType;
+    };
+    data?: {
+      statusCode: string;
+      isExecutionSuccess?: boolean;
+      headers: Record<string, string[]>;
+    };
+  },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  editorConfig: any[],
+  dependencyConfig: DependencyMap = {},
+): {
+  unEvalEntity: {
+    actionId: string;
+    run: Record<string, unknown>;
+    clear: Record<string, unknown>;
+    data: unknown;
+    isLoading: boolean;
+    responseMeta: {
+      statusCode?: string;
+      isExecutionSuccess: boolean;
+      headers?: unknown;
+    };
+    config: Record<string, unknown>;
+    ENTITY_TYPE: typeof ENTITY_TYPE.ACTION;
+    datasourceUrl: string;
+  };
+  configEntity: {
+    dynamicBindingPathList: { key: string; value?: string }[];
+    bindingPaths: Record<string, EvaluationSubstitutionType>;
+    reactivePaths: Record<string, EvaluationSubstitutionType>;
+    ENTITY_TYPE: ENTITY_TYPE.ACTION;
+    dependencyMap: DependencyMap;
+    logBlackList: Record<string, true>;
+    pluginId: string;
+    pluginType: PluginType;
+    actionId: string;
+    name: string;
+    moduleId?: string;
+    moduleInstanceId?: string;
+    isPublic?: boolean;
+    __setters?: Record<string, unknown>;
+  };
+} => {
+  let dynamicBindingPathList: {
+    key: string;
+    value?: string;
+  }[] = [];
+  let datasourceUrl = "";
+
+  // update paths
+  if (
+    action.config.dynamicBindingPathList &&
+    action.config.dynamicBindingPathList.length
+  ) {
+    dynamicBindingPathList = action.config.dynamicBindingPathList.map((d) => ({
+      ...d,
+      key: d.key === "datasourceUrl" ? d.key : `config.${d.key}`,
+    }));
+  }
+
+  if (
+    action.config.datasource &&
+    "datasourceConfiguration" in action.config.datasource
+  ) {
+    datasourceUrl = action.config.datasource.datasourceConfiguration?.url ?? "";
+  }
+
+  const dependencyMap: DependencyMap = {};
+  Object.entries(dependencyConfig).forEach(([dependent, dependencies]) => {
+    dependencyMap[renameActionConfigToConfig(dependent)] = dependencies.map(
+      renameActionConfigToConfig,
+    );
+  });
+
+  const { bindingPaths, reactivePaths } = getBindingAndReactivePathsOfAction(
+    action.config,
+    editorConfig,
+    dynamicBindingPathList,
+  );
+
+  return {
+    unEvalEntity: {
+      actionId: action.config.id,
+      run: {},
+      clear: {},
+      // Data is always set to undefined in the unevalTree
+      // Action data is updated directly to the dataTree (see updateActionData.ts)
+      data: undefined,
+      isLoading: action.isLoading,
+      responseMeta: {
+        statusCode: action.data?.statusCode,
+        isExecutionSuccess: action.data?.isExecutionSuccess ?? false,
+        headers: action.data?.headers,
+      },
+      config: action.config.actionConfiguration,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      datasourceUrl,
+    },
+    configEntity: {
+      actionId: action.config.id,
+      name: action.config.name,
+      pluginId: action.config.pluginId,
+      pluginType: action.config.pluginType,
+      dynamicBindingPathList,
+      ENTITY_TYPE: ENTITY_TYPE.ACTION,
+      bindingPaths,
+      reactivePaths,
+      dependencyMap,
+      logBlackList: {},
+    },
+  };
+};

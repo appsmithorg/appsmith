@@ -1,4 +1,4 @@
-import { PluginType, PaginationType } from "entities/Action";
+import { PaginationType } from "entities/Action";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
@@ -8,6 +8,7 @@ import type {
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EvaluationSubstitutionType } from "@appsmith/evaluation";
+import { PluginType } from "@appsmith/types";
 
 export const nestedArrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {

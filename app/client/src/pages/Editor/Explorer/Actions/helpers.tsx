@@ -6,12 +6,9 @@ import {
   EntityIcon,
   ENTITY_ICON_SIZE,
 } from "../ExplorerIcons";
-import {
-  isGraphqlPlugin,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
+import { isGraphqlPlugin, PluginPackageName } from "entities/Action";
 import { generateReactKey } from "utils/generators";
+import { PluginType } from "@appsmith/types";
 
 import type { Plugin } from "api/PluginApi";
 import {

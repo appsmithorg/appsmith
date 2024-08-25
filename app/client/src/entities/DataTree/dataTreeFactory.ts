@@ -1,4 +1,3 @@
-import { generateDataTreeAction } from "ee/entities/DataTree/dataTreeAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
 import { ENTITY_TYPE } from "ee/entities/DataTree/types";
@@ -22,7 +21,11 @@ import {
   startNestedSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
-import { generateDataTreeJSAction } from "@appsmith/evaluation";
+import {
+  generateDataTreeJSAction,
+  generateDataTreeAction,
+} from "@appsmith/evaluation";
+
 export class DataTreeFactory {
   static create({
     actions,

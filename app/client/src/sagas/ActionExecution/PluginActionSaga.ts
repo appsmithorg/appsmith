@@ -73,7 +73,7 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   ACTION_EXECUTION_CANCELLED,

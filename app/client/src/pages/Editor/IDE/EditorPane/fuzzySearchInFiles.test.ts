@@ -1,6 +1,6 @@
 import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
 import { fuzzySearchInObjectItems } from "./utils";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 
 const sampleFiles: EditorSegmentList = [
   {

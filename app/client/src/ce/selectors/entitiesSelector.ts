@@ -15,11 +15,7 @@ import {
   isEmbeddedRestDatasource,
 } from "entities/Datasource";
 import type { Action } from "entities/Action";
-import {
-  isStoredDatasource,
-  PluginPackageName,
-  PluginType,
-} from "entities/Action";
+import { isStoredDatasource, PluginPackageName } from "entities/Action";
 import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -65,6 +61,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { PluginType } from "@appsmith/types";
 
 export enum GROUP_TYPES {
   API = "APIs",

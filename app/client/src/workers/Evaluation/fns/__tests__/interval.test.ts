@@ -1,7 +1,7 @@
 jest.useFakeTimers();
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";

@@ -28,7 +28,7 @@ import {
   JsFileIconV2,
   dbQueryIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { PluginType } from "entities/Action";
+import { PluginType } from "@appsmith/types";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";

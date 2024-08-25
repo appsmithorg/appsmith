@@ -74,7 +74,6 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
 import type { Action } from "entities/Action";
-import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
@@ -96,6 +95,7 @@ import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
 import { getJSCollection } from "ee/selectors/entitiesSelector";
+import { PluginType } from "@appsmith/types";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);

@@ -10,7 +10,7 @@ import PlusLogo from "assets/images/Plus-logo.svg";
 import GraphQLLogo from "assets/images/Graphql-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginPackageName } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
@@ -20,6 +20,7 @@ import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { PluginType } from "@appsmith/types";
 
 export const StyledContainer = styled.div`
   flex: 1;

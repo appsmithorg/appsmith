@@ -31,11 +31,7 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import {
-  getAppsmithAIPlugin,
-  getGraphQLPlugin,
-  PluginType,
-} from "entities/Action";
+import { getAppsmithAIPlugin, getGraphQLPlugin } from "entities/Action";
 import type {
   FormEditorConfigs,
   FormSettingsConfigs,
@@ -44,6 +40,7 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { PluginType } from "@appsmith/types";
 
 function* fetchPluginsSaga(
   action: ReduxAction<
