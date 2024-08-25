@@ -13333,6 +13333,7 @@ __metadata:
     eslint-plugin-prettier: ^5.0.0
     eslint-plugin-react: ^7.33.2
     eslint-plugin-react-hooks: ^4.6.0
+    eslint-plugin-react-perf: ^3.3.2
     eslint-plugin-sort-destructure-keys: ^1.5.0
     eslint-plugin-storybook: ^0.6.15
     eslint-plugin-testing-library: ^6.2.0
@@ -18908,6 +18909,15 @@ __metadata:
   peerDependencies:
     eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
   checksum: 23001801f14c1d16bf0a837ca7970d9dd94e7b560384b41db378b49b6e32dc43d6e2790de1bd737a652a86f81a08d6a91f402525061b47719328f586a57e86c3
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-react-perf@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "eslint-plugin-react-perf@npm:3.3.2"
+  peerDependencies:
+    eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+  checksum: 236982166bfb598c758a2ef0ba69e5173521c0f6481a8767aca5d29cf32928789d4bc1c7316aa274706baab820828bdb36336508c492071916bdb234a4c99417
   languageName: node
   linkType: hard
 

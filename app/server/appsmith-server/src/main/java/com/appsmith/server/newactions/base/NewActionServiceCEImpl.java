@@ -734,31 +734,33 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findAllByApplicationIdAndViewMode(
-            String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
+    public Flux<NewAction> findAllByApplicationIdAndPluginType(
+            String applicationId,
+            Boolean viewMode,
+            AclPermission permission,
+            Sort sort,
+            List<String> excludedPluginTypes) {
         return repository
-                .findByApplicationId(applicationId, permission, sort)
+                .findByApplicationIdAndPluginType(applicationId, excludedPluginTypes, permission, sort)
                 .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry))
                 // In case of view mode being true, filter out all the actions which haven't been published
-                .flatMap(action -> {
-                    if (Boolean.TRUE.equals(viewMode)) {
-                        // In case we are trying to fetch published actions but this action has not been published, do
-                        // not return
-                        if (action.getPublishedAction() == null) {
-                            return Mono.empty();
-                        }
-                    }
-                    // No need to handle the edge case of unpublished action not being present. This is not possible
-                    // because every created action starts from an unpublishedAction state.
-
-                    return Mono.just(action);
-                })
+                .flatMap(action -> this.filterAction(action, viewMode))
                 .name(VIEW_MODE_FILTER_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(this::sanitizeAction)
                 .name(VIEW_MODE_SANITISE_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
+    }
+
+    @Override
+    public Flux<NewAction> findAllByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
+        return repository
+                .findByApplicationId(applicationId, permission, sort)
+                // In case of view mode being true, filter out all the actions which haven't been published
+                .flatMap(action -> this.filterAction(action, viewMode))
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -792,9 +794,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
         }
 
+        List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
+
         // fetch the published actions by applicationId
         // No need to sort the results
-        return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
+        return findAllByApplicationIdAndPluginType(
+                        applicationId, true, actionPermission.getExecutePermission(), null, excludedPluginTypes)
                 .name(VIEW_MODE_INITIAL_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
@@ -1081,6 +1086,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return actionMono;
+    }
+
+    public Mono<NewAction> filterAction(NewAction action, Boolean viewMode) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            // In case we are trying to fetch published actions but this action has not been published, do
+            // not return
+            if (action.getPublishedAction() == null) {
+                return Mono.empty();
+            }
+        }
+        // No need to handle the edge case of unpublished action not being present. This is not possible
+        // because every created action starts from an unpublishedAction state.
+
+        return Mono.just(action);
     }
 
     public Flux<NewAction> addMissingPluginDetailsIntoAllActions(List<NewAction> actionList) {
