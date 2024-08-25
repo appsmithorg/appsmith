@@ -1,12 +1,6 @@
-import type { PluginType } from "@appsmith/types";
+import type { PluginType, MODULE_TYPE } from "@appsmith/types";
 
 type ID = string;
-
-export enum MODULE_TYPE {
-  QUERY = "QUERY_MODULE",
-  JS = "JS_MODULE",
-  UI = "UI_MODULE",
-}
 
 export interface ModuleInput {
   id: string;

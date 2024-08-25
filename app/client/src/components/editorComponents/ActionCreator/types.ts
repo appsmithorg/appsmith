@@ -6,7 +6,7 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 import type { APPSMITH_INTEGRATIONS } from "./constants";
 import type { Variants } from "./constants";
-import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import type { MODULE_TYPE } from "@appsmith/types";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

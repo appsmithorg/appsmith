@@ -33,7 +33,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import Disabler from "pages/common/Disabler";
 import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/types";
 import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { PluginType } from "@appsmith/types";
 import { Icon } from "@appsmith/ads";

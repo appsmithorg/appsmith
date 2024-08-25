@@ -29,7 +29,7 @@ import type {
   ModuleInstance,
   ModuleInstanceDataState,
 } from "ee/constants/ModuleInstanceConstants";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/types";
 import type { JSAction } from "entities/JSCollection";
 import { getAllModules } from "ee/selectors/modulesSelector";
 

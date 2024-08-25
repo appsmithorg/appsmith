@@ -30,7 +30,7 @@ import {
   FilesContext,
 } from "../Files/FilesContextProvider";
 import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/types";
 import { PluginType } from "@appsmith/types";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 

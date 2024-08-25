@@ -21,7 +21,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Module } from "ee/constants/ModuleConstants";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/types";
 import {
   ENTITY_ICON_SIZE,
   EntityIcon,

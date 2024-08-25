@@ -19,7 +19,7 @@ import {
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { basePathForActiveAction } from "ee/constants/routes/appRoutes";
-import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import type { MODULE_TYPE } from "@appsmith/types";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 
 export interface UseConvertToModulesOptionsProps {

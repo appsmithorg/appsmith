@@ -30,7 +30,7 @@ import { ApiEditorContextProvider } from "./ApiEditorContext";
 import type { PaginationField } from "api/ActionAPI";
 import { get, keyBy } from "lodash";
 import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/types";
 import Disabler from "pages/common/Disabler";
 import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { Icon } from "@appsmith/ads";

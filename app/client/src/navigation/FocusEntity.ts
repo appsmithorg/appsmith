@@ -6,7 +6,7 @@ import type { IDEType } from "ee/entities/IDE/constants";
 import { EditorState, EntityPaths } from "ee/entities/IDE/constants";
 import { getBaseUrlsForIDEType, getIDETypeByUrl } from "ee/entities/IDE/utils";
 import { memoize } from "lodash";
-import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/types";
 
 export enum FocusEntity {
   API = "API",

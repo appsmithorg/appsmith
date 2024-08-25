@@ -1,4 +1,4 @@
-import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import type { MODULE_TYPE } from "@appsmith/types";
 
 export interface ConvertToModuleInstanceCTAProps {
   entityId: string;
