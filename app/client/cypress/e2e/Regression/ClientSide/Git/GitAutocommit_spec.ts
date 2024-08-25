@@ -7,7 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 let wsName: string;
-let repoName: string = "autocommit-migration";
+let repoName: string = "TED-testrepo1";
 
 describe("Git Autocommit", { tags: ["@tag.Git", "@tag.GitAutocommit"] }, function () {
   it("Check if autocommit progress bar is visible and network requests are properly called", function () {
