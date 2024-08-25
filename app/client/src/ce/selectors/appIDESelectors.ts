@@ -4,8 +4,9 @@ import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
+  getUISegmentItems,
 } from "ee/selectors/entitiesSelector";
-import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
+import { getJSTabs, getQueryTabs, getUITabs } from "selectors/ideSelectors";
 import type { AppState } from "ee/reducers";
 
 export type EditorSegmentList = Array<{
@@ -62,6 +63,13 @@ export const selectQuerySegmentEditorTabs = (state: AppState) => {
   const items = getQuerySegmentItems(state);
   const tabs = getQueryTabs(state);
 
+  const keyedItems = keyBy(items, "key");
+  return tabs.map((tab) => keyedItems[tab]).filter(Boolean);
+};
+
+export const getUISegmentEditorTabs = (state: AppState) => {
+  const items = getUISegmentItems(state);
+  const tabs = getUITabs(state);
   const keyedItems = keyBy(items, "key");
   return tabs.map((tab) => keyedItems[tab]).filter(Boolean);
 };

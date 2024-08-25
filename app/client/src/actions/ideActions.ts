@@ -29,6 +29,13 @@ export const setQueryTabs = (tabs: string[], parentId: string) => {
     payload: { tabs, parentId },
   };
 };
+
+export const setUITabs = (tabs: string[], parentId: string) => {
+  return {
+    type: ReduxActionTypes.SET_IDE_UI_TABS,
+    payload: { tabs, parentId },
+  };
+};
 export const setShowQueryCreateNewModal = (payload: boolean) => {
   return {
     type: ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL,

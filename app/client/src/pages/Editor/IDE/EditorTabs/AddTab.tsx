@@ -24,13 +24,19 @@ const AddTab = ({
     e.stopPropagation();
     onClose();
   };
+  const title =
+    segment === EditorEntityTab.JS
+      ? "JS"
+      : segment === EditorEntityTab.QUERIES
+        ? "Query"
+        : "Widget";
 
   return (
     <FileTab
       isActive={segmentMode === EditorEntityTabState.Add && !isListActive}
       onClick={newTabClickCallback}
       onClose={(e) => onCloseClick(e)}
-      title={`New ${segment === EditorEntityTab.JS ? "JS" : "Query"}`}
+      title={`New ${title}`}
     />
   );
 };

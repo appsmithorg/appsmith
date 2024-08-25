@@ -43,7 +43,6 @@ import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import PropertyPaneTitle from "./PropertyPaneTitle";
 import { renderWidgetCallouts, useSearchText } from "./helpers";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
@@ -208,7 +207,7 @@ function PropertyPaneView(
   /**
    * actions shown on the right of title
    */
-  const actions = useMemo((): Array<{
+  useMemo((): Array<{
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tooltipContent: any;
@@ -264,29 +263,19 @@ function PropertyPaneView(
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >
-      <PropertyPaneTitle
-        actions={actions}
-        key={widgetProperties.widgetId}
-        title={widgetProperties.widgetName}
-        widgetId={widgetProperties.widgetId}
-        widgetType={widgetProperties?.type}
+      <PropertyPaneConnections
+        widgetName={widgetProperties.widgetName}
+        widgetType={widgetProperties.type}
       />
-
-      <div style={{ marginTop: "52px" }}>
-        <PropertyPaneConnections
-          widgetName={widgetProperties.widgetName}
-          widgetType={widgetProperties.type}
+      {!doActionsExist && !hideConnectDataCTA && (
+        <ConnectDataCTA
+          widgetId={widgetProperties.widgetId}
+          widgetTitle={widgetProperties.widgetName}
+          widgetType={widgetProperties?.type}
         />
-        {!doActionsExist && !hideConnectDataCTA && (
-          <ConnectDataCTA
-            widgetId={widgetProperties.widgetId}
-            widgetTitle={widgetProperties.widgetName}
-            widgetType={widgetProperties?.type}
-          />
-        )}
+      )}
 
-        {renderWidgetCallouts(widgetProperties)}
-      </div>
+      {renderWidgetCallouts(widgetProperties)}
 
       <div
         className="t--property-pane-view"

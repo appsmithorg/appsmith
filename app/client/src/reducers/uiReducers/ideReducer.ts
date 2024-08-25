@@ -45,6 +45,16 @@ const ideReducer = createImmerReducer(initialState, {
       action.payload.tabs,
     );
   },
+  [ReduxActionTypes.SET_IDE_UI_TABS]: (
+    state: IDEState,
+    action: ReduxAction<{ tabs: string[]; parentId: string }>,
+  ) => {
+    set(
+      state,
+      `tabs.${action.payload.parentId}.${EditorEntityTab.UI}`,
+      action.payload.tabs,
+    );
+  },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
@@ -115,6 +125,7 @@ export interface ParentEntityIDETabs {
 export interface IDETabs {
   [EditorEntityTab.JS]: string[];
   [EditorEntityTab.QUERIES]: string[];
+  [EditorEntityTab.UI]: string[];
 }
 
 export interface IDECanvasSideBySideHover {

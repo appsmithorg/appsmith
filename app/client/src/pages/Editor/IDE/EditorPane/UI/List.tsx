@@ -27,7 +27,7 @@ const ListContainer = styled(Flex)`
 `;
 
 const ListWidgets = (props: {
-  setFocusSearchInput: (focusSearchInput: boolean) => void;
+  setFocusSearchInput?: (focusSearchInput: boolean) => void;
 }) => {
   const basePageId = useSelector(getCurrentBasePageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
@@ -44,7 +44,7 @@ const ListWidgets = (props: {
   }, [widgets?.children]);
 
   const addButtonClickHandler = useCallback(() => {
-    props.setFocusSearchInput(true);
+    props.setFocusSearchInput ? props.setFocusSearchInput(true) : "";
     history.push(builderURL({}));
   }, []);
 
@@ -52,7 +52,7 @@ const ListWidgets = (props: {
     widgets && widgets.children && widgets.children.length > 0;
 
   useEffect(() => {
-    props.setFocusSearchInput(false);
+    props.setFocusSearchInput ? props.setFocusSearchInput(false) : "";
   }, []);
 
   return (

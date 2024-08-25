@@ -17,11 +17,11 @@ export const getIsSideBySideEnabled = createSelector(
 export const getIDEViewMode = createSelector(
   getIsSideBySideEnabled,
   (state) => state.ui.ide.view,
-  (featureFlag, ideViewMode) => {
-    if (featureFlag) {
-      return ideViewMode;
-    }
-    return EditorViewMode.FullScreen;
+  () => {
+    // if (featureFlag) {
+    //   return ideViewMode;
+    // }
+    return EditorViewMode.SplitScreen;
   },
 );
 
@@ -53,6 +53,13 @@ export const getQueryTabs = createSelector(
   getIDETabs,
   (basePageId: string, tabs: ParentEntityIDETabs): string[] =>
     get(tabs, [basePageId, EditorEntityTab.QUERIES], []),
+);
+
+export const getUITabs = createSelector(
+  getCurrentBasePageId,
+  getIDETabs,
+  (basePageId: string, tabs: ParentEntityIDETabs): string[] =>
+    get(tabs, [basePageId, EditorEntityTab.UI], []),
 );
 
 export const getShowCreateNewModal = (state: AppState) =>

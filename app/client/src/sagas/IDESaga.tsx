@@ -1,11 +1,12 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
+import { getJSTabs, getQueryTabs, getUITabs } from "selectors/ideSelectors";
 import {
   setIdeEditorViewMode,
   setJSTabs,
   setQueryTabs,
+  setUITabs,
 } from "actions/ideActions";
 import history from "../utils/history";
 import {
@@ -46,6 +47,11 @@ export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
     yield put(setQueryTabs(newTabs, params.basePageId));
+  }
+  if (entity === FocusEntity.PROPERTY_PANE) {
+    const uiTabs: string[] = yield select(getUITabs);
+    const newTabs: string[] = yield call(getUpdatedTabs, id, uiTabs);
+    yield put(setUITabs(newTabs, params.basePageId));
   }
 }
 

@@ -65,6 +65,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { Icon } from "@appsmith/ads";
 
 export enum GROUP_TYPES {
   API = "APIs",
@@ -1596,6 +1597,15 @@ export const getJSSegmentItems = createSelector(
     return items;
   },
 );
+
+export const getUISegmentItems = createSelector(getCanvasWidgets, (widgets) => {
+  return Object.values(widgets).map((widget) => ({
+    icon: Icon,
+    title: widget.widgetName,
+    key: widget.widgetId,
+    type: PluginType.DB,
+  }));
+});
 
 export const getSelectedTableName = (state: AppState) =>
   state.ui.datasourcePane.selectedTableName;

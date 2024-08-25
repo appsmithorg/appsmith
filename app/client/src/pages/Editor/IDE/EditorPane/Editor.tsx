@@ -8,16 +8,11 @@ import {
 } from "ee/pages/Editor/IDE/EditorPane/constants";
 import { JSEditorPane } from "./JS";
 import { QueryEditor } from "./Query";
+import UIEditor from "./UI/Editor";
 import EditorTabs from "../EditorTabs";
-import { useCurrentEditorState } from "../hooks";
-import { EditorEntityTab } from "ee/entities/IDE/constants";
 
 const Editor = () => {
   const { path } = useRouteMatch();
-  const { segment } = useCurrentEditorState();
-  if (segment === EditorEntityTab.UI) {
-    return null;
-  }
   return (
     <Flex
       className="relative"
@@ -36,6 +31,7 @@ const Editor = () => {
           component={QueryEditor}
           path={querySegmentRoutes.map((route) => `${path}${route}`)}
         />
+        <SentryRoute component={UIEditor} />
       </Switch>
     </Flex>
   );

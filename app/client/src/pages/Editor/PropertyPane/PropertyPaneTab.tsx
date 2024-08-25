@@ -23,7 +23,7 @@ const StyledTabs = styled(Tabs)`
 
   > [role="tablist"] {
     position: sticky;
-    top: 74px;
+    top: 45px;
     z-index: 3;
     background: var(--ads-v2-color-white);
     overflow: hidden;

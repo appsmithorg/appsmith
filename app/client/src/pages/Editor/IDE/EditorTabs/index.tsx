@@ -4,7 +4,6 @@ import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import type { EntityItem } from "ee/entities/IDE/constants";
 import {
-  EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
 } from "ee/entities/IDE/constants";
@@ -67,7 +66,6 @@ const EditorTabs = () => {
   }, [files]);
 
   if (!isSideBySideEnabled) return null;
-  if (segment === EditorEntityTab.UI) return null;
 
   const handleHamburgerClick = () => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;

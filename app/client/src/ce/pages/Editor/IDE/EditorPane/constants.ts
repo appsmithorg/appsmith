@@ -1,5 +1,6 @@
 import {
   API_EDITOR_BASE_PATH,
+  BUILDER_PATH,
   JS_COLLECTION_EDITOR_PATH,
   QUERIES_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_BASE_PATH,
@@ -14,4 +15,9 @@ export const querySegmentRoutes = [
 
 export const jsSegmentRoutes = [JS_COLLECTION_EDITOR_PATH];
 
-export const widgetSegmentRoutes = [WIDGETS_EDITOR_BASE_PATH];
+export const widgetSegmentRoutes = [
+  // BUILDER_CUSTOM_PATH,
+  BUILDER_PATH,
+  // BUILDER_PATH_DEPRECATED,
+  WIDGETS_EDITOR_BASE_PATH,
+];

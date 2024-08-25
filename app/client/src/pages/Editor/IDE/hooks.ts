@@ -20,11 +20,7 @@ import {
 } from "ee/RouteBuilder";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import {
-  APP_SIDEBAR_WIDTH,
-  DEFAULT_EXPLORER_PANE_WIDTH,
-  SPLIT_SCREEN_RATIO,
-} from "constants/AppConstants";
+import { APP_SIDEBAR_WIDTH, SPLIT_SCREEN_RATIO } from "constants/AppConstants";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
@@ -83,18 +79,8 @@ export const useEditorPaneWidth = (): string => {
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   useEffect(() => {
     if (editorMode === EditorViewMode.SplitScreen) {
-      if (segment !== EditorEntityTab.UI) {
-        // 1px is propertypane border width
-        setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
-      } else {
-        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
-      }
+      setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
     } else {
-      if (segment !== EditorEntityTab.UI) {
-        setWidth(windowWidth - APP_SIDEBAR_WIDTH + "px");
-      } else {
-        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
-      }
     }
   }, [editorMode, segment, propertyPaneWidth, windowWidth]);
 
@@ -205,6 +191,9 @@ export const useIDETabClickHandlers = () => {
   const addClickHandler = useCallback(() => {
     if (segment === EditorEntityTab.JS) openAddJS();
     if (segment === EditorEntityTab.QUERIES) openAddQuery();
+    if (segment === EditorEntityTab.UI) {
+      history.push(builderURL({ basePageId }));
+    }
   }, [segment, segmentMode, openAddQuery, openAddJS]);
 
   const tabClickHandler = useCallback(
@@ -227,6 +216,9 @@ export const useIDETabClickHandlers = () => {
         dispatch(closeJSActionTab({ id: actionId, parentId: basePageId }));
       if (segment === EditorEntityTab.QUERIES)
         dispatch(closeQueryActionTab({ id: actionId, parentId: basePageId }));
+      if (segment === EditorEntityTab.UI) {
+        history.push(builderURL({ basePageId }));
+      }
     },
     [segment, basePageId, dispatch],
   );

@@ -19,6 +19,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const UISegment = () => {
   const { path } = useRouteMatch();
@@ -32,8 +34,13 @@ const UISegment = () => {
     pagePermissions,
   );
 
+  const ideViewMode = useSelector(getIDEViewMode);
   if (!canManagePages) {
     return <ListWidgets setFocusSearchInput={setFocusSearchInput} />;
+  }
+
+  if (ideViewMode !== EditorViewMode.FullScreen) {
+    return null;
   }
 
   return (

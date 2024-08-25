@@ -6,6 +6,7 @@ import { useCurrentEditorState } from "../hooks";
 import { EditorEntityTab } from "ee/entities/IDE/constants";
 import ListQuery from "../EditorPane/Query/List";
 import ListJSObjects from "../EditorPane/JS/List";
+import ListWidgets from "../EditorPane/UI/List";
 
 const ListContainer = styled(Flex)`
   & .t--entity-item {
@@ -21,6 +22,20 @@ const ListContainer = styled(Flex)`
 export const List = () => {
   const { segment } = useCurrentEditorState();
 
+  let content: React.ReactNode = null;
+
+  switch (segment) {
+    case EditorEntityTab.JS:
+      content = <ListJSObjects />;
+      break;
+    case EditorEntityTab.QUERIES:
+      content = <ListQuery />;
+      break;
+    case EditorEntityTab.UI:
+      content = <ListWidgets />;
+      break;
+  }
+
   return (
     <ListContainer
       bg="var(--ads-v2-color-bg)"
@@ -30,7 +45,7 @@ export const List = () => {
       w="100%"
       zIndex="10"
     >
-      {segment === EditorEntityTab.QUERIES ? <ListQuery /> : <ListJSObjects />}
+      {content}
     </ListContainer>
   );
 };

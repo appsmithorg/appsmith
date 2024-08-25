@@ -46,7 +46,11 @@ const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  padding: 0 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--ads-v2-color-white);
+  overflow: hidden;
 `;
 
 const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`

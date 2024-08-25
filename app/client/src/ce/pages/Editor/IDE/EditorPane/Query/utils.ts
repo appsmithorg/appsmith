@@ -7,6 +7,7 @@ import {
   queryEditorIdURL,
   queryListURL,
   saasEditorApiIdURL,
+  widgetURL,
 } from "ee/RouteBuilder";
 
 export const getQueryEntityItemUrl = (
@@ -18,6 +19,13 @@ export const getQueryEntityItemUrl = (
     throw Error(`Cannot find url of plugin type ${item.type}`);
   }
   return config.getURL(basePageId, item.key, item.type);
+};
+
+export const getUIEntityItemUrl = (
+  item: EntityItem,
+  basePageId: string,
+): string => {
+  return widgetURL({ basePageId, selectedWidgets: [item.key] });
 };
 
 export const getQueryUrl = (

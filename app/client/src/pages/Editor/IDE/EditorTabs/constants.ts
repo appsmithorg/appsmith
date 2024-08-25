@@ -2,15 +2,20 @@ import type { EntityItem } from "ee/entities/IDE/constants";
 import { EditorEntityTab } from "ee/entities/IDE/constants";
 import type { AppState } from "ee/reducers";
 import {
+  getUISegmentEditorTabs,
   selectJSSegmentEditorTabs,
   selectQuerySegmentEditorTabs,
 } from "ee/selectors/appIDESelectors";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
+  getUISegmentItems,
 } from "ee/selectors/entitiesSelector";
 import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
-import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import {
+  getQueryEntityItemUrl,
+  getUIEntityItemUrl,
+} from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const TabSelectors: Record<
   EditorEntityTab,
@@ -32,8 +37,8 @@ export const TabSelectors: Record<
   },
   // Currently we do not show any tabs in the UI segment
   [EditorEntityTab.UI]: {
-    tabsSelector: () => [],
-    listSelector: () => [],
-    itemUrlSelector: () => "",
+    tabsSelector: getUISegmentEditorTabs,
+    listSelector: getUISegmentItems,
+    itemUrlSelector: getUIEntityItemUrl,
   },
 };
