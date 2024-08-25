@@ -1,21 +1,17 @@
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { initEditor } from "actions/initActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { initEditorAction } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";
 import { APP_MODE } from "entities/App";
 import { useDispatch } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { createSelector } from "reselect";
-import { getCanvasWidgetsPayload } from "@appsmith/sagas/PageSagas";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgetsPayload } from "ee/sagas/PageSagas";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import type { AppState } from "@appsmith/reducers";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import type { AppState } from "ee/reducers";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
-import type { DSLWidget } from "WidgetProvider/constants";
-import { nestDSL } from "@shared/dsl";
+import type { Page } from "entities/Page";
 
 const pageId = "0123456789abcdef00000000";
 
@@ -61,6 +57,7 @@ export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
     {
       pageName: mockResp.data.name,
       pageId: mockResp.data.id,
+      basePageId: mockResp.data.id,
       isDefault: mockResp.data.isDefault,
       isHidden: !!mockResp.data.isHidden,
       slug: mockResp.data.slug,
@@ -153,12 +150,13 @@ export const syntheticTestMouseEvent = (
 export function MockApplication({ children }: any) {
   editorInitializer();
   const dispatch = useDispatch();
-  dispatch(initEditor({ pageId: pageId, mode: APP_MODE.EDIT }));
+  dispatch(initEditorAction({ basePageId: pageId, mode: APP_MODE.EDIT }));
   const mockResp: any = {
     workspaceId: "workspace_id",
     pages: [
       {
         id: pageId,
+        baseId: pageId,
         pageId: pageId,
         name: "Page1",
         isDefault: true,
@@ -172,6 +170,7 @@ export function MockApplication({ children }: any) {
       },
     ],
     id: "app_id",
+    baseId: "app_id",
     isDefault: true,
     name: "appName",
     slug: "app-name",
@@ -179,13 +178,13 @@ export function MockApplication({ children }: any) {
   };
   urlBuilder.updateURLParams(
     {
-      applicationId: mockResp.id,
+      baseApplicationId: mockResp.baseId,
       applicationSlug: mockResp.slug,
       applicationVersion: mockResp.applicationVersion,
     },
     [
       {
-        pageId: mockResp.pages[0].id,
+        basePageId: mockResp.pages[0].baseId,
         pageSlug: mockResp.pages[0].slug,
       },
     ],

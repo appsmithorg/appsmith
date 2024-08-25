@@ -7,6 +7,7 @@ import { klona } from "klona";
 
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;
@@ -22,8 +23,9 @@ function useRegisterFieldValidity({
   fieldType,
   isValid,
 }: UseRegisterFieldValidityProps) {
-  const { clearErrors, setError } = useFormContext();
+  const { clearErrors, getFieldState, setError } = useFormContext();
   const { setMetaInternalFieldState } = useContext(FormContext);
+  const { error } = getFieldState(fieldName);
 
   useEffect(() => {
     /**
@@ -34,16 +36,32 @@ function useRegisterFieldValidity({
     setTimeout(() => {
       try {
         isValid
-          ? clearErrors(fieldName)
-          : setError(fieldName, {
-              type: fieldType,
-              message: "Invalid field",
+          ? startAndEndSpanForFn("JSONFormWidget.clearErrors", {}, () => {
+              if (error) {
+                clearErrors(fieldName);
+              }
+            })
+          : startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
+              setError(fieldName, {
+                type: fieldType,
+                message: "Invalid field",
+              });
             });
       } catch (e) {
         Sentry.captureException(e);
       }
     }, 0);
+  }, [
+    isValid,
+    fieldName,
+    fieldType,
+    setMetaInternalFieldState,
+    error,
+    clearErrors,
+    setError,
+  ]);
 
+  useEffect(() => {
     setMetaInternalFieldState((prevState) => {
       const metaInternalFieldState = klona(prevState.metaInternalFieldState);
       set(metaInternalFieldState, `${fieldName}.isValid`, isValid);
@@ -53,7 +71,7 @@ function useRegisterFieldValidity({
         metaInternalFieldState,
       };
     });
-  }, [isValid, fieldName, fieldType]);
+  }, [fieldName, isValid, setMetaInternalFieldState]);
 }
 
 export default useRegisterFieldValidity;

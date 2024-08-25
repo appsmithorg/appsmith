@@ -1,11 +1,11 @@
 import { Popover2 } from "@blueprintjs/popover2";
 import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
-import type { TreeDropdownOption } from "design-system-old";
-import { Text, Button } from "design-system";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+import { Text, Button } from "@appsmith/ads";
 import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
-import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
+import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
@@ -82,9 +82,13 @@ const pathClassList = [
   "action-creator-create-new-modal",
 ];
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isClassPresentInList = (path: any, className: string) =>
   path.classList?.contains(className);
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isAddActionAndLabelPresentInPath = (path: any) => {
   return (
     isClassPresentInList(path, "add-action") &&
@@ -198,6 +202,8 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
               integrationOptions,
             );
             const actionType = (selectedField.type ||
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               selectedField.value) as any;
             onChange({
               ...action,

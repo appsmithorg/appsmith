@@ -111,11 +111,7 @@
                   "isCanvas": true,
                   "displayName": "Container",
                   "iconSVG": "https://appcdn.appsmith.com/static/media/icon.daebf68875b6c8e909e9e8ac8bee0c02.svg",
-                  "searchTags": [
-                    "div",
-                    "parent",
-                    "group"
-                  ],
+                  "searchTags": ["div", "parent", "group"],
                   "topRow": 1.0,
                   "bottomRow": 89.0,
                   "parentRowSpace": 10.0,
@@ -165,11 +161,7 @@
                           "widgetName": "txt_title",
                           "displayName": "Text",
                           "iconSVG": "https://appcdn.appsmith.com/static/media/icon.a47d6d5dbbb718c4dc4b2eb4f218c1b7.svg",
-                          "searchTags": [
-                            "typography",
-                            "paragraph",
-                            "label"
-                          ],
+                          "searchTags": ["typography", "paragraph", "label"],
                           "topRow": 2.0,
                           "bottomRow": 7.0,
                           "parentRowSpace": 10.0,
@@ -208,10 +200,7 @@
                           "textColor": "#231F20",
                           "version": 1.0,
                           "parentId": "06dn98c6oy",
-                          "tags": [
-                            "Suggested",
-                            "Content"
-                          ],
+                          "tags": ["Suggested", "Content"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 4.0,
@@ -304,10 +293,7 @@
                           "enableClientSideSearch": true,
                           "version": 2.0,
                           "totalRecordsCount": 0.0,
-                          "tags": [
-                            "Suggested",
-                            "Display"
-                          ],
+                          "tags": ["Suggested", "Display"],
                           "isLoading": false,
                           "childStylesheet": {
                             "button": {
@@ -333,12 +319,10 @@
                             }
                           },
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "columnUpdatedAt": 1.700724596396E12,
+                          "columnUpdatedAt": 1.700724596396e12,
                           "originalBottomRow": 85.0,
                           "primaryColumnId": "id",
-                          "defaultSelectedRowIndices": [
-                            0.0
-                          ],
+                          "defaultSelectedRowIndices": [0.0],
                           "mobileBottomRow": 36.0,
                           "widgetName": "tbl_products",
                           "defaultPageSize": 0.0,
@@ -805,9 +789,7 @@
                   "isVisible": true,
                   "version": 1.0,
                   "parentId": "0",
-                  "tags": [
-                    "Layout"
-                  ],
+                  "tags": ["Layout"],
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "mobileTopRow": 9.0,
@@ -824,11 +806,7 @@
                   "isCanvas": true,
                   "displayName": "Modal",
                   "iconSVG": "https://appcdn.appsmith.com/static/media/icon.b374721fa8e1aeab7cf326c2d865506f.svg",
-                  "searchTags": [
-                    "dialog",
-                    "popup",
-                    "notification"
-                  ],
+                  "searchTags": ["dialog", "popup", "notification"],
                   "topRow": 102.0,
                   "bottomRow": 772.0,
                   "parentRowSpace": 10.0,
@@ -1030,10 +1008,7 @@
                           },
                           "isVisible": true,
                           "version": 1.0,
-                          "tags": [
-                            "Suggested",
-                            "Layout"
-                          ],
+                          "tags": ["Suggested", "Layout"],
                           "isLoading": false,
                           "submitButtonLabel": "Update",
                           "childStylesheet": {
@@ -1494,9 +1469,7 @@
                           "isVisible": true,
                           "version": 1.0,
                           "parentId": "37glzo1i9w",
-                          "tags": [
-                            "Media"
-                          ],
+                          "tags": ["Media"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 40.0,
@@ -1513,11 +1486,7 @@
                           "widgetName": "txt_updateProductTitle",
                           "displayName": "Text",
                           "iconSVG": "https://appcdn.appsmith.com/static/media/icon.a47d6d5dbbb718c4dc4b2eb4f218c1b7.svg",
-                          "searchTags": [
-                            "typography",
-                            "paragraph",
-                            "label"
-                          ],
+                          "searchTags": ["typography", "paragraph", "label"],
                           "topRow": 0.0,
                           "bottomRow": 4.0,
                           "parentRowSpace": 10.0,
@@ -1556,10 +1525,7 @@
                           "textColor": "#231F20",
                           "version": 1.0,
                           "parentId": "37glzo1i9w",
-                          "tags": [
-                            "Suggested",
-                            "Content"
-                          ],
+                          "tags": ["Suggested", "Content"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 0.0,
@@ -1580,10 +1546,7 @@
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "displayName": "Icon button",
                           "iconSVG": "https://appcdn.appsmith.com/static/media/icon.b08054586989b185a0801e9a34f8ad49.svg",
-                          "searchTags": [
-                            "click",
-                            "submit"
-                          ],
+                          "searchTags": ["click", "submit"],
                           "topRow": 0.0,
                           "bottomRow": 4.0,
                           "parentRowSpace": 10.0,
@@ -1616,9 +1579,7 @@
                           "isVisible": true,
                           "version": 1.0,
                           "parentId": "37glzo1i9w",
-                          "tags": [
-                            "Buttons"
-                          ],
+                          "tags": ["Buttons"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 0.0,
@@ -1661,9 +1622,7 @@
                   "canEscapeKeyClose": true,
                   "version": 2.0,
                   "parentId": "0",
-                  "tags": [
-                    "Layout"
-                  ],
+                  "tags": ["Layout"],
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "mobileTopRow": 101.0,
@@ -1736,11 +1695,7 @@
                   "isCanvas": true,
                   "displayName": "Container",
                   "iconSVG": "https://appcdn.appsmith.com/static/media/icon.daebf68875b6c8e909e9e8ac8bee0c02.svg",
-                  "searchTags": [
-                    "div",
-                    "parent",
-                    "group"
-                  ],
+                  "searchTags": ["div", "parent", "group"],
                   "topRow": 1.0,
                   "bottomRow": 89.0,
                   "parentRowSpace": 10.0,
@@ -1790,11 +1745,7 @@
                           "widgetName": "txt_title",
                           "displayName": "Text",
                           "iconSVG": "https://appcdn.appsmith.com/static/media/icon.a47d6d5dbbb718c4dc4b2eb4f218c1b7.svg",
-                          "searchTags": [
-                            "typography",
-                            "paragraph",
-                            "label"
-                          ],
+                          "searchTags": ["typography", "paragraph", "label"],
                           "topRow": 2.0,
                           "bottomRow": 7.0,
                           "parentRowSpace": 10.0,
@@ -1833,10 +1784,7 @@
                           "textColor": "#231F20",
                           "version": 1.0,
                           "parentId": "06dn98c6oy",
-                          "tags": [
-                            "Suggested",
-                            "Content"
-                          ],
+                          "tags": ["Suggested", "Content"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 4.0,
@@ -1929,10 +1877,7 @@
                           "enableClientSideSearch": true,
                           "version": 2.0,
                           "totalRecordsCount": 0.0,
-                          "tags": [
-                            "Suggested",
-                            "Display"
-                          ],
+                          "tags": ["Suggested", "Display"],
                           "isLoading": false,
                           "childStylesheet": {
                             "button": {
@@ -1958,12 +1903,10 @@
                             }
                           },
                           "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                          "columnUpdatedAt": 1.700724596396E12,
+                          "columnUpdatedAt": 1.700724596396e12,
                           "originalBottomRow": 85.0,
                           "primaryColumnId": "id",
-                          "defaultSelectedRowIndices": [
-                            0.0
-                          ],
+                          "defaultSelectedRowIndices": [0.0],
                           "mobileBottomRow": 36.0,
                           "widgetName": "tbl_products",
                           "defaultPageSize": 0.0,
@@ -2430,9 +2373,7 @@
                   "isVisible": true,
                   "version": 1.0,
                   "parentId": "0",
-                  "tags": [
-                    "Layout"
-                  ],
+                  "tags": ["Layout"],
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "mobileTopRow": 9.0,
@@ -2449,11 +2390,7 @@
                   "isCanvas": true,
                   "displayName": "Modal",
                   "iconSVG": "https://appcdn.appsmith.com/static/media/icon.b374721fa8e1aeab7cf326c2d865506f.svg",
-                  "searchTags": [
-                    "dialog",
-                    "popup",
-                    "notification"
-                  ],
+                  "searchTags": ["dialog", "popup", "notification"],
                   "topRow": 102.0,
                   "bottomRow": 772.0,
                   "parentRowSpace": 10.0,
@@ -2655,10 +2592,7 @@
                           },
                           "isVisible": true,
                           "version": 1.0,
-                          "tags": [
-                            "Suggested",
-                            "Layout"
-                          ],
+                          "tags": ["Suggested", "Layout"],
                           "isLoading": false,
                           "submitButtonLabel": "Update",
                           "childStylesheet": {
@@ -3119,9 +3053,7 @@
                           "isVisible": true,
                           "version": 1.0,
                           "parentId": "37glzo1i9w",
-                          "tags": [
-                            "Media"
-                          ],
+                          "tags": ["Media"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 40.0,
@@ -3138,11 +3070,7 @@
                           "widgetName": "txt_updateProductTitle",
                           "displayName": "Text",
                           "iconSVG": "https://appcdn.appsmith.com/static/media/icon.a47d6d5dbbb718c4dc4b2eb4f218c1b7.svg",
-                          "searchTags": [
-                            "typography",
-                            "paragraph",
-                            "label"
-                          ],
+                          "searchTags": ["typography", "paragraph", "label"],
                           "topRow": 0.0,
                           "bottomRow": 4.0,
                           "parentRowSpace": 10.0,
@@ -3181,10 +3109,7 @@
                           "textColor": "#231F20",
                           "version": 1.0,
                           "parentId": "37glzo1i9w",
-                          "tags": [
-                            "Suggested",
-                            "Content"
-                          ],
+                          "tags": ["Suggested", "Content"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 0.0,
@@ -3205,10 +3130,7 @@
                           "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                           "displayName": "Icon button",
                           "iconSVG": "https://appcdn.appsmith.com/static/media/icon.b08054586989b185a0801e9a34f8ad49.svg",
-                          "searchTags": [
-                            "click",
-                            "submit"
-                          ],
+                          "searchTags": ["click", "submit"],
                           "topRow": 0.0,
                           "bottomRow": 4.0,
                           "parentRowSpace": 10.0,
@@ -3241,9 +3163,7 @@
                           "isVisible": true,
                           "version": 1.0,
                           "parentId": "37glzo1i9w",
-                          "tags": [
-                            "Buttons"
-                          ],
+                          "tags": ["Buttons"],
                           "renderMode": "CANVAS",
                           "isLoading": false,
                           "mobileTopRow": 0.0,
@@ -3286,9 +3206,7 @@
                   "canEscapeKeyClose": true,
                   "version": 2.0,
                   "parentId": "0",
-                  "tags": [
-                    "Layout"
-                  ],
+                  "tags": ["Layout"],
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "mobileTopRow": 101.0,

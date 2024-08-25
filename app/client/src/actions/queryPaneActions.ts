@@ -1,13 +1,13 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import type { QueryPaneDebuggerState } from "@appsmith/reducers/uiReducers/queryPaneReducer";
+import type { QueryPaneDebuggerState } from "ee/reducers/uiReducers/queryPaneReducer";
 
 export interface ChangeQueryPayload {
-  id: string;
+  baseQueryId: string;
   packageId?: string;
   applicationId?: string;
-  pageId?: string;
+  basePageId?: string;
   moduleId?: string;
   workflowId?: string;
   newQuery?: boolean;

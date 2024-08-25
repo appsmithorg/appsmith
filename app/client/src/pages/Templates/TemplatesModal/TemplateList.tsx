@@ -2,7 +2,7 @@ import {
   FETCHING_TEMPLATE_LIST,
   FORKING_TEMPLATE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Template } from "api/TemplatesApi";
 import React from "react";
 import { useSelector } from "react-redux";

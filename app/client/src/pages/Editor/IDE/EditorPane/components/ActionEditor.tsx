@@ -1,4 +1,4 @@
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import React, { useCallback, useState } from "react";
 import ActionToolbar from "./ActionToolbar";
 import ActionDrawer from "./ActionDrawer";

@@ -2,26 +2,21 @@ import {
   UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { Flex, SearchInput, Text } from "design-system";
+import { Flex, SearchInput, Text } from "@appsmith/ads";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
-import { useSelector } from "react-redux";
-import { widgetsExistCurrentPage } from "@appsmith/selectors/entitiesSelector";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 function UIEntitySidebar({
   focusSearchInput,
@@ -36,16 +31,9 @@ function UIEntitySidebar({
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [areSearchResultsEmpty, setAreSearchResultsEmpty] = useState(false);
-  const isDragDropBuildingBlocksEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
-  const isAnvil = useSelector(getIsAnvilLayout);
-  const hasWidgets = useSelector(widgetsExistCurrentPage);
   const hideSuggestedWidgets = useMemo(
-    () =>
-      (isSearching && !areSearchResultsEmpty) ||
-      isDragDropBuildingBlocksEnabled,
-    [isSearching, areSearchResultsEmpty, isDragDropBuildingBlocksEnabled],
+    () => isSearching && !areSearchResultsEmpty,
+    [isSearching, areSearchResultsEmpty],
   );
 
   const searchWildcards = useMemo(
@@ -117,6 +105,7 @@ function UIEntitySidebar({
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
+          // @ts-expect-error fix this the next time the file is edited
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
@@ -151,26 +140,9 @@ function UIEntitySidebar({
               return null;
             }
 
-            // Do not expand all the widget tags when the user does not have any
-            // widgets yet.
-            // Only show Suggested or Building Blocks
-            // This behavior should not be used if Anvil layout is active
-            let isInitiallyOpen = false;
-            if (
-              isAnvil ||
-              hasWidgets ||
-              [
-                WIDGET_TAGS.SUGGESTED_WIDGETS as string,
-                WIDGET_TAGS.BUILDING_BLOCKS as string,
-              ].includes(tag)
-            ) {
-              isInitiallyOpen = true;
-            }
-
             return (
               <UIEntityTagGroup
                 cards={cardsForThisTag}
-                isInitiallyOpen={isInitiallyOpen}
                 isLoading={!!entityLoading[tag as WidgetTags]}
                 key={tag}
                 tag={tag}

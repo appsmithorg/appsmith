@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 import memoize from "proxy-memoize";
 import type {
@@ -9,9 +9,9 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getActions, getPlugins } from "@appsmith/selectors/entitiesSelector";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import type { Page } from "entities/Page";
+import { getActions, getPlugins } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
@@ -101,6 +101,8 @@ export const getWidgetOptionsTree = memoize((state: AppState) =>
 export const getDataTreeForActionCreator = memoize((state: AppState) => {
   const dataTree: DataTreeForActionCreator = {};
   Object.keys(state.evaluations.tree).forEach((key) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const value: any = state.evaluations.tree[key];
     dataTree[key] = {
       meta: value?.meta || null,
@@ -123,6 +125,9 @@ export const getEditorConfigs = (
 
 export const getDefaultPageId = (state: AppState): string =>
   state.entities.pageList.defaultPageId;
+
+export const getDefaultBasePageId = (state: AppState): string =>
+  state.entities.pageList.defaultBasePageId;
 
 export const getExistingWidgetNames = createSelector(
   getWidgets,
@@ -150,6 +155,8 @@ export const getExistingActionNames = createSelector(
 export const getPluginIdToImageLocation = createSelector(
   getPlugins,
   (plugins) =>
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugins.reduce((acc: any, p: Plugin) => {
       acc[p.id] = p.iconLocation;
       return acc;
@@ -162,6 +169,8 @@ export const getPluginIdToImageLocation = createSelector(
  * @param state
  */
 export const getExistingPageNames = (state: AppState) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map: Record<string, any> = {};
 
   state.entities.pageList.pages.map((page: Page) => {
@@ -182,8 +191,11 @@ export const getWidgetByName = (
   );
 };
 
-export const getAllPageIds = (state: AppState) => {
-  return state.entities.pageList.pages.map((page) => page.pageId);
+export const getAllPageIdentities = (state: AppState) => {
+  return state.entities.pageList.pages.map((page) => ({
+    pageId: page.pageId,
+    basePageId: page.basePageId,
+  }));
 };
 
 export const getPluginIdOfPackageName = (

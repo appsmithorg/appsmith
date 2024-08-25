@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Wrapper } from "pages/Editor/widgetSidebar/WidgetCard";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 const StyledWidgetCardPreviewWrapper = styled.div`
   position: absolute;

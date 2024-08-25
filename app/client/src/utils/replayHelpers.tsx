@@ -14,8 +14,8 @@ import {
   WIDGET_REMOVED,
   BULK_WIDGET_REMOVED,
   ACTION_CONFIGURATION_CHANGED,
-} from "@appsmith/constants/messages";
-import { toast } from "design-system";
+} from "ee/constants/messages";
+import { toast } from "@appsmith/ads";
 import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
 import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
 import store from "../store";

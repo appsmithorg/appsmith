@@ -12,6 +12,8 @@ export interface OffsetType {
   // Adds an offset to left or right properties (of Instruction div) depending upon the position
   left?: number;
   // Style for the Instruction div overrides all other styles
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   style?: any;
   // Indicator top and left offsets
   indicatorTop?: number;
@@ -56,6 +58,8 @@ export interface FeatureParams {
   // Offsets for the instruction screen and the indicator
   offset?: OffsetType;
   // Event params
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   eventParams?: Record<string, any>;
   // Walkthrough delay in ms
   delay?: number;

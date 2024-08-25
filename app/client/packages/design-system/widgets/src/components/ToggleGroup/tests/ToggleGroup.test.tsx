@@ -2,9 +2,9 @@ import React from "react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
-import { ToggleGroup, Checkbox } from "@design-system/widgets";
+import { ToggleGroup, Checkbox } from "@appsmith/wds";
 
-describe("@design-system/widgets/ToggleGroup", () => {
+describe("@appsmith/wds/ToggleGroup", () => {
   const items = [
     { label: "Value 1", value: "value-1" },
     { label: "Value 2", value: "value-2" },

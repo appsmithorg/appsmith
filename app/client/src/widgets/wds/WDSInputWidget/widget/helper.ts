@@ -7,7 +7,7 @@ import {
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { InputType } from "../component/types";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -131,6 +131,8 @@ export const validateInput = (props: InputWidgetProps): Validation => {
 export function inputTypeUpdateHook(
   props: WidgetProps,
   propertyName: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ) {
   const updates = [

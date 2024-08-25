@@ -1,9 +1,9 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getCurrentPageId } from "./editorSelectors";
 import type { FocusEntityInfo } from "../navigation/FocusEntity";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
-import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
-import { selectQuerySegmentEditorTabs } from "@appsmith/selectors/appIDESelectors";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { selectQuerySegmentEditorTabs } from "ee/selectors/appIDESelectors";
 
 export const getQueryPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.queryPane.selectedConfigTabIndex;

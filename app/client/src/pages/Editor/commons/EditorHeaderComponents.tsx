@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Profile } from "pages/common/ProfileImage";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 
 export const HeaderWrapper = styled.div`
   width: 100%;

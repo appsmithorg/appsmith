@@ -1,19 +1,17 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   Workspace,
   WorkspaceUser,
   WorkspaceUserRoles,
-} from "@appsmith/constants/workspaceConstants";
-import type { Package } from "@appsmith/constants/PackageConstants";
-import type { UpdateApplicationRequest } from "@appsmith/api/ApplicationApi";
+} from "ee/constants/workspaceConstants";
+import type { Package } from "ee/constants/PackageConstants";
+import type { UpdateApplicationRequest } from "ee/api/ApplicationApi";
 
 export interface SelectedWorkspaceReduxState {
   workspace: Workspace;

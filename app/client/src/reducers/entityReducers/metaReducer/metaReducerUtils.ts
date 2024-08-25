@@ -2,11 +2,11 @@ import type {
   WidgetEntity,
   WidgetEntityConfig,
   PropertyOverrideDependency,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { klona } from "klona";
 import type { MetaState, WidgetMetaState } from ".";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import produce from "immer";
 import { set, unset } from "lodash";
 

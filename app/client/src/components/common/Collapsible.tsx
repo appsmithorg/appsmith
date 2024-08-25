@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import { Icon, Text, Tooltip } from "design-system";
-import { Classes, getTypographyByKey } from "design-system-old";
+import { Icon, Text, Tooltip } from "@appsmith/ads";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import type { Datasource } from "entities/Datasource";
 
 const Label = styled.span`
@@ -71,6 +71,8 @@ export interface CollapsibleProps {
   expand?: boolean;
   children: ReactNode;
   label: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
   datasource?: Partial<Datasource>;

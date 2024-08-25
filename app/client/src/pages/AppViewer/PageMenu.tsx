@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import type {
-  ApplicationPayload,
-  Page,
-} from "@appsmith/constants/ReduxActionConstants";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import classNames from "classnames";
 import PrimaryCTA from "./PrimaryCTA";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
@@ -23,7 +21,7 @@ import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
 import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
 import BackToAppsButton from "./Navigation/components/BackToAppsButton";
-import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
+import { getHideWatermark } from "ee/selectors/tenantSelectors";
 
 interface NavigationProps {
   isOpen?: boolean;
@@ -36,6 +34,8 @@ interface NavigationProps {
 
 export function PageMenu(props: NavigationProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const menuRef = useRef<any>();
   const selectedTheme = useSelector(getSelectedAppTheme);
   const workspaceID = useSelector(getCurrentWorkspaceId);
@@ -180,7 +180,7 @@ function PageNavLink({
   const selectedTheme = useSelector(getSelectedAppTheme);
   const pathname = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { pageId: page.pageId },
+    { basePageId: page.basePageId },
   );
 
   return (
@@ -190,7 +190,7 @@ function PageNavLink({
         borderColor: selectedTheme.properties.colors.primaryColor,
       }}
       className="flex flex-col px-4 py-2 no-underline border-transparent border-r-3 hover:no-underline"
-      key={page.pageId}
+      key={page.basePageId}
       navColorStyle={navColorStyle}
       onClick={closeMenu}
       primaryColor={primaryColor}

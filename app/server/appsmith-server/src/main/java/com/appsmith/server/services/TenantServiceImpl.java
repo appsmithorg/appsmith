@@ -10,13 +10,11 @@ import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
 
     public TenantServiceImpl(
-            Scheduler scheduler,
             Validator validator,
             TenantRepository repository,
             AnalyticsService analyticsService,

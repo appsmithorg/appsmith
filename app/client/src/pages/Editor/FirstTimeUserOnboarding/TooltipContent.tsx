@@ -4,7 +4,7 @@ import {
   SIGNPOSTING_TOOLTIP,
   SIGNPOSTING_LAST_STEP_TOOLTIP,
   SIGNPOSTING_SUCCESS_POPUP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,7 +15,7 @@ import {
   getPageActions,
   getCanvasWidgets,
   getSavedDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { showSignpostingTooltip } from "actions/onboardingActions";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";

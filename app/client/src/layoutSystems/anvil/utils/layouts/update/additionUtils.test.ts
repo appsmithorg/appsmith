@@ -189,6 +189,8 @@ describe("Layouts - additionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
       const res: WidgetLayoutProps[] | LayoutProps[] =
         prepareWidgetsForAddition(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {} as any,
           layout,
           mockAnvilHighlightInfo(),
@@ -200,6 +202,8 @@ describe("Layouts - additionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
       const res: WidgetLayoutProps[] | LayoutProps[] =
         prepareWidgetsForAddition(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { getChildTemplate: () => null } as any,
           layout,
           mockAnvilHighlightInfo(),
@@ -218,6 +222,8 @@ describe("Layouts - additionUtils tests", () => {
         generateLayoutComponentMock().layout;
       const res: WidgetLayoutProps[] | LayoutProps[] =
         prepareWidgetsForAddition(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { getChildTemplate: () => ({ ...layoutProps, layout: [] }) } as any,
           layoutProps,
           mockAnvilHighlightInfo(),

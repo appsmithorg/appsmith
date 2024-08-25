@@ -6,24 +6,24 @@ import type {
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { updateisBetaCardShownAction } from "actions/appThemingActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select, call } from "redux-saga/effects";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   CHANGE_APP_THEME,
   createMessage,
   DELETE_APP_THEME,
   SET_DEFAULT_SELECTED_THEME,
-} from "@appsmith/constants/messages";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+} from "ee/constants/messages";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { updateReplayEntity } from "actions/pageActions";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
@@ -41,7 +41,7 @@ import {
 import { find } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
-import { getAllPageIds } from "./selectors";
+import { getAllPageIdentities } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
@@ -105,7 +105,8 @@ export function* fetchAppSelectedTheme(
   const { applicationId, currentTheme } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
-  const pageIds = yield select(getAllPageIds);
+  const pageIdentities: { pageId: string; basePageId: string }[] =
+    yield select(getAllPageIdentities);
   const userDetails = yield select(getCurrentUser);
   const applicationVersion = yield select(selectApplicationVersion);
   try {
@@ -124,7 +125,7 @@ export function* fetchAppSelectedTheme(
       Sentry.captureException("Unable to fetch the selected theme", {
         level: Severity.Critical,
         extra: {
-          pageIds,
+          pageIdentities,
           applicationId,
           applicationVersion,
           userDetails,

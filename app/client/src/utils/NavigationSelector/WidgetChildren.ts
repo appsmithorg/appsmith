@@ -1,7 +1,7 @@
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
 
@@ -9,7 +9,7 @@ export const getWidgetChildrenNavData = (
   widgetName: string,
   widgetType: string,
   dataTree: DataTree,
-  pageId: string,
+  basePageId: string,
 ) => {
   const dataTreeWidget: WidgetEntity = dataTree[widgetName] as WidgetEntity;
   if (widgetType === "FORM_WIDGET") {
@@ -23,7 +23,7 @@ export const getWidgetChildrenNavData = (
           id: `${widgetName}.data.${childWidgetName}`,
           name: childWidgetName,
           type: ENTITY_TYPE.WIDGET,
-          url: builderURL({ pageId, hash: childWidgetId }),
+          url: builderURL({ basePageId, hash: childWidgetId }),
           children: {},
         });
       });

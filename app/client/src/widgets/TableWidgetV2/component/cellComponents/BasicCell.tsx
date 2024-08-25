@@ -6,7 +6,7 @@ import type { BaseCellComponentProps } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),
@@ -76,6 +76,8 @@ const StyledEditIcon = styled.div<{
 
 type PropType = BaseCellComponentProps & {
   accentColor: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   columnType: string;
   tableWidth: number;
