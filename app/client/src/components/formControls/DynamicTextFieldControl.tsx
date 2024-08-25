@@ -73,7 +73,7 @@ class DynamicTextControl extends BaseControl<
           disabled={this.props.disabled}
           evaluatedPopUpLabel={this?.props?.label}
           evaluationSubstitutionType={evaluationSubstitutionType}
-          height="calc(100vh / 4)"
+          height="200px"
           mode={mode}
           name={this.props.configProperty}
           placeholder={placeholderText}
