@@ -40,6 +40,6 @@ export default defineConfig({
     testIsolation: false,
     excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
     screenshotsFolder: 'cypress/snapshots', // Define the directory for snapshots
-    trashAssetsBeforeRuns: true, // Optionally delete previous snapshots before new runs
+   // trashAssetsBeforeRuns: true, // Optionally delete previous snapshots before new runs
   },
 });
