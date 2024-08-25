@@ -38,6 +38,6 @@ export default defineConfig({
       "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
     ],
     screenshotsFolder: 'cypress/snapshots', // Define the directory for snapshots
-    trashAssetsBeforeRuns: true, // Optionally delete previous snapshots before new runs
+   // trashAssetsBeforeRuns: false, // Optionally delete previous snapshots before new runs
   },
 });
