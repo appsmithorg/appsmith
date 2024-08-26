@@ -255,7 +255,7 @@ jobs:
 
       - name: Decode summary content
         run: |
-          decoded_summary_content=$(echo "$summary_content" | base64 -d)
+          decoded_summary_content=$(echo "${{ env.summary_content }}" | base64 -d)
           echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
 
       - name: Add a comment on the PR with new CI failures
