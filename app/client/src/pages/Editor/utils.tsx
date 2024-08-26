@@ -40,7 +40,7 @@ import {
   EditorViewMode,
 } from "ee/entities/IDE/constants";
 import { FocusEntity } from "navigation/FocusEntity";
-import { objectKeys } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 
 export const draggableElement = (
   id: string,
