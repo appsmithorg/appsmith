@@ -1,61 +1,114 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
-      "identifier": "SELECTOR",
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION-ONE",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose method you would like to use to query the database",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "FIND",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z1",
+          "children": [
             {
-              "label": "Find document(s)",
-              "value": "FIND"
+              "label": "Command",
+              "description": "Choose method you would like to use to query the database",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "FIND",
+              "options": [
+                {
+                  "label": "Find document(s)",
+                  "value": "FIND"
+                },
+                {
+                  "label": "Insert document(s)",
+                  "value": "INSERT"
+                },
+                {
+                  "label": "Update document(s)",
+                  "value": "UPDATE"
+                },
+                {
+                  "label": "Delete document(s)",
+                  "value": "DELETE"
+                },
+                {
+                  "label": "Count",
+                  "value": "COUNT"
+                },
+                {
+                  "label": "Distinct",
+                  "value": "DISTINCT"
+                },
+                {
+                  "label": "Aggregate",
+                  "value": "AGGREGATE"
+                },
+                {
+                  "label": "Raw",
+                  "value": "RAW"
+                }
+              ]
             },
             {
-              "label": "Insert document(s)",
-              "value": "INSERT"
-            },
+              "label": "Collection",
+              "configProperty": "actionConfiguration.formData.collection.data",
+              "controlType": "DROP_DOWN",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "propertyName": "get_collections",
+              "fetchOptionsConditionally": true,
+              "alternateViewTypes": ["json"],
+              "identifier": "AGG-COLLECTION",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}",
+                "fetchDynamicValues": {
+                  "condition": "{{true}}",
+                  "config": {
+                    "params": {
+                      "requestType": "_GET_STRUCTURE",
+                      "displayType": "DROP_DOWN"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z2",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}"
+          },
+          "children": [
             {
-              "label": "Update document(s)",
-              "value": "UPDATE"
-            },
+              "label": "Array of pipelines",
+              "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "[{ $project: { tags: 1 } }, { $unwind: \"$tags\" }, { $group: { _id: \"$tags\", count: { $sum : 1 } } }  ]"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z3",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}"
+          },
+          "children": [
             {
-              "label": "Delete document(s)",
-              "value": "DELETE"
-            },
-            {
-              "label": "Count",
-              "value": "COUNT"
-            },
-            {
-              "label": "Distinct",
-              "value": "DISTINCT"
-            },
-            {
-              "label": "Aggregate",
-              "value": "AGGREGATE"
-            },
-            {
-              "label": "Raw",
-              "value": "RAW"
+              "label": "Limit",
+              "configProperty": "actionConfiguration.formData.aggregate.limit.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "initialValue": "10"
             }
           ]
         }
       ]
     }
-  ],
-  "files": [
-    "aggregate.json",
-    "count.json",
-    "delete.json",
-    "distinct.json",
-    "find.json",
-    "insert.json",
-    "update.json",
-    "raw.json"
   ]
 }
