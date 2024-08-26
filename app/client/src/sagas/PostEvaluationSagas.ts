@@ -20,7 +20,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { call, put, select } from "redux-saga/effects";
+import { put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "ee/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -35,7 +35,6 @@ import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "ee/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
-import { logActionExecutionError } from "./ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
@@ -55,18 +54,6 @@ export function* logJSVarCreatedEvent(
       type,
     });
   });
-}
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function* dynamicTriggerErrorHandler(errors: any[]) {
-  if (errors.length > 0) {
-    for (const error of errors) {
-      const errorMessage =
-        error.errorMessage.message.message || error.errorMessage.message;
-      yield call(logActionExecutionError, errorMessage, true);
-    }
-  }
 }
 
 export function* logSuccessfulBindings(

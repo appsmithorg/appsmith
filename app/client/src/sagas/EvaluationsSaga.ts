@@ -48,7 +48,6 @@ import {
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
-  dynamicTriggerErrorHandler,
   handleJSFunctionExecutionErrorLog,
   logJSVarCreatedEvent,
   logSuccessfulBindings,
@@ -111,6 +110,7 @@ import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { transformTriggerEvalErrors } from "ee/sagas/helpers";
+import { showDebuggerOnExecutionError } from "./ActionExecution/errorUtils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -350,7 +350,7 @@ export function* evaluateAndExecuteDynamicTrigger(
     errors,
   );
 
-  yield call(dynamicTriggerErrorHandler, transformedErrors);
+  yield fork(showDebuggerOnExecutionError);
   yield fork(logDynamicTriggerExecution, {
     dynamicTrigger,
     errors: transformedErrors,

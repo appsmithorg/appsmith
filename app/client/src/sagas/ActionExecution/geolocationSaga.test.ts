@@ -5,7 +5,7 @@ import {
   getUserLocation,
 } from "./geolocationSaga";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
-import { logActionExecutionError } from "./errorUtils";
+import { showToastOnExecutionError } from "./errorUtils";
 
 const mockFn = jest.fn();
 
@@ -86,7 +86,7 @@ describe("getCurrentLocationSaga", () => {
 
     expect(iter.next().value).toHaveProperty(
       "payload.fn",
-      logActionExecutionError,
+      showToastOnExecutionError,
     );
     expect(iter.next().done).toBe(true);
   });

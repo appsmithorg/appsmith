@@ -55,35 +55,7 @@ export class ActionValidationError extends TriggerFailureError {
   }
 }
 
-export function* logActionExecutionError(
-  errorMessage: string,
-  isExecuteJSFunc = true,
-) {
-  //Commenting as per decision taken for the error hanlding epic to not show the trigger errors in the debugger.
-  // if (triggerPropertyName) {
-  //   AppsmithConsole.addErrors([
-  //     {
-  //       payload: {
-  //         id: `${source?.id}-${triggerPropertyName}`,
-  //         logType: LOG_TYPE.TRIGGER_EVAL_ERROR,
-  //         text: createMessage(DEBUGGER_TRIGGER_ERROR, triggerPropertyName),
-  //         source: {
-  //           type: ENTITY_TYPE.WIDGET,
-  //           id: source?.id ?? "",
-  //           name: source?.name ?? "",
-  //           propertyPath: triggerPropertyName,
-  //         },
-  //         messages: [
-  //           {
-  //             type: errorType,
-  //             message: { name: "TriggerExecutionError", message: errorMessage },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   ]);
-  // }
-
+export function* showToastOnExecutionError(errorMessage: string) {
   function onDebugClick() {
     const appMode = getAppMode(store.getState());
     if (appMode === "PUBLISHED") return null;
@@ -95,16 +67,22 @@ export function* logActionExecutionError(
     store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }
 
-  if (isExecuteJSFunc)
-    // This is the toast that is rendered when any unhandled error occurs in JS object.
-    yield call(showToast, errorMessage, {
-      kind: "error",
-      action: {
-        text: "debug",
-        effect: () => onDebugClick(),
-        className: "t--toast-debug-button",
-      },
-    });
+  // This is the toast that is rendered when any unhandled error occurs in JS object.
+  yield call(showToast, errorMessage, {
+    kind: "error",
+    action: {
+      text: "debug",
+      effect: () => onDebugClick(),
+      className: "t--toast-debug-button",
+    },
+  });
+}
+
+export function* showDebuggerOnExecutionError() {
+  const appMode = getAppMode(store.getState());
+  if (appMode === "PUBLISHED") return null;
+  store.dispatch(showDebugger(true));
+  store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
 }
 
 /*
