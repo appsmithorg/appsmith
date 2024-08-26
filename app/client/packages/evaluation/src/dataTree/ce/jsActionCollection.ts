@@ -1,11 +1,14 @@
-import { EvaluationSubstitutionType, type DependencyMap } from "../../common";
 import { ENTITY_TYPE } from "@appsmith/types";
+import { EvaluationSubstitutionType, type DependencyMap } from "../../common";
 
-interface JSConfig {
+export interface JSConfig {
   id: string;
   name: string;
   pluginType: "JS";
   body?: string;
+  moduleId?: string;
+  moduleInstanceId?: string;
+  isPublic?: boolean;
   actions?: Array<{
     name: string;
     confirmBeforeExecute?: boolean;
@@ -25,13 +28,13 @@ interface JSConfig {
   }[];
 }
 
-type JSUnEvalEntity = Record<string, unknown> & {
+export type JSUnEvalEntity = Record<string, unknown> & {
   ENTITY_TYPE: ENTITY_TYPE.JSACTION;
   actionId: string;
   body?: string;
 };
 
-interface JSConfigEntity {
+export interface JSConfigEntity {
   meta: Record<
     string,
     {
@@ -72,7 +75,7 @@ export const generateDataTreeJSAction = (
       confirmBeforeExecute: boolean;
     }
   > = {};
-  const dynamicBindingPathList = [];
+  const dynamicBindingPathList: { key: string }[] = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
