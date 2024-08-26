@@ -93,10 +93,10 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     private String slug;
 
     @JsonView({Views.Internal.class, Git.class})
-    AppLayoutCE unpublishedAppLayout;
+    Application.AppLayout unpublishedAppLayout;
 
     @JsonView(Views.Internal.class)
-    AppLayoutCE publishedAppLayout;
+    Application.AppLayout publishedAppLayout;
 
     @JsonView(Views.Public.class)
     Set<CustomJSLibContextDTO> unpublishedCustomJSLibs;
@@ -218,10 +218,10 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null
             ? null
-            : new AppLayoutCE(application.getUnpublishedAppLayout().type);
+            : new Application.AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null
             ? null
-            : new AppLayoutCE(application.getPublishedAppLayout().type);
+            : new Application.AppLayout(application.getPublishedAppLayout().type);
         this.setUnpublishedApplicationDetail(new ApplicationDetail());
         this.setPublishedApplicationDetail(new ApplicationDetail());
         if (application.getUnpublishedApplicationDetail() == null) {
@@ -343,11 +343,11 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         return Boolean.TRUE.equals(viewMode) ? publishedPages : pages;
     }
 
-    public AppLayoutCE getAppLayout() {
+    public Application.AppLayout getAppLayout() {
         return Boolean.TRUE.equals(viewMode) ? publishedAppLayout : unpublishedAppLayout;
     }
 
-    public void setAppLayout(AppLayoutCE appLayout) {
+    public void setAppLayout(Application.AppLayout appLayout) {
         if (Boolean.TRUE.equals(viewMode)) {
             publishedAppLayout = appLayout;
         } else {
