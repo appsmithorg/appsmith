@@ -15,7 +15,6 @@ jobs:
       runId: ${{steps.args.outputs.runId}}
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
       run_count: ${{ steps.countArgs.outputs.run_count }}
-      summary_content: ${{ steps.limited-tests.outputs.summary_content }}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -148,7 +147,6 @@ jobs:
       pr: ${{ fromJson(needs.file-check.outputs.pr) }}
       run_count: ${{ fromJson(needs.file-check.outputs.run_count) }}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) != '0' && fromJson(needs.file-check.outputs.runId) || null }}      
-
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
