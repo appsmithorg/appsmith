@@ -57,9 +57,8 @@
               "propertyName": "get_collections",
               "fetchOptionsConditionally": true,
               "alternateViewTypes": ["json"],
-              "identifier": "AGG-COLLECTION",
               "conditionals": {
-                "show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}",
+                "show": "{{actionConfiguration.formData.command.data !== 'RAW'}}",
                 "fetchDynamicValues": {
                   "condition": "{{true}}",
                   "config": {
@@ -105,6 +104,287 @@
               "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "initialValue": "10"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z4",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'COUNT'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.count.query.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z5",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.delete.query.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z6",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"
+          },
+          "children": [
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.formData.delete.limit.data",
+              "controlType": "DROP_DOWN",
+              "-subtitle": "Allowed values: SINGLE, ALL",
+              "-tooltipText": "Allowed values: SINGLE, ALL",
+              "-alternateViewTypes": ["json"],
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All matching documents",
+                  "value": "ALL"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z7",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'DISTINCT'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.distinct.query.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z8",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'DISTINCT'}}"
+          },
+          "children": [
+            {
+              "label": "Key",
+              "configProperty": "actionConfiguration.formData.distinct.key.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "name"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z9",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'FIND'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.find.query.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z10",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'FIND'}}"
+          },
+          "children": [
+            {
+              "label": "Sort",
+              "configProperty": "actionConfiguration.formData.find.sort.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{name : 1}"
+            },
+            {
+              "label": "Projection",
+              "configProperty": "actionConfiguration.formData.find.projection.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{name : 1}"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z11",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'FIND'}}"
+          },
+          "children": [
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.formData.find.limit.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "10"
+            },
+            {
+              "label": "Skip",
+              "configProperty": "actionConfiguration.formData.find.skip.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "0"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z12",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'INSERT'}}"
+          },
+          "children": [
+            {
+              "label": "Documents",
+              "configProperty": "actionConfiguration.formData.insert.documents.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "[ { _id: 1, user: \"abc123\", status: \"A\" } ]"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z13",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPDATE'}}"
+          },
+          "children": [
+            {
+              "label": "Query",
+              "configProperty": "actionConfiguration.formData.updateMany.query.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{rating : {$gte : 9}}"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z14",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPDATE'}}"
+          },
+          "children": [
+            {
+              "label": "Update",
+              "configProperty": "actionConfiguration.formData.updateMany.update.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "inputType": "JSON",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{ $inc: { score: 1 } }"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z15",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPDATE'}}"
+          },
+          "children": [
+            {
+              "label": "Limit",
+              "configProperty": "actionConfiguration.formData.updateMany.limit.data",
+              "controlType": "DROP_DOWN",
+              "-subtitle": "Allowed values: SINGLE, ALL",
+              "-tooltipText": "Allowed values: SINGLE, ALL",
+              "-alternateViewTypes": ["json"],
+              "initialValue": "SINGLE",
+              "options": [
+                {
+                  "label": "Single document",
+                  "value": "SINGLE"
+                },
+                {
+                  "label": "All matching documents",
+                  "value": "ALL"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z16",
+          "label": "Query",
+          "description": "Optional",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'RAW'}}"
+          },
+          "children": [
+            {
+              "label": "",
+              "propertyName": "rawWithSmartSubstitute",
+              "configProperty": "actionConfiguration.formData.body.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "SMART_SUBSTITUTE",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command.data === 'RAW' && actionConfiguration.formData.smartSubstitution.data === true}}"
+              }
+            },
+            {
+              "label": "",
+              "configProperty": "actionConfiguration.formData.body.data",
+              "propertyName": "rawWithTemplateSubstitute",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.command.data === 'RAW' && actionConfiguration.formData.smartSubstitution.data === false}}"
+              }
             }
           ]
         }
