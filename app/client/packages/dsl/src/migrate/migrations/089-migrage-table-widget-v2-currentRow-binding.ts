@@ -1,5 +1,6 @@
+import { isDynamicValue } from "@appsmith/evaluation";
 import type { ColumnProperties, DSLWidget, WidgetProps } from "../types";
-import { isDynamicValue, traverseDSLAndMigrate } from "../utils";
+import { traverseDSLAndMigrate } from "../utils";
 
 const ORIGINAL_INDEX_KEY = "__originalIndex__";
 const PRIMARY_COLUMN_KEY_VALUE = "__primaryKey__";
