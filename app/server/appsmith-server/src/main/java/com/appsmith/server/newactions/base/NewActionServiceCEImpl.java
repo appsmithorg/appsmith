@@ -81,10 +81,8 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_PLUGIN_FROM_DB;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FILTER_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FINAL_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_INITIAL_ACTION;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SANITISE_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -741,15 +739,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             Sort sort,
             List<String> excludedPluginTypes) {
         return repository
-                .findByApplicationIdAndPluginType(applicationId, excludedPluginTypes, permission, sort)
+                .findPublishedActionsByApplicationIdAndPluginType(applicationId, excludedPluginTypes, permission, sort)
                 .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
-                .tap(Micrometer.observation(observationRegistry))
-                // In case of view mode being true, filter out all the actions which haven't been published
-                .flatMap(action -> this.filterAction(action, viewMode))
-                .name(VIEW_MODE_FILTER_ACTION)
-                .tap(Micrometer.observation(observationRegistry))
-                .flatMap(this::sanitizeAction)
-                .name(VIEW_MODE_SANITISE_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -802,7 +793,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         applicationId, true, actionPermission.getExecutePermission(), null, excludedPluginTypes)
                 .name(VIEW_MODE_INITIAL_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
-                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
                 .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true))
                 .name(VIEW_MODE_FINAL_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
