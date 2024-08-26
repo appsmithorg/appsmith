@@ -116,7 +116,7 @@
     "craco-babel-loader": "^1.0.4",
     "cssnano": "^6.0.1",
     "cypress-log-to-output": "^1.1.2",
-    "cypress-repeat-updated": "^2.0.2",
+    "cypress-repeat-pro": "^1.0.0",
     "d3-geo": "^3.1.0",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
