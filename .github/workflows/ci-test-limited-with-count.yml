@@ -353,15 +353,7 @@ jobs:
                   --spec ${{ env.specs_to_run }} \
                   --config-file "cypress_ci_custom.config.ts"
             cat cy-repeat-summary.txt
-                       
-      - name: Read and encode summary file content
-        id: read-summary
-        run: |
-              pwd
-              # Encode the summary content to base64 to handle multi-line content
-              summary_content=$(base64 -w 0 "${{ github.workspace }}/app/client/cy-repeat-summary.txt")
-              echo "summary_content=$summary_content" >> $GITHUB_ENV
-              
+                        
       - name: Trim number of cypress log files
         if: failure()
         run: |
