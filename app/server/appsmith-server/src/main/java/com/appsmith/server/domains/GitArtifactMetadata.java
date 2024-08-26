@@ -89,6 +89,11 @@ public class GitArtifactMetadata implements AppsmithDomain {
     @JsonView(Views.Metadata.class)
     AutoCommitConfig autoCommitConfig;
 
+    /**
+     * Keeps track of the current migration version of the artifact. If it's less than the latest, then while
+     * auto-deployment, a permission migration takes place on artifact and its resources.
+     * The value is then changed to latest cdMigrationVersion from JsonSchemaVersions.
+     */
     @JsonView(Views.Internal.class)
     Integer cdMigrationVersion;
 
