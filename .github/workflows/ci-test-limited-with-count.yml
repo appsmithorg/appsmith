@@ -356,8 +356,8 @@ jobs:
                        
       - name: Read summary file content
         id: read-summary
-        run: echo "summary_content=$(cat cy-repeat-summary.txt)" >> $GITHUB_ENV
-              
+        run: echo "summary_content=$(cat app/client/cy-repeat-summary.txt)" >> $GITHUB_ENV
+
       - name: Trim number of cypress log files
         if: failure()
         run: |
