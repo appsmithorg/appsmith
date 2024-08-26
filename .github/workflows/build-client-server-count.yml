@@ -253,6 +253,11 @@ jobs:
       #     echo "$new_failed_spec_env" >> $GITHUB_ENV
       #     echo "EOF" >> $GITHUB_ENV
 
+      - name: Read and encode summary file content
+        id: read-summary
+        run: |
+            echo "summary_content=$(cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt | base64)" >> $GITHUB_ENV
+
       - name: Decode summary content
         run: |
           decoded_summary_content=$(echo "${{ env.summary_content }}" | base64 -d)
