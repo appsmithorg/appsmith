@@ -72,7 +72,7 @@ jobs:
 
           # This is the ChannelId of the tech channel.
           body="$(jq -nc \
-            --arg channel CGBPVEJ5C \
+            --arg channel C06Q3A97USE \
             --arg text "$slack_message" \
             '$ARGS.named'
           )"
