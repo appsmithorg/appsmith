@@ -131,6 +131,7 @@ jobs:
     steps:
       - name: Decode Summary Content
         run: |
+            echo "Raw Summary Content: ${{ needs.ci-test-limited.outputs.summary_content }}"
             echo "Raw Summary Content: ${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
             decoded_summary_content="${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
             echo "Decoded Summary Content: $decoded_summary_content"
