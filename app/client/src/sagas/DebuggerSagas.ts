@@ -1,6 +1,8 @@
-import type {
-  DeleteErrorLogPayload,
-  LogDebuggerErrorAnalyticsPayload,
+import {
+  type DeleteErrorLogPayload,
+  type LogDebuggerErrorAnalyticsPayload,
+  setDebuggerSelectedTab,
+  showDebugger,
 } from "actions/debuggerActions";
 import {
   addErrorLogs,
@@ -40,7 +42,10 @@ import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getConfigTree } from "selectors/dataTreeSelectors";
-import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
+import {
+  createLogTitleString,
+  DEBUGGER_TAB_KEYS,
+} from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
@@ -56,6 +61,7 @@ import {
   transformAddErrorLogsSaga,
   transformDeleteErrorLogsSaga,
 } from "ee/sagas/helpers";
+import { objectKeys } from "@appsmith/utils";
 
 let blockedSource: string | null = null;
 
@@ -812,6 +818,17 @@ function* activeFieldDebuggerErrorHandler(
   }
 }
 
+function* handleHideDebuggerSaga(action: ReduxAction<boolean>) {
+  const { payload } = action;
+  const currentDebuggerErrors: Record<string, Log> =
+    yield select(getDebuggerErrors);
+
+  if (objectKeys(currentDebuggerErrors).length && !payload) {
+    yield put(showDebugger());
+    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  }
+}
+
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
@@ -823,5 +840,6 @@ export default function* debuggerSagasListeners() {
       ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
       deleteDebuggerErrorLogsSaga,
     ),
+    takeEvery(ReduxActionTypes.HIDE_DEBUGGER_ERRORS, handleHideDebuggerSaga),
   ]);
 }
