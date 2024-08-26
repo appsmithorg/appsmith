@@ -359,7 +359,7 @@ jobs:
       - name: Encode summary content
         id: encode-summary
         run: |
-            summary_content=$(cat cy-repeat-summary.txt | base64)
+            summary_content=$(cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt | base64)
             echo "summary_content=$summary_content" >> $GITHUB_OUTPUT
 
       - name: Trim number of cypress log files
