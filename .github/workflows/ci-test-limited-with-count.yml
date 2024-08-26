@@ -39,6 +39,8 @@ on:
 jobs:
   ci-test-limited:
     runs-on: ubuntu-latest
+    outputs:
+        summary_content: ${{ steps.encode-summary.outputs.summary_content }} # Define the output for the job
     #timeout-minutes: 50
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -353,7 +355,13 @@ jobs:
                   --spec ${{ env.specs_to_run }} \
                   --config-file "cypress_ci_custom.config.ts"
             cat cy-repeat-summary.txt
-                        
+         
+      - name: Encode summary content
+        id: encode-summary
+        run: |
+            summary_content=$(cat cy-repeat-summary.txt | base64)
+            echo "::set-output name=summary_content::$summary_content"
+
       - name: Trim number of cypress log files
         if: failure()
         run: |

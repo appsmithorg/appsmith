@@ -15,6 +15,7 @@ jobs:
       runId: ${{steps.args.outputs.runId}}
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
       run_count: ${{ steps.countArgs.outputs.run_count }}
+      summary_content: ${{ steps.limited-tests.outputs.summary_content }}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -139,26 +140,15 @@ jobs:
 
   ci-test-limited:
     needs: [file-check]
-    # Only run if the build step is successful
-    if: success() && needs.file-check.outputs.runId == '0'
+    if: success()
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited-with-count.yml
     secrets: inherit
     with:
-      pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
+      pr: ${{ fromJson(needs.file-check.outputs.pr) }}
+      run_count: ${{ fromJson(needs.file-check.outputs.run_count) }}
+      previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) != '0' && fromJson(needs.file-check.outputs.runId) || null }}      
 
-  ci-test-limited-existing-docker-image:
-    needs: [file-check]
-    # Only run if the previous run-id is provided
-    if: success() && needs.file-check.outputs.runId != '0'
-    name: ci-test-limited-existing-image
-    uses: ./.github/workflows/ci-test-limited-with-count.yml
-    secrets: inherit
-    with:
-      pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
-      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
@@ -253,14 +243,9 @@ jobs:
       #     echo "$new_failed_spec_env" >> $GITHUB_ENV
       #     echo "EOF" >> $GITHUB_ENV
 
-      - name: Read and encode summary file content
-        id: read-summary
+      - name: Decode Summary Content
         run: |
-            echo "summary_content=$(cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt | base64)" >> $GITHUB_ENV
-
-      - name: Decode summary content
-        run: |
-          decoded_summary_content=$(echo "${{ env.summary_content }}" | base64 -d)
+          decoded_summary_content=$(echo "${{ needs.ci-test-limited.outputs.summary_content }}" | base64 -d)
           echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
 
       - name: Add a comment on the PR with new CI failures
