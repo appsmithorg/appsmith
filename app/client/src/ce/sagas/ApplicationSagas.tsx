@@ -688,7 +688,6 @@ export function* forkApplicationSaga(
           payload: {
             applicationId: application.id,
             pageId: defaultPage?.id,
-            mode: APP_MODE.EDIT,
           },
         });
       }
