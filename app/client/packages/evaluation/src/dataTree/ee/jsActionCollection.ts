@@ -1,1 +1,1 @@
-export { generateDataTreeJSAction } from "../ce/jsActionCollection";
+export * from "../ce/jsActionCollection";
