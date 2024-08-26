@@ -8,6 +8,7 @@ import { get, remove, set } from "lodash";
 export const IDETabsDefaultValue = {
   [EditorEntityTab.JS]: [],
   [EditorEntityTab.QUERIES]: [],
+  [EditorEntityTab.UI]: [],
 };
 
 const initialState: IDEState = {

@@ -137,6 +137,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anApi.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -184,6 +185,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anApi.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -230,6 +232,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anApi.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -270,6 +273,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anApi.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -324,6 +328,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -373,6 +378,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -423,6 +429,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -466,6 +473,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -522,6 +530,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -572,6 +581,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -625,6 +635,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -669,6 +680,7 @@ describe("IDE URL rendering of Queries", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [anQuery.baseId],
           [EditorEntityTab.JS]: [],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });

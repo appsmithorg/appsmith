@@ -95,6 +95,7 @@ describe("EditorTabs render checks", () => {
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
+        [EditorEntityTab.UI]: [],
       },
     });
     const { getByTestId, queryByTestId } = renderComponent(
@@ -135,6 +136,7 @@ describe("EditorTabs render checks", () => {
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
+        [EditorEntityTab.UI]: [],
       },
     });
     const { getByTestId, queryByTestId } = renderComponent(
@@ -172,6 +174,7 @@ describe("EditorTabs render checks", () => {
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
+        [EditorEntityTab.UI]: [],
       },
     });
     const { getByTestId } = renderComponent(
@@ -198,6 +201,7 @@ describe("EditorTabs render checks", () => {
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
+        [EditorEntityTab.UI]: [],
       },
     });
     const { getByTestId } = renderComponent(
@@ -221,6 +225,7 @@ describe("EditorTabs render checks", () => {
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
+        [EditorEntityTab.UI]: [],
       },
     });
     const { getByTestId } = renderComponent(
@@ -244,6 +249,7 @@ describe("EditorTabs render checks", () => {
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
+        [EditorEntityTab.UI]: [],
       },
     });
     const { getByTestId } = renderComponent(
@@ -271,6 +277,7 @@ describe("EditorTabs render checks", () => {
       tabs: {
         [EditorEntityTab.QUERIES]: [anApi.baseId],
         [EditorEntityTab.JS]: [],
+        [EditorEntityTab.UI]: [],
       },
     });
     const { queryByTestId } = renderComponent(

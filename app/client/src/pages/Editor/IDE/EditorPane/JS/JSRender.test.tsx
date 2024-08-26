@@ -128,6 +128,7 @@ describe("IDE Render: JS", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [],
           [EditorEntityTab.JS]: [js1.baseId],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -176,6 +177,7 @@ describe("IDE Render: JS", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [],
           [EditorEntityTab.JS]: [js2.baseId],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -226,6 +228,7 @@ describe("IDE Render: JS", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [],
           [EditorEntityTab.JS]: [js3.baseId],
+          [EditorEntityTab.UI]: [],
         },
       });
 
@@ -267,6 +270,7 @@ describe("IDE Render: JS", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [],
           [EditorEntityTab.JS]: [js4.baseId],
+          [EditorEntityTab.UI]: [],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -318,6 +322,7 @@ describe("IDE Render: JS", () => {
         tabs: {
           [EditorEntityTab.QUERIES]: [],
           [EditorEntityTab.JS]: [Main_JS.baseId],
+          [EditorEntityTab.UI]: [],
         },
       });
 
