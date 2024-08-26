@@ -306,7 +306,7 @@ describe(
       );
     });
 
-    it("10. Validate using function inside label key works correctly", () => {
+    it("10. Validate using function inside label key returns correct label options", () => {
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       propPane.ToggleJSMode("Label key", true);
@@ -317,7 +317,7 @@ describe(
       });
     });
 
-    it("11. Validate using function inside value key works correctly", () => {
+    it("11. Validate using function inside value key returns correct label options", () => {
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
       propPane.ToggleJSMode("Value key", true);
       propPane.UpdatePropertyFieldValue("Value key", "{{(() => 'code')()}}");
