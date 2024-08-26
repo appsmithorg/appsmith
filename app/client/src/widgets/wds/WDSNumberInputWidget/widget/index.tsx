@@ -1,6 +1,6 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
-import { InputIcon, InputThumbnail } from "appsmith-icons";
+import { NumberInputIcon, NumberInputThumbnail } from "appsmith-icons";
 import { INPUT_TYPES } from "widgets/wds/WDSInputWidget/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
@@ -27,8 +27,8 @@ class WDSNumberInputWidget extends WDSInputWidget {
   static getMethods() {
     return {
       ...super.getMethods(),
-      IconCmp: InputIcon,
-      ThumbnailCmp: InputThumbnail,
+      IconCmp: NumberInputIcon,
+      ThumbnailCmp: NumberInputThumbnail,
     };
   }
 }
