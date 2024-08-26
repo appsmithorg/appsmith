@@ -38,6 +38,7 @@ describe(
   () => {
     before(() => {
       agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
+      debuggerHelper.ClickDebuggerIcon();
     });
 
     it("1. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
