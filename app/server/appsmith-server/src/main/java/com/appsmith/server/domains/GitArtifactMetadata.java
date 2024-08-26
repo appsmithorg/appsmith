@@ -89,6 +89,9 @@ public class GitArtifactMetadata implements AppsmithDomain {
     @JsonView(Views.Metadata.class)
     AutoCommitConfig autoCommitConfig;
 
+    @JsonView(Views.Internal.class)
+    Integer cdMigrationVersion;
+
     /**
      * Boolean flag to store whether auto deployment is enabled for any branch of this application.
      * If true, any branch of this application can be automatically deployed using git web hook.

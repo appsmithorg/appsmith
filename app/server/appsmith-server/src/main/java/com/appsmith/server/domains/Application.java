@@ -513,6 +513,8 @@ public class Application extends BaseDomain implements Artifact {
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
         public static final String gitApplicationMetadata_isAutoDeploymentEnabled =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isAutoDeploymentEnabled);
+        public static final String gitApplicationMetadata_cdMigrationVersion =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.cdMigrationVersion);
         public static final String gitApplicationMetadata_branchName =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.branchName);
         public static final String gitApplicationMetadata_isRepoPrivate =
