@@ -57,7 +57,6 @@ jobs:
       - name: Notify on merge conflicts
         if: steps.merge_commits.outputs.CONFLICTED_COMMITS != ''
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           REPOSITORY_URL: ${{ github.repository_url }}
         run: |
           # Prepare the message for Slack
@@ -68,4 +67,18 @@ jobs:
           done
 
           # Send the message to Slack
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$message\"}" $SLACK_WEBHOOK_URL
+          # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
+          slack_message="$(echo "$message" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
+
+          # This is the ChannelId of the tech channel.
+          body="$(jq -nc \
+            --arg channel CGBPVEJ5C \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
+
+          curl --version
+          curl -v https://slack.com/api/chat.postMessage \
+            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw "$body"
