@@ -358,7 +358,7 @@ jobs:
         id: read-summary
         run: |
           pwd
-          echo "summary_content=$(cat app/client/cy-repeat-summary.txt)" >> $GITHUB_ENV
+          echo "summary_content=$(cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt)" >> $GITHUB_ENV
 
       - name: Trim number of cypress log files
         if: failure()
