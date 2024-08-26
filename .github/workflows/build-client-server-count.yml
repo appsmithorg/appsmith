@@ -172,7 +172,7 @@ jobs:
       - name: Decode Summary Content
         run: |
           echo "${{ needs.ci-test-limited.outputs.summary_content }}
-          decoded_summary_content=$(echo "${{ needs.ci-test-limited.outputs.summary_content }}" | base64 -d)
+          decoded_summary_content=$(echo "${{ needs.ci-test-limited.outputs.summary_content }}" )
           echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
 
       - name: Add a comment on the PR with new CI failures
@@ -302,7 +302,7 @@ jobs:
 
       - name: Decode Summary Content
         run: |
-          decoded_summary_content=$(echo "${{ needs.ci-test-limited-existing-docker-image.outputs.summary_content }}"  | base64 -d))
+          decoded_summary_content=$(echo "${{ needs.ci-test-limited-existing-docker-image.outputs.summary_content }}")
           echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
   
       - name: Add a comment on the PR with new CI failures
