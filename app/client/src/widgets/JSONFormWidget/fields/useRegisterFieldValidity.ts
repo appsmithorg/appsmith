@@ -51,15 +51,7 @@ function useRegisterFieldValidity({
         Sentry.captureException(e);
       }
     }, 0);
-  }, [
-    isValid,
-    fieldName,
-    fieldType,
-    setMetaInternalFieldState,
-    error,
-    clearErrors,
-    setError,
-  ]);
+  }, [isValid, fieldName, fieldType, error, clearErrors, setError]);
 
   useEffect(() => {
     setMetaInternalFieldState((prevState) => {
