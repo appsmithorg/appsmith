@@ -360,7 +360,7 @@ jobs:
         id: encode-summary
         run: |
             summary_content=$(cat cy-repeat-summary.txt | base64)
-            echo "::set-output name=summary_content::$summary_content"
+            echo "summary_content=$summary_content" >> $GITHUB_OUTPUT
 
       - name: Trim number of cypress log files
         if: failure()

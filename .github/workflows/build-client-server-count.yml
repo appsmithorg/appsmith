@@ -15,7 +15,6 @@ jobs:
       runId: ${{steps.args.outputs.runId}}
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
       run_count: ${{ steps.countArgs.outputs.run_count }}
-      summary_content: ${{ steps.ci-test-limited.outputs.summary_content }}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -140,15 +139,26 @@ jobs:
 
   ci-test-limited:
     needs: [file-check]
-    if: success()
+    # Only run if the build step is successful
+    if: success() && needs.file-check.outputs.runId == '0'
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited-with-count.yml
     secrets: inherit
     with:
-      pr: ${{ fromJson(needs.file-check.outputs.pr) }}
-      run_count: ${{ fromJson(needs.file-check.outputs.run_count) }}
-      previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) != '0' && fromJson(needs.file-check.outputs.runId) || null }}      
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
+      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
 
+  ci-test-limited-existing-docker-image:
+    needs: [file-check]
+    # Only run if the previous run-id is provided
+    if: success() && needs.file-check.outputs.runId != '0'
+    name: ci-test-limited-existing-image
+    uses: ./.github/workflows/ci-test-limited-with-count.yml
+    secrets: inherit
+    with:
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
+      previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
+      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
@@ -373,6 +383,11 @@ jobs:
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+      - name: Decode Summary Content
+        run: |
+          decoded_summary_content=$(echo "${{ needs.ci-test-limited-existing-docker-image.outputs.summary_content }}" | base64 -d)
+          echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
+  
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited-existing-docker-image.result != 'success' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
@@ -383,6 +398,9 @@ jobs:
             Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+            ```
+            ${{ env.decoded_summary_content }}
+            ```
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
         if: needs.ci-test-limited-existing-docker-image.result == 'success' && needs.file-check.outputs.pr != '0'
@@ -393,6 +411,9 @@ jobs:
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
+            ```
+            ${{ env.decoded_summary_content }}
+            ```
 
       - name: Check ci-test-limited-existing-docker-image set status
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
