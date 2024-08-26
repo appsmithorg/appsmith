@@ -61,8 +61,6 @@ export const pageListReducer = createReducer(initialState, {
       ...action.payload,
       defaultPageId: defaultPage?.pageId,
       defaultBasePageId: defaultPage?.basePageId,
-      currentBasePageId: defaultPage?.basePageId,
-      currentPageId: defaultPage?.basePageId,
     };
   },
   [ReduxActionTypes.UPDATE_PAGE_LIST]: (
