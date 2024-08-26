@@ -253,6 +253,11 @@ jobs:
       #     echo "$new_failed_spec_env" >> $GITHUB_ENV
       #     echo "EOF" >> $GITHUB_ENV
 
+      - name: Decode summary content
+        run: |
+          decoded_summary_content=$(echo "$summary_content" | base64 -d)
+          echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
+
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
@@ -265,7 +270,7 @@ jobs:
             To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
              **Summary of test runs:**
             ```
-            ${{ env.summary_content }}
+            ${{ env.decoded_summary_content }}
             ```
 
       - name: Add a comment on the PR when ci-test-limited is success
@@ -279,7 +284,7 @@ jobs:
             All cypress tests have passed 🎉🎉🎉
             **Summary of test runs:**
             ```
-            ${{ env.summary_content }}
+            ${{ env.decoded_summary_content }}
             ```
       - name: Check ci-test-limited set status
         if: needs.ci-test-limited.result != 'success'
