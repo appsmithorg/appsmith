@@ -38,6 +38,7 @@ const FlexWrapper = styled.div`
 
 const LabelWrapper = styled.div`
   display: flex;
+  font-size: 12px;
   .label-icon-wrapper {
     &.help {
       cursor: help;
