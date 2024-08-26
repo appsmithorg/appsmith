@@ -5,15 +5,15 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import { isString } from "lodash";
 import type { Types } from "utils/TypeHelpers";
-import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns/index";
-import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns/index";
+import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns";
+import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import store from "store";
 import showToast from "sagas/ToastSagas";
-import { call } from "redux-saga/effects";
+import { call, put } from "redux-saga/effects";
 
 /*
  * The base trigger error that also logs the errors in the debugger.
@@ -55,7 +55,10 @@ export class ActionValidationError extends TriggerFailureError {
   }
 }
 
-export function* showToastOnExecutionError(errorMessage: string) {
+export function* showToastOnExecutionError(
+  errorMessage: string,
+  showCTA = true,
+) {
   function onDebugClick() {
     const appMode = getAppMode(store.getState());
     if (appMode === "PUBLISHED") return null;
@@ -67,22 +70,24 @@ export function* showToastOnExecutionError(errorMessage: string) {
     store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }
 
+  const action = showCTA
+    ? {
+        text: "debug",
+        effect: () => onDebugClick(),
+        className: "t--toast-debug-button",
+      }
+    : undefined;
+
   // This is the toast that is rendered when any unhandled error occurs in JS object.
   yield call(showToast, errorMessage, {
     kind: "error",
-    action: {
-      text: "debug",
-      effect: () => onDebugClick(),
-      className: "t--toast-debug-button",
-    },
+    action,
   });
 }
 
 export function* showDebuggerOnExecutionError() {
-  const appMode = getAppMode(store.getState());
-  if (appMode === "PUBLISHED") return null;
-  store.dispatch(showDebugger(true));
-  store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+  yield put(showDebugger(true));
+  yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
 }
 
 /*

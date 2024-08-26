@@ -322,6 +322,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_DELETE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -463,6 +464,7 @@ function* deleteAllSelectedWidgetsSaga(
       payload: {
         action: WidgetReduxActionTypes.WIDGET_DELETE,
         error,
+        logToDebugger: true,
       },
     });
   }

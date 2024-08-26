@@ -30,6 +30,15 @@ import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
 import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
+import AppsmithConsole from "../utils/AppsmithConsole";
+import type { SourceEntity } from "../entities/AppsmithConsole";
+import {
+  setDebuggerSelectedTab,
+  showDebugger,
+} from "../actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/helpers";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import type { APP_MODE } from "../entities/App";
 
 /**
  * making with error message with action name
@@ -192,6 +201,7 @@ enum ErrorEffectTypes {
   SAFE_CRASH = "SAFE_CRASH",
   LOG_TO_CONSOLE = "LOG_TO_CONSOLE",
   LOG_TO_SENTRY = "LOG_TO_SENTRY",
+  LOG_TO_DEBUGGER = "LOG_TO_DEBUGGER",
 }
 
 export interface ErrorActionPayload {
@@ -199,16 +209,24 @@ export interface ErrorActionPayload {
   show?: boolean;
   crash?: boolean;
   logToSentry?: boolean;
+  logToDebugger?: boolean;
+  sourceEntity?: SourceEntity;
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_TO_CONSOLE];
   const { payload, type } = errorAction;
-  const { error, logToSentry, show } = payload || {};
+  const { error, logToDebugger, logToSentry, show, sourceEntity } =
+    payload || {};
   const message = getErrorMessageFromActionType(type, error);
+  const appMode: APP_MODE = yield select(getAppMode);
 
-  if (show) {
+  if (show || appMode === "PUBLISHED") {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
+  }
+
+  if (logToDebugger) {
+    effects.push(ErrorEffectTypes.LOG_TO_DEBUGGER);
   }
 
   if (error && error.crash) {
@@ -224,6 +242,15 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     switch (effect) {
       case ErrorEffectTypes.LOG_TO_CONSOLE: {
         logErrorSaga(errorAction);
+        break;
+      }
+      case ErrorEffectTypes.LOG_TO_DEBUGGER: {
+        AppsmithConsole.error({
+          text: message,
+          source: sourceEntity,
+        });
+        yield put(showDebugger());
+        yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
         break;
       }
       case ErrorEffectTypes.SHOW_ALERT: {

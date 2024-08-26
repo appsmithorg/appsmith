@@ -20,7 +20,7 @@ import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { put, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "ee/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -40,6 +40,10 @@ import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
+import {
+  showDebuggerOnExecutionError,
+  showToastOnExecutionError,
+} from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -54,6 +58,25 @@ export function* logJSVarCreatedEvent(
       type,
     });
   });
+}
+
+export function* showExecutionErrors(errors: EvaluationError[]) {
+  const appMode: APP_MODE = yield select(getAppMode);
+  if (appMode === APP_MODE.EDIT) {
+    // In edit mode, we will instead show the debugger
+    // and not show any toast
+    yield call(showDebuggerOnExecutionError);
+  } else {
+    for (const error of errors) {
+      // in view mode we will show the error messages in toast
+      const errorMessage = get(
+        error,
+        "errorMessage.message.message",
+        error.errorMessage.message,
+      );
+      yield call(showToastOnExecutionError, errorMessage, false);
+    }
+  }
 }
 
 export function* logSuccessfulBindings(
