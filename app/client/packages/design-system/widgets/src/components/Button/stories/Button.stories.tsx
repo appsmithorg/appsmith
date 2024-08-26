@@ -1,13 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Button,
-  Flex,
-  BUTTON_VARIANTS,
-  COLORS,
-  SIZES,
-  objectKeys,
-} from "@appsmith/wds";
+import { Button, Flex, BUTTON_VARIANTS, COLORS, SIZES } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 
 /**
  * A button is a clickable element that is used to trigger an action.

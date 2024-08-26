@@ -1,4 +1,4 @@
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { Text } from "@appsmith/ads";
 import React from "react";
 import { SearchListItem } from "./WorkspaceSearchItems";
