@@ -118,15 +118,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
-
-    steps:
-      - name: Decode Summary Content
-        run: |
-              echo "Raw Summary Content: ${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
-              decoded_summary_content="${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
-              echo "Decoded Summary Content: $decoded_summary_content"
-              echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV      
+      run_count: ${{fromJson(needs.file-check.outputs.run_count)}}    
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
