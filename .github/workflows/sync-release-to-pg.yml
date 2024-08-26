@@ -25,7 +25,7 @@ jobs:
         id: get_commits
         run: |
           COMMITS=$(git log pg..release --oneline | awk '{print $1}')
-          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+          echo "COMMITS=\"$COMMITS\"" >> $GITHUB_ENV
 
       - name: Merge commits one by one
         id: merge_commits
@@ -47,7 +47,7 @@ jobs:
           done
 
           # Save conflicted commits to environment variable
-          echo "CONFLICTED_COMMITS=${conflicted_commits[@]}" >> $GITHUB_ENV
+          echo "CONFLICTED_COMMITS=\"${conflicted_commits[@]}\"" >> $GITHUB_ENV
 
       - name: Push changes
         if: success() && steps.merge_commits.outputs.CONFLICTED_COMMITS == ''
@@ -57,7 +57,7 @@ jobs:
       - name: Notify on merge conflicts
         if: steps.merge_commits.outputs.CONFLICTED_COMMITS != ''
         env:
-          REPOSITORY_URL: ${{ github.repository_url }}
+          REPOSITORY_URL: ${{ github.repositoryUrl }}
         run: |
           # Prepare the message for Slack
           message="Merge conflict detected while merging release into pg branch. Conflicted commits:\n"
