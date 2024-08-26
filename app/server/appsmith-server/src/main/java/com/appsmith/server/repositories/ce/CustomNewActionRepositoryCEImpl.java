@@ -195,6 +195,30 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public List<NewAction> findByApplicationIdAndPluginType(
+            String applicationId,
+            List<String> excludedPluginTypes,
+            AclPermission permission,
+            User currentUser,
+            Sort sort) {
+        return queryBuilder()
+                .criteria(getCriterionForFindByApplicationIdAndPluginType(applicationId, excludedPluginTypes))
+                .permission(permission, currentUser)
+                .sort(sort)
+                .all();
+    }
+
+    protected BridgeQuery<NewAction> getCriterionForFindByApplicationIdAndPluginType(
+            String applicationId, List<String> excludedPluginTypes) {
+        final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
+        q.and(Bridge.or(
+                Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
+                Bridge.isNull(NewAction.Fields.pluginType)));
+
+        return q;
+    }
+
+    @Override
     public List<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, User currentUser) {
         return queryBuilder()

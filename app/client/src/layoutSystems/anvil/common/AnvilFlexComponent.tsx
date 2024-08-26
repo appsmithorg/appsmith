@@ -15,7 +15,7 @@ import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 import styles from "./styles.module.css";
-import { AnvilDataAttributes } from "widgets/anvil/constants";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
