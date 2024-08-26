@@ -156,7 +156,7 @@ export function inputTypeUpdateHook(
     propertyValue: INPUT_TYPE_TO_WIDGET_TYPE_MAP[propertyValue],
   });
 
-  // in casd we are chaging to phone input type & there is no
+  // in case we are chaging to phone input type & there is no
   // defaultDiaCode property in the widget, we will default the country code to US
   if (
     props.defaultDialCode === undefined &&
