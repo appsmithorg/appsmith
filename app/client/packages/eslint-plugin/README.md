@@ -7,17 +7,21 @@ You can create one by following the [official ESLint custom rule](https://eslint
 ## Step 1: Create the Custom Rule File
 
 1. Navigate to your Appsmith ESLint plugin directory i.e. `app/client/packages/eslint-plugin`.
-2. Create a new directory for your custom rule in the root of `app/client/packages/eslint-plugin` directory. For example, `custom-rule/rule.js`.
+2. Create a new directory for your custom rule in the root of `app/client/packages/eslint-plugin` directory. For example, `src/custom-rule/rule.ts`.
 
    ```bash
-   mkdir custom-rule
-   touch custom-rule/rule.js
+   mkdir src/custom-rule
+   touch src/custom-rule/rule.ts
+   touch src/custom-rule/rule.test.ts
    ```
 
-3. Open `custom-rule/rule.js` and define your rule. Here's a basic template to get you started:
+3. Open `src/custom-rule/rule.ts` and define your rule. Here's a basic template to get you started:
 
-   ```js
-   module.exports = {
+   ```ts
+   import type { TSESLint } from "@typescript-eslint/utils";
+
+   export const customRule: TSESLint.RuleModule<"useObjectKeys"> = {
+     defaultOptions: [],
      meta: {
        type: "problem", // or "suggestion" or "layout"
        docs: {
@@ -39,37 +43,40 @@ You can create one by following the [official ESLint custom rule](https://eslint
 
 ## Step 2: Update the Plugin Index File
 
-1. Open the `index.js` file inside `eslint-plugin` directory.
+1. Open the `src/index.ts` file inside `eslint-plugin` directory.
 
-2. Import your custom rule and add it to the rules object in `index.js`. For example:
+2. Import your custom rule and add it to the rules object in `index.ts`. For example:
 
-   ```js
-   const customRule = require("./custom-rule/rule.js");
+   ```ts
+   import { customRule } from "./custom-rule/rule";
 
-   module.exports = {
+   const plugin = {
      rules: {
        "custom-rule": customRule,
      },
+     configs: {
+       recommended: {
+         rules: {
+           "@appsmith/custom-rule": "warn", // Add this in recommended if you want to add this rule by default to the repository as a recommended rule.
+         },
+       },
+     },
    };
+
+   module.exports = plugin;
    ```
 
 ## Step 3: Add Tests for Your Custom Rule
 
-1. Create a test file for your rule in the `custom-rule` directory. For example, `custom-rule/rule.test.js`.
+1. Open `src/custom-rule/rule.test.ts` and write tests using a testing framework like Jest. Here's a basic example using ESLint's `RuleTester`:
 
-   ```bash
-   touch custom-rule/rule.test.js
-   ```
+   ```ts
+   import { TSESLint } from "@typescript-eslint/utils";
+   import { customRule } from "./rule";
 
-2. Open `custom-rule/rule.test.js` and write tests using a testing framework like Mocha or Jest. Here's a basic example using ESLint's `RuleTester`:
+   const ruleTester = new TSESLint.RuleTester();
 
-   ```js
-   const rule = require("./rule");
-   const RuleTester = require("eslint").RuleTester;
-
-   const ruleTester = new RuleTester();
-
-   ruleTester.run("custom-rule", rule, {
+   ruleTester.run("custom-rule", customRule, {
      valid: [
        // Examples of valid code
      ],
@@ -82,7 +89,7 @@ You can create one by following the [official ESLint custom rule](https://eslint
    });
    ```
 
-3. Run your tests to ensure your rule works as expected:
+2. Run your tests to ensure your rule works as expected:
 
    ```bash
    yarn run test:unit
@@ -91,10 +98,10 @@ You can create one by following the [official ESLint custom rule](https://eslint
 ## Step 4: Steps to add it to client
 
 1. Go to `app/client/.eslintrc.base.json`
-2. Add your `custom-rule` entry to the rules object. e.g.
+2. Add your `custom-rule` entry to the rules object or if the recommended rule is present its already added in the config. e.g.
 
    ```javascript
-    "custom-rule": "warn"
+    "@appsmith/custom-rule": "warn"
    ```
 
 ## Additional Resources
