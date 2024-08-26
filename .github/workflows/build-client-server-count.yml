@@ -237,21 +237,21 @@ jobs:
           path: ~/combined_failed_spec_ci
           overwrite: true
 
-      - name: Get Latest flaky Tests
-        shell: bash
-        run: |
-          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+      # - name: Get Latest flaky Tests
+      #   shell: bash
+      #   run: |
+      #     curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
 
       # Verify CI test failures against known failures
-      - name: Verify CI test failures against known failures
-        if: needs.ci-test-limited.result != 'success'
-        shell: bash
-        run: |
-          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
-          echo "$new_failed_spec_env"
-          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
-          echo "$new_failed_spec_env" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+      # - name: Verify CI test failures against known failures
+      #   if: needs.ci-test-limited.result != 'success'
+      #   shell: bash
+      #   run: |
+      #     new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+      #     echo "$new_failed_spec_env"
+      #     echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+      #     echo "$new_failed_spec_env" >> $GITHUB_ENV
+      #     echo "EOF" >> $GITHUB_ENV
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
