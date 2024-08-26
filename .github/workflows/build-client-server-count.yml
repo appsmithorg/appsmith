@@ -120,6 +120,14 @@ jobs:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
 
+    steps:
+      - name: Decode Summary Content
+        run: |
+              echo "Raw Summary Content: ${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
+              decoded_summary_content="${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
+              echo "Decoded Summary Content: $decoded_summary_content"
+              echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV      
+
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
     # Only run if the file-check.runId == 0
@@ -134,11 +142,7 @@ jobs:
             echo "Raw Summary Content: ${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
             decoded_summary_content="${{ needs.ci-test-limited.outputs['summary-output'].summary_content }}"
             echo "Decoded Summary Content: $decoded_summary_content"
-            echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
-
-      - name: Add a comment on the PR with new CI failures
-        run: |
-            echo "Summary of test runs: ${{ env.decoded_summary_content }}"      
+            echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV     
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
