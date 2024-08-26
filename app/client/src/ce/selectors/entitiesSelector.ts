@@ -65,7 +65,8 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { Icon } from "@appsmith/ads";
+import WidgetFactory from "../../WidgetProvider/factory";
+import WidgetIcon from "../../pages/Editor/Explorer/Widgets/WidgetIcon";
 
 export enum GROUP_TYPES {
   API = "APIs",
@@ -1219,6 +1220,7 @@ function getActionValidationConfigFromPlugin(
   }
   return newValidationConfig;
 }
+
 export const getJSActions = (
   state: AppState,
   JSCollectionId: string,
@@ -1599,12 +1601,16 @@ export const getJSSegmentItems = createSelector(
 );
 
 export const getUISegmentItems = createSelector(getCanvasWidgets, (widgets) => {
-  return Object.values(widgets).map((widget) => ({
-    icon: Icon,
-    title: widget.widgetName,
-    key: widget.widgetId,
-    type: PluginType.DB,
-  }));
+  return Object.values(widgets).map((widget) => {
+    const { IconCmp } = WidgetFactory.getWidgetMethods(widget.widgetType);
+    const icon = IconCmp ? IconCmp : WidgetIcon({ type: widget.widgetType });
+    return {
+      icon: icon,
+      title: widget.widgetName,
+      key: widget.widgetId,
+      type: PluginType.DB,
+    };
+  });
 });
 
 export const getSelectedTableName = (state: AppState) =>

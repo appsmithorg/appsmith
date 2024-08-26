@@ -20,6 +20,7 @@ import styled from "styled-components";
 const ListContainer = styled(Flex)`
   & .t--entity-item {
     height: 32px;
+
     & .t--entity-name {
       padding-left: var(--ads-v2-spaces-3);
     }
@@ -61,6 +62,7 @@ const ListWidgets = (props: {
       gap="spaces-3"
       overflow="hidden"
       py="spaces-3"
+      width="100%"
     >
       {!widgetsExist ? (
         /* If no widgets exist, show the blank state */
