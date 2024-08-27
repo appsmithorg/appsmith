@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 

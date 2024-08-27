@@ -36,18 +36,18 @@ import { initAppViewerAction } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   getAppThemeSettings,
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import type { FontFamily } from "@design-system/theming";
+import type { FontFamily } from "@appsmith/wds-theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "ee/selectors/tenantSelectors";

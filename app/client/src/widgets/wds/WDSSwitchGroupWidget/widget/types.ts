@@ -1,4 +1,4 @@
-import type { POSITION } from "@design-system/widgets";
+import type { POSITION } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface OptionProps {

@@ -1,10 +1,11 @@
-import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
 } from "ee/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 
 export const propertyPaneContentConfig = [
   {

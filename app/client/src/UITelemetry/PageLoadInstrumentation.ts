@@ -7,6 +7,7 @@ import type {
   FCPMetricWithAttribution,
   NavigationTimingPolyfillEntry,
 } from "web-vitals";
+import isString from "lodash/isString";
 
 export class PageLoadInstrumentation extends InstrumentationBase {
   // PerformanceObserver to observe resource timings
@@ -108,7 +109,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     }
 
     const elementTestId = element.getAttribute("data-testid");
-    const className = element.className
+    const className = isString(element.className)
       ? "." + element.className.split(" ").join(".")
       : "";
     const elementId = element.id ? `#${element.id}` : "";

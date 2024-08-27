@@ -6,13 +6,12 @@ import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { Icon } from "@appsmith/ads";
 import MenuText from "./MenuText";
-import classNames from "classnames";
 import {
   StyledMenuDropdownContainer,
   StyledMenuItemInDropdown,
   StyleMoreDropdownButton,
 } from "./MoreDropdownButton.styled";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
@@ -57,32 +56,14 @@ const MoreDropdownButton = ({
         }}
         primaryColor={primaryColor}
       >
-        {navigationSetting?.itemStyle !==
-          NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
-          <Icon
-            className={classNames({
-              "page-icon": true,
-              "mr-2":
-                navigationSetting?.itemStyle ===
-                NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
-            })}
-            name="context-menu"
-            size="md"
+        <>
+          <MenuText
+            name="More"
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
           />
-        )}
-
-        {navigationSetting?.itemStyle !==
-          NAVIGATION_SETTINGS.ITEM_STYLE.ICON && (
-          <>
-            <MenuText
-              name="More"
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-            />
-            {/*@ts-expect-error Fix this the next time the file is edited*/}
-            <Icon className="page-icon ml-2" name="expand-more" size="large" />
-          </>
-        )}
+          <Icon className="page-icon ml-2" name="expand-more" size="md" />
+        </>
       </StyleMoreDropdownButton>
     </div>
   );
@@ -124,25 +105,11 @@ const MoreDropdownButton = ({
               state: { invokedBy: NavigationMethod.AppNavigation },
             }}
           >
-            {navigationSetting?.itemStyle !==
-              NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
-              <Icon
-                className={classNames({
-                  "page-icon mr-2": true,
-                })}
-                name="file-line"
-                // @ts-expect-error Fix this the next time the file is edited
-                size="large"
-              />
-            )}
-            {navigationSetting?.itemStyle !==
-              NAVIGATION_SETTINGS.ITEM_STYLE.ICON && (
-              <MenuText
-                name={page.pageName}
-                navColorStyle={navColorStyle}
-                primaryColor={primaryColor}
-              />
-            )}
+            <MenuText
+              name={page.pageName}
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+            />
           </StyledMenuItemInDropdown>
         );
       })}

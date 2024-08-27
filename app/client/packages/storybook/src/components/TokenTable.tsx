@@ -4,7 +4,7 @@ import { CopyLink } from "./CopyLink";
 import isArray from "lodash/isArray";
 import isString from "lodash/isString";
 
-import type { Token } from "@design-system/theming";
+import type { Token } from "@appsmith/wds-theming";
 import type { ReactNode } from "react";
 
 export const StyledLinePreview = styled.div`

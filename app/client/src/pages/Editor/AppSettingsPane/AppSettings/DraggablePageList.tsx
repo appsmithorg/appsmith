@@ -1,6 +1,6 @@
 import { setPageOrder } from "actions/pageActions";
 import styled from "styled-components";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 // import classNames from "classnames";
 import { DraggableList } from "@appsmith/ads-old";
 import { MenuIcons } from "icons/MenuIcons";

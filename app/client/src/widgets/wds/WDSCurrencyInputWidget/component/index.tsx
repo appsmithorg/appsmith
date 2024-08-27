@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextInput } from "@design-system/widgets";
+import { Text, TextInput } from "@appsmith/wds";
 import type { CurrencyInputComponentProps } from "./types";
 import { CurrencyTypeOptions } from "constants/Currency";
 import { useDebouncedValue } from "@mantine/hooks";
