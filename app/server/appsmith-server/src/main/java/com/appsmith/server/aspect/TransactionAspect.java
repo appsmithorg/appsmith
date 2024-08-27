@@ -183,7 +183,7 @@ public class TransactionAspect {
             UUID.fromString(id);
             return true;
         } catch (IllegalArgumentException e) {
-            log.error("Error while parsing the UUID {}", id, e);
+            log.error("Error while parsing the UUID {}", id);
             return false;
         }
     }

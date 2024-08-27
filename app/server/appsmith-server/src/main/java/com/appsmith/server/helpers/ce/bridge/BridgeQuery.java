@@ -188,6 +188,12 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
+    // Filtering for enums does not work with hibernate even if the field is annotated with @Enumerated(String.class)
+    public BridgeQuery<T> enumNotIn(@NonNull String key, @NonNull Collection<Enum<?>> value) {
+        checks.add(new Check.Unit(Op.NOT_IN, key, value));
+        return this;
+    }
+
     public BridgeQuery<T> exists(String key) {
         checks.add(new Check.Unit(Op.EXISTS, key, null));
         return this;

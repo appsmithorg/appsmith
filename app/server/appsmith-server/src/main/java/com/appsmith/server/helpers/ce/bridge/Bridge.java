@@ -77,6 +77,11 @@ public class Bridge {
         return Bridge.<T>query().notIn(needle, haystack);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> enumNotIn(
+            @NonNull String needle, @NonNull Collection<Enum<?>> haystack) {
+        return Bridge.<T>query().enumNotIn(needle, haystack);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> exists(@NonNull String key) {
         return Bridge.<T>query().exists(key);
     }

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.models.PluginType.getPluginTypes;
+
 @Slf4j
 @RequiredArgsConstructor
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
@@ -212,9 +214,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String applicationId, List<String> excludedPluginTypes) {
         final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
         q.and(Bridge.or(
-                Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
-                Bridge.isNull(NewAction.Fields.pluginType)));
-
+                Bridge.isNull(NewAction.Fields.pluginType),
+                Bridge.enumNotIn(NewAction.Fields.pluginType, getPluginTypes(excludedPluginTypes))));
         return q;
     }
 
