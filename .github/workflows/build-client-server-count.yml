@@ -139,7 +139,7 @@ jobs:
       - name: Read and Set File Content as ENV Variable
         id: set-summary-content
         run: |
-            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            summary_content=$(cat app/client/cy-repeat-summary.txt)
             echo "summary_content=$summary_content" >> $GITHUB_ENV   
 
       - name: Add a comment on the PR with new CI failures
