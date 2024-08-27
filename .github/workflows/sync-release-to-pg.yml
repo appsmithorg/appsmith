@@ -16,7 +16,7 @@ jobs:
           ref: release  # Checkout the release branch
 
       - name: Fetch all branches
-        run: git fetch pg
+        run: git fetch origin pg
 
       - name: Checkout pg branch
         run: git checkout pg
