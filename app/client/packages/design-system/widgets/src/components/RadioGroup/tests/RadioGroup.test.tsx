@@ -2,9 +2,9 @@ import React from "react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
-import { RadioGroup } from "@appsmith/wds";
+import { RadioGroup } from "@design-system/widgets";
 
-describe("@appsmith/wds/RadioGroup", () => {
+describe("@design-system/widgets/RadioGroup", () => {
   const items = [
     { label: "Value 1", value: "value-1" },
     { label: "Value 2", value: "value-2" },

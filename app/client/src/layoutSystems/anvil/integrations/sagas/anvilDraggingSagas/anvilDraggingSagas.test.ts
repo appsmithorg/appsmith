@@ -6,8 +6,8 @@ import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { expectSaga } from "redux-saga-test-plan";
 import { getWidgets } from "sagas/selectors";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
-import { WDSSectionWidget } from "widgets/wds/WDSSectionWidget";
-import { WDSZoneWidget } from "widgets/wds/WDSZoneWidget";
+import { SectionWidget } from "widgets/anvil/SectionWidget";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import { WDSButtonWidget } from "widgets/wds/WDSButtonWidget";
 import {
   getCanvasWidth,
@@ -39,8 +39,8 @@ describe("", () => {
   beforeAll(() => {
     registerLayoutComponents();
     registerWidgets([
-      WDSSectionWidget,
-      WDSZoneWidget,
+      SectionWidget,
+      ZoneWidget,
       WDSButtonWidget,
       WDSModalWidget,
     ]);

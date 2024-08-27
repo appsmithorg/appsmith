@@ -1,6 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Select, Button, Flex, SIZES } from "@appsmith/wds";
+import { Select, Button, Flex, SIZES } from "@design-system/widgets";
 import { selectItems, selectItemsWithIcons } from "./selectData";
 
 /**
@@ -8,7 +8,7 @@ import { selectItems, selectItemsWithIcons } from "./selectData";
  */
 const meta: Meta<typeof Select> = {
   component: Select,
-  title: "WDS/Widgets/Select",
+  title: "Design-system/Widgets/Select",
 };
 
 export default meta;

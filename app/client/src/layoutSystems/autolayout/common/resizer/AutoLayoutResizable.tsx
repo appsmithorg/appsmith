@@ -40,6 +40,9 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { useReflow } from "utils/hooks/useReflow";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import WidgetFactory from "WidgetProvider/factory";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { isFunction } from "lodash";
@@ -89,7 +92,16 @@ function AutoLayoutResizableComponent(props: ResizableProps) {
       occupiedSpacesBySiblingWidgets,
     );
   };
-
+  // Performance tracking start
+  const sentryPerfTags = props.zWidgetType
+    ? [{ name: "widget_type", value: props.zWidgetType }]
+    : [];
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.SHOW_RESIZE_HANDLES,
+    { widgetId: props.zWidgetId },
+    true,
+    sentryPerfTags,
+  );
   const reflowSelector = getReflowSelector(props.widgetId);
 
   const equal = (
@@ -114,6 +126,11 @@ function AutoLayoutResizableComponent(props: ResizableProps) {
     false,
   );
 
+  useEffect(() => {
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.SHOW_RESIZE_HANDLES,
+    );
+  }, []);
   //end
   const [pointerEvents, togglePointerEvents] = useState(true);
   const [newDimensions, set] = useState<DimensionUpdateProps>({

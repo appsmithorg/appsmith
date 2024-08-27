@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import { debounce, random, sortBy } from "lodash";
+import { debounce, random } from "lodash";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
@@ -40,7 +40,6 @@ import {
   EditorViewMode,
 } from "ee/entities/IDE/constants";
 import { FocusEntity } from "navigation/FocusEntity";
-import { objectKeys } from "@appsmith/utils";
 
 export const draggableElement = (
   id: string,
@@ -330,15 +329,6 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
         }
       });
     }
-  });
-
-  objectKeys(groupedCards).forEach((tag) => {
-    if (tag === WIDGET_TAGS.SUGGESTED_WIDGETS) return;
-
-    groupedCards[tag] = sortBy(groupedCards[tag], [
-      "displayOrder",
-      "displayName",
-    ]);
   });
 
   return groupedCards;

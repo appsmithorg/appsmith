@@ -48,7 +48,7 @@ import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyM
 import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
-import type { Page } from "entities/Page";
+import type { Page } from "ee/constants/ReduxActionConstants";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 
 interface EditorProps {

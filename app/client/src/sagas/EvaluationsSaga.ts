@@ -31,6 +31,9 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import type { WidgetProps } from "widgets/BaseWidget";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import type { Action } from "redux";
 import {
@@ -159,6 +162,13 @@ export function* updateDataTreeHandler(
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
+
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
@@ -166,6 +176,10 @@ export function* updateDataTreeHandler(
   yield put(setEvaluatedTree(parsedUpdates));
 
   ConfigTreeActions.setConfigTree(configTree);
+
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.SET_EVALUATED_TREE,
+  );
 
   // if evalMetaUpdates are present only then dispatch updateMetaState
   if (evalMetaUpdates.length) {
@@ -253,7 +267,9 @@ export function* evaluateTreeSaga(
   const theme: ReturnType<typeof getSelectedAppTheme> =
     yield select(getSelectedAppTheme);
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
-
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.DATA_TREE_EVALUATION,
+  );
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);

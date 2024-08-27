@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, Tooltip } from "@appsmith/wds";
+import { IconButton, Tooltip } from "@design-system/widgets";
 
 import type { IconButtonComponentProps } from "./types";
 

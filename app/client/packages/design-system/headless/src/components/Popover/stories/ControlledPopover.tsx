@@ -3,7 +3,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@appsmith/wds-headless";
+} from "@design-system/headless";
 import { Button } from "react-aria-components";
 
 export const ControlledPopover = () => {

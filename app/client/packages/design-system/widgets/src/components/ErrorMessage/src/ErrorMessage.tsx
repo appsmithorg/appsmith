@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "@appsmith/wds";
+import { Text } from "@design-system/widgets";
 import styles from "./styles.module.css";
 import type { ErrorMessageProps } from "./types";
 

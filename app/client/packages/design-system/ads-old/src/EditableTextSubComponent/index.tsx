@@ -5,8 +5,7 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import type { noop } from "lodash";
-import { Icon, Spinner } from "@appsmith/ads";
-import { Text, TextType } from "../index";
+import { Icon, IconSize, Text, TextType } from "../index";
 import type { CommonComponentProps } from "../types/common";
 
 export enum EditInteractionKind {
@@ -115,6 +114,14 @@ const TextContainer = styled.div<{
   .icon-wrapper {
     background-color: ${(props) => props.bgColor};
   }
+`;
+
+const IconWrapper = styled.div`
+  width: var(--ads-spaces-15);
+  padding-right: var(--ads-spaces-5);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 `;
 
 export const EditableTextSubComponent = React.forwardRef(
@@ -252,9 +259,17 @@ export const EditableTextSubComponent = React.forwardRef(
           />
 
           {savingState === SavingState.STARTED ? (
-            <Spinner size="md" />
-          ) : value && !props.hideEditIcon && iconName ? (
-            <Icon className="cursor-pointer" name={iconName} size="md" />
+            <IconWrapper className="icon-wrapper">
+              <Icon name={"loader"} size={IconSize.XL} />
+            </IconWrapper>
+          ) : value && !props.hideEditIcon ? (
+            <IconWrapper className="icon-wrapper">
+              <Icon
+                fillColor="var(--ads-v2-color-fg)"
+                name={iconName}
+                size={IconSize.XL}
+              />
+            </IconWrapper>
           ) : null}
         </TextContainer>
         {isEditing && !!isInvalid ? (

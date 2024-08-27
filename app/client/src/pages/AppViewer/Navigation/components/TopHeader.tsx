@@ -1,5 +1,7 @@
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
+import type {
+  ApplicationPayload,
+  Page,
+} from "ee/constants/ReduxActionConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useHref } from "pages/Editor/utils";

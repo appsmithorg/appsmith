@@ -23,21 +23,17 @@ public interface ArtifactCE {
 
     void setGitArtifactMetadata(GitArtifactMetadata gitArtifactMetadata);
 
-    default String getUnpublishedThemeId() {
-        return null;
-    }
+    String getUnpublishedThemeId();
 
-    default String getPublishedThemeId() {
-        return null;
-    }
+    String getPublishedThemeId();
 
     void makePristine();
 
     void sanitiseToExportDBObject();
 
-    default void setUnpublishedThemeId(String themeId) {}
+    void setUnpublishedThemeId(String themeId);
 
-    default void setPublishedThemeId(String themeId) {}
+    void setPublishedThemeId(String themeId);
 
     ArtifactType getArtifactType();
 }

@@ -35,11 +35,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaPropAndEval } from "actions/metaActions";
-import {
-  closePropertyPane,
-  focusWidget,
-  showModal,
-} from "actions/widgetActions";
+import { focusWidget, showModal } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
@@ -57,7 +53,6 @@ import { getModalWidgetType } from "selectors/widgetSelectors";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { getWidgetSelectionBlock } from "selectors/ui";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { showPropertyPane } from "../actions/propertyPaneActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -179,13 +174,14 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
     );
     yield delay(1000);
   }
-  yield put(
-    showPropertyPane({
+  yield put({
+    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
+    payload: {
       widgetId: action.payload.modalId,
       callForDragOrResize: undefined,
       force: true,
-    }),
-  );
+    },
+  });
 }
 
 export function* closeModalSaga(
@@ -202,7 +198,10 @@ export function* closeModalSaga(
         modalName,
       );
       widgetIds = widget ? [widget.widgetId] : [];
-      yield put(closePropertyPane());
+      yield put({
+        type: ReduxActionTypes.SHOW_PROPERTY_PANE,
+        payload: {},
+      });
     } else {
       // If modalName is not provided, find all open modals
       // Get all meta prop records

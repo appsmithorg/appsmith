@@ -1,6 +1,8 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ApplicationPayload } from "entities/Application";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type {
+  ApplicationPayload,
+  ReduxAction,
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,

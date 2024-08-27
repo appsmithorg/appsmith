@@ -1,8 +1,7 @@
 import { call, put, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Page } from "entities/Page";
+import { ReduxActionTypes, type Page } from "ee/constants/ReduxActionConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";

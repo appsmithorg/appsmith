@@ -2,8 +2,8 @@ import type { ReactNode, PropsWithChildren } from "react";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
-import type { IconNames } from "@appsmith/ads";
-import { Icon } from "@appsmith/ads";
+import type { IconName } from "../Icon";
+import Icon, { IconSize } from "../Icon";
 import { typography } from "../constants/typography";
 
 type DialogProps = PropsWithChildren<{
@@ -115,7 +115,7 @@ interface DialogComponentProps {
   title?: string;
   headerIcon?: {
     clickable?: boolean;
-    name: IconNames;
+    name: IconName;
     fillColor?: string;
     hoverColor?: string;
     bgColor?: string;
@@ -156,9 +156,11 @@ export function DialogComponent(props: DialogComponentProps) {
   const headerIcon = props.headerIcon ? (
     <HeaderIconWrapper bgColor={props.headerIcon.bgColor}>
       <Icon
-        color={props.headerIcon.fillColor}
+        clickable={props.headerIcon?.clickable}
+        fillColor={props.headerIcon.fillColor}
+        hoverFillColor={props.headerIcon.hoverColor}
         name={props.headerIcon.name}
-        size="lg"
+        size={IconSize.XL}
       />
     </HeaderIconWrapper>
   ) : null;

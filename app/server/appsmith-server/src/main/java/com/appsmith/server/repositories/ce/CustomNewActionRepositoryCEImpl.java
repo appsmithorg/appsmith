@@ -22,6 +22,7 @@ import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
@@ -50,7 +52,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
-                .all();
+                .all()
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -200,26 +204,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     protected BridgeQuery<NewAction> getCriterionForFindByApplicationId(String applicationId) {
         return Bridge.equal(NewAction.Fields.applicationId, applicationId);
-    }
-
-    @Override
-    public Flux<NewAction> findByApplicationIdAndPluginType(
-            String applicationId, List<String> excludedPluginTypes, AclPermission aclPermission, Sort sort) {
-        return queryBuilder()
-                .criteria(getCriterionForFindByApplicationIdAndPluginType(applicationId, excludedPluginTypes))
-                .permission(aclPermission)
-                .sort(sort)
-                .all();
-    }
-
-    protected BridgeQuery<NewAction> getCriterionForFindByApplicationIdAndPluginType(
-            String applicationId, List<String> excludedPluginTypes) {
-        final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
-        q.and(Bridge.or(
-                Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
-                Bridge.isNull(NewAction.Fields.pluginType)));
-
-        return q;
     }
 
     @Override

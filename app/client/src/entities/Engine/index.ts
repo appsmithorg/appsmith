@@ -1,6 +1,6 @@
 import { fetchApplication } from "ee/actions/applicationActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
-import type { ApplicationPayload } from "entities/Application";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -78,6 +78,8 @@ export default abstract class AppEngine {
     rootSpan: Span,
   ): any;
   abstract loadGit(applicationId: string, rootSpan: Span): any;
+  abstract startPerformanceTracking(): any;
+  abstract stopPerformanceTracking(): any;
   abstract completeChore(rootSpan: Span): any;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 

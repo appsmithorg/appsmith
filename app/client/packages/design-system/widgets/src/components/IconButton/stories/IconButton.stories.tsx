@@ -6,15 +6,15 @@ import {
   SIZES,
   BUTTON_VARIANTS,
   COLORS,
-} from "@appsmith/wds";
-import { objectKeys } from "@appsmith/utils";
+  objectKeys,
+} from "@design-system/widgets";
 
 /**
  * Icon Button is a button component that only contains an icon.
  */
 const meta: Meta<typeof IconButton> = {
   component: IconButton,
-  title: "WDS/Widgets/IconButton",
+  title: "Design-system/Widgets/IconButton",
 };
 
 export default meta;

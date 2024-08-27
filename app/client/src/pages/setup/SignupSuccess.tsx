@@ -5,6 +5,9 @@ import { useCallback } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import UserWelcomeScreen from "pages/setup/UserWelcomeScreen";
 import { Center } from "pages/setup/common";
 import { Spinner } from "@appsmith/ads";
@@ -24,6 +27,7 @@ export function SignupSuccess() {
   const user = useSelector(getCurrentUser);
 
   useEffect(() => {
+    PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
     user?.email && setUserSignedUpFlag(user?.email);
   }, []);
 

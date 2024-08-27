@@ -97,7 +97,7 @@ const DatasourceCard = styled.div`
     opacity: 0;
     visibility: hidden;
   }
-  .ads-v2-icon {
+  .cs-icon {
     opacity: 0;
     transition: 0.3s all ease;
   }
@@ -107,7 +107,7 @@ const DatasourceCard = styled.div`
   }
   &:hover {
     background-color: var(--ads-v2-color-bg-subtle);
-    .ads-v2-icon {
+    .cs-icon {
       opacity: 1;
     }
   }

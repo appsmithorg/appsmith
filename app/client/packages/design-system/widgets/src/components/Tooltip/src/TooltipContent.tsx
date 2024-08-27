@@ -1,13 +1,13 @@
 import React, { forwardRef } from "react";
-import { useThemeContext } from "@appsmith/wds-theming";
+import { useThemeContext } from "@design-system/theming";
 import { Text } from "../../Text";
 import styles from "./styles.module.css";
-import { TooltipContent as HeadlessTooltipContent } from "@appsmith/wds-headless";
+import { TooltipContent as HeadlessTooltipContent } from "@design-system/headless";
 
 import type {
   TooltipContentRef as HeadlessTooltipContentRef,
   TooltipContentProps as HeadlessTooltipContentProps,
-} from "@appsmith/wds-headless";
+} from "@design-system/headless";
 
 const BORDER_RADIUS_THRESHOLD = 6;
 

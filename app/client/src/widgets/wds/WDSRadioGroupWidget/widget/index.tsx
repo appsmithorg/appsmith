@@ -6,7 +6,7 @@ import type {
 import isNumber from "lodash/isNumber";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
-import { RadioGroup } from "@appsmith/wds";
+import { RadioGroup } from "@design-system/widgets";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 

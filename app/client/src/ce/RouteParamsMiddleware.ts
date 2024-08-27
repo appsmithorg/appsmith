@@ -1,6 +1,8 @@
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type {
+  ApplicationPayload,
+  Page,
+  ReduxAction,
+} from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UpdatePageResponse } from "api/PageApi";
 import type {

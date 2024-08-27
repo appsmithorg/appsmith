@@ -2,6 +2,9 @@ import React, { useCallback, useEffect } from "react";
 import EntityProperty from "./EntityProperty";
 
 import { useDispatch, useSelector } from "react-redux";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import type { AppState } from "ee/reducers";
 import classNames from "classnames";
@@ -46,6 +49,15 @@ export function EntityProperties() {
   const selectedWidgetId = useSelector(
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
+
+  PerformanceTracker.startTracking(
+    PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
+  );
+  useEffect(() => {
+    PerformanceTracker.stopTracking(
+      PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
+    );
+  });
 
   useEffect(() => {
     document.addEventListener("click", handleOutsideClick);

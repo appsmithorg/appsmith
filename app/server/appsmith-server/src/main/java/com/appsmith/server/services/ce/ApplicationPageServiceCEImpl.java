@@ -58,7 +58,6 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import com.google.common.base.Strings;
-import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -67,7 +66,6 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
-import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -84,11 +82,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGES_BY_APP_ID_DB;
-import static com.appsmith.external.constants.spans.ce.PageSpanCE.MIGRATE_DSL;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
-import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
 import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
@@ -127,7 +122,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DSLMigrationUtils dslMigrationUtils;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
-    private final ObservationRegistry observationRegistry;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -267,9 +261,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findNewPagesByApplicationId(branchedApplication.getId(), pagePermission.getReadPermission())
                 .filter(newPage -> pageIds.contains(newPage.getId()))
-                .collectList()
-                .name(getQualifiedSpanName(FETCH_PAGES_BY_APP_ID_DB, applicationMode))
-                .tap(Micrometer.observation(observationRegistry));
+                .collectList();
     }
 
     @Override
@@ -292,13 +284,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchAndBasePageId(
             String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
-        ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission())
-                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
-                        .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
-                        .tap(Micrometer.observation(observationRegistry)));
+                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
     }
 
     @Override

@@ -2,8 +2,6 @@
 
 declare namespace Cypress {
   interface Chainable<Subject> {
-    latestDeployPreview(): Chainable<void>;
-
     SignupFromAPI(uname: string, password: string);
 
     dragTo(subject: any, targetEl: any);

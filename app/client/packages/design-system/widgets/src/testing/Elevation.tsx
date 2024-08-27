@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Flex, Button, Text } from "@appsmith/wds";
+import { Flex, Button, Text } from "@design-system/widgets";
 
 export const Elevation = () => {
   return (

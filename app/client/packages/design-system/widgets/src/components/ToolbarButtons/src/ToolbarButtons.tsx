@@ -1,5 +1,5 @@
 import React, { forwardRef, useMemo } from "react";
-import { Button, Menu } from "@appsmith/wds";
+import { Button, Menu } from "@design-system/widgets";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
 import { useListState } from "@react-stately/list";

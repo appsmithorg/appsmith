@@ -1,7 +1,7 @@
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { isValidColor } from "utils/helpers";
-import { FONT_METRICS } from "@appsmith/wds-theming";
+import { FONT_METRICS } from "@design-system/theming";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
 import type { ThemeSetting } from "constants/AppConstants";

@@ -85,6 +85,9 @@ import {
 } from "ee/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import {
   ACTION_COPY_SUCCESS,
   ACTION_MOVE_SUCCESS,
@@ -392,7 +395,10 @@ export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId, unpublishedActions } = action.payload;
-
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.FETCH_ACTIONS_API,
+    { mode: "EDITOR", appId: applicationId },
+  );
   try {
     const response: ApiResponse<Action[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -407,12 +413,19 @@ export function* fetchActionsSaga(
         payload: response.data,
         postEvalActions: action.postEvalActions,
       });
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_ACTIONS_API,
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
       payload: { error },
     });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_ACTIONS_API,
+      { failed: true },
+    );
   }
 }
 
@@ -420,7 +433,10 @@ export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
   const { applicationId, publishedActions } = action.payload;
-
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.FETCH_ACTIONS_API,
+    { mode: "VIEWER", appId: applicationId },
+  );
   try {
     const response: ApiResponse<ActionViewMode[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -448,11 +464,18 @@ export function* fetchActionsForViewModeSaga(
         payload: response.responseMeta.error,
       });
     }
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_ACTIONS_API,
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_VIEW_MODE_ERROR,
       payload: { error },
     });
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_ACTIONS_API,
+      { failed: true },
+    );
   }
 }
 
@@ -460,7 +483,10 @@ export function* fetchActionsForPageSaga(
   action: EvaluationReduxAction<{ pageId: string }>,
 ) {
   const { pageId } = action.payload;
-
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
+    { pageId: pageId },
+  );
   try {
     const response: ApiResponse<Action[]> = yield call(
       ActionAPI.fetchActionsByPageId,
@@ -469,8 +495,16 @@ export function* fetchActionsForPageSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(fetchActionsForPageSuccess(response.data));
+      // wait for success of
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
+      );
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
+      { failed: true },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
       payload: { error },
@@ -480,6 +514,11 @@ export function* fetchActionsForPageSaga(
 
 export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.UPDATE_ACTION_API,
+      { actionid: actionPayload.payload.id },
+    );
+
     let action: Action = yield select(getAction, actionPayload.payload.id);
     if (!action) throw new Error("Could not find action to update");
 
@@ -532,12 +571,20 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
         pageName,
       });
 
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.UPDATE_ACTION_API,
+      );
+
       yield put(updateActionSuccess({ data: response.data }));
       checkAndLogErrorsIfCyclicDependency(
         (response.data as Action).errorReports,
       );
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.UPDATE_ACTION_API,
+      { failed: true },
+    );
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
       payload: { error, id: actionPayload.payload.id, show: false },
@@ -810,6 +857,12 @@ export function* refactorActionName(
   oldName: string,
   newName: string,
 ) {
+  // fetch page of the action
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.REFACTOR_ACTION_NAME,
+    { actionId: id },
+  );
+
   const params: FetchPageRequest = { pageId, migrateDSL: true };
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
@@ -831,6 +884,10 @@ export function* refactorActionName(
 
     const currentPageId: string = yield select(getCurrentPageId);
 
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.REFACTOR_ACTION_NAME,
+      { isSuccess: isRefactorSuccessful },
+    );
     if (isRefactorSuccessful) {
       yield put({
         type: ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,

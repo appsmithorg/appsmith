@@ -3,7 +3,10 @@ import { io } from "socket.io-client";
 import type { EventChannel, Task } from "redux-saga";
 import { eventChannel } from "redux-saga";
 import { fork, take, call, cancel, put } from "redux-saga/effects";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxSagaChannels,
+} from "ee/constants/ReduxActionConstants";
 import {
   WEBSOCKET_EVENTS,
   RTS_BASE_PATH,
@@ -89,7 +92,7 @@ function* readFromAppSocket(socket: any) {
 function* writeToAppSocket(socket: any) {
   while (true) {
     const { payload } = yield take(
-      ReduxActionTypes.WEBSOCKET_APP_LEVEL_WRITE_CHANNEL,
+      ReduxSagaChannels.WEBSOCKET_APP_LEVEL_WRITE_CHANNEL,
     );
     // reconnect to reset connection at the server
     try {
@@ -160,7 +163,7 @@ function* readFromPageSocket(socket: any) {
 function* writeToPageSocket(socket: any) {
   while (true) {
     const { payload } = yield take(
-      ReduxActionTypes.WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL,
+      ReduxSagaChannels.WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL,
     );
     // reconnect to reset connection at the server
     try {

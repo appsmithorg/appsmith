@@ -1,7 +1,7 @@
 import type {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
-} from "@appsmith/wds-theming";
+} from "@design-system/theming";
 import type { ReactNode } from "react";
 import type { COLORS } from "../../../shared";
 

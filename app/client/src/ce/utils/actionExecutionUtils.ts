@@ -1,7 +1,7 @@
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import type { ApplicationPayload } from "entities/Application";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import store from "store";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDatasource } from "ee/selectors/entitiesSelector";

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
+import type {
+  ApplicationPayload,
+  Page,
+} from "ee/constants/ReduxActionConstants";
 import { NAVIGATION_SETTINGS, SIDEBAR_WIDTH } from "constants/AppConstants";
 import { get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -195,6 +197,7 @@ export function Sidebar(props: SidebarProps) {
               key={page.pageId}
             >
               <MenuItem
+                isMinimal={isMinimal}
                 key={page.pageId}
                 navigationSetting={
                   currentApplicationDetails?.applicationDetail

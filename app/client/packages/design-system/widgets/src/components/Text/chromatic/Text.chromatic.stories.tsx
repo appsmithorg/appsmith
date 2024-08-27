@@ -2,8 +2,8 @@ import React from "react";
 import {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
-} from "@appsmith/wds-theming";
-import { Text, COLORS } from "@appsmith/wds";
+} from "@design-system/theming";
+import { Text, COLORS } from "@design-system/widgets";
 import { StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
 

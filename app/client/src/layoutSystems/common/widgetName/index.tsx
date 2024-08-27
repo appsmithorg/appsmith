@@ -15,6 +15,9 @@ import {
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import WidgetFactory from "WidgetProvider/factory";
 import { useShowTableFilterPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -110,6 +113,12 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
         }),
       );
     } else if (!isActiveInPropertyPane) {
+      PerformanceTracker.startTracking(
+        PerformanceTransactionName.OPEN_PROPERTY_PANE,
+        { widgetId: props.widgetId },
+        true,
+        [{ name: "widget_type", value: props.type }],
+      );
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
         widgetType: props.type,
         widgetId: props.widgetId,

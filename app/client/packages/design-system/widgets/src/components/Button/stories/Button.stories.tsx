@@ -1,14 +1,20 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Flex, BUTTON_VARIANTS, COLORS, SIZES } from "@appsmith/wds";
-import { objectKeys } from "@appsmith/utils";
+import {
+  Button,
+  Flex,
+  BUTTON_VARIANTS,
+  COLORS,
+  SIZES,
+  objectKeys,
+} from "@design-system/widgets";
 
 /**
  * A button is a clickable element that is used to trigger an action.
  */
 const meta: Meta<typeof Button> = {
   component: Button,
-  title: "WDS/Widgets/Button",
+  title: "Design-system/Widgets/Button",
 };
 
 export default meta;

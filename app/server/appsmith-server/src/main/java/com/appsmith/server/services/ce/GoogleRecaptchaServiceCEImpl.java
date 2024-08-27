@@ -5,7 +5,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -15,7 +14,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 public class GoogleRecaptchaServiceCEImpl implements CaptchaServiceCE {
     private final WebClient webClient;
 
@@ -54,16 +52,11 @@ public class GoogleRecaptchaServiceCEImpl implements CaptchaServiceCE {
                         .queryParam("response", recaptchaResponse)
                         .queryParam("secret", googleRecaptchaConfig.getSecretKey())
                         .build())
-                .exchange()
-                .flatMap(response -> {
-                    return response.bodyToMono(String.class).zipWith(Mono.just(response.statusCode()));
-                })
-                .flatMap(tuple -> {
+                .retrieve()
+                .bodyToMono(String.class)
+                .flatMap(stringBody -> {
                     try {
-                        Map<String, Object> response = objectMapper.readValue(tuple.getT1(), HashMap.class);
-                        if (!tuple.getT2().is2xxSuccessful()) {
-                            log.error("Failed to verify recaptcha response. Response: {}", response);
-                        }
+                        Map<String, Object> response = objectMapper.readValue(stringBody, HashMap.class);
                         return Mono.just(response);
                     } catch (JsonProcessingException e) {
                         return Mono.error(new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e));

@@ -1,4 +1,0 @@
-{
-  "ignorePatterns": ["dist/*", "Readme.md"],
-  "extends": ["../../.eslintrc.base.json"]
-}

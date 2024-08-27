@@ -5,8 +5,10 @@
   "main": "src/index.ts",
   "sideEffects": false,
   "scripts": {
+    "create-story": "./create_story.sh",
     "lint": "yarn g:lint",
-    "prettier": "yarn g:prettier"
+    "prettier": "yarn g:prettier",
+    "test:unit": "yarn g:jest"
   },
   "contributors": [
     "Albin <albin@appsmith.com>",

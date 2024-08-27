@@ -17,7 +17,10 @@ import {
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type {
+  ReduxAction,
+  ReplayReduxActionTypes,
+} from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
@@ -82,10 +85,9 @@ import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 
 export interface UndoRedoPayload {
-  operation: ReplayOperation;
+  operation: ReplayReduxActionTypes;
 }
 
 export default function* undoRedoListenerSaga() {

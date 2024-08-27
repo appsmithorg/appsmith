@@ -10,8 +10,10 @@ import {
 import { APP_MODE } from "entities/App";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { URLBuilderParams } from "ee/entities/URLRedirect/URLAssembly";
-import type { Page } from "entities/Page";
-import type { ApplicationPayload } from "entities/Application";
+import type {
+  ApplicationPayload,
+  Page,
+} from "ee/constants/ReduxActionConstants";
 
 export const fillPathname = (
   pathname: string,

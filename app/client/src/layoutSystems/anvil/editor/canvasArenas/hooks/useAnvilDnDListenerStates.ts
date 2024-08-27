@@ -15,7 +15,7 @@ import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
 import { getWidgets } from "sagas/selectors";
 import { useMemo } from "react";
-import { WDSZoneWidget } from "widgets/wds/WDSZoneWidget";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
 
 interface AnvilDnDListenerStatesProps {
@@ -144,7 +144,7 @@ export const useAnvilDnDListenerStates = ({
   }, [widgetProps, allWidgets]);
 
   const isElevatedWidget = useMemo(() => {
-    if (widgetProps.type === WDSZoneWidget.type) {
+    if (widgetProps.type === ZoneWidget.type) {
       const isAnyZoneElevated = allSiblingsWidgetIds.some(
         (each) => !!elevatedWidgets[each],
       );

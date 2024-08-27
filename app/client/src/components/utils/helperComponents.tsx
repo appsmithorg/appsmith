@@ -7,7 +7,7 @@ import { Link, Text } from "@appsmith/ads";
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {
     .delete-menu-item {
-      .ads-v2-icon, .cs-text {
+      .cs-icon, .cs-text {
         color: var(--appsmith-color-red-500) !important;
         svg {
           path {

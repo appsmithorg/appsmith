@@ -75,7 +75,7 @@ const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
       height: 100%;
       justify-content: flex-start;
 
-      .ads-v2-icon {
+      .cs-icon {
         border-radius: 50%;
         width: ${(props) => props.theme.spaces[12] + 2}px;
         height: ${(props) => props.theme.spaces[12] + 2}px;
@@ -146,7 +146,7 @@ const StatusbarWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  .ads-v2-icon {
+  .cs-icon {
     margin: auto;
     border-radius: var(--ads-v2-border-radius-circle);
     width: 32px;

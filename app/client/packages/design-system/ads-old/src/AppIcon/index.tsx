@@ -272,7 +272,7 @@ const ServerLineIcon = importRemixIcon(
   async () => import("remixicon-react/ServerLineIcon"),
 );
 
-export enum Size {
+enum Size {
   xxs = "xxs",
   xs = "xs",
   small = "small",

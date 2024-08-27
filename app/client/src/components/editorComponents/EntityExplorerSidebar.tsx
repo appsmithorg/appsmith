@@ -10,6 +10,9 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
   getExplorerActive,
@@ -70,6 +73,10 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
 
   const resizer = useHorizontalResize(sidebarRef, onWidthChange, onDragEnd);
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
+  PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
+  useEffect(() => {
+    PerformanceTracker.stopTracking();
+  });
 
   /**
    * on hover of resizer, show tooltip

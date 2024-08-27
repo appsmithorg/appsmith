@@ -50,11 +50,8 @@ import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FRO
 import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE;
 import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITHOUT_BRANCH;
 import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITH_BRANCH;
-import static com.appsmith.external.constants.spans.ce.PageSpanCE.MARK_RECENTLY_ACCESSED_RESOURCES_PAGES;
-import static com.appsmith.external.constants.spans.ce.PageSpanCE.PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
-import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
 
 @Slf4j
 public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageServiceCE {
@@ -302,13 +299,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     .then();
         }
 
-        ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
-        return markedRecentlyAccessedMono
-                .name(getQualifiedSpanName(MARK_RECENTLY_ACCESSED_RESOURCES_PAGES, applicationMode))
-                .tap(Micrometer.observation(observationRegistry))
-                .then(Mono.fromCallable(() -> getApplicationPagesDTO(branchedApplication, newPages, viewMode))
-                        .name(getQualifiedSpanName(PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES, applicationMode))
-                        .tap(Micrometer.observation(observationRegistry)));
+        return markedRecentlyAccessedMono.then(
+                Mono.fromCallable(() -> getApplicationPagesDTO(branchedApplication, newPages, viewMode)));
     }
 
     private List<ApplicationPage> getApplicationPages(Application application, boolean viewMode) {
@@ -557,7 +549,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
 
         return this.findByBranchNameAndBasePageId(branchName, basePageId, permission)
-                .name(getQualifiedSpanName(GET_PAGE, mode))
+                .name(GET_PAGE)
                 .tap(Micrometer.observation(observationRegistry));
     }
 

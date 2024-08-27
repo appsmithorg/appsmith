@@ -16,7 +16,7 @@ import {
 import type { AppState } from "ee/reducers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "entities/Application";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";

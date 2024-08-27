@@ -42,6 +42,7 @@ import snapshotSagas from "sagas/SnapshotSagas";
 import snipingModeSagas from "sagas/SnipingModeSagas";
 import templateSagas from "sagas/TemplatesSagas";
 import themeSagas from "sagas/ThemeSaga";
+import utilSagas from "sagas/UtilSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
@@ -82,6 +83,7 @@ export const sagas = [
   onboardingSagas,
   actionExecutionChangeListeners,
   formEvaluationChangeListener,
+  utilSagas,
   globalSearchSagas,
   websocketSagas,
   debuggerSagas,

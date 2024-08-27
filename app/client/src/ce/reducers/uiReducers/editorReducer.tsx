@@ -1,5 +1,8 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type {
+  ReduxAction,
+  UpdateCanvasPayload,
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -10,7 +13,6 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { UpdatePageResponse } from "api/PageApi";
-import type { UpdateCanvasPayload } from "actions/pageActions";
 
 export const initialState: EditorReduxState = {
   widgetConfigBuilt: false,

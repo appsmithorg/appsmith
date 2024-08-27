@@ -140,6 +140,7 @@ describe(
         .should("contain.text", "May 4, 2021 6:25 AM");
 
       _.propPane.UpdatePropertyFieldValue("Default Date", "2020-02-01");
+      _.propPane.UpdatePropertyFieldValue("Max Date", "2020-02-10");
 
       _.agHelper.AssertPopoverTooltip("Date out of range");
     });

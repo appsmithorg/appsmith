@@ -53,10 +53,12 @@ import static com.appsmith.external.constants.PluginConstants.PLUGINS_THAT_ALLOW
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTION_COLLECTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.APPLICATION_ID_SPAN;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_PREFIX;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CURRENT_PAGE_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CURRENT_THEME_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CUSTOM_JS_LIB_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.DATASOURCES_SPAN;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.EDIT;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FEATURE_FLAG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.FORM_CONFIG_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.MOCK_DATASOURCES_SPAN;
@@ -67,11 +69,11 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.PRO
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.TENANT_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.THEMES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.USER_PROFILE_SPAN;
+import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.VIEW;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.WORKSPACE_SPAN;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
-import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
@@ -122,6 +124,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         return mono.map(this::getSuccessResponse).onErrorResume(this::getErrorResponseMono);
     }
 
+    public static String getQualifiedSpanName(String spanName, ApplicationMode mode) {
+        return CONSOLIDATED_API_PREFIX + (ApplicationMode.PUBLISHED.equals(mode) ? VIEW : EDIT) + spanName;
+    }
+
     /**
      * This method is meant to be used by the client application at the time of 1st page load. Client currently makes
      * several API calls to fetch all the required data. This method consolidates all that data and returns them as
@@ -148,7 +154,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .getCurrentUser()
                 .flatMap(userService::buildUserProfileDTO)
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching user profile", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setUserProfile)
                 .name(getQualifiedSpanName(USER_PROFILE_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
@@ -157,7 +162,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         Mono<ResponseDTO<Map<String, Boolean>>> featureFlagsForCurrentUserResponseDTOMonoCache = userDataService
                 .getFeatureFlagsForCurrentUser()
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching feature flags", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setFeatureFlags)
                 .name(getQualifiedSpanName(FEATURE_FLAG_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry))
@@ -168,7 +172,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         fetches.add(tenantService
                 .getTenantConfiguration()
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching tenant config", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setTenantConfig)
                 .name(getQualifiedSpanName(TENANT_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
@@ -227,7 +230,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 })
                 .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setPages)
-                .doOnError(e -> log.error("Error fetching application pages", e))
                 .name(getQualifiedSpanName(PAGES_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
@@ -238,7 +240,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         fetches.add(branchedApplicationMonoCached
                 .flatMap(branchedApplication -> themeService.getApplicationTheme(branchedApplication.getId(), mode))
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching current theme", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setCurrentTheme)
                 .name(getQualifiedSpanName(CURRENT_THEME_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
@@ -249,7 +250,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         .getApplicationThemes(branchedApplication.getId())
                         .collectList())
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching themes", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setThemes)
                 .name(getQualifiedSpanName(THEMES_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
@@ -259,7 +259,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .flatMap(branchedApplication -> customJSLibService.getAllJSLibsInContext(
                         branchedApplication.getId(), CreatorContextType.APPLICATION, isViewMode))
                 .as(this::toResponseDTO)
-                .doOnError(e -> log.error("Error fetching custom JS libraries", e))
                 .doOnSuccess(consolidatedAPIResponseDTO::setCustomJSLibraries)
                 .name(getQualifiedSpanName(CUSTOM_JS_LIB_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
@@ -269,7 +268,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             fetches.add(applicationPageService
                     .getPageAndMigrateDslByBranchAndBasePageId(basePageId, branchName, isViewMode, true)
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching current page", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPageWithMigratedDsl)
                     .name(getQualifiedSpanName(CURRENT_PAGE_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry)));
@@ -285,7 +283,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                             .getActionsForViewMode(branchedApplication.getId())
                             .collectList())
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching actions for view mode", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPublishedActions)
                     .name(getQualifiedSpanName(ACTIONS_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry)));
@@ -296,7 +293,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                             .getActionCollectionsForViewMode(branchedApplication.getId())
                             .collectList())
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching action collections for view mode", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPublishedActionCollections)
                     .name(getQualifiedSpanName(ACTION_COLLECTIONS_SPAN, mode)));
 
@@ -311,7 +307,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                                 .collectList();
                     })
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching unpublished actions", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setUnpublishedActions)
                     .name(getQualifiedSpanName(ACTIONS_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry)));
@@ -325,7 +320,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     })
                     .collectList()
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching unpublished action collections", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setUnpublishedActionCollections)
                     .name(getQualifiedSpanName(ACTION_COLLECTIONS_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry)));
@@ -336,7 +330,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .flatMap(page -> applicationPageService.getPageDTOAfterMigratingDSL(page, false, true))
                     .collect(Collectors.toList())
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching pages with migrated DSL", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPagesWithMigratedDsl)
                     .name(getQualifiedSpanName(PAGES_DSL_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry)));
@@ -362,7 +355,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                             ? Mono.empty()
                             : pluginService.getInWorkspace(workspaceId).collectList())
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching plugins", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPlugins)
                     .name(getQualifiedSpanName(PLUGINS_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry))
@@ -379,7 +371,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         return datasourceService.getAllWithStorages(params).collectList();
                     })
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching datasources", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setDatasources)
                     .name(getQualifiedSpanName(DATASOURCES_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry))
@@ -424,7 +415,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         return pluginIdToFormConfigMap;
                     })
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching plugin form configs", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPluginFormConfigs)
                     .name(getQualifiedSpanName(FORM_CONFIG_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry)));
@@ -434,7 +424,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .getMockDataSet()
                     .map(MockDataDTO::getMockdbs)
                     .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching mock datasources", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setMockDatasources)
                     .name(getQualifiedSpanName(MOCK_DATASOURCES_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry)));

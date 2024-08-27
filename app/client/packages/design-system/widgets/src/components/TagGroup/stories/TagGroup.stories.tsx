@@ -1,6 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { TagGroup, Tag } from "@appsmith/wds";
+import { TagGroup, Tag } from "@design-system/widgets";
 import type { TagGroupProps } from "../src/TagGroup";
 
 /**
@@ -8,7 +8,7 @@ import type { TagGroupProps } from "../src/TagGroup";
  */
 const meta: Meta<typeof TagGroup> = {
   component: TagGroup,
-  title: "WDS/Widgets/TagGroup",
+  title: "Design-system/Widgets/TagGroup",
   subcomponents: {
     Tag,
   },

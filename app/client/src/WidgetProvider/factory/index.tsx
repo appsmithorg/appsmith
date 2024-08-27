@@ -129,7 +129,6 @@ class WidgetFactory {
       isDeprecated: !!config.isDeprecated,
       replacement: config.replacement,
       displayName: config.name,
-      displayOrder: config.displayOrder,
       key: generateReactKey(),
       iconSVG: config.iconSVG,
       thumbnailSVG: config.thumbnailSVG,

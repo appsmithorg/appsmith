@@ -69,11 +69,11 @@ export const showModal = (id: string, shouldSelectModal = true) => {
   };
 };
 
-export const closePropertyPane = (force = false) => {
+export const closePropertyPane = () => {
   return {
     type: ReduxActionTypes.HIDE_PROPERTY_PANE,
     payload: {
-      force,
+      force: false,
     },
   };
 };

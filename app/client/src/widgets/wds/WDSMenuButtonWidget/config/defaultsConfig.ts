@@ -1,6 +1,5 @@
-import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
+import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
-import { objectKeys } from "@appsmith/utils";
 
 export const defaultsConfig = {
   label: "Open The Menu…",

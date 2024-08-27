@@ -6,6 +6,7 @@ import omit from "lodash/omit";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "ee/constants/ReduxActionConstants";
@@ -52,6 +53,9 @@ import type {
 import { PluginPackageName, PluginType } from "entities/Action";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import log from "loglevel";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import { createMessage, ERROR_ACTION_RENAME_FAIL } from "ee/constants/messages";
 import {
@@ -84,7 +88,6 @@ import {
 import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/AppsmithAIEditorConstants";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
-import type { ApplicationPayload } from "entities/Application";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -94,6 +97,7 @@ function* syncApiParamsSaga(
   //Payload here contains the path and query params of a typical url like https://{domain}/{path}?{query_params}
   const value = actionPayload.payload;
   // Regular expression to find the query params group
+  PerformanceTracker.startTracking(PerformanceTransactionName.SYNC_PARAMS_SAGA);
   if (field === "actionConfiguration.path") {
     const params = parseUrlForQueryParams(value);
     // before updating the query parameters make sure the path field changes have been successfully updated first
@@ -131,6 +135,7 @@ function* syncApiParamsSaga(
       ),
     );
   }
+  PerformanceTracker.stopTracking();
 }
 
 function* handleUpdateBodyContentType(
@@ -288,6 +293,7 @@ function* changeApiSaga(
     action?: Action;
   }>,
 ) {
+  PerformanceTracker.startTracking(PerformanceTransactionName.CHANGE_API_SAGA);
   const { id, isSaas } = actionPayload.payload;
   let { action } = actionPayload.payload;
   if (!action) action = yield select(getAction, id);
@@ -323,6 +329,7 @@ function* changeApiSaga(
     getFormData,
     API_EDITOR_FORM_NAME,
   );
+  PerformanceTracker.stopTracking();
   yield put(updateReplayEntity(id, actionPostProcess, ENTITY_TYPE.ACTION));
 }
 

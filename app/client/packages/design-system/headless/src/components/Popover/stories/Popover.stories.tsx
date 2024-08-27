@@ -5,7 +5,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverModalContent,
-} from "@appsmith/wds-headless";
+} from "@design-system/headless";
 import { Button } from "react-aria-components";
 import { ControlledPopover as ControlledPopoverExample } from "./ControlledPopover";
 
@@ -19,7 +19,7 @@ import { ControlledPopover as ControlledPopoverExample } from "./ControlledPopov
 
 const meta: Meta<typeof Popover> = {
   component: Popover,
-  title: "WDS/Headless/Popover",
+  title: "Design-system/headless/Popover",
   subcomponents: {
     //@ts-expect-error: don't need props to pass here
     PopoverTrigger,

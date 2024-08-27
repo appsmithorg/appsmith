@@ -36,10 +36,6 @@ const {
   otlpServiceName,
 } = newRelic;
 
-// This base domain is used to filter out the Smartlook requests from the browser agent
-// There are some requests made to subdomains of smartlook.cloud which will also be filtered out
-const smartlookBaseDomain = "smartlook.cloud";
-
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
     [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
@@ -129,11 +125,7 @@ registerInstrumentations({
   meterProvider,
   instrumentations: [
     new PageLoadInstrumentation({
-      ignoreResourceUrls: [
-        browserAgentEndpoint,
-        otlpEndpoint,
-        smartlookBaseDomain,
-      ],
+      ignoreResourceUrls: [browserAgentEndpoint, otlpEndpoint],
     }),
   ],
 });

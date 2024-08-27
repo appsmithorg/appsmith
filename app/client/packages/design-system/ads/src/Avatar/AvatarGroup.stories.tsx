@@ -104,61 +104,79 @@ AvatarGroupStory.args = {
       label: "klaus@appsmith.com",
     },
     {
-      image: "https://assets.appsmith.com/integrations/25720743.png",
+      image: "https://picsum.photos/200/300?random=2",
       label: "wilfred@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=3",
       label: "dsouza@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=4",
       label: "someoneelse@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=5",
       label: "againsomeone@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=6",
       label: "thereisananotherone@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=7",
       label: "lastoneIguess@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=8",
       label: "noonemore@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=6",
       label: "thereisananotherone@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=7",
       label: "lastoneIguess@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=8",
       label: "noonemore@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=6",
       label: "thereisananotherone@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=7",
       label: "lastoneIguess@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=8",
       label: "noonemore@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=6",
       label: "thereisananotherone@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=7",
       label: "lastoneIguess@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=8",
       label: "noonemore@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=6",
       label: "thereisananotherone@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=7",
       label: "lastoneIguess@appsmith.com",
     },
     {
+      image: "https://picsum.photos/200/300?random=8",
       label: "noonemore@appsmith.com",
     },
   ],

@@ -6,14 +6,14 @@ import {
   TooltipTrigger,
   TooltipContent,
   Tooltip,
-} from "@appsmith/wds";
+} from "@design-system/widgets";
 
 /**
  * A tooltip is a small pop-up that appears when a user places their cursor over an element such as a link or button. Tooltips can be used to provide users with additional information about an element without having to clutter up the UI with additional text.
  */
 const meta: Meta<typeof Tooltip> = {
   component: Tooltip,
-  title: "WDS/Widgets/Tooltip",
+  title: "Design-system/Widgets/Tooltip",
   subcomponents: {
     //@ts-expect-error: don't need props to pass here
     TooltipRoot,

@@ -1,5 +1,5 @@
 import type { CheckboxGroupProps as HeadlessToggleGroupProps } from "react-aria-components";
-import type { ORIENTATION } from "@appsmith/wds";
+import type { ORIENTATION } from "@design-system/widgets";
 
 interface ToggleGroupItemProps {
   value: string;

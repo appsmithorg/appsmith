@@ -4,10 +4,10 @@ import {
   BUTTON_VARIANTS,
   COLORS,
   Flex,
+  objectKeys,
   ToolbarButtons,
   SIZES,
-} from "@appsmith/wds";
-import { objectKeys } from "@appsmith/utils";
+} from "@design-system/widgets";
 import {
   itemList,
   itemListWithIcons,
@@ -21,7 +21,7 @@ import {
  */
 const meta: Meta<typeof ToolbarButtons> = {
   component: ToolbarButtons,
-  title: "WDS/Widgets/ToolbarButtons",
+  title: "Design-system/Widgets/ToolbarButtons",
 };
 
 export default meta;

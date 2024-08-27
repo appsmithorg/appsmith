@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Checkbox, Flex } from "@appsmith/wds";
+import { Checkbox, Flex } from "@design-system/widgets";
 
 /**
  * Checkbox is a component that allows the user to select one or more options from a set.
  */
 const meta: Meta<typeof Checkbox> = {
   component: Checkbox,
-  title: "WDS/Widgets/Checkbox",
+  title: "Design-system/Widgets/Checkbox",
 };
 
 export default meta;

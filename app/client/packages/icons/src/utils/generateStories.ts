@@ -16,7 +16,7 @@ const createStory = (
   componentList: string,
 ) => {
   return `import { Meta } from "@storybook/addon-docs";
-import { Flex } from "@appsmith/wds";
+import { Flex } from "@design-system/widgets";
 ${importList}
 <Meta title="Appsmith Icons/${title}" />
 

@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { TextArea, Flex } from "@appsmith/wds";
+import { TextArea, Flex } from "@design-system/widgets";
 
 /**
  * TextArea is a component that is similar to the native textarea element, but with a few extra features.
  */
 const meta: Meta<typeof TextArea> = {
   component: TextArea,
-  title: "WDS/Widgets/TextArea",
+  title: "Design-system/Widgets/TextArea",
 };
 
 export default meta;

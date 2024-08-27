@@ -24,7 +24,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
-import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -59,8 +58,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DatasourcePermission datasourcePermission,
             DSLMigrationUtils dslMigrationUtils,
             ClonePageService<NewAction> actionClonePageService,
-            ClonePageService<ActionCollection> actionCollectionClonePageService,
-            ObservationRegistry observationRegistry) {
+            ClonePageService<ActionCollection> actionCollectionClonePageService) {
         super(
                 workspaceService,
                 applicationService,
@@ -88,7 +86,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourcePermission,
                 dslMigrationUtils,
                 actionClonePageService,
-                actionCollectionClonePageService,
-                observationRegistry);
+                actionCollectionClonePageService);
     }
 }

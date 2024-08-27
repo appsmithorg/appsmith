@@ -1,5 +1,5 @@
 import type { ComponentProps } from "widgets/BaseComponent";
-import type { TextInputProps } from "@appsmith/wds";
+import type { TextInputProps } from "@design-system/widgets";
 
 export type KeyDownEvent = React.KeyboardEvent<
   HTMLTextAreaElement | HTMLInputElement

@@ -1,6 +1,9 @@
 import React from "react";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { connect } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
@@ -22,6 +25,7 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
     //Close debugger call is required because if we import the application page with debugger open
     //it will cause a debugger to open. issue #21xxx
     this.props.closeDebugger();
+    PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     AnalyticsUtil.logEvent("APPLICATIONS_PAGE_LOAD");
     retryPromise(
       async () =>

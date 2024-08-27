@@ -11,7 +11,7 @@ import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutU
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
-} from "@appsmith/wds-theming";
+} from "@design-system/theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";

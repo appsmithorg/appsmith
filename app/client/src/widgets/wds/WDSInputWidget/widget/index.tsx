@@ -13,12 +13,11 @@ import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
-import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static type = "WDS_INPUT_WIDGET";
 
-  static getConfig(): WidgetBaseConfiguration {
+  static getConfig() {
     return config.metaConfig;
   }
 

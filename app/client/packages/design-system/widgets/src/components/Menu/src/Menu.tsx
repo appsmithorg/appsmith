@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, listItemStyles, Popover, Text } from "@appsmith/wds";
+import { Icon, listItemStyles, Popover, Text } from "@design-system/widgets";
 import {
   Menu as HeadlessMenu,
   MenuItem,

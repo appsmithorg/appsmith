@@ -1,5 +1,9 @@
 import type { AppState } from "ee/reducers";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type {
+  Page,
+  ReduxAction,
+  UpdateCanvasPayload,
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -14,7 +18,6 @@ import type {
   SetPageOrderActionPayload,
   SetupPageActionPayload,
   SetupPublishedPageActionPayload,
-  UpdateCanvasPayload,
   UpdatePageActionPayload,
 } from "actions/pageActions";
 import {
@@ -94,6 +97,9 @@ import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "../../sagas/EvaluationsSaga";
 import { getQueryParams } from "utils/URLUtils";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -145,7 +151,6 @@ import { ActionExecutionContext } from "entities/Action";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
-import type { Page } from "entities/Page";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -293,6 +298,10 @@ export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
       isFirstLoad = false,
       pageWithMigratedDsl,
     } = action.payload;
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+      { pageId },
+    );
 
     const params: FetchPageRequest = { pageId, migrateDSL: true };
     const fetchPageResponse: FetchPageResponse = yield call(
@@ -306,8 +315,18 @@ export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
       pageId,
       isFirstLoad,
     });
+
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+    );
   } catch (error) {
     log.error(error);
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+      {
+        failed: true,
+      },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
       payload: {
@@ -323,7 +342,13 @@ export function* fetchPublishedPageSaga(
   try {
     const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
       action.payload;
-
+    PerformanceTracker.startAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+      {
+        pageId: pageId,
+        published: true,
+      },
+    );
     const params = { pageId, bustCache };
     const response: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -367,8 +392,18 @@ export function* fetchPublishedPageSaga(
       if (!firstLoad) {
         yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
       }
+
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.FETCH_PAGE_API,
+      );
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.FETCH_PAGE_API,
+      {
+        failed: true,
+      },
+    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
       payload: {
@@ -412,7 +447,12 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     widgets,
     editorConfigs,
   );
-
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.SAVE_PAGE_API,
+    {
+      pageId: savePageRequest.pageId,
+    },
+  );
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -472,13 +512,22 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       }
       yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
-
+      PerformanceTracker.stopAsyncTracking(
+        PerformanceTransactionName.SAVE_PAGE_API,
+      );
       checkAndLogErrorsIfCyclicDependency(
         (savePageResponse.data as SavePageResponseData)
           .layoutOnLoadActionErrors,
       );
     }
   } catch (error) {
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.SAVE_PAGE_API,
+      {
+        failed: true,
+      },
+    );
+
     if (error instanceof UserCancelledActionExecutionError) {
       return;
     }

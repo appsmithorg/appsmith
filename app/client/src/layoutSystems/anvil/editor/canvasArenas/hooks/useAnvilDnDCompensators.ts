@@ -1,5 +1,5 @@
 import { getCompensatorsForHierarchy } from "../utils/dndCompensatorUtils";
-import { useThemeContext } from "@appsmith/wds-theming";
+import { useThemeContext } from "@design-system/theming";
 
 export const useAnvilDnDCompensators = (
   canActivate: boolean,

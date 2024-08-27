@@ -1,4 +1,4 @@
-import { COLORS } from "@appsmith/wds";
+import { COLORS } from "@design-system/widgets";
 import { ValidationTypes } from "constants/WidgetValidation";
 import capitalize from "lodash/capitalize";
 

@@ -11,6 +11,7 @@ import type {
 } from "reducers/entityReducers/pageListReducer";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
+import type { Page } from "ee/constants/ReduxActionConstants";
 import { ApplicationVersion } from "ee/actions/applicationActions";
 import type {
   OccupiedSpace,
@@ -47,7 +48,6 @@ import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { Page } from "entities/Page";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -348,7 +348,6 @@ export const getWidgetCards = createSelector(
       const {
         detachFromLayout = false,
         displayName,
-        displayOrder,
         iconSVG,
         isSearchWildcard,
         key,
@@ -376,7 +375,6 @@ export const getWidgetCards = createSelector(
         columns,
         detachFromLayout,
         displayName,
-        displayOrder,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
         IconCmp,

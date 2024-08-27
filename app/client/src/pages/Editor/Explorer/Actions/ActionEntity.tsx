@@ -3,6 +3,9 @@ import { useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history, { NavigationMethod } from "utils/history";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import {
   getActionByBaseId,
   getDatasource,
@@ -67,6 +70,9 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
   const switchToAction = useCallback(() => {
+    PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
+      url,
+    });
     url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
       type: "QUERIES/APIs",

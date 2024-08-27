@@ -73,18 +73,14 @@ import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
 import { WDSMenuButtonWidget } from "./wds/WDSMenuButtonWidget";
 import CustomWidget from "./CustomWidget";
-import { WDSSectionWidget } from "./wds/WDSSectionWidget";
-import { WDSZoneWidget } from "./wds/WDSZoneWidget";
+import { SectionWidget } from "./anvil/SectionWidget";
+import { ZoneWidget } from "./anvil/ZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 import { WDSModalWidget } from "./wds/WDSModalWidget";
 import { WDSStatsWidget } from "./wds/WDSStatsWidget";
 import { WDSKeyValueWidget } from "./wds/WDSKeyValueWidget";
 import { WDSInlineButtonsWidget } from "./wds/WDSInlineButtonsWidget";
-import { WDSEmailInputWidget } from "./wds/WDSEmailInputWidget";
-import { WDSPasswordInputWidget } from "./wds/WDSPasswordInputWidget";
-import { WDSNumberInputWidget } from "./wds/WDSNumberInputWidget";
-import { WDSMultilineInputWidget } from "./wds/WDSMultilineInputWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -169,18 +165,14 @@ const WDSWidgets = [
   WDSRadioGroupWidget,
   WDSMenuButtonWidget,
   CustomWidget,
-  WDSSectionWidget,
-  WDSZoneWidget,
+  SectionWidget,
+  ZoneWidget,
   WDSParagraphWidget,
   WDSHeadingWidget,
   WDSModalWidget,
   WDSStatsWidget,
   WDSKeyValueWidget,
   WDSInlineButtonsWidget,
-  WDSEmailInputWidget,
-  WDSPasswordInputWidget,
-  WDSNumberInputWidget,
-  WDSMultilineInputWidget,
 ];
 
 const Widgets = [

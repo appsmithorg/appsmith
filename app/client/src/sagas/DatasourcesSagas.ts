@@ -19,6 +19,7 @@ import {
 import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type {
+  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
@@ -176,7 +177,6 @@ import { getFromServerWhenNoPrefetchedResult } from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
-import type { ApplicationPayload } from "entities/Application";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<

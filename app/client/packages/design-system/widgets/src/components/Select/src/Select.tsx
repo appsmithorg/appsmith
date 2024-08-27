@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import clsx from "clsx";
-import { getTypographyClassName } from "@appsmith/wds-theming";
+import { getTypographyClassName } from "@design-system/theming";
 import {
   Button,
   ListBox,
@@ -8,7 +8,7 @@ import {
   SelectValue,
   FieldError,
 } from "react-aria-components";
-import { Text, Icon, Spinner, Popover, Label } from "@appsmith/wds";
+import { Text, Icon, Spinner, Popover, Label } from "@design-system/widgets";
 import { ListBoxItem } from "./ListBoxItem";
 import styles from "./styles.module.css";
 import type { SelectProps } from "./types";

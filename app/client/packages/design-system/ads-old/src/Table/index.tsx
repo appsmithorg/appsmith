@@ -3,7 +3,8 @@ import React from "react";
 import styled from "styled-components";
 import { Classes } from "../constants/classes";
 import { typography } from "../constants/typography";
-import { Spinner } from "@appsmith/ads";
+import Spinner from "../Spinner";
+import { IconSize } from "../Icon";
 import { importSvg } from "../utils/icon-loadables";
 
 const DownArrow = importSvg(
@@ -191,7 +192,11 @@ function Table(props: TableProps) {
             <tr className="no-hover">
               <td className="no-border" colSpan={columns?.length}>
                 <CentralizedWrapper>
-                  {loaderComponent ? loaderComponent : <Spinner size="lg" />}
+                  {loaderComponent ? (
+                    loaderComponent
+                  ) : (
+                    <Spinner size={IconSize.XXL} />
+                  )}
                 </CentralizedWrapper>
               </td>
             </tr>

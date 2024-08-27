@@ -37,7 +37,7 @@ import {
   getCurrentApplication,
   getWorkspaceIdForImport,
 } from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "entities/Application";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";

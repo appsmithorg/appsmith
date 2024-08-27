@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox } from "@appsmith/wds";
+import { Checkbox } from "@design-system/widgets";
 import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

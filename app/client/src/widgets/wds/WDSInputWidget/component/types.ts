@@ -1,4 +1,4 @@
-import type { IconProps } from "@appsmith/wds";
+import type { IconProps } from "@design-system/widgets";
 import type { BaseInputComponentProps } from "../../WDSBaseInputWidget";
 
 import type { INPUT_TYPES } from "../constants";

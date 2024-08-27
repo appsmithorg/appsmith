@@ -9,7 +9,7 @@ import {
   EmptyCell,
   EmptyRow,
 } from "../TableStyledWrappers";
-import { Text } from "@appsmith/wds";
+import { Text } from "@design-system/widgets";
 
 const addStickyModifierClass = (
   columns: ReactTableColumnProps[],

@@ -4,7 +4,7 @@ import {
   TooltipTrigger,
   TooltipContent,
   TooltipRoot as Tooltip,
-} from "@appsmith/wds";
+} from "@design-system/widgets";
 import { StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
 

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Link } from "@appsmith/wds";
+import { Link } from "@design-system/widgets";
 
 import type { BaseCellComponentProps } from "../Constants";
 

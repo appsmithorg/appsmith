@@ -1,5 +1,8 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type {
+  ReduxAction,
+  ApplicationPayload,
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -24,7 +27,6 @@ import {
 } from "constants/AppConstants";
 import produce from "immer";
 import { isEmpty } from "lodash";
-import type { ApplicationPayload } from "entities/Application";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,

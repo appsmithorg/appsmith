@@ -4,9 +4,9 @@ import {
   TokensAccessor,
   LightModeTheme,
   DarkModeTheme,
-} from "@appsmith/wds-theming";
+} from "@design-system/theming";
 import Color from "colorjs.io";
-import { Text } from "@appsmith/wds";
+import { Text } from "@design-system/widgets";
 import styles from "./styles.module.css";
 import { COLORS as appsmithColors } from "./colors";
 

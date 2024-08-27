@@ -39,6 +39,9 @@ import {
 } from "pages/UserAuth/StyledComponents";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { LOGIN_SUBMIT_PATH } from "ee/constants/ApiConstants";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Container from "pages/UserAuth/Container";
@@ -198,6 +201,9 @@ export function Login(props: LoginFormProps) {
                 isDisabled={!isFormValid}
                 kind="primary"
                 onClick={() => {
+                  PerformanceTracker.startTracking(
+                    PerformanceTransactionName.LOGIN_CLICK,
+                  );
                   AnalyticsUtil.logEvent("LOGIN_CLICK", {
                     loginMethod: "EMAIL",
                   });

@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
+import type { TextInputProps } from "@appsmith/ads-old";
 import type { ContainerOrientation } from "constants/WidgetConstants";
 import { Input, Icon } from "@appsmith/ads";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
@@ -89,21 +90,7 @@ export const StyledNavigateToFieldsContainer = styled.div`
   width: 95%;
 `;
 
-interface InputGroupProps {
-  autoFocus?: boolean;
-  className?: string;
-  dataType?: string;
-  onBlur?: () => void;
-  onFocus?: () => void;
-  placeholder?: string;
-  value?: string;
-  width?: string;
-  onChange?: (value: string) => void;
-  defaultValue?: string;
-  tabIndex?: number;
-}
-
-export const InputGroup = React.forwardRef((props: InputGroupProps, ref) => {
+export const InputGroup = React.forwardRef((props: TextInputProps, ref) => {
   let inputRef = React.useRef<HTMLInputElement>(null);
   const wrapperRef = React.useRef<HTMLInputElement>(null);
   const { dispatchInteractionAnalyticsEvent } =

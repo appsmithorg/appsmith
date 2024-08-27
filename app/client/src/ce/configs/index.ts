@@ -1,4 +1,7 @@
 import type { AppsmithUIConfigs } from "./types";
+import { Integrations } from "@sentry/tracing";
+import * as Sentry from "@sentry/react";
+import { createBrowserHistory } from "history";
 
 export interface INJECTED_CONFIGS {
   sentry: {
@@ -237,6 +240,17 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       release: sentryRelease.value,
       environment: sentryENV.value,
       normalizeDepth: 3,
+      integrations: [
+        typeof window === "undefined"
+          ? // The Browser Tracing instrumentation isn’t working (and is unnecessary) in the worker environment
+            undefined
+          : new Integrations.BrowserTracing({
+              // Can also use reactRouterV4Instrumentation
+              routingInstrumentation: Sentry.reactRouterV5Instrumentation(
+                createBrowserHistory(),
+              ),
+            }),
+      ].filter((i) => i !== undefined),
       tracesSampleRate: 0.1,
     },
     smartLook: {

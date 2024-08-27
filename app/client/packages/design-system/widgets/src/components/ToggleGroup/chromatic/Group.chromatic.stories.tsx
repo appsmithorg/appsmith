@@ -1,7 +1,12 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { ToggleGroup, RadioGroup, Switch, Checkbox } from "@appsmith/wds";
+import {
+  ToggleGroup,
+  RadioGroup,
+  Switch,
+  Checkbox,
+} from "@design-system/widgets";
 import { StoryGrid } from "@design-system/storybook";
 
 const meta: Meta<typeof Switch> = {

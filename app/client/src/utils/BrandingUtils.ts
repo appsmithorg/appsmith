@@ -11,7 +11,7 @@ import {
 import { toast } from "@appsmith/ads";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { LightModeTheme } from "@appsmith/wds-theming";
+import { LightModeTheme } from "@design-system/theming";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;

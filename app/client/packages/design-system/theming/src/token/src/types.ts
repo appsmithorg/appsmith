@@ -147,4 +147,4 @@ export const APP_MAX_WIDTH = {
   Medium: "MEDIUM",
 } as const;
 
-export type AppMaxWidth = (typeof APP_MAX_WIDTH)[keyof typeof APP_MAX_WIDTH];
+export type APP_MAX_WIDTH = (typeof APP_MAX_WIDTH)[keyof typeof APP_MAX_WIDTH];

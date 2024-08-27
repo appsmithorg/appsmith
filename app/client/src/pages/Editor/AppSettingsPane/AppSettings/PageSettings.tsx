@@ -15,7 +15,7 @@ import {
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
   PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
 } from "ee/constants/messages";
-import type { Page } from "entities/Page";
+import type { Page } from "ee/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Input, Switch } from "@appsmith/ads";
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";

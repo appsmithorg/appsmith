@@ -3,15 +3,15 @@ import type { Meta, StoryObj } from "@storybook/react";
 import {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
-} from "@appsmith/wds-theming";
-import { Text, Flex, COLORS } from "@appsmith/wds";
+} from "@design-system/theming";
+import { Text, Flex, COLORS } from "@design-system/widgets";
 
 /**
  * Text is a component that renders a capsized text.
  */
 const meta: Meta<typeof Text> = {
   component: Text,
-  title: "WDS/Widgets/Text",
+  title: "Design-system/Widgets/Text",
 };
 
 export default meta;

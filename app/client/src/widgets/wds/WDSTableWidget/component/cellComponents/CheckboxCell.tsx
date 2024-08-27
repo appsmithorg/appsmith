@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import type { BaseCellComponentProps } from "../Constants";
-import { Checkbox } from "@appsmith/wds";
+import { Checkbox } from "@design-system/widgets";
 
 type CheckboxCellProps = BaseCellComponentProps & {
   value: boolean;

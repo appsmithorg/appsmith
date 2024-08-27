@@ -44,6 +44,18 @@ const usersReducer = createReducer(initialState, {
       fetchingUser: true,
     },
   }),
+  [ReduxActionTypes.PROP_PANE_MOVED]: (
+    state: UsersReduxState,
+    action: ReduxAction<PropertyPanePositionConfig>,
+  ) => ({
+    ...state,
+    propPanePreferences: {
+      isMoved: true,
+      position: {
+        ...action.payload.position,
+      },
+    },
+  }),
   [ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,
@@ -129,6 +141,13 @@ const usersReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.FETCH_USER_ERROR]: (state: UsersReduxState) => ({
     ...state,
     loadingStates: { ...state.loadingStates, fetchingUser: false },
+  }),
+  [ReduxActionTypes.SET_CURRENT_USER_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<User>,
+  ) => ({
+    ...state,
+    current: action.payload,
   }),
   [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (
     state: UsersReduxState,

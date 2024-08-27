@@ -13,8 +13,8 @@ import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import { Tooltip } from "@appsmith/ads";
-import { ICONS, Icon } from "@appsmith/wds";
-import type { IconProps } from "@appsmith/wds";
+import { ICONS, Icon } from "@design-system/widgets";
+import type { IconProps } from "@design-system/widgets";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;

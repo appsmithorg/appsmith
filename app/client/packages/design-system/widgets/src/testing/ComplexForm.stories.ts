@@ -3,7 +3,7 @@ import { ComplexForm } from "./ComplexForm";
 
 const meta: Meta<typeof ComplexForm> = {
   component: ComplexForm,
-  title: "WDS/Testing/ComplexForm",
+  title: "Testing/ComplexForm",
 };
 
 export default meta;

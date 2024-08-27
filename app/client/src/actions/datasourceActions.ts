@@ -325,6 +325,16 @@ export const addMockDatasourceToWorkspace = (
   };
 };
 
+export const initDatasourcePane = (
+  pluginType: string,
+  urlId?: string,
+): ReduxAction<{ pluginType: string; id?: string }> => {
+  return {
+    type: ReduxActionTypes.INIT_DATASOURCE_PANE,
+    payload: { id: urlId, pluginType },
+  };
+};
+
 export const storeAsDatasource = () => {
   return {
     type: ReduxActionTypes.STORE_AS_DATASOURCE_INIT,
@@ -519,4 +529,5 @@ export const setDatasourcePreviewSelectedTableName = (
 
 export default {
   fetchDatasources,
+  initDatasourcePane,
 };

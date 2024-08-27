@@ -1,6 +1,6 @@
 import type { Key } from "react";
 import React, { useState } from "react";
-import { InlineButtons } from "@appsmith/wds";
+import { InlineButtons } from "@design-system/widgets";
 import type {
   InlineButtonsComponentProps,
   InlineButtonsItemComponentProps,

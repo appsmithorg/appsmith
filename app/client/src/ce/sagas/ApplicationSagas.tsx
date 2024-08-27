@@ -1,4 +1,8 @@
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type {
+  ApplicationPayload,
+  Page,
+  ReduxAction,
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -118,8 +122,6 @@ import {
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-import type { Page } from "entities/Page";
-import type { ApplicationPayload } from "entities/Application";
 
 export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
   const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];

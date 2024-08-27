@@ -50,9 +50,6 @@
   "dependencies": {
     "@appsmith/ads": "workspace:^",
     "@appsmith/ads-old": "workspace:^",
-    "@appsmith/utils": "workspace:^",
-    "@appsmith/wds": "workspace:^",
-    "@appsmith/wds-theming": "workspace:^",
     "@aws-sdk/client-s3": "^3.622.0",
     "@aws-sdk/lib-storage": "^3.622.0",
     "@babel/standalone": "^7.23.6",
@@ -62,6 +59,8 @@
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
     "@design-system/storybook": "workspace:^",
+    "@design-system/theming": "workspace:^",
+    "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
     "@floating-ui/dom": "^1.6.4",
     "@fusioncharts/powercharts": "^3.16.0",
@@ -84,6 +83,7 @@
     "@opentelemetry/semantic-conventions": "1.25.1",
     "@react-types/shared": "^3.23.0",
     "@sentry/react": "^6.2.4",
+    "@sentry/tracing": "^6.2.4",
     "@shared/ast": "workspace:^",
     "@shared/dsl": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
@@ -252,7 +252,6 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@appsmith/eslint-plugin": "workspace:^",
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
     "@babel/helper-string-parser": "^7.19.4",
     "@craco/craco": "^7.0.0",
@@ -342,7 +341,6 @@
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-perf": "^3.3.2",
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "eslint-plugin-storybook": "^0.6.15",
     "eslint-plugin-testing-library": "^6.2.0",

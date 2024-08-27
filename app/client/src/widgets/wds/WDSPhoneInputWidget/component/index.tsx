@@ -1,6 +1,6 @@
 import React from "react";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
-import { Text, TextInput } from "@appsmith/wds";
+import { Text, TextInput } from "@design-system/widgets";
 
 import type { PhoneInputComponentProps } from "./types";
 

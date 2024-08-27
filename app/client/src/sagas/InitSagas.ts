@@ -13,6 +13,8 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import type {
+  ApplicationPayload,
+  Page,
   ReduxAction,
   ReduxActionWithoutPayload,
 } from "ee/constants/ReduxActionConstants";
@@ -88,8 +90,6 @@ import {
   startNestedSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
-import type { ApplicationPayload } from "entities/Application";
-import type { Page } from "entities/Page";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -306,6 +306,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload.mode,
       action.payload.mode,
     );
+    engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload, rootSpan);
 
     const getInitResponsesSpan = startNestedSpan(
@@ -343,6 +344,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield call(engine.loadGit, applicationId, rootSpan);
     yield call(engine.completeChore, rootSpan);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
+    engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
     if (e instanceof AppEngineApiError) return;

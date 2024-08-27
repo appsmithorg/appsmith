@@ -114,16 +114,3 @@ export const createNewQueryFromActionCreator = (
     payload,
   };
 };
-
-export interface ShowPropertyPanePayload {
-  widgetId?: string;
-  callForDragOrResize?: boolean;
-  force: boolean;
-}
-
-export const showPropertyPane = (payload: ShowPropertyPanePayload) => {
-  return {
-    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-    payload,
-  };
-};

@@ -1,5 +1,5 @@
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { COLORS, IconProps } from "@appsmith/wds";
+import type { COLORS, IconProps } from "@design-system/widgets";
 
 export interface StatsWidgetProps extends WidgetProps {
   label?: string;
