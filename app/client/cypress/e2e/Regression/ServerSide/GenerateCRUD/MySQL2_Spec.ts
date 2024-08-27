@@ -361,7 +361,7 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Stores",
+        entityNameinLeftSidebar: "Page1",
         action: "Delete",
         entityType: entityItems.Page,
       });
