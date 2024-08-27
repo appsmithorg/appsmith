@@ -1,10 +1,10 @@
 import React from "react";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+// import { ValidationTypes } from "constants/WidgetValidation";
+// import type { SetterConfig } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { createBlobUrl } from "utils/AppsmithUtils";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { FileDataTypes } from "WidgetProvider/constants";
@@ -19,6 +19,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { withAudioRecorderWidgetConfig } from "@appsmith/evaluation";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
@@ -37,8 +38,6 @@ class AudioRecorderWidget extends BaseWidget<
   AudioRecorderWidgetProps,
   WidgetState
 > {
-  static type = "AUDIO_RECORDER_WIDGET";
-
   static getConfig() {
     return {
       name: "Audio Recorder",
@@ -108,149 +107,12 @@ class AudioRecorderWidget extends BaseWidget<
     };
   }
 
-  static getPropertyPaneContentConfig() {
-    return [
-      {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "isVisible",
-            label: "Visible",
-            helpText: "Controls the visibility of the widget",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "isDisabled",
-            label: "Disabled",
-            controlType: "SWITCH",
-            helpText: "Disables input to this widget",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.BOOLEAN,
-            },
-          },
-          {
-            propertyName: "animateLoading",
-            label: "Animate loading",
-            controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
-            defaultValue: true,
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
-          {
-            helpText: "when the recording starts",
-            propertyName: "onRecordingStart",
-            label: "onRecordingStart",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "when the recording ends",
-            propertyName: "onRecordingComplete",
-            label: "onRecordingComplete",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
-    ];
-  }
-  static getPropertyPaneStyleConfig() {
-    return [
-      {
-        sectionName: "Styles",
-        children: [
-          {
-            propertyName: "iconColor",
-            helpText: "Sets the icon color of the widget",
-            label: "Icon color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "accentColor",
-            helpText: "Changes the color of the recorder button",
-            label: "Button color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Border and shadow",
-        children: [
-          {
-            propertyName: "borderRadius",
-            label: "Border radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border edge",
-            controlType: "BORDER_RADIUS_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "boxShadow",
-            label: "Box shadow",
-            helpText:
-              "Enables you to cast a drop shadow from the frame of the widget",
-            controlType: "BOX_SHADOW_OPTIONS",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-    ];
-  }
-
   static getStylesheetConfig(): Stylesheet {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
     };
-  }
-
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getMetaPropertiesMap(): Record<string, any> {
-    return {
-      blobURL: undefined,
-      dataURL: undefined,
-      rawBinary: undefined,
-      isDirty: false,
-    };
-  }
-
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
   }
 
   handleRecordingStart = () => {
@@ -305,21 +167,6 @@ class AudioRecorderWidget extends BaseWidget<
     }
   };
 
-  static getSetterConfig(): SetterConfig {
-    return {
-      __setters: {
-        setVisibility: {
-          path: "isVisible",
-          type: "boolean",
-        },
-        setDisabled: {
-          path: "isDisabled",
-          type: "boolean",
-        },
-      },
-    };
-  }
-
   getWidgetView() {
     const { blobURL, componentHeight, componentWidth, iconColor, isDisabled } =
       this.props;
@@ -341,4 +188,7 @@ class AudioRecorderWidget extends BaseWidget<
   }
 }
 
-export default AudioRecorderWidget;
+const AudioRecorderWidgetWithConfig =
+  withAudioRecorderWidgetConfig(AudioRecorderWidget);
+
+export default AudioRecorderWidgetWithConfig;
