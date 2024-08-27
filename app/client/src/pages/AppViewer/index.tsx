@@ -32,7 +32,7 @@ import { setupPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
-import { initAppViewerAction } from "actions/initActions";
+import { initAppViewerAction, resetEditorRequest } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
@@ -132,6 +132,10 @@ function AppViewer(props: Props) {
     editorInitializer().then(() => {
       dispatch(widgetInitialisationSuccess());
     });
+
+    return () => {
+      dispatch(resetEditorRequest());
+    };
   }, []);
   /**
    * initialize the app if branch, pageId or application is changed
