@@ -126,7 +126,7 @@ const BottomView = (props: Props) => {
 
   return (
     <Container
-      className={`select-text ${props.className || ""}`}
+      className={`select-text ${props.className || ""} t--ide-bottom-view`}
       displayMode={props.displayMode || ViewDisplayMode.BLOCK}
       ref={panelRef}
     >

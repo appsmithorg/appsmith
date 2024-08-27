@@ -44,7 +44,7 @@ describe(
         .should("be.visible")
         .contains("'lintErrror' is not defined.");
 
-      cy.get(commonlocators.debugErrorMsg).should("have.length", 3);
+      _.debuggerHelper.AssertErrorCount(3);
     });
   },
 );

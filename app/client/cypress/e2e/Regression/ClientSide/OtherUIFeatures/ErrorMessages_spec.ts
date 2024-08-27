@@ -33,14 +33,19 @@ describe("Sanitise toast error messages", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{a.kjbfjdfbkds()}}");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.WaitUntilToastDisappear("a is not defined");
+    _.debuggerHelper.AssertDebugError("'a' is not defined.", "", false, false);
   });
 
   it("2. Does not show type error label when js obj function does not exist", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{JSObject1.myFun1efef()}}");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.WaitUntilToastDisappear("Object1.myFun1efef is not a function");
+    _.debuggerHelper.AssertDebugError(
+      "Object1.myFun1efef is not a function",
+      "",
+      false,
+      false,
+    );
   });
 
   it("3. Does not show any label when msg is not given for post message", () => {
@@ -67,8 +72,11 @@ describe("Sanitise toast error messages", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.WaitUntilToastDisappear(
+    _.debuggerHelper.AssertDebugError(
       "Cannot read properties of null (reading ':')",
+      "",
+      false,
+      false,
     );
   });
 
@@ -81,6 +89,11 @@ describe("Sanitise toast error messages", () => {
     _.agHelper.GetNClick(_.propPane._actionSelectorDelete);
     _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.WaitUntilToastDisappear("Enter a valid URL or page name");
+    _.debuggerHelper.AssertDebugError(
+      "Enter a valid URL or page name",
+      "",
+      false,
+      false,
+    );
   });
 });

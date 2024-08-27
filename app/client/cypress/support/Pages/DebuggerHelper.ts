@@ -34,6 +34,7 @@ export class DebuggerHelper {
       [PageType.JsEditor]: ".t--js-editor-bottom-pane-container",
       [PageType.DataSources]: ".t--datasource-bottom-pane-container",
     },
+    _ideBottomViewContainer: ".t--ide-bottom-view",
     _debuggerList: ".debugger-list",
     _debuggerFilter: "input[data-testid=t--debugger-search]",
     _debuggerSelectedTab: ".ads-v2-tabs__list-tab",
@@ -52,11 +53,11 @@ export class DebuggerHelper {
   OpenDebugger() {
     // Open opens if it is not open yet
     cy.get("body").then(($body) => {
-      if ($body.find(this.locators._tabsContainer).length === 0) {
+      if ($body.find(this.locators._ideBottomViewContainer).length === 0) {
         this.agHelper.GetNClick(this.locators._debuggerIcon, 0, false);
       }
     });
-    this.agHelper.AssertElementVisibility(this.locators._tabsContainer);
+    this.AssertOpen();
   }
 
   ClickDebuggerToggle(expand = true, index = 0) {
@@ -90,7 +91,7 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.locators._closeButton);
   }
 
-  AssertOpen(pageType: PageType) {
+  AssertOpen(pageType?: PageType) {
     switch (pageType) {
       case PageType.Canvas:
         this.agHelper.AssertElementExist(this.locators._tabsContainer);
@@ -103,6 +104,10 @@ export class DebuggerHelper {
           this.locators._bottomPaneContainer[pageType],
         );
         break;
+      default:
+        this.agHelper.AssertElementVisibility(
+          this.locators._ideBottomViewContainer,
+        );
     }
   }
 
