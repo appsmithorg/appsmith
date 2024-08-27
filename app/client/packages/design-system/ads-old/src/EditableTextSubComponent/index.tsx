@@ -254,7 +254,7 @@ export const EditableTextSubComponent = React.forwardRef(
           {savingState === SavingState.STARTED ? (
             <Spinner size="md" />
           ) : value && !props.hideEditIcon && iconName ? (
-            <Icon name={iconName} size="md" />
+            <Icon className="cursor-pointer" name={iconName} size="md" />
           ) : null}
         </TextContainer>
         {isEditing && !!isInvalid ? (
