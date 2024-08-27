@@ -21,7 +21,7 @@ import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalL
 import styles from "./styles.module.css";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { AnvilDataAttributes } from "widgets/anvil/constants";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";

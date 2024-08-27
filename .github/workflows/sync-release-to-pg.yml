@@ -1,0 +1,92 @@
+name: Merge release to pg
+
+on:
+  push:
+    branches:
+      - release  # Trigger on push to the release branch
+
+jobs:
+  merge-release-to-pg:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v3
+        with:
+          ref: release  # Checkout the release branch
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Checkout pg branch
+        run: git checkout pg
+
+      - name: Get new commits from release
+        id: get_commits
+        run: |
+          # Compare the heads of pg and release
+          PG_HEAD=$(git rev-parse pg)
+          RELEASE_HEAD=$(git rev-parse release)
+
+          echo "PG_HEAD=$PG_HEAD" >> $GITHUB_ENV
+          echo "RELEASE_HEAD=$RELEASE_HEAD" >> $GITHUB_ENV
+
+          # Get new commits on release that are not yet in pg
+          COMMITS=$(git log --reverse --pretty=format:"%H" $PG_HEAD..$RELEASE_HEAD)
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+
+      - name: Merge commits one by one
+        id: merge_commits
+        run: |
+          # Initialize an empty list for conflicted commits
+          conflicted_commits=()
+
+          # Convert the string of commits to an array
+          IFS=' ' read -r -a commit_array <<< "$COMMITS"
+
+          # Loop through each commit
+          for commit in "${commit_array[@]}"; do
+            echo "Attempting to cherry-pick commit $commit"
+            if ! git cherry-pick $commit; then
+              echo "Conflict detected with commit $commit"
+              conflicted_commits+=($commit)
+              git cherry-pick --abort
+            fi
+          done
+
+          # Save conflicted commits to environment variable
+          echo "CONFLICTED_COMMITS=\"${conflicted_commits[@]}\"" >> $GITHUB_ENV
+
+      - name: Push changes
+        if: success() && steps.merge_commits.outputs.CONFLICTED_COMMITS == ''
+        run: |
+          git push origin pg
+
+      - name: Notify on merge conflicts
+        if: failure()
+        env:
+          REPOSITORY_URL: ${{ github.repositoryUrl }}
+        run: |
+          # Prepare the message for Slack
+          message="Merge conflict detected while merging release into pg branch. Conflicted commits:\n"
+          for commit in $CONFLICTED_COMMITS; do
+            commit_url="$REPOSITORY_URL/commit/$commit"
+            message+="$commit_url\n"
+          done
+
+          # Send the message to Slack
+          # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
+          slack_message="$(echo "$message" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
+
+          # This is the ChannelId of the proj postgres channel.
+          body="$(jq -nc \
+            --arg channel C06Q3A97USE \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
+
+          curl --version
+          curl -v https://slack.com/api/chat.postMessage \
+            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw "$body"

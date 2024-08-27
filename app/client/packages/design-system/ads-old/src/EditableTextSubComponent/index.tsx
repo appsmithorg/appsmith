@@ -5,7 +5,7 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import type { noop } from "lodash";
-import { Spinner } from "@appsmith/ads";
+import { Icon, Spinner } from "@appsmith/ads";
 import { Text, TextType } from "../index";
 import type { CommonComponentProps } from "../types/common";
 
@@ -217,6 +217,17 @@ export const EditableTextSubComponent = React.forwardRef(
       [inputValidation, onTextChanged],
     );
 
+    const iconName =
+      !isEditing &&
+      savingState === SavingState.NOT_STARTED &&
+      !props.hideEditIcon
+        ? "pencil-line"
+        : !isEditing && savingState === SavingState.SUCCESS
+          ? "success"
+          : savingState === SavingState.ERROR || (isEditing && !!isInvalid)
+            ? "error"
+            : undefined;
+
     return (
       <>
         <TextContainer
@@ -240,7 +251,11 @@ export const EditableTextSubComponent = React.forwardRef(
             value={value}
           />
 
-          {savingState === SavingState.STARTED ? <Spinner size="md" /> : null}
+          {savingState === SavingState.STARTED ? (
+            <Spinner size="md" />
+          ) : value && !props.hideEditIcon && iconName ? (
+            <Icon className="cursor-pointer" name={iconName} size="md" />
+          ) : null}
         </TextContainer>
         {isEditing && !!isInvalid ? (
           <Text className="error-message" type={TextType.P2}>
