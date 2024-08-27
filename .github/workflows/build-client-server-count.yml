@@ -139,9 +139,8 @@ jobs:
       - name: Read and Set File Content as ENV Variable
         id: set-summary-content
         run: |
-            summary_content=$(cat app/client/cy-repeat-summary.txt | sed 's/^/| /')
-            echo "$summary_content"
-            echo "summary_content=$summary_content" >> $GITHUB_ENV
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            echo "summary_content=$summary_content" >> $GITHUB_ENV   
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
@@ -194,9 +193,8 @@ jobs:
       - name: Read and Set File Content as ENV Variable
         id: set-summary-content
         run: |
-              summary_content=$(cat app/client/cy-repeat-summary.txt | sed 's/^/| /')
-              echo "$summary_content"
-              echo "summary_content=$summary_content" >> $GITHUB_ENV
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            echo "summary_content=$summary_content" >> $GITHUB_ENV 
 
       - name: Setup node
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
