@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   assertHelper,
+  dataManager,
   deployMode,
   entityItems,
   jsEditor,
@@ -128,8 +129,8 @@ describe(
       agHelper.AddDsl("multiPartFormDataDsl");
 
       apiPage.CreateAndFillApi(
-        "https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu",
-        "CloudinaryUploadApi",
+        dataManager.dsValues[dataManager.defaultEnviorment].multipartAPI,
+        "MultipartAPI",
         30000,
         "POST",
       );
@@ -145,7 +146,7 @@ describe(
             myVar1: [],
             myVar2: {},
             upload: async () => {
-                await CloudinaryUploadApi.run().then(()=> showAlert('Image uploaded to Cloudinary successfully', 'success')).catch(err => showAlert(err.message, 'error'));
+                await MultipartAPI.run().then(()=> showAlert('Image uploaded to Cloudinary successfully', 'success')).catch(err => showAlert(err.message, 'error'));
                 await resetWidget('FilePicker1', true);
             }
         }`,
@@ -163,11 +164,11 @@ describe(
       EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "Image",
-        "{{CloudinaryUploadApi.data.url}}",
+        "{{MultipartAPI.data.url}}",
       );
 
       EditorNavigation.SelectEntityByName(
-        "CloudinaryUploadApi",
+        "MultipartAPI",
         EntityType.Api,
       );
 
@@ -196,7 +197,7 @@ describe(
     it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
       const imageNameToUpload = "AAAFlowerVase.jpeg";
       EditorNavigation.SelectEntityByName(
-        "CloudinaryUploadApi",
+        "MultipartAPI",
         EntityType.Api,
       );
       apiPage.EnterBodyFormData(
@@ -215,7 +216,7 @@ describe(
       agHelper.ClickButton("Select Files");
       agHelper.UploadFile(imageNameToUpload);
       assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
-      agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
+      agHelper.ValidateToastMessage("MultipartAPI failed to execute");
       agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset in case of failure!
     });
   },
