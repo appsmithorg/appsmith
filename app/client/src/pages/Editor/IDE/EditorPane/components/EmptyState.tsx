@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Flex, Text, Icon } from "design-system";
+import { Button, Flex, Text, Icon } from "@appsmith/ads";
 
 interface EmptyStateProps {
   icon: string;

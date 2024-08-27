@@ -1,10 +1,10 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { Text } from "design-system";
+import type { ApplicationPayload } from "entities/Application";
+import { Text } from "@appsmith/ads";
 import React from "react";
 import { SearchListItem } from "./WorkspaceSearchItems";
 import styled from "styled-components";
-import type { AppIconName } from "design-system-old";
-import { AppIcon, Size } from "design-system-old";
+import type { AppIconName } from "@appsmith/ads-old";
+import { AppIcon, Size } from "@appsmith/ads-old";
 import { getApplicationIcon } from "utils/AppsmithUtils";
 
 const CircleAppIcon = styled(AppIcon)`
@@ -40,10 +40,9 @@ const ApplicationSearchItem = (props: Props) => {
         >
           <CircleAppIcon
             className="!mr-1"
-            color="var(--ads-v2-color-fg)"
             name={
-              application?.icon ||
-              (getApplicationIcon(application.id) as AppIconName)
+              (application?.icon ||
+                getApplicationIcon(application.id)) as AppIconName
             }
             size={Size.xxs}
           />

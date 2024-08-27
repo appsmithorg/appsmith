@@ -3,14 +3,7 @@ import React, { useCallback, memo } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import {
-  Flex,
-  Icon,
-  IconButton,
-  Menu,
-  MenuTrigger,
-  Text,
-} from "@design-system/widgets";
+import { Flex, Icon, IconButton, Menu, MenuTrigger, Text } from "@appsmith/wds";
 
 interface HeaderProps {
   canFreezeColumn?: boolean;
@@ -23,6 +16,8 @@ interface HeaderProps {
   columnOrder?: string[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: any;
   editMode?: boolean;
   isSortable?: boolean;

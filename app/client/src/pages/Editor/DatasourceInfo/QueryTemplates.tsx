@@ -1,9 +1,10 @@
 import React, { useCallback, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import type { QueryAction } from "entities/Action";
@@ -15,21 +16,21 @@ import {
   getAction,
   getDatasource,
   getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { MenuItem, Tag } from "design-system";
+} from "ee/selectors/entitiesSelector";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import { MenuItem, Tag } from "@appsmith/ads";
 import type { Plugin } from "api/PluginApi";
 
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { setFeatureWalkthroughShown } from "utils/storage";
 import styled from "styled-components";
 import { change, getFormValues } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import { diff } from "deep-diff";
 import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { SUGGESTED_TAG, createMessage } from "@appsmith/constants/messages";
+import { SUGGESTED_TAG, createMessage } from "ee/constants/messages";
 import { transformTextToSentenceCase } from "pages/Editor/utils";
 
 interface QueryTemplatesProps {
@@ -62,7 +63,8 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
-  const currentPageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
+  const pageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
   );
@@ -90,7 +92,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
       dispatch(
         createActionRequest({
-          pageId: currentPageId,
+          pageId,
           pluginId: dataSource?.pluginId,
           datasource: {
             id: props.datasourceId,
@@ -114,7 +116,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
       history.push(
         integrationEditorURL({
-          pageId: currentPageId,
+          basePageId,
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),
       );
@@ -122,7 +124,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     [
       dispatch,
       actions,
-      currentPageId,
+      basePageId,
       applicationId,
       props.datasourceId,
       dataSource,
@@ -183,7 +185,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     [
       dispatch,
       actions,
-      currentPageId,
+      basePageId,
       applicationId,
       props.datasourceId,
       dataSource,

@@ -7,9 +7,9 @@ import {
   getPageList,
   getPluginSettingConfigs,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { deleteAction, runAction } from "actions/pluginActionActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
@@ -17,49 +17,50 @@ import {
   getIsEditorInitialized,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { getActionByBaseId } from "ee/selectors/entitiesSelector";
 import type { APIEditorRouteParams } from "constants/routes";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { ApiEditorContextProvider } from "./ApiEditorContext";
 import type { PaginationField } from "api/ActionAPI";
 import { get, keyBy } from "lodash";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
-import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
-import { Icon } from "design-system";
+import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
+import { Icon } from "@appsmith/ads";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
-function getPageName(pages: any, pageId: string) {
-  const page = pages.find((page: any) => page.pageId === pageId);
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getPageName(pages: any, basePageId: string) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const page = pages.find((page: any) => page.basePageId === basePageId);
   return page ? page.pageName : "";
 }
 
 function ApiEditorWrapper(props: ApiEditorWrapperProps) {
-  const { apiId = "", pageId } = props.match.params;
+  const { baseApiId = "", basePageId } = props.match.params;
   const dispatch = useDispatch();
   const isEditorInitialized = useSelector(getIsEditorInitialized);
-  const action = useSelector((state) => getAction(state, apiId));
+  const action = useSelector((state) => getActionByBaseId(state, baseApiId));
   const apiName = action?.name || "";
   const pluginId = get(action, "pluginId", "");
   const datasourceId = action?.datasource.id || "";
   const plugins = useSelector(getPlugins);
   const pages = useSelector(getPageList);
-  const pageName = getPageName(pages, pageId);
+  const pageName = getPageName(pages, basePageId);
   const settingsConfig = useSelector((state) =>
     getPluginSettingConfigs(state, pluginId),
   );
@@ -106,12 +107,12 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     return (
       <>
         <MoreActionsMenu
+          basePageId={basePageId}
           className="t--more-action-menu"
           id={action?.id || ""}
           isChangePermitted={isChangePermitted}
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
-          pageId={pageId}
           prefixAdditionalMenus={
             editorMode === EditorViewMode.SplitScreen && (
               <ConvertToModuleInstanceCTA {...convertToModuleProps} />
@@ -128,7 +129,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     action?.name,
     isChangePermitted,
     isDeletePermitted,
-    pageId,
+    basePageId,
     isCreatePermitted,
     editorMode,
   ]);
@@ -136,37 +137,39 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
       const pluginName = plugins.find((plugin) => plugin.id === pluginId)?.name;
-      PerformanceTracker.startTracking(
-        PerformanceTransactionName.RUN_API_CLICK,
-        {
-          apiId,
-        },
-      );
       AnalyticsUtil.logEvent("RUN_API_CLICK", {
         apiName,
-        apiID: apiId,
+        apiID: action?.id,
         pageName: pageName,
         datasourceId,
         pluginName: pluginName,
         isMock: false, // as mock db exists only for postgres and mongo plugins
       });
-      dispatch(runAction(apiId, paginationField));
+      dispatch(runAction(action?.id ?? "", paginationField));
     },
-    [apiId, apiName, pageName, getPageName, plugins, pluginId, datasourceId],
+    [
+      action?.id,
+      apiName,
+      pageName,
+      getPageName,
+      plugins,
+      pluginId,
+      datasourceId,
+    ],
   );
 
   const actionRightPaneBackLink = useMemo(() => {
-    return <BackToCanvas pageId={pageId} />;
-  }, [pageId]);
+    return <BackToCanvas basePageId={basePageId} />;
+  }, [basePageId]);
 
   const handleDeleteClick = useCallback(() => {
     AnalyticsUtil.logEvent("DELETE_API_CLICK", {
       apiName,
-      apiID: apiId,
+      apiID: action?.id,
       pageName,
     });
-    dispatch(deleteAction({ id: apiId, name: apiName }));
-  }, [getPageName, pages, pageId, apiName]);
+    dispatch(deleteAction({ id: action?.id ?? "", name: apiName }));
+  }, [getPageName, pages, basePageId, apiName]);
 
   const notification = useMemo(() => {
     if (!isConverting) return null;

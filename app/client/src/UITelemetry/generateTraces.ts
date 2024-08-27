@@ -7,16 +7,18 @@ import type {
 import { SpanKind } from "@opentelemetry/api";
 import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
-import { deviceType } from "react-device-detect";
-
+import { deviceType, browserName, browserVersion } from "react-device-detect";
 import { APP_MODE } from "entities/App";
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import nanoid from "nanoid";
 import memoizeOne from "memoize-one";
 
 const GENERATOR_TRACE = "generator-tracer";
 
 export type OtlpSpan = Span;
 export type SpanAttributes = Attributes;
+
+const OTLP_SESSION_ID = nanoid();
 
 const getAppMode = memoizeOne((pathname: string) => {
   const isEditorUrl = matchBuilderPath(pathname);
@@ -29,6 +31,7 @@ const getAppMode = memoizeOne((pathname: string) => {
       : "";
   return appMode;
 });
+
 const getCommonTelemetryAttributes = () => {
   const pathname = window.location.pathname;
   const appMode = getAppMode(pathname);
@@ -36,6 +39,10 @@ const getCommonTelemetryAttributes = () => {
   return {
     appMode,
     deviceType,
+    browserName,
+    browserVersion,
+    otlpSessionId: OTLP_SESSION_ID,
+    hostname: window.location.hostname,
   };
 };
 
@@ -103,6 +110,8 @@ export const startAndEndSpanForFn = <T>(
   return res;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
   return context.with(parentContext, fn);

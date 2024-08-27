@@ -1,19 +1,19 @@
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { isValidColor } from "utils/helpers";
-import { FONT_METRICS } from "@design-system/theming";
+import { FONT_METRICS } from "@appsmith/wds-theming";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
 import type { ThemeSetting } from "constants/AppConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplication } from "@appsmith/actions/applicationActions";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { updateApplication } from "ee/actions/applicationActions";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
+import { SegmentedControl, Tooltip, Select, Option, Icon } from "@appsmith/ads";
 
 import styles from "./styles.module.css";
 
@@ -26,6 +26,7 @@ import {
   THEME_SETTING_COLOR_PRESETS,
 } from "./constants";
 import SettingSection from "../ThemePropertyPane/SettingSection";
+import { AppMaxWidthSelect } from "./components/AppMaxWidthSelect";
 
 const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);
@@ -83,7 +84,7 @@ function WDSThemePropertyPane() {
 
       dispatch(updateApplication(applicationId, payload));
     },
-    [updateApplication],
+    [updateApplication, dispatch],
   );
 
   const debouncedOnColorChange = useCallback(
@@ -306,6 +307,26 @@ function WDSThemePropertyPane() {
             }}
             options={THEME_SETTINGS_ICON_STYLE_OPTIONS}
             value={theme.iconStyle}
+          />
+        </section>
+      </SettingSection>
+
+      {/* Layout Style */}
+      <SettingSection
+        className="px-4 py-3 border-t"
+        isDefaultOpen
+        title="Layout"
+      >
+        <section className="space-y-2">
+          <SubText>Max app width</SubText>
+          <AppMaxWidthSelect
+            onSelect={(value) => {
+              updateTheme({
+                ...theme,
+                appMaxWidth: value as ThemeSetting["appMaxWidth"],
+              });
+            }}
+            value={theme.appMaxWidth}
           />
         </section>
       </SettingSection>

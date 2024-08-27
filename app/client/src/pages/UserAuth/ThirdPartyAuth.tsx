@@ -1,17 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import type { SocialLoginType } from "@appsmith/constants/SocialLogin";
-import { getSocialLoginButtonProps } from "@appsmith/utils/signupHelpers";
-import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { SocialLoginType } from "ee/constants/SocialLogin";
+import { getSocialLoginButtonProps } from "ee/utils/signupHelpers";
+import type { EventName } from "ee/utils/analyticsUtilTypes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { Button } from "design-system";
-import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
+import { Button } from "@appsmith/ads";
+import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -63,12 +60,7 @@ function SocialLoginButton(props: {
         if (props.type === "SIGNUP") {
           eventName = "SIGNUP_CLICK";
         }
-        PerformanceTracker.startTracking(
-          eventName === "SIGNUP_CLICK"
-            ? PerformanceTransactionName.SIGN_UP
-            : PerformanceTransactionName.LOGIN_CLICK,
-          { name: props.name.toUpperCase() },
-        );
+
         AnalyticsUtil.logEvent(eventName, {
           loginMethod: props.name.toUpperCase(),
         });

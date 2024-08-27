@@ -4,16 +4,14 @@ import type {
 } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+} from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
 import type {
@@ -26,7 +24,7 @@ import {
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -48,9 +46,9 @@ import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/Auto
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import FocusRetention from "./FocusRetentionSaga";
-import { widgetURL } from "@appsmith/RouteBuilder";
+import { widgetURL } from "ee/RouteBuilder";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import type { DraggedWidget } from "../layoutSystems/anvil/utils/anvilTypes";
@@ -79,16 +77,22 @@ function* deleteTabChildSaga(
   const tabWidget = allWidgets[widgetId];
   if (tabWidget && tabWidget.parentId) {
     const tabParentWidget = allWidgets[tabWidget.parentId];
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tabsArray: any = orderBy(
       Object.values(tabParentWidget.tabsObj),
       "index",
       "asc",
     );
     if (tabsArray && tabsArray.length === 1) return;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
     const updatedObj = updatedArray.reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (obj: any, each: any, index: number) => {
         obj[each.id] = {
           ...each,
@@ -121,6 +125,8 @@ function* deleteTabChildSaga(
         // Update flex layers of a canvas upon deletion of a widget.
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
         const mainCanvasWidth: number = yield select(getCanvasWidth);
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const metaProps: Record<string, any> = yield select(getWidgetsMeta);
         finalData = yield call(
           updateFlexLayersOnDelete,
@@ -258,6 +264,8 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             getIsAutoLayoutMobileBreakPoint,
           );
           const mainCanvasWidth: number = yield select(getCanvasWidth);
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const metaProps: Record<string, any> = yield select(getWidgetsMeta);
           // Update flex layers of a canvas upon deletion of a widget.
           finalData = updateFlexLayersOnDelete(
@@ -336,6 +344,8 @@ function* deleteAllSelectedWidgetsSaga(
     const flattenedWidgets = flattenDeep(widgetsToBeDeleted);
 
     const parentUpdatedWidgets = flattenedWidgets.reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (allWidgets: any, eachWidget: any) => {
         const { parentId, widgetId } = eachWidget;
         const stateParent: FlattenedWidgetProps = allWidgets[parentId];
@@ -353,6 +363,8 @@ function* deleteAllSelectedWidgetsSaga(
     );
     const finalWidgets: CanvasWidgetsReduxState = omit(
       parentUpdatedWidgets,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       flattenedWidgets.map((widgets: any) => widgets.widgetId),
     );
     let finalData = finalWidgets;
@@ -365,6 +377,8 @@ function* deleteAllSelectedWidgetsSaga(
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
         const mainCanvasWidth: number = yield select(getCanvasWidth);
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const metaProps: Record<string, any> = yield select(getWidgetsMeta);
         for (const widgetId of selectedWidgets) {
           finalData = yield call(
@@ -425,6 +439,8 @@ function* deleteAllSelectedWidgetsSaga(
       yield put(closeTableFilterPane());
       showUndoRedoToast(`${selectedWidgets.length}`, true, false, true);
       if (bulkDeleteKey) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         flattenedWidgets.map((widget: any) => {
           AppsmithConsole.info({
             logType: LOG_TYPE.ENTITY_DELETED,

@@ -4,7 +4,7 @@ import BaseControl from "./BaseControl";
 import type { DropdownOption } from "components/constants";
 import { KeyValueComponent } from "./KeyValueComponent";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { SegmentedControlOption } from "design-system";
+import type { SegmentedControlOption } from "@appsmith/ads";
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {
@@ -27,6 +27,8 @@ class OptionControl extends BaseControl<ControlProps> {
     return "OPTION_INPUT";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     if (isDynamicValue(value)) return false;
 

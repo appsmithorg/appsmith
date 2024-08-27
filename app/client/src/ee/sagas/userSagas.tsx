@@ -18,7 +18,7 @@ import {
   updateFirstTimeUserOnboardingSage,
   fetchProductAlertSaga,
 } from "ce/sagas/userSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { takeLatest, all } from "redux-saga/effects";
 
 export default function* userSagas() {

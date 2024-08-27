@@ -1,8 +1,8 @@
 import type React from "react";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
 import type { RadioOptionProps } from "pages/AdminSettings/FormGroup/Radio";
-import type { CalloutKind, SelectOptionProps } from "design-system";
+import type { CalloutKind, SelectOptionProps } from "@appsmith/ads";
 
 type ControlType = {
   [K in keyof ControlPropsType]: {
@@ -55,7 +55,11 @@ export type Setting = ControlType & {
   id: string;
   category?: string;
   controlSubType?: SettingSubtype;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   format?: (value: any) => any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parse?: (value: any) => any;
   helpText?: string;
   label?: React.ReactNode;
@@ -63,20 +67,32 @@ export type Setting = ControlType & {
   placeholder?: string;
   validate?: (value: string, setting?: Setting) => string | void;
   url?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children?: any;
   subCategory?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
   text?: string;
   textSuffix?: React.ReactElement;
   action?: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dispatch: Dispatch<ReduxAction<any>>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     settings?: Record<string, any>,
   ) => void;
   sortOrder?: number;
   subText?: string;
   toggleText?: (value: boolean) => string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isVisible?: (values?: Record<string, any>) => boolean;
   isHidden?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isDisabled?: (values?: Record<string, any>) => boolean;
   calloutType?: CalloutKind;
   advanced?: Setting[];

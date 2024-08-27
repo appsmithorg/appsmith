@@ -11,6 +11,8 @@ export interface SelectButtonProps {
   disabled?: boolean;
   displayText?: string;
   handleCancelClick?: (event: React.MouseEvent<Element, MouseEvent>) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   spanRef?: any;
   togglePopoverVisibility: () => void;
   tooltipText?: string;

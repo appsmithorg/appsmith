@@ -7,7 +7,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import Menu from "../Menu";
 import Deploy from "../Tabs/Deploy";
 import Merge from "../Tabs/Merge";
@@ -15,8 +15,8 @@ import GitConnection from "../Tabs/GitConnection";
 
 import GitErrorPopup from "../components/GitErrorPopup";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { Modal, ModalContent, ModalHeader } from "design-system";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Modal, ModalContent, ModalHeader } from "@appsmith/ads";
 import {
   createMessage,
   GIT_CONNECTION,
@@ -27,7 +27,7 @@ import {
   MERGE_CHANGES,
   GIT_IMPORT,
   IMPORT_FROM_GIT_REPOSITORY,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -35,12 +35,16 @@ const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ComponentsByTab: { [K in GitSyncModalTab]?: any } = {
   [GitSyncModalTab.GIT_CONNECTION]: GitConnection,
   [GitSyncModalTab.DEPLOY]: Deploy,
   [GitSyncModalTab.MERGE]: Merge,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MENU_ITEMS_MAP: { [K in GitSyncModalTab]?: any } = {
   [GitSyncModalTab.GIT_CONNECTION]: {
     key: GitSyncModalTab.GIT_CONNECTION,

@@ -8,7 +8,7 @@ import {
   RUN_GUTTER_ID,
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import { find, memoize } from "lodash";
 import type { PropertyNode } from "@shared/ast";
 import {
@@ -18,7 +18,7 @@ import {
   NodeTypes,
   SourceType,
 } from "@shared/ast";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import log from "loglevel";
 import type CodeMirror from "codemirror";
 

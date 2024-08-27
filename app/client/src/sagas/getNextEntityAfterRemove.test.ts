@@ -1,4 +1,4 @@
-import { EditorState, type EntityItem } from "@appsmith/entities/IDE/constants";
+import { EditorState, type EntityItem } from "ee/entities/IDE/constants";
 import { PluginType } from "entities/Action";
 import * as FocusEntityObj from "navigation/FocusEntity";
 import { RedirectAction, getNextEntityAfterRemove } from "./IDESaga";

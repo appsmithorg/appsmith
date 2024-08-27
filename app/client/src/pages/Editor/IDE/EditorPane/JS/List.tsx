@@ -1,28 +1,28 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
-import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
+import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
+import { selectJSSegmentEditorList } from "ee/selectors/appIDESelectors";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
-import { JSListItem } from "@appsmith/pages/Editor/IDE/EditorPane/JS/ListItem";
+import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
+import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
 import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -39,7 +39,7 @@ const ListJSObjects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId);
   const files = useSelector(selectJSSegmentEditorList);
-  const activeActionId = useActiveAction();
+  const activeActionBaseId = useActiveActionBaseId();
   const applicationId = useSelector(getCurrentApplicationId);
 
   const pagePermissions = useSelector(getPagePermissions);
@@ -104,7 +104,7 @@ const ListJSObjects = () => {
                   {items.map((item) => {
                     return (
                       <JSListItem
-                        isActive={item.key === activeActionId}
+                        isActive={item.key === activeActionBaseId}
                         item={item}
                         key={item.key}
                         parentEntityId={pageId}

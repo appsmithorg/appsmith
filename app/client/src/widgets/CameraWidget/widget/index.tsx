@@ -26,7 +26,7 @@ import {
   DEFAULT_CAMERA_LABEL,
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
@@ -305,6 +305,8 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       image: null,

@@ -62,6 +62,8 @@ export enum DataType {
   FUNCTION = "function",
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Obj = Record<string, any>;
 export type JSON = Obj | Obj[];
 
@@ -83,6 +85,8 @@ export interface FieldEventProps {
   onBlur?: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface BaseFieldComponentProps<TProps = any> {
   hideLabel?: boolean;
   isRootField?: boolean;
@@ -121,9 +125,13 @@ export type SchemaItem = FieldComponentBaseProps & {
   isCustomField: boolean;
   originalIdentifier: string;
   position: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sourceData: any;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ComponentDefaultValuesFnProps<TSourceData = any> {
   sourceDataPath?: string;
   fieldType: FieldType;
@@ -142,6 +150,8 @@ export interface FieldComponent {
   componentDefaultValues?:
     | FieldComponentBaseProps
     | ((props: ComponentDefaultValuesFnProps) => FieldComponentBaseProps);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isValidType?: (value: any, options?: any) => boolean;
 }
 
@@ -153,7 +163,12 @@ export type FieldState<TObj> =
   | TObj;
 
 export type HookResponse =
-  | Array<{ propertyPath: string; propertyValue: any }>
+  | Array<{
+      propertyPath: string;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      propertyValue: any;
+    }>
   | undefined;
 
 export type FieldThemeStylesheet = Record<
@@ -237,6 +252,8 @@ export const DATA_TYPE_POTENTIAL_FIELD = {
 // The potential value here is just for representation i.e it won't be used to set default value anywhere.
 // This will just help to transform a field type (when modified in custom field) to appropriate schemaItem
 // using schemaParser.
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const FIELD_TYPE_TO_POTENTIAL_DATA: Record<FieldType, any> = {
   [FieldType.ARRAY]: [{ firstField: "" }],
   [FieldType.CHECKBOX]: true,

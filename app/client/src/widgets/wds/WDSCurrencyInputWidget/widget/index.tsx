@@ -74,6 +74,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
       ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
       placeholderText: "Current Price",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const generalSectionIndex = parentConfig.findIndex(
@@ -87,6 +89,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
       placeholderText:
         "Prices in other currencies should be recalculated in USD",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const placeholderPropertyIndex = parentConfig[
@@ -98,6 +102,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
       placeholderText: "10",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
@@ -113,6 +119,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       rawText: "",

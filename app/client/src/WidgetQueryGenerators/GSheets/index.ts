@@ -57,6 +57,8 @@ export default abstract class GSheets extends BaseQueryGenerator {
     const { select } = widgetConfig;
 
     if (select && formConfig.sheetName) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const queryPayload: any = {
         type: QUERY_TYPE.SELECT,
         name: `Find_${removeSpecialChars(formConfig.sheetName)}`,

@@ -13,19 +13,19 @@ import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/co
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
-import { Callout, Flex, SegmentedControl } from "design-system";
+import { Callout, Flex, SegmentedControl } from "@appsmith/ads";
 import styled from "styled-components";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
-import { getActionData } from "@appsmith/selectors/entitiesSelector";
+import { getActionData } from "ee/selectors/entitiesSelector";
 import { actionResponseDisplayDataFormats } from "../utils";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasExecuteActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { isString } from "lodash";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
@@ -150,6 +150,8 @@ const QueryResponseTab = (props: Props) => {
 
   let error = runErrorMessage;
   let hintMessages: Array<string> = [];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let output: Record<string, any>[] | null = null;
 
   // Query is executed even once during the session, show the response data.
@@ -176,6 +178,8 @@ const QueryResponseTab = (props: Props) => {
     } else {
       //reset error.
       error = "";
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       output = actionResponse.body as any;
     }
     if (actionResponse.messages && actionResponse.messages.length) {

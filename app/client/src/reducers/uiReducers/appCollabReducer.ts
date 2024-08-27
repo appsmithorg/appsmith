@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import type { User } from "entities/AppCollab/CollabInterfaces";
 import { cloneDeep } from "lodash";
@@ -13,6 +13,8 @@ const initialState: AppCollabReducerState = {
 const appCollabReducer = createReducer(initialState, {
   [ReduxActionTypes.APP_COLLAB_LIST_EDITORS]: (
     state: AppCollabReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     return { ...state, editors: action.payload.users };
@@ -24,6 +26,8 @@ const appCollabReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.APP_COLLAB_SET_EDITORS_POINTER_DATA]: (
     state: AppCollabReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     return {
@@ -36,6 +40,8 @@ const appCollabReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.APP_COLLAB_UNSET_EDITORS_POINTER_DATA]: (
     state: AppCollabReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     const clonedPointerData = cloneDeep(state.pointerData);
@@ -55,6 +61,8 @@ const appCollabReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS]: (
     state: AppCollabReducerState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => ({
     ...state,
@@ -63,6 +71,8 @@ const appCollabReducer = createReducer(initialState, {
 });
 
 interface PointerDataType {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [s: string]: any;
 }
 

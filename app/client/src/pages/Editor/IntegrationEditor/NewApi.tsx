@@ -5,21 +5,21 @@ import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import GraphQLLogo from "assets/images/Graphql-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
-import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { Spinner } from "design-system";
-import { useEditorType } from "@appsmith/hooks";
-import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
-import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { Spinner } from "@appsmith/ads";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export const StyledContainer = styled.div`
   flex: 1;
@@ -123,9 +123,15 @@ interface ApiHomeScreenProps {
   };
   pageId: string;
   plugins: Plugin[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
   createNewApiActionBasedOnEditorType: (
@@ -197,6 +203,8 @@ function NewApiScreen(props: Props) {
 
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOnClick = (actionType: string, params?: any) => {
     const queryParams = getQueryParams();
     const isGeneratePageInitiator = getIsGeneratePageInitiator(
@@ -257,6 +265,7 @@ function NewApiScreen(props: Props) {
                 />
                 <p className="textBtn">REST API</p>
               </CardContentWrapper>
+              {/*@ts-expect-error Fix this the next time the file is edited*/}
               {isCreating && <Spinner className="cta" size={25} />}
             </ApiCard>
             <ApiCard

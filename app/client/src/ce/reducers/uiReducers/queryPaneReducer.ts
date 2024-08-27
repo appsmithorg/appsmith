@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { omit } from "lodash";
 import type { Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
@@ -124,6 +124,8 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string }>,
   ): QueryPaneReduxState => {
@@ -142,6 +144,8 @@ export const handlers = {
   },
 
   [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string }>,
   ) => {
@@ -155,6 +159,8 @@ export const handlers = {
   },
 
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => {
@@ -169,6 +175,8 @@ export const handlers = {
     };
   },
   [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string; error: Error }>,
   ) => {

@@ -1,7 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.EntityType;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
@@ -46,59 +44,48 @@ public class LayoutControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{layoutId}/pages/{defaultPageId}")
-    public Mono<ResponseDTO<Layout>> getLayout(
-            @PathVariable String defaultPageId,
-            @PathVariable String layoutId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.getLayout(defaultPageId, layoutId, false, branchName)
+    @GetMapping("/{layoutId}/pages/{branchedPageId}")
+    public Mono<ResponseDTO<Layout>> getLayout(@PathVariable String branchedPageId, @PathVariable String layoutId) {
+        return service.getLayout(branchedPageId, layoutId, false)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/application/{applicationId}")
     public Mono<ResponseDTO<Integer>> updateMultipleLayouts(
-            @PathVariable String applicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
-        log.debug("update multiple layout received for application {} branch {}", applicationId, branchName);
+            @PathVariable String applicationId, @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
+        log.debug("update multiple layout received for applicationId {}", applicationId);
         return updateLayoutService
-                .updateMultipleLayouts(applicationId, branchName, request)
+                .updateMultipleLayouts(applicationId, request)
                 .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK.value(), updatedCount, null));
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{layoutId}/pages/{pageId}")
+    @PutMapping("/{layoutId}/pages/{branchedPageId}")
     public Mono<ResponseDTO<LayoutDTO>> updateLayout(
-            @PathVariable String pageId,
+            @PathVariable String branchedPageId,
             @RequestParam String applicationId,
             @PathVariable String layoutId,
-            @RequestBody LayoutUpdateDTO dto,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("update layout received for page {}", pageId);
+            @RequestBody LayoutUpdateDTO dto) {
+        log.debug("update layout received for page {}", branchedPageId);
         return updateLayoutService
-                .updateLayout(pageId, applicationId, layoutId, dto.toLayout(), branchName)
+                .updateLayout(branchedPageId, applicationId, layoutId, dto.toLayout())
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{layoutId}/pages/{pageId}/view")
-    public Mono<ResponseDTO<Layout>> getLayoutView(
-            @PathVariable String pageId,
-            @PathVariable String layoutId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.getLayout(pageId, layoutId, true, branchName)
+    @GetMapping("/{layoutId}/pages/{branchedPageId}/view")
+    public Mono<ResponseDTO<Layout>> getLayoutView(@PathVariable String branchedPageId, @PathVariable String layoutId) {
+        return service.getLayout(branchedPageId, layoutId, true)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping("/refactor")
-    public Mono<ResponseDTO<LayoutDTO>> refactorWidgetName(
-            @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<LayoutDTO>> refactorWidgetName(@RequestBody RefactorEntityNameDTO refactorEntityNameDTO) {
         refactorEntityNameDTO.setEntityType(EntityType.WIDGET);
         return refactoringService
-                .refactorEntityName(refactorEntityNameDTO, branchName)
+                .refactorEntityName(refactorEntityNameDTO)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 }

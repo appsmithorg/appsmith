@@ -14,12 +14,12 @@ import {
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
 import type { AppTheme } from "entities/AppTheming";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import DeleteThemeModal from "./DeleteThemeModal";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const DeleteIcon = importRemixIcon(
   async () => import("remixicon-react/DeleteBinLineIcon"),

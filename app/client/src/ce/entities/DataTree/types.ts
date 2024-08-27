@@ -2,24 +2,26 @@ import type { ActionResponse } from "api/ActionAPI";
 import type { PluginId } from "api/PluginApi";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ActionConfig, PluginType } from "entities/Action";
-import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
+import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { AppDataState } from "reducers/entityReducers/appReducer";
-import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { AppTheme } from "entities/AppTheming";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { LayoutSystemTypes } from "layoutSystems/types";
-import type { Module } from "@appsmith/constants/ModuleConstants";
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { Module } from "ee/constants/ModuleConstants";
+import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ActionDispatcher = (...args: any[]) => ActionDescription;
 
 export const ENTITY_TYPE = {
@@ -97,6 +99,8 @@ export interface JSActionEntityConfig extends EntityConfig {
 }
 
 export interface JSActionEntity {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [propName: string]: any;
   body?: string;
   ENTITY_TYPE: typeof ENTITY_TYPE.JSACTION;
@@ -176,6 +180,8 @@ export interface WidgetEntityConfig
   widgetId: string;
   defaultMetaProps: Array<string>;
   type: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   __setters?: Record<string, any>;
 }
 
@@ -187,6 +193,8 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
 
 export interface DataTreeSeed {
   actions: ActionDataState;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfigs: Record<string, any[]>;
   pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
@@ -199,6 +207,8 @@ export interface DataTreeSeed {
   isMobile: boolean;
   moduleInputs: Module["inputsForm"];
   moduleInstances: Record<string, ModuleInstance> | null;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   moduleInstanceEntities: any;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;

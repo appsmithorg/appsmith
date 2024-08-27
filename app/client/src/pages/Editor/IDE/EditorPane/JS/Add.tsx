@@ -1,26 +1,29 @@
 import React, { useCallback, useState } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
-import type { ListItemProps } from "design-system";
-import { Flex, SearchInput } from "design-system";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import type { ListItemProps } from "@appsmith/ads";
+import { Flex, SearchInput } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import GroupedList from "../components/GroupedList";
 import {
   useGroupedAddJsOperations,
   useJSAdd,
-} from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+} from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
-import type { AddProps } from "../types/AddProps";
 import { createAddClassName, fuzzySearchInObjectItems } from "../utils";
 import { FocusEntity } from "navigation/FocusEntity";
 import type { GroupedListProps } from "../components/types";
 import { EmptySearchResult } from "../components/EmptySearchResult";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import type { FlexProps } from "@appsmith/ads";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
-const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
+const AddJS = () => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
   const [searchTerm, setSearchTerm] = useState("");
+  const ideViewMode = useSelector(getIDEViewMode);
 
   const groupedJsOperations = useGroupedAddJsOperations();
 
@@ -62,20 +65,28 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
     groups,
   );
 
+  const extraPadding: FlexProps =
+    ideViewMode === EditorViewMode.FullScreen
+      ? {
+          px: "spaces-4",
+          py: "spaces-7",
+        }
+      : {};
+
   return (
     <Flex
       data-testid="t--ide-add-pane"
       height="100%"
       justifyContent="center"
       p="spaces-3"
-      {...containerProps}
+      {...extraPadding}
     >
       <Flex
         flexDirection="column"
         gap={"spaces-4"}
+        maxW="40vw"
         overflow="hidden"
         width="100%"
-        {...innerContainerProps}
       >
         <SegmentAddHeader
           onCloseClick={closeAddJS}

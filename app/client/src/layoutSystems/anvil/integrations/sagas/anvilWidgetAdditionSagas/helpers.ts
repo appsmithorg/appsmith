@@ -10,8 +10,8 @@ import { executeWidgetBlueprintOperations } from "sagas/WidgetBlueprintSagas";
 import { call, put, select } from "redux-saga/effects";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import { WidgetReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { WidgetReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 /**
  * In Anvil, we maintain some properties set by users on widgets.
@@ -33,6 +33,8 @@ export function getWidgetSessionValues(
   let widgetType = type;
   const configMap = WidgetFactory.widgetConfigMap.get(type);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetSessionValues: any = {};
 
   // in case we are dropping WDS_ICON_BUTTON_WIDGET, we want to reuse the values of BUTTON_WIDGET
@@ -48,6 +50,8 @@ export function getWidgetSessionValues(
       sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
 
     // parse "true" as true and "false" as false

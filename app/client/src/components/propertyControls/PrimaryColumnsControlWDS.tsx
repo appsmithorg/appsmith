@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
 import type { Placement } from "popper.js";
 import * as Sentry from "@sentry/react";
@@ -42,6 +42,8 @@ const EmptyStateLabel = styled.div`
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasources: any;
   errors: EvaluationError[];
 }
@@ -51,6 +53,8 @@ interface EvaluatedValueProps {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
   dataTreePath?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   hideEvaluatedValue?: boolean;
@@ -207,6 +211,8 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
               keyAccessor="id"
               onEdit={this.onEdit}
               propertyPath={this.props.dataTreePath}
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
@@ -295,6 +301,8 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
   }[] => {
     const updates: {
       propertyName: string;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any;
     }[] = [];
     updates.push({

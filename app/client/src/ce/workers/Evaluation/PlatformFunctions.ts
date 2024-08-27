@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import type { ActionDescription } from "@appsmith/entities/DataTree/actionTriggers";
-import { ExecutionType } from "@appsmith/workers/Evaluation/Actions";
+import type { ActionDescription } from "ee/entities/DataTree/actionTriggers";
+import { ExecutionType } from "ee/workers/Evaluation/Actions";
 import _ from "lodash";
 import uniqueId from "lodash/uniqueId";
 import type { NavigationTargetType_Dep } from "sagas/ActionExecution/NavigateActionSaga";
@@ -10,6 +10,8 @@ export type ActionDescriptionWithExecutionType = ActionDescription & {
 };
 
 export type ActionDispatcherWithExecutionType = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 

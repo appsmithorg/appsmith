@@ -2,20 +2,18 @@ import {
   UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { Flex, SearchInput, Text } from "design-system";
+import { Flex, SearchInput, Text } from "@appsmith/ads";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
@@ -33,14 +31,9 @@ function UIEntitySidebar({
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [areSearchResultsEmpty, setAreSearchResultsEmpty] = useState(false);
-  const isDragDropBuildingBlocksEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
   const hideSuggestedWidgets = useMemo(
-    () =>
-      (isSearching && !areSearchResultsEmpty) ||
-      isDragDropBuildingBlocksEnabled,
-    [isSearching, areSearchResultsEmpty, isDragDropBuildingBlocksEnabled],
+    () => isSearching && !areSearchResultsEmpty,
+    [isSearching, areSearchResultsEmpty],
   );
 
   const searchWildcards = useMemo(
@@ -112,6 +105,7 @@ function UIEntitySidebar({
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
+          // @ts-expect-error fix this the next time the file is edited
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}

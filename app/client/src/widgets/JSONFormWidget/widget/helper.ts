@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import { difference, isEmpty } from "lodash";
 import log from "loglevel";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { MetaInternalFieldState } from ".";
@@ -76,6 +76,8 @@ export const getGrandParentPropertyPath = (propertyPath: string) => {
 // that deals with object field type.
 const processFieldObject = (
   schema: Schema,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaInternalFieldState: Record<string, any> = {},
 ) => {
   const obj: Record<string, FieldStateItem> = {};

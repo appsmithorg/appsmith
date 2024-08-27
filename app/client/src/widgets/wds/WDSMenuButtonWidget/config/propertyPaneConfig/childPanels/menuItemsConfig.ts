@@ -1,7 +1,7 @@
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 /**
@@ -12,6 +12,8 @@ export const menuItemsConfig = {
   editableTitle: true,
   titlePropertyName: "label",
   panelIdPropertyName: "id",
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateHook: (props: any, propertyPath: string, propertyValue: string) => {
     return [
       {

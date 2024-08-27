@@ -9,12 +9,12 @@ import {
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { isEmpty, isString } from "lodash";
-import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
+import type { getAllDatasourceTableKeys } from "ee/selectors/entitiesSelector";
 import {
   filterCompletions,
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
-import { isAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
+import { isAISlashCommand } from "ee/components/editorComponents/GPT/trigger";
 
 export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {

@@ -1,6 +1,6 @@
-import type { ImportBuildingBlockToApplicationResponse } from "@appsmith/api/ApplicationApi";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import type { ImportBuildingBlockToApplicationResponse } from "ee/api/ApplicationApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getAction } from "ee/selectors/entitiesSelector";
 import { flattenDSL } from "@shared/dsl";
 import type { WidgetProps } from "@shared/dsl/src/migrate/types";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";

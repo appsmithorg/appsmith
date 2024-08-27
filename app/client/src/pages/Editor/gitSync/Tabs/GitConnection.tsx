@@ -21,9 +21,9 @@ import {
   REMOTE_URL_INFO,
   REMOTE_URL_INPUT_PLACEHOLDER,
   UPDATE_CONFIG,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled from "styled-components";
-import { emailValidator } from "design-system-old";
+import { emailValidator } from "@appsmith/ads-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS, Classes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,7 +31,7 @@ import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -67,8 +67,8 @@ import {
   Link,
   ModalBody,
   ModalFooter,
-} from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 
@@ -115,11 +115,15 @@ function GitConnection({ isImport }: Props) {
   const useGlobalProfile = useSelector(getUseGlobalProfile);
   const globalGitConfig = useSelector(getGlobalGitConfig);
   const localGitConfig = useSelector(getLocalGitConfig);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { tempRemoteUrl = "" } = useSelector(getTempRemoteUrl) || ({} as any);
   const currentApp = useSelector(getCurrentApplication);
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const { remoteUrl: remoteUrlInStore = "" } =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useSelector(getCurrentAppGitMetaData) || ({} as any);
   const RepoUrlDocumentUrl = isImport
     ? GIT_DOC_URLs.import
@@ -351,6 +355,7 @@ function GitConnection({ isImport }: Props) {
 
   return (
     <>
+      {/* @ts-expect-error Figure out how to pass string to constant className */}
       <ModalBody className={Classes.GIT_SYNC_MODAL}>
         <Container
           data-testid="t--git-connection-container"

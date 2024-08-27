@@ -6,8 +6,10 @@ import configureStore from "redux-mock-store";
 import IDE from ".";
 import { BrowserRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getMockStore = (override: Record<string, any> = {}): any => {
   const slice = {
     ui: {

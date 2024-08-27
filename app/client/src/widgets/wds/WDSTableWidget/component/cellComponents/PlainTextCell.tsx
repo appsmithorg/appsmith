@@ -1,10 +1,12 @@
 import React, { memo } from "react";
-import type { COLORS } from "@design-system/widgets";
-import { Text } from "@design-system/widgets";
+import type { COLORS } from "@appsmith/wds";
+import { Text } from "@appsmith/wds";
 
 import type { BaseCellComponentProps } from "../Constants";
 
 export interface PlainTextCellProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   cellColor?: "default" | keyof typeof COLORS;
   isBold?: boolean;

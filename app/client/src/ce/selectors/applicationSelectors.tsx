@@ -1,14 +1,14 @@
 import { createSelector } from "reselect";
 import { memoize } from "lodash";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   ApplicationsReduxState,
   creatingApplicationMap,
-} from "@appsmith/reducers/uiReducers/applicationsReducer";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/reducers/uiReducers/applicationsReducer";
+import type { ApplicationPayload } from "entities/Application";
 import Fuse from "fuse.js";
-import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
+import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   NAVIGATION_SETTINGS,
   SIDEBAR_WIDTH,

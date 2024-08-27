@@ -1,5 +1,5 @@
 {
-  "name": "@design-system/widgets",
+  "name": "@appsmith/wds",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
@@ -11,8 +11,9 @@
     "build:icons": "npx tsx ./src/scripts/build-icons.ts"
   },
   "dependencies": {
-    "@design-system/headless": "workspace:^",
-    "@design-system/theming": "workspace:^",
+    "@appsmith/utils": "workspace:^",
+    "@appsmith/wds-headless": "workspace:^",
+    "@appsmith/wds-theming": "workspace:^",
     "@emotion/css": "^11.11.2",
     "@react-aria/actiongroup": "^3.7.0",
     "@react-aria/utils": "^3.16.0",
@@ -21,7 +22,7 @@
     "@react-types/shared": "^3.23.1",
     "@tabler/icons-react": "^3.10.0",
     "clsx": "^2.0.0",
-    "colorjs.io": "^0.4.3",
+    "colorjs.io": "^0.5.2",
     "lodash": "*",
     "react-aria-components": "^1.2.1"
   },
