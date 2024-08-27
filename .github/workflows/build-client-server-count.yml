@@ -139,8 +139,9 @@ jobs:
       - name: Read and Set File Content as ENV Variable
         id: set-summary-content
         run: |
-            summary_content=$(cat app/client/cy-repeat-summary.txt)
-            echo "summary_content=$summary_content" >> $GITHUB_ENV   
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            formatted_content="***** Repeat Run Summary *****\n$(echo "$summary_content" | sed 's/ /\n/g')\n*****************************"
+            echo "formatted_content=$formatted_content" >> $GITHUB_ENV
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
@@ -154,7 +155,7 @@ jobs:
             To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
              **Summary of test runs:**
             ```
-            ${{ env.summary_content }}
+            ${{ env.formatted_content }}
             ```
 
       - name: Add a comment on the PR when ci-test-limited is success
@@ -168,7 +169,7 @@ jobs:
             All cypress tests have passed 🎉🎉🎉
             **Summary of test runs:**
             ```
-            ${{ env.summary_content }}
+            ${{ env.formatted_content }}
             ```
       - name: Check ci-test-limited set status
         if: needs.ci-test-limited.result != 'success'
