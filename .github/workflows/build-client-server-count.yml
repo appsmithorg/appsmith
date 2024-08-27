@@ -140,8 +140,8 @@ jobs:
         id: set-summary-content
         run: |
             summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
-            formatted_content="***** Repeat Run Summary *****\n$(echo "$summary_content" | sed 's/ /\n/g')\n*****************************"
-            echo "formatted_content=$formatted_content" >> $GITHUB_ENV
+            formatted_summary=$(echo "***** Repeat Run Summary *****\nTotal Tests with repeat: $(echo "$summary_content" | grep 'Total Tests' | cut -d':' -f2)\nTotal Passed: $(echo "$summary_content" | grep 'Total Passed' | cut -d':' -f2)\nTotal Failed: $(echo "$summary_content" | grep 'Total Failed' | cut -d':' -f2)\nTotal Skipped: $(echo "$summary_content" | grep 'Total Skipped' | cut -d':' -f2)\n*****************************")
+            echo "formatted_summary=$formatted_summary" >> $GITHUB_ENV
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
@@ -155,7 +155,7 @@ jobs:
             To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
              **Summary of test runs:**
             ```
-            ${{ env.formatted_content }}
+            ${{ env.formatted_summary }}
             ```
 
       - name: Add a comment on the PR when ci-test-limited is success
@@ -169,7 +169,7 @@ jobs:
             All cypress tests have passed 🎉🎉🎉
             **Summary of test runs:**
             ```
-            ${{ env.formatted_content }}
+            ${{ env.formatted_summary }}
             ```
       - name: Check ci-test-limited set status
         if: needs.ci-test-limited.result != 'success'
