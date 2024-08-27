@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/extend-expect";
 import React from "react";
-import { render } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import { lightTheme } from "selectors/themeSelectors";
@@ -83,8 +83,22 @@ const defaultStoreState = {
   },
 };
 
+jest.mock("design-system-old/build/constants/messages", () => ({
+  ...jest.requireActual("design-system-old/build/constants/messages"),
+  createMessage: () => "",
+}));
+
 jest.mock("actions/gitSyncActions", () => ({
   fetchGlobalGitConfigInit: jest.fn(),
+}));
+
+const mockHistoryPush = jest.fn();
+
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useHistory: () => ({
+    push: mockHistoryPush,
+  }),
 }));
 
 const mockStore = configureStore([]);
@@ -126,6 +140,22 @@ describe("Git config ", () => {
       </Provider>,
     );
     expect(getAllByText("Sign in to your account")).toBeInTheDocument;
+  });
+
+  it("should call history push when user goes back to applications", () => {
+    store = mockStore(defaultStoreState);
+    render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <Router>
+            <UserProfile />
+          </Router>
+        </ThemeProvider>
+      </Provider>,
+    );
+    const backButton = screen.getByText("Back");
+    fireEvent.click(backButton);
+    expect(mockHistoryPush).toHaveBeenCalledWith("/applications");
   });
 
   afterAll(() => {
