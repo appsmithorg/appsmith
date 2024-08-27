@@ -2,7 +2,7 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
-import { RadioGroupIcon, RadioGroupThumbnail } from "appsmith-icons";
+import { RadioGroupIcon, SelectThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {
   getSnipingModeUpdates: (
@@ -17,5 +17,5 @@ export const methodsConfig = {
     ];
   },
   IconCmp: RadioGroupIcon,
-  ThumbnailCmp: RadioGroupThumbnail,
+  ThumbnailCmp: SelectThumbnail,
 };

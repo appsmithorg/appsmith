@@ -1,8 +1,7 @@
-import type { SelectProps } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface WDSSelectWidgetProps extends WidgetProps {
-  options: SelectProps["items"];
+  options: { label: "string"; value: "string" | number }[];
   selectedOptionValue: string;
   onSelectionChange: string;
   defaultOptionValue: string;

@@ -93,9 +93,12 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     return settersConfig;
   }
 
-  onRadioSelectionChange = (updatedValue: string) => {
+  onRadioSelectionChange = (updatedValue: string | number) => {
     let newVal;
-    if (isNumber(this.props.options[0].id)) {
+
+    if (isNumber(updatedValue)) {
+      newVal = updatedValue;
+    } else if (isNumber(this.props.options[0].value)) {
       newVal = parseFloat(updatedValue);
     } else {
       newVal = updatedValue;
@@ -116,6 +119,13 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
+  optionsToSelectItems = (options: WDSSelectWidgetProps["options"]) => {
+    return options.map((option) => ({
+      label: option.label,
+      id: option.value,
+    }));
+  };
+
   getWidgetView() {
     const {
       labelTooltip,
@@ -133,8 +143,8 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         isInvalid={validation.validationStatus === "invalid"}
-        items={options}
-        onSelectionChange={() => {}}
+        items={this.optionsToSelectItems(options)}
+        onSelectionChange={this.onRadioSelectionChange}
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
       />

@@ -9,7 +9,7 @@ export const defaultsConfig = {
     { label: "Option 2", value: "2" },
     { label: "Option 3", value: "3" },
   ],
-  defaultOptionValue: "1",
+  defaultOptionValue: "",
   isRequired: false,
   isDisabled: false,
   isVisible: true,
