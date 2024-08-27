@@ -82,6 +82,9 @@ public class ServerApplication {
             b.allowBlockingCallsInside(
                     org.springframework.session.web.server.session.SpringSessionWebSessionStore.class.getName(),
                     "$SpringSessionWebSession.lambda$changeSessionId$0");
+
+            b.allowBlockingCallsInside(
+                    org.springframework.security.crypto.encrypt.AesBytesEncryptor.class.getName(), "encrypt");
             //         b.allowBlockingCallsInside("com.mongodb.connection.netty.NettyStream", "readAsync");
             //         b.allowBlockingCallsInside("java.io.FileInputStream", "readBytes");
             //         b.allowBlockingCallsInside("jdk.internal.misc.Unsafe", "#park");
