@@ -84,10 +84,7 @@ export function InputText(props: {
     }
   }
   return (
-    <div
-      className={`t--${props?.name} uqi-dynamic-input-text`}
-      style={customStyle}
-    >
+    <div className={`t--${props?.name}`} style={customStyle}>
       {/* <div style={customStyle}> */}
       <StyledDynamicTextField
         dataTreePath={dataTreePath}
