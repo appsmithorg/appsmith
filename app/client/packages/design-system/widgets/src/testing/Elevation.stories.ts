@@ -3,7 +3,7 @@ import { Elevation } from "./Elevation";
 
 const meta: Meta<typeof Elevation> = {
   component: Elevation,
-  title: "Testing/Elevation",
+  title: "WDS/Testing/Elevation",
 };
 
 export default meta;

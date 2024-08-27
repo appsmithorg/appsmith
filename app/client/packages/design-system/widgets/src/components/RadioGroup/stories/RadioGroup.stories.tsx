@@ -7,7 +7,7 @@ import { RadioGroup, Flex } from "@appsmith/wds";
  */
 const meta: Meta<typeof RadioGroup> = {
   component: RadioGroup,
-  title: "Design-system/Widgets/RadioGroup",
+  title: "WDS/Widgets/RadioGroup",
 };
 
 export default meta;

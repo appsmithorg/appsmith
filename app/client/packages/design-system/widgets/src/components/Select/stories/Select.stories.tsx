@@ -8,7 +8,7 @@ import { selectItems, selectItemsWithIcons } from "./selectData";
  */
 const meta: Meta<typeof Select> = {
   component: Select,
-  title: "Design-system/Widgets/Select",
+  title: "WDS/Widgets/Select",
 };
 
 export default meta;

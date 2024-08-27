@@ -50,7 +50,7 @@ const DsTitle = styled.div`
     text-overflow: ellipsis;
     padding-right: 4px;
   }
-  .cs-icon {
+  .ads-v2-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
   }
 `;

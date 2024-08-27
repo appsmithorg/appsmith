@@ -12,7 +12,7 @@ import { Button } from "react-aria-components";
  */
 const meta: Meta<typeof TooltipRoot> = {
   component: TooltipRoot,
-  title: "Design-system/headless/Tooltip",
+  title: "WDS/Headless/Tooltip",
   subcomponents: {
     TooltipTrigger,
     TooltipContent,

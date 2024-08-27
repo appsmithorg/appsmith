@@ -7,7 +7,7 @@ import { Checkbox, ToggleGroup, Flex, Switch } from "@appsmith/wds";
  */
 const meta: Meta<typeof ToggleGroup> = {
   component: ToggleGroup,
-  title: "Design-system/Widgets/ToggleGroup",
+  title: "WDS/Widgets/ToggleGroup",
 };
 
 export default meta;

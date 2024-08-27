@@ -1,7 +1,4 @@
-import {
-  ReduxActionTypes,
-  ReduxSagaChannels,
-} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { reconnectWebsocketEvent } from "constants/WebsocketConstants";
 
 export const setIsAppLevelWebsocketConnected = (payload: boolean) => ({
@@ -19,7 +16,7 @@ export const appLevelWebsocketWriteEvent = (payload: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
 }) => ({
-  type: ReduxSagaChannels.WEBSOCKET_APP_LEVEL_WRITE_CHANNEL,
+  type: ReduxActionTypes.WEBSOCKET_APP_LEVEL_WRITE_CHANNEL,
   payload,
 });
 export const pageLevelWebsocketWriteEvent = (payload: {
@@ -28,7 +25,7 @@ export const pageLevelWebsocketWriteEvent = (payload: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload?: any;
 }) => ({
-  type: ReduxSagaChannels.WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL,
+  type: ReduxActionTypes.WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL,
   payload,
 });
 

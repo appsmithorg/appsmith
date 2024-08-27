@@ -6,7 +6,7 @@ import { TextInput } from "@appsmith/wds-headless";
  */
 const meta: Meta<typeof TextInput> = {
   component: TextInput,
-  title: "Design-system/headless/TextInput",
+  title: "WDS/headless/TextInput",
   args: {
     label: "Label",
     placeholder: "Placeholder",

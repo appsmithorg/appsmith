@@ -13,7 +13,7 @@ import { CustomModal as CustomModalExample } from "./CustomModal";
  */
 const meta: Meta<typeof Modal> = {
   component: Modal,
-  title: "Design-system/Widgets/Modal",
+  title: "WDS/Widgets/Modal",
   subcomponents: {
     //@ts-expect-error: don't need props to pass here
     ModalHeader,

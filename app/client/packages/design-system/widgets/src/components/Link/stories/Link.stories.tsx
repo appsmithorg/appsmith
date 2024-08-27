@@ -11,7 +11,7 @@ import { Link, Flex } from "@appsmith/wds";
  */
 const meta: Meta<typeof Link> = {
   component: Link,
-  title: "Design-system/Widgets/Link",
+  title: "WDS/Widgets/Link",
 };
 
 export default meta;
