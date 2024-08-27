@@ -1,12 +1,13 @@
 {
   "identifier": "INVOKE_FUNCTION",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "DETAILS_OF_LAMBDA_FUNCTION",
       "label": "Details of lambda function",
       "children": [
         {
@@ -63,7 +64,14 @@
           "fetchOptionsConditionally": false,
           "setFirstOptionAsDefault": true,
           "alternateViewTypes": ["json"]
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "POST_BODY",
+      "label": "Post body",
+      "children": [
         {
           "label": "Post body",
           "configProperty": "actionConfiguration.formData.body.data",
