@@ -81,8 +81,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_PLUGIN_FROM_DB;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FINAL_ACTION;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_INITIAL_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -791,11 +789,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // No need to sort the results
         return findAllByApplicationIdAndPluginType(
                         applicationId, true, actionPermission.getExecutePermission(), null, excludedPluginTypes)
-                .name(VIEW_MODE_INITIAL_ACTION)
-                .tap(Micrometer.observation(observationRegistry))
-                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true))
-                .name(VIEW_MODE_FINAL_ACTION)
-                .tap(Micrometer.observation(observationRegistry));
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
     }
 
     @Override
