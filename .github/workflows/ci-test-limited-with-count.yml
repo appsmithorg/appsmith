@@ -40,7 +40,7 @@ jobs:
   ci-test-limited:
     runs-on: ubuntu-latest
     outputs:
-        summary_content: ${{ steps.run-cypress-tests.outputs.summary_content }} # Define the output for the job
+        summary_content: ${{ steps.run-cypress-tests.outputs.summary_content }}
     #timeout-minutes: 50
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -359,10 +359,20 @@ jobs:
             echo "summary_content=$summary_content"
             echo "summary_content=$summary_content" >> $GITHUB_OUTPUT
             
+
       - name: Trim number of cypress log files
         if: failure()
         run: |
           find ${{ github.workspace }}/app/client/cypress/cypress-logs -name '*.json' -type f | tail -n +11 | xargs -I {} rm -- {}
+
+
+      - name: Upload repeat-pro logs artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+            name: cypress-repeat-logs
+            path: ${{ github.workspace }}/app/client/cy-repeat-summary.txt
+            overwrite: true
 
       - name: Upload failed test cypress logs artifact
         if: failure()
