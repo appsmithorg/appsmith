@@ -8,13 +8,13 @@ export default {
     if (typeof props.optionLabel === "string") {
       labels = sourceData.map((d) => d[props.optionLabel]);
     } else if (_.isArray(props.optionLabel)) {
-      labels = props.optionLabel;
+      labels = sourceData.map((d, i) => d[props.optionLabel[i]]);
     }
 
     if (typeof props.optionValue === "string") {
       values = sourceData.map((d) => d[props.optionValue]);
     } else if (_.isArray(props.optionValue)) {
-      values = props.optionValue;
+      values = sourceData.map((d, i) => d[props.optionValue[i]]);
     }
 
     return sourceData.map((d, i) => ({
