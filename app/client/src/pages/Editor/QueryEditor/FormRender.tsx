@@ -183,14 +183,20 @@ const FormRender = (props: Props) => {
     return null;
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rederNodeWithChildren = (section: any, formName: string) => {
+  const rederNodeWithChildren = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    section: any,
+    formName: string,
+    isV2 = true,
+  ) => {
     if (!Object.hasOwn(section, "children")) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const children = section.children.map((section: any, idx: number) =>
-      renderEachConfigV2(formName, section, idx),
-    );
+    const children = isV2
+      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        section.children.map((section: any, idx: number) =>
+          renderEachConfigV2(formName, section, idx),
+        )
+      : renderEachConfig(formName)(section);
 
     switch (section.controlType) {
       case "SECTION_V2":
@@ -204,6 +210,7 @@ const FormRender = (props: Props) => {
             : "double_column";
         return <Zone layout={layout}>{children}</Zone>;
       }
+
       default:
         return children;
     }
@@ -219,7 +226,7 @@ const FormRender = (props: Props) => {
         (formControlOrSection: ControlProps, idx: number) => {
           if (isHidden(formData, section.hidden, undefined, false)) return null;
           if (formControlOrSection.hasOwnProperty("children")) {
-            return renderEachConfig(formName)(formControlOrSection);
+            return rederNodeWithChildren(formControlOrSection, formName, false);
           } else {
             try {
               const { configProperty } = formControlOrSection;
