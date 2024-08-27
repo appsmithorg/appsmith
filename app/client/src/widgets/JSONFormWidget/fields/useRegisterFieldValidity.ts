@@ -35,31 +35,25 @@ function useRegisterFieldValidity({
      */
     setTimeout(() => {
       try {
-        isValid
-          ? startAndEndSpanForFn("JSONFormWidget.clearErrors", {}, () => {
-              if (error) {
-                clearErrors(fieldName);
-              }
-            })
-          : startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
-              setError(fieldName, {
-                type: fieldType,
-                message: "Invalid field",
-              });
+        if (isValid) {
+          if (error) {
+            startAndEndSpanForFn("JSONFormWidget.clearErrors", {}, () => {
+              clearErrors(fieldName);
             });
+          }
+        } else {
+          startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
+            setError(fieldName, {
+              type: fieldType,
+              message: "Invalid field",
+            });
+          });
+        }
       } catch (e) {
         Sentry.captureException(e);
       }
     }, 0);
-  }, [
-    isValid,
-    fieldName,
-    fieldType,
-    setMetaInternalFieldState,
-    error,
-    clearErrors,
-    setError,
-  ]);
+  }, [isValid, fieldName, fieldType, error, clearErrors, setError]);
 
   useEffect(() => {
     setMetaInternalFieldState((prevState) => {
