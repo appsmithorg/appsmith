@@ -14,7 +14,7 @@ describe(
       _.debuggerHelper.AssertErrorCount(1);
       _.propPane.ToggleSection("general");
       _.agHelper.AssertElementAbsence("animateloading");
-      _.debuggerHelper.ClickDebuggerIcon();
+      _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink();
       _.propPane.AssertIfPropertyIsVisible("animateloading");
 
@@ -28,7 +28,7 @@ describe(
       _.propPane.EnterJSContext("visible", "{{test}}", true, false);
       _.debuggerHelper.AssertErrorCount(1);
       _.propPane.NavigateBackToPropertyPane();
-      _.debuggerHelper.ClickDebuggerIcon();
+      _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink();
       _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Tab 2");
       _.propPane.AssertIfPropertyIsVisible("visible");
@@ -48,7 +48,7 @@ describe(
       _.debuggerHelper.AssertErrorCount(1);
       _.propPane.NavigateBackToPropertyPane(false);
       _.propPane.NavigateBackToPropertyPane();
-      _.debuggerHelper.ClickDebuggerIcon();
+      _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink();
       _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Menu Item");
       _.propPane.AssertIfPropertyIsVisible("icon");
@@ -65,7 +65,7 @@ describe(
       _.propPane.MoveToTab("Style");
       _.debuggerHelper.AssertErrorCount(1);
       _.propPane.NavigateBackToPropertyPane();
-      _.debuggerHelper.ClickDebuggerIcon();
+      _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink();
       _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Second Menu Item");
       _.propPane.AssertIfPropertyIsVisible("disabled");
@@ -110,7 +110,7 @@ describe(
       _.propPane.NavigateBackToPropertyPane(false);
       _.propPane.NavigateBackToPropertyPane();
 
-      _.debuggerHelper.ClickDebuggerIcon();
+      _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink();
       _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Custom Field 2");
       _.propPane.AssertIfPropertyIsVisible("borderradius");
@@ -133,7 +133,7 @@ describe(
       _.propPane.EnterJSContext("disabled", "{{test}}", true, false);
       _.debuggerHelper.AssertErrorCount(2);
 
-      _.debuggerHelper.ClickDebuggerIcon();
+      _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink(true);
       _.agHelper.GetNAssertContains(_.propPane._paneTitle, "First Menu Item");
       _.debuggerHelper.CloseBottomBar();
@@ -173,7 +173,7 @@ describe(
       _.propPane.ToggleSection("validation");
       _.propPane.NavigateBackToPropertyPane();
 
-      _.debuggerHelper.ClickDebuggerIcon();
+      _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink();
       _.agHelper.GetNAssertContains(_.propPane._paneTitle, "imdb_id");
       _.debuggerHelper.CloseBottomBar();

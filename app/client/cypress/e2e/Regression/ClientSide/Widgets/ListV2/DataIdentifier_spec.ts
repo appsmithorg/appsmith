@@ -38,7 +38,7 @@ describe(
   () => {
     before(() => {
       agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
-      debuggerHelper.ClickDebuggerIcon();
+      debuggerHelper.OpenDebugger();
     });
 
     it("1. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
@@ -92,7 +92,7 @@ describe(
         1,
       );
       //Open debugger by clicking debugger icon in canvas.
-      debuggerHelper.ClickDebuggerIcon();
+      debuggerHelper.OpenDebugger();
       agHelper.GetNAssertContains(
         debuggerHelper.locators._debuggerList,
         "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",

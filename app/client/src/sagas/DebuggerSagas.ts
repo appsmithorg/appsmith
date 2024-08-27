@@ -29,7 +29,7 @@ import {
   takeEvery,
 } from "redux-saga/effects";
 import { findIndex, get, isEmpty, isMatch, set } from "lodash";
-import { getDebuggerErrors } from "selectors/debuggerSelectors";
+import { getDebuggerErrors, getErrorCount } from "selectors/debuggerSelectors";
 import {
   getAction,
   getPlugin,
@@ -61,7 +61,6 @@ import {
   transformAddErrorLogsSaga,
   transformDeleteErrorLogsSaga,
 } from "ee/sagas/helpers";
-import { objectKeys } from "@appsmith/utils";
 
 let blockedSource: string | null = null;
 
@@ -820,10 +819,9 @@ function* activeFieldDebuggerErrorHandler(
 
 function* handleHideDebuggerSaga(action: ReduxAction<boolean>) {
   const { payload } = action;
-  const currentDebuggerErrors: Record<string, Log> =
-    yield select(getDebuggerErrors);
+  const errorCount: number = yield select(getErrorCount);
 
-  if (objectKeys(currentDebuggerErrors).length && !payload) {
+  if (errorCount > 0 && !payload) {
     yield put(showDebugger());
     yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }

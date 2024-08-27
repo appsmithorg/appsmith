@@ -49,17 +49,14 @@ export class DebuggerHelper {
     _downStreamLogMessage: ".t--debugger-log-downstream-message",
   };
 
-  ClickDebuggerIcon(
-    index?: number,
-    force?: boolean,
-    waitTimeInterval?: number,
-  ) {
-    this.agHelper.GetNClick(
-      this.locators._debuggerIcon,
-      index,
-      force,
-      waitTimeInterval,
-    );
+  OpenDebugger() {
+    // Open opens if it is not open yet
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locators._tabsContainer).length === 0) {
+        this.agHelper.GetNClick(this.locators._debuggerIcon, 0, false);
+      }
+    });
+    this.agHelper.AssertElementVisibility(this.locators._tabsContainer);
   }
 
   ClickDebuggerToggle(expand = true, index = 0) {
@@ -189,7 +186,7 @@ export class DebuggerHelper {
     shouldToggleDebugger = true,
   ) {
     if (shouldOpenDebugger) {
-      this.ClickDebuggerIcon();
+      this.OpenDebugger();
     }
     this.agHelper.GetNClick(this.commonLocators._errorTab, 0, true, 0);
 
@@ -222,7 +219,7 @@ export class DebuggerHelper {
 
   AssertDownStreamLogError(message: string, shouldOpenDebugger = true) {
     if (shouldOpenDebugger) {
-      this.ClickDebuggerIcon();
+      this.OpenDebugger();
     }
 
     this.agHelper.GetNClick(this.commonLocators._responseTab, 0, true, 0);

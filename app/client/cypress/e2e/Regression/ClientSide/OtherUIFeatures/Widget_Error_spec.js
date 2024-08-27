@@ -23,7 +23,7 @@ describe("Widget error state", function () {
 
     //Check if the current value is shown in the debugger
 
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
     cy.get("[data-testid=t--tab-ERROR]").click();
     //This feature is disabled in updated error log - epic 17720
     // _.debuggerHelper.LogStateContains("Test");
