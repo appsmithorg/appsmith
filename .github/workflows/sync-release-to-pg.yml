@@ -14,10 +14,27 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: release  # Checkout the release branch
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: app/client/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
 
       - name: Set Git config values
         run: |
-          git config pull.rebase true
+          git config pull.rebase false
           git config user.email "automated@github.com"
           git config user.name "Automated Github Action"
 
@@ -37,7 +54,7 @@ jobs:
           echo "RELEASE_HEAD=$RELEASE_HEAD"
 
           # Attempt to merge release into pg
-          if ! git pull origin release --allow-unrelated-histories; then
+          if ! git pull origin release; then
             echo "Merge conflict detected during merge"
 
             # Capture the conflicting commit SHAs (both HEAD of pg and the merge commit from release)
