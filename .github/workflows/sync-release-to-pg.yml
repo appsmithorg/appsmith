@@ -15,7 +15,13 @@ jobs:
         with:
           ref: release  # Checkout the release branch
 
-      - name: Fetch all branches
+      - name: Set Git config values
+        run: |
+          git config pull.rebase true
+          git config user.email "automated@github.com"
+          git config user.name "Automated Github Action"
+
+      - name: Fetch pg branch
         run: git fetch origin pg
 
       - name: Checkout pg branch
@@ -24,25 +30,21 @@ jobs:
       - name: Merge release to pg
         id: merge_commits
         run: |
-
           PG_HEAD=$(git rev-parse pg)
           RELEASE_HEAD=$(git rev-parse release)
 
           echo "PG_HEAD=$PG_HEAD"
           echo "RELEASE_HEAD=$RELEASE_HEAD"
 
-          # Checkout the pg branch
-          git checkout pg
-
           # Attempt to merge release into pg
-          if ! git merge release; then
+          if ! git pull origin release --allow-unrelated-histories; then
             echo "Merge conflict detected during merge"
 
             # Capture the conflicting commit SHAs (both HEAD of pg and the merge commit from release)
             CONFLICTING_COMMIT=$(git log -1 --pretty=format:"%H")
             echo "CONFLICTING_COMMIT=$CONFLICTING_COMMIT" >> $GITHUB_ENV
 
-            git merge --abort
+            #git merge --abort
             echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
           else
             echo "MERGE_CONFLICT=false" >> $GITHUB_ENV
@@ -68,10 +70,12 @@ jobs:
           # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
           slack_message="$(echo "$message" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
 
+          echo "$slack_message"
+
           # This is the ChannelId of the proj postgres channel.
           body="$(jq -nc \
             --arg channel C06Q3A97USE \
-            --arg text "$slack_message" \
+            --arg text "$message" \
             '$ARGS.named'
           )"
 
