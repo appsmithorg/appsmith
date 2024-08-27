@@ -24,8 +24,16 @@ jobs:
       - name: Get new commits from release
         id: get_commits
         run: |
-          COMMITS=$(git log pg..release --oneline | awk '{print $1}')
-          echo "COMMITS=\"$COMMITS\"" >> $GITHUB_ENV
+          # Compare the heads of pg and release
+          PG_HEAD=$(git rev-parse pg)
+          RELEASE_HEAD=$(git rev-parse release)
+
+          echo "PG_HEAD=$PG_HEAD" >> $GITHUB_ENV
+          echo "RELEASE_HEAD=$RELEASE_HEAD" >> $GITHUB_ENV
+
+          # Get new commits on release that are not yet in pg
+          COMMITS=$(git log --reverse --pretty=format:"%H" $PG_HEAD..$RELEASE_HEAD)
+          echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
       - name: Merge commits one by one
         id: merge_commits
@@ -38,12 +46,12 @@ jobs:
 
           # Loop through each commit
           for commit in "${commit_array[@]}"; do
-            echo "Merging commit $commit"
-            git cherry-pick $commit || {
+            echo "Attempting to cherry-pick commit $commit"
+            if ! git cherry-pick $commit; then
               echo "Conflict detected with commit $commit"
               conflicted_commits+=($commit)
               git cherry-pick --abort
-            }
+            fi
           done
 
           # Save conflicted commits to environment variable
