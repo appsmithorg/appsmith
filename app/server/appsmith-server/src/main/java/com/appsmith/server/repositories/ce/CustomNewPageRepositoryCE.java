@@ -14,6 +14,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
 
+    Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission, List<String> includeFields);
+
     Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission);
 
     Mono<NewPage> findByIdAndLayoutsIdAndViewMode(

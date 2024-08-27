@@ -209,6 +209,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         } else {
             branchedApplicationMonoCached = applicationService
                     .findByBaseIdBranchNameAndApplicationMode(baseApplicationId, branchName, mode)
+                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
+                    .tap(Micrometer.observation(observationRegistry))
                     .cache();
         }
 
