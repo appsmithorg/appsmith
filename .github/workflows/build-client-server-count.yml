@@ -136,11 +136,11 @@ jobs:
           name: cypress-repeat-logs
           path: app/client
 
-      - name: Decode Summary Content
+      - name: Read and Set File Content as ENV Variable
+        id: set-summary-content
         run: |
-            cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt
-            decoded_summary_content=$(cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt | tr '\n' ' ')
-            echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_OUTPUT     
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            echo "summary_content=$summary_content" >> $GITHUB_ENV   
 
       - name: Add a comment on the PR with new CI failures
         if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
@@ -154,7 +154,7 @@ jobs:
             To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
              **Summary of test runs:**
             ```
-            ${{ env.decoded_summary_content }}
+            ${{ env.summary_content }}
             ```
 
       - name: Add a comment on the PR when ci-test-limited is success
@@ -168,7 +168,7 @@ jobs:
             All cypress tests have passed 🎉🎉🎉
             **Summary of test runs:**
             ```
-            ${{ env.decoded_summary_content }}
+            ${{ env.summary_content }}
             ```
       - name: Check ci-test-limited set status
         if: needs.ci-test-limited.result != 'success'
@@ -183,6 +183,19 @@ jobs:
       run:
         shell: bash
     steps:
+
+      - name: Download the client build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cypress-repeat-logs
+          path: app/client
+
+      - name: Read and Set File Content as ENV Variable
+        id: set-summary-content
+        run: |
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            echo "summary_content=$summary_content" >> $GITHUB_ENV 
+
       - name: Setup node
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         uses: actions/setup-node@v4
@@ -283,7 +296,7 @@ jobs:
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
             ```
-            ${{ env.decoded_summary_content }}
+            ${{ env.summary_content }}
             ```
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
@@ -296,7 +309,7 @@ jobs:
             Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
             ```
-            ${{ env.decoded_summary_content }}
+            ${{ env.summary_content }}
             ```
 
       - name: Check ci-test-limited-existing-docker-image set status
