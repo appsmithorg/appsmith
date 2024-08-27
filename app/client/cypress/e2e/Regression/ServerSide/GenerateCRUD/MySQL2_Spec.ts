@@ -129,13 +129,13 @@ describe(
         updateNVerify(6, 4, newStoreSecret as string);
       });
 
-      table.SelectTableRow(17, 0, true, "v2");
-      dataSources.AssertJSONFormHeader(17, 0, "store_id");
-      generateStoresSecretInfo(17);
+      table.SelectTableRow(12, 0, true, "v2");
+      dataSources.AssertJSONFormHeader(12, 0, "store_id");
+      generateStoresSecretInfo(12);
       cy.get("@secretInfo").then(($secretInfo) => {
         newStoreSecret = $secretInfo;
         cy.log("newStoreSecret is : " + newStoreSecret);
-        updateNVerify(17, 4, newStoreSecret as string);
+        updateNVerify(12, 4, newStoreSecret as string);
       });
 
       //Hidden field bug - to add here aft secret codes are updated for some fields!
