@@ -4,7 +4,7 @@ modified_within_last_x_minutes=180
 tail_lines=10000
 hostname=$(hostname)
 timestamp=$(date +%F_%H.%M.%S-%Z)
-tmpdir=tmpdir="$(mktemp -d)/"$hostname"/"$timestamp""
+tmpdir="$TMP/$hostname/$timestamp"
 java_pid="$(pgrep -f -- "-jar\sserver.jar")"
 
 mkdir -p $tmpdir/{java,config,proc}
@@ -27,12 +27,12 @@ cp /tmp/appsmith/Caddyfile "$tmpdir/config/Caddyfile"
 #
 
 # gather the logs
-for i in `find /appsmith-stacks/logs/* -type f -mmin -"$modified_within_last_x_minutes"`; do
-    if [[ -e "$i" ]]; then
-        mkdir -p "$tmpdir/`dirname ${i:1}`"
-        tail -"$tail_lines" "$i" > "$tmpdir/${i:1}"
-    fi
-done
+find /appsmith-stacks/logs/* -type f -mmin -"$modified_within_last_x_minutes" | while read -r i; do  
+    if [[ -e "$i" ]]; then  
+        mkdir -p "$tmpdir/$(dirname "${i:1}")"  
+        tail -"$tail_lines" "$i" > "$tmpdir/${i:1}"  
+    fi  
+done 
 
 #
 # App info
@@ -97,8 +97,6 @@ uname -a > "$tmpdir/uname_a.txt"
 # gather memory info
 function memory_util ()
 {
-  BUFFCACHE_MEM=$(free -m | awk '/Mem/ {print $6}')
-  FREE_MEM=$(free -m | awk '/Mem/ {print $4}')
   
   AVAILABLE_MEM=$(free -m | awk '/Mem/ {print $7}')
   TOTAL_MEM=$(free -m | awk '/Mem/ {print $2}')
