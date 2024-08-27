@@ -25,7 +25,7 @@ import type {
   PrivateWidgets,
   ActionEntityConfig,
   DataTreeEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   DataTree,
   DataTreeEntity,
@@ -33,12 +33,12 @@ import type {
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
   getAllPathsBasedOnDiffPaths,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -63,7 +63,7 @@ import {
   isAPathDynamicBindingPath,
   isAnyJSAction,
   isNotEntity,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import {
   difference,
   flatten,
@@ -102,7 +102,7 @@ import type {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { klona as klonaJSON } from "klona/json";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import {
   updateDependencyMap,
   createDependencyMap,
@@ -131,7 +131,7 @@ import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
 import DependencyMap from "entities/DependencyMap";
 import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
-import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 import microDiff from "microdiff";
@@ -141,7 +141,7 @@ import {
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
-import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
+import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {

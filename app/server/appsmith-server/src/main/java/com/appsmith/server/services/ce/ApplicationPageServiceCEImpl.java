@@ -58,6 +58,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import com.google.common.base.Strings;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,7 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -82,8 +84,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGES_BY_APP_ID_DB;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.MIGRATE_DSL;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
+import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
+import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -121,6 +127,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DSLMigrationUtils dslMigrationUtils;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
+    private final ObservationRegistry observationRegistry;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -260,7 +267,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findNewPagesByApplicationId(branchedApplication.getId(), pagePermission.getReadPermission())
                 .filter(newPage -> pageIds.contains(newPage.getId()))
-                .collectList();
+                .collectList()
+                .name(getQualifiedSpanName(FETCH_PAGES_BY_APP_ID_DB, applicationMode))
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -283,10 +292,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> getPageAndMigrateDslByBranchAndBasePageId(
             String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
+        ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
                 .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission())
-                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
+                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
+                        .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
+                        .tap(Micrometer.observation(observationRegistry)));
     }
 
     @Override
@@ -1357,29 +1369,32 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewPage newPage = new NewPage();
                     newPage.setId(idPoliciesOnly.getId());
-                    newPage.setPolicies(idPoliciesOnly.getPolicies());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    newPage.setPolicies(policies);
                     return newPage;
                 })
                 .flatMap(newPageRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
-                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewAction newAction = new NewAction();
                     newAction.setId(idPoliciesOnly.getId());
-                    newAction.setPolicies(idPoliciesOnly.getPolicies());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    newAction.setPolicies(policies);
                     return newAction;
                 })
                 .flatMap(newActionRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
-                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .findIdsAndPolicyMapByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     ActionCollection actionCollection = new ActionCollection();
                     actionCollection.setId(idPoliciesOnly.getId());
-                    actionCollection.setPolicies(idPoliciesOnly.getPolicies());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    actionCollection.setPolicies(policies);
                     return actionCollection;
                 })
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject));
@@ -1425,11 +1440,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .collect(Collectors.toSet());
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
-                        .findIdsAndPoliciesByIdIn(datasourceIds)
+                        .findIdsAndPolicyMapByIdIn(datasourceIds)
                         .flatMap(idPolicy -> {
                             Datasource datasource = new Datasource();
                             datasource.setId(idPolicy.getId());
-                            datasource.setPolicies(idPolicy.getPolicies());
+                            Set<Policy> policies = policyMapToSet(idPolicy.getPolicyMap());
+                            datasource.setPolicies(policies);
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
 

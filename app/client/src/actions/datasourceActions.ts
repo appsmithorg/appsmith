@@ -1,8 +1,8 @@
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
   AuthenticationStatus,
@@ -17,7 +17,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   ActionParentEntityType,
   type ActionParentEntityTypeInterface,
-} from "@appsmith/entities/Engine/actionHelpers";
+} from "ee/entities/Engine/actionHelpers";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -325,16 +325,6 @@ export const addMockDatasourceToWorkspace = (
   };
 };
 
-export const initDatasourcePane = (
-  pluginType: string,
-  urlId?: string,
-): ReduxAction<{ pluginType: string; id?: string }> => {
-  return {
-    type: ReduxActionTypes.INIT_DATASOURCE_PANE,
-    payload: { id: urlId, pluginType },
-  };
-};
-
 export const storeAsDatasource = () => {
   return {
     type: ReduxActionTypes.STORE_AS_DATASOURCE_INIT,
@@ -529,5 +519,4 @@ export const setDatasourcePreviewSelectedTableName = (
 
 export default {
   fetchDatasources,
-  initDatasourcePane,
 };

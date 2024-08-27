@@ -1,5 +1,5 @@
-import React, { forwardRef } from "react";
-import { Button, Menu } from "@design-system/widgets";
+import React, { forwardRef, useMemo } from "react";
+import { Button, Menu } from "@appsmith/wds";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
 import { useListState } from "@react-stately/list";
@@ -37,11 +37,14 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
     domRef,
   );
 
-  let children = [...state.collection];
-  const menuChildren = (props.items as ToolbarButtonsItem[]).slice(
-    visibleItems,
+  const menuChildren = useMemo(
+    () => (props.items as ToolbarButtonsItem[]).slice(visibleItems),
+    [props.items, visibleItems],
   );
-  children = children.slice(0, visibleItems);
+  const children = useMemo(
+    () => [...state.collection].slice(0, visibleItems),
+    [state.collection, visibleItems],
+  );
 
   return (
     <FocusScope>

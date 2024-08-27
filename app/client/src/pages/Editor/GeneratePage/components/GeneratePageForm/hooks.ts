@@ -5,11 +5,11 @@ import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
 import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceActions";
 import { executeDatasourceQuery } from "actions/datasourceActions";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import { useDispatch, useSelector } from "react-redux";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {

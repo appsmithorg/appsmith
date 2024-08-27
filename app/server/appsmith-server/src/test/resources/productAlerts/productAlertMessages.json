@@ -1,32 +1,32 @@
 [
-    {
-        "precedenceIndex": 1,
-        "canDismiss": true,
-        "context": "COMMON_CONFIG",
-        "messageId": "1",
-        "learnMoreLink": "learnmorelink1",
-        "remindLaterDays": 5,
-        "title": "alert1",
-        "applicabilityExpression": "!isCloudHosting"
-    },
-    {
-        "precedenceIndex": 3,
-        "canDismiss": true,
-        "context": "STATIC",
-        "messageId": "2",
-        "learnMoreLink": "learnmorelink2",
-        "remindLaterDays": 5,
-        "title": "alert2",
-        "applicabilityExpression": "true"
-    },
-    {
-        "precedenceIndex": 2,
-        "canDismiss": true,
-        "context": "COMMON_CONFIG",
-        "messageId": "3",
-        "learnMoreLink": "learnmorelink2",
-        "remindLaterDays": 5,
-        "title": "alert3",
-        "applicabilityExpression": "isCloudHosting && (getCurrentTimeInstantEpochMilli < 1691300700000L)"
-    }
+  {
+    "messageId": "1",
+    "title": "alert1",
+    "learnMoreLink": "learnmorelink1",
+    "canDismiss": true,
+    "remindLaterDays": 5,
+    "context": "COMMON_CONFIG",
+    "applicabilityExpression": "!isCloudHosting",
+    "precedenceIndex": 1
+  },
+  {
+    "messageId": "2",
+    "title": "alert2",
+    "learnMoreLink": "learnmorelink2",
+    "canDismiss": true,
+    "remindLaterDays": 5,
+    "context": "STATIC",
+    "applicabilityExpression": "true",
+    "precedenceIndex": 3
+  },
+  {
+    "messageId": "3",
+    "title": "alert3",
+    "learnMoreLink": "learnmorelink2",
+    "canDismiss": true,
+    "remindLaterDays": 5,
+    "context": "COMMON_CONFIG",
+    "applicabilityExpression": "isCloudHosting && (getCurrentTimeInstantEpochMilli < 1691300700000L)",
+    "precedenceIndex": 2
+  }
 ]

@@ -6,7 +6,7 @@ import type {
 import isNumber from "lodash/isNumber";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
-import { RadioGroup } from "@design-system/widgets";
+import { RadioGroup } from "@appsmith/wds";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -109,18 +109,20 @@ class WDSRadioGroupWidget extends BaseWidget<
     } else {
       newVal = updatedValue;
     }
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     // Set isDirty to true when the selection changes
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("selectedOptionValue", newVal, {
+    pushBatchMetaUpdates("selectedOptionValue", newVal, {
       triggerPropertyName: "onSelectionChange",
       dynamicString: this.props.onSelectionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {

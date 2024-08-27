@@ -13,19 +13,19 @@ import {
   jsCollectionListURL,
   queryAddURL,
   queryListURL,
-} from "@appsmith/RouteBuilder";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
-import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
-import { getJSEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+} from "ee/RouteBuilder";
+import type { EntityItem } from "ee/entities/IDE/constants";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
 import log from "loglevel";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { EditorViewMode } from "ee/entities/IDE/constants";
 import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
 import {
   selectJSSegmentEditorTabs,
   selectQuerySegmentEditorTabs,
-} from "@appsmith/selectors/appIDESelectors";
+} from "ee/selectors/appIDESelectors";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {

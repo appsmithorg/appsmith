@@ -3,7 +3,7 @@ import {
   builderURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import { PluginType } from "entities/Action";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";

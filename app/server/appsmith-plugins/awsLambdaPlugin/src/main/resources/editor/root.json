@@ -1,27 +1,28 @@
 {
-    "editor": [{
-        "identifier": "SELECTOR",
-        "controlType": "SECTION",
-        "children": [{
-            "controlType": "DROP_DOWN",
-            "options": [
-                {
-                    "label": "List all functions",
-                    "value": "LIST_FUNCTIONS"
-                },
-                {
-                    "label": "Invoke a function",
-                    "value": "INVOKE_FUNCTION"
-                }
-            ],
-            "description": "Choose the method you would like to use",
-            "label": "Command",
-            "initialValue": "LIST_FUNCTIONS",
-            "configProperty": "actionConfiguration.formData.command.data"
-        }]
-    }],
-    "files": [
-        "list.json",
-        "invoke.json"
-    ]
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Command",
+          "description": "Choose the method you would like to use",
+          "configProperty": "actionConfiguration.formData.command.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "LIST_FUNCTIONS",
+          "options": [
+            {
+              "label": "List all functions",
+              "value": "LIST_FUNCTIONS"
+            },
+            {
+              "label": "Invoke a function",
+              "value": "INVOKE_FUNCTION"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": ["list.json", "invoke.json"]
 }

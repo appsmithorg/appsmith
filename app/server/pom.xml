@@ -165,7 +165,11 @@
                         <includes>
                             <include>**/*.json</include>
                         </includes>
-                        <simple/>
+                        <prettier>
+                            <config>
+                                <tabWidth>2</tabWidth>
+                            </config>
+                        </prettier>
                     </json>
                     <pom>
                         <includes>

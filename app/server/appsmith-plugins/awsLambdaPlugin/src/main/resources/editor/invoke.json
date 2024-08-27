@@ -1,71 +1,77 @@
 {
-    "identifier": "INVOKE_FUNCTION",
-    "controlType": "SECTION",
-    "children": [{
-        "controlType": "SECTION",
-        "children": [
-            {
-                "fetchOptionsConditionally": true,
-                "isRequired": true,
-                "tooltipText": "This is the name of the AWS lambda function that will be invoked.",
-                "label": "Function to invoke",
-                "setFirstOptionAsDefault": true,
-                "configProperty": "actionConfiguration.formData.functionName.data",
-                "alternateViewTypes": ["json"],
-                "controlType": "DROP_DOWN",
-                "propertyName": "function_name",
-                "subtitle": "",
-                "options": [],
-                "placeholderText": "All function names will be fetched.",
-                "conditionals": {
-                    "enable": "{{true}}",
-                    "fetchDynamicValues": {
-                        "condition": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION'}}",
-                        "config": {"params": {
-                            "displayType": "DROP_DOWN",
-                            "requestType": "FUNCTION_NAMES"
-                        }}
-                    }
-                },
-                "initialValue": ""
-            },
-            {
-                "fetchOptionsConditionally": false,
-                "isRequired": true,
-                "tooltipText": "Should the invocation be synchronous or asynchronous?",
-                "label": "Type of invocation",
-                "setFirstOptionAsDefault": true,
-                "configProperty": "actionConfiguration.formData.invocationType.data",
-                "alternateViewTypes": ["json"],
-                "controlType": "DROP_DOWN",
-                "propertyName": "invocation_type",
-                "subtitle": "",
-                "options": [
-                    {
-                        "label": "Synchronous",
-                        "value": "RequestResponse"
-                    },
-                    {
-                        "label": "Asynchronous",
-                        "value": "Event"
-                    },
-                    {
-                        "label": "Dry run",
-                        "value": "DryRun"
-                    }
-                ],
-                "placeholderText": "",
-                "initialValue": ""
-            },
-            {
-                "controlType": "QUERY_DYNAMIC_TEXT",
-                "label": "Post body",
-                "placeHolderText": "{`\"key1\": \"value1\"`}",
-                "initialValue": "",
-                "configProperty": "actionConfiguration.formData.body.data"
+  "identifier": "INVOKE_FUNCTION",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Details of lambda function",
+      "children": [
+        {
+          "label": "Function to invoke",
+          "tooltipText": "This is the name of the AWS lambda function that will be invoked.",
+          "subtitle": "",
+          "isRequired": true,
+          "propertyName": "function_name",
+          "configProperty": "actionConfiguration.formData.functionName.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "All function names will be fetched.",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION'}}",
+              "config": {
+                "params": {
+                  "requestType": "FUNCTION_NAMES",
+                  "displayType": "DROP_DOWN"
+                }
+              }
             }
-        ],
-        "label": "Details of lambda function"
-    }],
-    "conditionals": {"show": "{{actionConfiguration.formData.command.data === 'INVOKE_FUNCTION'}}"}
+          }
+        },
+        {
+          "label": "Type of invocation",
+          "tooltipText": "Should the invocation be synchronous or asynchronous?",
+          "subtitle": "",
+          "isRequired": true,
+          "propertyName": "invocation_type",
+          "configProperty": "actionConfiguration.formData.invocationType.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [
+            {
+              "label": "Synchronous",
+              "value": "RequestResponse"
+            },
+            {
+              "label": "Asynchronous",
+              "value": "Event"
+            },
+            {
+              "label": "Dry run",
+              "value": "DryRun"
+            }
+          ],
+          "placeholderText": "",
+          "fetchOptionsConditionally": false,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"]
+        },
+        {
+          "label": "Post body",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "initialValue": "",
+          "placeHolderText": "{`\"key1\": \"value1\"`}"
+        }
+      ]
+    }
+  ]
 }

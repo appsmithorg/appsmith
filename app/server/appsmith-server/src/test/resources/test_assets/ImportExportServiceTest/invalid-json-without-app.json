@@ -1,12 +1,18 @@
 {
-    "datasourceList": [],
-    "actionList": [{
-        "unpublishedAction": {},
-        "id": "randomId",
-        "userPermissions": [],
-        "publishedAction": {}
-    }],
-    "pageList": [{"applicationId": "test_app"}],
-    "decryptedFields": {},
-    "mongoEscapedWidgets": {}
+  "datasourceList": [],
+  "pageList": [
+    {
+      "applicationId": "test_app"
+    }
+  ],
+  "actionList": [
+    {
+      "id": "randomId",
+      "userPermissions": [],
+      "unpublishedAction": {},
+      "publishedAction": {}
+    }
+  ],
+  "decryptedFields": {},
+  "mongoEscapedWidgets": {}
 }

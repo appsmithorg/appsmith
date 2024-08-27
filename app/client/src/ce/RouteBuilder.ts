@@ -8,12 +8,10 @@ import {
   TEMPLATES_PATH,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
-import type {
-  ApplicationPayload,
-  Page,
-} from "@appsmith/constants/ReduxActionConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import type { URLBuilderParams } from "ee/entities/URLRedirect/URLAssembly";
+import type { Page } from "entities/Page";
+import type { ApplicationPayload } from "entities/Application";
 
 export const fillPathname = (
   pathname: string,

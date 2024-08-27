@@ -1,6 +1,6 @@
 import { Icon } from "@blueprintjs/core";
-import { Text } from "design-system";
-import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
+import { Text } from "@appsmith/ads";
+import { createMessage, LEARN_MORE } from "ee/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

@@ -8,7 +8,7 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
   getPluginPackageFromDatasourceId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { Bold, Label } from "../../styles";
 import { PluginFormInputFieldMap } from "../../constants";
@@ -17,11 +17,11 @@ import {
   getIsFetchingGsheetSpreadsheets,
 } from "selectors/datasourceSelectors";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 import type { DatasourceStructure } from "entities/Datasource";
 

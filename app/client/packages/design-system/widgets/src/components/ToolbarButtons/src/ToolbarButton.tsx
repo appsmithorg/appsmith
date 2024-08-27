@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
-import { Button } from "@design-system/widgets";
-import type { ButtonProps } from "@design-system/widgets";
+import { Button } from "@appsmith/wds";
+import type { ButtonProps } from "@appsmith/wds";
 import type { ForwardedRef } from "react";
 import type { ListState } from "@react-stately/list";
 import type { Node } from "@react-types/shared";

@@ -2,7 +2,7 @@ import type { JSXElementConstructor } from "react";
 import React from "react";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const ShareIcon = importRemixIcon(
   async () => import("remixicon-react/ShareBoxFillIcon"),

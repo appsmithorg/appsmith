@@ -139,7 +139,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -2591,6 +2591,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         // To revert back to previous on discard
         initialValue: value,
         inputValue: value,
+        __originalIndex__: this.getRowOriginalIndex(rowIndex),
       });
       pushBatchMetaUpdates("columnEditableCellValue", {
         ...this.props.columnEditableCellValue,
@@ -2654,31 +2655,29 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     value: string,
     onSubmit?: string,
   ) => {
-    if (this.isColumnCellValid(alias)) {
-      const { commitBatchMetaUpdates } = this.props;
+    const { commitBatchMetaUpdates } = this.props;
 
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-        [alias]: value,
+    this.pushTransientTableDataActionsUpdates({
+      [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
+      [alias]: value,
+    });
+
+    if (onSubmit && this.props.editableCell?.column) {
+      //since onSubmit is truthy this makes action truthy as well, so we can push this event
+      this.pushOnColumnEvent({
+        rowIndex: rowIndex,
+        action: onSubmit,
+        triggerPropertyName: "onSubmit",
+        eventType: EventType.ON_SUBMIT,
+        row: {
+          ...this.props.filteredTableData[rowIndex],
+          [this.props.editableCell.column]: value,
+        },
       });
-
-      if (onSubmit && this.props.editableCell?.column) {
-        //since onSubmit is truthy this makes action truthy as well, so we can push this event
-        this.pushOnColumnEvent({
-          rowIndex: rowIndex,
-          action: onSubmit,
-          triggerPropertyName: "onSubmit",
-          eventType: EventType.ON_SUBMIT,
-          row: {
-            ...this.props.filteredTableData[rowIndex],
-            [this.props.editableCell.column]: value,
-          },
-        });
-      }
-
-      commitBatchMetaUpdates();
-      this.clearEditableCell();
     }
+
+    commitBatchMetaUpdates();
+    this.clearEditableCell();
   };
   pushClearEditableCellsUpdates = () => {
     const { pushBatchMetaUpdates } = this.props;

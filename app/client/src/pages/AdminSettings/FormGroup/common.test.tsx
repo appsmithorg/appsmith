@@ -1,7 +1,7 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import { FormGroup } from "./Common";
 
 // TODO: Fix this the next time the file is edited

@@ -1,9 +1,9 @@
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -57,11 +57,11 @@ import {
 } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
-import { updateApplication } from "@appsmith/actions/applicationActions";
+import { updateApplication } from "ee/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { nestDSL, flattenDSL } from "@shared/dsl";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";

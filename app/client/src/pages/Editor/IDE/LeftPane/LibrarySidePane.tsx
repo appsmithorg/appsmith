@@ -2,10 +2,10 @@ import React from "react";
 import AddLibraryPopover from "./AddLibraryPopover";
 import PaneHeader from "./PaneHeader";
 import { useSelector } from "react-redux";
-import { selectLibrariesForExplorer } from "@appsmith/selectors/entitiesSelector";
+import { selectLibrariesForExplorer } from "ee/selectors/entitiesSelector";
 import { animated, useTransition } from "react-spring";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const LibrarySidePane = () => {

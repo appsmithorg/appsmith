@@ -1,18 +1,24 @@
 {
-    "editor": [{
-        "identifier": "SELECTOR",
-        "controlType": "SECTION",
-        "children": [{
-            "controlType": "DROP_DOWN",
-            "options": [{
-                "label": "Example command",
-                "value": "EXAMPLE"
-            }],
-            "description": "Choose the method you would like to use",
-            "label": "Command",
-            "initialValue": "EXAMPLE",
-            "configProperty": "actionConfiguration.formData.command.data"
-        }]
-    }],
-    "files": ["mock-example.json"]
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Command",
+          "description": "Choose the method you would like to use",
+          "configProperty": "actionConfiguration.formData.command.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "EXAMPLE",
+          "options": [
+            {
+              "label": "Example command",
+              "value": "EXAMPLE"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": ["mock-example.json"]
 }

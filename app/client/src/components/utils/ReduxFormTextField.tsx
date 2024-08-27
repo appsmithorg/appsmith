@@ -1,11 +1,10 @@
 import React from "react";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field } from "redux-form";
-import type { InputType } from "design-system-old";
-import { Input, NumberInput } from "design-system";
+import { Input, NumberInput } from "@appsmith/ads";
 
 import type { Intent } from "constants/DefaultTheme";
-import { SettingSubtype } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingSubtype } from "ee/pages/AdminSettings/config/types";
 import { omit } from "lodash";
 
 const renderComponent = (
@@ -48,7 +47,7 @@ export interface FormTextFieldProps {
   name: string;
   placeholder: string;
   description?: string;
-  type?: InputType;
+  type?: "text" | "password" | "number" | "email" | "tel";
   label?: React.ReactNode;
   intent?: Intent;
   disabled?: boolean;

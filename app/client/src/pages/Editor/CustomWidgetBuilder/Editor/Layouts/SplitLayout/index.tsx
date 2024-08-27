@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./styles.module.css";
 import type { ContentProps } from "../../CodeEditors/types";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { set } from "lodash";
 import classNames from "classnames";
 import { useLocalStorage } from "utils/hooks/localstorage";

@@ -8,12 +8,12 @@ import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import type {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
-} from "@appsmith/workers/Evaluation/evalWorkerActions";
+} from "ee/workers/Evaluation/evalWorkerActions";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import type { WorkerRequest } from "@appsmith/workers/common/types";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import type { WorkerRequest } from "ee/workers/common/types";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";

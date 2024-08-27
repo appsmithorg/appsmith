@@ -1,18 +1,18 @@
-import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
+import { generateTemplateFormURL } from "ee/RouteBuilder";
 import {
   GENERATE_NEW_PAGE_BUTTON_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { AppState } from "@appsmith/reducers";
-// import { getPlugin } from "@appsmith/selectors/entitiesSelector";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+// import { getPlugin } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getHasCreatePagePermission,
   hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { Button } from "design-system";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { Button } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import NewActionButton from "pages/Editor/DataSourceEditor/NewActionButton";
@@ -31,7 +31,7 @@ import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integ
 import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { EditorNames } from "./";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;

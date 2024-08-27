@@ -4,7 +4,7 @@ import { connect, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
@@ -13,12 +13,12 @@ import ProfileDropdown from "./ProfileDropdown";
 import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { Indices } from "constants/Layers";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;

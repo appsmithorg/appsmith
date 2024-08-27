@@ -86,7 +86,7 @@ export default {
   shareUserIcons: ".t--workspace-share-user-icons",
   toastMessage: "div.Toastify__toast",
   uploadLogo: "//div/form/input",
-  removeLogo: ".remove-button a span",
+  removeLogo: "[data-testid=t--remove-logo]",
   generalTab: "//li//span[text()='General']",
   membersTab: "//li//span[text()='Members']",
   cancelBtn: "//span[text()='Cancel']",
@@ -105,5 +105,5 @@ export default {
   noEntityFound:".no-search-results",
   initialWorkspace:"[data-testid^='Untitled workspace']",
   initialApplication:"[data-testid^='Untitled application']",
-  _entitySearchBar:"[data-testid='t--application-search-input']";
+  _entitySearchBar:"[data-testid='t--application-search-input']"
 };

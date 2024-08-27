@@ -3,11 +3,11 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 import type { Diff } from "deep-diff";
-import EntityFactory from "@appsmith/plugins/Linting/lib/entity";
+import EntityFactory from "ee/plugins/Linting/lib/entity";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
-import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
 import type { EntityParser } from "plugins/Linting/utils/entityParser";
 import {
   DefaultEntityParser,

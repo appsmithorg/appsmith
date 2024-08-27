@@ -7,7 +7,7 @@ import { get, isEmpty, isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import {
@@ -16,8 +16,8 @@ import {
   MATCH_ACTION_CONFIG_PROPERTY,
 } from "workers/Evaluation/formEval";
 import type { Action } from "entities/Action";
-import type { SelectOptionProps } from "design-system";
-import { Icon, Option, Select } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Icon, Option, Select } from "@appsmith/ads";
 
 const DropdownSelect = styled.div<{
   width: string;
@@ -91,7 +91,7 @@ class DropDownControl extends BaseControl<Props> {
 
     return (
       <DropdownSelect
-        className={`t--${this?.props?.configProperty}`}
+        className={`t--${this?.props?.configProperty} uqi-dropdown-select`}
         data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}

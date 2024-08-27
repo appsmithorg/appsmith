@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { useAutoToFixedLayoutFlow } from "./useAutoToFixedLayoutFlow";
 import { useFixedToAutoLayoutFlow } from "./useFixedToAutoLayoutFlow";

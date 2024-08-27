@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -29,7 +29,7 @@ import {
   FIND_OR_CREATE_A_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Icon,
   Spinner,
@@ -37,14 +37,14 @@ import {
   Button,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { get } from "lodash";
 import {
   isLocalBranch,
   isRemoteBranch,
   removeSpecialChars,
 } from "pages/Editor/gitSync/utils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";

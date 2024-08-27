@@ -1,11 +1,17 @@
 import { CurrencyTypeOptions } from "constants/Currency";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { propertyPaneContentConfig as WdsInputWidgetPropertyPaneContentConfig } from "widgets/wds/WDSInputWidget/config/propertyPaneConfig/contentConfig";
 
 import * as validations from "./validations";
 import { countryToFlag } from "../../widget/helpers";
 
+const inputTypeSectionConfig = WdsInputWidgetPropertyPaneContentConfig.find(
+  (config) => config.sectionName === "Type",
+);
+
 export const propertyPaneContentConfig = [
+  inputTypeSectionConfig,
   {
     sectionName: "Data",
     children: [

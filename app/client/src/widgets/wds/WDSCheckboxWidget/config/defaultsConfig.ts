@@ -8,6 +8,7 @@ export const defaultsConfig = {
   version: 1,
   isDisabled: false,
   isRequired: false,
+  isVisible: true,
   animateLoading: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;

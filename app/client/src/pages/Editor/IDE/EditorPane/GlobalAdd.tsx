@@ -1,11 +1,11 @@
 import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Button, Flex, Icon, Text } from "design-system";
+import { Button, Flex, Icon, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history from "utils/history";
-import { queryAddURL } from "@appsmith/RouteBuilder";
+import { queryAddURL } from "ee/RouteBuilder";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import PaneHeader from "../LeftPane/PaneHeader";
 

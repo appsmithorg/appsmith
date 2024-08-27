@@ -1,7 +1,7 @@
 import React from "react";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 interface MobileNavToggleProps {
   isMenuOpen: boolean;

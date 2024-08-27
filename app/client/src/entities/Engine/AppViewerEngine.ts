@@ -9,7 +9,7 @@ import {
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
 import { call, put, spawn } from "redux-saga/effects";
 import type { DeployConsolidatedApi } from "sagas/InitSagas";
@@ -18,17 +18,14 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import type { AppEnginePayload } from ".";
 import AppEngine, { ActionsNotFoundError } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "@appsmith/sagas/userSagas";
-import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
+} from "ee/sagas/userSagas";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
@@ -75,18 +72,6 @@ export default class AppViewerEngine extends AppEngine {
     yield call(super.setupEngine.bind(this), payload, rootSpan);
 
     endSpan(viewerSetupSpan);
-  }
-
-  startPerformanceTracking() {
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.INIT_VIEW_APP,
-    );
-  }
-
-  stopPerformanceTracking() {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.INIT_VIEW_APP,
-    );
   }
 
   *loadAppEntities(

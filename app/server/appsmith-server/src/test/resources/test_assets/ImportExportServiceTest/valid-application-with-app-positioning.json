@@ -1,132 +1,146 @@
 {
-    "customJSLibList": [],
-    "updatedResources": {
-        "customJSLibList": [],
-        "actionList": [],
-        "pageList": ["Page1"],
-        "actionCollectionList": []
+  "exportedApplication": {
+    "name": "Application with ApplicationDetail - App Positioning",
+    "isPublic": false,
+    "pages": [
+      {
+        "id": "Page1",
+        "isDefault": true
+      }
+    ],
+    "publishedPages": [
+      {
+        "id": "Page1",
+        "isDefault": true
+      }
+    ],
+    "viewMode": false,
+    "appIsExample": false,
+    "unreadCommentThreads": 0.0,
+    "unpublishedApplicationDetail": {
+      "appPositioning": {
+        "type": "AUTO"
+      }
     },
-    "publishedTheme": {
-        "isSystemTheme": true,
-        "deleted": false,
-        "displayName": "Modern",
-        "name": "Default-New"
-    },
-    "editModeTheme": {
-        "isSystemTheme": true,
-        "deleted": false,
-        "displayName": "Modern",
-        "name": "Default-New"
-    },
-    "datasourceList": [],
-    "actionList": [],
-    "pageList": [{
-        "publishedPage": {
-            "name": "Page1",
+    "color": "#E3DEFF",
+    "icon": "lotus",
+    "slug": "untitled-application-1",
+    "unpublishedCustomJSLibs": [],
+    "publishedCustomJSLibs": [],
+    "evaluationVersion": 2.0,
+    "applicationVersion": 2.0,
+    "collapseInvisibleWidgets": true,
+    "isManualUpdate": false,
+    "deleted": false
+  },
+  "datasourceList": [],
+  "customJSLibList": [],
+  "pageList": [
+    {
+      "unpublishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "viewMode": false,
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 4896.0,
+              "snapColumns": 64.0,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0.0,
+              "bottomRow": 5000.0,
+              "containerStyle": "none",
+              "snapRows": 124.0,
+              "parentRowSpace": 1.0,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 87.0,
+              "minHeight": 1292.0,
+              "useAutoLayout": true,
+              "dynamicTriggerPathList": [],
+              "parentColumnSpace": 1.0,
+              "responsiveBehavior": "fill",
+              "dynamicBindingPathList": [],
+              "leftColumn": 0.0,
+              "children": [],
+              "positioning": "vertical",
+              "flexLayers": []
+            },
+            "layoutOnLoadActions": [],
+            "layoutOnLoadActionErrors": [],
+            "validOnPageLoadActions": true,
+            "id": "Page1",
+            "deleted": false,
             "policies": [],
-            "userPermissions": [],
-            "layouts": [{
-                "deleted": false,
-                "validOnPageLoadActions": true,
-                "policies": [],
-                "id": "Page1",
-                "userPermissions": [],
-                "viewMode": false,
-                "dsl": {
-                    "widgetName": "MainContainer",
-                    "backgroundColor": "none",
-                    "rightColumn": 1224,
-                    "snapColumns": 16,
-                    "detachFromLayout": true,
-                    "widgetId": "0",
-                    "topRow": 0,
-                    "bottomRow": 1250,
-                    "containerStyle": "none",
-                    "snapRows": 33,
-                    "parentRowSpace": 1,
-                    "type": "CANVAS_WIDGET",
-                    "canExtend": true,
-                    "version": 4,
-                    "minHeight": 1292,
-                    "dynamicTriggerPathList": [],
-                    "parentColumnSpace": 1,
-                    "dynamicBindingPathList": [],
-                    "leftColumn": 0,
-                    "children": []
-                }
-            }],
-            "slug": "page1"
-        },
-        "deleted": false,
-        "unpublishedPage": {
-            "name": "Page1",
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [],
+        "policies": []
+      },
+      "publishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "viewMode": false,
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224.0,
+              "snapColumns": 16.0,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0.0,
+              "bottomRow": 1250.0,
+              "containerStyle": "none",
+              "snapRows": 33.0,
+              "parentRowSpace": 1.0,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 4.0,
+              "minHeight": 1292.0,
+              "dynamicTriggerPathList": [],
+              "parentColumnSpace": 1.0,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0.0,
+              "children": []
+            },
+            "validOnPageLoadActions": true,
+            "id": "Page1",
+            "deleted": false,
             "policies": [],
-            "userPermissions": [],
-            "layouts": [{
-                "layoutOnLoadActionErrors": [],
-                "deleted": false,
-                "validOnPageLoadActions": true,
-                "policies": [],
-                "layoutOnLoadActions": [],
-                "id": "Page1",
-                "userPermissions": [],
-                "viewMode": false,
-                "dsl": {
-                    "widgetName": "MainContainer",
-                    "backgroundColor": "none",
-                    "rightColumn": 4896,
-                    "snapColumns": 64,
-                    "detachFromLayout": true,
-                    "widgetId": "0",
-                    "topRow": 0,
-                    "bottomRow": 5000,
-                    "containerStyle": "none",
-                    "snapRows": 124,
-                    "parentRowSpace": 1,
-                    "type": "CANVAS_WIDGET",
-                    "canExtend": true,
-                    "version": 87,
-                    "minHeight": 1292,
-                    "useAutoLayout": true,
-                    "dynamicTriggerPathList": [],
-                    "parentColumnSpace": 1,
-                    "responsiveBehavior": "fill",
-                    "dynamicBindingPathList": [],
-                    "leftColumn": 0,
-                    "children": [],
-                    "positioning": "vertical",
-                    "flexLayers": []
-                }
-            }],
-            "slug": "page1"
-        },
-        "gitSyncId": "65367d79e575c11b12c0ec77_65367d79e575c11b12c0ec79"
-    }],
-    "actionCollectionList": [],
-    "exportedApplication": {
-        "publishedCustomJSLibs": [],
-        "applicationVersion": 2,
-        "color": "#E3DEFF",
-        "icon": "lotus",
-        "unpublishedCustomJSLibs": [],
-        "viewMode": false,
-        "unpublishedApplicationDetail": {"appPositioning": {"type": "AUTO"}},
-        "isManualUpdate": false,
-        "pages": [{
-            "isDefault": true,
-            "id": "Page1"
-        }],
-        "deleted": false,
-        "collapseInvisibleWidgets": true,
-        "name": "Application with ApplicationDetail - App Positioning",
-        "appIsExample": false,
-        "isPublic": false,
-        "publishedPages": [{
-            "isDefault": true,
-            "id": "Page1"
-        }],
-        "unreadCommentThreads": 0,
-        "slug": "untitled-application-1",
-        "evaluationVersion": 2
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [],
+        "policies": []
+      },
+      "deleted": false,
+      "gitSyncId": "65367d79e575c11b12c0ec77_65367d79e575c11b12c0ec79"
     }
+  ],
+  "actionList": [],
+  "actionCollectionList": [],
+  "updatedResources": {
+    "customJSLibList": [],
+    "actionList": [],
+    "pageList": ["Page1"],
+    "actionCollectionList": []
+  },
+  "editModeTheme": {
+    "name": "Default-New",
+    "displayName": "Modern",
+    "isSystemTheme": true,
+    "deleted": false
+  },
+  "publishedTheme": {
+    "name": "Default-New",
+    "displayName": "Modern",
+    "isSystemTheme": true,
+    "deleted": false
+  }
 }

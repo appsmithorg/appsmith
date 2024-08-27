@@ -1,6 +1,6 @@
 import { getFormValues, isValid, getFormInitialValues } from "redux-form";
-import type { AppState } from "@appsmith/reducers";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { AppState } from "ee/reducers";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import type {
   DynamicValues,
   FormEvalOutput,
@@ -12,9 +12,9 @@ import { getDataTree } from "./dataTreeSelectors";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
+import { getActionIdFromURL } from "ee/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
-import { getActionByBaseId } from "@appsmith/selectors/entitiesSelector";
+import { getActionByBaseId } from "ee/selectors/entitiesSelector";
 
 export interface GetFormData {
   initialValues: Record<string, unknown>;

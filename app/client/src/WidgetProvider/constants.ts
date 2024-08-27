@@ -2,8 +2,8 @@
  * TODO: (Balaji) Move all the types to different file
  */
 import { IconNames } from "@blueprintjs/icons";
-import type { SpacingDimension } from "@design-system/widgets";
-import type { Responsive, SizingDimension } from "@design-system/widgets";
+import type { SpacingDimension } from "@appsmith/wds";
+import type { Responsive, SizingDimension } from "@appsmith/wds";
 import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import type { WidgetTags } from "constants/WidgetConstants";
@@ -15,7 +15,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationConfig,
@@ -82,6 +82,7 @@ export interface AnvilConfig {
 
 export interface WidgetBaseConfiguration {
   name: string;
+  displayOrder?: number;
   iconSVG?: string;
   thumbnailSVG?: string;
   hideCard?: boolean;

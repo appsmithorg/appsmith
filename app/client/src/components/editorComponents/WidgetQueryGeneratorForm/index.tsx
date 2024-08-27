@@ -15,10 +15,7 @@ import {
 } from "selectors/oneClickBindingSelectors";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 import type { AlertMessage, Alias, OtherField } from "./types";
-import {
-  CONNECT_BUTTON_TEXT,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
 
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
 

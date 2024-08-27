@@ -1,23 +1,23 @@
 import React, { useCallback, useState } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
-import type { ListItemProps } from "design-system";
-import { Flex, SearchInput } from "design-system";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import type { ListItemProps } from "@appsmith/ads";
+import { Flex, SearchInput } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import GroupedList from "../components/GroupedList";
 import {
   useGroupedAddJsOperations,
   useJSAdd,
-} from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+} from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { createAddClassName, fuzzySearchInObjectItems } from "../utils";
 import { FocusEntity } from "navigation/FocusEntity";
 import type { GroupedListProps } from "../components/types";
 import { EmptySearchResult } from "../components/EmptySearchResult";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import type { FlexProps } from "design-system";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { FlexProps } from "@appsmith/ads";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const AddJS = () => {
   const dispatch = useDispatch();

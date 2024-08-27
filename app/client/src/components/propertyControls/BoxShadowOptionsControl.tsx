@@ -2,7 +2,7 @@ import * as React from "react";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Icon, SegmentedControl } from "design-system";
+import { Icon, SegmentedControl } from "@appsmith/ads";
 import { boxShadowOptions, sizeMappings } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {

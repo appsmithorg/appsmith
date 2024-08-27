@@ -12,7 +12,7 @@ import {
   MORE_DETAILS,
   REFRESH_THE_APP,
   SEND_REPORT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ConversionProps } from "../ConversionForm";
 
 import type { Dispatch } from "redux";
@@ -20,7 +20,7 @@ import {
   AlertType,
   CONVERSION_STATES,
 } from "reducers/uiReducers/layoutConversionReducer";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 //returns props for common conversion flows based on which the Conversion Form can be rendered
 export const commonConversionFlows = (

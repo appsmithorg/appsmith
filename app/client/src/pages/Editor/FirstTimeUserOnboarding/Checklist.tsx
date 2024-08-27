@@ -1,12 +1,12 @@
 import React, { useEffect, useRef } from "react";
-import { Button, Divider, Text, Tooltip } from "design-system";
+import { Button, Divider, Text, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCanvasWidgets,
   getPageActions,
   getSavedDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getApplicationLastDeployedAt,
@@ -22,13 +22,13 @@ import {
   signpostingMarkAllRead,
   toggleInOnboardingWidgetSelection,
 } from "actions/onboardingActions";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   getFirstTimeUserOnboardingComplete,
   getSignpostingStepStateByStep,
   isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import {
@@ -43,17 +43,17 @@ import {
   SIGNPOSTING_POPUP_SUBTITLE,
   SIGNPOSTING_SUCCESS_POPUP,
   SIGNPOSTING_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Datasource } from "entities/Datasource";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SIGNPOSTING_STEP } from "./Utils";
-import { builderURL, integrationEditorURL } from "@appsmith/RouteBuilder";
+import { builderURL, integrationEditorURL } from "ee/RouteBuilder";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import classNames from "classnames";
 import lazyLottie from "utils/lazyLottie";
 import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { intercomAppID } = getAppsmithConfigs();
 

@@ -5,7 +5,7 @@ import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 // import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
 // import { Link } from "design-system";
 import store from "store";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import get from "lodash/get";
 import ReactJson from "react-json-view";
 import { reactJsonProps } from "components/editorComponents/CodeEditor/PeekOverlayPopup/JsonWrapper";

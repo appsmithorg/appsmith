@@ -8,7 +8,7 @@ import {
   SEMRESATTRS_SERVICE_VERSION,
   SEMRESATTRS_SERVICE_INSTANCE_ID,
 } from "@opentelemetry/semantic-conventions";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import {
   MeterProvider,
@@ -35,6 +35,10 @@ const {
   otlpLicenseKey,
   otlpServiceName,
 } = newRelic;
+
+// This base domain is used to filter out the Smartlook requests from the browser agent
+// There are some requests made to subdomains of smartlook.cloud which will also be filtered out
+const smartlookBaseDomain = "smartlook.cloud";
 
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
@@ -125,7 +129,11 @@ registerInstrumentations({
   meterProvider,
   instrumentations: [
     new PageLoadInstrumentation({
-      ignoreResourceUrls: [browserAgentEndpoint, otlpEndpoint],
+      ignoreResourceUrls: [
+        browserAgentEndpoint,
+        otlpEndpoint,
+        smartlookBaseDomain,
+      ],
     }),
   ],
 });

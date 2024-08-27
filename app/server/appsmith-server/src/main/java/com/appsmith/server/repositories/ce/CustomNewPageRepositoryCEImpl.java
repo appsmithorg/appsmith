@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FROM_DB;
 import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -35,6 +38,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         implements CustomNewPageRepositoryCE {
 
     private final MongoTemplate mongoTemplate;
+    private final ObservationRegistry observationRegistry;
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
@@ -108,7 +112,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
                 NewPage.Fields.branchName,
-                NewPage.Fields.policies,
+                NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
                 NewPage.Fields.unpublishedPage_isHidden,
@@ -160,7 +164,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.branchName);
         }
 
-        return queryBuilder().criteria(q).permission(permission).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .one()
+                .name(FETCH_PAGE_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {

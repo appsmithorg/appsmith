@@ -6,10 +6,7 @@ import configureStore from "redux-mock-store";
 import TemplateInfoForm from "./TemplateInfoForm";
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
-import {
-  COMMUNITY_TEMPLATES,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 
 const TEMPLATE_NAME = "View Data";
 

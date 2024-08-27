@@ -4,16 +4,14 @@ import type {
 } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+} from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
 import type {
@@ -26,7 +24,7 @@ import {
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -48,9 +46,9 @@ import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/Auto
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import FocusRetention from "./FocusRetentionSaga";
-import { widgetURL } from "@appsmith/RouteBuilder";
+import { widgetURL } from "ee/RouteBuilder";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import type { DraggedWidget } from "../layoutSystems/anvil/utils/anvilTypes";

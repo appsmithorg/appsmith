@@ -4,46 +4,43 @@ import {
   getAllRoles,
   getWorkspaceLoadingStates,
   getFetchedWorkspaces,
-} from "@appsmith/selectors/workspaceSelectors";
+} from "ee/selectors/workspaceSelectors";
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { HighlightText, Table } from "design-system-old";
+import { HighlightText, Table } from "@appsmith/ads-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
   fetchWorkspace,
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
-} from "@appsmith/actions/workspaceActions";
-import type { SelectOptionProps } from "design-system";
-import { Avatar, Button, Option, Select, Text } from "design-system";
+} from "ee/actions/workspaceActions";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Avatar, Button, Option, Select, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUser } from "ee/constants/workspaceConstants";
 import {
   createMessage,
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { APPLICATIONS_URL } from "constants/routes";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
-import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
-import { showProductRamps } from "@appsmith/selectors/rampSelectors";
+import { CustomRolesRamp } from "ee/pages/workspace/InviteUsersForm";
+import { showProductRamps } from "ee/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getAllUsersOfWorkspace,
   selectedWorkspaceLoadingStates,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/selectors/selectedWorkspaceSelectors";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;

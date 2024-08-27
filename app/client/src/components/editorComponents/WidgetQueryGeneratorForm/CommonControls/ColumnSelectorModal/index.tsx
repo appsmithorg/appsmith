@@ -9,7 +9,7 @@ import {
   ModalHeader,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { EditFieldsButton } from "../../styles";
 import styled from "styled-components";
 import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
@@ -23,7 +23,7 @@ import {
   FIELDS_CONFIGURATION,
   SAVE_CHANGES,
   SAVE_CHANGES_DISABLED_TOOLTIP_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import EditFieldsTable from "./EditFieldsTable";
 import { WidgetQueryGeneratorFormContext } from "../../index";
 
