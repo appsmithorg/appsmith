@@ -1,7 +1,7 @@
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface WDSSelectWidgetProps extends WidgetProps {
-  options: { label: "string"; value: "string" | number }[];
+  options: Record<string, unknown>[] | string;
   selectedOptionValue: string;
   onSelectionChange: string;
   defaultOptionValue: string;

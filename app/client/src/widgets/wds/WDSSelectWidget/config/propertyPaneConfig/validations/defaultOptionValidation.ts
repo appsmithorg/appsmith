@@ -1,4 +1,11 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
+import type { LoDashStatic } from "lodash";
+import type { WidgetProps } from "../../../../../BaseWidget";
+
+interface ValidationErrorMessage {
+  name: string;
+  message: string;
+}
 
 interface ValidationErrorMessage {
   name: string;
@@ -7,31 +14,21 @@ interface ValidationErrorMessage {
 
 export function defaultOptionValidation(
   value: unknown,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: any,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _: any,
+  widgetProps: WidgetProps,
+  _: LoDashStatic,
 ): ValidationResponse {
-  const errorMessages = {
-    evaluationTypeError: {
-      name: "TypeError",
-      message: "This value does not evaluate to type: string or number",
-    },
-    defaultOptionMissingError: {
-      name: "ValidationError",
-      message: "Default value is missing in options. Please update the value.",
-    },
+  // UTILS
+  const isTrueObject = (item: unknown): item is Record<string, unknown> => {
+    return Object.prototype.toString.call(item) === "[object Object]";
   };
 
   const createErrorValidationResponse = (
     value: unknown,
-    messages: ValidationErrorMessage[],
+    message: ValidationErrorMessage,
   ): ValidationResponse => ({
     isValid: false,
     parsed: value,
-    messages,
+    messages: [message],
   });
 
   const createSuccessValidationResponse = (
@@ -41,43 +38,29 @@ export function defaultOptionValidation(
     parsed: value,
   });
 
-  let { options } = props;
+  const { options } = widgetProps;
 
-  if (_.isObject(value) || _.isBoolean(value)) {
-    return createErrorValidationResponse(JSON.stringify(value, null, 2), [
-      errorMessages.evaluationTypeError,
-    ]);
+  if (value === "") {
+    return createSuccessValidationResponse(value);
   }
 
-  if (!Array.isArray(options) && typeof options === "string") {
-    try {
-      const parsedOptions = JSON.parse(options);
-
-      if (Array.isArray(parsedOptions)) {
-        options = parsedOptions;
-      } else {
-        options = [];
+  // Is Form mode, otherwise it is JS mode
+  if (Array.isArray(options)) {
+    const values = _.map(widgetProps.options, (option) => {
+      if (isTrueObject(option)) {
+        return option[widgetProps.optionValue];
       }
-    } catch (e) {
-      options = [];
-    }
-  }
+    });
 
-  if (typeof value === "string") {
-    // Empty string is a valid value and used to represent no selection in the Select
-    if (value.length === 0) {
-      return createSuccessValidationResponse(value);
+    if (!values.includes(value)) {
+      return createErrorValidationResponse(value, {
+        name: "ValidationError",
+        message:
+          "Default value is missing in options. Please update the value.",
+      });
     }
 
-    // Check if the default value is present in the options
-    // @ts-expect-error type mismatch
-    const valueIndex = _.findIndex(options, (option) => option.value === value);
-
-    if (valueIndex === -1) {
-      return createErrorValidationResponse(value, [
-        errorMessages.defaultOptionMissingError,
-      ]);
-    }
+    return createSuccessValidationResponse(value);
   }
 
   return createSuccessValidationResponse(value);

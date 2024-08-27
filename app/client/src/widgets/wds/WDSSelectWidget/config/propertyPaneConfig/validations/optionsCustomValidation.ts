@@ -1,4 +1,11 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
+import type { LoDashStatic } from "lodash";
+import type { WidgetProps } from "../../../../../BaseWidget";
+
+interface ValidationErrorMessage {
+  name: string;
+  message: string;
+}
 
 /**
  * Validation rules:
@@ -8,86 +15,80 @@ import type { ValidationResponse } from "constants/WidgetValidation";
  */
 export function optionsCustomValidation(
   options: unknown,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: any,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _: any,
+  _props: WidgetProps,
+  _: LoDashStatic,
 ): ValidationResponse {
-  const validationUtil = (
-    options: { label: string; value: string | number }[],
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _: any,
-  ) => {
+  // UTILS
+  const createErrorValidationResponse = (
+    value: unknown,
+    message: ValidationErrorMessage,
+  ): ValidationResponse => ({
+    isValid: false,
+    parsed: value,
+    messages: [message],
+  });
+
+  const createSuccessValidationResponse = (
+    value: unknown,
+  ): ValidationResponse => ({
+    isValid: true,
+    parsed: value,
+  });
+
+  const hasDuplicates = (array: unknown[]): boolean =>
+    new Set(array).size !== array.length;
+
+  // Is Form mode, otherwise it is JS mode
+  if (Array.isArray(options)) {
+    return createSuccessValidationResponse(options);
+  }
+
+  // JS expects options to be a string
+  if (!_.isString(options)) {
+    return createErrorValidationResponse(options, {
+      name: "TypeError",
+      message: "This value does not evaluate to type string",
+    });
+  }
+
+  const validationUtil = (options: unknown[]) => {
     let _isValid = true;
     let message = { name: "", message: "" };
-    let valueType = "";
-    const uniqueLabels: Record<string | number, string> = {};
+
+    if (options.length === 0) {
+      return createErrorValidationResponse(options, {
+        name: "ValidationError",
+        message: "Options cannot be an empty array",
+      });
+    }
 
     for (let i = 0; i < options.length; i++) {
-      const { label, value } = options[i];
-      if (!valueType) {
-        valueType = typeof value;
-      }
-      //Checks the uniqueness all the values in the options
-      if (!uniqueLabels.hasOwnProperty(value)) {
-        uniqueLabels[value] = "";
-      } else {
+      const option = options[i];
+
+      if (!_.isPlainObject(option)) {
         _isValid = false;
         message = {
           name: "ValidationError",
-          message: "path:value must be unique. Duplicate values found",
+          message: "This value does not evaluate to type Object",
         };
         break;
       }
 
-      //Check if the required field "label" is present:
-      if (!label) {
+      if (_.keys(option).length === 0) {
         _isValid = false;
         message = {
           name: "ValidationError",
           message:
-            "Invalid entry at index: " + i + ". Missing required key: label",
+            'This value does not evaluate to type { "label": "string", "value": "string" | number }',
         };
         break;
       }
 
-      //Validation checks for the the label.
-      if (
-        _.isNil(label) ||
-        label === "" ||
-        (typeof label !== "string" && typeof label !== "number")
-      ) {
+      if (hasDuplicates(_.keys(option))) {
         _isValid = false;
         message = {
           name: "ValidationError",
-          message:
-            "Invalid entry at index: " +
-            i +
-            ". Value of key: label is invalid: This value does not evaluate to type string",
-        };
-        break;
-      }
-
-      //Check if all the data types for the value prop is the same.
-      if (typeof value !== valueType) {
-        _isValid = false;
-        message = {
-          name: "TypeError",
-          message: "All value properties in options must have the same type",
-        };
-        break;
-      }
-
-      //Check if the each object has value property.
-      if (_.isNil(value)) {
-        _isValid = false;
-        message = {
-          name: "TypeError",
-          message:
-            'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+          message: "All the keys must be unique",
         };
         break;
       }
@@ -111,17 +112,16 @@ export function optionsCustomValidation(
       },
     ],
   };
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options as string);
-    }
 
-    if (Array.isArray(options)) {
-      return validationUtil(options, _);
-    } else {
+  try {
+    options = JSON.parse(options as string);
+
+    if (!Array.isArray(options)) {
       return invalidResponse;
     }
-  } catch (e) {
+
+    return validationUtil(options);
+  } catch (_error) {
     return invalidResponse;
   }
 }

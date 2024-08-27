@@ -1,12 +1,8 @@
-import { ValidationTypes } from "constants/WidgetValidation";
 import {
-  get,
-  isArray,
-  isPlainObject,
-  isString,
-  uniq,
-  type LoDashStatic,
-} from "lodash";
+  ValidationTypes,
+  type ValidationResponse,
+} from "constants/WidgetValidation";
+import { get, isPlainObject, uniq, type LoDashStatic } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -18,25 +14,45 @@ import {
   optionsCustomValidation,
 } from "./validations";
 
+interface ValidationErrorMessage {
+  name: string;
+  message: string;
+}
+
 export const getOptionLabelValueExpressionPrefix = (widget: WidgetProps) =>
   `{{${widget.widgetName}.sourceData.map((item) => (`;
 
 export const optionLabelValueExpressionSuffix = `))}}`;
 
-export function getLabelValueKeyOptions(widget: WidgetProps) {
-  const sourceData = get(widget, `${EVAL_VALUE_PATH}.sourceData`);
+export function getLabelValueKeyOptions(
+  widget: WidgetProps,
+): Record<string, unknown>[] {
+  // UTILS
+  const isTrueObject = (item: unknown): item is Record<string, unknown> => {
+    return Object.prototype.toString.call(item) === "[object Object]";
+  };
 
-  let parsedValue: Record<string, unknown> | undefined = sourceData;
+  const sourceData = get(widget, `${EVAL_VALUE_PATH}.options`);
+  const widgetOptions = get(widget, "options");
+  const options = sourceData || widgetOptions;
 
-  if (isString(sourceData)) {
-    try {
-      parsedValue = JSON.parse(sourceData);
-    } catch (e) {}
+  // Is Form mode, otherwise it is JS mode
+  if (Array.isArray(widgetOptions)) {
+    return options.map((option: Record<string, unknown> | string) => {
+      if (isTrueObject(option)) {
+        return {
+          label: option[widget.optionLabel],
+          value: option[widget.optionValue],
+        };
+      }
+
+      return [];
+    });
   }
 
-  if (isArray(parsedValue)) {
-    return uniq(
-      parsedValue.reduce((keys, obj) => {
+  if (Array.isArray(options)) {
+    const x = uniq(
+      options.reduce((keys, obj) => {
         if (isPlainObject(obj)) {
           Object.keys(obj).forEach((d) => keys.push(d));
         }
@@ -47,6 +63,8 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
       label: d,
       value: d,
     }));
+
+    return x;
   } else {
     return [];
   }
@@ -54,61 +72,79 @@ export function getLabelValueKeyOptions(widget: WidgetProps) {
 
 export function labelKeyValidation(
   value: unknown,
-  _props: unknown,
+  widgetProps: WDSSelectWidgetProps,
   _: LoDashStatic,
 ) {
-  /*
-   * Validation rules
-   *  1. Can be a string.
-   *  2. Can be an Array of string, number, boolean (only for option Value).
-   */
+  // UTILS
+  const hasDuplicates = (array: unknown[]): boolean => {
+    const set = new Set(array);
+
+    return set.size !== array.length;
+  };
+
+  const createErrorValidationResponse = (
+    value: unknown,
+    message: ValidationErrorMessage,
+  ): ValidationResponse => ({
+    isValid: false,
+    parsed: value,
+    messages: [message],
+  });
+
+  const createSuccessValidationResponse = (
+    value: unknown,
+  ): ValidationResponse => ({
+    isValid: true,
+    parsed: value,
+  });
 
   if (value === "" || _.isNil(value)) {
-    return {
-      parsed: "",
-      isValid: false,
-      messages: [
-        {
-          name: "ValidationError",
-          message: `value does not evaluate to type: string | Array<string>`,
-        },
-      ],
-    };
+    return createErrorValidationResponse(value, {
+      name: "ValidationError",
+      message: `value does not evaluate to type: string | Array<string>`,
+    });
+  }
+
+  if (Array.isArray(widgetProps.options)) {
+    const values = _.map(widgetProps.options, (option) => {
+      return option[widgetProps.optionLabel];
+    }).filter((d) => d);
+
+    if (values.length && hasDuplicates(values)) {
+      return createErrorValidationResponse(value, {
+        name: "ValidationError",
+        message: "Duplicate values found, value must be unique",
+      });
+    }
   }
 
   if (_.isString(value)) {
-    return {
-      parsed: value,
-      isValid: true,
-      messages: [],
-    };
+    const keys = _.map(widgetProps.options, _.keys).flat();
+
+    if (!keys.includes(value)) {
+      return createErrorValidationResponse(value, {
+        name: "ValidationError",
+        message: "value key should be present in the options",
+      });
+    }
+
+    return createSuccessValidationResponse(value);
   } else if (_.isArray(value)) {
     const errorIndex = value.findIndex((d) => !_.isString(d));
 
-    return {
-      parsed: errorIndex === -1 ? value : [],
-      isValid: errorIndex === -1,
-      messages:
-        errorIndex !== -1
-          ? [
-              {
-                name: "ValidationError",
-                message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string`,
-              },
-            ]
-          : [],
-    };
+    if (errorIndex === -1) {
+      return createSuccessValidationResponse(value);
+    }
+
+    return createErrorValidationResponse(value, {
+      name: "ValidationError",
+      message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string`,
+    });
   } else {
-    return {
-      parsed: "",
-      isValid: false,
-      messages: [
-        {
-          name: "ValidationError",
-          message: "value does not evaluate to type: string | Array<string>",
-        },
-      ],
-    };
+    return createErrorValidationResponse(value, {
+      name: "ValidationError",
+      message: `value does not evaluate to type: string | Array<string>`,
+    });
   }
 }
 
@@ -128,104 +164,69 @@ export function getLabelValueAdditionalAutocompleteData(props: WidgetProps) {
 
 export function valueKeyValidation(
   value: unknown,
-  props: WDSSelectWidgetProps,
+  widgetProps: WDSSelectWidgetProps,
   _: LoDashStatic,
 ) {
-  /*
-   * Validation rules
-   *  1. Can be a string.
-   *  2. Can be an Array of string, number, boolean (only for option Value).
-   *  3. should be unique.
-   */
-
-  if (value === "" || _.isNil(value)) {
-    return {
-      parsed: "",
-      isValid: false,
-      messages: [
-        {
-          name: "ValidationError",
-          message: `value does not evaluate to type: string | Array<string| number | boolean>`,
-        },
-      ],
-    };
-  }
-
-  let options: unknown[] = [];
-
-  if (_.isString(value)) {
-    const sourceData = _.isArray(props.sourceData) ? props.sourceData : [];
-
-    const keys = sourceData.reduce((keys, curr) => {
-      Object.keys(curr).forEach((d) => keys.add(d));
-
-      return keys;
-    }, new Set());
-
-    if (!keys.has(value)) {
-      return {
-        parsed: value,
-        isValid: false,
-        messages: [
-          {
-            name: "ValidationError",
-            message: `value key should be present in the source data`,
-          },
-        ],
-      };
-    }
-
-    options = sourceData.map((d: Record<string, unknown>) => d[value]);
-  } else if (_.isArray(value)) {
-    const errorIndex = value.findIndex(
-      (d) =>
-        !(_.isString(d) || (_.isNumber(d) && !_.isNaN(d)) || _.isBoolean(d)),
-    );
-
-    if (errorIndex !== -1) {
-      return {
-        parsed: [],
-        isValid: false,
-        messages: [
-          {
-            name: "ValidationError",
-            message: `Invalid entry at index: ${errorIndex}. This value does not evaluate to type: string | number | boolean`,
-          },
-        ],
-      };
-    } else {
-      options = value;
-    }
-  } else {
-    return {
-      parsed: "",
-      isValid: false,
-      messages: [
-        {
-          name: "ValidationError",
-          message:
-            "value does not evaluate to type: string | Array<string | number | boolean>",
-        },
-      ],
-    };
-  }
-
-  const isValid = options.every(
-    (d: unknown, i: number, arr: unknown[]) => arr.indexOf(d) === i,
-  );
-
-  return {
-    parsed: value,
-    isValid: isValid,
-    messages: isValid
-      ? []
-      : [
-          {
-            name: "ValidationError",
-            message: "Duplicate values found, value must be unique",
-          },
-        ],
+  // UTILS
+  const isTrueObject = (item: unknown): item is Record<string, unknown> => {
+    return Object.prototype.toString.call(item) === "[object Object]";
   };
+
+  const hasDuplicates = (array: unknown[]): boolean => {
+    const set = new Set(array);
+
+    return set.size !== array.length;
+  };
+
+  const createErrorValidationResponse = (
+    value: unknown,
+    message: ValidationErrorMessage,
+  ): ValidationResponse => ({
+    isValid: false,
+    parsed: value,
+    messages: [message],
+  });
+
+  const createSuccessValidationResponse = (
+    value: unknown,
+  ): ValidationResponse => ({
+    isValid: true,
+    parsed: value,
+  });
+
+  if (value === "" || _.isNil(value) || !_.isString(value)) {
+    return createErrorValidationResponse(value, {
+      name: "ValidationError",
+      message:
+        "value does not evaluate to type: string | Array<string| number | boolean>",
+    });
+  }
+
+  if (!_.flatMap(widgetProps.options, _.keys).includes(value)) {
+    return createErrorValidationResponse(value, {
+      name: "ValidationError",
+      message: "value key should be present in the options",
+    });
+  }
+
+  if (!isTrueObject(widgetProps.options)) {
+    return createSuccessValidationResponse(value);
+  }
+
+  const values = _.map(widgetProps.options, (option) => {
+    if (isTrueObject(option)) {
+      return option[widgetProps.optionValue];
+    }
+  }).filter((d) => d);
+
+  if (values.length && hasDuplicates(values)) {
+    return createErrorValidationResponse(value, {
+      name: "ValidationError",
+      message: "Duplicate values found, value must be unique",
+    });
+  }
+
+  return createSuccessValidationResponse(value);
 }
 
 export const propertyPaneContentConfig = [
@@ -240,6 +241,7 @@ export const propertyPaneContentConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        dependencies: ["optionLabel", "optionValue"],
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
@@ -269,7 +271,7 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         isJSConvertible: true,
-        evaluatedDependencies: ["sourceData"],
+        evaluatedDependencies: ["options"],
         options: getLabelValueKeyOptions,
         alwaysShowSelected: true,
         validation: {
@@ -283,9 +285,12 @@ export const propertyPaneContentConfig = [
             },
           },
         },
+        dependencies: ["options", "dynamicPropertyPathList"],
         additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
         hidden: (props: WDSSelectWidgetProps) => {
-          return (props.dynamicPropertyPathList || []).length === 0;
+          return !(props.dynamicPropertyPathList || []).some(
+            ({ key }) => key === "options",
+          );
         },
       },
       {
@@ -304,7 +309,7 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         isJSConvertible: true,
-        evaluatedDependencies: ["sourceData"],
+        evaluatedDependencies: ["options"],
         options: getLabelValueKeyOptions,
         alwaysShowSelected: true,
         validation: {
@@ -318,9 +323,12 @@ export const propertyPaneContentConfig = [
             },
           },
         },
+        dependencies: ["options", "dynamicPropertyPathList"],
         additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
         hidden: (props: WDSSelectWidgetProps) => {
-          return (props.dynamicPropertyPathList || []).length === 0;
+          return !(props.dynamicPropertyPathList || []).some(
+            ({ key }) => key === "options",
+          );
         },
       },
       {
@@ -331,6 +339,7 @@ export const propertyPaneContentConfig = [
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
+        dependencies: ["options"],
         /**
          * Changing the validation to FUNCTION.
          * If the user enters Integer inside {{}} e.g. {{1}} then value should evalute to integer.

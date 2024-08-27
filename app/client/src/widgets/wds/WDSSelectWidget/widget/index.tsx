@@ -20,6 +20,11 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSSelectWidgetProps } from "./types";
+import type { SelectItem } from "@appsmith/wds/src/components/Select/src/types";
+
+const isTrueObject = (item: unknown): item is Record<string, unknown> => {
+  return Object.prototype.toString.call(item) === "[object Object]";
+};
 
 class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
   static type = "WDS_SELECT_WIDGET";
@@ -38,6 +43,14 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      optionLabel: ["options"],
+      optionValue: ["options"],
+      defaultOptionValue: ["options"],
+    };
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
@@ -67,9 +80,7 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     };
   }
 
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getMetaPropertiesMap(): Record<string, any> {
+  static getMetaPropertiesMap() {
     return {
       selectedOptionValue: undefined,
       isDirty: false,
@@ -93,12 +104,15 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     return settersConfig;
   }
 
-  onRadioSelectionChange = (updatedValue: string | number) => {
+  handleChange = (updatedValue: string | number) => {
     let newVal;
 
     if (isNumber(updatedValue)) {
       newVal = updatedValue;
-    } else if (isNumber(this.props.options[0].value)) {
+    } else if (
+      isTrueObject(this.props.options[0]) &&
+      isNumber(this.props.options[0].value)
+    ) {
       newVal = parseFloat(updatedValue);
     } else {
       newVal = updatedValue;
@@ -119,11 +133,17 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
-  optionsToSelectItems = (options: WDSSelectWidgetProps["options"]) => {
-    return options.map((option) => ({
-      label: option.label,
-      id: option.value,
-    }));
+  optionsToSelectItems = (
+    options: WDSSelectWidgetProps["options"],
+  ): SelectItem[] => {
+    if (Array.isArray(options)) {
+      return options.map((option) => ({
+        label: option[this.props.optionLabel || "label"] as string,
+        id: option[this.props.optionValue || "value"] as string,
+      }));
+    }
+
+    return [];
   };
 
   getWidgetView() {
@@ -144,7 +164,7 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
         errorMessage={validation.errorMessage}
         isInvalid={validation.validationStatus === "invalid"}
         items={this.optionsToSelectItems(options)}
-        onSelectionChange={this.onRadioSelectionChange}
+        onSelectionChange={this.handleChange}
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
       />
