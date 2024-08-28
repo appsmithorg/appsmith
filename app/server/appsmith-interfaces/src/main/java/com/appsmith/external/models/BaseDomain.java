@@ -116,7 +116,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
-        setPolicies(policies, true);
+        setPolicies(policies, false);
     }
 
     /**
@@ -136,16 +136,15 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies, boolean shouldNullifyPolicies) {
-        if (!shouldNullifyPolicies) {
+        this.policyMap = policySetToMap(policies);
+        if (shouldNullifyPolicies) {
             // This block should be used only for startup migrations to make sure we have the updated values in policies
             // only, before running the migration to switch from policies to policyMap.
+            this.policies = null;
+        } else {
+            // Explicitly set policies to null as it is deprecated and should not be used.
             this.policies = policies;
-            this.policyMap = null;
-            return;
         }
-        // Explicitly set policies to null as it is deprecated and should not be used.
-        this.policyMap = policySetToMap(policies);
-        this.policies = null;
     }
 
     public static Map<String, Policy> policySetToMap(Set<Policy> policies) {
@@ -175,6 +174,9 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         this.setUpdatedAt(null);
         if (this.getPolicyMap() != null) {
             this.getPolicyMap().clear();
+        }
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
         }
     }
 
