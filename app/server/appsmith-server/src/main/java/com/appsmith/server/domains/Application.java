@@ -40,16 +40,14 @@ public class Application extends ApplicationCE implements Artifact {
      */
     @Data
     @EqualsAndHashCode(callSuper = true)
-    public static class EmbedSetting extends EmbedSettingCE {
-    }
+    public static class EmbedSetting extends EmbedSettingCE {}
 
     /**
      * NavigationSetting stores the navigation configuration for the app
      */
     @Data
     @EqualsAndHashCode(callSuper = true)
-    public static class NavigationSetting extends NavigationSettingCE {
-    }
+    public static class NavigationSetting extends NavigationSettingCE {}
 
     /**
      * AppPositioning captures widget positioning Mode of the application

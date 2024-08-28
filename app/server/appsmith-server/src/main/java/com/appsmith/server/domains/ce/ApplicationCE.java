@@ -217,11 +217,11 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         this.color = application.getColor();
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null
-            ? null
-            : new Application.AppLayout(application.getUnpublishedAppLayout().type);
+                ? null
+                : new Application.AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null
-            ? null
-            : new Application.AppLayout(application.getPublishedAppLayout().type);
+                ? null
+                : new Application.AppLayout(application.getPublishedAppLayout().type);
         this.setUnpublishedApplicationDetail(new ApplicationDetail());
         this.setPublishedApplicationDetail(new ApplicationDetail());
         if (application.getUnpublishedApplicationDetail() == null) {
@@ -232,37 +232,37 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
         }
 
         Application.AppPositioning unpublishedAppPositioning =
-            application.getUnpublishedApplicationDetail().getAppPositioning() == null
-                ? null
-                : new Application.AppPositioning(
-                application.getUnpublishedApplicationDetail().getAppPositioning().type);
+                application.getUnpublishedApplicationDetail().getAppPositioning() == null
+                        ? null
+                        : new Application.AppPositioning(
+                                application.getUnpublishedApplicationDetail().getAppPositioning().type);
         this.getUnpublishedApplicationDetail().setAppPositioning(unpublishedAppPositioning);
         Application.AppPositioning publishedAppPositioning =
-            application.getPublishedApplicationDetail().getAppPositioning() == null
-                ? null
-                : new Application.AppPositioning(
-                application.getPublishedApplicationDetail().getAppPositioning().type);
+                application.getPublishedApplicationDetail().getAppPositioning() == null
+                        ? null
+                        : new Application.AppPositioning(
+                                application.getPublishedApplicationDetail().getAppPositioning().type);
         this.getPublishedApplicationDetail().setAppPositioning(publishedAppPositioning);
         this.getUnpublishedApplicationDetail()
-            .setNavigationSetting(
-                application.getUnpublishedApplicationDetail().getNavigationSetting() == null
-                    ? null
-                    : new Application.NavigationSetting());
+                .setNavigationSetting(
+                        application.getUnpublishedApplicationDetail().getNavigationSetting() == null
+                                ? null
+                                : new Application.NavigationSetting());
         this.getPublishedApplicationDetail()
-            .setNavigationSetting(
-                application.getPublishedApplicationDetail().getNavigationSetting() == null
-                    ? null
-                    : new Application.NavigationSetting());
+                .setNavigationSetting(
+                        application.getPublishedApplicationDetail().getNavigationSetting() == null
+                                ? null
+                                : new Application.NavigationSetting());
         this.getUnpublishedApplicationDetail()
-            .setThemeSetting(
-                application.getUnpublishedApplicationDetail().getThemeSetting() == null
-                    ? null
-                    : new Application.ThemeSetting());
+                .setThemeSetting(
+                        application.getUnpublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new Application.ThemeSetting());
         this.getPublishedApplicationDetail()
-            .setThemeSetting(
-                application.getPublishedApplicationDetail().getThemeSetting() == null
-                    ? null
-                    : new Application.ThemeSetting());
+                .setThemeSetting(
+                        application.getPublishedApplicationDetail().getThemeSetting() == null
+                                ? null
+                                : new Application.ThemeSetting());
         this.unpublishedCustomJSLibs = application.getUnpublishedCustomJSLibs();
         this.collapseInvisibleWidgets = application.getCollapseInvisibleWidgets();
     }
@@ -281,7 +281,7 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
     @Override
     public String getBaseId() {
         if (this.getGitArtifactMetadata() != null
-            && StringUtils.hasLength(this.getGitArtifactMetadata().getDefaultArtifactId())) {
+                && StringUtils.hasLength(this.getGitArtifactMetadata().getDefaultArtifactId())) {
             return this.getGitArtifactMetadata().getDefaultArtifactId();
         }
         return ArtifactCE.super.getBaseId();
@@ -510,16 +510,16 @@ public class ApplicationCE extends BaseDomain implements ArtifactCE {
 
     public static class Fields extends BaseDomain.Fields {
         public static final String gitApplicationMetadata_gitAuth =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
         public static final String gitApplicationMetadata_defaultApplicationId =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
         public static final String gitApplicationMetadata_defaultArtifactId =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
         public static final String gitApplicationMetadata_branchName =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.branchName);
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.branchName);
         public static final String gitApplicationMetadata_isRepoPrivate =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isRepoPrivate);
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isRepoPrivate);
         public static final String gitApplicationMetadata_isProtectedBranch =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isProtectedBranch);
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isProtectedBranch);
     }
 }

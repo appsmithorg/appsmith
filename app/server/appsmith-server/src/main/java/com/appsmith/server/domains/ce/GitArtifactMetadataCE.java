@@ -118,6 +118,5 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
         this.defaultArtifactId = defaultApplicationId;
     }
 
-    public static class Fields {
-    }
+    public static class Fields {}
 }
