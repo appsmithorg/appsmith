@@ -348,6 +348,7 @@ export const getWidgetCards = createSelector(
       const {
         detachFromLayout = false,
         displayName,
+        displayOrder,
         iconSVG,
         isSearchWildcard,
         key,
@@ -375,6 +376,7 @@ export const getWidgetCards = createSelector(
         columns,
         detachFromLayout,
         displayName,
+        displayOrder,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
         IconCmp,
