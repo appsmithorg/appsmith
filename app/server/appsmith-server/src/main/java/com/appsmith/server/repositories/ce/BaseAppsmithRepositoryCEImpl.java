@@ -416,7 +416,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         Set<String> permissions = new HashSet<>();
         obj.setUserPermissions(permissions);
 
-        Set<Policy> policies = obj.getPolicies();
+        Set<Policy> policies = new HashSet<>(obj.getPolicies());
         if (CollectionUtils.isEmpty(policies) || permissionGroups.isEmpty()) {
             return Mono.just(obj);
         }
