@@ -1,8 +1,0 @@
-{
-  "identifier": "LIST_FUNCTIONS",
-  "controlType": "SECTION_V2",
-  "conditionals": {
-    "show": "{{actionConfiguration.formData.command.data === 'LIST_FUNCTIONS'}}"
-  },
-  "children": []
-}
