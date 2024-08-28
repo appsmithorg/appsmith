@@ -80,8 +80,6 @@ export class DataManager {
         "http://host.docker.internal:5001/v1/mock-api-object?records=10",
       echoApiUrl: "http://host.docker.internal:5001/v1/mock-api/echo",
       randomCatfactUrl: "http://host.docker.internal:5001/v1/catfact/random",
-      multipartAPI:
-        "http://host.docker.internal:5001/v1/mock-api/echo-multipart",
       randomTrumpApi:
         "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
@@ -181,8 +179,6 @@ export class DataManager {
       mockApiUrl: "http://host.docker.internal:5001/v1/mock-api?records=10",
       echoApiUrl: "http://host.docker.internal:5001/v1/mock-api/echo",
       randomCatfactUrl: "http://host.docker.internal:5001/v1/catfact/random",
-      multipartAPI:
-        "http://host.docker.internal:5001/v1/mock-api/echo-multipart",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",

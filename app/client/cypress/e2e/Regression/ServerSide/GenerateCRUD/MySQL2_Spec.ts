@@ -82,10 +82,11 @@ describe(
       dataSources.RunQueryNVerifyResponseViews(10);
       dataSources.AssertQueryTableResponse(5, "2112");
       dataSources.AssertQueryTableResponse(6, "Mike's Liquors");
-      agHelper.ActionContextMenuWithInPane({
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
+      // Commenting this deletion of query to make the generate crud work on the new page instead of the current page
+      // agHelper.ActionContextMenuWithInPane({
+      //   action: "Delete",
+      //   entityType: entityItems.Query,
+      // });
     });
 
     it("3. Verify Generate CRUD for the new table & Verify Deploy mode for table - Stores", () => {
@@ -361,7 +362,7 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
       entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Page1",
+        entityNameinLeftSidebar: "Stores",
         action: "Delete",
         entityType: entityItems.Page,
       });
