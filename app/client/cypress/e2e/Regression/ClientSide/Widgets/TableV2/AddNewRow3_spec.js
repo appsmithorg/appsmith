@@ -1,4 +1,8 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
@@ -7,37 +11,58 @@ describe(
   () => {
     before(() => {
       cy.startServerAndRoutes();
-      _.agHelper.RestoreLocalStorageCache();
-      _.agHelper.AddDsl("Table/InlineEditingDSL");
+      agHelper.RestoreLocalStorageCache();
+      agHelper.AddDsl("Table/InlineEditingDSL");
     });
 
     it("3.1. should test that discard button is undoing the add new feature", () => {
       cy.openPropertyPane("tablewidgetv2");
-      _.propPane.TogglePropertyState("Allow adding a row", "On");
+      propPane.TogglePropertyState("Allow adding a row", "On");
       cy.get(".tableWrap .new-row").should("not.exist");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--discard-new-row").click({ force: true });
+      cy.getAlert("onDiscard", "discarded!!");
     });
 
     it("3.2. should test that discard events is triggered when user clicks on the discard button", () => {
-      cy.getAlert("onDiscard", "discarded!!");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--discard-new-row").click({ force: true });
       cy.get(widgetsPage.toastAction).should("be.visible");
-      _.agHelper.AssertContains("discarded!!");
+      agHelper.AssertContains("discarded!!");
       cy.get(".tableWrap .new-row").should("not.exist");
+      cy.getAlert("onSave", "saved!!");
     });
 
     it("3.3. should test that save event is triggered when user clicks on the save button", () => {
-      cy.getAlert("onSave", "saved!!");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--save-new-row").click({ force: true });
       cy.get(widgetsPage.toastAction).should("be.visible");
-      _.agHelper.AssertContains("saved!!");
+      agHelper.AssertContains("saved!!");
       cy.get(".tableWrap .new-row").should("not.exist");
+    });
+
+    it("3.4. should test that if save event throws an error, the save row is not doscarded", () => {
+      propPane.ToggleJSMode("onSave");
+      propPane.UpdatePropertyFieldValue(
+        "onSave",
+        `{{
+          (function test(){
+            throw new Error("Save failed!!");
+          })()
+        }}`,
+      );
+      cy.get(".tableWrap .new-row").should("not.exist");
+      cy.get(".t--add-new-row").click();
+      cy.get(".tableWrap .new-row").should("exist");
+      cy.get(".t--save-new-row").click({ force: true });
+      agHelper.ValidateToastMessage("Save failed!!");
+      cy.get(".tableWrap .new-row").should("exist");
+      // cleanup
+      propPane.UpdatePropertyFieldValue("onSave", "");
+      cy.get(".t--discard-new-row").click({ force: true });
     });
   },
 );
