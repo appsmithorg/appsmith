@@ -256,10 +256,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             Application branchedApplication, ApplicationMode applicationMode) {
 
         Boolean viewMode = Boolean.FALSE;
-        List<String> projectNames = null;
+        List<String> projectedFieldNames = null;
         if (ApplicationMode.PUBLISHED.equals(applicationMode)) {
             viewMode = Boolean.TRUE;
-            projectNames = List.of(
+            projectedFieldNames = List.of(
                     NewPage.Fields.id,
                     NewPage.Fields.baseId,
                     NewPage.Fields.publishedPage_name,
@@ -281,7 +281,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return newPageService
                 .findNewPagesByApplicationId(
-                        branchedApplication.getId(), pagePermission.getReadPermission(), projectNames)
+                        branchedApplication.getId(), pagePermission.getReadPermission(), projectedFieldNames)
                 .filter(newPage -> pageIds.contains(newPage.getId()))
                 .collectList()
                 .name(getQualifiedSpanName(FETCH_PAGES_BY_APP_ID_DB, applicationMode))
