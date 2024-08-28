@@ -13,8 +13,6 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import type {
-  ApplicationPayload,
-  Page,
   ReduxAction,
   ReduxActionWithoutPayload,
 } from "ee/constants/ReduxActionConstants";
@@ -90,6 +88,8 @@ import {
   startNestedSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,

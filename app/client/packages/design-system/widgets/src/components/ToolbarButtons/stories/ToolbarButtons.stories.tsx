@@ -4,10 +4,10 @@ import {
   BUTTON_VARIANTS,
   COLORS,
   Flex,
-  objectKeys,
   ToolbarButtons,
   SIZES,
 } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 import {
   itemList,
   itemListWithIcons,
