@@ -4,7 +4,8 @@
   "ts-node": {
     "compilerOptions": {
       "module": "commonjs",
-      "types": ["node"]
+      "types": ["node"],
+      "verbatimModuleSyntax": false
     }
   }
 }
