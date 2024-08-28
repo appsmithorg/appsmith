@@ -47,11 +47,6 @@
       }
     }
   }
-  /* DynamicInputTextControl min height and width removed */
-  & :global(.uqi-dynamic-input-text) {
-    width: unset !important;
-    min-height: unset !important;
-  }
   /* Removable section ends here */
 }
 

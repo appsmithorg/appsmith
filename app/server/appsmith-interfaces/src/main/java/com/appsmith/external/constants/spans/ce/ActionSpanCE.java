@@ -23,13 +23,10 @@ public class ActionSpanCE {
     public static final String GET_UNPUBLISHED_ACTION = APPSMITH_SPAN_PREFIX + "get.action.unpublished";
     public static final String GET_VIEW_MODE_ACTION = APPSMITH_SPAN_PREFIX + "get.action.viewmode";
     public static final String GET_ACTION_REPOSITORY_CALL = APPSMITH_SPAN_PREFIX + "get.action.repository.call";
-    public static final String VIEW_MODE_FILTER_ACTION = ACTIONS_VIEW_MODE_PREFIX + "filter";
-    public static final String VIEW_MODE_SANITISE_ACTION = ACTIONS_VIEW_MODE_PREFIX + "sanitise";
     public static final String VIEW_MODE_INITIAL_ACTION = ACTIONS_VIEW_MODE_PREFIX + "initial";
     public static final String VIEW_MODE_FINAL_ACTION = ACTIONS_VIEW_MODE_PREFIX + "final";
     public static final String VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS = ACTIONS_VIEW_MODE_PREFIX + "set_js";
     public static final String VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION = ACTIONS_VIEW_MODE_PREFIX + "set_action";
     public static final String VIEW_MODE_FETCH_PLUGIN_FROM_DB = ACTIONS_VIEW_MODE_PREFIX + "plugindb";
     public static final String VIEW_MODE_FETCH_ACTIONS_FROM_DB = ACTIONS_VIEW_MODE_PREFIX + "fetchactions";
-    public static final String VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY = ACTIONS_VIEW_MODE_PREFIX + "actionsdb";
 }
