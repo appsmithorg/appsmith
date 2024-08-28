@@ -127,7 +127,11 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { shouldBeDefined, trimQueryString } from "utils/helpers";
+import {
+  klonaLiteWithTelemtry,
+  shouldBeDefined,
+  trimQueryString,
+} from "utils/helpers";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
 import type { AppState } from "ee/reducers";
@@ -161,7 +165,6 @@ import {
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
 import { getDefaultEnvId } from "ee/api/ApiUtils";
-import { klona } from "klona/lite";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
@@ -1780,7 +1783,11 @@ function* filePickerActionCallbackSaga(
       getDatasource,
       datasourceId,
     );
-    const datasource: Datasource = klona(datasourceFromState);
+    const datasource: Datasource = klonaLiteWithTelemtry(
+      datasourceFromState,
+      "DatasourcesSagas.filePickerActionCallbackSaga",
+    );
+
     const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);

@@ -38,7 +38,12 @@ import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { klona as clone } from "klona/full";
+import { klona as klonaFull } from "klona/full";
+import { klona as klonaRegular } from "klona";
+import { klona as klonaLite } from "klona/lite";
+import { klona as klonaJson } from "klona/json";
+
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -818,6 +823,32 @@ export function isValidColor(color: string) {
   return color?.includes("url") || validateColor(color) || isEmptyOrNill(color);
 }
 
+function klonaWithTelemtryWrapper<T>(
+  value: T,
+  codeSegment: string,
+  klonaFn: (input: T) => T,
+): T {
+  return startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment,
+    },
+    () => klonaFn(value),
+  );
+}
+export function klonaFullWithTelemtry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemtryWrapper(value, codeSegment, klonaFull);
+}
+export function klonaRegularWithTelemtry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemtryWrapper(value, codeSegment, klonaRegular);
+}
+export function klonaLiteWithTelemtry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemtryWrapper(value, codeSegment, klonaLite);
+}
+export function klonaJsonWithTelemtry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemtryWrapper(value, codeSegment, klonaJson);
+}
+
 /*
  *  Function to merge property pane config of a widget
  *
@@ -828,7 +859,10 @@ export const mergeWidgetConfig = (target: any, source: any) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sectionMap: Record<string, any> = {};
-  const mergedConfig = clone(target);
+  const mergedConfig = klonaFullWithTelemtry(
+    target,
+    "helpers.mergeWidgetConfig",
+  );
 
   mergedConfig.forEach((section: { sectionName: string }) => {
     sectionMap[section.sectionName] = section;
