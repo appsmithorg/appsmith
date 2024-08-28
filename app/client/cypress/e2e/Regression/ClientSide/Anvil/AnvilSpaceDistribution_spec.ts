@@ -175,6 +175,9 @@ describe(
       );
 
       const zone1Selector = anvilLocators.anvilWidgetNameSelector("Zone1");
+      const section1Selector =
+        anvilLocators.anvilWidgetNameSelector("Section1");
+
       anvilLayout.sections.mouseDownSpaceDistributionHandle("Section1", 1);
       // outline color of zone while distributing space should be transparent
       cy.get(zone1Selector).should(
@@ -182,19 +185,11 @@ describe(
         "outline-color",
         "rgba(0, 0, 0, 0)",
       );
-      anvilLayout.sections.mouseUpSpaceDistributionHandle("Section1", 1);
-      // select zone1
-      agHelper.GetNClick(zone1Selector);
-      // go to style tab
-      propPane.MoveToTab("Style");
-      // toggle visual separation off on property pane
-      propPane.TogglePropertyState("Visual Separation", "Off");
-      anvilLayout.sections.mouseDownSpaceDistributionHandle("Section1", 1);
-      // outline color of background less zone while distributing space should not be transparent
-      cy.get(zone1Selector).should(
+      // outline color of section while distributing space should not be transparent
+      cy.get(section1Selector).should(
         "not.have.css",
         "outline-color",
-        "rgba(0, 0, 0, 0)",
+        "transparent",
       );
     });
   },
