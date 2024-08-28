@@ -54,15 +54,15 @@ describe(
           })()
         }}`,
       );
-      cy.get(".tableWrap .new-row").should("not.exist");
-      cy.get(".t--add-new-row").click();
-      cy.get(".tableWrap .new-row").should("exist");
-      cy.get(".t--save-new-row").click({ force: true });
+      agHelper.AssertElementAbsence(table._newRow);
+      agHelper.GetNClick(table._addNewRow);
+      agHelper.AssertElementExist(table._newRow);
+      agHelper.GetNClick(table._saveNewRow, 0, true);
       agHelper.ValidateToastMessage("Save failed!!");
-      cy.get(".tableWrap .new-row").should("exist");
+      agHelper.AssertElementExist(table._newRow);
       // cleanup
       propPane.UpdatePropertyFieldValue("onSave", "");
-      cy.get(".t--discard-new-row").click({ force: true });
+      agHelper.GetNClick(table._discardRow, 0, true);
     });
   },
 );

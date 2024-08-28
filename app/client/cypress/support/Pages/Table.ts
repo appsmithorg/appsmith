@@ -145,7 +145,7 @@ export class Table {
   _searchInput = ".t--search-input input";
   _bodyCell = (cellValue: string) =>
     `.t--table-text-cell:contains(${cellValue})`;
-  private _newRow = ".new-row";
+  _newRow = ".new-row";
   _connectDataHeader = ".t--cypress-table-overlay-header";
   _connectDataButton = ".t--cypress-table-overlay-connectdata";
   _updateMode = (mode: "Single" | "Multi") =>
