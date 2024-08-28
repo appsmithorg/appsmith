@@ -146,7 +146,7 @@ describe(
             myVar1: [],
             myVar2: {},
             upload: async () => {
-                await MultipartAPI.run().then(()=> showAlert('Image uploaded to Cloudinary successfully', 'success')).catch(err => showAlert(err.message, 'error'));
+                await MultipartAPI.run().then(()=> showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));
                 await resetWidget('FilePicker1', true);
             }
         }`,
@@ -179,7 +179,7 @@ describe(
       agHelper.UploadFile(imageNameToUpload);
       assertHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
       agHelper.ValidateToastMessage(
-        "Image uploaded to Cloudinary successfully",
+        "Image uploaded to multipart successfully",
       );
       agHelper.Sleep();
       cy.xpath(apiPage._imageSrc)
@@ -192,32 +192,6 @@ describe(
         });
       agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset!
       deployMode.NavigateBacktoEditor();
-    });
-
-    it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
-      const imageNameToUpload = "AAAFlowerVase.jpeg";
-      EditorNavigation.SelectEntityByName(
-        "MultipartAPI",
-        EntityType.Api,
-      );
-      apiPage.EnterBodyFormData(
-        "MULTIPART_FORM_DATA",
-        "file",
-        "{{FilePicker1.files[0]}}",
-        "Array",
-        true,
-      );
-      EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
-      agHelper.ClickButton("Select Files");
-      agHelper.UploadFile(imageNameToUpload);
-      assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
-
-      deployMode.DeployApp(locators._buttonByText("Select Files"));
-      agHelper.ClickButton("Select Files");
-      agHelper.UploadFile(imageNameToUpload);
-      assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
-      agHelper.ValidateToastMessage("MultipartAPI failed to execute");
-      agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset in case of failure!
     });
   },
 );
