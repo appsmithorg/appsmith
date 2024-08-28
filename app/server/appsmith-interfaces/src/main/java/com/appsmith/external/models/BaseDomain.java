@@ -176,7 +176,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
             this.getPolicyMap().clear();
         }
         if (this.getPolicies() != null) {
-            this.getPolicies().clear();
+            this.policies = new HashSet<>();
         }
     }
 
