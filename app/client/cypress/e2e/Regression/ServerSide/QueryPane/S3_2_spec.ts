@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+/// <reference types="cypress" />
 
 import generatePage from "../../../../locators/GeneratePage.json";
 import formControls from "../../../../locators/FormControl.json";

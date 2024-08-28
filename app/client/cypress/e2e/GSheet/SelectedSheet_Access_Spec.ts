@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+/// <reference types="cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
 import {
   homePage,

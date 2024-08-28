@@ -16,7 +16,7 @@ import {
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = "[data-testid='t--property-pane-back-btn']";
 
-function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
+function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue?) {
   // Check if visible
   cy.get(`${fieldPrefix}-${fieldName}`).should("exist");
 

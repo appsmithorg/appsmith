@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+/// <reference types="cypress" />
 
 import EditorNavigation, {
   EntityType,
@@ -13,10 +13,10 @@ describe(
   { tags: ["@tag.Binding"] },
   function () {
     before(() => {
-      _.agHelper.AddDsl("formInputTableDsl");
+      _.agHelper.AddDsl("formInputTableV2Dsl");
     });
 
-    it("1. Input widget test with default value from table widget", function () {
+    it("1. Input widget test with default value from table widget v2", function () {
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget, {}, [
         "Form1",
       ]);
@@ -26,11 +26,12 @@ describe(
         "response.body.responseMeta.status",
         200,
       );
-      //validation of data displayed in input widgets based on selected row
-      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+    });
 
+    it("2. validation of data displayed in input widgets based on selected row", function () {
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.testJsontext("defaultselectedrow", "2");
-      cy.readTabledataPublish("2", "0").then((tabData) => {
+      cy.readTableV2dataPublish("2", "0").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("6788734");
         cy.log("the value is" + tabValue);

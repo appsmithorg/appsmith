@@ -1,7 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
-import { ANVIL_EDITOR_TEST } from "./Constants.js";
+import { ANVIL_EDITOR_TEST } from "./Constants";
 
 import EditorNavigation, {
   EntityType,
@@ -61,7 +61,7 @@ export const initLocalstorage = () => {
   });
 };
 
-export const addIndexedDBKey = (key, value) => {
+export const addIndexedDBKey = (key : any, value : any) => {
   cy.window().then((window) => {
     // Opening the database
     const request = window.indexedDB.open("Appsmith", 2);
@@ -85,7 +85,7 @@ export const addIndexedDBKey = (key, value) => {
       };
 
       // Handling add error
-      addRequest.onerror = (event) => {
+      addRequest.onerror = (event : any) => {
         console.log("Error adding key:", event.target.error);
         // Closing the database connection
         db.close();
