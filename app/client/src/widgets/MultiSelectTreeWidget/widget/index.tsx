@@ -22,7 +22,7 @@ import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import MultiTreeSelectComponent from "../component";
+import MultiTreeSelectComponent, { type TreeSelectProps } from "../component";
 import derivedProperties from "./parseDerivedProperties";
 import type {
   AnvilConfig,
@@ -35,6 +35,7 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -705,8 +706,17 @@ class MultiSelectTreeWidget extends BaseWidget<
       (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
     const { componentHeight, componentWidth } = this.props;
-    const isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const isDefaultValueRequired: boolean =
+      this.props.isRequired && this.props.selectedOptionValues.length <= 0;
+    const isInvalid: boolean =
+      isDefaultValueRequired ||
+      ("isValid" in this.props && !this.props.isValid && !!this.props.isDirty);
+
+    const conditionalProps: Partial<TreeSelectProps> = {};
+    conditionalProps.errorMessage = this.props.errorMessage;
+    if (isDefaultValueRequired) {
+      conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+    }
 
     return (
       <MultiTreeSelectComponent
@@ -743,6 +753,9 @@ class MultiSelectTreeWidget extends BaseWidget<
         value={this.props.selectedOptionValues}
         widgetId={this.props.widgetId}
         width={componentWidth}
+        showError={this.props.isWidgetSelected}
+        hasError={isInvalid}
+        {...conditionalProps}
       />
     );
   }
