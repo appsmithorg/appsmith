@@ -197,25 +197,29 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByApplicationIdAndPluginType(
+    public List<NewAction> findPublishedActionsByApplicationIdAndPluginType(
             String applicationId,
             List<String> excludedPluginTypes,
             AclPermission permission,
             User currentUser,
             Sort sort) {
         return queryBuilder()
-                .criteria(getCriterionForFindByApplicationIdAndPluginType(applicationId, excludedPluginTypes))
+                .criteria(getCriterionForFindPublishedActionsByApplicationIdAndPluginType(
+                        applicationId, excludedPluginTypes))
                 .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
 
-    protected BridgeQuery<NewAction> getCriterionForFindByApplicationIdAndPluginType(
+    protected BridgeQuery<NewAction> getCriterionForFindPublishedActionsByApplicationIdAndPluginType(
             String applicationId, List<String> excludedPluginTypes) {
         final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
         q.and(Bridge.or(
                 Bridge.isNull(NewAction.Fields.pluginType),
                 Bridge.enumNotIn(NewAction.Fields.pluginType, getPluginTypes(excludedPluginTypes))));
+
+        q.isNotNull(NewAction.Fields.publishedAction_pageId);
+
         return q;
     }
 
