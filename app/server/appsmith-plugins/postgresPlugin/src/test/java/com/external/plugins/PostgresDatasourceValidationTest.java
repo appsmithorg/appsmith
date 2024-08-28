@@ -29,7 +29,8 @@ public class PostgresDatasourceValidationTest {
 
     static SharedConfig mockSharedConfig = mock(SharedConfig.class);
     static ConnectionPoolConfig mockConnectionPoolConfig = mock(ConnectionPoolConfig.class);
-    static PostgresPlugin.PostgresPluginExecutor pluginExecutor = new PostgresPlugin.PostgresPluginExecutor(mockSharedConfig, mockConnectionPoolConfig);
+    static PostgresPlugin.PostgresPluginExecutor pluginExecutor =
+            new PostgresPlugin.PostgresPluginExecutor(mockSharedConfig, mockConnectionPoolConfig);
 
     private DatasourceConfiguration getDatasourceConfigurationWithStandardConnectionMethod() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -176,5 +177,4 @@ public class PostgresDatasourceValidationTest {
         Set<String> output = pluginExecutor.validateDatasource(dsConfig);
         assertTrue(output.contains("Host value cannot contain `/` or `:` characters. Found `" + hostname + "`."));
     }
-
 }
