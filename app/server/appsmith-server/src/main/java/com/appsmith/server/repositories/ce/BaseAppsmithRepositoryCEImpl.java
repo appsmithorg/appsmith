@@ -416,11 +416,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         Set<String> permissions = new HashSet<>();
         obj.setUserPermissions(permissions);
 
-        if (CollectionUtils.isEmpty(obj.getPolicies()) || permissionGroups.isEmpty()) {
+        Set<Policy> policies = obj.getPolicies();
+        if (CollectionUtils.isEmpty(policies) || permissionGroups.isEmpty()) {
             return Mono.just(obj);
         }
 
-        for (Policy policy : obj.getPolicies()) {
+        for (Policy policy : policies) {
             Set<String> policyPermissionGroups = policy.getPermissionGroups();
             if (CollectionUtils.isEmpty(policyPermissionGroups)) {
                 continue;
@@ -432,7 +433,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 }
             }
         }
-
+        obj.setPolicies(policies);
         return Mono.just(obj);
     }
 
