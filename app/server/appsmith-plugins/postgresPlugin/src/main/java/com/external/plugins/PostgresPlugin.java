@@ -704,6 +704,10 @@ public class PostgresPlugin extends BasePlugin {
                     invalids.add(PostgresErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
 
+                if (StringUtils.isEmpty(authentication.getPassword())) {
+                    invalids.add(PostgresErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
+                }
+
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add(PostgresErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
                 }
@@ -728,10 +732,6 @@ public class PostgresPlugin extends BasePlugin {
                     if (sshHost.contains("/") || sshHost.contains(":")) {
                         invalids.add(DS_INVALID_SSH_HOSTNAME_ERROR_MSG);
                     }
-                }
-
-                if (StringUtils.isEmpty(datasourceConfiguration.getSshProxy().getPort())) {
-                    invalids.add(PostgresErrorMessages.DS_MISSING_SSH_PORT_ERROR_MSG);
                 }
 
                 if (isBlank(datasourceConfiguration.getSshProxy().getUsername())) {
