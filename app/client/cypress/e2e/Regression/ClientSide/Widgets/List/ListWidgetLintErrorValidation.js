@@ -43,6 +43,8 @@ describe(
         .should("be.visible")
         .contains("'DATA' is not defined.");
 
+      _.debuggerHelper.OpenDebugger();
+
       cy.get(commonlocators.debugErrorMsg).should("have.length", 6);
     });
   },

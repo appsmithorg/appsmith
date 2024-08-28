@@ -1,0 +1,237 @@
+Subject: [PATCH] fix most scenarios
+---
+Index: app/client/cypress/e2e/Regression/ClientSide/Debugger/Query_pane_navigation.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/cypress/e2e/Regression/ClientSide/Debugger/Query_pane_navigation.ts b/app/client/cypress/e2e/Regression/ClientSide/Debugger/Query_pane_navigation.ts
+--- a/app/client/cypress/e2e/Regression/ClientSide/Debugger/Query_pane_navigation.ts	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/cypress/e2e/Regression/ClientSide/Debugger/Query_pane_navigation.ts	(date 1724837762084)
+@@ -67,6 +67,7 @@
+       debuggerHelper.AssertErrorCount(2);
+ 
+       debuggerHelper.OpenDebugger();
++      debuggerHelper.ClickLogsTab();
+       debuggerHelper.ClicklogEntityLink();
+       agHelper.AssertElementVisibility(
+         ".t--actionConfiguration\\.formData\\.limitDocuments\\.data",
+Index: app/client/cypress/e2e/Sanity/Datasources/MySQLNoiseTest_spec.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/cypress/e2e/Sanity/Datasources/MySQLNoiseTest_spec.js b/app/client/cypress/e2e/Sanity/Datasources/MySQLNoiseTest_spec.js
+--- a/app/client/cypress/e2e/Sanity/Datasources/MySQLNoiseTest_spec.js	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/cypress/e2e/Sanity/Datasources/MySQLNoiseTest_spec.js	(date 1724837762092)
+@@ -4,7 +4,11 @@
+ } from "../../../support/Pages/EditorNavigation";
+ 
+ const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
+-import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
++import {
++  agHelper,
++  dataSources,
++  debuggerHelper,
++} from "../../../support/Objects/ObjectsCore";
+ const commonlocators = require("../../../locators/commonlocators.json");
+ 
+ describe(
+@@ -60,9 +64,15 @@
+         force: true,
+       });
+       cy.wait(2000);
+-      cy.get(commonlocators.toastmsg).contains(
+-        "NoiseTestQuery failed to execute",
++
++      debuggerHelper.OpenDebugger();
++      debuggerHelper.ClickLogsTab();
++      debuggerHelper.DoesConsoleLogExist(
++        "Execution failed with status PE-STC-5000",
++        true,
++        "NoiseTestQuery",
+       );
++
+       cy.wait("@postExecute").then(({ response }) => {
+         expect(response.body.data.statusCode).to.eq("200 OK");
+       });
+Index: app/client/cypress/e2e/Regression/ClientSide/Widgets/List/ListWidgetLintErrorValidation.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/cypress/e2e/Regression/ClientSide/Widgets/List/ListWidgetLintErrorValidation.js b/app/client/cypress/e2e/Regression/ClientSide/Widgets/List/ListWidgetLintErrorValidation.js
+--- a/app/client/cypress/e2e/Regression/ClientSide/Widgets/List/ListWidgetLintErrorValidation.js	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/cypress/e2e/Regression/ClientSide/Widgets/List/ListWidgetLintErrorValidation.js	(date 1724837762088)
+@@ -43,6 +43,8 @@
+         .should("be.visible")
+         .contains("'DATA' is not defined.");
+ 
++      _.debuggerHelper.OpenDebugger();
++
+       cy.get(commonlocators.debugErrorMsg).should("have.length", 6);
+     });
+   },
+Index: app/client/src/sagas/ErrorSagas.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/src/sagas/ErrorSagas.tsx b/app/client/src/sagas/ErrorSagas.tsx
+--- a/app/client/src/sagas/ErrorSagas.tsx	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/src/sagas/ErrorSagas.tsx	(date 1724837762093)
+@@ -130,7 +130,7 @@
+     payload: {
+       error: new Error(response.responseMeta.error.message),
+       logToSentry,
+-      show,
++      show: true,
+     },
+   });
+   throw Error(response.responseMeta.error.message);
+Index: app/client/cypress/e2e/Regression/ClientSide/Widgets/ListV2/DataIdentifier_spec.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/cypress/e2e/Regression/ClientSide/Widgets/ListV2/DataIdentifier_spec.ts b/app/client/cypress/e2e/Regression/ClientSide/Widgets/ListV2/DataIdentifier_spec.ts
+--- a/app/client/cypress/e2e/Regression/ClientSide/Widgets/ListV2/DataIdentifier_spec.ts	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/cypress/e2e/Regression/ClientSide/Widgets/ListV2/DataIdentifier_spec.ts	(date 1724837762090)
+@@ -38,7 +38,6 @@
+   () => {
+     before(() => {
+       agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");
+-      debuggerHelper.OpenDebugger();
+     });
+ 
+     it("1. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
+@@ -92,10 +91,11 @@
+         1,
+       );
+       //Open debugger by clicking debugger icon in canvas.
+-      debuggerHelper.OpenDebugger();
+-      agHelper.GetNAssertContains(
+-        debuggerHelper.locators._debuggerList,
++      debuggerHelper.AssertDebugError(
+         "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
++        "",
++        true,
++        false,
+       );
+     });
+   },
+Index: app/client/src/IDE/Components/BottomView.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/src/IDE/Components/BottomView.tsx b/app/client/src/IDE/Components/BottomView.tsx
+--- a/app/client/src/IDE/Components/BottomView.tsx	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/src/IDE/Components/BottomView.tsx	(date 1724837762093)
+@@ -6,6 +6,7 @@
+ import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/styledComponents";
+ import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
+ import { Button } from "@appsmith/ads";
++import classNames from "classnames";
+ 
+ const VIEW_MIN_HEIGHT = 38;
+ 
+@@ -112,6 +113,7 @@
+ 
+ const BottomView = (props: Props) => {
+   const panelRef = useRef<HTMLDivElement>(null);
++  const { className = "" } = props;
+ 
+   // Handle the height of the view when toggling the hidden state
+   useEffect(() => {
+@@ -126,7 +128,10 @@
+ 
+   return (
+     <Container
+-      className={`select-text ${props.className || ""} t--ide-bottom-view`}
++      className={classNames("select-text", {
++        [className]: true,
++        "t--ide-bottom-view": !props.hidden,
++      })}
+       displayMode={props.displayMode || ViewDisplayMode.BLOCK}
+       ref={panelRef}
+     >
+Index: app/client/cypress/e2e/Regression/ClientSide/Widgets/Button/ButtonLintErrorValidation_spec.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/cypress/e2e/Regression/ClientSide/Widgets/Button/ButtonLintErrorValidation_spec.js b/app/client/cypress/e2e/Regression/ClientSide/Widgets/Button/ButtonLintErrorValidation_spec.js
+--- a/app/client/cypress/e2e/Regression/ClientSide/Widgets/Button/ButtonLintErrorValidation_spec.js	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/cypress/e2e/Regression/ClientSide/Widgets/Button/ButtonLintErrorValidation_spec.js	(date 1724837762087)
+@@ -43,6 +43,8 @@
+         .should("be.visible")
+         .contains("'lintError' is not defined.");
+ 
++      _.debuggerHelper.OpenDebugger();
++
+       cy.get(commonlocators.debugErrorMsg).should("have.length", 3);
+     });
+   },
+Index: app/client/cypress/e2e/Regression/ClientSide/OtherUIFeatures/Inspect_Element_spec.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/cypress/e2e/Regression/ClientSide/OtherUIFeatures/Inspect_Element_spec.js b/app/client/cypress/e2e/Regression/ClientSide/OtherUIFeatures/Inspect_Element_spec.js
+--- a/app/client/cypress/e2e/Regression/ClientSide/OtherUIFeatures/Inspect_Element_spec.js	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/cypress/e2e/Regression/ClientSide/OtherUIFeatures/Inspect_Element_spec.js	(date 1724837762085)
+@@ -7,6 +7,7 @@
+   it("1. Check whether depedencies and references are shown correctly", function () {
+     cy.openPropertyPane("inputwidgetv2");
+     cy.testJsontext("defaultvalue", "{{Button1.text}}");
++    _.debuggerHelper.OpenDebugger();
+     cy.contains(".ads-v2-tabs__list-tab", "Inspect entity").click();
+     cy.contains(".t--dependencies-item", "Button1").click();
+     cy.contains(".t--dependencies-item", "Input1");
+Index: app/client/cypress/support/Pages/DebuggerHelper.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/client/cypress/support/Pages/DebuggerHelper.ts b/app/client/cypress/support/Pages/DebuggerHelper.ts
+--- a/app/client/cypress/support/Pages/DebuggerHelper.ts	(revision d0794fac1053f54f7c58ff589c6efbac850dfc5d)
++++ b/app/client/cypress/support/Pages/DebuggerHelper.ts	(date 1724837762092)
+@@ -120,12 +120,19 @@
+     this.agHelper.AssertSelectedTab(this.locators._debuggerSelectedTab, "true");
+   }
+ 
+-  DoesConsoleLogExist(text: string, exists = true) {
++  DoesConsoleLogExist(text: string, exists = true, entityName?: string) {
+     this.agHelper.GetNAssertContains(
+       this.locators._logMessage,
+       text,
+       exists ? "exist" : "not.exist",
+     );
++    if (entityName) {
++      this.agHelper
++        .GetElement(this.locators._logMessage)
++        .contains(text)
++        .closest(".error")
++        .contains(this.locators._logEntityLink, entityName);
++    }
+   }
+ 
+   DebuggerLogsFilter(text: string) {
+@@ -189,6 +196,7 @@
+     message: string,
+     shouldOpenDebugger = true,
+     shouldToggleDebugger = true,
++    errorLabelIndex = 0,
+   ) {
+     if (shouldOpenDebugger) {
+       this.OpenDebugger();
+@@ -200,7 +208,7 @@
+     }
+ 
+     this.agHelper
+-      .GetText(this.locators._debuggerLabel, "text", 0)
++      .GetText(this.locators._debuggerLabel, "text", errorLabelIndex)
+       .then(($text) => {
+         expect($text).to.eq(label);
+       });

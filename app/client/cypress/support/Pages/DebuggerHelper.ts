@@ -120,12 +120,19 @@ export class DebuggerHelper {
     this.agHelper.AssertSelectedTab(this.locators._debuggerSelectedTab, "true");
   }
 
-  DoesConsoleLogExist(text: string, exists = true) {
+  DoesConsoleLogExist(text: string, exists = true, entityName?: string) {
     this.agHelper.GetNAssertContains(
       this.locators._logMessage,
       text,
       exists ? "exist" : "not.exist",
     );
+    if (entityName) {
+      this.agHelper
+        .GetElement(this.locators._logMessage)
+        .contains(text)
+        .closest(".error")
+        .contains(this.locators._logEntityLink, entityName);
+    }
   }
 
   DebuggerLogsFilter(text: string) {
@@ -189,6 +196,7 @@ export class DebuggerHelper {
     message: string,
     shouldOpenDebugger = true,
     shouldToggleDebugger = true,
+    errorLabelIndex = 0,
   ) {
     if (shouldOpenDebugger) {
       this.OpenDebugger();
@@ -200,7 +208,7 @@ export class DebuggerHelper {
     }
 
     this.agHelper
-      .GetText(this.locators._debuggerLabel, "text", 0)
+      .GetText(this.locators._debuggerLabel, "text", errorLabelIndex)
       .then(($text) => {
         expect($text).to.eq(label);
       });
