@@ -13,6 +13,9 @@ export const countryToFlag = (isoCode: string) => {
         )
     : isoCode;
 };
+export const getLocaleString = (countryCode: string) => {
+  return "en-" + countryCode;
+};
 
 /*
  Returns formatted value with maximum number of decimals based on decimalsInCurrency value
@@ -21,10 +24,14 @@ export const countryToFlag = (isoCode: string) => {
   a) (2, 1235.456) will return 1,235.45
   b) (1, 1234.456) will return 1,234.4
 */
-export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
+export const formatCurrencyNumber = (
+  decimalsInCurrency = 0,
+  value: string,
+  countryCode: string,
+) => {
   const fractionDigits = decimalsInCurrency || 0;
   const hasDecimal = value.includes(getLocaleDecimalSeperator());
-  const locale = getLocale();
+  const locale = getLocaleString(countryCode);
   const formatter = new Intl.NumberFormat(locale, {
     style: "decimal",
     minimumFractionDigits: hasDecimal ? fractionDigits : 0,
