@@ -21,20 +21,10 @@
                   "value": "GENERATE_CONTENT"
                 }
               ]
-            }
-          ]
-        },
-        {
-          "controlType": "DOUBLE_COLUMN_ZONE",
-          "identifier": "SO-Z2",
-          "conditionals": {
-            "show": "{{actionConfiguration.formData.command.data === 'GENERATE_CONTENT'}}"
-          },
-          "children": [
+            },
             {
               "label": "Models",
               "tooltipText": "Select the model for content generation",
-              "subtitle": "ID of the model to use.",
               "isRequired": true,
               "propertyName": "generate_content_model_id",
               "configProperty": "actionConfiguration.formData.generateContentModel.data",
