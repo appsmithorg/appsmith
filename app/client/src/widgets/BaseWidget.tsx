@@ -571,6 +571,7 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   displayName: string;
+  displayOrder?: number;
   icon: string;
   thumbnail?: string;
   isBeta?: boolean;
