@@ -12,8 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 
-import static com.appsmith.external.helpers.StringUtils.dotted;
-
 @Getter
 @Setter
 @ToString
@@ -78,10 +76,5 @@ public class Application extends ApplicationCE implements Artifact {
         }
     }
 
-    public static class Fields extends ApplicationCE.Fields {
-        public static final String gitApplicationMetadata_isAutoDeploymentEnabled =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isAutoDeploymentEnabled);
-        public static final String gitApplicationMetadata_cdMigrationVersion =
-            dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.cdMigrationVersion);
-    }
+    public static class Fields extends ApplicationCE.Fields {}
 }
