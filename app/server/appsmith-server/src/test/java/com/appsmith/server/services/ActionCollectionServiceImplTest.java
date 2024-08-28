@@ -28,6 +28,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PagePermissionImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -87,6 +88,9 @@ public class ActionCollectionServiceImplTest {
     ActionPermission actionPermission;
 
     @MockBean
+    ObservationRegistry observationRegistry;
+
+    @MockBean
     private Validator validator;
 
     @MockBean
@@ -108,7 +112,8 @@ public class ActionCollectionServiceImplTest {
                 policyGenerator,
                 applicationService,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
@@ -120,7 +125,8 @@ public class ActionCollectionServiceImplTest {
                 analyticsService,
                 actionCollectionRepository,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(
