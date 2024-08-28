@@ -162,15 +162,9 @@ describe(
       propPane.EnterJSContext("onFilesSelected", `{{JSObject1.upload()}}`);
 
       EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
-      propPane.UpdatePropertyFieldValue(
-        "Image",
-        "{{MultipartAPI.data.url}}",
-      );
+      propPane.UpdatePropertyFieldValue("Image", "{{MultipartAPI.data.url}}");
 
-      EditorNavigation.SelectEntityByName(
-        "MultipartAPI",
-        EntityType.Api,
-      );
+      EditorNavigation.SelectEntityByName("MultipartAPI", EntityType.Api);
 
       apiPage.ToggleOnPageLoadRun(false); //Bug 12476
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -178,9 +172,7 @@ describe(
       agHelper.ClickButton("Select Files");
       agHelper.UploadFile(imageNameToUpload);
       assertHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
-      agHelper.ValidateToastMessage(
-        "Image uploaded to multipart successfully",
-      );
+      agHelper.ValidateToastMessage("Image uploaded to multipart successfully");
       agHelper.Sleep();
       cy.xpath(apiPage._imageSrc)
         .find("img")
