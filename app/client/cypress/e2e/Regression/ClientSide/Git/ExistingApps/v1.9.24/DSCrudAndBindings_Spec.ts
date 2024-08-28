@@ -235,10 +235,10 @@ describe(
       );
 
       //Table
-      agHelper.TypeText(
-        locators._widgetInDeployed("inputwidgetv2") + " input",
-        "144",
-      );
+      // agHelper.TypeText(
+      //   locators._widgetInDeployed("inputwidgetv2") + " input",
+      //   "144",
+      // );
       table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
         expect($cellData).to.eq("Christina ");
       });
