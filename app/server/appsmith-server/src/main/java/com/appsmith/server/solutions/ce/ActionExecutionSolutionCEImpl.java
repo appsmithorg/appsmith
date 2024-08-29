@@ -1153,7 +1153,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     if (executeActionDto != null) {
                         // Remove the value from the executeActionDto.params before sending to mixpanel as it contains
                         // user submitted data
-                        executeActionDto.getParams().forEach(param -> param.setValue(REDACTED_DATA));
+                        if (executeActionDto.getParams() != null) {
+                            executeActionDto.getParams().forEach(param -> param.setValue(REDACTED_DATA));
+                        }
                         data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
                         data.put(
                                 FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
