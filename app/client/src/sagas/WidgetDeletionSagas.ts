@@ -1,10 +1,10 @@
+import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type {
   MultipleWidgetDeletePayload,
   WidgetDelete,
 } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { ApplicationPayload } from "entities/Application";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -12,21 +12,41 @@ import {
   WidgetReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { widgetURL } from "ee/RouteBuilder";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { ApplicationPayload } from "entities/Application";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { flattenDeep, omit, orderBy } from "lodash";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getSelectedWidgets } from "selectors/ui";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { showUndoRedoToast } from "utils/replayHelpers";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { DraggedWidget } from "../layoutSystems/anvil/utils/anvilTypes";
+import { severTiesFromParents } from "../layoutSystems/anvil/utils/layouts/update/moveUtils";
+import {
+  isRedundantZoneWidget,
+  isZoneWidget,
+} from "../layoutSystems/anvil/utils/layouts/update/zoneUtils";
+import { widgetChildren } from "../layoutSystems/anvil/utils/layouts/widgetUtils";
+import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import FocusRetention from "./FocusRetentionSaga";
 import {
   getSelectedWidget,
   getWidget,
@@ -38,26 +58,6 @@ import {
   getAllWidgetsInTree,
   updateListWidgetPropertiesOnChildDelete,
 } from "./WidgetOperationUtils";
-import { showUndoRedoToast } from "utils/replayHelpers";
-import WidgetFactory from "WidgetProvider/factory";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
-import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import FocusRetention from "./FocusRetentionSaga";
-import { widgetURL } from "ee/RouteBuilder";
-import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import type { DraggedWidget } from "../layoutSystems/anvil/utils/anvilTypes";
-import { severTiesFromParents } from "../layoutSystems/anvil/utils/layouts/update/moveUtils";
-import {
-  isZoneWidget,
-  isRedundantZoneWidget,
-} from "../layoutSystems/anvil/utils/layouts/update/zoneUtils";
-import { widgetChildren } from "../layoutSystems/anvil/utils/layouts/widgetUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -171,7 +171,7 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   }
 }
 
-export type UpdatedDSLPostDelete =
+type UpdatedDSLPostDelete =
   | {
       finalWidgets: CanvasWidgetsReduxState;
       otherWidgetsToDelete: (WidgetProps & {
@@ -181,10 +181,7 @@ export type UpdatedDSLPostDelete =
     }
   | undefined;
 
-export function* getUpdatedDslAfterDeletingWidget(
-  widgetId: string,
-  parentId: string,
-) {
+function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   if (widgetId && parentId) {
     const widgets = { ...stateWidgets };
@@ -520,7 +517,7 @@ export function handleDeleteRedundantZones(
   return updatedWidgets;
 }
 
-export function* postDelete(
+function* postDelete(
   widgetId: string,
   widgetName: string,
   otherWidgetsToDelete: (WidgetProps & {
