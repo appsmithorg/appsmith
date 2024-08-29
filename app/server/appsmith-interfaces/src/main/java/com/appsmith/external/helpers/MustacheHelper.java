@@ -561,7 +561,7 @@ public class MustacheHelper {
         Map<String, String> replaceParamsMap = mustacheSet.stream()
                 .map(mustacheToken -> mustacheToken.getValue())
                 .distinct()
-                .collect(Collectors.toMap(k -> k, v -> placeholder));
+                .collect(Collectors.toMap(k -> "{{" + k + "}}", v -> placeholder));
 
         // Replace the mustaches with the values mapped to each mustache in replaceParamsMap
         ActionConfiguration updatedActionConfiguration = renderFieldValues(actionConfiguration, replaceParamsMap);

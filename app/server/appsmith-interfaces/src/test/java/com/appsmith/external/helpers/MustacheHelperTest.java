@@ -24,6 +24,7 @@ import static com.appsmith.external.helpers.MustacheHelper.render;
 import static com.appsmith.external.helpers.MustacheHelper.renderFieldValues;
 import static com.appsmith.external.helpers.MustacheHelper.tokenize;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings(
         // Disabling this so we may use `Arrays.asList` with single argument, which is easier to refactor, just for
@@ -68,6 +69,16 @@ public class MustacheHelperTest {
         checkTokens("{{A}}", Arrays.asList(new MustacheBindingToken("{{A}}", 0, true)));
         checkKeys("{{A}}", Set.of(new MustacheBindingToken("A", 2, false)));
         checkKeys("{{A + B / C}}", Set.of(new MustacheBindingToken("A + B / C", 2, false)));
+    }
+
+    @Test
+    public void testReplaceMustacheUsingPatterns() {
+        String inputQuery = "content";
+        List<MustacheBindingToken> mustacheBindings = Arrays.asList(new MustacheBindingToken());
+        String result = MustacheHelper.replaceMustacheWithPlaceholder(inputQuery, mustacheBindings);
+
+        String expectedOutput = "{{\"content\"}}";
+        assertEquals(expectedOutput, result);
     }
 
     @Test
