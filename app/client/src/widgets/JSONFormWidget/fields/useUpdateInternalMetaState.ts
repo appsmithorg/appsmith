@@ -1,9 +1,9 @@
 import { debounce, set } from "lodash";
 import { useMemo, useContext, useCallback } from "react";
-import { klona } from "klona";
 
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export interface UseUpdateInternalMetaStateProps {
   propertyName?: string;
@@ -23,9 +23,11 @@ function useUpdateInternalMetaState({
     ) => {
       if (propertyName) {
         setMetaInternalFieldState((prevState) => {
-          const metaInternalFieldState = klona(
+          const metaInternalFieldState = klonaRegularWithTelemetry(
             prevState.metaInternalFieldState,
+            "useUpdateInternalMetaState.metaInternalFieldState",
           );
+
           set(metaInternalFieldState, propertyName, propertyValue);
 
           return {
