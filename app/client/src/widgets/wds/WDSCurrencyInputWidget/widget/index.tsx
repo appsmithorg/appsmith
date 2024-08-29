@@ -11,7 +11,11 @@ import {
   formatCurrencyNumber,
   limitDecimalValue,
 } from "../component/utilities";
-import { getLocale, mergeWidgetConfig } from "utils/helpers";
+import {
+  getLocale,
+  klonaRegularWithTelemetry,
+  mergeWidgetConfig,
+} from "utils/helpers";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
@@ -26,7 +30,6 @@ import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
-import { klona as clone } from "klona";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -63,7 +66,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const parentConfig = klonaRegularWithTelemetry(
+      super.getPropertyPaneContentConfig(),
+      "WDSCurrencyInputWidget.getPropertyPaneContentConfig",
+    );
     const labelSectionIndex = parentConfig.findIndex(
       (section) => section.sectionName === "Label",
     );
