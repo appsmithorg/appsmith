@@ -316,13 +316,7 @@ describe(
       agHelper.AssertExistingToggleState("Required", "false");
       propPane.TogglePropertyState("Required", "On");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.FORM));
-      agHelper.GetNClick(widgetLocators.selectWidgetClear, 1);
-      agHelper.AssertCSS(
-        widgetLocators.selectWidgetBtn,
-        "border-color",
-        "rgb(217, 25, 33)",
-        1,
-      );
+      cy.get(locators._selectClearButton_testId).should("not.exist");
     });
 
     it("10.Validate using function inside label key and value key returns correct label options", () => {
