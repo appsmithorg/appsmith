@@ -3,6 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   table as tableHelper,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -161,6 +162,9 @@ describe(
     it("6. should check that onsubmit event is available for the columns that are editable", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
+      cy.get(commonlocators.changeColType).last().click();
+      cy.get(".t--dropdown-option").children().contains("Plain text").click();
+      propPane.TogglePropertyState("Editable", "Off", "");
       cy.wait(500);
       [
         {
