@@ -472,7 +472,7 @@ public class ApplicationPageServiceTest {
                 .assertNext(pages -> {
                     assertThat(pages.size()).isEqualTo(2);
                     Set<String> pageNames = pages.stream()
-                            .map(page -> page.getUnpublishedPage().getName())
+                            .map(page -> page.getPublishedPage().getName())
                             .collect(Collectors.toSet());
                     assertThat(pageNames).contains(pageName);
                     assertThat(pageNames).doesNotContain(unpublishedPageName);

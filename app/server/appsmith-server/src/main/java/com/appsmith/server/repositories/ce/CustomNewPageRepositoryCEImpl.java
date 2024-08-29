@@ -49,6 +49,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
+    public Flux<NewPage> findByApplicationId(
+            String applicationId, AclPermission aclPermission, List<String> includeFields) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
+                .permission(aclPermission)
+                .fields(includeFields)
+                .all();
+    }
+
+    @Override
     public Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
         BridgeQuery<NewPage> q = Bridge.<NewPage>equal(NewPage.Fields.applicationId, applicationId)
                 // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
