@@ -139,7 +139,7 @@ import {
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -1834,7 +1834,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   removeRowFromTransientTableData = (index: number) => {
-    const newTransientTableData = klonaRegularWithTelemtry(
+    const newTransientTableData = klonaRegularWithTelemetry(
       this.props.transientTableData,
       "TableWidgetV2.removeRowFromTransientTableData",
     );

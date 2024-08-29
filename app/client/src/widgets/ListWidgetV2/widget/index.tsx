@@ -53,7 +53,7 @@ import defaultProps from "./defaultProps";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -643,7 +643,7 @@ class ListWidget extends BaseWidget<
     }
 
     if (!isEqual(this.prevMetaMainCanvasWidget, mainCanvasWidget)) {
-      this.prevMetaMainCanvasWidget = klonaRegularWithTelemtry(
+      this.prevMetaMainCanvasWidget = klonaRegularWithTelemetry(
         mainCanvasWidget,
         "ListWidgetV2.generateMainMetaCanvasWidget",
       );
@@ -893,7 +893,7 @@ class ListWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.props;
 
     const metaMainCanvas =
-      klonaRegularWithTelemtry(
+      klonaRegularWithTelemetry(
         mainCanvasWidget,
         "ListWidget.mainMetaCanvasWidget",
       ) ?? {};

@@ -17,7 +17,7 @@ import type {
   Stylesheet,
 } from "entities/AppTheming";
 import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -56,7 +56,7 @@ export const fieldTypeUpdateHook = (
    */
 
   const updatedSchema = {
-    schema: klonaRegularWithTelemtry(schema, "helper.fieldTypeUpdateHook"),
+    schema: klonaRegularWithTelemetry(schema, "helper.fieldTypeUpdateHook"),
   };
   set(updatedSchema, schemaItemPath, schemaItemWithAutoFillState);
 

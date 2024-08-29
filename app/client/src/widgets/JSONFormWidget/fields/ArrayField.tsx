@@ -31,7 +31,7 @@ import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -192,7 +192,7 @@ function ArrayField({
   const { setMetaInternalFieldState } = useContext(FormContext);
 
   const add = () => {
-    let values = klonaRegularWithTelemtry(getValues(name), "ArrayField.add");
+    let values = klonaRegularWithTelemetry(getValues(name), "ArrayField.add");
 
     if (values && values.length) {
       values.push({});
@@ -204,7 +204,7 @@ function ArrayField({
 
   const remove = useCallback(
     (removedKey: string) => {
-      const values = klonaRegularWithTelemtry(
+      const values = klonaRegularWithTelemetry(
         getValues(name),
         "ArrayField.remove",
       );
@@ -224,7 +224,7 @@ function ArrayField({
       // cachedDefaultValue[index] in the FieldRenderer
       if (removedIndex < cachedDefaultValue.length) {
         setCachedDefaultValue((prevDefaultValue) => {
-          const clonedValue = klonaRegularWithTelemtry(
+          const clonedValue = klonaRegularWithTelemetry(
             prevDefaultValue,
             "ArrayField.remove.setCachedDefaultValue",
           );
@@ -237,7 +237,7 @@ function ArrayField({
 
       // Manually remove from the values and re-insert to maintain the position of the
       // values
-      const newValues = klonaRegularWithTelemtry(
+      const newValues = klonaRegularWithTelemetry(
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         values.filter((_val: any, index: number) => index !== removedIndex),
@@ -281,13 +281,13 @@ function ArrayField({
   useDeepEffect(() => {
     setValue(
       name,
-      klonaRegularWithTelemtry(
+      klonaRegularWithTelemetry(
         defaultValue,
         "ArrayField.useDeepEffect.setValue",
       ),
     );
     setCachedDefaultValue(
-      klonaRegularWithTelemtry(
+      klonaRegularWithTelemetry(
         defaultValue,
         "ArrayField.useDeepEffect.setCachedDefaultValue",
       ),
@@ -302,7 +302,7 @@ function ArrayField({
    */
   useDeepEffect(() => {
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = klonaRegularWithTelemtry(
+      const metaInternalFieldState = klonaRegularWithTelemetry(
         prevState.metaInternalFieldState,
         "ArrayField.useDeepEffect.setMetaInternalFieldState",
       );

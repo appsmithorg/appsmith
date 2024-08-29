@@ -30,7 +30,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
@@ -616,7 +616,7 @@ class FilePickerWidget extends BaseWidget<
       // Deep cloning the selectedFiles
 
       const selectedFiles = this.props.selectedFiles
-        ? (klonaRegularWithTelemtry(
+        ? (klonaRegularWithTelemetry(
             this.props.selectedFiles,
             "initializeUppyEventListeners.selectedFiles",
           ) as Array<unknown>)

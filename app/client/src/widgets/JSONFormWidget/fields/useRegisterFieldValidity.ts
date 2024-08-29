@@ -7,7 +7,7 @@ import { useContext, useEffect } from "react";
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
 import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;
@@ -57,7 +57,7 @@ function useRegisterFieldValidity({
 
   useEffect(() => {
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = klonaRegularWithTelemtry(
+      const metaInternalFieldState = klonaRegularWithTelemetry(
         prevState.metaInternalFieldState,
         "useRegisterFieldValidity.setMetaInternalFieldState",
       );

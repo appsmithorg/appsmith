@@ -27,7 +27,7 @@ import {
   ROOT_SCHEMA_KEY,
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type Obj = Record<string, unknown>;
 
@@ -138,7 +138,7 @@ export const getSourceDataPathFromSchemaItemPath = (
   schemaItemPath: string,
 ) => {
   const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", ROOT_SCHEMA_KEY, "children", "name"]
-  let clonedSchema = klonaRegularWithTelemtry(
+  let clonedSchema = klonaRegularWithTelemetry(
     schema,
     "schemaParser.getSourceDataPathFromSchemaItemPath",
   );
@@ -664,7 +664,7 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = klonaRegularWithTelemtry(
+    const schema = klonaRegularWithTelemetry(
       prevSchema,
       "schemaParser.convertArrayToSchema",
     );
@@ -736,7 +736,7 @@ class SchemaParser {
     sourceDataPath,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = klonaRegularWithTelemtry(
+    const schema = klonaRegularWithTelemetry(
       prevSchema,
       "schemaParser.convertObjectToSchema",
     );
@@ -773,7 +773,7 @@ class SchemaParser {
 
     modifiedKeys.forEach((modifiedKey) => {
       const identifier = origIdentifierToIdentifierMap[modifiedKey];
-      const prevSchemaItem = klonaRegularWithTelemtry(
+      const prevSchemaItem = klonaRegularWithTelemetry(
         schema[identifier],
         "schemaParser.convertObjectToSchema.modifiedKeys",
       );

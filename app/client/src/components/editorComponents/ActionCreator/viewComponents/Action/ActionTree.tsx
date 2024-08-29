@@ -12,7 +12,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
 import classNames from "classnames";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { klonaLiteWithTelemtry } from "utils/helpers";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 const CallbackBlockContainer = styled.div<{
   isSelected: boolean;
@@ -109,7 +109,7 @@ export default function ActionTree(props: {
       return;
     }
 
-    const newActionBlock = klonaLiteWithTelemtry(
+    const newActionBlock = klonaLiteWithTelemetry(
       actionBlock,
       "ActionTree.handleAddSuccessBlock",
     );
@@ -132,7 +132,7 @@ export default function ActionTree(props: {
       selectBlock(`${id}_failure_${blocks.length - 1}`);
       return;
     }
-    const newActionBlock = klonaLiteWithTelemtry(
+    const newActionBlock = klonaLiteWithTelemetry(
       actionBlock,
       "ActionTree.handleAddErrorBlock",
     );
@@ -281,7 +281,7 @@ export default function ActionTree(props: {
                           childActionBlock: TActionBlock,
                           del?: boolean,
                         ) => {
-                          const newActionBlock = klonaLiteWithTelemtry(
+                          const newActionBlock = klonaLiteWithTelemetry(
                             actionBlock,
                             "ActionTree.onChange",
                           );

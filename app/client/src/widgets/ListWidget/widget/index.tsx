@@ -55,7 +55,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { klonaLiteWithTelemtry, removeFalsyEntries } from "utils/helpers";
+import { klonaLiteWithTelemetry, removeFalsyEntries } from "utils/helpers";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -1298,7 +1298,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     ) {
       const { page } = this.state;
       const children = removeFalsyEntries(
-        klonaLiteWithTelemtry(
+        klonaLiteWithTelemetry(
           this.props.childWidgets,
           "ListWidget.renderChildren",
         ),
@@ -1356,7 +1356,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const canvasChildrenList = [];
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = klonaLiteWithTelemtry(
+          canvasChildrenList[i] = klonaLiteWithTelemetry(
             template,
             "ListWidget.renderChildren",
           );

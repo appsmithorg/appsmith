@@ -7,7 +7,7 @@ import {
   FieldType,
   ROOT_SCHEMA_KEY,
 } from "./constants";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export const schemaItemStyles = {
   accentColor:
@@ -42,7 +42,7 @@ export const schemaItemFactory = (item: any): SchemaItem => {
 
 export const replaceBindingWithValue = (schemaItem: SchemaItem) => {
   if (isEmpty(schemaItem)) return {} as SchemaItem;
-  const updatedSchemaItem = klonaRegularWithTelemtry(
+  const updatedSchemaItem = klonaRegularWithTelemetry(
     schemaItem,
     "schemaTestData.replaceBindingWithValue",
   );

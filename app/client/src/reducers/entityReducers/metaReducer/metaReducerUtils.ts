@@ -8,7 +8,7 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import produce from "immer";
 import { set, unset } from "lodash";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,
@@ -29,7 +29,7 @@ export function getMetaWidgetResetObj(
       if (defaultPropertyValue !== undefined) {
         // cloning data to avoid mutation
 
-        resetMetaObj[propertyName] = klonaRegularWithTelemtry(
+        resetMetaObj[propertyName] = klonaRegularWithTelemetry(
           defaultPropertyValue,
           "metaReducerUtils.getMetaWidgetResetObj",
         );
@@ -52,7 +52,7 @@ export function setMetaValuesOnResetFromEval(
 
   if (!evalMetaUpdates.length) return state;
 
-  const newMetaState = klonaRegularWithTelemtry(
+  const newMetaState = klonaRegularWithTelemetry(
     state,
     "metaReducerUtils.setMetaValuesOnResetFromEval",
   );

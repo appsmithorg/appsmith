@@ -84,7 +84,7 @@ import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { ApplicationPayload } from "entities/Application";
-import { klonaLiteWithTelemtry } from "utils/helpers";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -157,7 +157,7 @@ function* handleUpdateBodyContentType(
   );
 
   // get headers
-  const headers = klonaLiteWithTelemtry(
+  const headers = klonaLiteWithTelemetry(
     values?.actionConfiguration?.headers,
     "ApiPaneSagas.handleUpdateBodyContentType.headers",
   );
@@ -227,7 +227,7 @@ function* handleUpdateBodyContentType(
 
   // help to prevent cyclic dependency error in case the bodyFormData is empty.
 
-  const bodyFormData = klonaLiteWithTelemtry(
+  const bodyFormData = klonaLiteWithTelemetry(
     values?.actionConfiguration?.bodyFormData,
     "ApiPaneSagas.handleUpdateBodyContentType.bodyFormData",
   );

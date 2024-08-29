@@ -14,7 +14,7 @@ import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -243,7 +243,7 @@ function Form<TValues = any>(
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
-        const clonedValue = klonaRegularWithTelemtry(
+        const clonedValue = klonaRegularWithTelemetry(
           values,
           "Form.subscription",
         );

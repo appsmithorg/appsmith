@@ -3,7 +3,7 @@ import { useMemo, useContext, useCallback } from "react";
 
 import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 import FormContext from "../FormContext";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export interface UseUpdateInternalMetaStateProps {
   propertyName?: string;
@@ -23,7 +23,7 @@ function useUpdateInternalMetaState({
     ) => {
       if (propertyName) {
         setMetaInternalFieldState((prevState) => {
-          const metaInternalFieldState = klonaRegularWithTelemtry(
+          const metaInternalFieldState = klonaRegularWithTelemetry(
             prevState.metaInternalFieldState,
             "useUpdateInternalMetaState.metaInternalFieldState",
           );

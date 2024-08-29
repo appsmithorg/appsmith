@@ -2,7 +2,7 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WDSParagraphWidget } from "widgets/wds/WDSParagraphWidget";
 import { HeadingIcon, HeadingThumbnail } from "appsmith-icons";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 class WDSHeadingWidget extends WDSParagraphWidget {
   static type = "WDS_HEADING_WIDGET";
@@ -33,7 +33,7 @@ class WDSHeadingWidget extends WDSParagraphWidget {
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = klonaRegularWithTelemtry(
+    const parentConfig = klonaRegularWithTelemetry(
       super.getPropertyPaneContentConfig(),
       "WDSHeadingWidget.getPropertyPaneContentConfig",
     );

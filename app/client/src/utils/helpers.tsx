@@ -823,30 +823,32 @@ export function isValidColor(color: string) {
   return color?.includes("url") || validateColor(color) || isEmptyOrNill(color);
 }
 
-function klonaWithTelemtryWrapper<T>(
+function klonaWithTelemetryWrapper<T>(
   value: T,
   codeSegment: string,
+  variant: string,
   klonaFn: (input: T) => T,
 ): T {
   return startAndEndSpanForFn(
     "klona",
     {
       codeSegment,
+      variant,
     },
     () => klonaFn(value),
   );
 }
-export function klonaFullWithTelemtry<T>(value: T, codeSegment: string): T {
-  return klonaWithTelemtryWrapper(value, codeSegment, klonaFull);
+export function klonaFullWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "full", klonaFull);
 }
-export function klonaRegularWithTelemtry<T>(value: T, codeSegment: string): T {
-  return klonaWithTelemtryWrapper(value, codeSegment, klonaRegular);
+export function klonaRegularWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "regular", klonaRegular);
 }
-export function klonaLiteWithTelemtry<T>(value: T, codeSegment: string): T {
-  return klonaWithTelemtryWrapper(value, codeSegment, klonaLite);
+export function klonaLiteWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "lite", klonaLite);
 }
-export function klonaJsonWithTelemtry<T>(value: T, codeSegment: string): T {
-  return klonaWithTelemtryWrapper(value, codeSegment, klonaJson);
+export function klonaJsonWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "json", klonaJson);
 }
 
 /*
@@ -859,7 +861,7 @@ export const mergeWidgetConfig = (target: any, source: any) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sectionMap: Record<string, any> = {};
-  const mergedConfig = klonaFullWithTelemtry(
+  const mergedConfig = klonaFullWithTelemetry(
     target,
     "helpers.mergeWidgetConfig",
   );

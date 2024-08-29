@@ -128,7 +128,7 @@ import { getQueryParams } from "utils/URLUtils";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import {
-  klonaLiteWithTelemtry,
+  klonaLiteWithTelemetry,
   shouldBeDefined,
   trimQueryString,
 } from "utils/helpers";
@@ -1783,7 +1783,7 @@ function* filePickerActionCallbackSaga(
       getDatasource,
       datasourceId,
     );
-    const datasource: Datasource = klonaLiteWithTelemtry(
+    const datasource: Datasource = klonaLiteWithTelemetry(
       datasourceFromState,
       "DatasourcesSagas.filePickerActionCallbackSaga",
     );

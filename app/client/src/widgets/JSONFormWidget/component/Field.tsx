@@ -8,7 +8,7 @@ import type { FieldLabelProps } from "./FieldLabel";
 import FieldLabel from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {
@@ -61,7 +61,7 @@ function Field<TValue>({
 
       // Follow the comment in Form component above reset(convertedFormData);
       setTimeout(() => {
-        setValue(name, klonaRegularWithTelemtry(defaultValue, "Field"));
+        setValue(name, klonaRegularWithTelemetry(defaultValue, "Field"));
       }, 0);
     }
   }, [defaultValue, setValue]);

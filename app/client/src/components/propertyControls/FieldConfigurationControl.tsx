@@ -25,7 +25,7 @@ import {
   extraSpace,
 } from "widgets/JSONFormWidget/constants";
 
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -168,7 +168,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
        */
 
       const updatedSchema = {
-        schema: klonaRegularWithTelemtry(
+        schema: klonaRegularWithTelemetry(
           widgetProperties.schema,
           "FieldConfigurationControl.addNewField",
         ),
@@ -192,7 +192,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   updateItems = (items: DroppableItem[]) => {
     const { propertyName, propertyValue } = this.props;
-    const clonedSchema: Schema = klonaRegularWithTelemtry(
+    const clonedSchema: Schema = klonaRegularWithTelemetry(
       propertyValue,
       "FieldConfigurationControl.updateItems",
     );

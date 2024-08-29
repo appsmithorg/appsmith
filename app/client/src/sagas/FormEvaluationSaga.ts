@@ -30,7 +30,7 @@ import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import { klonaLiteWithTelemtry } from "utils/helpers";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -72,7 +72,7 @@ function* setFormEvaluationSagaAsync(
       yield put({
         type: ReduxActionTypes.INIT_TRIGGER_VALUES,
         payload: {
-          [action?.payload?.formId]: klonaLiteWithTelemtry(
+          [action?.payload?.formId]: klonaLiteWithTelemetry(
             fetchDynamicValueFormConfigs,
             "FormEvaluationSaga.setFormEvaluationSagaAsync",
           ),

@@ -2,7 +2,7 @@ import React from "react";
 import log from "loglevel";
 import merge from "lodash/merge";
 import * as Sentry from "@sentry/react";
-import { klonaRegularWithTelemtry, mergeWidgetConfig } from "utils/helpers";
+import { klonaRegularWithTelemetry, mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -49,7 +49,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = klonaRegularWithTelemtry(
+    const parentConfig = klonaRegularWithTelemetry(
       super.getPropertyPaneContentConfig(),
       "WDSPhoneInputWidget.getPropertyPaneContentConfig",
     );

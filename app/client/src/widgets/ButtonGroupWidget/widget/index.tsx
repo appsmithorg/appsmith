@@ -23,7 +23,7 @@ import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
-import { klonaFullWithTelemtry } from "utils/helpers";
+import { klonaFullWithTelemetry } from "utils/helpers";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -133,7 +133,7 @@ class ButtonGroupWidget extends BaseWidget<
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const groupButtons = klonaFullWithTelemtry(
+              const groupButtons = klonaFullWithTelemetry(
                 widget.groupButtons,
                 "ButtonGroupWidget.groupButtons",
               );

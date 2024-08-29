@@ -68,7 +68,7 @@ import {
 } from "../constants/messages";
 import { createMessage } from "ee/constants/messages";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -660,7 +660,7 @@ class JSONFormWidget extends BaseWidget<
   ) => {
     const span = startRootSpan("JSONFormWidget.parseAndSaveFieldState");
     const fieldState = generateFieldState(schema, metaInternalFieldState);
-    const action = klonaRegularWithTelemtry(
+    const action = klonaRegularWithTelemetry(
       afterUpdateAction,
       "JSONFormWidget.parseAndSaveFieldState",
     );
@@ -726,7 +726,7 @@ class JSONFormWidget extends BaseWidget<
     actionPayload: ExecuteTriggerPayload,
     context: Record<string, unknown> = {},
   ) => {
-    const payload = klonaRegularWithTelemtry(
+    const payload = klonaRegularWithTelemetry(
       actionPayload,
       "JSONFormWidget.applyGlobalContextToAction",
     );

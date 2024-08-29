@@ -34,7 +34,7 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import WidgetFactory from "WidgetProvider/factory";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type TemplateWidgets =
   ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];
@@ -334,7 +334,7 @@ class MetaWidgetGenerator {
     }
 
     // Maybe don't deep-clone for perf?
-    const prevOptions = klonaRegularWithTelemtry(
+    const prevOptions = klonaRegularWithTelemetry(
       this.prevOptions,
       "MetaWidgetGenerator.withOptions",
     );
@@ -545,7 +545,7 @@ class MetaWidgetGenerator {
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
     const key = options ? options.key : this.getPrimaryKey(rowIndex);
-    const metaWidget = klonaRegularWithTelemtry(
+    const metaWidget = klonaRegularWithTelemetry(
       templateWidget,
       "MetaWidgetGenerator.generateMetaWidgetRecursively",
     ) as MetaWidget;
@@ -1501,13 +1501,13 @@ class MetaWidgetGenerator {
   ) => {
     const { metaWidget, originalMetaWidgetId, templateWidgetId } = options;
     const viewIndex = this.getViewIndex(rowIndex);
-    const referenceCache = klonaRegularWithTelemtry(
+    const referenceCache = klonaRegularWithTelemetry(
       this.getWidgetReferenceCache(),
       "MetaWidgetGenerator.updateSiblings.getWidgetReferenceCache",
     );
 
     const currentCache = referenceCache?.[templateWidgetId];
-    const siblings = klonaRegularWithTelemtry(
+    const siblings = klonaRegularWithTelemetry(
       currentCache?.siblings || new Set<string>(),
       "MetaWidgetGenerator.updateSiblings.siblings",
     );

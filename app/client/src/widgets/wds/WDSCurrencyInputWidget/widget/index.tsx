@@ -13,7 +13,7 @@ import {
 } from "../component/utilities";
 import {
   getLocale,
-  klonaRegularWithTelemtry,
+  klonaRegularWithTelemetry,
   mergeWidgetConfig,
 } from "utils/helpers";
 import {
@@ -66,7 +66,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = klonaRegularWithTelemtry(
+    const parentConfig = klonaRegularWithTelemetry(
       super.getPropertyPaneContentConfig(),
       "WDSCurrencyInputWidget.getPropertyPaneContentConfig",
     );

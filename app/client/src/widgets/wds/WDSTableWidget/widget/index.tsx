@@ -81,7 +81,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import * as config from "../config";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { klonaRegularWithTelemtry } from "utils/helpers";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -1511,7 +1511,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   removeRowFromTransientTableData = (index: number) => {
-    const newTransientTableData = klonaRegularWithTelemtry(
+    const newTransientTableData = klonaRegularWithTelemetry(
       this.props.transientTableData,
       "WDSTableWidget.removeRowFromTransientTableData",
     );
