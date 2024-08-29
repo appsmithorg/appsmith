@@ -3,12 +3,12 @@ import type {
   WidgetEntityConfig,
   PropertyOverrideDependency,
 } from "ee/entities/DataTree/types";
-import { klona } from "klona";
 import type { MetaState, WidgetMetaState } from ".";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import produce from "immer";
 import { set, unset } from "lodash";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,
@@ -28,7 +28,11 @@ export function getMetaWidgetResetObj(
         dependency.DEFAULT && evaluatedWidget[dependency.DEFAULT];
       if (defaultPropertyValue !== undefined) {
         // cloning data to avoid mutation
-        resetMetaObj[propertyName] = klona(defaultPropertyValue);
+
+        resetMetaObj[propertyName] = klonaRegularWithTelemetry(
+          defaultPropertyValue,
+          "metaReducerUtils.getMetaWidgetResetObj",
+        );
       }
     });
   }
@@ -48,7 +52,10 @@ export function setMetaValuesOnResetFromEval(
 
   if (!evalMetaUpdates.length) return state;
 
-  const newMetaState = klona(state);
+  const newMetaState = klonaRegularWithTelemetry(
+    state,
+    "metaReducerUtils.setMetaValuesOnResetFromEval",
+  );
 
   evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
     if (value === undefined) {
