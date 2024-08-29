@@ -1,24 +1,175 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
-      "identifier": "SELECTOR",
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION_ONE",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose method you would like to use to send an email",
-          "configProperty": "actionConfiguration.formData.command",
-          "controlType": "DROP_DOWN",
-          "initialValue": "SEND",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z1",
+          "children": [
             {
-              "label": "Send email",
-              "value": "SEND"
+              "label": "Command",
+              "description": "Choose method you would like to use to send an email",
+              "configProperty": "actionConfiguration.formData.command",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SEND",
+              "options": [
+                {
+                  "label": "Send email",
+                  "value": "SEND"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z2",
+          "children": [
+            {
+              "label": "From email",
+              "configProperty": "actionConfiguration.formData.send.from",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "email@example.com",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z3",
+          "children": [
+            {
+              "label": "Set reply to email",
+              "configProperty": "actionConfiguration.formData.send.isReplyTo",
+              "controlType": "SWITCH",
+              "evaluationSubstitutionType": "TEMPLATE"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z4",
+          "children": [
+            {
+              "label": "Reply to email",
+              "configProperty": "actionConfiguration.formData.send.replyTo",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "replyTo@example.com",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.send.isReplyTo === true}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION_TWO",
+      "children": [
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "ST-Z1",
+          "children": [
+            {
+              "label": "Recepients",
+              "subtitle": "Separate with comma",
+              "configProperty": "actionConfiguration.formData.send.to",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "email@example.com, email2@example.com",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "ST-Z2",
+          "children": [
+            {
+              "label": "CC",
+              "subtitle": "Separate with comma",
+              "configProperty": "actionConfiguration.formData.send.cc",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "email@example.com, email2@example.com"
+            },
+            {
+              "label": "BCC",
+              "subtitle": "Separate with comma",
+              "configProperty": "actionConfiguration.formData.send.bcc",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "email@example.com, email2@example.com"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "ST-Z3",
+          "children": [
+            {
+              "label": "Subject",
+              "configProperty": "actionConfiguration.formData.send.subject",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "Email subject"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "ST-Z4",
+          "children": [
+            {
+              "label": "Body type",
+              "configProperty": "actionConfiguration.formData.send.bodyType",
+              "controlType": "DROP_DOWN",
+              "initialValue": "text/plain",
+              "options": [
+                {
+                  "label": "Plain text",
+                  "value": "text/plain"
+                },
+                {
+                  "label": "HTML",
+                  "value": "text/html"
+                }
+              ],
+              "evaluationSubstitutionType": "TEMPLATE"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "ST-Z5",
+          "children": [
+            {
+              "label": "Email body",
+              "configProperty": "actionConfiguration.body",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "ST-Z6",
+          "children": [
+            {
+              "label": "Attachments",
+              "configProperty": "actionConfiguration.formData.send.attachments",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "placeholderText": "{{Filepicker.files}}"
             }
           ]
         }
       ]
     }
-  ],
-  "files": ["send.json"]
+  ]
 }
