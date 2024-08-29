@@ -1,5 +1,6 @@
 import { APP_MODE } from "entities/App";
 import localforage from "localforage";
+import isNull from "lodash/isNull";
 import loglevel from "loglevel";
 
 enum EComputationName {
@@ -30,6 +31,16 @@ class ComputationCache {
     return ComputationCache.instance;
   }
 
+  isComputationCached({
+    computationName,
+    viewMode,
+  }: {
+    computationName: EComputationName;
+    viewMode: APP_MODE;
+  }) {
+    return this.appModeConfig[computationName].includes(viewMode);
+  }
+
   async cacheComputationResult<T>({
     appId,
     computationName,
@@ -39,12 +50,21 @@ class ComputationCache {
     viewMode,
   }: {
     appId: string;
-    computationName: string;
+    computationName: EComputationName;
     computationResult: T;
     pageId: string;
     timestamp: string;
-    viewMode: string;
+    viewMode: APP_MODE;
   }) {
+    const shouldCache = this.isComputationCached({
+      computationName,
+      viewMode,
+    });
+
+    if (!shouldCache) {
+      return;
+    }
+
     const cacheKey = this.generateCacheKey([
       appId,
       pageId,
@@ -75,10 +95,6 @@ class ComputationCache {
     timestamp: string;
     viewMode: APP_MODE;
   }): Promise<T | null> {
-    if (!this.appModeConfig[computationName].includes(viewMode)) {
-      return null;
-    }
-
     const cacheKey = this.generateCacheKey([
       appId,
       pageId,
@@ -88,11 +104,11 @@ class ComputationCache {
 
     try {
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
-      if (!cached) {
+      if (isNull(cached)) {
         return null;
       }
 
-      if (cached && cached.timestamp !== timestamp) {
+      if (cached.timestamp !== timestamp) {
         return null;
       }
 
