@@ -221,7 +221,7 @@ public class DatasourceTriggerSolutionTest {
         };
 
         DatasourceStructure.Table table1 =
-                new DatasourceStructure.Table(TABLE, null, "Table1", List.of(table1Columns), null, null);
+                new DatasourceStructure.Table(TABLE, null, "TableSecond", List.of(table1Columns), null, null);
 
         DatasourceStructure.Column[] table2Columns = {
             new DatasourceStructure.Column("_id2", "ObjectId", null, true),
@@ -235,7 +235,7 @@ public class DatasourceTriggerSolutionTest {
         };
 
         DatasourceStructure.Table table2 =
-                new DatasourceStructure.Table(TABLE, null, "Table2", List.of(table2Columns), null, null);
+                new DatasourceStructure.Table(TABLE, null, "TableFirst", List.of(table2Columns), null, null);
 
         DatasourceStructure testStructure = new DatasourceStructure(List.of(table1, table2));
 
@@ -252,20 +252,14 @@ public class DatasourceTriggerSolutionTest {
                 defaultEnvironmentId,
                 new TriggerRequestDTO("ENTITY_SELECTOR", Map.of(), ClientDataDisplayType.DROP_DOWN));
 
-        Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
-                datasourceId,
-                defaultEnvironmentId,
-                new TriggerRequestDTO(
-                        "ENTITY_SELECTOR", Map.of("tableName", "Table1"), ClientDataDisplayType.DROP_DOWN));
-
         StepVerifier.create(tableNameMono)
                 .assertNext(tablesResult -> {
                     List<Map<String, String>> tables = (List<Map<String, String>>) tablesResult.getTrigger();
 
                     assertEquals(2, tables.size());
                     // Check the order of the tables
-                    assertEquals("Table1", tables.get(0).get("label"));
-                    assertEquals("Table2", tables.get(1).get("label"));
+                    assertEquals("TableFirst", tables.get(0).get("label"));
+                    assertEquals("TableSecond", tables.get(1).get("label"));
                 })
                 .verifyComplete();
     }
