@@ -2,11 +2,7 @@ import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import isNull from "lodash/isNull";
 import loglevel from "loglevel";
-
-enum EComputationName {
-  AllKeys = "allKeys",
-  DependencyMap = "dependencyMap",
-}
+import { EComputationName } from "./types";
 
 interface ICachedData<T> {
   value: T;
