@@ -335,7 +335,7 @@ public class PostgresPluginTest {
 
         final Set<String> datasourceValidationInvalids = pluginExecutor.validateDatasource(dsConfig);
 
-        assertTrue(datasourceValidationInvalids.isEmpty());
+        assertEquals(Set.of("Missing password for authentication."), datasourceValidationInvalids);
     }
 
     @Test
