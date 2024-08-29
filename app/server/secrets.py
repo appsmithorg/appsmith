@@ -1,0 +1,1 @@
+adobe_client_secret='ASDfwadANRHLasdwerfNXPbbtV5fmseX/GJC1P/'
