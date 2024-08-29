@@ -115,6 +115,28 @@ To setup the configurations for running integration tests via Cypress, use these
   yarn run setup
 ```
 
+**Prompt:**  
+ `Do you wish to continue without setting up the local server with docker? (yes/no):`
+
+**Options:**
+- **`no`:** Selecting "no" will trigger the setup of a local server using Docker with the `appsmith-ce:release` image.
+- **`yes`:** Selecting "yes" will skip the local server setup process.
+
+
+**Prompt:**  
+ `https://dev.appsmith.com is not accessible. Do you wish to continue without setting it up?  (yes/no):`
+
+**Options:**
+- **`no`:**  Simply close the process.
+- **`yes`:** Continue on the process for next stage
+
+**Prompt:**  
+ `TED (TestEventDriver) is not running. Do you want to pull & run the latest Docker container for TED (TestEventDriver)?  (yes/no):`
+
+**Options:**
+- **`no`:**  It will not create TED setup in local machine.
+- **`yes`:** Download the TED image and run the image for test purposes.
+
 ##### Running Cypress tests locally
 
 To run a specific test file in headless fashion, use the following command:
