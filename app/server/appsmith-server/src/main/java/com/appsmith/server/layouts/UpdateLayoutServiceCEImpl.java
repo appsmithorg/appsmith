@@ -25,12 +25,14 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,6 +48,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.UPDATE_LAYOUT_METHOD;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
@@ -60,8 +64,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final AnalyticsService analyticsService;
     private final PagePermission pagePermission;
     private final ApplicationService applicationService;
-
     private final ObjectMapper objectMapper;
+    private final ObservationRegistry observationRegistry;
 
     private final String layoutOnLoadActionErrorToastMessage =
             "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
@@ -276,13 +280,17 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
                 .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
+                .name(GET_PAGE_BY_ID)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMapMany(page -> {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
                     }
                     return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
                         layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                        return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
+                        return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
+                                .name(UPDATE_LAYOUT_METHOD)
+                                .tap(Micrometer.observation(observationRegistry));
                     });
                 })
                 .collectList()

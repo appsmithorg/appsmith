@@ -20,7 +20,13 @@ public class ActionCollectionSpanCE {
     public static final String GENERATE_ACTION_COLLECTION_BY_VIEW_MODE = APPSMITH_SPAN_PREFIX + "generate.actions";
     public static final String POPULATE_ACTION_COLLECTION_BY_VIEW_MODE = APPSMITH_SPAN_PREFIX + "populate.actions";
     public static final String SAVE_LAST_EDIT_INFORMATION_IN_PARENT = APPSMITH_SPAN_PREFIX + "save.lastEditInfo";
+    public static final String UPDATE_SINGLE_ACTION = APPSMITH_SPAN_PREFIX + "update.single.action";
+    public static final String UPDATE_ACTION_BASED_ON_CONTEXT = APPSMITH_SPAN_PREFIX + "update.action.context";
+    public static final String UPDATE_PAGE_LAYOUT_BY_PAGE_ID = APPSMITH_SPAN_PREFIX + "update.pageLayout.pageId";
+    public static final String UPDATE_LAYOUT_METHOD = APPSMITH_SPAN_PREFIX + "update.layout.method";
 
     // Getter spans
     public static final String GET_ACTION_COLLECTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.actionCollection.unpublished";
+    public static final String GET_ACTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.action.unpublished";
+    public static final String GET_PAGE_BY_ID = APPSMITH_SPAN_PREFIX + "get.page.unpublished";
 }
