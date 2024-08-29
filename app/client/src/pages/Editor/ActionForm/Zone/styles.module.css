@@ -29,6 +29,10 @@
     min-width: unset !important;
     max-width: unset !important;
   }
+  & :global(.uqi-dynamic-input-text) {
+    width: unset !important;
+    min-height: unset !important;
+  }
   /* FieldArrayControl hardcoded width is removed */
   & :global(.t--form-control-ARRAY_FIELD) {
     & :global(.t--form-control-QUERY_DYNAMIC_INPUT_TEXT) > div {
