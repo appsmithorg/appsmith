@@ -18,6 +18,10 @@
   /*  1. Margin is removed from FieldWrapper component in FormRender file */
   & :global(.uqi-form-wrapper) {
     margin: 0;
+
+    &:empty {
+      display: none;
+    }
   }
   /* DropdownControl default width is removed */
   & :global(.uqi-dropdown-select) {
