@@ -77,6 +77,8 @@ interface EditorProps {
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
+  prevPageId: string | null = null;
+
   componentDidMount() {
     const { basePageId } = this.props.match.params || {};
     urlBuilder.setCurrentBasePageId(basePageId);
@@ -111,6 +113,21 @@ class Editor extends Component<Props> {
   componentDidUpdate(prevProps: Props) {
     const { baseApplicationId, basePageId } = this.props.match.params || {};
     const { basePageId: prevPageBaseId } = prevProps.match.params || {};
+
+    const pageId = this.props.pages.find(
+      (page) => page.basePageId === basePageId,
+    )?.pageId;
+
+    const prevPageId = prevProps.pages.find(
+      (page) => page.basePageId === prevPageBaseId,
+    )?.pageId;
+    // caching value for prevPageId as it is required in future lifecycles
+    if (!!prevPageId) {
+      this.prevPageId = prevPageId;
+    }
+
+    const isPageIdUpdated = pageId !== this.prevPageId;
+
     const isBranchUpdated = getIsBranchUpdated(
       this.props.location,
       prevProps.location,
@@ -124,8 +141,6 @@ class Editor extends Component<Props> {
       prevProps.location.search,
       GIT_BRANCH_QUERY_KEY,
     );
-
-    const isPageIdUpdated = basePageId !== prevPageBaseId;
 
     // to prevent re-init during connect
     if (prevBranch && isBranchUpdated && basePageId) {
@@ -141,20 +156,10 @@ class Editor extends Component<Props> {
        * If we don't check for `prevPageId`: fetch page is re triggered
        * when redirected to the default page
        */
-      if (
-        prevPageBaseId &&
-        basePageId &&
-        isPageIdUpdated &&
-        this.props.pages.length
-      ) {
-        const pageId = this.props.pages.find(
-          (page) => page.basePageId === basePageId,
-        )?.pageId;
-        if (pageId) {
-          this.props.updateCurrentPage(pageId);
-          this.props.setupPage(pageId);
-          urlBuilder.setCurrentBasePageId(basePageId);
-        }
+      if (pageId && this.prevPageId && isPageIdUpdated) {
+        this.props.updateCurrentPage(pageId);
+        this.props.setupPage(pageId);
+        urlBuilder.setCurrentBasePageId(basePageId);
       }
     }
   }
