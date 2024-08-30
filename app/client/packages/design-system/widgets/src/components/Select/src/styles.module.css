@@ -44,7 +44,7 @@
 
 .textField [data-icon] {
   position: absolute;
-  right: var(--inner-spacing-2);
+  right: var(--inner-spacing-1);
 }
 
 .necessityIndicator {
