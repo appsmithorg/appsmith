@@ -1,51 +1,448 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
+
       "children": [
         {
-          "label": "Command",
-          "description": "Choose the method you would like to use",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "LIST",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "COMMON_FIELDS",
+          "children": [
             {
-              "label": "List files in bucket",
-              "value": "LIST"
+              "label": "Command",
+              "description": "Choose the method you would like to use",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "LIST",
+              "options": [
+                {
+                  "label": "List files in bucket",
+                  "value": "LIST"
+                },
+                {
+                  "label": "Create a new file",
+                  "value": "UPLOAD_FILE_FROM_BODY"
+                },
+                {
+                  "label": "Create multiple new files",
+                  "value": "UPLOAD_MULTIPLE_FILES_FROM_BODY"
+                },
+                {
+                  "label": "Read file",
+                  "value": "READ_FILE"
+                },
+                {
+                  "label": "Delete file",
+                  "value": "DELETE_FILE"
+                },
+                {
+                  "label": "Delete multiple files",
+                  "value": "DELETE_MULTIPLE_FILES"
+                }
+              ]
             },
             {
-              "label": "Create a new file",
-              "value": "UPLOAD_FILE_FROM_BODY"
+              "label": "Bucket name",
+              "configProperty": "actionConfiguration.formData.bucket.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "evaluationSubstitutionType": "TEMPLATE",
+              "isRequired": true,
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "LIST_BUCKET_PREFIX",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
+          },
+          "children": [
+            {
+              "label": "Prefix",
+              "configProperty": "actionConfiguration.formData.list.prefix.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "GENERATE_SIGNED_URL",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
+          },
+          "children": [
+            {
+              "label": "Generate signed URL",
+              "configProperty": "actionConfiguration.formData.list.signedUrl.data",
+              "controlType": "DROP_DOWN",
+              "-subtitle": "Allowed values: YES, NO",
+              "-tooltipText": "Allowed values: YES, NO",
+              "-alternateViewTypes": ["json"],
+              "initialValue": "NO",
+              "options": [
+                {
+                  "label": "Yes",
+                  "value": "YES"
+                },
+                {
+                  "label": "No",
+                  "value": "NO"
+                }
+              ],
+              "staticDependencyPathList": [
+                "actionConfiguration.formData.list.expiry.data"
+              ]
             },
             {
-              "label": "Create multiple new files",
-              "value": "UPLOAD_MULTIPLE_FILES_FROM_BODY"
+              "label": "Expiry duration of signed URL (minutes)",
+              "configProperty": "actionConfiguration.formData.list.expiry.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": "5",
+              "conditionals": {
+                "show": "{{actionConfiguration.formData.list.signedUrl.data === 'YES'}}"
+              }
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "GENERATE_UNSIGNED_URL",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
+          },
+          "children": [
+            {
+              "label": "Generate unsigned URL",
+              "configProperty": "actionConfiguration.formData.list.unSignedUrl.data",
+              "controlType": "DROP_DOWN",
+              "-subtitle": "Allowed values: YES, NO",
+              "-tooltipText": "Allowed values: YES, NO",
+              "-alternateViewTypes": ["json"],
+              "initialValue": "YES",
+              "options": [
+                {
+                  "label": "Yes",
+                  "value": "YES"
+                },
+                {
+                  "label": "No",
+                  "value": "NO"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "CREATE_FILE_PATH",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_FILE_FROM_BODY'}}"
+          },
+          "children": [
+            {
+              "label": "File path",
+              "configProperty": "actionConfiguration.formData.path.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "CREATE_FILE_OPTIONS",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_FILE_FROM_BODY'}}"
+          },
+          "children": [
+            {
+              "label": "File data type",
+              "configProperty": "actionConfiguration.formData.create.dataType.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "YES",
+              "options": [
+                {
+                  "label": "Base64",
+                  "value": "YES"
+                },
+                {
+                  "label": "Text / Binary",
+                  "value": "NO"
+                }
+              ]
             },
             {
-              "label": "Read file",
-              "value": "READ_FILE"
+              "label": "Expiry duration of signed URL (minutes)",
+              "configProperty": "actionConfiguration.formData.create.expiry.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": "5"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "CREATE_FILE_CONTENT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_FILE_FROM_BODY'}}"
+          },
+          "children": [
+            {
+              "label": "Content",
+              "configProperty": "actionConfiguration.formData.body.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "initialValue": "",
+              "placeHolderText": "{{ FilePicker1.files[0] }}"
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "CREATE_MANY_FILE_PATH",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"
+          },
+          "children": [
+            {
+              "label": "Common file path",
+              "configProperty": "actionConfiguration.formData.path.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "CREATE_MANY_FILE_OPTIONS",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"
+          },
+          "children": [
+            {
+              "label": "File data type",
+              "configProperty": "actionConfiguration.formData.create.dataType.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "YES",
+              "options": [
+                {
+                  "label": "Base64",
+                  "value": "YES"
+                },
+                {
+                  "label": "Text / Binary",
+                  "value": "NO"
+                }
+              ]
             },
             {
-              "label": "Delete file",
-              "value": "DELETE_FILE"
-            },
+              "label": "Expiry duration of signed URL (minutes)",
+              "configProperty": "actionConfiguration.formData.create.expiry.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": "5"
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "CREATE_MANY_FILE_CONTENT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"
+          },
+          "children": [
             {
-              "label": "Delete multiple files",
-              "value": "DELETE_MULTIPLE_FILES"
+              "label": "Content",
+              "configProperty": "actionConfiguration.formData.body.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "READ_FILE_PATH",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'READ_FILE'}}"
+          },
+          "children": [
+            {
+              "label": "File path",
+              "configProperty": "actionConfiguration.formData.path.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "READ_FILE_OPTIONS",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'READ_FILE'}}"
+          },
+          "children": [
+            {
+              "label": "Base64 encode file - yes/no",
+              "configProperty": "actionConfiguration.formData.read.dataType.data",
+              "controlType": "DROP_DOWN",
+              "-subtitle": "Allowed values: YES, NO",
+              "-tooltipText": "Allowed values: YES, NO",
+              "-alternateViewTypes": ["json"],
+              "initialValue": "YES",
+              "options": [
+                {
+                  "label": "Yes",
+                  "value": "YES"
+                },
+                {
+                  "label": "No",
+                  "value": "NO"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "DELETE_FILE_PATH",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'DELETE_FILE'}}"
+          },
+          "children": [
+            {
+              "label": "File path",
+              "configProperty": "actionConfiguration.formData.path.data",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "initialValue": ""
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "DELETE_MANY_LIST",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'DELETE_MULTIPLE_FILES'}}"
+          },
+          "children": [
+            {
+              "label": "List of Files",
+              "configProperty": "actionConfiguration.formData.path.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "isRequired": true,
+              "initialValue": "",
+              "placeholderText": "[\"myDir/file1.txt\", \"myDir/file2.txt\"]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "LIST_FILTER_SECTION",
+      "label": "Query",
+      "description": "Optional",
+      "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
+      },
+
+      "children": [
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "LIST_FILTER_ZONE",
+          "children": [
+            {
+              "label": "Filter data",
+              "configProperty": "actionConfiguration.formData.list.where.data",
+              "nestedLevels": 3,
+              "controlType": "WHERE_CLAUSE",
+              "-subtitle": "Array of Objects",
+              "-tooltipText": "Array of Objects",
+              "-alternateViewTypes": ["json"],
+              "logicalTypes": [
+                {
+                  "label": "AND",
+                  "value": "AND"
+                },
+                {
+                  "label": "OR",
+                  "value": "OR"
+                }
+              ],
+              "comparisonTypes": [
+                {
+                  "label": "==",
+                  "value": "EQ"
+                },
+                {
+                  "label": "!=",
+                  "value": "NOT_EQ"
+                },
+                {
+                  "label": "in",
+                  "value": "IN"
+                },
+                {
+                  "label": "not in",
+                  "value": "NOT_IN"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "LIST_SORT_SECTION",
+      "label": "Sort order",
+      "description": "Optional",
+      "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
+      },
+
+      "children": [
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "LIST_SORT_ZONE",
+
+          "children": [
+            {
+              "label": "Sort data",
+              "configProperty": "actionConfiguration.formData.list.sortBy.data",
+              "controlType": "SORTING",
+              "-subtitle": "Array of Objects",
+              "-tooltipText": "Array of Objects",
+              "-alternateViewTypes": ["json"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "LIST_PAGINATION_SECTION",
+      "label": "Pagination",
+      "description": "Optional",
+      "conditionals": {
+        "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
+      },
+
+      "children": [
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "LIST_PAGINATION_ZONE",
+
+          "children": [
+            {
+              "label": "Paginate data",
+              "configProperty": "actionConfiguration.formData.list.pagination.data",
+              "controlType": "PAGINATION",
+              "-subtitle": "Object",
+              "-tooltipText": "Object",
+              "-alternateViewTypes": ["json"]
             }
           ]
         }
       ]
     }
-  ],
-  "files": [
-    "create.json",
-    "create_many.json",
-    "delete.json",
-    "delete_many.json",
-    "list.json",
-    "read.json"
   ]
 }
