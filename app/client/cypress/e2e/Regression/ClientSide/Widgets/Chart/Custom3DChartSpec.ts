@@ -7,7 +7,7 @@ const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.js
 
 describe(
   "3D Custom EChart feature",
-  { tags: ["@tag.Widget", "@tag.Chart"] },
+  { tags: ["@tag.Widget", "@tag.Chart", "@tag.Snapshot"] },
   function () {
     it("1. 3D EChart Custom Chart Widget Functionality", function () {
       _.agHelper.RefreshPage();

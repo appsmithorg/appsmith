@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "JS Editor Save and Auto-indent: Visual tests",
-  { tags: ["@tag.Visual"] },
+  { tags: ["@tag.Visual", "@tag.Snapshot"] },
   () => {
     it("1. Auto indents and saves the code when Ctrl/Cmd+s is pressed", () => {
       _.jsEditor.CreateJSObject(

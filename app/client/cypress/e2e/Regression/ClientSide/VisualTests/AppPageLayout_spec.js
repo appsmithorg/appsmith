@@ -2,7 +2,7 @@ import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
+describe("Visual regression tests", { tags: ["@tag.Visual", "@tag.Snapshot"] }, () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.
   //  2. Run test in headless mode with any browser

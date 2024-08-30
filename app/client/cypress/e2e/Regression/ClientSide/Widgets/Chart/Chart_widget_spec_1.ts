@@ -10,7 +10,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-describe("", { tags: ["@tag.Widget", "@tag.Chart"] }, () => {
+describe("", { tags: ["@tag.Widget", "@tag.Chart", "@tag.Snapshot"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART);
   });

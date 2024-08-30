@@ -5,7 +5,7 @@ describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
   //      command: "npx cypress run --spec cypress/e2e/Regression_TestSuite/ClientSideTests/VisualTests/WidgetsLayout_spec.js  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder
 
-  it("Verify SwitchGroup inline enable/disbale", () => {
+  it("Verify SwitchGroup inline enable/disbale", { tags: ["@tag.Snapshot"] }, () => {
     cy.dragAndDropToCanvas("switchgroupwidget", { x: 300, y: 300 });
     cy.wait(1000);
 

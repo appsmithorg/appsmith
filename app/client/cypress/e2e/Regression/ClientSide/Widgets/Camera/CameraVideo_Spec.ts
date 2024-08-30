@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Camera widget - Video test",
-  { tags: ["@tag.Widget", "@tag.Camera"] },
+  { tags: ["@tag.Widget", "@tag.Camera", "@tag.Snapshot"] },
   () => {
     before(() => {
       //Reset video source to default incase it got changed in other specs
