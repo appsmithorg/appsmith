@@ -140,7 +140,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin1);
         } catch (DuplicateKeyException e) {
-            log.warn("postgres-plugin already present in database.");
+            log.error("postgres-plugin already present in database.");
         }
 
         Plugin plugin2 = new Plugin();
@@ -152,7 +152,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin2);
         } catch (DuplicateKeyException e) {
-            log.warn("restapi-plugin already present in database.");
+            log.error("restapi-plugin already present in database.");
         }
 
         Plugin plugin3 = new Plugin();
@@ -164,7 +164,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin3);
         } catch (DuplicateKeyException e) {
-            log.warn("mongo-plugin already present in database.");
+            log.error("mongo-plugin already present in database.");
         }
     }
 
@@ -259,7 +259,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin1);
         } catch (DuplicateKeyException e) {
-            log.warn("mysql-plugin already present in database.");
+            log.error("mysql-plugin already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
@@ -313,7 +313,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin1);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin1.getPackageName() + " already present in database.");
+            log.error(plugin1.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
@@ -333,7 +333,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin1);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin1.getPackageName() + " already present in database.");
+            log.error(plugin1.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
@@ -363,7 +363,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin1);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin1.getPackageName() + " already present in database.");
+            log.error(plugin1.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
@@ -383,7 +383,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin1);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin1.getPackageName() + " already present in database.");
+            log.error(plugin1.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
@@ -446,7 +446,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -466,7 +466,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -531,7 +531,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -589,7 +589,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -616,7 +616,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -637,7 +637,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -729,7 +729,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
 
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
@@ -772,7 +772,7 @@ public class DatabaseChangelog1 {
         try {
             mongoTemplate.insert(plugin);
         } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
+            log.error(plugin.getPackageName() + " already present in database.");
         }
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }

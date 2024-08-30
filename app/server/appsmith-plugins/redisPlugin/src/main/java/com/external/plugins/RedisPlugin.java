@@ -119,7 +119,7 @@ public class RedisPlugin extends BasePlugin {
                                 objectMapper.valueToTree(removeQuotes(processCommandOutput(commandOutput))));
                         actionExecutionResult.setIsExecutionSuccess(true);
 
-                        log.debug("In the RedisPlugin, got action execution result");
+                        log.error("In the RedisPlugin, got action execution result");
                         return Mono.just(actionExecutionResult);
                     })
                     .flatMap(obj -> obj)
@@ -272,7 +272,7 @@ public class RedisPlugin extends BasePlugin {
                                 jedisPool.destroy();
                             }
                         } catch (JedisException e) {
-                            log.debug("Error destroying Jedis pool.");
+                            log.error("Error destroying Jedis pool.");
                         }
 
                         return Mono.empty();

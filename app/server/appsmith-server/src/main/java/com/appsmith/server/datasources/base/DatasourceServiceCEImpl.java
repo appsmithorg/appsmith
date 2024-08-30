@@ -209,7 +209,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     .flatMap(savedDatasource ->
                             analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource)));
         } else {
-            log.debug(
+            log.error(
                     "datasource with name: {} already exists, Only configuration(s) will be created",
                     datasource.getName());
             datasourceMono = datasourceMono.flatMap(
@@ -259,7 +259,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (storages.size() > datasourceStorageDTOsAllowed) {
             // ideally an error should be thrown; however, since datasource has already been created, it needs be
             // returned.
-            log.debug(
+            log.error(
                     "datasource has got {} configurations, which is more than: {} for datasourceId: {}",
                     storages.size(),
                     datasourceStorageDTOsAllowed,
@@ -359,7 +359,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (!hasText(environmentId)) {
             // ideally the error would be thrown, but we would only throw error when complete client side changes
             // have been done for multiple-environments. For now this call will go through
-            log.debug("environmentId not found while updating datasource storage with datasourceId : {}", datasourceId);
+            log.error("environmentId not found while updating datasource storage with datasourceId : {}", datasourceId);
         }
 
         // querying for each of the datasource

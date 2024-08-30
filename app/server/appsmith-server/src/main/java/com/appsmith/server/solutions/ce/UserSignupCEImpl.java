@@ -154,7 +154,7 @@ public class UserSignupCEImpl implements UserSignupCE {
             }
 
             return userService.createUser(user).elapsed().map(pair -> {
-                log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
+                log.error("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
                 return pair.getT2();
             });
         });
@@ -193,7 +193,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .thenReturn(1)
                             .elapsed()
                             .flatMap(pair -> {
-                                log.debug(
+                                log.error(
                                         "UserSignupCEImpl::Time taken for authentication success: {} ms", pair.getT1());
                                 return Mono.just(pair.getT2());
                             });
@@ -283,7 +283,7 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     Mono<User> userMono1 = signupAndLogin(user, exchange);
                     return userMono1.elapsed().map(pair -> {
-                        log.debug("UserSignupCEImpl::Time taken to complete signupAndLogin: {} ms", pair.getT1());
+                        log.error("UserSignupCEImpl::Time taken to complete signupAndLogin: {} ms", pair.getT1());
                         return pair.getT2();
                     });
                 })
@@ -292,7 +292,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .makeSuperUser(List.of(user))
                             .elapsed()
                             .map(pair -> {
-                                log.debug(
+                                log.error(
                                         "UserSignupCEImpl::Time taken to complete makeSuperUser: {} ms", pair.getT1());
                                 return pair.getT2();
                             });
@@ -308,7 +308,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .updateForUser(user, userData)
                             .elapsed()
                             .map(pair -> {
-                                log.debug(
+                                log.error(
                                         "UserSignupCEImpl::Time taken to update user data for user: {} ms",
                                         pair.getT1());
                                 return pair.getT2();
@@ -326,7 +326,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .thenReturn(true)
                             .elapsed()
                             .map(pair -> {
-                                log.debug("UserSignupCEImpl::Time taken to apply env changes: {} ms", pair.getT1());
+                                log.error("UserSignupCEImpl::Time taken to apply env changes: {} ms", pair.getT1());
                                 return pair.getT2();
                             })
                             .then();
@@ -355,7 +355,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {
-                                log.debug(
+                                log.error(
                                         "UserSignupCEImpl::Time taken to complete all secondary functions: {} ms",
                                         pair.getT1());
                                 return pair.getT2();
@@ -363,7 +363,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     return allSecondaryFunctions.thenReturn(user);
                 });
         return userMono.elapsed().map(pair -> {
-            log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
+            log.error("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
             return pair.getT2();
         });
     }
@@ -422,7 +422,7 @@ public class UserSignupCEImpl implements UserSignupCE {
             UserSignupRequestDTO userFromRequest, User user, UserData userData) {
 
         Mono<String> getInstanceIdMono = configService.getInstanceId().elapsed().map(pair -> {
-            log.debug("UserSignupCEImpl::Time taken to get instance ID: {} ms", pair.getT1());
+            log.error("UserSignupCEImpl::Time taken to get instance ID: {} ms", pair.getT1());
             return pair.getT2();
         });
 
@@ -431,7 +431,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .defaultIfEmpty("unknown")
                 .elapsed()
                 .map(pair -> {
-                    log.debug("UserSignupCEImpl::Time taken to get external address: {} ms", pair.getT1());
+                    log.error("UserSignupCEImpl::Time taken to get external address: {} ms", pair.getT1());
                     return pair.getT2();
                 });
 
@@ -439,7 +439,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .flatMap(tuple -> {
                     final String instanceId = tuple.getT1();
                     final String ip = tuple.getT2();
-                    log.debug("Installation setup complete.");
+                    log.error("Installation setup complete.");
                     String newsletterSignedUpUserEmail = userFromRequest.isSignupForNewsletter() ? user.getEmail() : "";
                     String newsletterSignedUpUserName = userFromRequest.isSignupForNewsletter() ? user.getName() : "";
                     Map<String, Object> analyticsProps = new HashMap<>();
@@ -476,7 +476,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {
-                                log.debug(
+                                log.error(
                                         "UserSignupCEImpl::Time taken to send installation setup complete analytics event: {} ms",
                                         pair.getT1());
                                 return pair.getT2();
@@ -484,7 +484,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .elapsed()
                 .map(pair -> {
-                    log.debug(
+                    log.error(
                             "UserSignupCEImpl::Time taken to send installation setup analytics event: {} ms",
                             pair.getT1());
                     return pair.getT2();
@@ -497,7 +497,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                 .elapsed()
                 .map(pair -> {
-                    log.debug("UserSignupCEImpl::Time taken to send create super user event: {} ms", pair.getT1());
+                    log.error("UserSignupCEImpl::Time taken to send create super user event: {} ms", pair.getT1());
                     return pair.getT2();
                 })
                 .subscribeOn(Schedulers.boundedElastic())

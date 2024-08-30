@@ -71,7 +71,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
         return instanceIdMono
                 .flatMap(instanceId -> {
-                    log.debug("Triggering registration of this instance...");
+                    log.error("Triggering registration of this instance...");
 
                     return WebClientUtils.create(baseUrl + "/api/v1/installations")
                             .post()
@@ -94,7 +94,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                                     .getMessage()));
                 })
                 .flatMap(registeredInstanceId -> {
-                    log.debug("Registration successful, updating state ...");
+                    log.error("Registration successful, updating state ...");
                     return instanceIdMono.flatMap(instanceId -> configService
                             .getByName(Appsmith.APPSMITH_REGISTERED)
                             .switchIfEmpty(Mono.defer(() -> {
@@ -181,17 +181,17 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     }
 
     public Mono<Void> performRtsHealthCheck() {
-        log.debug("Performing RTS health check of this instance...");
+        log.error("Performing RTS health check of this instance...");
 
         return rtsCaller
                 .get("/rts-api/v1/health-check")
                 .flatMap((spec) -> spec.retrieve().toBodilessEntity())
                 .doOnNext(nextSignal -> {
-                    log.debug("RTS health check succeeded");
+                    log.error("RTS health check succeeded");
                     this.isRtsAccessible = true;
                 })
                 .onErrorResume(errorSignal -> {
-                    log.debug("RTS health check failed with error: \n{}", errorSignal.getMessage());
+                    log.error("RTS health check failed with error: \n{}", errorSignal.getMessage());
                     return Mono.empty();
                 })
                 .then();
@@ -214,7 +214,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                 .executeCommand(new Document("buildInfo", 1))
                 .map(buildInfo -> {
                     commonConfig.setMongoDBVersion(buildInfo.getString("version"));
-                    log.info("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
+                    log.error("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
                     return commonConfig.getMongoDBVersion();
                 })
                 .onErrorResume(error -> {

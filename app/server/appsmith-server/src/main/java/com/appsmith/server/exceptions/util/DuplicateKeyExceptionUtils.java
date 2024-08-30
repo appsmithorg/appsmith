@@ -14,7 +14,7 @@ public class DuplicateKeyExceptionUtils {
         if (matcher.find()) {
             return matcher.group(1).trim();
         }
-        log.warn(
+        log.error(
                 "DuplicateKeyException regex needs attention. It's unable to extract object name from the error message. Possible reason: the underlying library may have changed the format of the error message.");
         /*
            [Fallback strategy]

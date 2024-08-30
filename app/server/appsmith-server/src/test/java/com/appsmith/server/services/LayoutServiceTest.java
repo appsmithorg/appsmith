@@ -124,7 +124,7 @@ public class LayoutServiceTest {
         toCreate.setName("LayoutServiceTest");
         Set<String> beforeCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
+        log.error("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
 
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
@@ -132,13 +132,13 @@ public class LayoutServiceTest {
         workspaceId = workspace.getId();
         Set<String> afterCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+        log.error("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
-        log.info("Workspace ID: {}", workspaceId);
-        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
-        log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        log.error("Workspace ID: {}", workspaceId);
+        log.error("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.error("Policy for created Workspace: {}", workspace.getPolicies());
         assertThat(currentUser).isNotNull();
-        log.info("Current User ID: {}", currentUser.getId());
+        log.error("Current User ID: {}", currentUser.getId());
 
         datasource = new Datasource();
         datasource.setName("Default Database");

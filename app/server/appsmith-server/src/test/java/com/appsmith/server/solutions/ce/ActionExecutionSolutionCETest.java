@@ -199,19 +199,19 @@ public class ActionExecutionSolutionCETest {
         toCreate.setName("ActionServiceCE_Test");
         Set<String> beforeCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
+        log.error("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
 
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
         Set<String> afterCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+        log.error("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
-        log.info("Workspace ID: {}", workspaceId);
-        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
-        log.info("Policy for created Workspace: {}", workspace.getPolicies());
-        log.info("Current User ID: {}", currentUser.getId());
+        log.error("Workspace ID: {}", workspaceId);
+        log.error("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.error("Policy for created Workspace: {}", workspace.getPolicies());
+        log.error("Current User ID: {}", currentUser.getId());
 
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())

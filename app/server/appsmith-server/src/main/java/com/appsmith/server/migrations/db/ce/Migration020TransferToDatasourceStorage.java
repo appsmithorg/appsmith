@@ -93,7 +93,7 @@ public class Migration020TransferToDatasourceStorage {
 
             DatasourceStorage datasourceStorage = createDatasourceStorageFromDatasource(datasource, environmentId);
 
-            log.debug(
+            log.error(
                     "Creating datasource storage for datasource id: {} with environment id: {}",
                     datasource.getId(),
                     environmentId);
@@ -102,8 +102,8 @@ public class Migration020TransferToDatasourceStorage {
             try {
                 mongoTemplate.insert(datasourceStorage);
             } catch (DuplicateKeyException e) {
-                log.warn("Looks like the datasource storage already exists for datasource id: {}", datasource.getId());
-                log.warn("We will attempt to reset the datasource again.");
+                log.error("Looks like the datasource storage already exists for datasource id: {}", datasource.getId());
+                log.error("We will attempt to reset the datasource again.");
             }
 
             // Once the datasource storage exists, delete the older config inside datasource

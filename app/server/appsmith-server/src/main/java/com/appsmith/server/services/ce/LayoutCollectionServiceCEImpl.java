@@ -189,7 +189,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 return newActionService
                                         .updateUnpublishedAction(actionDTO.getId(), actionDTO)
                                         .onErrorResume(throwable -> {
-                                            log.debug(
+                                            log.error(
                                                     "Failed to update collection name for action {} for collection with id: {}",
                                                     actionDTO.getName(),
                                                     actionDTO.getCollectionId());
@@ -346,7 +346,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         .deleteGivenNewAction(x)
                         // return an empty action so that the filter can remove it from the list
                         .onErrorResume(throwable -> {
-                            log.debug(
+                            log.error(
                                     "Failed to delete action with id {}, branch {} for collection: {}",
                                     x.getBaseId(),
                                     x.getBranchName(),

@@ -44,7 +44,7 @@ public class SeedMongoData {
             PermissionGroupRepository permissionGroupRepository,
             PolicySolution policySolution) {
 
-        log.info("Seeding the data");
+        log.error("Seeding the data");
         final String API_USER_EMAIL = "api_user";
         final String TEST_USER_EMAIL = "usertest@usertest.com";
         final String ADMIN_USER_EMAIL = "admin@solutiontest.com";
@@ -105,14 +105,14 @@ public class SeedMongoData {
         // Seed the plugin data into the DB
         Flux<Plugin> pluginFlux = Flux.just(pluginData)
                 .map(array -> {
-                    log.debug("Creating the plugins");
+                    log.error("Creating the plugins");
                     Plugin plugin = new Plugin();
 
                     plugin.setName((String) array[0]);
                     plugin.setType((PluginType) array[1]);
                     plugin.setPackageName((String) array[2]);
                     plugin.setDefaultInstall((Boolean) array[3]);
-                    log.debug("Create plugin: {}", plugin);
+                    log.error("Create plugin: {}", plugin);
                     return plugin;
                 })
                 .flatMap(pluginRepository::save);
@@ -133,7 +133,7 @@ public class SeedMongoData {
                 .flatMap(tuple -> {
                     Object[] array = tuple.getT1();
                     String tenantId = tuple.getT2();
-                    log.debug("Going to create bare users");
+                    log.error("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
                     user.setEmail((String) array[1]);

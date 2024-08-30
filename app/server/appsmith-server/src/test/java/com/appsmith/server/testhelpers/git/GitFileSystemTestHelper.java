@@ -51,7 +51,7 @@ public class GitFileSystemTestHelper {
         deleteWorkspaceDirectory(workspaceId);
 
         // create a new repository
-        log.debug("Setting up Git repository at path: {}", gitCompletePath);
+        log.error("Setting up Git repository at path: {}", gitCompletePath);
         gitExecutor.createNewRepository(gitCompletePath);
         File file = gitCompletePath.resolve(metadataFileName).toFile();
         file.createNewFile();
@@ -91,7 +91,7 @@ public class GitFileSystemTestHelper {
             Path repoPath = gitExecutor.createRepoPath(Paths.get(workspaceId));
             FileUtils.deleteDirectory(repoPath.toFile());
         } catch (IOException ioException) {
-            log.info("unable to delete the workspace with id : {}", workspaceId);
+            log.error("unable to delete the workspace with id : {}", workspaceId);
         }
     }
 

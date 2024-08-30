@@ -32,7 +32,7 @@ public class Migration034ChangeOpenAIIntegrationDocumentationLink {
                 Criteria.where(FieldNameCE.PACKAGE_NAME).is(PluginConstants.PackageName.OPEN_AI_PLUGIN));
         Plugin openAiPlugin = mongoTemplate.findOne(pluginFindQuery, Plugin.class);
         if (openAiPlugin == null) {
-            log.debug("OpenAI plugin not found while trying to update the documentation link");
+            log.error("OpenAI plugin not found while trying to update the documentation link");
             return;
         }
         openAiPlugin.setDocumentationLink("https://docs.appsmith.com/connect-data/reference/open-ai");

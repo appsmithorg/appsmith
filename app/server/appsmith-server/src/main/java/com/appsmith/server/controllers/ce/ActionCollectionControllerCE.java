@@ -52,7 +52,7 @@ public class ActionCollectionControllerCE {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionCollectionDTO>> create(@Valid @RequestBody ActionCollectionDTO resource) {
-        log.debug("Going to create action collection {}", resource.getClass().getName());
+        log.error("Going to create action collection {}", resource.getClass().getName());
         return layoutCollectionService
                 .createCollection(resource)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -62,7 +62,7 @@ public class ActionCollectionControllerCE {
     @GetMapping("")
     public Mono<ResponseDTO<List<ActionCollectionDTO>>> getAllUnpublishedActionCollections(
             @RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all unpublished action collections with params: {}", params);
+        log.error("Going to get all unpublished action collections with params: {}", params);
         return actionCollectionService
                 .getPopulatedActionCollectionsByViewMode(params, false)
                 .collectList()
@@ -73,7 +73,7 @@ public class ActionCollectionControllerCE {
     @PutMapping("/move")
     public Mono<ResponseDTO<ActionCollectionDTO>> moveActionCollection(
             @RequestBody @Valid ActionCollectionMoveDTO actionCollectionMoveDTO) {
-        log.debug(
+        log.error(
                 "Going to move action collection with id {} to page {}",
                 actionCollectionMoveDTO.getCollectionId(),
                 actionCollectionMoveDTO.getDestinationPageId());
@@ -96,7 +96,7 @@ public class ActionCollectionControllerCE {
     @GetMapping("/view")
     public Mono<ResponseDTO<List<ActionCollectionViewDTO>>> getAllPublishedActionCollections(
             @RequestParam String applicationId) {
-        log.debug("Going to get all published action collections with application Id: {}", applicationId);
+        log.error("Going to get all published action collections with application Id: {}", applicationId);
         return actionCollectionService
                 .getActionCollectionsForViewMode(applicationId, null)
                 .collectList()
@@ -107,7 +107,7 @@ public class ActionCollectionControllerCE {
     @PutMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> updateActionCollection(
             @PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
-        log.debug("Going to update action collection with id: {}", id);
+        log.error("Going to update action collection with id: {}", id);
         return layoutCollectionService
                 .updateUnpublishedActionCollection(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -117,7 +117,7 @@ public class ActionCollectionControllerCE {
     @PutMapping("/{id}/body")
     public Mono<ResponseDTO<Integer>> updateActionCollectionBody(
             @PathVariable String id, @Valid @RequestBody ActionCollectionDTO resource) {
-        log.debug("Going to update action collection body with id: {}", id);
+        log.error("Going to update action collection body with id: {}", id);
         return layoutCollectionService
                 .updateUnpublishedActionCollectionBody(id, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
@@ -127,7 +127,7 @@ public class ActionCollectionControllerCE {
     @PutMapping("/refactorAction")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(
             @Valid @RequestBody RefactorEntityNameDTO refactorEntityNameDTO) {
-        log.debug(
+        log.error(
                 "Going to refactor action collection with id: {}",
                 refactorEntityNameDTO.getActionCollection().getId());
 
@@ -140,7 +140,7 @@ public class ActionCollectionControllerCE {
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<ActionCollectionDTO>> deleteActionCollection(@PathVariable String id) {
-        log.debug("Going to delete unpublished action collection with id: {}", id);
+        log.error("Going to delete unpublished action collection with id: {}", id);
         return actionCollectionService
                 .deleteUnpublishedActionCollection(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));

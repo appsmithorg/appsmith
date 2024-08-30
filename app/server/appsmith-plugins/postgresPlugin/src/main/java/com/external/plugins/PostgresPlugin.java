@@ -383,7 +383,7 @@ public class PostgresPlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
+                        log.error(
                                 "Before executing postgres query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
                                 query,
                                 activeConnections,
@@ -442,7 +442,7 @@ public class PostgresPlugin extends BasePlugin {
                                         int objectSize = sizeof(rowsList);
 
                                         if (objectSize > MAX_SIZE_SUPPORTED) {
-                                            log.debug(
+                                            log.error(
                                                     "[PostgresPlugin] Result size greater than maximum supported size of {} bytes. Current size : {}",
                                                     MAX_SIZE_SUPPORTED,
                                                     objectSize);
@@ -518,7 +518,7 @@ public class PostgresPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
-                            log.debug("In the PostgresPlugin, got action execution error");
+                            log.error("In the PostgresPlugin, got action execution error");
                             return Mono.error(new AppsmithPluginException(
                                     PostgresPluginError.QUERY_EXECUTION_FAILED,
                                     PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -528,7 +528,7 @@ public class PostgresPlugin extends BasePlugin {
                             // Since postgres json type field can only hold valid json data, this exception
                             // is not expected
                             // to occur.
-                            log.debug("In the PostgresPlugin, got action execution error");
+                            log.error("In the PostgresPlugin, got action execution error");
                             return Mono.error(new AppsmithPluginException(
                                     PostgresPluginError.QUERY_EXECUTION_FAILED,
                                     PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -538,7 +538,7 @@ public class PostgresPlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
+                            log.error(
                                     "After executing postgres query, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
                                     activeConnections,
                                     idleConnections,
@@ -548,7 +548,7 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     resultSet.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres ResultSet", e);
+                                    log.error("Execute Error closing Postgres ResultSet", e);
                                 }
                             }
 
@@ -556,7 +556,7 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     statement.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres Statement", e);
+                                    log.error("Execute Error closing Postgres Statement", e);
                                 }
                             }
 
@@ -564,7 +564,7 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     preparedQuery.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres Statement", e);
+                                    log.error("Execute Error closing Postgres Statement", e);
                                 }
                             }
 
@@ -573,7 +573,7 @@ public class PostgresPlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error returning Postgres connection to pool", e);
+                                    log.error("Execute Error returning Postgres connection to pool", e);
                                 }
                             }
                         }
@@ -582,7 +582,7 @@ public class PostgresPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the PostgresPlugin, got action execution result");
+                        log.error("In the PostgresPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -658,7 +658,7 @@ public class PostgresPlugin extends BasePlugin {
                     .getMaxConnectionPoolSize()
                     .flatMap(maxPoolSize -> {
                         return Mono.fromCallable(() -> {
-                            log.debug("Connecting to Postgres db");
+                            log.error("Connecting to Postgres db");
                             return createConnectionPool(datasourceConfiguration, maxPoolSize);
                         });
                     })
@@ -784,7 +784,7 @@ public class PostgresPlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
+                        log.error(
                                 "Before getting postgres db structure Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
                                 activeConnections,
                                 idleConnections,
@@ -971,7 +971,7 @@ public class PostgresPlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
+                            log.error(
                                     "After postgres db structure, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
                                     activeConnections,
                                     idleConnections,
@@ -983,7 +983,7 @@ public class PostgresPlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Error returning Postgres connection to pool during get structure", e);
+                                    log.error("Error returning Postgres connection to pool during get structure", e);
                                 }
                             }
                         }
@@ -992,7 +992,7 @@ public class PostgresPlugin extends BasePlugin {
                         for (DatasourceStructure.Table table : structure.getTables()) {
                             table.getKeys().sort(Comparator.naturalOrder());
                         }
-                        log.debug("Got the structure of postgres db");
+                        log.error("Got the structure of postgres db");
                         return structure;
                     })
                     .map(resultStructure -> (DatasourceStructure) resultStructure)

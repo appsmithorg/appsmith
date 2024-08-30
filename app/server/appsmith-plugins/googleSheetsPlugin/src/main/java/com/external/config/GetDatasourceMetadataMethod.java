@@ -80,7 +80,7 @@ public class GetDatasourceMetadataMethod {
         } catch (URISyntaxException e) {
             // since the datasource authorisation doesn't get affected if this flow fails,
             // let's return a value so that the datasource gets authorised
-            log.debug("Error while parsing access token URL.", e);
+            log.error("Error while parsing access token URL.", e);
             return Mono.just("");
         }
 

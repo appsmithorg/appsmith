@@ -38,7 +38,7 @@ public class RestApiImportControllerCE {
             @RequestParam String name,
             @RequestParam String workspaceId,
             @RequestParam(required = false) CreatorContextType contextType) {
-        log.debug("Going to import API");
+        log.error("Going to import API");
         ApiImporter service;
 
         switch (type) {

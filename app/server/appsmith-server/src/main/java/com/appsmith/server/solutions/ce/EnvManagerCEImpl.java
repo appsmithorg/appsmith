@@ -736,7 +736,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      */
     @Override
     public Mono<Void> restartWithoutAclCheck() {
-        log.warn("Initiating restart via supervisor.");
+        log.error("Initiating restart via supervisor.");
         try {
             Runtime.getRuntime().exec(new String[] {
                 "supervisorctl", "restart", "backend", "editor", "rts",

@@ -213,7 +213,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 })
                 .flatMap(passwordResetTokenRepository::save)
                 .flatMap(passwordResetToken -> {
-                    log.debug("Password reset Token: {} for email: {}", token, passwordResetToken.getEmail());
+                    log.error("Password reset Token: {} for email: {}", token, passwordResetToken.getEmail());
 
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("email", passwordResetToken.getEmail()));
@@ -224,7 +224,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             resetUserPasswordDTO.getBaseUrl(),
                             EncryptionHelper.encrypt(urlParams));
 
-                    log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
+                    log.error("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
 
                     return emailService.sendForgotPasswordEmail(email, resetUrl, resetUserPasswordDTO.getBaseUrl());
                 })
@@ -466,20 +466,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                         .createDefault(new Workspace(), savedUser)
                                         .elapsed()
                                         .map(pair -> {
-                                            log.debug(
+                                            log.error(
                                                     "UserServiceCEImpl::Time taken to create default workspace: {} ms",
                                                     pair.getT1());
                                             return pair.getT2();
                                         })
                                         .map(workspace -> {
-                                            log.debug(
+                                            log.error(
                                                     "Created blank default workspace for user '{}'.",
                                                     savedUser.getEmail());
                                             userSignupDTO.setDefaultWorkspaceId(workspace.getId());
                                             return userSignupDTO;
                                         })
                                         .onErrorResume(e -> {
-                                            log.debug(
+                                            log.error(
                                                     "Error creating default workspace for user '{}'.",
                                                     savedUser.getEmail(),
                                                     e);
@@ -494,7 +494,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                     }))
                             .elapsed()
                             .map(pair -> {
-                                log.debug("UserServiceCEImpl::Time taken to find created user: {} ms", pair.getT1());
+                                log.error("UserServiceCEImpl::Time taken to find created user: {} ms", pair.getT1());
                                 return pair.getT2();
                             });
                 }));
@@ -539,7 +539,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // No special configurations found, allow signup for the new user.
         return userCreate(user, isAdminUser).elapsed().map(pair -> {
-            log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
+            log.error("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
             return pair.getT2();
         });
     }

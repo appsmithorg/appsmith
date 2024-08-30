@@ -44,12 +44,12 @@ public class Migration026AddIndexTenantAndDeletedInWorkspace {
         try {
             ensureIndexes(mongoTemplate, Workspace.class, tenantDeletedAtIndex);
         } catch (UncategorizedMongoDbException mongockException) {
-            log.debug(
+            log.error(
                     "An error occurred while creating the index : {}, skipping the addition of index because of {}.",
                     WORKSPACE_COMPOUND_INDEX_TENANT,
                     mongockException.getMessage());
         } catch (Exception exception) {
-            log.debug("An error occurred while creating the index : {}", WORKSPACE_COMPOUND_INDEX_TENANT);
+            log.error("An error occurred while creating the index : {}", WORKSPACE_COMPOUND_INDEX_TENANT);
             exception.printStackTrace();
         }
     }

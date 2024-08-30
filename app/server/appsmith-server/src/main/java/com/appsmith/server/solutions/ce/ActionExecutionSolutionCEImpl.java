@@ -732,7 +732,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                 });
 
         return executionMono.onErrorResume(StaleConnectionException.class, error -> {
-            log.info("Looks like the connection is stale. Retrying with a fresh context.");
+            log.error("Looks like the connection is stale. Retrying with a fresh context.");
             return datasourceContextService
                     .deleteDatasourceContext(datasourceStorage)
                     .then(executionMono);
@@ -748,7 +748,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             } else if (error instanceof StaleConnectionException e) {
                 return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR, e.getMessage());
             } else {
-                log.debug(
+                log.error(
                         "{}: In the action execution error mode.",
                         Thread.currentThread().getName(),
                         error);
@@ -820,7 +820,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         rawActionConfiguration = this.deepCopyActionConfiguration(actionDTO.getActionConfiguration());
                     }
 
-                    log.debug(
+                    log.error(
                             "[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
                             Thread.currentThread().getName(),
                             actionDTO.getPageId(),
@@ -847,7 +847,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 Long timeElapsed = tuple1.getT1();
                                 ActionExecutionResult result = tuple1.getT2();
 
-                                log.debug(
+                                log.error(
                                         "{}: Action {} with id {} execution time : {} ms",
                                         Thread.currentThread().getName(),
                                         actionDTO.getName(),
@@ -1117,7 +1117,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         try {
                             errorJson = objectMapper.writeValueAsString(actionExecutionResult.getBody());
                         } catch (JsonProcessingException e) {
-                            log.warn("Unable to serialize action execution error result to JSON.", e);
+                            log.error("Unable to serialize action execution error result to JSON.", e);
                             errorJson = "\"Failed to serialize error data to JSON.\"";
                         }
                         data.put("error", errorJson);
@@ -1168,7 +1168,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             .thenReturn(request);
                 })
                 .onErrorResume(error -> {
-                    log.warn("Error sending action execution data point", error);
+                    log.error("Error sending action execution data point", error);
                     return Mono.just(request);
                 });
     }

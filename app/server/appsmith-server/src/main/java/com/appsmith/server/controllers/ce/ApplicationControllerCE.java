@@ -77,7 +77,7 @@ public class ApplicationControllerCE {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> create(@Valid @RequestBody ApplicationCreationDTO resource) {
-        log.debug("Going to create application in workspace {}", resource.workspaceId());
+        log.error("Going to create application in workspace {}", resource.workspaceId());
         return applicationPageService
                 .createApplication(resource.toApplication())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -116,7 +116,7 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @DeleteMapping("/{branchedApplicationId}")
     public Mono<ResponseDTO<Application>> delete(@PathVariable String branchedApplicationId) {
-        log.debug("Going to delete application with branchedApplicationId: {}", branchedApplicationId);
+        log.error("Going to delete application with branchedApplicationId: {}", branchedApplicationId);
         return applicationPageService
                 .deleteApplication(branchedApplicationId)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
@@ -126,7 +126,7 @@ public class ApplicationControllerCE {
     @GetMapping("/home")
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
             @RequestParam(required = false) String workspaceId) {
-        log.debug("Going to get all applications by workspace id {}", workspaceId);
+        log.error("Going to get all applications by workspace id {}", workspaceId);
         return service.findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(workspaceId)
                 .collectList()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
@@ -135,7 +135,7 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping(Url.RELEASE_ITEMS)
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
-        log.debug("Going to get version release items");
+        log.error("Going to get version release items");
         return userReleaseNotes
                 .getReleaseItems()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
@@ -145,7 +145,7 @@ public class ApplicationControllerCE {
     @PutMapping("/{branchedApplicationId}/changeAccess")
     public Mono<ResponseDTO<Application>> shareApplication(
             @PathVariable String branchedApplicationId, @RequestBody ApplicationAccessDTO applicationAccessDTO) {
-        log.debug(
+        log.error(
                 "Going to change access for application {} to {}",
                 branchedApplicationId,
                 applicationAccessDTO.getPublicAccess());
@@ -181,7 +181,7 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/export/{branchedApplicationId}")
     public Mono<ResponseEntity<Object>> getApplicationFile(@PathVariable String branchedApplicationId) {
-        log.debug("Going to export application with branchedApplicationId: {}", branchedApplicationId);
+        log.error("Going to export application with branchedApplicationId: {}", branchedApplicationId);
 
         return exportService.getArtifactFile(branchedApplicationId, APPLICATION).map(fetchedResource -> {
             HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
@@ -194,7 +194,7 @@ public class ApplicationControllerCE {
     @PostMapping("/snapshot/{branchedApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Boolean>> createSnapshot(@PathVariable String branchedApplicationId) {
-        log.debug("Going to create snapshot with application branchedApplicationId: {}", branchedApplicationId);
+        log.error("Going to create snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
                 .createApplicationSnapshot(branchedApplicationId)
@@ -205,7 +205,7 @@ public class ApplicationControllerCE {
     @GetMapping("/snapshot/{branchedApplicationId}")
     public Mono<ResponseDTO<ApplicationSnapshotResponseDTO>> getSnapshotWithoutApplicationJson(
             @PathVariable String branchedApplicationId) {
-        log.debug("Going to get snapshot with application branchedApplicationId: {}", branchedApplicationId);
+        log.error("Going to get snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
                 .getWithoutDataByBranchedApplicationId(branchedApplicationId)
@@ -215,7 +215,7 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @DeleteMapping("/snapshot/{branchedApplicationId}")
     public Mono<ResponseDTO<Boolean>> deleteSnapshotWithoutApplicationJson(@PathVariable String branchedApplicationId) {
-        log.debug("Going to delete snapshot with application branchedApplicationId: {}", branchedApplicationId);
+        log.error("Going to delete snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
                 .deleteSnapshot(branchedApplicationId)
@@ -225,7 +225,7 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/snapshot/{branchedApplicationId}/restore")
     public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String branchedApplicationId) {
-        log.debug("Going to restore snapshot with application branchedApplicationId: {}", branchedApplicationId);
+        log.error("Going to restore snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
                 .restoreSnapshot(branchedApplicationId)
@@ -238,7 +238,7 @@ public class ApplicationControllerCE {
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String branchedApplicationId) {
-        log.debug("Going to import application in workspace with id: {}", workspaceId);
+        log.error("Going to import application in workspace with id: {}", workspaceId);
         return fileMono.flatMap(file -> importService.extractArtifactExchangeJsonAndSaveArtifact(
                         file, workspaceId, branchedApplicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
@@ -263,7 +263,7 @@ public class ApplicationControllerCE {
     @PutMapping("/{branchedApplicationId}")
     public Mono<ResponseDTO<Application>> update(
             @PathVariable String branchedApplicationId, @RequestBody Application resource) {
-        log.debug("Going to update resource from base controller with id: {}", branchedApplicationId);
+        log.error("Going to update resource from base controller with id: {}", branchedApplicationId);
         return service.updateApplicationWithPresets(branchedApplicationId, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }

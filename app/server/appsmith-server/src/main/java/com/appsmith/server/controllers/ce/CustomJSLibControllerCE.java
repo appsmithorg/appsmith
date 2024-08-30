@@ -39,7 +39,7 @@ public class CustomJSLibControllerCE {
             @PathVariable String branchedApplicationId,
             @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType,
             @RequestHeader(name = FieldName.IS_FORCE_INSTALL, defaultValue = "false") Boolean isForceInstall) {
-        log.debug(
+        log.error(
                 "Going to add JS lib: {}_{} to {}: {}",
                 customJSLib.getName(),
                 customJSLib.getVersion(),
@@ -57,7 +57,7 @@ public class CustomJSLibControllerCE {
             @PathVariable String branchedApplicationId,
             @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType,
             @RequestHeader(name = FieldName.IS_FORCE_REMOVE, defaultValue = "false") Boolean isForceRemove) {
-        log.debug(
+        log.error(
                 "Going to remove JS lib: {} from {}: {}",
                 customJSLib.getUidString(),
                 contextType.name().toLowerCase(),
@@ -72,7 +72,7 @@ public class CustomJSLibControllerCE {
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplication(
             @PathVariable String branchedContextId,
             @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType) {
-        log.debug(
+        log.error(
                 "Going to get all unpublished JS libs in {}: {}, on branch: {}",
                 contextType.name().toLowerCase(),
                 branchedContextId);
@@ -87,7 +87,7 @@ public class CustomJSLibControllerCE {
             @PathVariable String branchedContextId,
             @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug(
+        log.error(
                 "Going to get all published JS libs in {}: {}, on branch: {}",
                 contextType.name().toLowerCase(),
                 branchedContextId,

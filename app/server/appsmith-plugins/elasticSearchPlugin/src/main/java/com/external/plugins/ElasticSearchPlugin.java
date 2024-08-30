@@ -118,7 +118,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                                     }
                                 } catch (IOException e) {
                                     final String message = "Error converting array to ND-JSON: " + e.getMessage();
-                                    log.warn(message, e);
+                                    log.error(message, e);
                                     return Mono.error(new AppsmithPluginException(
                                             AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
                                             ElasticSearchErrorMessages.ARRAY_TO_ND_JSON_ARRAY_CONVERSION_ERROR_MSG,
@@ -140,7 +140,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                             result.setBody(objectMapper.readValue(responseBody, HashMap.class));
                         } catch (IOException e) {
                             final String message = "Error performing request: " + e.getMessage();
-                            log.warn(message, e);
+                            log.error(message, e);
                             return Mono.error(new AppsmithPluginException(
                                     ElasticSearchPluginError.QUERY_EXECUTION_FAILED,
                                     ElasticSearchErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -148,7 +148,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         }
 
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the Elastic Search Plugin, got action execution result");
+                        log.error("In the Elastic Search Plugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -241,7 +241,7 @@ public class ElasticSearchPlugin extends BasePlugin {
             try {
                 client.close();
             } catch (IOException e) {
-                log.warn("Error closing connection to ElasticSearch.", e);
+                log.error("Error closing connection to ElasticSearch.", e);
             }
         }
 

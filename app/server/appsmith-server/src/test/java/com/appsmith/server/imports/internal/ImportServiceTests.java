@@ -246,7 +246,7 @@ public class ImportServiceTests {
         User currentUser = sessionUserService.getCurrentUser().block();
         Set<String> beforeCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
+        log.error("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Workspace workspace = new Workspace();
         workspace.setName("Import-Export-Test-Workspace");
@@ -257,12 +257,12 @@ public class ImportServiceTests {
                 .block();
         Set<String> afterCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
+        log.error("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
-        log.info("Workspace ID: {}", workspaceId);
-        log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
-        log.info("Policy for created Workspace: {}", workspace.getPolicies());
-        log.info("Current User ID: {}", currentUser.getId());
+        log.error("Workspace ID: {}", workspaceId);
+        log.error("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
+        log.error("Policy for created Workspace: {}", workspace.getPolicies());
+        log.error("Current User ID: {}", currentUser.getId());
 
         Application testApplication = new Application();
         testApplication.setName("Export-Application-Test-Application");

@@ -32,7 +32,7 @@ public class InstanceAdminControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/env")
     public Mono<ResponseDTO<Map<String, String>>> getAll() {
-        log.debug("Getting all env configuration");
+        log.error("Getting all env configuration");
         return envManager.getAllNonEmpty().map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
@@ -43,7 +43,7 @@ public class InstanceAdminControllerCE {
             consumes = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseDTO<Void>> saveEnvChangesJSON(
             @Valid @RequestBody Map<String, String> changes, @RequestHeader("Origin") String originHeader) {
-        log.debug("Applying env updates {}", changes.keySet());
+        log.error("Applying env updates {}", changes.keySet());
         return envManager
                 .applyChanges(changes, originHeader)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
@@ -55,7 +55,7 @@ public class InstanceAdminControllerCE {
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(
             @RequestHeader("Origin") String originHeader, ServerWebExchange exchange) {
-        log.debug("Applying env updates from form data");
+        log.error("Applying env updates from form data");
         return exchange.getMultipartData()
                 .flatMap(formData -> envManager.applyChangesFromMultipartFormData(formData, originHeader))
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
@@ -64,14 +64,14 @@ public class InstanceAdminControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping("/restart")
     public Mono<ResponseDTO<Boolean>> restart() {
-        log.debug("Received restart request");
+        log.error("Received restart request");
         return envManager.restart().thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping("/send-test-email")
     public Mono<ResponseDTO<Boolean>> sendTestEmail(@RequestBody @Valid TestEmailConfigRequestDTO requestDTO) {
-        log.debug("Sending test email");
+        log.error("Sending test email");
         return envManager.sendTestEmail(requestDTO).thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 }

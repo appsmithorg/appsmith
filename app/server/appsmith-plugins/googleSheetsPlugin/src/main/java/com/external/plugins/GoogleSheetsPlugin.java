@@ -249,7 +249,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 })
                                 .onErrorResume(e -> {
                                     errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                                    log.debug("Received error on Google Sheets action execution", e);
+                                    log.error("Received error on Google Sheets action execution", e);
                                     if (!(e instanceof AppsmithPluginException)) {
                                         e = new AppsmithPluginException(
                                                 GSheetsPluginError.QUERY_EXECUTION_FAILED,

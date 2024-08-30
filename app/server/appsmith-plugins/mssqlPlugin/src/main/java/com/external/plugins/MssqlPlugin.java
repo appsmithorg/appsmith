@@ -219,7 +219,7 @@ public class MssqlPlugin extends BasePlugin {
                             if (sqlConnectionFromPool == null
                                     || sqlConnectionFromPool.isClosed()
                                     || !sqlConnectionFromPool.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                                log.info("Encountered stale connection in MsSQL plugin. Reporting back.");
+                                log.error("Encountered stale connection in MsSQL plugin. Reporting back.");
 
                                 if (sqlConnectionFromPool == null) {
                                     return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
@@ -300,7 +300,7 @@ public class MssqlPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the MssqlPlugin, got action execution result");
+                        log.error("In the MssqlPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -346,7 +346,7 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.fromCallable(() -> {
-                        log.debug("Connecting to SQL Server db");
+                        log.error("Connecting to SQL Server db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);

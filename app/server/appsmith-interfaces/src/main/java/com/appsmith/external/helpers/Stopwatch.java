@@ -22,7 +22,7 @@ public class Stopwatch {
         if (!this.watch.isStopped()) {
             this.watch.stop();
         }
-        log.debug("Execute time: {}, Time elapsed: {}ms", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS));
+        log.error("Execute time: {}, Time elapsed: {}ms", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS));
     }
 
     public void stopTimer() {
