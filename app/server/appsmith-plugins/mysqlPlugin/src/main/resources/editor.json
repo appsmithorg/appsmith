@@ -6,7 +6,7 @@
       "children": [
         {
           "controlType": "SINGLE_COLUMN_ZONE",
-          "identifier": "SO-Z3",
+          "identifier": "SO-Z1",
           "conditionals": {
             "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === true}}"
           },
@@ -23,7 +23,7 @@
         },
         {
           "controlType": "SINGLE_COLUMN_ZONE",
-          "identifier": "SO-Z3",
+          "identifier": "SO-Z2",
           "conditionals": {
             "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === false}}"
           },
