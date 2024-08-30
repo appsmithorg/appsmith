@@ -16,55 +16,53 @@ jobs:
           ref: release  # Checkout the release branch
 
       - name: Fetch all branches
-        run: git fetch --all
+        run: git fetch origin pg
 
       - name: Checkout pg branch
         run: git checkout pg
 
-      - name: Get new commits from release
-        id: get_commits
-        run: |
-          COMMITS=$(git log pg..release --oneline | awk '{print $1}')
-          echo "COMMITS=\"$COMMITS\"" >> $GITHUB_ENV
-
-      - name: Merge commits one by one
+      - name: Merge release to pg
         id: merge_commits
         run: |
-          # Initialize an empty list for conflicted commits
-          conflicted_commits=()
 
-          # Convert the string of commits to an array
-          IFS=' ' read -r -a commit_array <<< "$COMMITS"
+          PG_HEAD=$(git rev-parse pg)
+          RELEASE_HEAD=$(git rev-parse release)
 
-          # Loop through each commit
-          for commit in "${commit_array[@]}"; do
-            echo "Merging commit $commit"
-            git cherry-pick $commit || {
-              echo "Conflict detected with commit $commit"
-              conflicted_commits+=($commit)
-              git cherry-pick --abort
-            }
-          done
+          echo "PG_HEAD=$PG_HEAD"
+          echo "RELEASE_HEAD=$RELEASE_HEAD"
 
-          # Save conflicted commits to environment variable
-          echo "CONFLICTED_COMMITS=\"${conflicted_commits[@]}\"" >> $GITHUB_ENV
+          # Checkout the pg branch
+          git checkout pg
+
+          # Attempt to merge release into pg
+          if ! git merge release; then
+            echo "Merge conflict detected during merge"
+
+            # Capture the conflicting commit SHAs (both HEAD of pg and the merge commit from release)
+            CONFLICTING_COMMIT=$(git log -1 --pretty=format:"%H")
+            echo "CONFLICTING_COMMIT=$CONFLICTING_COMMIT" >> $GITHUB_ENV
+
+            git merge --abort
+            echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
+          else
+            echo "MERGE_CONFLICT=false" >> $GITHUB_ENV
+          fi
 
       - name: Push changes
-        if: success() && steps.merge_commits.outputs.CONFLICTED_COMMITS == ''
+        if: env.MERGE_CONFLICT == 'false'
         run: |
           git push origin pg
 
       - name: Notify on merge conflicts
-        if: steps.merge_commits.outputs.CONFLICTED_COMMITS != ''
+        if: env.MERGE_CONFLICT == 'true'
         env:
           REPOSITORY_URL: ${{ github.repositoryUrl }}
+          CONFLICTING_COMMIT: ${{ env.CONFLICTING_COMMIT }}
         run: |
           # Prepare the message for Slack
           message="Merge conflict detected while merging release into pg branch. Conflicted commits:\n"
-          for commit in $CONFLICTED_COMMITS; do
-            commit_url="$REPOSITORY_URL/commit/$commit"
-            message+="$commit_url\n"
-          done
+          commit_url="$REPOSITORY_URL/commit/$CONFLICTING_COMMIT"
+          message+="$commit_url\n"
 
           # Send the message to Slack
           # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.

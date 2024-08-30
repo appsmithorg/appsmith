@@ -81,6 +81,10 @@ import { WDSModalWidget } from "./wds/WDSModalWidget";
 import { WDSStatsWidget } from "./wds/WDSStatsWidget";
 import { WDSKeyValueWidget } from "./wds/WDSKeyValueWidget";
 import { WDSInlineButtonsWidget } from "./wds/WDSInlineButtonsWidget";
+import { WDSEmailInputWidget } from "./wds/WDSEmailInputWidget";
+import { WDSPasswordInputWidget } from "./wds/WDSPasswordInputWidget";
+import { WDSNumberInputWidget } from "./wds/WDSNumberInputWidget";
+import { WDSMultilineInputWidget } from "./wds/WDSMultilineInputWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -173,6 +177,10 @@ const WDSWidgets = [
   WDSStatsWidget,
   WDSKeyValueWidget,
   WDSInlineButtonsWidget,
+  WDSEmailInputWidget,
+  WDSPasswordInputWidget,
+  WDSNumberInputWidget,
+  WDSMultilineInputWidget,
 ];
 
 const Widgets = [
