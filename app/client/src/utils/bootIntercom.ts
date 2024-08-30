@@ -5,12 +5,12 @@ import { getLicenseKey } from "ee/utils/licenseHelpers";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
-export default function bootIntercom(user: User) {
+export default function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
-    let name = user.name;
-    let email: string | undefined = user.email;
+    let name: string | undefined = user?.name;
+    let email: string | undefined = user?.email;
     let username =
-      user.username === ANONYMOUS_USERNAME ? undefined : user.username;
+      user?.username === ANONYMOUS_USERNAME ? undefined : user?.username;
     if (!cloudHosting && username) {
       // We are hiding their information when self-hosted
       username = sha256(username || "");
