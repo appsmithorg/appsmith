@@ -4784,6 +4784,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@json2csv/formatters@npm:^7.0.6":
+  version: 7.0.6
+  resolution: "@json2csv/formatters@npm:7.0.6"
+  checksum: 9589566ea925f19597664f7a253624f4392c0b5da4bca709cbca188761c9d8068e275e26829d3bc0b386ad1872295acf2c5d4da097026fd3ac4423690c5eff9b
+  languageName: node
+  linkType: hard
+
+"@json2csv/plainjs@npm:^7.0.6":
+  version: 7.0.6
+  resolution: "@json2csv/plainjs@npm:7.0.6"
+  dependencies:
+    "@json2csv/formatters": ^7.0.6
+    "@streamparser/json": ^0.0.20
+  checksum: e02ba6e5ea554493c60f4767a93d21a7c61a377591e6cb0e0768aeeeef82c4b3adb5c0decc4c70077bf1ff30015379aea32f97f8e6e781672184b30de1f9bc78
+  languageName: node
+  linkType: hard
+
 "@juggle/resize-observer@npm:^3.3.1":
   version: 3.4.0
   resolution: "@juggle/resize-observer@npm:3.4.0"
@@ -9690,6 +9707,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@streamparser/json@npm:^0.0.20":
+  version: 0.0.20
+  resolution: "@streamparser/json@npm:0.0.20"
+  checksum: fd17c94c03411cc852512bd196a9ea2e85a3404391b64525384821d3b04b1cd03f5899d51da135a4bf9d88185acb5de42d1a99a9ea440d652555ef70e0a9a081
+  languageName: node
+  linkType: hard
+
+"@streamparser/json@npm:^0.0.6":
+  version: 0.0.6
+  resolution: "@streamparser/json@npm:0.0.6"
+  checksum: 48eff9d7395859fa395f5c8ea3f510db085c3f55206310d7855249eab39a7dbdb4432d1a9fde073f8a2ca726967c0171fa14032a3968e403b2fd6f25f89924ed
+  languageName: node
+  linkType: hard
+
 "@surma/rollup-plugin-off-main-thread@npm:^2.2.3":
   version: 2.2.3
   resolution: "@surma/rollup-plugin-off-main-thread@npm:2.2.3"
@@ -13180,6 +13211,7 @@ __metadata:
     "@github/g-emoji-element": ^1.1.5
     "@googlemaps/markerclusterer": ^2.0.14
     "@googlemaps/react-wrapper": ^1.1.35
+    "@json2csv/plainjs": ^7.0.6
     "@loadable/component": ^5.15.3
     "@manaflair/redux-batch": ^1.0.0
     "@mantine/hooks": ^5.10.1
@@ -13351,6 +13383,7 @@ __metadata:
     js-regex-pl: ^1.0.1
     js-sha256: ^0.9.0
     jshint: ^2.13.4
+    json2csv: ^6.0.0-alpha.2
     json5: ^2.2.3
     klona: ^2.0.5
     konva: 8.0.1
@@ -15797,7 +15830,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^6.2.1":
+"commander@npm:^6.2.0, commander@npm:^6.2.1":
   version: 6.2.1
   resolution: "commander@npm:6.2.1"
   checksum: d7090410c0de6bc5c67d3ca41c41760d6d268f3c799e530aafb73b7437d1826bbf0d2a3edac33f8b57cc9887b4a986dce307fa5557e109be40eadb7c43b21742
@@ -24063,6 +24096,19 @@ __metadata:
   version: 5.0.1
   resolution: "json-stringify-safe@npm:5.0.1"
   checksum: 48ec0adad5280b8a96bb93f4563aa1667fd7a36334f79149abd42446d0989f2ddc58274b479f4819f1f00617957e6344c886c55d05a4e15ebb4ab931e4a6a8ee
+  languageName: node
+  linkType: hard
+
+"json2csv@npm:^6.0.0-alpha.2":
+  version: 6.0.0-alpha.2
+  resolution: "json2csv@npm:6.0.0-alpha.2"
+  dependencies:
+    "@streamparser/json": ^0.0.6
+    commander: ^6.2.0
+    lodash.get: ^4.4.2
+  bin:
+    json2csv: bin/json2csv.js
+  checksum: 6f9ff361efe3cfd534c59eddca0c32a2d61b9ccf8f6865a8478801c4101dda287c5caa0f4065ffc49f250cbe8baf80afb250ebce8b9f384484a046b45a93f824
   languageName: node
   linkType: hard
 

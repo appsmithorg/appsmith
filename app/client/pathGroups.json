@@ -1,0 +1,16 @@
+{
+    "packages": [
+      "packages/design-system/",
+      "packages/dsl/",
+      "packages/icons/",
+      "packages/utils/"
+    ],
+    "src": [
+      "src/IDE/",
+      "src/UITelemetry/",
+      "src/WidgetProvider/",
+      "src/WidgetQueryGenerators/",
+      "src/actions/",
+      "src/api/"
+    ]
+  }
