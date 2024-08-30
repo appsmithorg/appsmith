@@ -41,6 +41,8 @@ describe(
         "List3",
       ]);
       agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
+      _.debuggerHelper.OpenDebugger();
+      _.debuggerHelper.ClickLogsTab();
       _.debuggerHelper.DoesConsoleLogExist(
         "Cannot have more than 3 levels of nesting in the list widget",
         true,

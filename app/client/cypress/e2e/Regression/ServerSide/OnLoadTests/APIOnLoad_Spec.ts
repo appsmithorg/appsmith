@@ -62,7 +62,7 @@ describe(
       debuggerHelper.AssertDebugError(
         'The action "PageLoadApi2" has failed.',
         "",
-        false,
+        true,
         false,
       );
     });

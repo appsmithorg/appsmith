@@ -74,6 +74,8 @@ describe(
         .type(`{${modifierKey}}{v}`);
 
       cy.wait(500);
+      _.debuggerHelper.OpenDebugger();
+      _.debuggerHelper.ClickLogsTab();
       _.debuggerHelper.DoesConsoleLogExist(
         "Cannot have more than 3 levels of nesting",
         true,

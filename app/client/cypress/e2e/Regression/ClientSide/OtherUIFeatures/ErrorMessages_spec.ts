@@ -33,7 +33,7 @@ describe("Sanitise toast error messages", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{a.kjbfjdfbkds()}}");
     _.agHelper.ClickButton("Submit");
-    _.debuggerHelper.AssertDebugError("'a' is not defined.", "", false, false);
+    _.debuggerHelper.AssertDebugError("'a' is not defined.", "", true, false);
   });
 
   it("2. Does not show type error label when js obj function does not exist", () => {
