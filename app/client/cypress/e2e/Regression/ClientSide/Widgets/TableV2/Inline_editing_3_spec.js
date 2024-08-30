@@ -169,7 +169,6 @@ describe(
         .contains("Plain text")
         .click();
       propPane.TogglePropertyState("Editable", "Off", "");
-      cy.wait(500);
       [
         {
           columnType: "URL",
