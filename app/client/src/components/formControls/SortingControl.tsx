@@ -152,7 +152,7 @@ function SortingComponent(props: SortingComponentProps) {
           );
 
           return (
-            <>
+            <React.Fragment key={index}>
               <SortingFields isBreakpointSmall={isBreakpointSmall}>
                 <FormControl
                   config={{
@@ -188,7 +188,7 @@ function SortingComponent(props: SortingComponentProps) {
                 startIcon="close-line"
                 value={index}
               />
-            </>
+            </React.Fragment>
           );
         })}
       <ButtonWrapper>
