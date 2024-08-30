@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("JSEditor Comment - Visual tests", { tags: ["@tag.Visual", "@tag.Snapshot"] }, () => {
+describe("JSEditor Comment - Visual tests", { tags: ["@tag.Visual"] }, () => {
   it("1. comments code on the editor", () => {
     jsEditor.CreateJSObject(
       `export default {

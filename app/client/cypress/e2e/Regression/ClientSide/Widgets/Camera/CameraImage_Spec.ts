@@ -15,7 +15,7 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Camera widget - Image test",
-  { tags: ["@tag.Widget", "@tag.Camera", "@tag.Snapshot"] },
+  { tags: ["@tag.Widget", "@tag.Camera", "@tag.Visual"] },
   () => {
     before(() => {
       //Reset video source to default incase it got changed in other specs

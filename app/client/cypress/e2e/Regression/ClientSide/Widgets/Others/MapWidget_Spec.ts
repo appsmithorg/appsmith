@@ -29,7 +29,7 @@ const location = [
   },
 ];
 
-describe("Map Widget", { tags: ["@tag.Widget", "@tag.Maps", "@tag.Snapshot"] }, function () {
+describe("Map Widget", { tags: ["@tag.Widget", "@tag.Maps", "@tag.Visual"] }, function () {
   it("1.Drag Map Widget and Verify the Map Widget with Initial Location", () => {
     //Add map and verify
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAP, 200, 200);

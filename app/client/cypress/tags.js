@@ -68,6 +68,5 @@ module.exports = {
     "@tag.Workspace",
     "@tag.airgap",
     "@tag.excludeForAirgap",
-    "@tag.Snapshot",
   ],
 };
