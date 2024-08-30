@@ -16,7 +16,7 @@
               "controlType": "QUERY_DYNAMIC_TEXT",
               "evaluationSubstitutionType": "PARAMETER",
               "conditionals": {
-                "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === true"
+                "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === true}}"
               }
             },
             {
@@ -27,7 +27,7 @@
               "controlType": "QUERY_DYNAMIC_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
               "conditionals": {
-                "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === false"
+                "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === false}}"
               }
             }
           ]
