@@ -1,8 +1,6 @@
 import {
   type DeleteErrorLogPayload,
   type LogDebuggerErrorAnalyticsPayload,
-  setDebuggerSelectedTab,
-  showDebugger,
 } from "actions/debuggerActions";
 import {
   addErrorLogs,
@@ -29,7 +27,7 @@ import {
   takeEvery,
 } from "redux-saga/effects";
 import { findIndex, get, isEmpty, isMatch, set } from "lodash";
-import { getDebuggerErrors, getErrorCount } from "selectors/debuggerSelectors";
+import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import {
   getAction,
   getPlugin,
@@ -42,10 +40,7 @@ import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { getConfigTree } from "selectors/dataTreeSelectors";
-import {
-  createLogTitleString,
-  DEBUGGER_TAB_KEYS,
-} from "components/editorComponents/Debugger/helpers";
+import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
@@ -817,16 +812,6 @@ function* activeFieldDebuggerErrorHandler(
   }
 }
 
-function* handleHideDebuggerSaga(action: ReduxAction<boolean>) {
-  const { payload } = action;
-  const errorCount: number = yield select(getErrorCount);
-
-  if (errorCount > 0 && !payload) {
-    yield put(showDebugger());
-    yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-  }
-}
-
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
@@ -838,6 +823,5 @@ export default function* debuggerSagasListeners() {
       ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
       deleteDebuggerErrorLogsSaga,
     ),
-    takeEvery(ReduxActionTypes.HIDE_DEBUGGER_ERRORS, handleHideDebuggerSaga),
   ]);
 }

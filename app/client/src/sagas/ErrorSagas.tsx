@@ -32,11 +32,6 @@ import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
 import AppsmithConsole from "../utils/AppsmithConsole";
 import type { SourceEntity } from "../entities/AppsmithConsole";
-import {
-  setDebuggerSelectedTab,
-  showDebugger,
-} from "../actions/debuggerActions";
-import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/helpers";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import type { APP_MODE } from "../entities/App";
 
@@ -249,8 +244,6 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
           text: message,
           source: sourceEntity,
         });
-        yield put(showDebugger());
-        yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
         break;
       }
       case ErrorEffectTypes.SHOW_ALERT: {

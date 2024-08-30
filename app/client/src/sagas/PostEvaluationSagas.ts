@@ -40,10 +40,7 @@ import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
-import {
-  showDebuggerOnExecutionError,
-  showToastOnExecutionError,
-} from "./ActionExecution/errorUtils";
+import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -63,9 +60,9 @@ export function* logJSVarCreatedEvent(
 export function* showExecutionErrors(errors: EvaluationError[]) {
   const appMode: APP_MODE = yield select(getAppMode);
   if (appMode === APP_MODE.EDIT) {
-    // In edit mode, we will instead show the debugger
-    // and not show any toast
-    yield call(showDebuggerOnExecutionError);
+    // In edit mode we do not show any toast
+    // Current we are doing nothing here to tell the user there is an error
+    // TODO: At least we should add these to the debugger
   } else {
     for (const error of errors) {
       // in view mode we will show the error messages in toast

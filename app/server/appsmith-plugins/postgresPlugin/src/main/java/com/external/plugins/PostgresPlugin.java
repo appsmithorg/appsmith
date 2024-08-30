@@ -9,9 +9,11 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.SSHUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ConnectionContext;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -22,6 +24,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -83,10 +86,17 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.appsmith.external.constants.PluginConstants.HostName.LOCALHOST;
 import static com.appsmith.external.constants.PluginConstants.PluginName.POSTGRES_PLUGIN_NAME;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_INVALID_SSH_HOSTNAME_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_HOSTNAME_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_KEY_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.DS_MISSING_SSH_USERNAME_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
+import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
+import static com.appsmith.external.helpers.SSHUtils.isSSHEnabled;
 import static com.appsmith.external.helpers.Sizeof.sizeof;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.utils.PostgresDataTypeUtils.DataType.BOOL;
@@ -134,6 +144,8 @@ public class PostgresPlugin extends BasePlugin {
     public static final Long DEFAULT_POSTGRES_PORT = 5432L;
 
     private static int MAX_SIZE_SUPPORTED;
+
+    private static final int CONNECTION_METHOD_INDEX = 1;
 
     public static PostgresDatasourceUtils postgresDatasourceUtils = new PostgresDatasourceUtils();
 
@@ -297,6 +309,7 @@ public class PostgresPlugin extends BasePlugin {
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+            SSHConnection sshProxy = datasourceConfiguration.getSshProxy();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier
             // When port is not present, default port along with hostname will be used
@@ -307,6 +320,12 @@ public class PostgresPlugin extends BasePlugin {
                 if (!isBlank(hostName)) {
                     identifier = hostName + "_" + ObjectUtils.defaultIfNull(port, DEFAULT_POSTGRES_PORT);
                 }
+            }
+            if (SSHUtils.isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)
+                    && sshProxy != null
+                    && !isBlank(sshProxy.getHost())) {
+                identifier += "_" + sshProxy.getHost() + "_"
+                        + SSHUtils.getSSHPortFromConfigOrDefault(datasourceConfiguration);
             }
             return Mono.just(identifier);
         }
@@ -685,6 +704,10 @@ public class PostgresPlugin extends BasePlugin {
                     invalids.add(PostgresErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
 
+                if (StringUtils.isEmpty(authentication.getPassword())) {
+                    invalids.add(PostgresErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
+                }
+
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add(PostgresErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
                 }
@@ -698,6 +721,32 @@ public class PostgresPlugin extends BasePlugin {
                     || datasourceConfiguration.getConnection().getSsl() == null
                     || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 invalids.add(PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
+            }
+
+            if (isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
+                if (datasourceConfiguration.getSshProxy() == null
+                        || isBlank(datasourceConfiguration.getSshProxy().getHost())) {
+                    invalids.add(DS_MISSING_SSH_HOSTNAME_ERROR_MSG);
+                } else {
+                    String sshHost = datasourceConfiguration.getSshProxy().getHost();
+                    if (sshHost.contains("/") || sshHost.contains(":")) {
+                        invalids.add(DS_INVALID_SSH_HOSTNAME_ERROR_MSG);
+                    }
+                }
+
+                if (isBlank(datasourceConfiguration.getSshProxy().getUsername())) {
+                    invalids.add(DS_MISSING_SSH_USERNAME_ERROR_MSG);
+                }
+
+                if (datasourceConfiguration.getSshProxy().getPrivateKey() == null
+                        || datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile() == null
+                        || isBlank(datasourceConfiguration
+                                .getSshProxy()
+                                .getPrivateKey()
+                                .getKeyFile()
+                                .getBase64Content())) {
+                    invalids.add(DS_MISSING_SSH_KEY_ERROR_MSG);
+                }
             }
 
             return invalids;
@@ -884,7 +933,7 @@ public class PostgresPlugin extends BasePlugin {
                                     setFragments.deleteCharAt(setFragments.length() - 1);
                                 }
 
-                                final String quotedTableName = table.getName().replaceFirst("\\.(\\w+)", ".\"$1\"");
+                                final String quotedTableName = table.getName().replaceFirst("\\.(.+)", ".\"$1\"");
                                 table.getTemplates()
                                         .addAll(List.of(
                                                 new DatasourceStructure.Template(
@@ -1130,9 +1179,20 @@ public class PostgresPlugin extends BasePlugin {
         // Set up the connection URL
         StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
 
-        List<String> hosts = datasourceConfiguration.getEndpoints().stream()
-                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
-                .collect(Collectors.toList());
+        List<String> hosts = new ArrayList<>();
+
+        if (!isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
+            for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                hosts.add(endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L));
+            }
+        } else {
+            ConnectionContext<HikariDataSource> connectionContext;
+            connectionContext = getConnectionContext(
+                    datasourceConfiguration, CONNECTION_METHOD_INDEX, DEFAULT_POSTGRES_PORT, HikariDataSource.class);
+
+            hosts.add(LOCALHOST + ":"
+                    + connectionContext.getSshTunnelContext().getServerSocket().getLocalPort());
+        }
 
         urlBuilder.append(String.join(",", hosts)).append("/");
 
