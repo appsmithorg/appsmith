@@ -49,7 +49,7 @@
   }
 
   /* Remove when code editor min width is resolved in DynamicTextFeildControl */
-  & :global(.dynamic-text-feild-control) {
+  & :global(.dynamic-text-field-control) {
     min-width: 260px;
   }
 
