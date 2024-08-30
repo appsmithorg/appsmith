@@ -42,12 +42,14 @@ function useRegisterFieldValidity({
             });
           }
         } else {
-          startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
-            setError(fieldName, {
-              type: fieldType,
-              message: "Invalid field",
+          if (!error) {
+            startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
+              setError(fieldName, {
+                type: fieldType,
+                message: "Invalid field",
+              });
             });
-          });
+          }
         }
       } catch (e) {
         Sentry.captureException(e);
