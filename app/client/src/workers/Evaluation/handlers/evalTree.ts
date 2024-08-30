@@ -14,11 +14,7 @@ import {
   CrashingError,
   getSafeToRenderDataTree,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type {
-  EvalTreeRequestData,
-  EvalTreeResponseData,
-  EvalWorkerSyncRequest,
-} from "../types";
+import type { EvalTreeRequestData, EvalWorkerASyncRequest } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
@@ -49,9 +45,9 @@ export let canvasWidgetsMeta: Record<string, any>;
 export let metaWidgetsCache: MetaWidgetsReduxState;
 export let canvasWidgets: CanvasWidgetsReduxState;
 
-export function evalTree(
-  request: EvalWorkerSyncRequest<EvalTreeRequestData>,
-): EvalTreeResponseData {
+export async function evalTree(
+  request: EvalWorkerASyncRequest<EvalTreeRequestData>,
+) {
   const { data, webworkerTelemetry } = request;
 
   webworkerTelemetry["transferDataToWorkerThread"].endTime = Date.now();
@@ -112,12 +108,12 @@ export function evalTree(
         "setupFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
-        () =>
-          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
-            unevalTree,
-            configTree,
-            webworkerTelemetry,
-          ),
+        (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
+          dataTreeEvaluator,
+          unevalTree,
+          configTree,
+          webworkerTelemetry,
+        ),
       );
 
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -127,8 +123,9 @@ export function evalTree(
         "evalAndValidateFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
-        () =>
-          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
+        (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree.bind(
+          dataTreeEvaluator,
+        ),
       );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {

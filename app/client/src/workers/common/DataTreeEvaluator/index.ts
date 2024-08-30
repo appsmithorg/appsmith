@@ -241,10 +241,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
-  ): {
-    jsUpdates: Record<string, JSUpdate>;
-    evalOrder: string[];
-  } {
+  ) {
     this.setConfigTree(configTree);
 
     const totalFirstTreeSetupStartTime = performance.now();
@@ -286,6 +283,7 @@ export default class DataTreeEvaluator {
       stringifiedLocalUnEvalTreeJSCollection,
     );
     const allKeysGenerationStartTime = performance.now();
+
     this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
     const allKeysGenerationEndTime = performance.now();
 

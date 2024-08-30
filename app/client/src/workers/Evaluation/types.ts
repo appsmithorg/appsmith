@@ -34,6 +34,9 @@ export type EvalWorkerASyncRequest<T = any> = WorkerRequest<
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
 
 export interface EvalTreeRequestData {
+  applicationId: string;
+  pageId: string;
+  lastDeployedAt: string;
   unevalTree: unEvalAndConfigTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
   widgets: CanvasWidgetsReduxState;

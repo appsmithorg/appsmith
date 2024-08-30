@@ -111,6 +111,11 @@ import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { transformTriggerEvalErrors } from "ee/sagas/helpers";
+import {
+  getApplicationLastDeployedAt,
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -253,7 +258,9 @@ export function* evaluateTreeSaga(
   const theme: ReturnType<typeof getSelectedAppTheme> =
     yield select(getSelectedAppTheme);
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
-
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
+  const lastDeployedAt: string = yield select(getApplicationLastDeployedAt);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
@@ -261,6 +268,9 @@ export function* evaluateTreeSaga(
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
   const evalTreeRequestData: EvalTreeRequestData = {
+    applicationId,
+    pageId,
+    lastDeployedAt,
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
     widgets,

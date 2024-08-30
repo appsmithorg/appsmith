@@ -32,8 +32,12 @@ class ComputationCache {
     viewMode,
   }: {
     computationName: EComputationName;
-    viewMode: APP_MODE;
+    viewMode?: APP_MODE;
   }) {
+    if (!viewMode) {
+      return false;
+    }
+
     return this.appModeConfig[computationName].includes(viewMode);
   }
 
@@ -89,8 +93,12 @@ class ComputationCache {
     computationName: EComputationName;
     pageId: string;
     timestamp: string;
-    viewMode: APP_MODE;
+    viewMode?: APP_MODE;
   }): Promise<T | null> {
+    if (!viewMode) {
+      return null;
+    }
+
     const cacheKey = this.generateCacheKey([
       appId,
       pageId,
@@ -130,7 +138,7 @@ class ComputationCache {
     appId: string;
     timestamp: string;
     pageId: string;
-    viewMode: APP_MODE;
+    viewMode?: APP_MODE;
     computeFn: () => Promise<T> | T;
     computationName: EComputationName;
   }) {
@@ -145,6 +153,15 @@ class ComputationCache {
 
       if (cachedResult) {
         return cachedResult;
+      }
+
+      const shouldCache = this.isComputationCached({
+        computationName,
+        viewMode,
+      });
+
+      if (!shouldCache || !viewMode) {
+        return computeFn();
       }
 
       const computationResult = await computeFn();
