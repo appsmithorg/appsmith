@@ -60,7 +60,6 @@ import java.util.stream.Collectors;
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
 
     public static final String UQI_DB_EDITOR_FORM = "UQIDbEditorForm";
-    public static final String DB_EDITOR_FORM = "DbEditorForm";
     protected final WorkspaceService workspaceService;
     private final PluginManager pluginManager;
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
@@ -615,8 +614,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     return Mono.just(plugin.getActionUiConfig());
                 }
                 // For UQI, use another format of loading the config
-                if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())
-                        || DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
+                if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
                     return Mono.just(loadEditorPluginResourceUqi(plugin));
                 }
             }
