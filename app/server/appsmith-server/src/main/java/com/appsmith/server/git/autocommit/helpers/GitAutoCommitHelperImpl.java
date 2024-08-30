@@ -89,7 +89,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
         String defaultApplicationId = defaultApplication.getId();
 
         if (!GitUtils.isAutoCommitEnabled(defaultApplication.getGitApplicationMetadata())) {
-            log.debug("auto commit is disabled for application: {}", defaultApplicationId);
+            log.info("Auto commit is disabled for application: {}", defaultApplicationId);
             return Mono.just(Boolean.FALSE);
         }
 
@@ -107,13 +107,18 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                     Boolean isAutoCommitRunning = tuple.getT2();
 
                     if (isBranchProtected || isAutoCommitRunning) {
-                        log.debug(
-                                "auto commit is not applicable for application: {} branch: {}, isAutoCommitDisabledForBranch: {}",
+                        log.info(
+                                "Auto commit is not applicable for application: {} branch: {}, isAutoCommitDisabledForBranch: {}",
                                 defaultApplicationId,
                                 branchName,
                                 isBranchProtected);
                         return Mono.just(Boolean.FALSE);
                     }
+
+                    log.info(
+                            "Auto commit for application: {} branch: {} is applicable",
+                            defaultApplicationId,
+                            branchName);
 
                     return Mono.just(Boolean.TRUE);
                 })
@@ -155,21 +160,33 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                 .flatMap(defaultApplication -> {
                     return isAutoCommitAllowed(defaultApplication, finalBranchName)
                             .flatMap(isEligible -> {
+                                log.info(
+                                        "Auto commit for application {}, and branch name {} is not allowed.",
+                                        defaultApplication.getId(),
+                                        branchName);
                                 if (!Boolean.TRUE.equals(isEligible)) {
                                     return Mono.empty();
                                 }
 
+                                log.info(
+                                        "Auto commit for application {}, and branch name {} is applicable",
+                                        defaultApplication.getId(),
+                                        branchName);
                                 return Mono.zip(applicationMono, branchedApplicationMono);
                             });
                 })
                 .flatMap(tuple2 -> {
                     Application defaultApplication = tuple2.getT1();
                     Application branchedApplication = tuple2.getT2();
+                    log.info(
+                            "Auto commit for application {}, and branch name {} is fetching remote changes",
+                            defaultApplication.getId(),
+                            branchName);
                     return commonGitService
                             .fetchRemoteChanges(defaultApplication, branchedApplication, true)
                             .flatMap(branchTrackingStatus -> {
                                 if (branchTrackingStatus.getBehindCount() > 0) {
-                                    log.debug(
+                                    log.info(
                                             "the remote is ahead of the local, aborting autocommit for application {} and branch {}",
                                             defaultApplicationId,
                                             branchName);
