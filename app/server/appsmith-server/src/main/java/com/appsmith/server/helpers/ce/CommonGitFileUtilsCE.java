@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -93,7 +94,9 @@ public class CommonGitFileUtilsCE {
 
         // Save application to git repo
         try {
-            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, artifactGitReference, branchName);
+            return fileUtils
+                    .saveApplicationToGitRepo(baseRepoSuffix, artifactGitReference, branchName)
+                    .subscribeOn(Schedulers.boundedElastic());
         } catch (IOException | GitAPIException e) {
             log.error("Error occurred while saving files to local git repo: ", e);
             throw Exceptions.propagate(e);
