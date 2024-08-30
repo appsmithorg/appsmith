@@ -100,6 +100,7 @@ function NestedComponents(props: any) {
               <CenteredIconButton
                 alignSelf={"start"}
                 data-testid={`t--where-clause-delete-[${index}]`}
+                isIconButton
                 kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
