@@ -11,8 +11,14 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import ThemingApi from "api/AppThemingApi";
-import { all, takeLatest, put, select, call } from "redux-saga/effects";
+import {
+  all,
+  takeLatest,
+  put,
+  select,
+  call,
+  type SagaReturnType,
+} from "redux-saga/effects";
 import { toast } from "@appsmith/ads";
 import {
   CHANGE_APP_THEME,
@@ -31,8 +37,6 @@ import { getBetaFlag, setBetaFlag, STORAGE_KEYS } from "utils/storage";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { getPropertiesToUpdateForReset } from "entities/AppTheming/utils";
-import type { ApiResponse } from "api/ApiResponses";
-import type { AppTheme } from "entities/AppTheming";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   getCurrentApplicationId,
@@ -45,6 +49,7 @@ import { getAllPageIdentities } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { AppThemingApi } from "api";
 
 /**
  * init app theming
@@ -74,11 +79,10 @@ export function* fetchAppThemes(action: ReduxAction<FetchAppThemesAction>) {
   try {
     const { applicationId, themes } = action.payload;
 
-    const response: ApiResponse<AppTheme> = yield call(
-      getFromServerWhenNoPrefetchedResult,
-      themes,
-      async () => ThemingApi.fetchThemes(applicationId),
-    );
+    const response: SagaReturnType<typeof AppThemingApi.fetchThemes> =
+      yield call(getFromServerWhenNoPrefetchedResult, themes, async () =>
+        AppThemingApi.fetchThemes(applicationId),
+      );
 
     yield put({
       type: ReduxActionTypes.FETCH_APP_THEMES_SUCCESS,
@@ -110,11 +114,10 @@ export function* fetchAppSelectedTheme(
   const userDetails = yield select(getCurrentUser);
   const applicationVersion = yield select(selectApplicationVersion);
   try {
-    const response: ApiResponse<AppTheme[]> = yield call(
-      getFromServerWhenNoPrefetchedResult,
-      currentTheme,
-      async () => ThemingApi.fetchSelected(applicationId, mode),
-    );
+    const response: SagaReturnType<typeof AppThemingApi.fetchSelected> =
+      yield call(getFromServerWhenNoPrefetchedResult, currentTheme, async () =>
+        AppThemingApi.fetchSelected(applicationId, mode),
+      );
 
     if (response?.data) {
       yield put({
@@ -159,7 +162,7 @@ export function* updateSelectedTheme(
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
 
   try {
-    yield ThemingApi.updateTheme(applicationId, theme);
+    yield AppThemingApi.updateTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
@@ -195,7 +198,7 @@ export function* changeSelectedTheme(
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
 
   try {
-    yield ThemingApi.changeTheme(applicationId, theme);
+    yield AppThemingApi.changeTheme(applicationId, theme);
 
     yield put({
       type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
@@ -233,7 +236,7 @@ export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
   const { name, themeId } = action.payload;
 
   try {
-    yield ThemingApi.deleteTheme(themeId);
+    yield AppThemingApi.deleteTheme(themeId);
 
     yield put({
       type: ReduxActionTypes.DELETE_APP_THEME_SUCCESS,
@@ -262,9 +265,6 @@ function* closeisBetaCardShown() {
   } catch (error) {}
 }
 
-/**
- * resets widget styles
- */
 function* resetTheme() {
   try {
     const canvasWidgets: CanvasWidgetsReduxState =
@@ -278,22 +278,19 @@ function* resetTheme() {
   } catch (error) {}
 }
 
-/**
- * sets the selectedTheme to default theme when Selected Theme API fails
- */
 function* setDefaultSelectedThemeOnError() {
   const applicationId: string = yield select(getCurrentApplicationId);
   try {
     // Fetch all system themes
-    const response: ApiResponse<AppTheme[]> =
-      yield ThemingApi.fetchThemes(applicationId);
+    const response: SagaReturnType<typeof AppThemingApi.fetchThemes> =
+      yield AppThemingApi.fetchThemes(applicationId);
 
     // Gets default theme
     const theme = find(response.data, { name: "Default" });
 
     if (theme) {
       // Update API call to set current theme to default
-      yield ThemingApi.changeTheme(applicationId, theme);
+      yield AppThemingApi.changeTheme(applicationId, theme);
       yield put({
         type: ReduxActionTypes.FETCH_SELECTED_APP_THEME_SUCCESS,
         payload: theme,
