@@ -47,5 +47,15 @@
       }
     }
   }
+
+  /* Remove when code editor min width is resolved in DynamicTextFeildControl */
+  & :global(.dynamic-text-feild-control) {
+    min-width: 260px;
+  }
+
+  /* reset ads select min width */
+  & :global(.ads-v2-select > .rc-select-selector) {
+    min-width: unset;
+  }
   /* Removable section ends here */
 }
