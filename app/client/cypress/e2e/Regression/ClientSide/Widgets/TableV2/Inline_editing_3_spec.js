@@ -5,6 +5,7 @@ import {
   table as tableHelper,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Table widget inline editing functionality",
@@ -213,8 +214,7 @@ describe(
           .contains(data.columnType)
           .click();
         cy.wait("@updateLayout");
-        cy.wait(500);
-        cy.get(".t--property-control-onsubmit").should(data.expected);
+        cy.get(PROPERTY_SELECTOR.onSubmit).should("not.exist");
       });
 
       cy.get(propPaneBack).click();
@@ -269,8 +269,7 @@ describe(
           .contains(data.columnType)
           .click();
         cy.wait("@updateLayout");
-        cy.wait(500);
-        cy.get(".t--property-control-onsubmit").should(data.expected);
+        cy.get(PROPERTY_SELECTOR.onSubmit).should(data.expected);
       });
     });
 
