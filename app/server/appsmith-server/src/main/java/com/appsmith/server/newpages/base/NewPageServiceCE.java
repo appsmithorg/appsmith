@@ -27,6 +27,9 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
 
+    Flux<NewPage> findNewPagesByApplicationId(
+            String applicationId, AclPermission permission, List<String> includeFields);
+
     Mono<NewPage> findByIdAndBranchName(String id, String branchName);
 
     Mono<PageDTO> saveUnpublishedPage(PageDTO page);
@@ -51,8 +54,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
             String name, String applicationId, AclPermission permission, Boolean view);
 
     Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission);
-
-    Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission permission, Boolean view);
 
     Mono<PageDTO> updatePage(String pageId, PageDTO page);
 
