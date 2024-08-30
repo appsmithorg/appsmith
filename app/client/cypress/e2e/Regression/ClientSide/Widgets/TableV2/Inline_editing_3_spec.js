@@ -163,7 +163,10 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(commonlocators.changeColType).last().click();
-      cy.get(".t--dropdown-option").children().contains("Plain text").click();
+      cy.get(tableHelper._dropdownText)
+        .children()
+        .contains("Plain text")
+        .click();
       propPane.TogglePropertyState("Editable", "Off", "");
       cy.wait(500);
       [
