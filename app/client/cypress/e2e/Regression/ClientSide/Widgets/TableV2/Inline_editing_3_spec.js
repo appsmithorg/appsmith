@@ -213,7 +213,7 @@ describe(
           .contains(data.columnType)
           .click();
         cy.wait("@updateLayout");
-        cy.get(PROPERTY_SELECTOR.onSubmit).should("not.exist");
+        cy.get(PROPERTY_SELECTOR.onSubmit).should(data.expected);
       });
 
       cy.get(propPaneBack).click();
