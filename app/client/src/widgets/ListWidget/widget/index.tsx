@@ -24,7 +24,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import equal from "fast-deep-equal/es6";
-import { klona } from "klona/lite";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import {
   Positioning,
@@ -56,7 +55,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { removeFalsyEntries } from "utils/helpers";
+import { klonaLiteWithTelemetry, removeFalsyEntries } from "utils/helpers";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -1298,7 +1297,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.childWidgets));
+      const children = removeFalsyEntries(
+        klonaLiteWithTelemetry(
+          this.props.childWidgets,
+          "ListWidget.renderChildren",
+        ),
+      );
       const childCanvas = children[0];
       const { perPage } = this.shouldPaginate();
 
@@ -1352,7 +1356,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const canvasChildrenList = [];
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = klona(template);
+          canvasChildrenList[i] = klonaLiteWithTelemetry(
+            template,
+            "ListWidget.renderChildren",
+          );
         }
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
