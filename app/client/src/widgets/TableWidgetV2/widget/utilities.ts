@@ -260,7 +260,7 @@ export const getPropertyValue = (
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
   }
-  if (value && Array.isArray(value) && value[index]) {
+  if (value && Array.isArray(value) && (value[index] || value[index] === "")) {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const getValueForSourceData = (value: any, index: number) => {
