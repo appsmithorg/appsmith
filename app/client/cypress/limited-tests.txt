@@ -1,5 +1,16 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Widgets/Datepicker/DatePickerV2_spec.js
+e2e/Regression/ClientSide/Anvil/AnvilCopyPaste_spec.ts
+e2e/Regression/ClientSide/BugTests/JS_Bug28764_Spec.ts
+e2e/Regression/ClientSide/SettingsPane/SettingsPane_EmbedSettings_spec.ts
+e2e/Regression/ClientSide/Widgets/ContainerTest2_spec.ts
+e2e/Regression/ServerSide/ApiTests/CurlImportFlow_spec.js
+e2e/Regression/ClientSide/Widgets/Checkbox/CheckboxGroup2_spec.js
+e2e/Regression/ClientSide/Widgets/Datepicker/DatePickerV2_spec.js
+e2e/Regression/ClientSide/Widgets/Form/Form_With_CheckBox_spec.js
+e2e/Regression/ClientSide/Widgets/Input/Input_MaxChar_spec.js
+e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_ArrayField_spec.js
+e2e/Regression/ClientSide/Widgets/List/ListWidgetLintErrorValidation.js
+e2e/Regression/ClientSide/Widgets/TableV2/TableV2_PropertyPane_IconName_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
