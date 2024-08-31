@@ -1,16 +1,87 @@
 {
     "packages": [
-      "packages/design-system/",
-      "packages/dsl/",
-      "packages/icons/",
-      "packages/utils/"
+        "packages/design-system/",
+        "packages/dsl/",
+        "packages/icons/",
+        "packages/utils/"
     ],
-    "src": [
-      "src/IDE/",
-      "src/UITelemetry/",
-      "src/WidgetProvider/",
-      "src/WidgetQueryGenerators/",
-      "src/actions/",
-      "src/api/"
-    ]
-  }
+    "IDE": [
+        "src/IDE/"
+    ],
+    "UITelemetry": [
+        "src/UITelemetry/"
+    ],
+    "WidgetProvider": [
+        "src/WidgetProvider/"
+    ],
+    "WidgetQueryGenerators": [
+        "src/WidgetQueryGenerators/"
+    ],
+    "actions": [
+        "src/actions/"
+    ],
+    "api": [
+        "src/api/"
+    ],
+    "CE_specific": [
+        "src/ce/"
+    ],
+    "components": [
+        "src/ce/components/",
+        "src/components/"
+    ],
+    "constants": [
+        "src/ce/constants/",
+        "src/constants/"
+    ],
+    "entities": [
+        "src/ce/entities/"
+    ],
+    "hooks": [
+        "src/ce/hooks/"
+    ],
+    "navigation": [
+        "src/ce/navigation/"
+    ],
+    "pages": [
+        "src/ce/pages/"
+    ],
+    "plugins": [
+        "src/ce/plugins/"
+    ],
+    "reducers": [
+        "src/ce/reducers/"
+    ],
+    "sagas": [
+        "src/ce/sagas/"
+    ],
+    "selectors": [
+        "src/ce/selectors/"
+    ],
+    "utils": [
+        "src/ce/utils/",
+        "src/components/utils/"
+    ],
+    "workers": [
+        "src/ce/workers/"
+    ],
+    "designSystems": [
+        "src/components/designSystems/"
+    ],
+    "editorComponents": [
+        "src/components/editorComponents/"
+    ],
+    "featureWalkthrough": [
+        "src/components/featureWalkthrough/"
+    ],
+    "formControls": [
+        "src/components/formControls/"
+    ],
+    "propertyControls": [
+        "src/components/propertyControls/"
+    ],
+    "propertyControls": [
+        "src/components/propertyControls/"
+    ],
+
+}
