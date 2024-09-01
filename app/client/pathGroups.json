@@ -3,10 +3,14 @@
         "packages/design-system/",
         "packages/dsl/",
         "packages/icons/",
-        "packages/utils/"
+        "packages/utils/",
+        "src/icons/",
+        "src/utils/",
+        "packages/ast/"
     ],
     "IDE": [
-        "src/IDE/"
+        "src/IDE/",
+        "src/pages/Editor/IDE/"
     ],
     "UITelemetry": [
         "src/UITelemetry/"
@@ -18,52 +22,76 @@
         "src/WidgetQueryGenerators/"
     ],
     "actions": [
-        "src/actions/"
+        "src/actions/",
+        "src/ee/actions/"
     ],
     "api": [
-        "src/api/"
+        "src/api/",
+        "src/ee/api/"
     ],
     "CE_specific": [
-        "src/ce/"
+        "src/ce/",
+        "src/"
     ],
     "components": [
         "src/ce/components/",
-        "src/components/"
+        "src/components/",
+        "src/ee/components/"
     ],
     "constants": [
         "src/ce/constants/",
-        "src/constants/"
+        "src/constants/",
+        "src/ee/constants/"
     ],
     "entities": [
-        "src/ce/entities/"
+        "src/ce/entities/",
+        "src/ee/entities/",
+        "src/entities/"
     ],
     "hooks": [
-        "src/ce/hooks/"
+        "src/ce/hooks/",
+        "src/ee/hooks/",
+        "src/pages/hooks/"
     ],
     "navigation": [
-        "src/ce/navigation/"
+        "src/ce/navigation/",
+        "src/ee/navigation/",
+        "src/navigation/"
     ],
     "pages": [
-        "src/ce/pages/"
+        "src/ce/pages/",
+        "src/ee/pages/"
     ],
     "plugins": [
-        "src/ce/plugins/"
+        "src/ce/plugins/",
+        "src/ee/plugins/",
+        "src/plugins/"
     ],
     "reducers": [
-        "src/ce/reducers/"
+        "src/ce/reducers/",
+        "src/ee/reducers/",
+        "src/reducers/"
     ],
     "sagas": [
-        "src/ce/sagas/"
+        "src/ce/sagas/",
+        "src/ee/sagas/",
+        "src/sagas/"
     ],
     "selectors": [
-        "src/ce/selectors/"
+        "src/ce/selectors/",
+        "src/ee/selectors/",
+        "src/selectors/"
     ],
     "utils": [
         "src/ce/utils/",
-        "src/components/utils/"
+        "src/components/utils/",
+        "src/ee/utils/",
+        "src/polyfills/"
     ],
     "workers": [
-        "src/ce/workers/"
+        "src/ce/workers/",
+        "src/ee/workers/",
+        "src/workers/"
     ],
     "designSystems": [
         "src/components/designSystems/"
@@ -80,8 +108,144 @@
     "propertyControls": [
         "src/components/propertyControls/"
     ],
-    "propertyControls": [
-        "src/components/propertyControls/"
+    "EE_specific": [
+        "src/ee/"
     ],
-
+    "EE_Config": [
+        "src/ee/configs/"
+    ],
+    "globalStyles": [
+        "src/globalStyles/"
+    ],
+    "anvil": [
+        "src/layoutSystems/anvil/"
+    ],
+    "autolayout": [
+        "src/layoutSystems/autolayout/"
+    ],
+    "Layout_common": [
+        "src/layoutSystems/common/",
+        "src/layoutSystems/"
+    ],
+    "fixedlayout": [
+        "src/layoutSystems/fixedlayout/",
+        "src/layoutSystems/types/"
+    ],
+    "mocks": [
+        "src/mockResponses/",
+        "src/mocks/",
+        "src/pages/tests/"
+    ],
+    "AdminSettings": [
+        "src/pages/AdminSettings/"
+    ],
+    "AppViewer": [
+        "src/pages/AppViewer/"
+    ],
+    "Applications": [
+        "src/pages/Applications/"
+    ],
+    "APIEditor": [
+        "src/pages/Editor/APIEditor/"
+    ],
+    "ActionForm": [
+        "src/pages/Editor/ActionForm/"
+    ],
+    "AppSettingsPane": [
+        "src/pages/Editor/AppSettingsPane/"
+    ],
+    "CanvasLayoutConversion": [
+        "src/pages/Editor/CanvasLayoutConversion/",
+        "src/pages/Editor/CanvasPropertyPane/",
+        "src/pages/Editor/PropertyPane/",
+        "src/pages/Editor/ThemePropertyPane/",
+        "src/pages/Editor/WDSThemePropertyPane/"
+    ],
+    "CommunityTemplates": [
+        "src/pages/Editor/CommunityTemplates/",
+        "src/pages/Editor/CurlImport/",
+        "src/pages/Templates/",
+        "src/templates/"
+    ],
+    "CustomWidgetBuilder": [
+        "src/pages/Editor/CustomWidgetBuilder/"
+    ],
+    "DataSourceEditor": [
+        "src/pages/Editor/DataSourceEditor/"
+    ],
+    "DatasourceInfo": [
+        "src/pages/Editor/DatasourceInfo/"
+    ],
+    "EditorName": [
+        "src/pages/Editor/EditorName/"
+    ],
+    "EntityNavigation": [
+        "src/pages/Editor/EntityNavigation/",
+        "src/pages/Editor/MultiSelectPropertyPane/",
+        "src/pages/Editor/NavigationSettings/"
+    ],
+    "Explorer": [
+        "src/pages/Editor/Explorer/"
+    ],
+    "FirstTimeUserOnboarding": [
+        "src/pages/Editor/FirstTimeUserOnboarding/"
+    ],
+    "GeneratePage": [
+        "src/pages/Editor/GeneratePage/"
+    ],
+    "GlobalHotKeys": [
+        "src/pages/Editor/GlobalHotKeys/"
+    ],
+    "IntegrationEditor": [
+        "src/pages/Editor/IntegrationEditor/"
+    ],
+    "JSEditor": [
+        "src/pages/Editor/JSEditor/"
+    ],
+    "QueryEditor": [
+        "src/pages/Editor/QueryEditor/"
+    ],
+    "SaaSEditor": [
+        "src/pages/Editor/SaaSEditor/"
+    ],
+    "WidgetsEditor": [
+        "src/pages/Editor/WidgetsEditor/",
+        "src/widgets"
+    ],
+    "Editor_commons": [
+        "src/pages/Editor/commons/",
+        "src/pages/common/"
+    ],
+    "gitSync": [
+        "src/pages/Editor/gitSync/"
+    ],
+    "widgetSidebar": [
+        "src/pages/Editor/widgetSidebar/"
+    ],
+    "Editor": [
+        "src/pages/Editor/"
+    ],
+    "UserAuth": [
+        "src/pages/UserAuth/"
+    ],
+    "UserProfile": [
+        "src/pages/UserProfile/",
+        "src/usagePulse/",
+        "src/pages/"
+    ],
+    "setup": [
+        "src/pages/setup/"
+    ],
+    "workspace": [
+        "src/pages/workspace/"
+    ],
+    "reflow": [
+        "src/reflow/"
+    ],
+    "transformers": [
+        "src/transformers/"
+    ],
+    "test": [
+        "test/"
+    ]
 }
