@@ -112,14 +112,14 @@ class Editor extends Component<Props> {
 
   componentDidUpdate(prevProps: Props) {
     const { baseApplicationId, basePageId } = this.props.match.params || {};
-    const { basePageId: prevPageBaseId } = prevProps.match.params || {};
+    const { basePageId: prevBasePageId } = prevProps.match.params || {};
 
     const pageId = this.props.pages.find(
       (page) => page.basePageId === basePageId,
     )?.pageId;
 
     const prevPageId = prevProps.pages.find(
-      (page) => page.basePageId === prevPageBaseId,
+      (page) => page.basePageId === prevBasePageId,
     )?.pageId;
     // caching value for prevPageId as it is required in future lifecycles
     if (!!prevPageId) {
@@ -127,6 +127,8 @@ class Editor extends Component<Props> {
     }
 
     const isPageIdUpdated = pageId !== this.prevPageId;
+    const isBasePageIdUpdated = basePageId !== prevBasePageId;
+    const isPageUpdated = isPageIdUpdated || isBasePageIdUpdated;
 
     const isBranchUpdated = getIsBranchUpdated(
       this.props.location,
@@ -156,7 +158,7 @@ class Editor extends Component<Props> {
        * If we don't check for `prevPageId`: fetch page is re triggered
        * when redirected to the default page
        */
-      if (pageId && this.prevPageId && isPageIdUpdated) {
+      if (pageId && this.prevPageId && isPageUpdated) {
         this.props.updateCurrentPage(pageId);
         this.props.setupPage(pageId);
         urlBuilder.setCurrentBasePageId(basePageId);
