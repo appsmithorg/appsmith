@@ -793,7 +793,7 @@ export default {
   getPageOffset: (props, moment, _) => {
     const pageSize =
       props.serverSidePaginationEnabled && props.tableData
-        ? props.tableData?.length
+        ? props.pageSize
         : props.pageSize;
 
     if (
