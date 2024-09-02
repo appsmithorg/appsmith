@@ -59,20 +59,18 @@ export function* logJSVarCreatedEvent(
 
 export function* showExecutionErrors(errors: EvaluationError[]) {
   const appMode: APP_MODE = yield select(getAppMode);
-  if (appMode === APP_MODE.EDIT) {
-    // In edit mode we do not show any toast
-    // Current we are doing nothing here to tell the user there is an error
-    // TODO: At least we should add these to the debugger
-  } else {
-    for (const error of errors) {
-      // in view mode we will show the error messages in toast
-      const errorMessage = get(
-        error,
-        "errorMessage.message.message",
-        error.errorMessage.message,
-      );
-      yield call(showToastOnExecutionError, errorMessage, false);
-    }
+  for (const error of errors) {
+    // in view mode we will show the error messages in toast
+    const errorMessage = get(
+      error,
+      "errorMessage.message.message",
+      error.errorMessage.message,
+    );
+    yield call(
+      showToastOnExecutionError,
+      errorMessage,
+      appMode === APP_MODE.EDIT,
+    );
   }
 }
 

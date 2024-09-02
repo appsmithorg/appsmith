@@ -7,7 +7,6 @@ import { isString } from "lodash";
 import type { Types } from "utils/TypeHelpers";
 import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns";
 import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns";
-import { getAppMode } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
@@ -60,9 +59,6 @@ export function* showToastOnExecutionError(
   showCTA = true,
 ) {
   function onDebugClick() {
-    const appMode = getAppMode(store.getState());
-    if (appMode === "PUBLISHED") return null;
-
     AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
       source: "TOAST",
     });
