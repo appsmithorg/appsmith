@@ -5066,6 +5066,7 @@ public class ImportServiceTests {
                             .then(createActionCollectionToPage(application, 1))
                             .thenReturn(application);
                 })
+                .delayElement(Duration.ofMillis(100))
                 .flatMap(application -> {
                     // set git meta data for the application and set a last commit date
                     GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();

@@ -26,10 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.appsmith.server.helpers.ReactorUtils.asFlux;
-import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -74,11 +72,11 @@ public abstract class BaseService<
 
         resource.setUpdatedAt(Instant.now());
 
-        return ReactiveContextUtils.getCurrentUser().flatMap(user -> asMono(
-                        () -> Optional.of(repositoryDirect.updateById((String) id, resource, null, user)))
+        return repository
+                .updateById((String) id, resource, null)
                 .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->
-                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource))));
+                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     @Override
