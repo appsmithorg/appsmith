@@ -133,11 +133,7 @@
               "controlType": "INPUT_TEXT",
               "initialValue": "16",
               "isRequired": true,
-              "dataType": "NUMBER",
-              "customStyles": {
-                "width": "270px",
-                "minWidth": "270px"
-              }
+              "dataType": "NUMBER"
             }
           ]
         },
@@ -193,9 +189,6 @@
               "controlType": "ARRAY_FIELD",
               "alternateViewTypes": ["json"],
               "addMoreButtonLabel": "Add System Message",
-              "customStyles": {
-                "width": "40vw"
-              },
               "schema": [
                 {
                   "label": "Content",
@@ -259,11 +252,7 @@
               "controlType": "INPUT_TEXT",
               "dataType": "NUMBER",
               "initialValue": "0",
-              "isRequired": false,
-              "customStyles": {
-                "width": "270px",
-                "minWidth": "270px"
-              }
+              "isRequired": false
             }
           ]
         },
