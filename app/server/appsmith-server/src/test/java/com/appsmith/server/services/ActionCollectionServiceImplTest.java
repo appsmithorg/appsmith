@@ -155,6 +155,10 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(analyticsService.sendArchiveEvent(Mockito.any(), Mockito.any()))
                 .thenAnswer(
                         invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        ObservationRegistry.ObservationConfig mockObservationConfig =
+                Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
     @Test
