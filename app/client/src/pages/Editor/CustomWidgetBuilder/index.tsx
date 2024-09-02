@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import Header from "./header";
 import styles from "./styles.module.css";
 import Preview from "./Preview";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import Editor from "./Editor";
 import type { CustomWidgetBuilderContextType } from "./types";
 import ConnectionLost from "./connectionLost";

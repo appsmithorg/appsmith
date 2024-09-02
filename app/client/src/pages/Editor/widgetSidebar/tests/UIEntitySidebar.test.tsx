@@ -2,7 +2,7 @@ import React from "react";
 import {
   UI_ELEMENT_PANEL_SEARCH_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import "@testing-library/jest-dom";
 import { fireEvent, waitFor } from "@testing-library/react";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -121,10 +121,10 @@ describe("UIEntitySidebar", () => {
     });
   });
 
-  it("5. should hide `Suggested` when drag drop building blocks feature flag is enabled", () => {
+  it("5. should show `Suggested` when drag drop building blocks feature flag is enabled", () => {
     mockUIExplorerItems();
     mockDragDropBuildingBlocksFF(true);
-    const { queryByText } = renderUIEntitySidebar(true, true);
-    expect(queryByText(WIDGET_TAGS.SUGGESTED_WIDGETS)).toBeNull();
+    const { getByText } = renderUIEntitySidebar(true, true);
+    expect(getByText(WIDGET_TAGS.SUGGESTED_WIDGETS)).toBeInTheDocument();
   });
 });

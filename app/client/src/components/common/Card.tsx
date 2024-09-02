@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import { Card as BlueprintCard, Classes } from "@blueprintjs/core";
 import { omit } from "lodash";
-import { AppIcon, Size, TextType, Text } from "design-system-old";
+import { AppIcon, Size, TextType, Text } from "@appsmith/ads-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Button, type MenuItemProps } from "design-system";
+import { Button, type MenuItemProps } from "@appsmith/ads";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 
@@ -19,6 +19,8 @@ type CardProps = PropsWithChildren<{
   isFetching: boolean;
   isMobile?: boolean;
   moreActionItems: ModifiedMenuItemProps[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   primaryAction: (e: any) => void;
   setShowOverlay: (show: boolean) => void;
   showGitBadge: boolean;

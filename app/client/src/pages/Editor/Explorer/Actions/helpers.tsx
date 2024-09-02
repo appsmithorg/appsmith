@@ -18,8 +18,8 @@ import {
   apiEditorIdURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
-} from "@appsmith/RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+} from "ee/RouteBuilder";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 // TODO [new_urls] update would break for existing paths
 // using a common todo, this needs to be fixed
@@ -34,6 +34,8 @@ export interface ActionGroupConfig {
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => ReactNode;
 }
 
@@ -100,6 +102,8 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         baseParentEntityId,
       });
     },
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
       const isGraphql = isGraphqlPlugin(plugin);
       if (

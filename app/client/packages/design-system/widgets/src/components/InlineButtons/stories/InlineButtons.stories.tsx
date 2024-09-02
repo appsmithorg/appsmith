@@ -2,12 +2,12 @@ import React from "react";
 import {
   InlineButtons,
   Flex,
-  objectKeys,
   BUTTON_VARIANTS,
   COLORS,
   SIZES,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
+import { objectKeys } from "@appsmith/utils";
 import {
   itemList,
   longItemList,
@@ -21,7 +21,7 @@ import {
  */
 const meta: Meta<typeof InlineButtons> = {
   component: InlineButtons,
-  title: "Design-system/Widgets/InlineButtons",
+  title: "WDS/Widgets/InlineButtons",
 };
 
 export default meta;

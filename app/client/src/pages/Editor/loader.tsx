@@ -8,14 +8,18 @@ import { getSearchQuery } from "../../utils/helpers";
 import { GIT_BRANCH_QUERY_KEY } from "../../constants/routes";
 import { APP_MODE } from "../../entities/App";
 import type { RouteComponentProps } from "react-router";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 type Props = {
   initEditor: (payload: InitEditorActionPayload) => void;
   clearCache: () => void;
 } & RouteComponentProps<{ basePageId: string }>;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 class EditorLoader extends React.PureComponent<Props, { Page: any }> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(props: any) {
     super(props);
 
@@ -61,6 +65,8 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (payload: InitEditorActionPayload) =>

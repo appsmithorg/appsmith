@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 
 export interface InfoBlockProps {
   icon: string;

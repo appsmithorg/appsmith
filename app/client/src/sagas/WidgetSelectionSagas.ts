@@ -1,13 +1,10 @@
-import { widgetURL } from "@appsmith/RouteBuilder";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { widgetURL } from "ee/RouteBuilder";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
-  getAppMode,
-  getCanvasWidgets,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/ReduxActionConstants";
+import { getAppMode, getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { showModal } from "actions/widgetActions";
 import type {
   SetSelectedWidgetsPayload,
@@ -57,8 +54,8 @@ import {
 } from "./selectors";
 import { getModalWidgetType } from "selectors/widgetSelectors";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
-import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getAppViewerPageIdFromPath } from "ee/pages/Editor/Explorer/helpers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 // The following is computed to be used in the entity explorer
@@ -251,6 +248,8 @@ function* appendSelectedWidgetToUrlSaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
   const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
   const appMode: APP_MODE = yield select(getAppMode);

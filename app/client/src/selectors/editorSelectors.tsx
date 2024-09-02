@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -11,8 +11,7 @@ import type {
 } from "reducers/entityReducers/pageListReducer";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ApplicationVersion } from "@appsmith/actions/applicationActions";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 import type {
   OccupiedSpace,
   WidgetSpace,
@@ -32,7 +31,7 @@ import {
   getApiPaneSavingMap,
   getCanvasWidgets,
   getJSCollections,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 import { buildChildWidgetTree } from "utils/widgetRenderUtils";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
@@ -40,14 +39,15 @@ import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { Page } from "entities/Page";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -348,6 +348,7 @@ export const getWidgetCards = createSelector(
       const {
         detachFromLayout = false,
         displayName,
+        displayOrder,
         iconSVG,
         isSearchWildcard,
         key,
@@ -375,6 +376,7 @@ export const getWidgetCards = createSelector(
         columns,
         detachFromLayout,
         displayName,
+        displayOrder,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
         IconCmp,
@@ -413,11 +415,15 @@ export const getDimensionMap = createSelector(
   },
 );
 const addWidgetDimensionProxy = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dimensionMap: any,
   widgets: CanvasWidgetsReduxState,
 ) => {
   const dimensions = Object.keys(dimensionMap);
   const proxyHandler = {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get(target: any, prop: any) {
       if (dimensions.includes(prop)) {
         const actualMap = dimensionMap[prop];
@@ -443,6 +449,8 @@ export const getWidgetsForBreakpoint = createSelector(
   getIsAutoLayoutMobileBreakPoint,
   getWidgets,
   (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dimensionMap: any,
     isAutoLayoutMobileBreakPoint: boolean,
     widgets: CanvasWidgetsReduxState,
@@ -856,6 +864,8 @@ export const getJSCollectionDataById = createSelector(
 export const getJSCollectionDataByBaseId = createSelector(
   [
     getJSCollections,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (state: AppState, baseCollectionId: any) => baseCollectionId,
   ],
   (jsActions, baseCollectionId) => {

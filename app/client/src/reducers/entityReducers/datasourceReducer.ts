@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   Datasource,
   DatasourceStorage,
@@ -12,7 +12,7 @@ import type {
 } from "entities/Datasource";
 import { ToastMessageType } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import produce from "immer";
 import { assign } from "lodash";
 
@@ -25,6 +25,8 @@ export interface DatasourceDataState {
   fetchingDatasourceStructure: Record<string, boolean>;
   structure: Record<string, DatasourceStructure>;
   isFetchingMockDataSource: false;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockDatasourceList: any[];
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
@@ -80,6 +82,8 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS]: (
     state: DatasourceDataState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     const mockDatasourceList = action.payload as MockDatasource[];
@@ -237,6 +241,8 @@ const datasourceReducer = createReducer(initialState, {
       id?: string;
       environmentId: string;
       messages?: Array<string>;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error?: any;
     }>,
   ): DatasourceDataState => {
@@ -488,6 +494,8 @@ const datasourceReducer = createReducer(initialState, {
       id?: string;
       environmentId: string;
       messages?: Array<string>;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error?: any;
     }>,
   ): DatasourceDataState => {

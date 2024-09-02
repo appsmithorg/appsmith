@@ -72,13 +72,13 @@ jobs:
         with:
           files: "app/client/**"
 
-      - name: Run step if any file(s) in the client folder change
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
-        run: |
-          echo "One or more files in the server folder has changed."
-          echo "List all the files that have changed: $ALL_CHANGED_FILES"
+      #- name: Run step if any file(s) in the client folder change
+      #  if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #  env:
+      #    ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+      #  run: |
+      #    echo "One or more files in the server folder has changed."
+      #    echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
       - name: Check compliance
         if: inputs.pr != 0 && steps.changed-files-specific.outputs.any_changed == 'true'
@@ -162,7 +162,6 @@ jobs:
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
           fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
-            APPSMITH_CLOUD_HOSTING=${{ secrets.APPSMITH_CLOUD_HOSTING }} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_EDITION="Community" \

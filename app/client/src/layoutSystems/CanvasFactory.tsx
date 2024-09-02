@@ -5,7 +5,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
 import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 
 // ToDo(#27615): destructure withWidgetProps to withCanvasProps by picking only necessary props of a canvas.
 
@@ -31,6 +31,8 @@ const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
 });
 
 const HydratedLayoutSystemBasedCanvas = withWidgetProps(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   LayoutSystemBasedCanvas as any,
 );
 

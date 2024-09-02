@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 import {
   moveActionRequest,
@@ -15,7 +15,7 @@ import {
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_MOVE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Button,
   Menu,
@@ -25,7 +25,7 @@ import {
   MenuSubContent,
   MenuSubTrigger,
   MenuTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import { useToggle } from "@mantine/hooks";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 

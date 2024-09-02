@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import IDE from "./IDE";
 import {
   getCurrentApplicationId,
@@ -37,19 +37,19 @@ import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
 import GitSettingsModal from "./gitSync/GitSettingsModal";
-import ReconfigureCDKeyModal from "@appsmith/components/gitComponents/ReconfigureCDKeyModal";
-import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
+import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyModal";
+import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { AppCURLImportModal } from "@appsmith/pages/Editor/CurlImport";
+import type { Page } from "entities/Page";
+import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -221,6 +221,8 @@ const mapStateToProps = (state: AppState) => ({
   pages: getPageList(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (payload: InitEditorActionPayload) =>

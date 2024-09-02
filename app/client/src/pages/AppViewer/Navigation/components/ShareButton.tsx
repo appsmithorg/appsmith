@@ -1,22 +1,22 @@
 import React, { useState } from "react";
 import Button from "../../AppViewerButton";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getApplicationNameTextColor } from "pages/AppViewer/utils";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   APPLICATION_INVITE,
   createMessage,
   SHARE_APP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface ShareButtonProps {
   currentApplicationDetails?: ApplicationPayload;

@@ -1,13 +1,9 @@
-import type { AppState } from "@appsmith/reducers";
-import type {
-  Page,
-  ReduxAction,
-  UpdateCanvasPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
@@ -18,6 +14,7 @@ import type {
   SetPageOrderActionPayload,
   SetupPageActionPayload,
   SetupPublishedPageActionPayload,
+  UpdateCanvasPayload,
   UpdatePageActionPayload,
 } from "actions/pageActions";
 import {
@@ -63,7 +60,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, delay, put, select, take } from "redux-saga/effects";
+import { all, call, put, select, take } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -79,7 +76,6 @@ import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
   getCurrentApplicationId,
-  getCurrentBasePageId,
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
@@ -98,17 +94,14 @@ import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "../../sagas/EvaluationsSaga";
 import { getQueryParams } from "utils/URLUtils";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import {
@@ -118,7 +111,7 @@ import {
 } from "actions/jsActionActions";
 
 import WidgetFactory from "WidgetProvider/factory";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
@@ -128,30 +121,31 @@ import {
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { getUsedActionNames } from "selectors/actionSelectors";
-import { getPageList } from "@appsmith/selectors/entitiesSelector";
+import { getPageList } from "ee/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { ActionExecutionContext } from "entities/Action";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import type { Page } from "entities/Page";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -299,10 +293,6 @@ export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
       isFirstLoad = false,
       pageWithMigratedDsl,
     } = action.payload;
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      { pageId },
-    );
 
     const params: FetchPageRequest = { pageId, migrateDSL: true };
     const fetchPageResponse: FetchPageResponse = yield call(
@@ -316,18 +306,8 @@ export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
       pageId,
       isFirstLoad,
     });
-
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-    );
   } catch (error) {
     log.error(error);
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      {
-        failed: true,
-      },
-    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
       payload: {
@@ -343,13 +323,7 @@ export function* fetchPublishedPageSaga(
   try {
     const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
       action.payload;
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      {
-        pageId: pageId,
-        published: true,
-      },
-    );
+
     const params = { pageId, bustCache };
     const response: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -393,18 +367,8 @@ export function* fetchPublishedPageSaga(
       if (!firstLoad) {
         yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
       }
-
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_API,
-      );
     }
   } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      {
-        failed: true,
-      },
-    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
       payload: {
@@ -438,7 +402,8 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         applicationId: string;
         pageId: string;
         layoutId: string;
-      }
+      } // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | undefined = yield select(getEditorConfigs) as any;
 
   if (!editorConfigs) return;
@@ -447,12 +412,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     widgets,
     editorConfigs,
   );
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.SAVE_PAGE_API,
-    {
-      pageId: savePageRequest.pageId,
-    },
-  );
+
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -512,22 +472,13 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       }
       yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.SAVE_PAGE_API,
-      );
+
       checkAndLogErrorsIfCyclicDependency(
         (savePageResponse.data as SavePageResponseData)
           .layoutOnLoadActionErrors,
       );
     }
   } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.SAVE_PAGE_API,
-      {
-        failed: true,
-      },
-    );
-
     if (error instanceof UserCancelledActionExecutionError) {
       return;
     }
@@ -599,6 +550,8 @@ export function getLayoutSavePayload(
   widgets: {
     [widgetId: string]: FlattenedWidgetProps;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfigs: any,
 ) {
   const nestedDSL = nestDSL(widgets, Object.keys(widgets)[0]);
@@ -698,6 +651,7 @@ export function* createNewPageFromEntity(
     });
   }
 }
+
 export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
   try {
     const layoutSystemType: LayoutSystemTypes =
@@ -961,6 +915,8 @@ export function* updateWidgetNameSaga(
 
     // If we're trying to update the name of a tab in the TABS_WIDGET
     if (tabsObj !== undefined) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tabs: any = Object.values(tabsObj);
       // Get all canvas widgets
       const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -978,6 +934,8 @@ export function* updateWidgetNameSaga(
       const parent = { ...widgets[parentId] };
       // Update the tabs property of the parent tabs widget
       const tabToChange = tabs.find(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (each: any) => each.widgetId === action.payload.id,
       );
       const updatedTab = {
@@ -1164,6 +1122,8 @@ export function* populatePageDSLsSaga(action?: {
           return call(fetchPageDSLSaga, pageId);
         }
         const { data } = pagesWithMigratedDsl;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const v1PageDSL = data?.find?.((v: any) => v?.id === pageId);
         return call(fetchPageDSLSaga, pageId, {
           ...pagesWithMigratedDsl,
@@ -1226,6 +1186,8 @@ export function* generateTemplatePageSaga(
     const request: GenerateTemplatePageRequest = action.payload;
     // if pageId is available in request, it will just update that page else it will generate new page.
     const response: ApiResponse<{
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       page: any;
       successImageUrl: string;
       successMessage: string;
@@ -1333,24 +1295,12 @@ export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 }
 
 export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
-  const currentBasePageId: string = yield select(getCurrentBasePageId);
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
-    history.push(
-      builderURL({
-        basePageId: currentBasePageId,
-      }),
-    );
   } else if (isPreviewMode) {
     // check if already in edit mode, then only do this
-
-    // when switching back to edit mode
-    // we go back to the previous route e.g query, api etc.
-    history.goBack();
-    // small delay to wait for the content to render and then animate
-    yield delay(10);
     yield put(setPreviewModeAction(action.payload));
   }
 }

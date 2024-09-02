@@ -4,7 +4,7 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ButtonComponentProps } from ".";
 import type { RecaptchaProps } from "./useRecaptcha";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
@@ -28,12 +28,17 @@ export function RecaptchaV3(props: RecaptchaV3Props) {
     if (props.isLoading) return onClickProp;
 
     if (status === ScriptStatus.READY) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).grecaptcha.ready(() => {
         try {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (window as any).grecaptcha
             .execute(recaptchaKey, {
               action: "submit",
-            })
+            }) // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .then((token: any) => {
               if (typeof onRecaptchaSubmitSuccess === "function") {
                 onRecaptchaSubmitSuccess(token);

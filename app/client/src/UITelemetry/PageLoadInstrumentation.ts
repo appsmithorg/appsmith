@@ -7,6 +7,7 @@ import type {
   FCPMetricWithAttribution,
   NavigationTimingPolyfillEntry,
 } from "web-vitals";
+import isString from "lodash/isString";
 
 export class PageLoadInstrumentation extends InstrumentationBase {
   // PerformanceObserver to observe resource timings
@@ -108,7 +109,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     }
 
     const elementTestId = element.getAttribute("data-testid");
-    const className = element.className
+    const className = isString(element.className)
       ? "." + element.className.split(" ").join(".")
       : "";
     const elementId = element.id ? `#${element.id}` : "";
@@ -295,6 +296,8 @@ export class PageLoadInstrumentation extends InstrumentationBase {
         encodedBodySize,
         entryType,
         fetchStart,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         firstInterimResponseStart: (entry as any).firstInterimResponseStart,
         initiatorType,
         nextHopProtocol,
@@ -308,6 +311,8 @@ export class PageLoadInstrumentation extends InstrumentationBase {
         transferSize,
         url,
         workerStart,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderBlockingStatus: (entry as any).renderBlockingStatus,
       },
       entry.startTime,

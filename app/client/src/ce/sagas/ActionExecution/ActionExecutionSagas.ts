@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   EventType,
   ExecuteTriggerPayload,
@@ -41,9 +41,9 @@ import {
   watchCurrentLocation,
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
-import type { AppState } from "@appsmith/reducers";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import type { ActionDescription } from "ee/workers/Evaluation/fns";
+import type { AppState } from "ee/reducers";
+import { getAction } from "ee/selectors/entitiesSelector";
 
 export interface TriggerMeta {
   source?: TriggerSource;
@@ -62,6 +62,8 @@ export function* executeActionTriggers(
   trigger: ActionDescription,
   eventType: EventType,
   triggerMeta: TriggerMeta,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
@@ -132,6 +134,8 @@ export function* executeActionTriggers(
 }
 
 // This function gets called when a user clicks on a button on the canvas UI
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   const {
     callbackData,

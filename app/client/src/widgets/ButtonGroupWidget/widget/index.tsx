@@ -18,12 +18,12 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { klona as clone } from "klona/full";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { klonaFullWithTelemetry } from "utils/helpers";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -133,7 +133,13 @@ class ButtonGroupWidget extends BaseWidget<
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const groupButtons = clone(widget.groupButtons);
+              const groupButtons = klonaFullWithTelemetry(
+                widget.groupButtons,
+                "ButtonGroupWidget.groupButtons",
+              );
+
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const dynamicBindingPathList: any[] = get(
                 widget,
                 "dynamicBindingPathList",
@@ -248,6 +254,8 @@ class ButtonGroupWidget extends BaseWidget<
               titlePropertyName: "label",
               panelIdPropertyName: "id",
               updateHook: (
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 props: any,
                 propertyPath: string,
                 propertyValue: string,
@@ -314,6 +322,8 @@ class ButtonGroupWidget extends BaseWidget<
                         titlePropertyName: "label",
                         panelIdPropertyName: "id",
                         updateHook: (
+                          // TODO: Fix this the next time the file is edited
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
                           props: any,
                           propertyPath: string,
                           propertyValue: string,

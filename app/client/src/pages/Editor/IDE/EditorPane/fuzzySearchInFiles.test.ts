@@ -1,4 +1,4 @@
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
+import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
 import { fuzzySearchInObjectItems } from "./utils";
 import { PluginType } from "entities/Action";
 

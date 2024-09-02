@@ -9,7 +9,7 @@ import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history, { NavigationMethod } from "utils/history";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import SearchModal from "./SearchModal";
 import SearchBox from "./SearchBox";
 import SearchResults from "./SearchResults";
@@ -40,9 +40,9 @@ import {
   SEARCH_ITEM_TYPES,
 } from "./utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
 import { noop } from "lodash";
 import {
@@ -62,14 +62,14 @@ import {
   builderURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
-} from "@appsmith/RouteBuilder";
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+} from "ee/RouteBuilder";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import {
   DatasourceCreateEntryPoints,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   getBasePageIdToPageIdMap,
@@ -122,10 +122,16 @@ const getQueryIndexForSorting = (item: SearchItem, query: string) => {
 
 const getSortedResults = (
   query: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filteredEntities: Array<any>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recentEntityIndex: (entity: any) => number,
   currentPageId?: string,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return filteredEntities.sort((a: any, b: any) => {
     const queryIndexA = getQueryIndexForSorting(a, query);
     const queryIndexB = getQueryIndexForSorting(b, query);
@@ -230,6 +236,8 @@ function GlobalSearch() {
     .map((r) => getEntityId(r))
     .filter(Boolean);
   const recentEntityIndex = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (entity: any) => {
       const id =
         entity.id || entity.widgetId || entity.config?.id || entity.pageId;
@@ -285,6 +293,8 @@ function GlobalSearch() {
       return filteredFileOperations;
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let filteredEntities: any = [];
 
     if (isNavigation(category) || isMenu(category)) {
@@ -423,20 +433,34 @@ function GlobalSearch() {
   };
 
   const itemClickHandlerByType = {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [SEARCH_ITEM_TYPES.widget]: (e: SelectEvent, item: any) =>
       handleWidgetClick(item),
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [SEARCH_ITEM_TYPES.action]: (e: SelectEvent, item: any) =>
       handleActionClick(item),
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [SEARCH_ITEM_TYPES.datasource]: (e: SelectEvent, item: any) =>
       handleDatasourceClick(item),
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [SEARCH_ITEM_TYPES.page]: (e: SelectEvent, item: any) =>
       handlePageClick(item),
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [SEARCH_ITEM_TYPES.jsAction]: (e: SelectEvent, item: any) =>
       handleJSCollectionClick(item),
     [SEARCH_ITEM_TYPES.sectionTitle]: noop,
     [SEARCH_ITEM_TYPES.placeholder]: noop,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [SEARCH_ITEM_TYPES.category]: (e: SelectEvent, item: any) =>
       setCategory(item),
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [SEARCH_ITEM_TYPES.actionOperation]: (e: SelectEvent, item: any) => {
       if (item.action)
         dispatch(

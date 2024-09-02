@@ -24,8 +24,5 @@
       ]
     }
   ],
-  "files": [
-    "list.json",
-    "invoke.json"
-  ]
+  "files": ["list.json", "invoke.json"]
 }

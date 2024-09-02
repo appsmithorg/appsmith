@@ -11,7 +11,7 @@ import UserProfile from ".";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 import Login from "pages/UserAuth/Login";
 
@@ -83,17 +83,14 @@ const defaultStoreState = {
   },
 };
 
-jest.mock("design-system-old/build/constants/messages", () => ({
-  ...jest.requireActual("design-system-old/build/constants/messages"),
-  createMessage: () => "",
-}));
-
 jest.mock("actions/gitSyncActions", () => ({
   fetchGlobalGitConfigInit: jest.fn(),
 }));
 
 const mockStore = configureStore([]);
 describe("Git config ", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
   it("Should render UserProfile component for logged in user", () => {
     store = mockStore(defaultStoreState);

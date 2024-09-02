@@ -5,14 +5,14 @@ import type { Plugin } from "api/PluginApi";
 import {
   getDatasourcesByPluginId,
   getPluginByPackageName,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import NotFound from "pages/common/NotFound";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import type { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { Datasource } from "entities/Datasource";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 
 // Design
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
@@ -25,7 +25,7 @@ import {
   selectURLSlugs,
 } from "selectors/editorSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { integrationEditorURL } from "ee/RouteBuilder";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -70,6 +70,8 @@ interface StateProps {
 }
 
 interface DispatchFunctions {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createDatasource: (data: any) => void;
   createAction: (data: Partial<SaaSAction>) => void;
 }
@@ -207,8 +209,12 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
   return {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
     createAction: (data: Partial<SaaSAction>) => {
       dispatch(createActionRequest(data));

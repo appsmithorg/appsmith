@@ -1,5 +1,5 @@
 import FormTextField from "components/utils/ReduxFormTextField";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import React from "react";
 import { FormGroup, type SettingComponentProps } from "./Common";
 

@@ -12,7 +12,11 @@ import {
 import { Mutex } from "async-mutex";
 import { Request as NFRequest, Response as NFResponse } from "node-fetch";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).fetch = jest.fn() as jest.Mock;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).caches = {
   open: jest.fn(),
   delete: jest.fn(),
@@ -304,6 +308,8 @@ describe("serviceWorkerUtils", () => {
 
   describe("getConsolidatedApiPrefetchRequest", () => {
     beforeAll(() => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global as any).Request = NFRequest;
     });
 
@@ -421,6 +427,8 @@ describe("serviceWorkerUtils", () => {
 
   describe("PrefetchApiService", () => {
     let prefetchApiService: PrefetchApiService;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mockCache: any;
 
     beforeEach(() => {
@@ -430,8 +438,14 @@ describe("serviceWorkerUtils", () => {
         match: jest.fn(),
         delete: jest.fn(),
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global as any).caches.open.mockResolvedValue(mockCache);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global as any).Request = NFRequest;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (global as any).Response = NFResponse;
     });
 
@@ -546,6 +560,8 @@ describe("serviceWorkerUtils", () => {
           statusText: "OK",
         });
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (global as any).fetch.mockResolvedValue(response);
 
         const acquireSpy = jest.spyOn(Mutex.prototype, "acquire");
@@ -554,6 +570,8 @@ describe("serviceWorkerUtils", () => {
         await prefetchApiService.cacheApi(request);
 
         expect(acquireSpy).toHaveBeenCalled();
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         expect((global as any).fetch).toHaveBeenCalledWith(request);
         expect(mockCache.put).toHaveBeenCalledWith(
           request,
@@ -569,6 +587,8 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (global as any).fetch.mockRejectedValue(new Error("Fetch error"));
 
         const acquireSpy = jest.spyOn(Mutex.prototype, "acquire");

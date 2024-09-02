@@ -2,28 +2,25 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { defaultPageIcon, pageIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import PageContextMenu from "pages/Editor/Explorer/Pages/PageContextMenu";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import {
-  PERMISSION_TYPE,
-  isPermitted,
-} from "@appsmith/utils/permissionHelpers";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import type { AppState } from "@appsmith/reducers";
+import { PERMISSION_TYPE, isPermitted } from "ee/utils/permissionHelpers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { AppState } from "ee/reducers";
 import { StyledEntity } from "pages/Editor/Explorer/Common/components";
 import { toValidPageName } from "utils/helpers";
 import { updatePageAction } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
 

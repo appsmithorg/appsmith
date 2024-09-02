@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   FlexVerticalAlignment,
   LayoutDirection,
@@ -168,6 +168,8 @@ class TabsWidget extends BaseWidget<
                 idsObj = { ...idsObj, [eachChild.tabId]: eachChild.widgetId };
                 return idsObj;
               }, {});
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const tabsObj = tabs.reduce((obj: any, tab: any) => {
                 const newTab = { ...tab };
                 newTab.widgetId = tabIds[newTab.id];
@@ -289,6 +291,8 @@ class TabsWidget extends BaseWidget<
               titlePropertyName: "label",
               panelIdPropertyName: "id",
               updateHook: (
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 props: any,
                 propertyPath: string,
                 propertyValue: string,
@@ -534,6 +538,8 @@ class TabsWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedTabWidgetId: undefined,

@@ -257,17 +257,10 @@ public class FileUtilsCEImpl implements FileInterface {
                 Map<String, JSONObject> result = DSLTransformerHelper.flatten(
                         new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
                 result.forEach((key, jsonObject) -> {
-                    // get path with splitting the name via key
                     String widgetName = key.substring(key.lastIndexOf(CommonConstants.DELIMITER_POINT) + 1);
-                    String childPath = key.replace(CommonConstants.MAIN_CONTAINER, CommonConstants.EMPTY_STRING)
-                            .replace(CommonConstants.DELIMITER_POINT, CommonConstants.DELIMITER_PATH);
-                    // Replace the canvas Widget as a child and add it to the same level as parent
-                    childPath = childPath.replaceAll(CANVAS_WIDGET, CommonConstants.EMPTY_STRING);
-                    if (!DSLTransformerHelper.hasChildren(jsonObject)
-                            && !DSLTransformerHelper.isTabsWidget(jsonObject)) {
-                        // Save the widget as a directory or Save the widget as a file
-                        childPath = childPath.replace(widgetName, CommonConstants.EMPTY_STRING);
-                    }
+
+                    String childPath = DSLTransformerHelper.getPathToWidgetFile(key, jsonObject, widgetName);
+
                     Path path = Paths.get(
                             String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
                     validWidgetToParentMap.put(widgetName, path.toFile().toString());

@@ -7,11 +7,11 @@ import {
   ModalHeader,
   ModalFooter,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface DeleteConfirmationProps {
   userToBeDeleted: {

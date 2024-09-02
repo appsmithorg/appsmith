@@ -1,8 +1,8 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   ActionData,
   ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
+} from "ee/reducers/entityReducers/actionsReducer";
 import type { ActionResponse } from "api/ActionAPI";
 import { createSelector } from "reselect";
 import type {
@@ -28,7 +28,7 @@ import type { AppStoreState } from "reducers/entityReducers/appReducer";
 import type {
   JSCollectionData,
   JSCollectionDataState,
-} from "@appsmith/reducers/entityReducers/jsActionsReducer";
+} from "ee/reducers/entityReducers/jsActionsReducer";
 import type {
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
@@ -36,7 +36,7 @@ import type {
 } from "api/PluginApi";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerFileEntity } from "ee/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
@@ -47,24 +47,24 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { JSLibrary } from "workers/common/JSLibrary";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "ee/constants/ModuleConstants";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
-} from "@appsmith/selectors/workflowSelectors";
+} from "ee/selectors/workflowSelectors";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
-import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   ActionUrlIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 export enum GROUP_TYPES {
   API = "APIs",
@@ -379,6 +379,8 @@ export const getPluginTypeFromDatasourceId = (
   return plugin.type;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
@@ -397,10 +399,14 @@ export const getIsDatasourceTesting = (state: AppState): boolean => {
   return state.entities.datasources.isTesting;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.settingConfigs[pluginId];
 };
@@ -569,6 +575,8 @@ export const getPluginNames = createSelector(getPlugins, (plugins) => {
 });
 
 export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginTemplates: Record<string, any> = {};
 
   plugins.forEach((plugin) => {
@@ -579,6 +587,8 @@ export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
 });
 
 export const getPluginResponseTypes = createSelector(getPlugins, (plugins) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginResponseTypes: Record<string, any> = {};
 
   plugins.forEach((plugin) => {
@@ -858,7 +868,11 @@ export const getCurrentPageWidgets = createSelector(
 );
 
 export const getParentModalId = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widget: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pageWidgets: Record<string, any>,
 ) => {
   let parentModalId;
@@ -879,6 +893,8 @@ export const getCanvasWidgetsWithParentId = createSelector(
   getCanvasWidgets,
   (canvasWidgets: CanvasWidgetsReduxState) => {
     return Object.entries(canvasWidgets).reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (res, [widgetId, widget]: any) => {
         const parentModalId = getParentModalId(widget, canvasWidgets);
 
@@ -896,8 +912,12 @@ export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {
     return Object.entries(widgetsByPage).reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (res: any, [pageId, pageWidgets]: any) => {
         const widgetsMap = Object.entries(pageWidgets.dsl).reduce(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (res, [widgetId, widget]: any) => {
             const parentModalId = getParentModalId(widget, pageWidgets);
 
@@ -922,6 +942,8 @@ export const getAllWidgetsMap = createSelector(
 export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
       res.push(widget);
       return res;
@@ -1128,7 +1150,11 @@ export const selectFilesForExplorer = createSelector(
         return acc;
       },
       {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         group: "" as any,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         files: [] as any,
       },
     );
@@ -1136,6 +1162,8 @@ export const selectFilesForExplorer = createSelector(
   },
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getActionValidationConfig = (state: AppState, action: any) => {
   const pluginId = action.pluginId;
   return getActionValidationConfigFromPlugin(
@@ -1162,6 +1190,8 @@ export const getAllActionValidationConfig = (state: AppState) => {
 };
 
 function getActionValidationConfigFromPlugin(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfigs: any,
   validationConfig: ActionValidationConfigMap,
 ): ActionValidationConfigMap {
@@ -1380,9 +1410,13 @@ export const getDatasourceScopeValue = (
   const configProperty = "datasourceConfiguration.authentication.scopeString";
   const scopeValue = get(formData, configProperty);
   const options = formConfig[0]?.children?.find(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (child: any) => child?.configProperty === configProperty,
   )?.options;
   const label = options?.find(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (option: any) => option.value === scopeValue,
   )?.label;
   return label;

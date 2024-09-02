@@ -2,14 +2,14 @@ import {
   getAppViewerPageIdFromPath,
   isEditorPath,
   isViewerPath,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+} from "ee/pages/Editor/Explorer/helpers";
 import { fetchWithRetry, getUsagePulsePayload } from "./utils";
 import {
   PULSE_API_ENDPOINT,
   PULSE_API_MAX_RETRY_COUNT,
   PULSE_API_RETRY_TIMEOUT,
   USER_ACTIVITY_LISTENER_EVENTS,
-} from "@appsmith/constants/UsagePulse";
+} from "ee/constants/UsagePulse";
 import PageApi from "api/PageApi";
 import { APP_MODE } from "entities/App";
 import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
@@ -46,6 +46,8 @@ class UsagePulse {
           (page) => page.basePageId === basePageId,
         )?.pageId;
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response: any = await PageApi.fetchAppAndPages({
           pageId,
           mode: APP_MODE.PUBLISHED,

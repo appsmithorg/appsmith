@@ -68,7 +68,6 @@ import {
   ButtonCell,
 } from "../component/cellComponents";
 
-import { klona as clone } from "klona";
 import localStorage from "utils/localStorage";
 import type { Stylesheet } from "entities/AppTheming";
 import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
@@ -82,11 +81,14 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import * as config from "../config";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 
 type addNewRowToTable = (
@@ -106,6 +108,8 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
 export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
   memoisedAddNewRow: addNewRowToTable;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
 
@@ -157,6 +161,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       getMemoiseTransformDataWithEditableCell();
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -1173,6 +1179,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSearchTable = (searchKey: any) => {
     const {
       commitBatchMetaUpdates,
@@ -1503,7 +1511,11 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   removeRowFromTransientTableData = (index: number) => {
-    const newTransientTableData = clone(this.props.transientTableData);
+    const newTransientTableData = klonaRegularWithTelemetry(
+      this.props.transientTableData,
+      "WDSTableWidget.removeRowFromTransientTableData",
+    );
+
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     if (newTransientTableData) {
@@ -1529,6 +1541,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return -1;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderCell = (props: any) => {
     const column =
       this.getColumnByOriginalId(

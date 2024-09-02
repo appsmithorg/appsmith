@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NavigationSetting } from "constants/AppConstants";
-import { TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "@appsmith/ads-old";
 import { isEllipsisActive } from "utils/helpers";
 import { StyledMenuItemText } from "./MenuText.styled";
 

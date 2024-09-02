@@ -1,20 +1,17 @@
 import type { WidgetType } from "constants/WidgetConstants";
 import type {
+  AnyReduxAction,
   EvaluationReduxAction,
   ReduxAction,
-  UpdateCanvasPayload,
-  AnyReduxAction,
-  ClonePageSuccessPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
   WidgetReduxActionTypes,
-  ReplayReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import type { WidgetOperation } from "widgets/BaseWidget";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import type {
   FetchPageResponse,
   PageLayout,
@@ -25,9 +22,15 @@ import type {
 import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import type { APP_MODE } from "entities/App";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import * as Sentry from "@sentry/react";
+import type { DSLWidget } from "../WidgetProvider/constants";
+import type {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "../constants/AppsmithActionConstants/ActionConstants";
+import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -126,6 +129,19 @@ export const updateCurrentPage = (
   type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
   payload: { id, slug, permissions },
 });
+
+export interface UpdateCanvasPayload {
+  pageWidgetId: string;
+  widgets: { [widgetId: string]: WidgetProps };
+  currentLayoutId: string;
+  currentPageId: string;
+  currentPageName: string;
+  currentApplicationId: string;
+  dsl: Partial<DSLWidget>;
+  pageActions: PageAction[][];
+  updatedWidgetIds?: string[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
+}
 
 export const initCanvasLayout = (
   payload: UpdateCanvasPayload,
@@ -245,6 +261,16 @@ export const clonePageInit = (
   };
 };
 
+export interface ClonePageSuccessPayload {
+  pageName: string;
+  description?: string;
+  pageId: string;
+  basePageId: string;
+  layoutId: string;
+  isDefault: boolean;
+  slug: string;
+}
+
 export const clonePageSuccess = ({
   basePageId,
   layoutId,
@@ -321,6 +347,8 @@ export interface WidgetAddChild {
   parentColumnSpace: number;
   newWidgetId: string;
   tabId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props?: Record<string, any>;
   dynamicBindingPathList?: DynamicPath[];
 }
@@ -384,12 +412,16 @@ export interface WidgetAddChildren {
 export interface WidgetUpdateProperty {
   widgetId: string;
   propertyPath: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any;
 }
 
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any,
 ): ReduxAction<
   | WidgetAddChild
@@ -430,11 +462,15 @@ export const updateAppStore = (
 };
 
 export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraParams: Record<any, any>;
 }
 
 export interface GenerateCRUDSuccess {
   page: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     layouts: Array<any>;
     id: string;
     baseId: string;
@@ -467,6 +503,8 @@ export interface GenerateTemplatePageActionPayload {
   columns?: string[];
   searchColumn?: string;
   mode?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pluginSpecificParams?: Record<any, any>;
 }
 
@@ -512,7 +550,7 @@ export function undoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayReduxActionTypes.UNDO,
+      operation: ReplayOperation.UNDO,
     },
   };
 }
@@ -521,7 +559,7 @@ export function redoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayReduxActionTypes.REDO,
+      operation: ReplayOperation.REDO,
     },
   };
 }
@@ -590,6 +628,8 @@ export const resetApplicationWidgets = () => ({
   type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchPageDSLs = (payload?: any) => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
   payload,

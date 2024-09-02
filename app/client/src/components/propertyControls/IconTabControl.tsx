@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { SegmentedControlOption } from "design-system";
-import { SegmentedControl } from "design-system";
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -74,6 +74,8 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
     return "ICON_TABS";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     if (
       (config as IconTabControlProps)?.options

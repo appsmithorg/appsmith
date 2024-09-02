@@ -1,5 +1,5 @@
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
-import { ACTION_TYPE, JSACTION_TYPE } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
+import { ACTION_TYPE, JSACTION_TYPE } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createSelector } from "reselect";
@@ -10,14 +10,14 @@ import {
   getModuleInstanceEntities,
   getModuleInstances,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
 import {
   getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { jsCollectionIdURL, widgetURL } from "@appsmith/RouteBuilder";
+import { jsCollectionIdURL, widgetURL } from "ee/RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { createNavData } from "utils/NavigationSelector/common";
 import { getWidgetChildrenNavData } from "utils/NavigationSelector/WidgetChildren";
@@ -25,12 +25,12 @@ import { getJsChildrenNavData } from "utils/NavigationSelector/JsChildren";
 import {
   getEntityNameAndPropertyPath,
   isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { AppState } from "ee/reducers";
 import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
-import { getModuleInstanceNavigationData } from "@appsmith/utils/moduleInstanceNavigationData";
+import { getModuleInstanceNavigationData } from "ee/utils/moduleInstanceNavigationData";
 
 export interface NavigationData {
   name: string;
@@ -72,6 +72,8 @@ export const getEntitiesForNavigation = createSelector(
   getDataTree,
   getDatasources,
   getModulesData,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,

@@ -1,9 +1,8 @@
 import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
 
-export function createMessage(
-  format: (...strArgs: any[]) => string,
-  ...args: any[]
-) {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createMessage(format: (...strArgs: any[]) => string, ...args: any[]) {
   return format(...args);
 }
 
@@ -2501,3 +2500,5 @@ export const PAGE_ENTITY_NAME = "Page";
 
 export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
   "Create a datasource to power your app with data.";
+
+export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;

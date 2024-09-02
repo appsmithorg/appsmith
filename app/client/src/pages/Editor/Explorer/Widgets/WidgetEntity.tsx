@@ -10,15 +10,15 @@ import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureRed
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { builderURL } from "@appsmith/RouteBuilder";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { builderURL } from "ee/RouteBuilder";
 import { useLocation } from "react-router";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { NavigationMethod } from "utils/history";
 import { getEntityExplorerWidgetsToExpand } from "selectors/widgetSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 
 export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
@@ -38,6 +38,8 @@ const useWidget = (
   const { navigateToWidget } = useNavigateToWidget();
 
   const boundNavigateToWidget = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       const isMultiSelect = e.metaKey || e.ctrlKey;
       const isShiftSelect = e.shiftKey;

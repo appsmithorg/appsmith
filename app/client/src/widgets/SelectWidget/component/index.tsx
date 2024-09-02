@@ -40,6 +40,8 @@ class SelectComponent extends React.Component<
   SelectComponentProps,
   SelectComponentState
 > {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   listRef: any = React.createRef();
   labelRef = React.createRef<HTMLDivElement>();
   spanRef = React.createRef<HTMLSpanElement>();
@@ -205,6 +207,8 @@ class SelectComponent extends React.Component<
     </MenuItem>
   );
   itemListRenderer = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     props: IItemListRendererProps<any>,
   ): JSX.Element | null => {
     if (!this.state.isOpen) return null;
@@ -226,6 +230,8 @@ class SelectComponent extends React.Component<
   renderList = (
     items: DropdownOption[],
     activeItemIndex: number | null,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     renderItem: (item: any, index: number) => JSX.Element | null,
   ): JSX.Element | null => {
     // Don't scroll if the list is filtered.
@@ -236,6 +242,8 @@ class SelectComponent extends React.Component<
       optionsCount * ITEM_SIZE > MAX_RENDER_MENU_ITEMS_HEIGHT
         ? activeItemIndex * ITEM_SIZE
         : 0;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const RowRenderer = (itemProps: any) => (
       <div key={itemProps.index} style={itemProps.style}>
         {renderItem(items[itemProps.index], itemProps.index)}
@@ -425,6 +433,7 @@ class SelectComponent extends React.Component<
               displayText={value.toString()}
               handleCancelClick={this.handleCancelClick}
               hideCancelIcon={this.props.hideCancelIcon}
+              isRequired={this.props.isRequired}
               spanRef={this.spanRef}
               togglePopoverVisibility={this.togglePopoverVisibility}
               tooltipText={tooltipText}
@@ -438,44 +447,45 @@ class SelectComponent extends React.Component<
 }
 
 export interface SelectComponentProps extends ComponentProps {
+  accentColor?: string;
+  borderRadius: string;
+  boxShadow?: string;
   className?: string;
+  compactMode: boolean;
   disabled?: boolean;
-  onOptionSelected: (optionSelected: DropdownOption) => void;
-  placeholder?: string;
+  dropDownWidth: number;
+  filterText?: string;
+  hasError?: boolean;
+  height: number;
+  hideCancelIcon?: boolean;
+  isDynamicHeightEnabled?: boolean;
+  isFilterable: boolean;
+  isLoading: boolean;
+  isOpen?: boolean;
+  isRequired?: boolean;
+  isValid: boolean;
+  label?: string | number;
   labelAlignment?: Alignment;
   labelPosition?: LabelPosition;
+  labelStyle?: string;
   labelText: string;
   labelTextColor?: string;
   labelTextSize?: TextSize;
-  labelStyle?: string;
-  labelWidth?: number;
   labelTooltip?: string;
-  compactMode: boolean;
-  selectedIndex?: number;
-  options: DropdownOption[];
-  isDynamicHeightEnabled?: boolean;
-  isLoading: boolean;
-  isFilterable: boolean;
-  isValid: boolean;
-  width: number;
-  dropDownWidth: number;
-  height: number;
-  serverSideFiltering: boolean;
-  hasError?: boolean;
-  onFilterChange: (text: string) => void;
-  onDropdownOpen?: () => void;
-  onDropdownClose?: () => void;
-  value?: string | number;
-  label?: string | number;
-  filterText?: string;
-  borderRadius: string;
-  boxShadow?: string;
-  accentColor?: string;
-  isOpen?: boolean;
+  labelWidth?: number;
   onClose?: () => void;
-  hideCancelIcon?: boolean;
+  onDropdownClose?: () => void;
+  onDropdownOpen?: () => void;
+  onFilterChange: (text: string) => void;
+  onOptionSelected: (optionSelected: DropdownOption) => void;
+  options: DropdownOption[];
+  placeholder?: string;
   resetFilterTextOnClose?: boolean;
   rtl?: boolean;
+  selectedIndex?: number;
+  serverSideFiltering: boolean;
+  value?: string | number;
+  width: number;
 }
 
 export default React.memo(SelectComponent);

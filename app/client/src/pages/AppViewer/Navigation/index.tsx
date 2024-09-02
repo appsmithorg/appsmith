@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getCurrentBasePageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import type { Theme } from "constants/DefaultTheme";
@@ -17,13 +17,13 @@ import HtmlTitle from "../AppViewerHtmlTitle";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import PageMenu from "pages/AppViewer/PageMenu";
 import { useHref } from "pages/Editor/utils";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import TopHeader from "./components/TopHeader";
 import Sidebar from "./Sidebar";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export function Navigation() {
   const { search } = useLocation();

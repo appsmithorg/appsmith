@@ -3,12 +3,6 @@
 export { default as AppIcon } from "./AppIcon";
 export * from "./AppIcon";
 
-export { default as Breadcrumbs } from "./Breadcrumbs";
-export * from "./Breadcrumbs";
-
-export { default as Button } from "./Button";
-export * from "./Button";
-
 export { default as Checkbox } from "./Checkbox";
 export * from "./Checkbox";
 
@@ -26,8 +20,11 @@ export * from "./DisplayImageUpload";
 export { default as DraggableList } from "./DraggableList";
 export * from "./DraggableList";
 
-export { default as Dropdown } from "./Dropdown";
-export * from "./Dropdown";
+export type {
+  DropdownOption,
+  DropdownOnSelect,
+  RenderDropdownOptionType,
+} from "./Dropdown";
 
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
@@ -48,9 +45,6 @@ export * from "./GifPlayer";
 
 export * from "./HighlightText";
 
-export { default as Icon } from "./Icon";
-export * from "./Icon";
-
 export { default as IconSelector } from "./IconSelector";
 export * from "./IconSelector";
 
@@ -69,9 +63,6 @@ export * from "./RectangularSwitcher";
 export { default as SearchComponent } from "./SearchComponent";
 export * from "./SearchComponent";
 
-export { default as Spinner } from "./Spinner";
-export * from "./Spinner";
-
 export { default as Statusbar } from "./Statusbar";
 export * from "./Statusbar";
 
@@ -81,8 +72,6 @@ export * from "./Switch";
 export { default as Switcher } from "./Switcher";
 export * from "./Switcher";
 
-export * from "./Tabs";
-
 export { default as Table } from "./Table";
 export * from "./Table";
 
@@ -91,9 +80,6 @@ export * from "./TagInput";
 
 export { default as Text } from "./Text";
 export * from "./Text";
-
-export { default as TextInput } from "./TextInput";
-export * from "./TextInput";
 
 export { default as TooltipComponent } from "./Tooltip";
 export * from "./Tooltip";
@@ -108,3 +94,5 @@ export * from "./constants/variants";
 export * from "./types/common";
 export * from "./utils/colors";
 export * from "./utils/icon-loadables";
+export * from "./utils/emailValidator";
+export * from "./utils/notEmptyValidator";

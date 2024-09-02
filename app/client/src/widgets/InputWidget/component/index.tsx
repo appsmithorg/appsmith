@@ -19,7 +19,7 @@ import _ from "lodash";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
 
@@ -299,6 +299,8 @@ class InputComponent extends React.Component<
 
   componentDidMount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const element: any = document.querySelectorAll(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
@@ -314,6 +316,8 @@ class InputComponent extends React.Component<
       this.props.inputType === InputTypes.CURRENCY &&
       this.props.inputType !== prevProps.inputType
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const element: any = document.querySelectorAll(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
@@ -326,6 +330,8 @@ class InputComponent extends React.Component<
 
   componentWillUnmount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const element: any = document.querySelectorAll(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );

@@ -1,12 +1,11 @@
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   actionChannel,
   call,
@@ -87,7 +86,7 @@ import {
   updateLocalGitConfigSuccess,
 } from "actions/gitSyncActions";
 
-import { showReconnectDatasourceModal } from "@appsmith/actions/applicationActions";
+import { showReconnectDatasourceModal } from "ee/actions/applicationActions";
 
 import type { ApiResponse } from "api/ApiResponses";
 import type { GitConfig } from "entities/GitSync";
@@ -95,7 +94,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import {
   getCurrentApplication,
   getWorkspaceIdForImport,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import {
   AUTOCOMMIT_DISABLED_TOAST,
   AUTOCOMMIT_ENABLED_TOAST,
@@ -107,7 +106,7 @@ import {
   GIT_USER_UPDATED_SUCCESSFULLY,
   PROTECT_BRANCH_SUCCESS,
   IMPORT_APP_SUCCESSFUL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import history from "utils/history";
 import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
@@ -119,27 +118,25 @@ import {
 import { initEditorAction } from "actions/initActions";
 import { fetchPageAction } from "actions/pageActions";
 import { getLogToSentryFromResponse } from "utils/helpers";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import { APP_MODE } from "entities/App";
 import type {
   GitDiscardResponse,
   GitMetadata,
 } from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import {
-  getActions,
-  getJSCollections,
-} from "@appsmith/selectors/entitiesSelector";
+import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
-import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import { toast } from "design-system";
-import { gitExtendedSagas } from "@appsmith/sagas/GitExtendedSagas";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
+import { toast } from "@appsmith/ads";
+import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { ApplicationPayload } from "entities/Application";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -265,6 +262,8 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       }
       /* commit effect END */
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (action.onErrorCallback) {
       action.onErrorCallback(error as Error, response);
@@ -834,6 +833,8 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             showReconnectDatasourceModal({
               // @ts-expect-error: Type mismatch
               application: response?.data?.application,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               unConfiguredDatasourceList: (response as any)?.data
                 .unConfiguredDatasourceList,
               workspaceId: workspaceIdForImport,
@@ -949,6 +950,8 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* deleteBranch({ payload }: ReduxAction<any>) {
   yield put(deletingBranch(payload));
   const { branchToDelete } = payload;
@@ -996,6 +999,8 @@ function* discardChanges({
       // adding delay to show toast animation before reloading
       yield delay(500);
       const basePageId: string =
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         response.data?.pages?.find((page: any) => page.isDefault)?.baseId || "";
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ basePageId, branch }), "_self");
@@ -1177,6 +1182,8 @@ function isAutocommitHappening(
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* pollAutocommitProgressSaga(): any {
   const applicationId: string = yield select(getCurrentApplicationId);
   const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
@@ -1263,6 +1270,8 @@ function* triggerAutocommitSaga() {
 
 const gitRequestBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => any
 > = {
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: commitToGitRepoSaga,
@@ -1289,6 +1298,8 @@ const gitRequestBlockingActions: Record<
 
 const gitRequestNonBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => any
 > = {
   ...gitExtendedSagas,

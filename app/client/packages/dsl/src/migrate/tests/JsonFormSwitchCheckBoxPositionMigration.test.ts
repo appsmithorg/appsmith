@@ -1,4 +1,4 @@
-import { migrateJsonFormWidgetLabelPositonAndAlignment } from "../migrations/089-migrate-jsonformwidget-labelposition-and-alignment";
+import { migrateJsonFormWidgetLabelPositonAndAlignment } from "../migrations/090-migrate-jsonformwidget-labelposition-and-alignment";
 import type { DSLWidget } from "../types";
 
 const inputDsl: DSLWidget = {

@@ -9,16 +9,16 @@ import { useParams } from "react-router";
 import {
   getCurrentActions,
   getPluginImages,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import history from "utils/history";
 
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
-import { saasEditorDatasourceIdURL } from "@appsmith/RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { Button } from "design-system";
+import { saasEditorDatasourceIdURL } from "ee/RouteBuilder";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { Button } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
@@ -105,6 +105,8 @@ function DatasourceCard(props: DatasourceCardProps) {
       action.config.datasource.id === datasource.id,
   ).length;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "APIs" : "API";

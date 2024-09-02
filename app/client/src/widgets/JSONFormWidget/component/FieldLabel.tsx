@@ -8,8 +8,8 @@ import { IconWrapper } from "constants/IconConstants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import { AlignWidgetTypes, type AlignWidget } from "WidgetProvider/constants";
-import { importSvg } from "design-system-old";
 import { LabelPosition } from "components/constants";
+import { importSvg } from "@appsmith/ads-old";
 
 const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 

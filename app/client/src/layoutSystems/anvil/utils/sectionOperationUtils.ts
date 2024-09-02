@@ -13,7 +13,7 @@ import { generateReactKey } from "utils/generators";
 import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "../layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../utils/constants";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import { getUpdatedListOfWidgetsAfterAddingNewWidget } from "../integrations/sagas/anvilWidgetAdditionSagas";
 
 /**
@@ -166,8 +166,10 @@ export function* addNewZonesToSection(
   // Create and add the specified number of zones to the Section Widget
   do {
     const sectionWidget: FlattenedWidgetProps = updatedWidgets[sectionWidgetId];
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newWidget: any = {
-      newWidgetId: generateReactKey({ prefix: "zone-" }),
+      newWidgetId: generateReactKey(),
       parentId: sectionWidget.widgetId,
       type: anvilWidgets.ZONE_WIDGET,
     };

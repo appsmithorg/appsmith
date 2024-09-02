@@ -10,7 +10,7 @@ import {
   toggleSaveActionFlag,
   updateDatasourceAuthState,
 } from "actions/datasourceActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useLocation, useHistory } from "react-router";
 import type { Datasource } from "entities/Datasource";
@@ -24,8 +24,8 @@ import {
   SAVE_BUTTON_TEXT,
   TEST_BUTTON_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import { Button, toast } from "design-system";
+} from "ee/constants/messages";
+import { Button, toast } from "@appsmith/ads";
 import type { ClientCredentials } from "entities/Datasource/RestAPIForm";
 import {
   GrantType,
@@ -33,16 +33,16 @@ import {
 } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { resetCurrentPluginIdForCreateNewApp } from "actions/onboardingActions";
-import { useParentEntityDetailsFromParams } from "@appsmith/entities/Engine/actionHelpers";
+import { useParentEntityDetailsFromParams } from "ee/entities/Engine/actionHelpers";
 
 interface Props {
   datasource: Datasource;

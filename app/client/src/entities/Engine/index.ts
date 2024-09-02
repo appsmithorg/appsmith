@@ -1,10 +1,10 @@
-import { fetchApplication } from "@appsmith/actions/applicationActions";
+import { fetchApplication } from "ee/actions/applicationActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { getPersistentAppStore } from "constants/AppConstants";
 import type { APP_MODE } from "entities/App";
 import log from "loglevel";
@@ -12,7 +12,7 @@ import { call, put, select } from "redux-saga/effects";
 import type { InitConsolidatedApi } from "sagas/InitSagas";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getDefaultBasePageId, getDefaultPageId } from "sagas/selectors";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import history from "utils/history";
 import type URLRedirect from "entities/URLRedirect/index";
 import URLGeneratorFactory from "entities/URLRedirect/factory";
@@ -31,15 +31,27 @@ export interface AppEnginePayload {
 }
 
 export interface IAppEngine {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setupEngine(payload: AppEnginePayload, rootSpan: Span): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadAppData(payload: AppEnginePayload, rootSpan: Span): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadAppURL(pageId: string, pageIdInUrl?: string): any;
   loadAppEntities(
     toLoadPageId: string,
     applicationId: string,
     rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadGit(applicationId: string): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   completeChore(): any;
 }
 
@@ -57,6 +69,8 @@ export default abstract class AppEngine {
   }
   private _urlRedirect: URLRedirect | null;
 
+  // TODO: Fix this the next time the file is edited
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   abstract loadAppEntities(
     toLoadPageId: string,
     applicationId: string,
@@ -64,9 +78,8 @@ export default abstract class AppEngine {
     rootSpan: Span,
   ): any;
   abstract loadGit(applicationId: string, rootSpan: Span): any;
-  abstract startPerformanceTracking(): any;
-  abstract stopPerformanceTracking(): any;
   abstract completeChore(rootSpan: Span): any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   *loadAppData(
     payload: AppEnginePayload,
@@ -118,6 +131,8 @@ export default abstract class AppEngine {
     return { toLoadPageId, toLoadBasePageId, applicationId: application.id };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *setupEngine(payload: AppEnginePayload, rootSpan: Span): any {
     const setupEngineSpan = startNestedSpan("AppEngine.setupEngine", rootSpan);
 

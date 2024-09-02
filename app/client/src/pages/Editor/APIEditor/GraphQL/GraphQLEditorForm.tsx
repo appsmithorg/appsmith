@@ -4,9 +4,9 @@ import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
 import classNames from "classnames";
 import styled from "styled-components";
-import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
@@ -14,7 +14,7 @@ import type { Datasource } from "entities/Datasource";
 import {
   getActionByBaseId,
   getActionData,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
@@ -158,6 +158,8 @@ interface ReduxDispatchProps {
   updateDatasource: (datasource: Datasource) => void;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) => {
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource));
@@ -165,6 +167,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
 });
 
 export default connect(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (state: AppState, props: { pluginId: string; match?: any }) => {
     const httpMethodFromForm = selector(
       state,
@@ -208,6 +212,8 @@ export default connect(
 
     if (Array.isArray(datasourceHeaders)) {
       const validHeaders = datasourceHeaders.filter(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => value.key && value.key !== "",
       );
       headersCount += validHeaders.length;
@@ -225,6 +231,8 @@ export default connect(
 
     if (Array.isArray(datasourceParams)) {
       const validParams = datasourceParams.filter(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => value.key && value.key !== "",
       );
       paramsCount += validParams.length;
@@ -274,6 +282,8 @@ export default connect(
   },
   mapDispatchToProps,
 )(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reduxForm<Action, any>({
     form: API_EDITOR_FORM_NAME,
     enableReinitialize: true,

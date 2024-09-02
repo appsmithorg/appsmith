@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 import Page from "./Page";
 import {
@@ -7,7 +7,7 @@ import {
   PAGE_SERVER_TIMEOUT_DESCRIPTION,
   PAGE_SERVER_TIMEOUT_ERROR_CODE,
   PAGE_SERVER_TIMEOUT_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 function ServerTimeout() {
   return (

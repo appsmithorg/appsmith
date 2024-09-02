@@ -8,21 +8,18 @@ import {
   fork,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
+import type { ApplicationPayload } from "entities/Application";
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxFormActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { getDynamicTriggers, getFormData } from "selectors/formSelectors";
-import {
-  DATASOURCE_DB_FORM,
-  QUERY_EDITOR_FORM_NAME,
-} from "@appsmith/constants/forms";
+import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
@@ -37,7 +34,7 @@ import {
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
   getActionByBaseId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {
@@ -49,25 +46,22 @@ import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import type { Datasource } from "entities/Datasource";
 import omit from "lodash/omit";
-import {
-  createMessage,
-  ERROR_ACTION_RENAME_FAIL,
-} from "@appsmith/constants/messages";
+import { createMessage, ERROR_ACTION_RENAME_FAIL } from "ee/constants/messages";
 import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
@@ -76,22 +70,22 @@ import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
-import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 // Called whenever the query being edited is changed via the URL or query pane
@@ -132,7 +126,11 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
 
   // fetching pluginId and the consequent configs from the action
   const pluginId = action.pluginId;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentSettingConfig: any[] = yield select(getSettingConfig, pluginId);
 
   // Update the evaluations when the queryID is changed by changing the

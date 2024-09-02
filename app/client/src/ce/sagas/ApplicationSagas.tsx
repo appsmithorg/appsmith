@@ -1,12 +1,8 @@
-import type {
-  ApplicationPayload,
-  Page,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   ApplicationPagePayload,
   ApplicationResponsePayload,
@@ -28,15 +24,15 @@ import type {
   UpdateApplicationRequest,
   UpdateApplicationResponse,
   UploadNavigationLogoRequest,
-} from "@appsmith/api/ApplicationApi";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
+import ApplicationApi from "ee/api/ApplicationApi";
 import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
 import type { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   ApplicationVersion,
   deleteApplicationNavigationLogoSuccessAction,
@@ -56,15 +52,15 @@ import {
   updateCurrentApplicationForkingEnabled,
   updateApplicationThemeSettingAction,
   fetchAllApplicationsOfWorkspace,
-} from "@appsmith/actions/applicationActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/actions/applicationActions";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
   IMPORT_APP_SUCCESSFUL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { APP_MODE } from "entities/App";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
@@ -81,7 +77,7 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import {
@@ -90,41 +86,40 @@ import {
 } from "actions/datasourceActions";
 import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
 import { isEmpty, merge } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import {
-  getPageList,
-  getPluginForm,
-} from "@appsmith/selectors/entitiesSelector";
+import { getPageList, getPluginForm } from "ee/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import type { SetDefaultPageActionPayload } from "actions/pageActions";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import {
   defaultNavigationSetting,
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   getApplicationsOfWorkspace,
   getCurrentWorkspaceId,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/selectors/selectedWorkspaceSelectors";
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import type { Page } from "entities/Page";
+import type { ApplicationPayload } from "entities/Application";
 
 export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
   const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];
@@ -308,6 +303,8 @@ export function* fetchAppAndPagesSaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* handleFetchApplicationError(error: any) {
   const currentUser: User = yield select(getCurrentUser);
   if (
@@ -526,7 +523,11 @@ export function* createApplicationSaga(
     icon: IconNames;
     color: AppColorCode;
     workspaceId: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: any;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reject: any;
   }>,
 ) {

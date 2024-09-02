@@ -9,7 +9,7 @@ import type {
   WidgetEntityConfig,
   PrivateWidgets,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -19,8 +19,8 @@ import type {
   DataTreeEntity,
   DataTree,
 } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
+import { convertMicroDiffToDeepDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
   convertJSFunctionsToString,
@@ -31,15 +31,15 @@ import {
   isPrivateEntityPath,
   makeParentsDependOnChildren,
   translateDiffEventToDataTreeDiffEvent,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import type { Diff } from "deep-diff";
 import _, { flatten, set } from "lodash";
 import {
   overrideWidgetProperties,
   findDatatype,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget from "widgets/TableWidget";
 import InputWidget from "widgets/InputWidgetV2";
@@ -344,6 +344,8 @@ describe("3. makeParentsDependOnChildren", () => {
 
 describe("4. translateDiffEvent", () => {
   it("1. noop when diff path does not exist", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const noDiffPath: Diff<any, any> = {
       kind: "E",
       lhs: undefined,
@@ -359,6 +361,8 @@ describe("4. translateDiffEvent", () => {
     });
   });
   it("2. translates new and delete events", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const diffs: Diff<any, any>[] = [
       {
         kind: "N",
@@ -430,6 +434,8 @@ describe("4. translateDiffEvent", () => {
   });
 
   it("3. properly categorises the edit events", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -459,6 +465,8 @@ describe("4. translateDiffEvent", () => {
     // cyclic dependency case
     const lhs = new String("() => {}");
     _.set(lhs, "data", {});
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -492,6 +500,8 @@ describe("4. translateDiffEvent", () => {
   });
 
   it("5. lists array accessors when object is replaced by an array", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -524,6 +534,8 @@ describe("4. translateDiffEvent", () => {
   });
 
   it("6. lists array accessors when array is replaced by an object", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",
@@ -556,6 +568,8 @@ describe("4. translateDiffEvent", () => {
   });
 
   it("7. deletes member expressions when Array changes to string", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const diffs: Diff<any, any>[] = [
       {
         kind: "E",

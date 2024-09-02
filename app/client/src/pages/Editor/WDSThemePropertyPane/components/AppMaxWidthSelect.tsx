@@ -1,13 +1,13 @@
-import { APP_MAX_WIDTH } from "@design-system/theming";
-import { Option, Select } from "design-system";
+import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
+import { Option, Select } from "@appsmith/ads";
 import React from "react";
 
 interface AppMaxWidthSelectProps {
-  value: APP_MAX_WIDTH;
+  value: AppMaxWidth;
   onSelect: (value: string) => void;
 }
 
-const resolveOptionLabelText = (option: APP_MAX_WIDTH) => {
+const resolveOptionLabelText = (option: AppMaxWidth) => {
   switch (option) {
     case APP_MAX_WIDTH.Unlimited:
       return "Unlimited";

@@ -7,7 +7,7 @@ import { ThemeProvider } from "styled-components";
 
 import TemplateFilters from "./index";
 import { lightTheme } from "selectors/themeSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   unitTestMockTemplate,
   unitTestMockTemplateAllFilters,
@@ -16,6 +16,8 @@ import {
 const mockStore = configureStore([]);
 
 describe("<TemplateFilters />", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
 
   beforeEach(() => {

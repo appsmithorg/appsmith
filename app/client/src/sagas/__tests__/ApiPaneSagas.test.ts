@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { CreateApiActionDefaultsParams } from "entities/Action";
 import type { Saga } from "redux-saga";
 import { runSaga, stdChannel } from "redux-saga";
@@ -71,10 +71,14 @@ describe("handleDatasourceCreatedSaga", () => {
     const basePageId = "669e868199b66f0d2176fc1d";
     const store = testStore({
       entities: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({} as any),
         plugins: MockPluginsState,
       },
       ui: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({} as any),
         datasourcePane: {
           actionRouteInfo: {
@@ -87,6 +91,8 @@ describe("handleDatasourceCreatedSaga", () => {
       },
     });
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dispatched: any[] = [];
     const spy = jest.spyOn(history, "push").mockImplementation(jest.fn());
     const channel = stdChannel();
@@ -107,6 +113,8 @@ describe("handleDatasourceCreatedSaga", () => {
 
     runSaga(
       {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dispatch: (action: any) => {
           dispatched.push(action);
           channel.put(action);

@@ -10,11 +10,11 @@ import {
   MenuSubContent,
   Tooltip,
   MenuSeparator,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { AddButtonWrapper, EntityClassNames } from "./Entity";
 import styled from "styled-components";
 

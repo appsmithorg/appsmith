@@ -5,7 +5,7 @@ import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import type { Action, ActionViewMode } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
@@ -287,6 +287,8 @@ export const saveActionName = (payload: { id: string; name: string }) => ({
 export interface SetActionPropertyPayload {
   actionId: string;
   propertyName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   skipSave?: boolean;
 }
@@ -303,6 +305,8 @@ export const setActionProperty = (
 export interface UpdateActionPropertyActionPayload {
   id: string;
   field: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 

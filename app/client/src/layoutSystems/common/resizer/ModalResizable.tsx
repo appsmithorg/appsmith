@@ -9,9 +9,6 @@ import {
   ResizeWrapper,
 } from "layoutSystems/common/resizer/common";
 import type { StyledComponent } from "styled-components";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 
 const getSnappedValues = (
   x: number,
@@ -103,23 +100,6 @@ interface ResizableProps {
 }
 
 export function ModalResizable(props: ResizableProps) {
-  // Performance tracking start
-  const sentryPerfTags = props.zWidgetType
-    ? [{ name: "widget_type", value: props.zWidgetType }]
-    : [];
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.SHOW_RESIZE_HANDLES,
-    { widgetId: props.widgetId },
-    true,
-    sentryPerfTags,
-  );
-
-  useEffect(() => {
-    PerformanceTracker.stopTracking(
-      PerformanceTransactionName.SHOW_RESIZE_HANDLES,
-    );
-  });
-  //end
   const [pointerEvents, togglePointerEvents] = useState(true);
   const [newDimensions, set] = useState({
     width: props.componentWidth,

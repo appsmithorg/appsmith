@@ -7,11 +7,11 @@ import {
   ADMIN_BRANDING_FAVICON_SIZE_ERROR,
   ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
   ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
-} from "@appsmith/constants/messages";
-import { toast } from "design-system";
+} from "ee/constants/messages";
+import { toast } from "@appsmith/ads";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { LightModeTheme } from "@design-system/theming";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { LightModeTheme } from "@appsmith/wds-theming";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;

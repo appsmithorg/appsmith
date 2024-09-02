@@ -5,7 +5,7 @@ import moment from "moment";
 import { TimePrecision } from "@blueprintjs/datetime";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import { DatePicker } from "design-system";
+import { DatePicker } from "@appsmith/ads";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 class DatePickerControl extends BaseControl<
@@ -158,6 +158,8 @@ class DatePickerControl extends BaseControl<
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return !isDynamicValue(value);
   }

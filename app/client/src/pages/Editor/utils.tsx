@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import { debounce, random } from "lodash";
+import { debounce, random, sortBy } from "lodash";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
@@ -14,14 +14,14 @@ import WidgetFactory from "WidgetProvider/factory";
 import {
   createMessage,
   WIDGET_DEPRECATION_MESSAGE,
-} from "@appsmith/constants/messages";
-import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
+} from "ee/constants/messages";
+import type { URLBuilderParams } from "ee/entities/URLRedirect/URLAssembly";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import type { ActionResponse } from "api/ActionAPI";
-import type { Module } from "@appsmith/constants/ModuleConstants";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { Module } from "ee/constants/ModuleConstants";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import {
   ENTITY_ICON_SIZE,
   EntityIcon,
@@ -29,23 +29,30 @@ import {
   dbQueryIcon,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { PluginType } from "entities/Action";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorState,
   EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+} from "ee/entities/IDE/constants";
 import { FocusEntity } from "navigation/FocusEntity";
+import { objectKeys } from "@appsmith/utils";
 
 export const draggableElement = (
   id: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   element: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onPositionChange: any,
   parentElement?: Element | null,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initPostion?: any,
   renderDragBlockPositions?: {
     left?: string;
@@ -188,6 +195,8 @@ export const draggableElement = (
     }
     dragHandler.addEventListener("mousedown", dragMouseDown);
     // stop clicks from propogating to widget editor.
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dragHandler.addEventListener("click", (e: any) => e.stopPropagation());
   };
 
@@ -196,6 +205,8 @@ export const draggableElement = (
 
 const createDragHandler = (
   id: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   el: any,
   dragHandle: () => JSX.Element,
   renderDragBlockPositions?: {
@@ -226,6 +237,8 @@ const createDragHandler = (
 };
 
 // Function to access nested property in an object
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getNestedValue = (obj: Record<string, any>, path = "") => {
   return path.split(".").reduce((prev, cur) => {
     return prev && prev[cur];
@@ -317,6 +330,15 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
         }
       });
     }
+  });
+
+  objectKeys(groupedCards).forEach((tag) => {
+    if (tag === WIDGET_TAGS.SUGGESTED_WIDGETS) return;
+
+    groupedCards[tag] = sortBy(groupedCards[tag], [
+      "displayOrder",
+      "displayName",
+    ]);
   });
 
   return groupedCards;
