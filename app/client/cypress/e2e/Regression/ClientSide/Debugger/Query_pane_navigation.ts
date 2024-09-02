@@ -67,8 +67,6 @@ describe(
       debuggerHelper.AssertErrorCount(2);
 
       debuggerHelper.OpenDebugger();
-      debuggerHelper.ClickLogsTab();
-      debuggerHelper.ClicklogEntityLink();
       agHelper.AssertElementVisibility(
         ".t--actionConfiguration\\.formData\\.limitDocuments\\.data",
       );

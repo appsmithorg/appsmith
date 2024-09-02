@@ -55,6 +55,8 @@ export class DebuggerHelper {
     cy.get("body").then(($body) => {
       if ($body.find(this.locators._ideBottomViewContainer).length === 0) {
         this.agHelper.GetNClick(this.locators._debuggerIcon, 0, false);
+      } else {
+        this.agHelper.GetNClick(this.commonLocators._errorTab, 0, true, 0);
       }
     });
     this.AssertOpen();

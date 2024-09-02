@@ -29,13 +29,14 @@ describe("Widget error state", function () {
     // _.debuggerHelper.LogStateContains("Test");
   });
 
-  it("2. Switch to error tab when execution error occurs", function () {
+  it("2. Switch to error tab when clicked on the debug button", function () {
     cy.get("[data-testid=t--tab-LOGS_TAB]").click();
     cy.get(".t--property-control-onclick").find(".t--js-toggle").click();
     cy.EnableAllCodeEditors();
     cy.testJsontext("onclick", "{{testApi.run()}}");
     cy.get(widgetLocators.buttonWidget).click();
 
+    cy.get(".t--toast-debug-button").click();
     cy.get("[data-testid='t--tab-ERROR']").should(
       "have.attr",
       "aria-selected",

@@ -39,13 +39,16 @@ describe("Sanitise toast error messages", () => {
   it("2. Does not show type error label when js obj function does not exist", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{JSObject1.myFun1efef()}}");
-    _.agHelper.ClickButton("Submit");
+    // Assert the lint error that shows up
     _.debuggerHelper.AssertDebugError(
-      "Object1.myFun1efef is not a function",
+      `"myFun1efef" doesn't exist in JSObject1`,
       "",
       false,
       false,
     );
+    _.agHelper.ClickButton("Submit");
+    // Assert the execution error that shows up
+    _.agHelper.WaitUntilToastDisappear("Object1.myFun1efef is not a function");
   });
 
   it("3. Does not show any label when msg is not given for post message", () => {
@@ -72,11 +75,8 @@ describe("Sanitise toast error messages", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}");
     _.agHelper.ClickButton("Submit");
-    _.debuggerHelper.AssertDebugError(
+    _.agHelper.WaitUntilToastDisappear(
       "Cannot read properties of null (reading ':')",
-      "",
-      false,
-      false,
     );
   });
 
@@ -89,11 +89,6 @@ describe("Sanitise toast error messages", () => {
     _.agHelper.GetNClick(_.propPane._actionSelectorDelete);
     _.propPane.SelectPlatformFunction("onClick", "Navigate to");
     _.agHelper.ClickButton("Submit");
-    _.debuggerHelper.AssertDebugError(
-      "Enter a valid URL or page name",
-      "",
-      false,
-      false,
-    );
+    _.agHelper.WaitUntilToastDisappear("Enter a valid URL or page name");
   });
 });
