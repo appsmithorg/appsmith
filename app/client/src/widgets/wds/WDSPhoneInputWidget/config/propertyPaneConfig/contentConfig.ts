@@ -2,11 +2,17 @@ import { ISDCodeOptions } from "constants/ISDCodes_v2";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { propertyPaneContentConfig as WdsInputWidgetPropertyPaneContentConfig } from "widgets/wds/WDSInputWidget/config/propertyPaneConfig/contentConfig";
 
 import { countryToFlag } from "../../widget/helpers";
 import { defaultValueValidation } from "./validations";
 
+const inputTypeSectionConfig = WdsInputWidgetPropertyPaneContentConfig.find(
+  (config) => config.sectionName === "Type",
+);
+
 export const propertyPaneContentConfig = [
+  inputTypeSectionConfig,
   {
     sectionName: "Data",
     children: [

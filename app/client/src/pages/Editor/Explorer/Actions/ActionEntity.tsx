@@ -3,29 +3,26 @@ import { useSelector } from "react-redux";
 import Entity, { EntityClassNames } from "../Entity";
 import ActionEntityContextMenu from "./ActionEntityContextMenu";
 import history, { NavigationMethod } from "utils/history";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import {
   getActionByBaseId,
   getDatasource,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Action, StoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import type { Datasource } from "entities/Datasource";
 import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { saveActionNameBasedOnParentEntity } from "@appsmith/actions/helpers";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { saveActionNameBasedOnParentEntity } from "ee/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 
 const getUpdateActionNameReduxAction = (
@@ -70,9 +67,6 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
   const icon = config?.getIcon(action, pluginGroups[action.pluginId]);
 
   const switchToAction = useCallback(() => {
-    PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
-      url,
-    });
     url && history.push(url, { invokedBy: NavigationMethod.EntityExplorer });
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
       type: "QUERIES/APIs",

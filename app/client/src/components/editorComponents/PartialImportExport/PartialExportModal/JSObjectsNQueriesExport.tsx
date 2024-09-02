@@ -1,10 +1,10 @@
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";

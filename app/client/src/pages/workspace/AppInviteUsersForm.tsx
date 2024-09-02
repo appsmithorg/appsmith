@@ -1,30 +1,27 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { viewerURL } from "@appsmith/RouteBuilder";
-import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import { viewerURL } from "ee/RouteBuilder";
+import { fetchWorkspace } from "ee/actions/workspaceActions";
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC,
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
-} from "@appsmith/constants/messages";
-import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Button, Icon, Switch, Tooltip } from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import { hasInviteUserToApplicationPermission } from "ee/utils/permissionHelpers";
+import { Button, Icon, Switch, Tooltip } from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const SwitchContainer = styled.div`
   flex-basis: 220px;

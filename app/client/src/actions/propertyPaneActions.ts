@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
 
 export const updateWidgetName = (widgetId: string, newName: string) => {
@@ -111,6 +111,19 @@ export const createNewQueryFromActionCreator = (
 ) => {
   return {
     type: ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
+    payload,
+  };
+};
+
+export interface ShowPropertyPanePayload {
+  widgetId?: string;
+  callForDragOrResize?: boolean;
+  force: boolean;
+}
+
+export const showPropertyPane = (payload: ShowPropertyPanePayload) => {
+  return {
+    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
     payload,
   };
 };

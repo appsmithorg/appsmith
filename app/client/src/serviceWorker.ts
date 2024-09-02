@@ -11,7 +11,7 @@ import {
   getApplicationParamsFromUrl,
   getPrefetchRequests,
   PrefetchApiService,
-} from "@appsmith/utils/serviceWorkerUtils";
+} from "ee/utils/serviceWorkerUtils";
 import type { RouteHandlerCallback } from "workbox-core/types";
 
 setCacheNameDetails({
@@ -40,7 +40,7 @@ const regexMap = {
 const toPrecache = (self as any).__WB_MANIFEST;
 precacheAndRoute(toPrecache);
 
-self.__WB_DISABLE_DEV_LOGS = false;
+self.__WB_DISABLE_DEV_LOGS = true;
 skipWaiting();
 clientsClaim();
 

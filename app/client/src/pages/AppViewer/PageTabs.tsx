@@ -2,18 +2,16 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { get } from "lodash";
-import type {
-  ApplicationPayload,
-  Page,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 import { isEllipsisActive, trimQueryString } from "utils/helpers";
-import { getTypographyByKey, TooltipComponent } from "design-system-old";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getTypographyByKey, TooltipComponent } from "@appsmith/ads-old";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import {
   getMenuItemBackgroundColorWhenActive,
   getMenuItemBackgroundColorOnHover,

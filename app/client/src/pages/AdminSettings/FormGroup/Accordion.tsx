@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
 import Group from "./group";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 
 const AccordionWrapper = styled.div`
   margin-top: 40px;

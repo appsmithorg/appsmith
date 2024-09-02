@@ -1,6 +1,6 @@
 import Api from "api/Api";
 import type { AxiosPromise } from "axios";
-import type { SearchApiResponse } from "@appsmith/types/ApiResponseTypes";
+import type { SearchApiResponse } from "ee/types/ApiResponseTypes";
 
 export interface SearchEntitiesRequest {
   entities?: string[];

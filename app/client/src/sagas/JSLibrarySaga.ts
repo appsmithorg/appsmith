@@ -1,14 +1,11 @@
 import type { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { ActionPattern } from "redux-saga/effects";
 import {
   actionChannel,
@@ -22,18 +19,18 @@ import {
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
 import { EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
-import { toast } from "design-system";
+import { selectInstalledLibraries } from "ee/selectors/entitiesSelector";
+import { toast } from "@appsmith/ads";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 

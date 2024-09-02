@@ -1,4 +1,4 @@
-import { entityTypeLinkMap } from "@appsmith/components/editorComponents/Debugger/entityTypeLinkMap";
+import { entityTypeLinkMap } from "ee/components/editorComponents/Debugger/entityTypeLinkMap";
 import React from "react";
 import type { EntityLinkProps } from "./DebuggerEntityLink";
 

@@ -10,8 +10,8 @@ import {
   createMessage,
   ERROR_0,
   SERVER_API_TIMEOUT_ERROR,
-} from "@appsmith/constants/messages";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+} from "ee/constants/messages";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
 import * as Sentry from "@sentry/react";
 
 describe("axios api interceptors", () => {

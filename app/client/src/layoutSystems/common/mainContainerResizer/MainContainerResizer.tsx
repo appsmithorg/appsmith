@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "./constants";
 

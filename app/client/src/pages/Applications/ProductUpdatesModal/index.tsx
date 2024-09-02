@@ -2,14 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import type { Release } from "./ReleaseComponent";
 import ReleaseComponent from "./ReleaseComponent";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const Container = styled.div`
   position: relative;

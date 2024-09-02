@@ -1,19 +1,19 @@
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { isValidColor } from "utils/helpers";
-import { FONT_METRICS } from "@design-system/theming";
+import { FONT_METRICS } from "@appsmith/wds-theming";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
 import type { ThemeSetting } from "constants/AppConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplication } from "@appsmith/actions/applicationActions";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { updateApplication } from "ee/actions/applicationActions";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
+import { SegmentedControl, Tooltip, Select, Option, Icon } from "@appsmith/ads";
 
 import styles from "./styles.module.css";
 

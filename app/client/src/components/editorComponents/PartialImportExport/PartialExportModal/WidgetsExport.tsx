@@ -1,4 +1,4 @@
-import { Checkbox, Text } from "design-system";
+import { Checkbox, Text } from "@appsmith/ads";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import React from "react";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";

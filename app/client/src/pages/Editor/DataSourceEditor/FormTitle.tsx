@@ -3,11 +3,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import type { AppState } from "@appsmith/reducers";
-import {
-  getDatasource,
-  getDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
+import { getDatasource, getDatasources } from "ee/selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import type { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";

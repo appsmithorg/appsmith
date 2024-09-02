@@ -1,14 +1,14 @@
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import store from "store";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { getDatasource } from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import type { Plugin } from "api/PluginApi";
 import { get, isNil } from "lodash";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;

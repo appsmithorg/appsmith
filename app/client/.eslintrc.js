@@ -56,7 +56,7 @@ const eslintConfig = {
           ...(baseNoRestrictedImports.patterns ?? []),
           {
             group: ["**/ce/*"],
-            message: "Reason: Please use @appsmith import instead.",
+            message: "Reason: Please use ee/ import instead.",
           },
         ],
       },

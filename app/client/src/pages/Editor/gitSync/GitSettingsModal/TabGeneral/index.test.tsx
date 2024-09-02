@@ -2,7 +2,7 @@
 import React from "react";
 import { render, screen } from "test/testUtils";
 import TabGeneral from ".";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 jest.mock("../../hooks/gitPermissionHooks", () => ({
   useHasConnectToGitPermission: () => false,

@@ -10,13 +10,13 @@ import {
   createMessage,
   LATEST_DP_SUBTITLE,
   LATEST_DP_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { viewerURL } from "@appsmith/RouteBuilder";
-import { Link, Text } from "design-system";
-import { importSvg } from "design-system-old";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { viewerURL } from "ee/RouteBuilder";
+import { Link, Text } from "@appsmith/ads";
+import { importSvg } from "@appsmith/ads-old";
 
 const CloudyIcon = importSvg(
   async () => import("assets/icons/ads/cloudy-line.svg"),

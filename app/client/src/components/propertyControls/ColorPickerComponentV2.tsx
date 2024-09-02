@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { Switch } from "design-system";
+import { Switch } from "@appsmith/ads";
 import {
   Popover,
   InputGroup,
@@ -29,12 +29,9 @@ import {
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
-import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
+import { getBrandColors } from "ee/selectors/tenantSelectors";
 import FocusTrap from "focus-trap-react";
-import {
-  createMessage,
-  FULL_COLOR_PICKER_LABEL,
-} from "@appsmith/constants/messages";
+import { createMessage, FULL_COLOR_PICKER_LABEL } from "ee/constants/messages";
 
 const MAX_COLS = 10;
 

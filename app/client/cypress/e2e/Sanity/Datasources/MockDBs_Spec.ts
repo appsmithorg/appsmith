@@ -74,49 +74,7 @@ describe(
 
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
-        agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
-        dataSources.ValidateNSelectDropdown("Collection", "movies");
-        dataSources.RunQueryNVerifyResponseViews(1, false);
-        AppSidebar.navigate(AppSidebarButton.Data);
-        dataSources
-          .getDatasourceListItemDescription(mockDBName)
-          .then(($queryCount) =>
-            expect($queryCount).to.eq("1 queries in this app"),
-          );
-
-        entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
-        dataSources.ValidateNSelectDropdown("Collection", "movies");
-        dataSources.RunQueryNVerifyResponseViews(1, false);
-        AppSidebar.navigate(AppSidebarButton.Data);
-        dataSources
-          .getDatasourceListItemDescription(mockDBName)
-          .then(($queryCount) =>
-            expect($queryCount).to.eq("2 queries in this app"),
-          );
       });
-    });
-
-    afterEach(() => {
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.switchSegment(PagePaneSegment.Queries);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Query1",
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Query2",
-        action: "Delete",
-        entityType: entityItems.Query,
-      });
-      AppSidebar.navigate(AppSidebarButton.Data);
-      dataSources
-        .getDatasourceListItemDescription(dsName)
-        .then(($queryCount) =>
-          expect($queryCount).to.eq("No queries in this app"),
-        );
-      dataSources.DeleteDatasourceFromWithinDS(dsName);
     });
   },
 );

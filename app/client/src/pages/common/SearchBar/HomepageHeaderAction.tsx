@@ -1,4 +1,4 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import {
   ADMIN_SETTINGS,
   APPSMITH_DISPLAY_VERSION,
@@ -7,16 +7,16 @@ import {
   HELP,
   WHATS_NEW,
   createMessage,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+} from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getCurrentApplicationIdForCreateNewApp } from "ee/selectors/applicationSelectors";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
 import {
   getAdminSettingsPath,
   getShowAdminSettings,
-} from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { ShowUpgradeMenuItem } from "@appsmith/utils/licenseHelpers";
+} from "ee/utils/BusinessFeatures/adminSettingsHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { ShowUpgradeMenuItem } from "ee/utils/licenseHelpers";
 import type { User } from "constants/userConstants";
 import {
   Button,
@@ -26,7 +26,7 @@ import {
   MenuSeparator,
   MenuTrigger,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouteMatch } from "react-router";
@@ -38,7 +38,7 @@ import {
 } from "../CustomizedDropdown/dropdownHelpers";
 import { IntercomConsent } from "pages/Editor/HelpButton";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 

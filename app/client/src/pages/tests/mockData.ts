@@ -1,6 +1,6 @@
-import type { ApplicationResponsePayload } from "@appsmith/api/ApplicationApi";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationResponsePayload } from "ee/api/ApplicationApi";
+import type { Page } from "entities/Page";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UpdateCurrentPagePayload } from "actions/pageActions";
 import store from "store";
 

@@ -1,14 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { MenuItem } from "design-system-old";
-import { Text, Avatar } from "design-system";
+import { MenuItem } from "@appsmith/ads-old";
+import { Text, Avatar } from "@appsmith/ads";
 import { getInitials } from "utils/AppsmithUtils";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
@@ -16,14 +16,14 @@ import {
   APPSMITH_DISPLAY_VERSION,
   createMessage,
   DOCUMENTATION,
-} from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
+} from "ee/constants/messages";
+import { getAppsmithConfigs } from "ee/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
 import { DISCORD_URL } from "constants/ThirdPartyConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 
 interface MobileSideBarProps {
   name: string;
@@ -62,7 +62,7 @@ const UserNameSection = styled.div`
 
 const StyledMenuItem = styled(MenuItem)`
   svg,
-  .cs-icon svg path {
+  .ads-v2-icon svg path {
     width: 18px;
     height: 18px;
     fill: var(--ads-v2-color-fg);

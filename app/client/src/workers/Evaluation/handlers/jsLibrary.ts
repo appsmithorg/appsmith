@@ -1,7 +1,4 @@
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import difference from "lodash/difference";
 import type { Def } from "tern";
 import { invalidEntityIdentifiers } from "workers/common/DependencyMap/utils";

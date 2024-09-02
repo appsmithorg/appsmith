@@ -7,7 +7,7 @@ import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
-} from "@appsmith/constants/forms";
+} from "ee/constants/forms";
 import { FORGOT_PASSWORD_URL, SETUP, SIGN_UP_URL } from "constants/routes";
 import {
   LOGIN_PAGE_TITLE,
@@ -24,9 +24,9 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
   createMessage,
-} from "@appsmith/constants/messages";
-import { FormGroup } from "design-system-old";
-import { Button, Link, Callout } from "design-system";
+} from "ee/constants/messages";
+import { FormGroup } from "@appsmith/ads-old";
+import { Button, Link, Callout } from "@appsmith/ads";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
 import { isEmail, isEmptyString } from "utils/formhelpers";
@@ -37,11 +37,8 @@ import {
   FormActions,
   EmailFormWrapper,
 } from "pages/UserAuth/StyledComponents";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { LOGIN_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Container from "pages/UserAuth/Container";
@@ -49,11 +46,11 @@ import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
   getTenantConfig,
-} from "@appsmith/selectors/tenantSelectors";
+} from "ee/selectors/tenantSelectors";
 import Helmet from "react-helmet";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
   const errors: LoginFormValues = {};
@@ -201,9 +198,6 @@ export function Login(props: LoginFormProps) {
                 isDisabled={!isFormValid}
                 kind="primary"
                 onClick={() => {
-                  PerformanceTracker.startTracking(
-                    PerformanceTransactionName.LOGIN_CLICK,
-                  );
                   AnalyticsUtil.logEvent("LOGIN_CLICK", {
                     loginMethod: "EMAIL",
                   });

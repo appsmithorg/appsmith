@@ -1,6 +1,6 @@
 import React from "react";
 import { ContentBox } from "pages/AdminSettings/components";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 interface PreviewBoxProps {
   title?: string;

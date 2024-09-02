@@ -89,7 +89,8 @@ import * as m85 from "../migrations/085-migrate-default-values-for-custom-echart
 import * as m86 from "../migrations/086-migrate-table-server-side-filtering";
 import * as m87 from "../migrations/087-migrate-chart-widget-customechartdata";
 import * as m88 from "../migrations/088-migrate-custom-widget-dynamic-height";
-import * as m89 from "../migrations/089-migrate-jsonformwidget-labelposition-and-alignment";
+import * as m89 from "../migrations/089-migrage-table-widget-v2-currentRow-binding";
+import * as m90 from "../migrations/090-migrate-jsonformwidget-labelposition-and-alignment";
 
 interface Migration {
   functionLookup: {
@@ -925,10 +926,19 @@ const migrations: Migration[] = [
     functionLookup: [
       {
         moduleObj: m89,
-        functionName: "migrateJsonFormWidgetLabelPositonAndAlignment",
+        functionName: "migrateTableWidgetV2CurrentRowInValidationsBinding",
       },
     ],
     version: 89,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: m90,
+        functionName: "migrateJsonFormWidgetLabelPositonAndAlignment",
+      },
+    ],
+    version: 90,
   },
 ];
 

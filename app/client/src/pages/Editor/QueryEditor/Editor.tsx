@@ -12,9 +12,9 @@ import {
   setActionResponseDisplayFormat,
   setActionProperty,
 } from "actions/pluginActionActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import type { Datasource } from "entities/Datasource";
@@ -25,15 +25,12 @@ import {
   getActionResponses,
   getDatasourceByPluginId,
   getDBAndRemoteDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
 import type { Diff } from "deep-diff";
@@ -42,7 +39,7 @@ import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { QueryEditorContext } from "./QueryEditorContext";
 
 const EmptyStateContainer = styled.div`
@@ -149,10 +146,6 @@ class QueryEditor extends React.Component<Props> {
         this.props.setActionProperty(this.props.actionId, path, value);
       }
     }
-
-    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
-      actionType: "QUERY",
-    });
   }
 
   handleDeleteClick = () => {
@@ -169,10 +162,7 @@ class QueryEditor extends React.Component<Props> {
     const pluginName = this.props.plugins.find(
       (plugin) => plugin.id === this.props.pluginId,
     )?.name;
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.RUN_QUERY_CLICK,
-      { actionId: this.props.actionId },
-    );
+
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
@@ -186,11 +176,6 @@ class QueryEditor extends React.Component<Props> {
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.isRunning === true && this.props.isRunning === false) {
-      PerformanceTracker.stopTracking(
-        PerformanceTransactionName.RUN_QUERY_CLICK,
-      );
-    }
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.

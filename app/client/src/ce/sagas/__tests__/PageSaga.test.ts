@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { testSaga } from "redux-saga-test-plan";
 import { setupPageSaga, setupPublishedPageSaga } from "../PageSagas";
 import mockResponse from "./mockConsolidatedApiResponse.json";

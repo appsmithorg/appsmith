@@ -1,15 +1,15 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Tooltip, ToggleButton } from "design-system";
+import { Tooltip, ToggleButton } from "@appsmith/ads";
 
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { APP_MODE } from "entities/App";
 
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
-import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
+import { createMessage, EDITOR_HEADER } from "ee/constants/messages";
 import { altText } from "../../utils/helpers";
 
 function ToggleModeButton() {

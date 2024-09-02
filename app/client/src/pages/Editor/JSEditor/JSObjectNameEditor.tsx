@@ -3,28 +3,28 @@ import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
 import { removeSpecialChars } from "utils/helpers";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getJsCollectionByBaseId,
   getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   ACTION_NAME_PLACEHOLDER,
   JSOBJECT_ID_NOT_FOUND_IN_URL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { Flex } from "design-system";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Flex } from "@appsmith/ads";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import NameEditorComponent, {
   IconBox,
   IconWrapper,
   NameWrapper,
 } from "components/utils/NameEditorComponent";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 export interface SaveActionNameParams {
   id: string;

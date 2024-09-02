@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInput } from "@design-system/widgets";
+import { TextInput } from "@appsmith/wds";
 
 export interface SearchProps {
   isVisibleSearch?: boolean;

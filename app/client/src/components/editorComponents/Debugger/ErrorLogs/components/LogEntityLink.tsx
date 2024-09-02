@@ -4,10 +4,10 @@ import { useSelector } from "react-redux";
 import { keyBy } from "lodash";
 import type { LogItemProps } from "../ErrorLogItem";
 import { Colors } from "constants/Colors";
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import EntityLink from "../../EntityLink";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
-import { getIconForEntity } from "@appsmith/components/editorComponents/Debugger/ErrorLogs/getLogIconForEntity";
+import { getIconForEntity } from "ee/components/editorComponents/Debugger/ErrorLogs/getLogIconForEntity";
 import { getPluginImagesFromPlugins } from "pages/Editor/utils";
 
 const EntityLinkWrapper = styled.div`

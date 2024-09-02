@@ -2,10 +2,10 @@ import {
   createMessage,
   SSH_KEY,
   SSH_KEY_GENERATED,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import React, { useCallback, useState } from "react";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useSSHKeyPair } from "../../hooks";
 import {
   DeployedKeyContainer,
@@ -29,7 +29,7 @@ import {
   Text,
   Icon,
   MenuGroupName,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface KeysProps {
   copyToClipboard: () => void;

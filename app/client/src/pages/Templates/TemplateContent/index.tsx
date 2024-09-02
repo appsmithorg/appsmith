@@ -1,7 +1,7 @@
 import {
   ADD_PAGE_FROM_TEMPLATE_MODAL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -17,7 +17,7 @@ import {
   TEMPLATE_ALL_FILTER_FUNCTION_VALUE,
   TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE,
 } from "../constants";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   HorizontalLine,
   SubheadingText,

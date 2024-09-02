@@ -1,14 +1,12 @@
 import { all, put, select, takeEvery } from "redux-saga/effects";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import history from "utils/history";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -16,18 +14,18 @@ import {
   generateTemplateFormURL,
   saasEditorApiIdURL,
   saasEditorDatasourceIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
+import { DATASOURCE_SAAS_FORM } from "ee/constants/forms";
 import { initialize } from "redux-form";
 import { omit } from "lodash";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 

@@ -1,4 +1,3 @@
-import { klona } from "klona";
 import { isEmpty, startCase } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { FieldThemeStylesheet, SchemaItem } from "./constants";
@@ -9,6 +8,7 @@ import {
   ROOT_SCHEMA_KEY,
 } from "./constants";
 import { LabelPosition } from "components/constants";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export const schemaItemStyles = {
   accentColor:
@@ -43,8 +43,10 @@ export const schemaItemFactory = (item: any): SchemaItem => {
 
 export const replaceBindingWithValue = (schemaItem: SchemaItem) => {
   if (isEmpty(schemaItem)) return {} as SchemaItem;
-
-  const updatedSchemaItem = klona(schemaItem);
+  const updatedSchemaItem = klonaRegularWithTelemetry(
+    schemaItem,
+    "schemaTestData.replaceBindingWithValue",
+  );
 
   Object.keys(updatedSchemaItem).forEach((k) => {
     const key = k as keyof SchemaItem;

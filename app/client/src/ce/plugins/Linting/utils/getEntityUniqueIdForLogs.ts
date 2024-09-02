@@ -1,4 +1,4 @@
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 

@@ -1,9 +1,6 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, set } from "lodash";
-import {
-  isJSObject,
-  isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isJSObject, isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import type { DependencyMap } from "./DynamicBindingUtils";
 import WidgetFactory from "../WidgetProvider/factory";
 
@@ -29,7 +26,7 @@ export const groupAndFilterDependantsMap = (
 
     entityPathDependants = entityPathDependants.concat(
       isJS_Object
-        ? /* include self-dependent properties for JsObjects 
+        ? /* include self-dependent properties for JsObjects
               e.g. {
                 "JsObject.internalFunc": [ "JsObject.fun1", "JsObject" ]
               }

@@ -303,7 +303,7 @@ export class ApiPage {
       | "RAW",
   ) {
     this.agHelper.GetNClick(this._bodyTypeSelect);
-    cy.xpath(this._bodyTypeToSelect(subTabName)).should("be.visible").click();
+    this.agHelper.GetNClick(this._bodyTypeToSelect(subTabName));
   }
 
   AssertRightPaneSelectedTab(tabName: RightPaneTabs) {

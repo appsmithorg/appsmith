@@ -1,6 +1,6 @@
 import React from "react";
-import type { FlexProps } from "design-system";
-import { Flex } from "design-system";
+import type { FlexProps } from "@appsmith/ads";
+import { Flex } from "@appsmith/ads";
 
 const MinimalTab = ({ children, ...rest }: FlexProps) => {
   return (
