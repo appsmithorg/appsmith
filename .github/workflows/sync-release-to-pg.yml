@@ -38,9 +38,6 @@ jobs:
           git config user.email "automated@github.com"
           git config user.name "Automated Github Action"
 
-      - name: Fetch pg branch
-        run: git fetch origin pg
-
       - name: Checkout pg branch
         run: git checkout pg
 
@@ -54,14 +51,13 @@ jobs:
           echo "RELEASE_HEAD=$RELEASE_HEAD"
 
           # Attempt to merge release into pg
-          if ! git pull origin release; then
+          if ! git merge release; then
             echo "Merge conflict detected during merge"
 
             # Capture the conflicting commit SHAs (both HEAD of pg and the merge commit from release)
             CONFLICTING_COMMIT=$(git log -1 --pretty=format:"%H")
             echo "CONFLICTING_COMMIT=$CONFLICTING_COMMIT" >> $GITHUB_ENV
 
-            #git merge --abort
             echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
           else
             echo "MERGE_CONFLICT=false" >> $GITHUB_ENV
@@ -92,7 +88,7 @@ jobs:
           # This is the ChannelId of the proj postgres channel.
           body="$(jq -nc \
             --arg channel C06Q3A97USE \
-            --arg text "$message" \
+            --arg text "$slack_message" \
             '$ARGS.named'
           )"
 
