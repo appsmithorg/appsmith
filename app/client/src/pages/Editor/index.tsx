@@ -122,7 +122,7 @@ class Editor extends Component<Props> {
       (page) => page.basePageId === prevBasePageId,
     )?.pageId;
     // caching value for prevPageId as it is required in future lifecycles
-    if (!!prevPageId) {
+    if (prevPageId) {
       this.prevPageId = prevPageId;
     }
 
