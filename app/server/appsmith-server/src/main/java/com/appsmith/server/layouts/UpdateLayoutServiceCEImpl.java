@@ -48,8 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.GET_PAGE_BY_ID;
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.UPDATE_LAYOUT_METHOD;
+import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.*;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
@@ -124,8 +123,17 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
-            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                    dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
+            dsl = Mono.just(extractAllWidgetNamesAndDynamicBindingsFromDSL(
+                            dsl,
+                            widgetNames,
+                            widgetDynamicBindingsMap,
+                            creatorId,
+                            layoutId,
+                            escapedWidgetNames,
+                            creatorType))
+                    .name(EXTRACT_ALL_WIDGETS_NAMES_AND_BINDINGS_FROM_DSL)
+                    .tap(Micrometer.observation(observationRegistry))
+                    .block();
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
                     .then(Mono.error(t));
@@ -159,6 +167,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         flatmapOnLoadExecutables,
                         executablesUsedInDSL,
                         creatorType)
+                .name(FIND_ALL_ON_LOAD_EXECUTABLES)
+                .tap(Micrometer.observation(observationRegistry))
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnLoadExecutables.set(FALSE);
@@ -185,6 +195,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     return onLoadExecutablesUtil
                             .updateExecutablesExecuteOnLoad(
                                     flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
+                            .name(UPDATE_EXECUTABLES_EXECUTE_ONLOAD)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(allOnLoadExecutables);
                 })
                 // Now update the page layout with the page load executables and the graph.
@@ -196,7 +208,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     // valid when last stored in the database.
                     layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
 
-                    return onLoadExecutablesUtil.findAndUpdateLayout(creatorId, creatorType, layoutId, layout);
+                    return onLoadExecutablesUtil
+                            .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
+                            .name(FIND_AND_UPDATE_LAYOUT)
+                            .tap(Micrometer.observation(observationRegistry));
                 })
                 .map(savedLayout -> {
                     savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));
@@ -223,7 +238,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     if (evaluationVersion == null) {
                         evaluationVersion = EVALUATION_VERSION;
                     }
-                    return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE);
+                    return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE)
+                            .name(UPDATE_LAYOUT_DSL_METHOD);
                 });
     }
 

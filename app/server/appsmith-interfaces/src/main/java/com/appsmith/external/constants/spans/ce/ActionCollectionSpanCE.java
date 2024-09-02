@@ -24,7 +24,15 @@ public class ActionCollectionSpanCE {
     public static final String UPDATE_ACTION_BASED_ON_CONTEXT = APPSMITH_SPAN_PREFIX + "update.action.context";
     public static final String UPDATE_PAGE_LAYOUT_BY_PAGE_ID = APPSMITH_SPAN_PREFIX + "update.pageLayout.pageId";
     public static final String UPDATE_LAYOUT_METHOD = APPSMITH_SPAN_PREFIX + "update.layout.method";
-
+    public static final String UPDATE_LAYOUT_DSL_METHOD = APPSMITH_SPAN_PREFIX + "update.layout.dsl.method";
+    public static final String FIND_ALL_ON_LOAD_EXECUTABLES =
+            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAllOnLoadExecutables";
+    public static final String UPDATE_EXECUTABLES_EXECUTE_ONLOAD =
+            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.updateExecutablesExecuteOnLoad";
+    public static final String FIND_AND_UPDATE_LAYOUT =
+            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAndUpdateLayout";
+    public static final String EXTRACT_ALL_WIDGETS_NAMES_AND_BINDINGS_FROM_DSL =
+            APPSMITH_SPAN_PREFIX + "extractAllWidgetNamesAndDynamicBindingsFromDSL";
     // Getter spans
     public static final String GET_ACTION_COLLECTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.actionCollection.unpublished";
     public static final String GET_ACTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.action.unpublished";
