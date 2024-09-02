@@ -20,8 +20,8 @@ import set from "lodash/set";
 import log from "loglevel";
 import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { klona } from "klona/lite";
 import { apiFailureResponseInterceptor } from "ee/api/ApiUtils";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -141,7 +141,11 @@ export const enhanceRequestPayloadWithEventData = (
   try {
     switch (type) {
       case ReduxActionTypes.COPY_ACTION_INIT:
-        const actionObject = klona(payload) as Action;
+        const actionObject = klonaLiteWithTelemetry(
+          payload,
+          "helpers.enhanceRequestPayloadWithEventData",
+        ) as Action;
+
         const path = `${RequestPayloadAnalyticsPath}.originalActionId`;
         const originalActionId = get(actionObject, path, actionObject.id);
         if (originalActionId !== undefined)

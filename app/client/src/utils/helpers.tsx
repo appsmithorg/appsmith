@@ -38,7 +38,12 @@ import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { klona as clone } from "klona/full";
+import { klona as klonaFull } from "klona/full";
+import { klona as klonaRegular } from "klona";
+import { klona as klonaLite } from "klona/lite";
+import { klona as klonaJson } from "klona/json";
+
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -818,6 +823,34 @@ export function isValidColor(color: string) {
   return color?.includes("url") || validateColor(color) || isEmptyOrNill(color);
 }
 
+function klonaWithTelemetryWrapper<T>(
+  value: T,
+  codeSegment: string,
+  variant: string,
+  klonaFn: (input: T) => T,
+): T {
+  return startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment,
+      variant,
+    },
+    () => klonaFn(value),
+  );
+}
+export function klonaFullWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "full", klonaFull);
+}
+export function klonaRegularWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "regular", klonaRegular);
+}
+export function klonaLiteWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "lite", klonaLite);
+}
+export function klonaJsonWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "json", klonaJson);
+}
+
 /*
  *  Function to merge property pane config of a widget
  *
@@ -828,7 +861,10 @@ export const mergeWidgetConfig = (target: any, source: any) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sectionMap: Record<string, any> = {};
-  const mergedConfig = clone(target);
+  const mergedConfig = klonaFullWithTelemetry(
+    target,
+    "helpers.mergeWidgetConfig",
+  );
 
   mergedConfig.forEach((section: { sectionName: string }) => {
     sectionMap[section.sectionName] = section;
