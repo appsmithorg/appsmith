@@ -14,6 +14,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser);
 
+    List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission, List<String> includeFields);
+
     List<NewPage> findByApplicationIdAndNonDeletedEditMode(
             String applicationId, AclPermission permission, User currentUser);
 

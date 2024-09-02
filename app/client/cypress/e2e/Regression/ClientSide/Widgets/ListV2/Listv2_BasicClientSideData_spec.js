@@ -42,14 +42,19 @@ describe(
       _.debuggerHelper.AssertErrorCount(0);
     });
 
-    it("2. shows correct number of items", () => {
-      _.agHelper.AddDsl("Listv2/simpleList");
+    it("2. test delete of list widget without errors", () => {
+      cy.get(commonlocators.deleteWidget).click({ force: true });
+      _.debuggerHelper.AssertErrorCount(0);
+    });
+
+    it("3. shows correct number of items", () => {
+      cy.dragAndDropToCanvas("listwidgetv2", { x: 200, y: 200 });
       cy.get(publishLocators.containerWidget).should("have.length", 3);
       cy.get(publishLocators.imageWidget).should("have.length", 3);
       cy.get(publishLocators.textWidget).should("have.length", 6);
     });
 
-    it("3. shows correct text from binding", () => {
+    it("4. shows correct text from binding", () => {
       cy.get(publishLocators.containerWidget).each(($containerEl, index) => {
         cy.wrap($containerEl)
           .find(publishLocators.textWidget)
@@ -62,7 +67,7 @@ describe(
       });
     });
 
-    it("4. retains input values when pages are switched", () => {
+    it("5. retains input values when pages are switched", () => {
       _.agHelper.AddDsl("Listv2/simpleListWithInputAndButton");
 
       cy.get(publishLocators.inputWidget).should("have.length", 2);
@@ -125,7 +130,7 @@ describe(
       });
     });
 
-    it("5. Reset pageNo when serverside pagination is enabled", () => {
+    it("6. Reset pageNo when serverside pagination is enabled", () => {
       cy.get(`${widgetSelector("List1")} .rc-pagination-item-3`).click({
         force: true,
       });

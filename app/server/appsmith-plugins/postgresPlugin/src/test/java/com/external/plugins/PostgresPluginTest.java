@@ -17,6 +17,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.PostgresErrorMessages;
@@ -576,7 +577,7 @@ public class PostgresPluginTest {
 
         final Set<String> datasourceValidationInvalids = pluginExecutor.validateDatasource(dsConfig);
 
-        assertTrue(datasourceValidationInvalids.isEmpty());
+        assertEquals(Set.of("Missing password for authentication."), datasourceValidationInvalids);
     }
 
     @Test
@@ -2025,6 +2026,113 @@ public class PostgresPluginTest {
         StepVerifier.create(endPointIdentifierMono)
                 .assertNext(endpointIdentifier -> {
                     assertEquals("localhost_5432", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabled_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabledwithHostAndPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        sshProxy.setPort(22L);
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432_sshHost_22", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabledwithHostAndNullPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432_sshHost_22", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_EndpointAbsentSshEnabledwithHostAndNullPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.setEndpoints(new ArrayList());
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("_sshHost_22", endpointIdentifier);
                 })
                 .verifyComplete();
     }

@@ -400,8 +400,8 @@ public class NewPageServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<ApplicationPagesDTO> viewModeTrueMono = newPageService.createApplicationPagesDTO(
-                applicationService.findById(applicationId).block(), allPages, true, true);
+        Mono<ApplicationPagesDTO> viewModeTrueMono = Mono.defer(() -> newPageService.createApplicationPagesDTO(
+                applicationService.findById(applicationId).block(), allPages, true, true));
 
         StepVerifier.create(viewModeTrueMono).verifyErrorSatisfies(error -> {
             assertThat(error).isInstanceOf(AppsmithException.class);

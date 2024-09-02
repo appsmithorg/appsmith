@@ -252,7 +252,22 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     public Mono<List<NewPage>> getPagesBasedOnApplicationMode(
             Application branchedApplication, ApplicationMode applicationMode) {
 
-        Boolean viewMode = ApplicationMode.PUBLISHED.equals(applicationMode) ? Boolean.TRUE : Boolean.FALSE;
+        Boolean viewMode = Boolean.FALSE;
+        List<String> projectedFieldNames = null;
+        if (ApplicationMode.PUBLISHED.equals(applicationMode)) {
+            viewMode = Boolean.TRUE;
+            projectedFieldNames = List.of(
+                    NewPage.Fields.id,
+                    NewPage.Fields.baseId,
+                    NewPage.Fields.publishedPage_name,
+                    NewPage.Fields.publishedPage_icon,
+                    NewPage.Fields.publishedPage_slug,
+                    NewPage.Fields.publishedPage_customSlug,
+                    NewPage.Fields.publishedPage_isHidden,
+                    NewPage.Fields.userPermissions,
+                    NewPage.Fields.policies,
+                    NewPage.Fields.policyMap);
+        }
 
         List<ApplicationPage> applicationPages = Boolean.TRUE.equals(viewMode)
                 ? branchedApplication.getPublishedPages()
@@ -262,7 +277,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 applicationPages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
 
         return newPageService
-                .findNewPagesByApplicationId(branchedApplication.getId(), pagePermission.getReadPermission())
+                .findNewPagesByApplicationId(
+                        branchedApplication.getId(), pagePermission.getReadPermission(), projectedFieldNames)
                 .filter(newPage -> pageIds.contains(newPage.getId()))
                 .collectList()
                 .name(getQualifiedSpanName(FETCH_PAGES_BY_APP_ID_DB, applicationMode))

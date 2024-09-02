@@ -9,6 +9,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -36,6 +37,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -294,24 +296,25 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<ApplicationPagesDTO> createApplicationPagesDTO(
             Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean markRecentlyAccessed) {
 
-        Mono<Void> markedRecentlyAccessedMono = Mono.empty();
-
-        if (Boolean.TRUE.equals(markRecentlyAccessed)) {
-            markedRecentlyAccessedMono = userDataService
+        ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
+        Mono<ApplicationPagesDTO> getApplicationPagesDTOMono = Mono.just(
+                        getApplicationPagesDTO(branchedApplication, newPages, viewMode))
+                .name(getQualifiedSpanName(PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES, applicationMode))
+                .tap(Micrometer.observation(observationRegistry));
+        if (Boolean.TRUE.equals(markRecentlyAccessed) && !viewMode) {
+            Mono<UserData> markedRecentlyAccessedMono = userDataService
                     .updateLastUsedResourceAndWorkspaceList(
                             branchedApplication.getId(),
                             branchedApplication.getWorkspaceId(),
                             WorkspaceResourceContext.APPLICATIONS)
-                    .then();
+                    .name(getQualifiedSpanName(MARK_RECENTLY_ACCESSED_RESOURCES_PAGES, applicationMode))
+                    .tap(Micrometer.observation(observationRegistry));
+
+            return Mono.zip(markedRecentlyAccessedMono, getApplicationPagesDTOMono)
+                    .map(Tuple2::getT2);
         }
 
-        ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
-        return markedRecentlyAccessedMono
-                .name(getQualifiedSpanName(MARK_RECENTLY_ACCESSED_RESOURCES_PAGES, applicationMode))
-                .tap(Micrometer.observation(observationRegistry))
-                .then(Mono.fromCallable(() -> getApplicationPagesDTO(branchedApplication, newPages, viewMode))
-                        .name(getQualifiedSpanName(PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES, applicationMode))
-                        .tap(Micrometer.observation(observationRegistry)));
+        return getApplicationPagesDTOMono;
     }
 
     private List<ApplicationPage> getApplicationPages(Application application, boolean viewMode) {
@@ -388,7 +391,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return applicationPagesDTO;
     }
 
-    private static @NotNull PageNameIdDTO getPageNameIdDTO(NewPage pageFromDb, String homePageId, boolean viewMode) {
+    private static PageNameIdDTO getPageNameIdDTO(NewPage pageFromDb, String homePageId, boolean viewMode) {
         PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
         pageNameIdDTO.setId(pageFromDb.getId());
         pageNameIdDTO.setBaseId(pageFromDb.getBaseIdOrFallback());
@@ -430,33 +433,16 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Flux<NewPage> findNewPagesByApplicationId(
+            String applicationId, AclPermission permission, List<String> includeFields) {
+        return repository.findByApplicationId(applicationId, permission, includeFields);
+    }
+
+    @Override
     public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap((NewPage entity) -> repository.archive(entity))
                 .collectList();
-    }
-
-    @Override
-    // Remove if not used
-    public Mono<List<String>> findAllPageIdsInApplication(
-            String applicationId, AclPermission aclPermission, Boolean view) {
-        return findNewPagesByApplicationId(applicationId, aclPermission)
-                .flatMap(newPage -> {
-                    // Look if the page is migrated
-                    // Real time migration
-                    if (Boolean.TRUE.equals(view)) {
-                        if (newPage.getPublishedPage().getDeletedAt() != null) {
-                            return Mono.just(newPage.getId());
-                        }
-                    } else {
-                        if (newPage.getUnpublishedPage().getDeletedAt() != null) {
-                            return Mono.just(newPage.getId());
-                        }
-                    }
-                    // Looks like the page has been deleted in the `view` mode. Don't return the id for this page.
-                    return Mono.empty();
-                })
-                .collectList(); // */
     }
 
     @Override
