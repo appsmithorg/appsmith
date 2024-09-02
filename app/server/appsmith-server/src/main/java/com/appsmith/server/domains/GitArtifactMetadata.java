@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.server.domains.ce.GitArtifactMetadataCE;
-import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldNameConstants;

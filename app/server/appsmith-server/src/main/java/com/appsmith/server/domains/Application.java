@@ -1,19 +1,7 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.helpers.CustomJsonType;
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.views.Git;
-import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ArtifactType;
-import com.appsmith.server.dtos.CustomJSLibContextDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Transient;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import com.appsmith.server.domains.ce.ApplicationCE;
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,7 +11,6 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 

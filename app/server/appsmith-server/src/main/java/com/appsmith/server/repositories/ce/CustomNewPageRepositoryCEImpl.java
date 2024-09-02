@@ -43,11 +43,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findByApplicationId(
-            String applicationId, AclPermission aclPermission, List<String> includeFields) {
+    public List<NewPage> findByApplicationId(
+            String applicationId, AclPermission permission, User currentUser, List<String> includeFields) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
-                .permission(aclPermission)
+                .permission(permission, currentUser)
                 .fields(includeFields)
                 .all();
     }

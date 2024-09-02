@@ -11,6 +11,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
@@ -40,8 +40,8 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @Setter
 @ToString
 @NoArgsConstructor
-@Document
 @FieldNameConstants
+@MappedSuperclass
 public class ApplicationCE extends BaseDomain implements ArtifactCE {
 
     @NotNull @JsonView(Views.Public.class)
