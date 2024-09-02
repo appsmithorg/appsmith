@@ -88,6 +88,9 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     private Mono<Boolean> isAutoCommitAllowed(Application defaultApplication, String branchName) {
         String defaultApplicationId = defaultApplication.getId();
 
+        log.info("Check for  auto commit  applicability on application {} and branch {}",
+            defaultApplicationId, branchName);
+
         if (!GitUtils.isAutoCommitEnabled(defaultApplication.getGitApplicationMetadata())) {
             log.info("Auto commit is disabled for application: {}", defaultApplicationId);
             return Mono.just(Boolean.FALSE);
@@ -140,6 +143,8 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     public Mono<Boolean> autoCommitApplication(
             String defaultApplicationId, String branchName, Boolean isClientMigration) {
 
+        log.info("Auto commit for application {} and branch {} in the publish flow", defaultApplicationId, branchName);
+
         // if either param is absent, then application is not connected to git.
         if (!StringUtils.hasText(branchName) || !StringUtils.hasText(defaultApplicationId)) {
             return Mono.just(Boolean.FALSE);
@@ -158,6 +163,8 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
 
         return applicationMono
                 .flatMap(defaultApplication -> {
+                    log.info("Applicability check for auto commit on application {} and branch {}",
+                        defaultApplicationId, branchName);
                     return isAutoCommitAllowed(defaultApplication, finalBranchName)
                             .flatMap(isEligible -> {
                                 log.info(
@@ -237,6 +244,8 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> publishAutoCommitEvent(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
+
+        log.info("Trying to publish auto commit for application {} and branch {}", defaultApplicationId, branchName);
 
         if (!Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
             return Mono.just(Boolean.FALSE);
