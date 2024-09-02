@@ -599,6 +599,15 @@ public class PostgresPluginTest {
     }
 
     @Test
+    public void itShouldValidateDatasourceWithEmptyPort() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        assertEquals(Set.of("Missing port."), pluginExecutor.validateDatasource(dsConfig));
+    }
+
+    @Test
     public void itShouldValidateDatasourceWithInvalidHostname() {
 
         String hostname = "jdbc://localhost";
