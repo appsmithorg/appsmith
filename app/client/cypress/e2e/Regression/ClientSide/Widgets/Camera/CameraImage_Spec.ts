@@ -88,11 +88,7 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
       agHelper
         .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-        .matchImageSnapshot("cameraImageMirroredScreen", {
-          failureThreshold: 0.15,
-          failureThresholdType: "percent",
-          customDiffConfig: { threshold: 0.15 },
-        });
+        .matchImageSnapshot("cameraImageMirroredScreen");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
       propPane.EnterJSContext("Mirrored", "", false);
