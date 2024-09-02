@@ -4,7 +4,8 @@ modified_within_last_x_minutes=180
 tail_lines=10000
 hostname=$(hostname)
 timestamp=$(date +%F_%H.%M.%S-%Z)
-tmpdir="${TMP}/$hostname/$timestamp"
+diagnosis_path="/appsmith-stacks/logs/diagnosis"
+tmpdir="${diagnosis_path}/$hostname/$timestamp"
 java_pid="$(pgrep -f -- "-jar\sserver.jar")"
 
 mkdir -p $tmpdir/{java,config,proc}
@@ -27,12 +28,12 @@ cp /tmp/appsmith/Caddyfile "$tmpdir/config/Caddyfile"
 #
 
 # gather the logs
-find /appsmith-stacks/logs/* -type f -mmin -"$modified_within_last_x_minutes" | while read -r i; do  
-    if [[ -e "$i" ]]; then  
-        mkdir -p "$tmpdir/$(dirname "${i:1}")"  
-        tail -"$tail_lines" "$i" > "$tmpdir/${i:1}"  
-    fi  
-done 
+find /appsmith-stacks/logs/* -type f -mmin -"$modified_within_last_x_minutes" | while read -r i; do
+    if [[ -e "$i" ]]; then
+        mkdir -p "$tmpdir/$(dirname "${i:1}")"
+        tail -"$tail_lines" "$i" > "$tmpdir/${i:1}"
+    fi
+done
 
 #
 # App info
@@ -97,7 +98,7 @@ uname -a > "$tmpdir/uname_a.txt"
 # gather memory info
 function memory_util ()
 {
-  
+
   AVAILABLE_MEM=$(free -m | awk '/Mem/ {print $7}')
   TOTAL_MEM=$(free -m | awk '/Mem/ {print $2}')
 
@@ -142,11 +143,10 @@ function disk_util ()
 disk_util > "$tmpdir/disk.txt"
 
 #
-# Create tarball and clean up 
+# Create tarball and clean up
 #
+tar -czpf $diagnosis_path/$hostname-$timestamp.tar.gz $diagnosis_path/$hostname/$timestamp
 
-tar -C "${tmpdir%/*/*}" -czpf "$hostname-$timestamp.tar.gz" "$hostname/$timestamp/"
+rm -rf "$diagnosis_path/$hostname/$timestamp"
 
-rm -rf "${tmpdir%/*/*}"
-
-echo "Diagnostics gathered in $PWD/$hostname-$timestamp.tar.gz"
+echo "Diagnostics gathered in $tmpdir/$hostname-$timestamp.tar.gz"
