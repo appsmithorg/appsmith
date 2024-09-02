@@ -14,6 +14,8 @@ interface StickyCanvasArenaProps {
    * The dependencies object is to make sure the parent of the StickyCanvasArena can submit custom props,
    * those when changed the canvas re-observes to reposition or rescale it selves.
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dependencies?: Record<string, any>;
   ref: StickyCanvasArenaRef;
   shouldObserveIntersection: boolean;
@@ -100,6 +102,8 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
 `;
 
 export const StickyCanvasArena = forwardRef(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: StickyCanvasArenaProps, ref: any) => {
     const {
       canvasId,

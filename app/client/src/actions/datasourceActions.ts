@@ -1,8 +1,8 @@
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
   AuthenticationStatus,
@@ -17,7 +17,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   ActionParentEntityType,
   type ActionParentEntityTypeInterface,
-} from "@appsmith/entities/Engine/actionHelpers";
+} from "ee/entities/Engine/actionHelpers";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -305,6 +305,8 @@ export interface addMockRequest
     isGeneratePageMode?: string;
     skipRedirection?: boolean;
   }> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraParams?: any;
 }
 
@@ -320,16 +322,6 @@ export const addMockDatasourceToWorkspace = (
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
     payload: { name, packageName, pluginId, workspaceId, skipRedirection },
     extraParams: { isGeneratePageMode },
-  };
-};
-
-export const initDatasourcePane = (
-  pluginType: string,
-  urlId?: string,
-): ReduxAction<{ pluginType: string; id?: string }> => {
-  return {
-    type: ReduxActionTypes.INIT_DATASOURCE_PANE,
-    payload: { id: urlId, pluginType },
   };
 };
 
@@ -360,7 +352,11 @@ type errorPayload = string;
 
 export interface executeDatasourceReduxActionPayload {
   datasourceId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   template?: Record<string, any>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: Record<string, any>;
   isGeneratePage: boolean;
 }
@@ -378,9 +374,13 @@ export const executeDatasourceQuery = ({
 }: {
   onErrorCallback?: (payload: errorPayload) => void;
   onSuccessCallback?: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: executeDatasourceQuerySuccessPayload<any>,
   ) => void;
   payload: executeDatasourceReduxActionPayload;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): executeDatasourceQueryReduxAction<any> => {
   return {
     type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,
@@ -519,5 +519,4 @@ export const setDatasourcePreviewSelectedTableName = (
 
 export default {
   fetchDatasources,
-  initDatasourcePane,
 };

@@ -1,8 +1,8 @@
 import log from "loglevel";
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
@@ -11,14 +11,15 @@ import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutU
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { focusWidget } from "actions/widgetActions";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -64,6 +65,11 @@ const Canvas = (props: CanvasProps) => {
   // so that fixedLayout theme does not break because of calculations done in useTheme
   const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
+  const dispatch = useDispatch();
+  const unfocusAllWidgets = useCallback(() => {
+    dispatch(focusWidget());
+  }, [dispatch]);
+
   /**
    * background for canvas
    */
@@ -93,6 +99,7 @@ const Canvas = (props: CanvasProps) => {
           )}`}
           data-testid={"t--canvas-artboard"}
           id={CANVAS_ART_BOARD}
+          onMouseLeave={unfocusAllWidgets}
           ref={isAnvilLayout ? undefined : focusRef}
           width={canvasWidth}
         >

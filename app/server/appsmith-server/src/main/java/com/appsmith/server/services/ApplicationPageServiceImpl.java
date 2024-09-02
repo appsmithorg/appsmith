@@ -6,10 +6,8 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
-import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -26,6 +24,7 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
@@ -33,13 +32,11 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Service
 @Slf4j
 public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl implements ApplicationPageService {
-
     public ApplicationPageServiceImpl(
             WorkspaceService workspaceService,
             ApplicationService applicationService,
             SessionUserService sessionUserService,
             WorkspaceRepository workspaceRepository,
-            LayoutActionService layoutActionService,
             UpdateLayoutService updateLayoutService,
             AnalyticsService analyticsService,
             PolicyGenerator policyGenerator,
@@ -47,9 +44,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             NewPageService newPageService,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
-            GitFileUtils gitFileUtils,
+            CommonGitFileUtils commonGitFileUtils,
             ThemeService themeService,
-            ResponseUtils responseUtils,
             WorkspacePermission workspacePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
@@ -62,16 +58,14 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DatasourceRepository datasourceRepository,
             DatasourcePermission datasourcePermission,
             DSLMigrationUtils dslMigrationUtils,
-            GitAutoCommitHelper gitAutoCommitHelper,
             ClonePageService<NewAction> actionClonePageService,
-            ClonePageService<ActionCollection> actionCollectionClonePageService) {
-
+            ClonePageService<ActionCollection> actionCollectionClonePageService,
+            ObservationRegistry observationRegistry) {
         super(
                 workspaceService,
                 applicationService,
                 sessionUserService,
                 workspaceRepository,
-                layoutActionService,
                 updateLayoutService,
                 analyticsService,
                 policyGenerator,
@@ -79,9 +73,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 newPageService,
                 newActionService,
                 actionCollectionService,
-                gitFileUtils,
+                commonGitFileUtils,
                 themeService,
-                responseUtils,
                 workspacePermission,
                 applicationPermission,
                 pagePermission,
@@ -94,8 +87,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourceRepository,
                 datasourcePermission,
                 dslMigrationUtils,
-                gitAutoCommitHelper,
                 actionClonePageService,
-                actionCollectionClonePageService);
+                actionCollectionClonePageService,
+                observationRegistry);
     }
 }

@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
@@ -19,7 +19,13 @@ const initialState: WidgetDragResizeState = {
   isAutoCanvasResizing: false,
   anvil: {
     highlightShown: undefined,
-    isDistributingSpace: false,
+    spaceDistribution: {
+      isDistributingSpace: false,
+      widgetsEffected: {
+        section: "",
+        zones: [],
+      },
+    },
   },
   isDraggingDisabled: false,
   blockSelection: false,
@@ -49,6 +55,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       isDragging: boolean;
       dragGroupActualParent: string;
       draggingGroupCenter: DraggingGroupCenter;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       startPoints: any;
       draggedOn?: string;
     }>,
@@ -67,6 +75,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state: WidgetDragResizeState,
     action: ReduxAction<{
       isDragging: boolean;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       newWidgetProps: any;
     }>,
   ) => {
@@ -138,13 +148,22 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   //space distribution redux
   [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START]: (
     state: WidgetDragResizeState,
+    action: ReduxAction<{
+      section: string;
+      zones: string[];
+    }>,
   ) => {
-    state.anvil.isDistributingSpace = true;
+    state.anvil.spaceDistribution.widgetsEffected.section =
+      action.payload.section;
+    state.anvil.spaceDistribution.widgetsEffected.zones = action.payload.zones;
+    state.anvil.spaceDistribution.isDistributingSpace = true;
   },
   [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP]: (
     state: WidgetDragResizeState,
   ) => {
-    state.anvil.isDistributingSpace = false;
+    state.anvil.spaceDistribution.isDistributingSpace = false;
+    state.anvil.spaceDistribution.widgetsEffected.section = "";
+    state.anvil.spaceDistribution.widgetsEffected.zones = [];
   },
   [AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN]: (
     state: WidgetDragResizeState,
@@ -163,19 +182,31 @@ export interface DraggingGroupCenter {
 export interface DragDetails {
   dragGroupActualParent?: string;
   draggingGroupCenter?: DraggingGroupCenter;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newWidget?: any;
   draggedOn?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragOffset?: any;
 }
 
 export interface WidgetDragResizeState {
   isDragging: boolean;
   dragDetails: DragDetails;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   autoLayoutDragDetails: any;
   isResizing: boolean;
   anvil: {
     highlightShown?: AnvilHighlightInfo;
-    isDistributingSpace: boolean;
+    spaceDistribution: {
+      isDistributingSpace: boolean;
+      widgetsEffected: {
+        section: string;
+        zones: string[];
+      };
+    };
   };
   lastSelectedWidget?: string;
   focusedWidget?: string;

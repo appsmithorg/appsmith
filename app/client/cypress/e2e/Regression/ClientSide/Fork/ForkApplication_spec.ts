@@ -14,14 +14,13 @@ import {
   fakerHelper,
   homePage,
   inviteModal,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   AppSidebar,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-let forkedApplicationDsl;
-let parentApplicationDsl: any;
 let forkableAppUrl: any;
 
 describe(
@@ -29,7 +28,7 @@ describe(
   { tags: ["@tag.Fork"] },
   function () {
     it("1. Mark application as forkable", () => {
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
 
       homePage.CreateNewApplication();
@@ -50,7 +49,7 @@ describe(
       cy.url().then((url) => {
         forkableAppUrl = url;
         cy.LogOut();
-        homePage.LogintoApp(
+        cy.LoginFromAPI(
           Cypress.env("TESTUSERNAME1"),
           Cypress.env("TESTPASSWORD1"),
         );
@@ -60,7 +59,7 @@ describe(
     });
 
     it("2. Check if the forked application has the same dsl as the original", function () {
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       const workspaceName = fakerHelper.GetRandomNumber() + "workspace";
 
       homePage.CreateNewWorkspace(workspaceName);
@@ -68,6 +67,7 @@ describe(
       agHelper.AddDsl("basicDsl");
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
+      let parentApplicationDsl: any;
       cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
       cy.testJsontext("defaultvalue", "A");
       cy.wait("@inputUpdate").then((response: any) => {
@@ -85,12 +85,8 @@ describe(
       assertHelper.WaitForNetworkCall("@getConsolidatedData");
       cy.get("@getConsolidatedData").then((httpResponse: any) => {
         const data = httpResponse.response.body.data?.pageWithMigratedDsl?.data;
-        forkedApplicationDsl = data.layouts[0].dsl;
-        cy.log(JSON.stringify(forkedApplicationDsl));
-        cy.log(JSON.stringify(parentApplicationDsl));
-        expect(JSON.stringify(forkedApplicationDsl)).to.contain(
-          JSON.stringify(parentApplicationDsl),
-        );
+        const forkedApplicationDsl = data.layouts[0].dsl;
+        expect(forkedApplicationDsl).to.deep.eq(parentApplicationDsl);
       });
     });
 
@@ -115,6 +111,7 @@ describe(
         cy.log("isPartialImport : ", isPartialImport);
         if (isPartialImport) {
           agHelper.WaitUntilEleAppear(reconnectDatasourceModal.SkipToAppBtn);
+          agHelper.WaitUntilEleAppear(dataSources._saveDs);
           agHelper.GetNClick(reconnectDatasourceModal.SkipToAppBtn, 0, true);
           agHelper.WaitUntilEleDisappear(reconnectDatasourceModal.SkipToAppBtn);
         }

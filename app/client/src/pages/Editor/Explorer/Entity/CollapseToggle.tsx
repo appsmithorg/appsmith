@@ -1,13 +1,17 @@
 import React from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 export function CollapseToggle(props: {
   isOpen: boolean;
   isVisible: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick: (e: any) => void;
   disabled: boolean;
   className: string;
 }) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClick = (e: any) => {
     props.onClick(e);
     e.stopPropagation();

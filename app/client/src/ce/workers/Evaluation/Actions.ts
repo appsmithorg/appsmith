@@ -1,19 +1,19 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 import set from "lodash/set";
-import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
 import type { EvalContext } from "workers/Evaluation/evaluate";
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+import type { EvaluationVersion } from "constants/EvalConstants";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import {
   getEntityFunctions,
   getPlatformFunctions,
-} from "@appsmith/workers/Evaluation/fns";
+} from "ee/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
 import { isEmpty } from "lodash";
@@ -98,20 +98,28 @@ export const addDataTreeToContext = (args: {
       EVAL_CONTEXT,
     );
 
-  // if eval is not trigger based i.e., sync eval then we skip adding entity and platform function to evalContext
   if (!isTriggerBased) return;
+  // if eval is not trigger based i.e., sync eval then we skip adding entity function to evalContext
+  addEntityFunctionsToEvalContext(EVAL_CONTEXT, entityFunctionCollection);
+};
 
+export const addEntityFunctionsToEvalContext = (
+  evalContext: EvalContext,
+  entityFunctionCollection: Record<string, Record<string, Function>>,
+) => {
   for (const [entityName, funcObj] of Object.entries(
     entityFunctionCollection,
   )) {
-    EVAL_CONTEXT[entityName] = Object.assign(
+    evalContext[entityName] = Object.assign(
       {},
-      EVAL_CONTEXT[entityName],
+      evalContext[entityName],
       funcObj,
     );
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const fnDef of getPlatformFunctions()) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));

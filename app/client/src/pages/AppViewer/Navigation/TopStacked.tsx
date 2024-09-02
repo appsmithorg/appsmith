@@ -2,26 +2,15 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import MenuItemContainer from "./components/MenuItemContainer";
 import MenuItem from "./components/MenuItem";
-import type {
-  ApplicationPayload,
-  Page,
-} from "@appsmith/constants/ReduxActionConstants";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { Container, ScrollBtnContainer } from "./TopStacked.styled";
+import type { NavigationProps } from "./constants";
 
-// TODO - @Dhruvik - ImprovedAppNav
-// Replace with NavigationProps if nothing changes
-// appsmith/app/client/src/pages/AppViewer/Navigation/constants.ts
-interface TopStackedProps {
-  currentApplicationDetails?: ApplicationPayload;
-  pages: Page[];
-}
-
-export function TopStacked(props: TopStackedProps) {
+export function TopStacked(props: NavigationProps) {
   const { currentApplicationDetails, pages } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =

@@ -1,7 +1,6 @@
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -38,6 +37,7 @@ class WDSBaseInputWidget<
       isRequired: false,
       isReadOnly: false,
       isDisabled: false,
+      isVisible: true,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
     } as unknown as WidgetDefaultProps;
@@ -51,21 +51,12 @@ class WDSBaseInputWidget<
     return [];
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      value: `{{this.text}}`,
-    };
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      text: "defaultText",
-    };
-  }
-
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      text: undefined,
+      rawText: undefined,
+      parsedText: undefined,
       isFocused: false,
       isDirty: false,
     };

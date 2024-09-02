@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 
@@ -12,7 +12,7 @@ export default meta;
 
 type Story = StoryObj<typeof Checkbox>;
 
-const states = ["", "data-hovered", "data-focused", "data-disabled"];
+const states = ["", "data-hovered", "data-focus-visible", "data-disabled"];
 
 export const LightMode: Story = {
   render: () => (
@@ -28,8 +28,11 @@ export const LightMode: Story = {
           </DataAttrWrapper>
         </>
       ))}
-      <Checkbox defaultSelected isReadOnly isRequired>
+      <Checkbox defaultSelected isReadOnly>
         Readonly
+      </Checkbox>
+      <Checkbox defaultSelected isRequired>
+        Is Required
       </Checkbox>
     </StoryGrid>
   ),

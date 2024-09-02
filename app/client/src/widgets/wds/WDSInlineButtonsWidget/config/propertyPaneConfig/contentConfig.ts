@@ -1,10 +1,11 @@
-import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 
 export const propertyPaneContentConfig = [
   {
@@ -24,6 +25,8 @@ export const propertyPaneContentConfig = [
           titlePropertyName: "label",
           panelIdPropertyName: "id",
           updateHook: (
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             props: any,
             propertyPath: string,
             propertyValue: string,
@@ -96,7 +99,7 @@ export const propertyPaneContentConfig = [
               sectionName: "General",
               children: [
                 {
-                  propertyName: "buttonVariant",
+                  propertyName: "variant",
                   label: "Button variant",
                   controlType: "ICON_TABS",
                   fullWidth: true,
@@ -118,9 +121,10 @@ export const propertyPaneContentConfig = [
                   },
                 },
                 {
-                  propertyName: "buttonColor",
+                  propertyName: "color",
                   label: "Button color",
                   controlType: "DROP_DOWN",
+                  defaultValue: COLORS.accent,
                   fullWidth: true,
                   helpText: "Sets the semantic color of the button",
                   options: Object.values(COLORS).map((semantic) => ({
@@ -145,7 +149,7 @@ export const propertyPaneContentConfig = [
               sectionName: "Icon",
               children: [
                 {
-                  propertyName: "iconName",
+                  propertyName: "icon",
                   label: "Icon",
                   helpText: "Sets the icon to be used for a button",
                   controlType: "ICON_SELECT_V2",
@@ -155,11 +159,12 @@ export const propertyPaneContentConfig = [
                   validation: { type: ValidationTypes.TEXT },
                 },
                 {
-                  propertyName: "iconAlign",
+                  propertyName: "iconPosition",
                   label: "Position",
                   helpText: "Sets the icon alignment of the button",
                   controlType: "ICON_TABS",
                   fullWidth: false,
+                  defaultValue: "start",
                   options: [
                     {
                       startIcon: "skip-left-line",

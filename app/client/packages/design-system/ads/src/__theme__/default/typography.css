@@ -1,0 +1,43 @@
+@import url("../../__assets__/fonts/pt-root-ui.css");
+
+:root {
+  /* Font Weights */
+  --ads-v2-font-weight-0: 0;
+  --ads-v2-font-weight-normal: 400;
+  --ads-v2-font-weight-bold: 500;
+
+  /* Font Sizes */
+  --ads-v2-font-size-0: 10px;
+  --ads-v2-font-size-1: 11px;
+  --ads-v2-font-size-2: 12px;
+  --ads-v2-font-size-3: 13px;
+  --ads-v2-font-size-4: 14px;
+  --ads-v2-font-size-5: 15px;
+  --ads-v2-font-size-6: 16px;
+  --ads-v2-font-size-7: 17px;
+  --ads-v2-font-size-8: 18px;
+  --ads-v2-font-size-9: 19px;
+  --ads-v2-font-size-10: 20px;
+  --ads-v2-font-size-11: 22px;
+  --ads-v2-font-size-12: 24px;
+  --ads-v2-font-size-14: 28px;
+
+  /* Line Heights */
+  --ads-v2-line-height-0: 0px;
+  --ads-v2-line-height-1: 14px;
+  --ads-v2-line-height-2: 17px;
+  --ads-v2-line-height-3: 19px;
+  --ads-v2-line-height-4: 20px;
+  --ads-v2-line-height-5: 21px;
+  --ads-v2-line-height-6: 22px;
+  --ads-v2-line-height-7: 25px;
+  --ads-v2-line-height-8: 27px;
+
+  /* Letter Spacings */
+  --ads-v2-letter-spacing-0: -0.24;
+  --ads-v2-letter-spacing-1: -0.221538;
+  --ads-v2-letter-spacing-2: -0.204;
+  --ads-v2-letter-spacing-3: 0.4;
+  --ads-v2-letter-spacing-4: 0.6;
+  --ads-v2-letter-spacing-5: 0.8;
+}

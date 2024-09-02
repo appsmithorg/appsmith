@@ -52,7 +52,6 @@ export class CommonLocators {
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
   _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`;
-  _anvilWidgetInCanvas = this._widgetInDeployed;
   _widgetInputSelector = (widgetType: string) =>
     this._widgetInDeployed(widgetType) + " input";
   _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span";
@@ -84,7 +83,6 @@ export class CommonLocators {
   _visibleTextSpan = (spanText: string, isCss = false) =>
     isCss ? `span:contains("${spanText}")` : `//span[text()="${spanText}"]`;
   _dropHere = ".t--drop-target";
-  _anvilDnDListener = "[data-type=anvil-dnd-listener]";
   _anvilDnDHighlight = "[data-type=anvil-dnd-highlight]";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
@@ -120,7 +118,9 @@ export class CommonLocators {
   _actionTextArea = (actionName: string) =>
     "//label[text()='" +
     actionName +
-    "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea";
+    "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea | //label[text()='" +
+    actionName +
+    "']/parent::div/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea";
   _existingDefaultTextInput =
     ".t--property-control-defaulttext .CodeMirror-code";
   _widgetPageIcon = (widgetType: string) =>
@@ -146,7 +146,9 @@ export class CommonLocators {
     fieldName.replace(/ +/g, "").toLowerCase() +
     "')] | //label[text()='" +
     fieldName +
-    "']/following-sibling::div";
+    "']/following-sibling::div | //label[text()='" +
+    fieldName +
+    "']/parent::div/following-sibling::div";
   _existingFieldValueByName = (fieldName: string) =>
     this._existingFieldTextByName(fieldName) +
     "//div[contains(@class,'CodeMirror-code')]";
@@ -251,8 +253,6 @@ export class CommonLocators {
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
   _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
-  _selectedWidget =
-    "[data-testid='t--anvil-widget-wrapper'][data-selected=true]";
   _autoLayoutSelectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
@@ -334,4 +334,6 @@ export class CommonLocators {
   _menuItem = ".bp3-menu-item";
   _slashCommandHintText = ".slash-command-hint-text";
   _selectionItem = ".rc-select-selection-item";
+  _selectClearButton_testId = "selectbutton.btn.cancel";
+  _selectClearButton_dataTestId = `[data-testid="${this._selectClearButton_testId}"]`;
 }

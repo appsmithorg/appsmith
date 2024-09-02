@@ -91,7 +91,9 @@
               "value": "NO"
             }
           ],
-          "staticDependencyPathList": ["actionConfiguration.formData.list.expiry.data"]
+          "staticDependencyPathList": [
+            "actionConfiguration.formData.list.expiry.data"
+          ]
         },
         {
           "label": "Expiry duration of signed URL (minutes)",

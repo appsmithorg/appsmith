@@ -1,9 +1,8 @@
 import type {
   PopoverModalContentProps,
   PopoverProps,
-} from "@design-system/headless";
+} from "@appsmith/wds-headless";
 import type { ReactNode } from "react";
-import type { SIZES } from "../../../shared";
 
 export interface ModalProps
   extends Pick<
@@ -16,10 +15,7 @@ export interface ModalProps
       | "dismissClickOutside"
     >,
     Pick<PopoverModalContentProps, "overlayClassName"> {
-  /** Size of the Modal
-   * @default medium
-   */
-  size?: keyof typeof SIZES;
+  dataAttributes?: Record<string, string>;
   /** The children of the component. */
   children: ReactNode;
 }
@@ -49,6 +45,8 @@ export interface ModalFooterProps {
   /** The event that is triggered when the submit button is clicked. */
   onSubmit?: () => void;
   excludeFromTabOrder?: boolean;
+  /** Defines if the modal should close when submit button is pressed */
+  closeOnSubmit?: boolean;
 }
 
 export interface ModalBodyProps {

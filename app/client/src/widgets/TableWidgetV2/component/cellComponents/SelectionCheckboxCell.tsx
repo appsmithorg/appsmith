@@ -2,7 +2,7 @@ import React from "react";
 
 import { CellCheckboxWrapper, CellCheckbox } from "../TableStyledWrappers";
 import { CheckboxState } from "../Constants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const CheckBoxCheckIcon = importSvg(
   async () => import("assets/icons/widget/table/checkbox-check.svg"),

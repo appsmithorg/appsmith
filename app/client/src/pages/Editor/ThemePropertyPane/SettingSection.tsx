@@ -1,8 +1,9 @@
 import * as Sentry from "@sentry/react";
+import type { ComponentPropsWithoutRef } from "react";
 import React, { useState } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const SettingsWrapper = styled.div`
   color: var(--ads-v2-color-fg);
@@ -20,7 +21,7 @@ const Title = styled.p`
   color: var(--ads-v2-color-fg-emphasis);
 `;
 
-interface SettingSectionProps {
+interface SettingSectionProps extends ComponentPropsWithoutRef<"div"> {
   isDefaultOpen?: boolean;
   className?: string;
   title: string;
@@ -29,11 +30,11 @@ interface SettingSectionProps {
 }
 
 export function SettingSection(props: SettingSectionProps) {
-  const { className = "", collapsible = true } = props;
-  const [isOpen, setOpen] = useState(props.isDefaultOpen);
+  const { className = "", collapsible = true, isDefaultOpen, ...rest } = props;
+  const [isOpen, setOpen] = useState(isDefaultOpen);
 
   return (
-    <SettingsWrapper className={className}>
+    <SettingsWrapper className={className} {...rest}>
       <div
         className={` cursor-pointer flex items-center justify-between capitalize text-sm`}
         onClick={() => setOpen((isOpen) => !isOpen)}

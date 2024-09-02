@@ -1,9 +1,9 @@
-@import "@design-system/widgets/src/shared/colors/colors.module.css";
+@import "@appsmith/wds/src/shared/colors/colors.module.css";
 
 .table {
   --th-height: calc(
     var(--caption-line-height) + var(--caption-margin-end) +
-      var(--caption-margin-start) + (2 * var(--outer-spacing-3))
+      var(--caption-margin-start) + (2 * var(--inner-spacing-4))
   );
   --tr-height: calc(
     var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) +
@@ -23,10 +23,6 @@
   /* adding overflow hidden so that the scollbar at the bottom does not flow out */
   overflow: hidden;
 
-  & [aria-hidden]:not([role="presentation"]) {
-    opacity: 0.6;
-  }
-
   /* --------------------------------------------------------------------------
    * WRAPPER
    *-------------------------------------------------------------------------- */
@@ -38,7 +34,7 @@
     container-type: inline-size;
   }
 
-  &[data-type="virtualized"] [data-table-wrapper] {
+  [data-disable-scroll] {
     overflow: hidden;
   }
 
@@ -74,14 +70,16 @@
    * TH
    *-------------------------------------------------------------------------- */
   & thead [role="columnheader"] {
-    padding-inline-start: var(--outer-spacing-3);
-    padding-inline-end: var(--outer-spacing-1);
+    padding-inline: var(--outer-spacing-1);
     padding-block: var(--outer-spacing-1);
     background: var(--color-bg-elevation-3);
     font-weight: bold;
     align-items: center;
-    justify-content: flex-end;
     border-block-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  & thead [role="columnheader"][aria-hidden] {
+    opacity: var(--opacity-disabled);
   }
 
   &[data-variant="default"] thead [role="columnheader"] {
@@ -157,6 +155,10 @@
     background-color: var(--color-bg-elevation-3);
   }
 
+  & [role="cell"][aria-hidden] {
+    opacity: var(--opacity-disabled);
+  }
+
   & [role="row"][aria-checked="true"] [role="cell"] {
     background-color: var(--color-bg-accent-subtle);
   }
@@ -171,6 +173,10 @@
 
   &[data-variant="default"] [role="cell"]:not(:last-child) {
     border-inline-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  &[data-variant="default"] [role="row"]:last-child [role="cell"] {
+    border-block-end-color: transparent;
   }
 
   &:is([data-variant="horizontal-borders"], [data-variant="default"])

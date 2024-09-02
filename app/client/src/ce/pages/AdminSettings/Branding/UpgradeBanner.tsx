@@ -1,11 +1,11 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { ContentBox } from "pages/AdminSettings/components";
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE,
   ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import {
   SettingsHeader,
@@ -49,11 +49,7 @@ const UpgradeBanner = () => {
           </StyledSettingsSubHeader>
         </main>
         <aside>
-          <Button
-            data-testid="t--branding-upgrade-button"
-            onClick={onUpgrade}
-            size="md"
-          >
+          <Button data-testid="t--button-upgrade" onClick={onUpgrade} size="md">
             Upgrade
           </Button>
         </aside>

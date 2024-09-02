@@ -87,7 +87,7 @@ public class SshTransportConfigCallback implements TransportConfigCallback {
                 PublicKey generatedPublicKey;
 
                 if (publicKey.startsWith(RSA_TYPE)) {
-                    keyFactory = KeyFactory.getInstance(RSA_KEY_FACTORY_IDENTIFIER);
+                    keyFactory = KeyFactory.getInstance(RSA_KEY_FACTORY_IDENTIFIER, new BouncyCastleProvider());
 
                     generatedPublicKey = keyFactory.generatePublic(CryptoUtil.decodeOpenSSHRSA(publicKey.getBytes()));
 

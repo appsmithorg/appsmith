@@ -160,4 +160,17 @@ describe("Autocomplete bug fixes", { tags: ["@tag.JS"] }, function () {
       "console.log('hello')",
     );
   });
+
+  it("11. Bug #31114 Verify Object Properties in Autocomplete List for isVisible Field in JSONForm Widget", function () {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 400, 800);
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
+    propPane.EnterJSContext("Visible", "");
+    propPane.TypeTextIntoField("Visible", "{{JSONForm1.isVis");
+    agHelper.AssertElementExist(locators._hints);
+    agHelper.GetNAssertElementText(
+      locators._hints,
+      "isVisible",
+      "contain.text",
+    );
+  });
 });

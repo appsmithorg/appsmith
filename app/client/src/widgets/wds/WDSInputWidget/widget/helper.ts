@@ -7,14 +7,15 @@ import {
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
-} from "@appsmith/constants/messages";
-import { InputTypes } from "components/constants";
+} from "ee/constants/messages";
 import type { InputType } from "../component/types";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 
-import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps, Validation } from "./types";
+import { INPUT_TYPE_TO_WIDGET_TYPE_MAP, INPUT_TYPES } from "../constants";
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import { getDefaultISDCode } from "widgets/wds/WDSPhoneInputWidget/constants";
+import { getDefaultCurrency } from "widgets/wds/WDSCurrencyInputWidget/constants";
 
 /**
  * parses text to number if inputType is number
@@ -133,29 +134,51 @@ export const validateInput = (props: InputWidgetProps): Validation => {
 export function inputTypeUpdateHook(
   props: WidgetProps,
   propertyName: string,
-  propertyValue: any,
+  propertyValue: InputType,
 ) {
-  const updates = [
+  const updates: PropertyUpdates[] = [
     {
       propertyPath: propertyName,
       propertyValue: propertyValue,
     },
   ];
 
-  if (propertyValue === InputTypes.MULTI_LINE_TEXT) {
-    if (props.dynamicHeight === DynamicHeight.FIXED) {
-      updates.push({
-        propertyPath: "dynamicHeight",
-        propertyValue: DynamicHeight.AUTO_HEIGHT,
-      });
-    }
-  }
   // if input type is email or password default the autofill state to be true
   // the user needs to explicity set autofill to fault disable autofill
   updates.push({
     propertyPath: "shouldAllowAutofill",
     propertyValue: isInputTypeEmailOrPassword(propertyValue),
   });
+
+  // we will also change the widgetType based on the inputType
+  updates.push({
+    propertyPath: "type",
+    propertyValue: INPUT_TYPE_TO_WIDGET_TYPE_MAP[propertyValue],
+  });
+
+  // in case we are chaging to phone input type & there is no
+  // defaultDiaCode property in the widget, we will default the country code to US
+  if (
+    props.defaultDialCode === undefined &&
+    propertyValue === INPUT_TYPES.PHONE_NUMBER
+  ) {
+    updates.push({
+      propertyPath: "defaultDialCode",
+      propertyValue: getDefaultISDCode().dial_code,
+    });
+  }
+
+  // in case we are changing to currency input type & there is no
+  // defaultCurrency property in the widget, we will default the currency to USD
+  if (
+    props.defaultCurrencyCode === undefined &&
+    propertyValue === INPUT_TYPES.CURRENCY
+  ) {
+    updates.push({
+      propertyPath: "defaultCurrencyCode",
+      propertyValue: getDefaultCurrency().currency,
+    });
+  }
 
   return updates;
 }

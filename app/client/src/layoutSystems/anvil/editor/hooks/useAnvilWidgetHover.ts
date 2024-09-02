@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -22,6 +22,8 @@ export const useAnvilWidgetHover = (
 
   // Callback function for handling mouseover events
   const handleMouseOver = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       // Check conditions before focusing the widget on mouseover
       focusWidget &&
@@ -44,26 +46,18 @@ export const useAnvilWidgetHover = (
     ],
   );
 
-  // Callback function for handling mouseleave events
-  const handleMouseLeave = useCallback(() => {
-    // On leaving a widget, reset the focused widget
-    focusWidget && focusWidget();
-  }, [focusWidget]);
-
   // Effect hook to add and remove mouseover and mouseleave event listeners
   useEffect(() => {
     if (ref.current) {
       // Add mouseover and mouseleave event listeners
       ref.current.addEventListener("mouseover", handleMouseOver);
-      ref.current.addEventListener("mouseleave", handleMouseLeave);
     }
 
     // Clean up event listeners when the component unmounts
     return () => {
       if (ref.current) {
         ref.current.removeEventListener("mouseover", handleMouseOver);
-        ref.current.removeEventListener("mouseleave", handleMouseLeave);
       }
     };
-  }, [handleMouseOver, handleMouseLeave]);
+  }, [handleMouseOver]);
 };

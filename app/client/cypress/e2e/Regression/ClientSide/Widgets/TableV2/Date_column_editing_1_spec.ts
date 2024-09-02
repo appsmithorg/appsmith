@@ -22,12 +22,8 @@ describe(
         "and check that date cell edit mode can be turned on",
       () => {
         EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-        agHelper.AssertElementEnabledDisabled(
-          table._columnCheckbox("release_date"),
-          0,
-          false,
-        );
         table.EditColumn("release_date", "v2");
+        propPane.AssertPropertySwitchState("Editable", "disabled");
         propPane.TogglePropertyState("Editable", "On");
         agHelper.Sleep(1000);
         agHelper.AssertElementVisibility(
@@ -60,20 +56,28 @@ describe(
       );
       agHelper.AssertElementAbsence(table._dateInputPopover);
       agHelper.AssertElementAbsence(table._editCellEditor);
-      agHelper
-        .GetText(locators._textWidget, "text", 0)
-        .then(($textData) =>
-          expect($textData).to.eq(
-            `{"revenue":42600000,"imdb_id":"tt3228774","release_date":"2021-05-17"}`,
-          ),
-        );
-      agHelper
-        .GetText(locators._textWidget, "text", 1)
-        .then(($textData) =>
-          expect($textData).to.eq(
-            `[{"index":0,"updatedFields":{"release_date":"2021-05-17"},"allFields":{"revenue":42600000,"imdb_id":"tt3228774","release_date":"2021-05-17"}}]`,
-          ),
-        );
+      agHelper.GetText(locators._textWidget, "text", 0).then(($textData) =>
+        expect(JSON.parse($textData as string)).to.deep.eq({
+          revenue: 42600000,
+          imdb_id: "tt3228774",
+          release_date: "2021-05-17",
+        }),
+      );
+      agHelper.GetText(locators._textWidget, "text", 1).then(($textData) =>
+        expect(JSON.parse($textData as string)).to.deep.eq([
+          {
+            index: 0,
+            updatedFields: {
+              release_date: "2021-05-17",
+            },
+            allFields: {
+              revenue: 42600000,
+              imdb_id: "tt3228774",
+              release_date: "2021-05-17",
+            },
+          },
+        ]),
+      );
       agHelper
         .GetText(locators._textWidget, "text", 2)
         .then(($textData) => expect($textData).to.eq("[0]"));
@@ -176,7 +180,7 @@ describe(
       agHelper.AssertCSS(
         table._editCellEditor,
         "border",
-        "1px solid rgb(255, 255, 255)",
+        "1px solid rgb(242, 43, 43)",
       );
       agHelper
         .GetText(`${table._tableRow1Child3} ${locators._inputField}`)

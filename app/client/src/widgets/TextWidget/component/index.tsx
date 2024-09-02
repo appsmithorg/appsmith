@@ -240,6 +240,8 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   textRef = React.createRef() as TextRef;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getTruncate = (element: any) => {
     const { isTruncated } = this.state;
     // add ELLIPSIS_HEIGHT and check content content is overflowing or not

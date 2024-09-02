@@ -13,9 +13,12 @@ import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
-  static getConfig() {
+  static type = "WDS_INPUT_WIDGET";
+
+  static getConfig(): WidgetBaseConfiguration {
     return config.metaConfig;
   }
 
@@ -54,6 +57,8 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     });
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       rawText: "",
@@ -76,7 +81,15 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     return {};
   }
 
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      defaultText: ["inputType"],
+    };
+  }
+
   onFocusChange = (focusState: boolean) => {
+    if (this.props.isReadOnly) return;
+
     if (focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
         triggerPropertyName: "onFocus",
@@ -140,18 +153,19 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     if (
       prevProps.rawText !== this.props.rawText &&
       this.props.rawText !== toString(this.props.parsedText)
     ) {
-      this.props.updateWidgetMetaProperty(
+      pushBatchMetaUpdates(
         "parsedText",
         parseText(this.props.rawText, this.props.inputType),
       );
     }
 
     if (prevProps.inputType !== this.props.inputType) {
-      this.props.updateWidgetMetaProperty(
+      pushBatchMetaUpdates(
         "parsedText",
         parseText(this.props.rawText, this.props.inputType),
       );
@@ -161,21 +175,20 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       this.props.defaultText !== prevProps.defaultText &&
       this.props.isDirty
     ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
+      pushBatchMetaUpdates("isDirty", false);
     }
+    commitBatchMetaUpdates();
   };
 
   onValueChange = (value: string) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     // Ideally text property should be derived property. But widgets with
     // derived properties won't work as expected inside a List widget.
     // TODO(Balaji): Once we refactor the List widget, need to conver
     // text to a derived property.
-    this.props.updateWidgetMetaProperty(
-      "parsedText",
-      parseText(value, this.props.inputType),
-    );
+    pushBatchMetaUpdates("parsedText", parseText(value, this.props.inputType));
 
-    this.props.updateWidgetMetaProperty("rawText", value, {
+    pushBatchMetaUpdates("rawText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -184,16 +197,26 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     });
 
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
+    commitBatchMetaUpdates();
   };
 
   resetWidgetText = () => {
-    this.props.updateWidgetMetaProperty("rawText", "");
-    this.props.updateWidgetMetaProperty(
-      "parsedText",
-      parseText("", this.props.inputType),
-    );
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+    pushBatchMetaUpdates("rawText", "");
+    pushBatchMetaUpdates("parsedText", parseText("", this.props.inputType));
+    commitBatchMetaUpdates();
+  };
+
+  onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    if (this.props.inputType === INPUT_TYPES.NUMBER) {
+      const pastedValue = e.clipboardData.getData("text");
+
+      if (isNaN(Number(pastedValue))) {
+        e.preventDefault();
+      }
+    }
   };
 
   getWidgetView() {
@@ -208,6 +231,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         autoFocus={this.props.autoFocus}
         defaultValue={this.props.defaultText}
         errorMessage={errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={inputType}
@@ -221,6 +245,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         minNum={this.props.minNum}
         onFocusChange={this.onFocusChange}
         onKeyDown={this.onKeyDown}
+        onPaste={this.onPaste}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         spellCheck={this.props.isSpellCheck}
@@ -231,8 +256,6 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       />
     );
   }
-
-  static type = "WDS_INPUT_WIDGET";
 }
 
 export { WDSInputWidget };

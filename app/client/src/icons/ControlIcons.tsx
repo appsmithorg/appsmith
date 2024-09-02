@@ -2,7 +2,7 @@
 
 import type { JSXElementConstructor } from "react";
 import React from "react";
-import { importRemixIcon, importSvg } from "design-system-old";
+import { importRemixIcon, importSvg } from "@appsmith/ads-old";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
 import PlayIcon from "assets/icons/control/play-icon.png";

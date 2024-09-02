@@ -1,14 +1,16 @@
-import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
+import { isEditorPath } from "ee/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "entities/App";
 import { isNil } from "lodash";
 import nanoid from "nanoid";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import store from "store";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { FALLBACK_KEY } from "@appsmith/constants/UsagePulse";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { FALLBACK_KEY } from "ee/constants/UsagePulse";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
 export const fetchWithRetry = (config: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   url: any;
   payload: Record<string, unknown>;
   retries: number;

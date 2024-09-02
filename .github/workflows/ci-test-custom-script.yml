@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: ""
+      spec:
+        description: "Spec files to run, one per line"
+        required: false
+        type: string
+        default: ""
       matrix:
         description: "Matrix jobs"
         required: false
@@ -144,11 +149,10 @@ jobs:
         run: |
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
-          mkdir -p ~/git-server/repos
           ted_tag="${{inputs.ted_tag}}"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-          -v ~/git-server/repos:/git-server/repos "appsmith/test-event-driver:${ted_tag:-latest}"
+            -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+            "appsmith/test-event-driver:${ted_tag:-latest}"
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
@@ -175,9 +179,6 @@ jobs:
             -e ENTERPRISE_USER_PASSWORD=ent_user_password \
             -e ENTERPRISE_ADMIN_NAME=ent-admin@appsmith.com \
             -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
-            -e FLAGSMITH_URL=http://host.docker.internal:5001/flagsmith \
-            -e FLAGSMITH_SERVER_KEY=dummykey \
-            -e FLAGSMITH_SERVER_KEY_BUSINESS_FEATURES=dummykeybusinessfeatures \
             -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
           cd cicontainerlocal
@@ -187,7 +188,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
-            -e _APPSMITH_RATE_LIMIT=1000 \
+            -e APPSMITH_RATE_LIMIT=1000 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 
@@ -220,7 +221,11 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
-          echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
+          if [[ "${{ inputs.tags }}" = "@tag.All" ]]; then
+            echo "CYPRESS_grepTags=" >> "$GITHUB_ENV"
+          else
+            echo "CYPRESS_grepTags=${{ inputs.tags }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Print the tags
         run: |
@@ -268,19 +273,15 @@ jobs:
           echo Remote $COMMIT_INFO_REMOTE
 
       - name: Set Commit Message
+        continue-on-error: true
         env:
-          EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+          EVENT_COMMITS: ${{ github.event.commits[0].message }}
         run: |
-          eventCommit=$(echo ${{env.EVENT_COMMITS}} | sed "s/'//g")
+          eventCommit="$(echo "$EVENT_COMMITS" | sed "s/'//g")"
           if [[ ${{ inputs.pr }} -ne 0 ]]; then
             echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
           else
-            if [[ '$eventCommit' == 'null' ]]; then
-              echo "COMMIT_INFO_MESSAGE=$(echo ${{ github.event_name }} | perl -pe 's/(^|_)./uc($&)/ge;s/_//g')" >> $GITHUB_ENV
-              echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE}} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
-            else
-              echo "COMMIT_INFO_MESSAGE=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_ENV
-            fi
+            echo "COMMIT_INFO_MESSAGE=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_ENV
           fi
 
       - name: Run the cypress test
@@ -354,6 +355,7 @@ jobs:
           browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_custom.config.ts
+          spec: ${{ inputs.spec }}
           working-directory: app/client
           env: "NODE_ENV=development"
 
@@ -370,12 +372,19 @@ jobs:
           path: ${{ github.workspace }}/app/client/cypress/cypress-logs
           overwrite: true
 
+      # Upload the screenshots as artifacts if there's a failure
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.job }}
+          path: ${{ github.workspace }}/app/client/cypress/screenshots/
+
       - name: Collect CI container logs
         if: failure()
         working-directory: "."
         run: |
           mkdir -p  ~/dockerlogs
-          docker logs appsmith 2>&1 > ~/dockerlogs/dockerlogs-${{ matrix.job }}.txt
+          docker logs appsmith &> ~/dockerlogs/dockerlogs-${{ matrix.job }}.txt
 
       # Upload docker logs
       - name: Upload failed test list artifact
@@ -398,6 +407,14 @@ jobs:
         with:
           name: results-${{github.run_attempt}}
           path: ~/results
+          overwrite: true
+
+      - name: Upload cypress snapshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshots-${{github.run_attempt}}
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
           overwrite: true
 
       # Set status = failedtest
@@ -424,7 +441,20 @@ jobs:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
           overwrite: true
-
+          
+      - name: Collect docker log as file
+        if: always()
+        run: |
+          docker logs appsmith >& app/server/docker-logs.log
+ 
+      - name: Upload server docker logs bundle on failure 
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+            name: docker-logs-${{ matrix.job }}
+            path: app/server/docker-logs.log
+            overwrite: true
+  
       # Set status = success
       - name: Save the status of the run
         run: |

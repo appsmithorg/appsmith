@@ -5,6 +5,7 @@ import type { WidgetType } from "WidgetProvider/factory";
 export interface AnvilFlexComponentProps {
   children: ReactNode;
   className?: string;
+  elevatedBackground?: boolean;
   layoutId: string;
   parentId?: string;
   rowIndex: number;
@@ -14,6 +15,8 @@ export interface AnvilFlexComponentProps {
   widgetName: string;
   widgetSize?: SizeConfig;
   widgetType: WidgetType;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick?: (e: any) => void;
   onClickCapture?: React.MouseEventHandler;
 }

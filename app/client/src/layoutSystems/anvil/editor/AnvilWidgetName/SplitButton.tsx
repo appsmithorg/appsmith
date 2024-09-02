@@ -1,19 +1,7 @@
-import type { ForwardedRef, CSSProperties } from "react";
-import React, { forwardRef } from "react";
+import React from "react";
 import styled from "styled-components";
 import { UpArrowSVG } from "./UpArrowIcon";
 import { ErrorSVG } from "./ErrorIcon";
-
-const styles: CSSProperties = {
-  display: "inline-flex",
-  height: "24px", // This is 2px more than the ones in the designs.
-  width: "max-content",
-  position: "fixed",
-  top: 0,
-  left: 0,
-  visibility: "hidden",
-  isolation: "isolate",
-};
 
 const SplitButtonWrapper = styled.div<{
   $BGCSSVar: string;
@@ -25,6 +13,11 @@ const SplitButtonWrapper = styled.div<{
   color: var(${(props) => props.$ColorCSSVar});
   fill: var(${(props) => props.$ColorCSSVar});
   stroke: var(${(props) => props.$ColorCSSVar});
+  margin-block-end: 8px;
+
+  height: 24px;
+  width: max-content;
+  display: inline-flex;
 
   touch-action: manipulation;
   user-select: none;
@@ -32,7 +25,7 @@ const SplitButtonWrapper = styled.div<{
   gap: 1px;
 
   & button {
-    cursor: pointer;
+    cursor: grab;
     appearance: none;
     background: none;
     border: none;
@@ -47,8 +40,9 @@ const SplitButtonWrapper = styled.div<{
     font-size: inherit;
     font-weight: 500;
 
-    padding-block: 1.25ch;
-    padding-inline: 2ch;
+    padding-block: 3px;
+    padding-inline: 5px;
+    line-height: 17px;
 
     color: var(${(props) => props.$ColorCSSVar});
     outline-color: var(${(props) => props.$BGCSSVar});
@@ -62,7 +56,8 @@ const SplitButtonWrapper = styled.div<{
   }
 
   & span {
-    inline-size: 3ch;
+    inline-size: 2.4ch;
+    block-size: 100%;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -85,10 +80,10 @@ const SplitButtonWrapper = styled.div<{
     &:active {
       filter: brightness(0.6);
     }
-  }
 
-  & > svg {
-    stroke: var(${(props) => props.$ColorCSSVar});
+    & > svg {
+      stroke: var(${(props) => props.$ColorCSSVar});
+    }
   }
 
   & span:nth-of-type(${(props) => (props.$isLeftToggleDisabled ? 1 : 2)}) {
@@ -100,52 +95,52 @@ const SplitButtonWrapper = styled.div<{
   }
 `;
 
-export function _SplitButton(
-  props: {
-    text: string;
+export function SplitButton(props: {
+  text: string;
+  onClick: React.MouseEventHandler;
+  bGCSSVar: string;
+  colorCSSVar: string;
+  leftToggle: {
+    disable: boolean;
     onClick: React.MouseEventHandler;
-    bGCSSVar: string;
-    colorCSSVar: string;
-    leftToggle: {
-      disable: boolean;
-      onClick: React.MouseEventHandler;
-      title: string;
-    };
-    rightToggle: {
-      disable: boolean;
-      onClick: React.MouseEventHandler;
-      title: string;
-    };
-    onDragStart: React.DragEventHandler;
-  },
-  ref: ForwardedRef<HTMLDivElement>,
-) {
+    title: string;
+  };
+  rightToggle: {
+    disable: boolean;
+    onClick: React.MouseEventHandler;
+    title: string;
+  };
+}) {
   return (
     <SplitButtonWrapper
       $BGCSSVar={props.bGCSSVar}
       $ColorCSSVar={props.colorCSSVar}
       $isLeftToggleDisabled={props.leftToggle.disable}
       $isRightToggleDisabled={props.rightToggle.disable}
-      draggable
-      onDragStart={props.onDragStart}
-      ref={ref}
-      style={styles}
+      data-testid="t--splitbutton"
     >
       {!props.leftToggle.disable && (
         <span
           aria-expanded="false"
           aria-haspopup="true"
+          data-testid="t--splitbutton-left-toggle"
           onClick={props.leftToggle.onClick}
           title={props.leftToggle.title}
         >
           <UpArrowSVG />
         </span>
       )}
-      <button onClick={props.onClick}>{props.text}</button>
+      <button
+        data-testid="t--splitbutton-clickable-button"
+        onClick={props.onClick}
+      >
+        {props.text}
+      </button>
       {!props.rightToggle.disable && (
         <span
           aria-expanded="false"
           aria-haspopup="true"
+          data-testid="t--splitbutton-right-toggle"
           onClick={props.rightToggle.onClick}
           title={props.rightToggle.title}
         >
@@ -155,5 +150,3 @@ export function _SplitButton(
     </SplitButtonWrapper>
   );
 }
-
-export const SplitButton = forwardRef(_SplitButton);

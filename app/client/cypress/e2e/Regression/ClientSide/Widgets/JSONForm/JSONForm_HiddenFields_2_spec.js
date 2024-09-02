@@ -45,7 +45,7 @@ function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   });
 
   // Show field
-  cy.togglebar(".t--property-control-visible input");
+  agHelper.CheckUncheck(widgetsPage.visible);
 
   // Check if visible
   cy.get(`${fieldPrefix}-${fieldName}`).should("exist");
@@ -155,11 +155,11 @@ describe(
 
       // hide education field
       cy.openFieldConfiguration("education");
-      cy.togglebarDisable(".t--property-control-visible input");
+      agHelper.CheckUncheck(widgetsPage.visible, false);
       cy.get(backBtn).click({ force: true }).wait(500);
       // hide name field
       cy.openFieldConfiguration("name");
-      cy.togglebarDisable(".t--property-control-visible input");
+      agHelper.CheckUncheck(widgetsPage.visible, false);
 
       // publish the app
       deployMode.DeployApp();

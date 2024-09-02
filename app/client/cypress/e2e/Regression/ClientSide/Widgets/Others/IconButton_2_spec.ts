@@ -270,13 +270,22 @@ describe(
       propPane.ToggleJSMode("onClick", true);
       propPane.UpdatePropertyFieldValue(
         "onClick",
-        `{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}`,
+        `{{navigateTo('http://host.docker:4200/', {}, 'NEW_WINDOW');}}`,
       );
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
       );
-      agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
-      agHelper.AssertURL("yahoo.com");
+      cy.window().then((win) => {
+        // Stub `window.open` to prevent new tabs
+        agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
+        cy.stub(win, "open").as("windowOpenStub");
+        agHelper
+          .GetElement(locators._widgetInDeployed("iconbuttonwidget"))
+          .then(($link) => {
+            cy.wrap($link).click();
+            cy.get("@windowOpenStub").should("have.been.called");
+          });
+      });
     });
   },
 );

@@ -5,6 +5,7 @@ import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useAnvilDnDEventCallbacks } from "./useAnvilDnDEventCallbacks";
 import { removeDisallowDroppingsUI } from "../utils/utils";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
+import { DETACHED_WIDGET_MOUSE_MOVE_EVENT } from "../../hooks/useAnvilDetachedWidgetsDnD";
 
 /**
  * Hook to handle Anvil DnD events
@@ -41,16 +42,23 @@ export const useAnvilDnDEvents = (
       }
     }
   }, [isCurrentDraggedCanvas]);
-  const { onMouseMove, onMouseOut, onMouseOver, onMouseUp, resetCanvasState } =
-    useAnvilDnDEventCallbacks({
-      anvilDragStates,
-      anvilDnDListenerRef,
-      canvasIsDragging,
-      deriveAllHighlightsFn,
-      layoutId,
-      onDrop,
-      setHighlightShown,
-    });
+  const {
+    onMouseMove,
+    onMouseMoveForDetachedWidgets,
+    onMouseOut,
+    onMouseOver,
+    onMouseUp,
+    resetCanvasState,
+  } = useAnvilDnDEventCallbacks({
+    anvilDragStates,
+    anvilDnDListenerRef,
+    canvasIsDragging,
+    deriveAllHighlightsFn,
+    layoutId,
+    onDrop,
+    setHighlightShown,
+  });
+
   useEffect(() => {
     if (anvilDnDListenerRef.current && isDragging) {
       // Initialize listeners
@@ -70,6 +78,10 @@ export const useAnvilDnDEvents = (
       );
       // To make sure drops on the main canvas boundary buffer are processed in the capturing phase.
       document.addEventListener("mouseup", onMouseUp, true);
+      document.addEventListener(
+        DETACHED_WIDGET_MOUSE_MOVE_EVENT,
+        onMouseMoveForDetachedWidgets,
+      );
 
       return () => {
         anvilDnDListenerRef.current?.removeEventListener(
@@ -95,6 +107,10 @@ export const useAnvilDnDEvents = (
         );
         anvilDnDListenerRef.current?.removeEventListener("mouseup", onMouseUp);
         document.removeEventListener("mouseup", onMouseUp, true);
+        document.removeEventListener(
+          DETACHED_WIDGET_MOUSE_MOVE_EVENT,
+          onMouseMoveForDetachedWidgets,
+        );
       };
     } else {
       if (canvasIsDragging.current) {
@@ -110,6 +126,7 @@ export const useAnvilDnDEvents = (
     onMouseOver,
     onMouseUp,
     resetCanvasState,
+    onMouseMoveForDetachedWidgets,
   ]);
 
   return {

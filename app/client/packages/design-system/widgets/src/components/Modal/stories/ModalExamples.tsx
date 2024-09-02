@@ -1,13 +1,12 @@
 import React, { useRef, useState } from "react";
 import {
-  ActionGroup,
-  Item,
+  ToolbarButtons,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 // Since the Modal is rendered at the root of the Provider, we need to add Unstyled as a wrapper
 // so that Storybook does not break styles.
 import { Unstyled } from "@storybook/blocks";
@@ -31,7 +30,12 @@ export const ModalExamples = () => {
 
   return (
     <>
-      <ActionGroup
+      <ToolbarButtons
+        items={[
+          { id: "small", label: "Small" },
+          { id: "medium", label: "Medium" },
+          { id: "large", label: "Large" },
+        ]}
         onAction={(key) => {
           if (key === "small") {
             setSmallOpen(!isSmallOpen);
@@ -45,16 +49,12 @@ export const ModalExamples = () => {
             setLargeOpen(!isLargeOpen);
           }
         }}
-      >
-        <Item key="small">Small</Item>
-        <Item key="medium">Medium</Item>
-        <Item key="large">Large</Item>
-      </ActionGroup>
+      />
       <Modal
+        dataAttributes={{ "data-size": "large" }}
         initialFocus={2}
         isOpen={isLargeOpen}
         setOpen={setLargeOpen}
-        size="large"
         triggerRef={largeRef}
       >
         <Unstyled>
@@ -121,10 +121,10 @@ export const ModalExamples = () => {
         </Unstyled>
       </Modal>
       <Modal
+        dataAttributes={{ "data-size": "small" }}
         initialFocus={2}
         isOpen={isSmallOpen}
         setOpen={setSmallOpen}
-        size="small"
         triggerRef={smallRef}
       >
         <Unstyled>

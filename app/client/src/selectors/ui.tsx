@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 
 export const getLastSelectedWidget = (state: AppState) =>
@@ -62,9 +62,6 @@ export const getDatasourceCollapsibleState = createSelector(
     return datasourceCollapsibleState[key];
   },
 );
-
-export const getIsImportingCurl = (state: AppState) =>
-  state.ui.imports.isImportingCurl;
 
 export const getIsConsolidatedPageLoading = (state: AppState) =>
   state.ui.consolidatedPageLoad.isLoading;

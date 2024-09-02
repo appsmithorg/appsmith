@@ -9,7 +9,6 @@ export const EMPTY_MODAL_PADDING = 4;
 
 const StyledModalEditorDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
   position: relative;
-  height: 100% !important;
   ${(props) =>
     props.isModalEmpty &&
     `
@@ -64,7 +63,10 @@ export const AnvilModalDropArena = ({
   const widget = useSelector(getWidgetByID(modalId));
   const isModalEmpty = widget.children?.length === 0;
   return (
-    <StyledModalEditorDropArenaWrapper isModalEmpty={isModalEmpty}>
+    <StyledModalEditorDropArenaWrapper
+      isModalEmpty={isModalEmpty}
+      style={{ height: isModalEmpty ? "100%" : "auto" }}
+    >
       <StyledEmptyModalDropArena
         isActive={isCurrentDraggedCanvas}
         isModalEmpty={isModalEmpty}

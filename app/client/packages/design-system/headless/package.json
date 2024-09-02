@@ -1,5 +1,5 @@
 {
-  "name": "@design-system/headless",
+  "name": "@appsmith/wds-headless",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
@@ -30,7 +30,7 @@
     "@react-types/checkbox": "^3.4.3",
     "@react-types/label": "^3.7.3",
     "@react-types/menu": "^3.9.5",
-    "@react-types/shared": "^3.22.0",
+    "@react-types/shared": "^3.23.1",
     "classnames": "*"
   },
   "peerDependencies": {

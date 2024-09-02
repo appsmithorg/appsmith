@@ -1,10 +1,10 @@
-import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
-import type { CellAlignment, VerticalAlignment } from "../Constants";
+import { importSvg } from "@appsmith/ads-old";
+import React, { createRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { importSvg } from "design-system-old";
+import type { CellAlignment, VerticalAlignment } from "../Constants";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),
@@ -34,12 +34,9 @@ export const Content = styled.span`
 const WIDTH_OFFSET = 32;
 const MAX_WIDTH = 500;
 const TOOLTIP_OPEN_DELAY = 500;
+const MAX_CHARS_ALLOWED_IN_TOOLTIP = 200;
 
-function useToolTip(
-  children: React.ReactNode,
-  tableWidth?: number,
-  title?: string,
-) {
+function useToolTip(children: React.ReactNode, title?: string) {
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
 
@@ -85,7 +82,9 @@ function useToolTip(
       boundary="viewport"
       content={
         <TooltipContentWrapper width={MAX_WIDTH - WIDTH_OFFSET}>
-          {title}
+          {title && title.length > MAX_CHARS_ALLOWED_IN_TOOLTIP
+            ? `${title.substring(0, MAX_CHARS_ALLOWED_IN_TOOLTIP)} (...)`
+            : title}
         </TooltipContentWrapper>
       }
       defaultIsOpen
@@ -128,7 +127,7 @@ interface Props {
 }
 
 function LinkWrapper(props: Props) {
-  const content = useToolTip(props.children, props.tableWidth, props.title);
+  const content = useToolTip(props.children, props.title);
 
   return (
     <CellWrapper
@@ -160,7 +159,7 @@ function LinkWrapper(props: Props) {
 }
 
 function AutoToolTipComponent(props: Props) {
-  const content = useToolTip(props.children, props.tableWidth, props.title);
+  const content = useToolTip(props.children, props.title);
 
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;

@@ -12,9 +12,9 @@ import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
-import { Tooltip } from "design-system";
-import { ICONS, Icon } from "@design-system/widgets";
-import type { IconProps } from "@design-system/widgets";
+import { Tooltip } from "@appsmith/ads";
+import { ICONS, Icon } from "@appsmith/wds";
+import type { IconProps } from "@appsmith/wds";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -124,7 +124,10 @@ export interface IconSelectControlState {
 }
 
 const NONE = "(none)";
-type IconType = Required<IconProps>["name"] | typeof NONE;
+const EMPTY = "";
+type IconType = Required<IconProps>["name"] | typeof NONE | typeof EMPTY;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ICON_NAMES = Object.keys(ICONS) as any as IconType[];
 const icons = new Set(ICON_NAMES);
 
@@ -174,6 +177,8 @@ class IconSelectControlV2 extends BaseControl<
   // debouncedSetState is used to fix the following bug:
   // https://github.com/appsmithorg/appsmith/pull/10460#issuecomment-1022895174
   private debouncedSetState = _.debounce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (obj: any, callback?: () => void) => {
       this.setState((prevState: IconSelectControlState) => {
         return {
@@ -247,7 +252,8 @@ class IconSelectControlV2 extends BaseControl<
             tabIndex={0}
           >
             <span>
-              {iconName !== NONE &&
+              {iconName !== "" &&
+                iconName !== NONE &&
                 iconName !== undefined &&
                 iconName !== null && <Icon name={iconName} />}
             </span>
@@ -439,7 +445,7 @@ class IconSelectControlV2 extends BaseControl<
           active={modifiers.active}
           key={icon}
           onClick={handleClick}
-          text={icon === NONE ? NONE : <Icon name={icon} />}
+          text={icon === NONE || icon === EMPTY ? NONE : <Icon name={icon} />}
           textClassName={icon === NONE ? "bp3-icon-(none)" : ""}
         />
       </Tooltip>
@@ -472,6 +478,8 @@ class IconSelectControlV2 extends BaseControl<
 
   static canDisplayValueInUI(
     config: IconSelectControlV2Props,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     if (icons.has(value)) return true;

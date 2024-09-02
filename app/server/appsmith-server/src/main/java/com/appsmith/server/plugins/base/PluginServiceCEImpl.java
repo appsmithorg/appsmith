@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -104,26 +105,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
+    public Mono<Map<String, Plugin>> findAllPluginsInWorkspace(String workspaceId) {
+        return getAllPlugins(workspaceId).collectMap(Plugin::getId);
+    }
+
+    @Override
     public Flux<Plugin> getInWorkspace(@NonNull String workspaceId) {
-        // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
-
-        return workspaceMono
-                .flatMapMany(workspace -> {
-                    if (workspace.getPlugins() == null) {
-                        log.debug(
-                                "Null installed plugins found for workspace: {}. Return empty plugins",
-                                workspace.getName());
-                        return Flux.empty();
-                    }
-
-                    Set<String> pluginIds = workspace.getPlugins().stream()
-                            .map(WorkspacePlugin::getPluginId)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toUnmodifiableSet());
-
-                    return repository.findAllById(pluginIds);
-                })
+        return getAllPlugins(workspaceId)
                 .flatMap(plugin ->
                         getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin));
     }
@@ -416,7 +404,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     })
                     .cache();
 
-            templateCache.put(pluginId, mono);
+            /*
+             * The method loadTemplatesFromPlugin is reads a file from the system, and this is a blocking process.
+             * Since, we need to keep the nioEventLoop thread pool free, we are shifting the subscription to elastic
+             * thread pool and then publishing the result on the parallel thread pool.
+             */
+            templateCache.put(
+                    pluginId, LoadShifter.subscribeOnElasticPublishOnParallel(mono, "loadTemplatesFromPlugin"));
         }
 
         return templateCache.get(pluginId);
@@ -613,24 +607,51 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<Map<?, ?>> loadPluginResource(String pluginId, String resourcePath) {
-        return findById(pluginId).map(plugin -> {
+        return findById(pluginId).flatMap(plugin -> {
             if ("editor.json".equals(resourcePath)) {
                 // UI config will be available if this plugin is sourced from the cloud
                 if (plugin.getActionUiConfig() != null) {
-                    return plugin.getActionUiConfig();
+                    return Mono.just(plugin.getActionUiConfig());
                 }
                 // For UQI, use another format of loading the config
                 if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
-                    return loadEditorPluginResourceUqi(plugin);
+                    return Mono.just(loadEditorPluginResourceUqi(plugin));
                 }
             }
             if ("form.json".equals(resourcePath)) {
                 // UI config will be available if this plugin is sourced from the cloud
                 if (plugin.getDatasourceUiConfig() != null) {
-                    return plugin.getDatasourceUiConfig();
+                    return Mono.just(plugin.getDatasourceUiConfig());
                 }
             }
-            return loadPluginResourceGivenPluginAsMap(plugin, resourcePath);
+            /*
+             * The method loadPluginResourceGivenPluginAsMap is reads a file from the system, and this is a blocking
+             * process. Since, we need to keep the nioEventLoop thread pool free, we are shifting the subscription to
+             * elastic thread pool and then publishing the result on the parallel thread pool.
+             */
+            Mono<? extends Map<?, ?>> pluginResourceMono =
+                    Mono.fromCallable(() -> loadPluginResourceGivenPluginAsMap(plugin, resourcePath));
+
+            return LoadShifter.subscribeOnElasticPublishOnParallel(pluginResourceMono, "pluginResourceMono");
+        });
+    }
+
+    private Flux<Plugin> getAllPlugins(String workspaceId) {
+        // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
+        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
+
+        return workspaceMono.flatMapMany(workspace -> {
+            if (workspace.getPlugins() == null) {
+                log.debug("Null installed plugins found for workspace: {}. Return empty plugins", workspace.getName());
+                return Flux.empty();
+            }
+
+            Set<String> pluginIds = workspace.getPlugins().stream()
+                    .map(WorkspacePlugin::getPluginId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toUnmodifiableSet());
+
+            return repository.findAllById(pluginIds);
         });
     }
 

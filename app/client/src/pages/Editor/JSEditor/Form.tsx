@@ -1,7 +1,7 @@
 import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction } from "entities/JSCollection";
-import type { DropdownOnSelect } from "design-system-old";
+import type { DropdownOnSelect } from "@appsmith/ads-old";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -24,13 +24,13 @@ import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { JSFunctionRun } from "./JSFunctionRun";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
   getJSActions,
   getJSCollectionParseErrors,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { JSActionDropdownOption } from "./utils";
 import {
   convertJSActionsToDropdownOptions,
@@ -52,26 +52,26 @@ import {
   TabbedViewContainer,
 } from "./styledComponents";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
 import history from "utils/history";
-import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
-import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasExecuteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
-
+import RunHistory from "ee/components/RunHistory";
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;
@@ -81,6 +81,7 @@ interface JSFormProps {
   backLink?: React.ReactNode;
   hideContextMenuOnEditor?: boolean;
   hideEditIconOnEditor?: boolean;
+  notification?: React.ReactNode;
 }
 
 type Props = JSFormProps;
@@ -88,8 +89,9 @@ type Props = JSFormProps;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 64px);
+  height: 100%;
   width: 100%;
+  overflow: hidden;
 `;
 
 const SecondaryWrapper = styled.div`
@@ -105,12 +107,18 @@ const SecondaryWrapper = styled.div`
   }
 `;
 
+const StyledNotificationWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-3)
+    var(--ads-v2-spaces-7);
+`;
+
 function JSEditorForm({
   backLink,
   contextMenu,
   hideContextMenuOnEditor = false,
   hideEditIconOnEditor = false,
   jsCollectionData,
+  notification,
   onUpdateSettings,
   saveJSObjectName,
   showSettings = true,
@@ -196,6 +204,8 @@ function JSEditorForm({
   );
 
   // Triggered when there is a change in the code editor
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
     const value: string =
       typeof valueOrEvent === "string"
@@ -356,8 +366,13 @@ function JSEditorForm({
               />
             </ActionButtons>
           </StyledFormRow>
+          {notification && (
+            <StyledNotificationWrapper>
+              {notification}
+            </StyledNotificationWrapper>
+          )}
           <Wrapper>
-            <div className="flex flex-1">
+            <div className="flex flex-1 w-full">
               <SecondaryWrapper>
                 <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
                   <Tabs
@@ -441,6 +456,7 @@ function JSEditorForm({
                   }}
                   theme={theme}
                 />
+                <RunHistory />
               </SecondaryWrapper>
             </div>
           </Wrapper>

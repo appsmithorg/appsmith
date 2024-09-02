@@ -31,8 +31,7 @@ export const CodeEditorWithGutterStyles = css`
 `;
 
 export const FormWrapper = styled.div`
-  height: ${({ theme }) =>
-    `calc(100vh - ${theme.smallHeaderHeight} - ${theme.backBanner})`};
+  height: ${({ theme }) => `calc(100vh - ${theme.smallHeaderHeight})`};
   overflow: hidden;
   .${JS_OBJECT_HOTKEYS_CLASSNAME} {
     width: 100%;
@@ -43,7 +42,7 @@ export const FormWrapper = styled.div`
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
+  height: 100%;
   overflow: hidden;
   .t--no-binding-prompt {
     display: none;

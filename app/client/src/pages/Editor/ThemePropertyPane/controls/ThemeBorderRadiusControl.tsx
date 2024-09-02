@@ -2,7 +2,11 @@ import React, { useCallback } from "react";
 
 import type { AppTheme } from "entities/AppTheming";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
-import { SegmentedControl, Tooltip } from "design-system";
+import {
+  SegmentedControl,
+  type SegmentedControlOption,
+  Tooltip,
+} from "@appsmith/ads";
 
 interface ThemeBorderRadiusControlProps {
   options: {
@@ -39,20 +43,11 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
     ? invertedBorderRadiusOptions[selectedOption]
     : "";
 
-  const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
-    label: (
-      <Tooltip content={optionKey} key={optionKey}>
-        <div
-          className="w-5 h-5 t--theme-appBorderRadius border-t-2 border-l-2"
-          style={{
-            borderTopLeftRadius: options[optionKey],
-            borderColor: "var(--ads-v2-color-fg)",
-          }}
-        />
-      </Tooltip>
-    ),
-    value: optionKey,
-  }));
+  const buttonGroupOptions = [
+    makeButtonGroupOption("none", options.none),
+    makeButtonGroupOption("M", options.M),
+    makeButtonGroupOption("L", options.L),
+  ];
 
   return (
     <SegmentedControl
@@ -62,6 +57,26 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
       value={selectedOptionKey}
     />
   );
+}
+
+function makeButtonGroupOption(
+  key: string,
+  value: string,
+): SegmentedControlOption {
+  return {
+    label: (
+      <Tooltip content={key} key={key}>
+        <div
+          className="w-5 h-5 t--theme-appBorderRadius border-t-2 border-l-2"
+          style={{
+            borderTopLeftRadius: value,
+            borderColor: "var(--ads-v2-color-fg)",
+          }}
+        />
+      </Tooltip>
+    ),
+    value: key,
+  };
 }
 
 export default ThemeBorderRadiusControl;

@@ -201,19 +201,6 @@ public class PageControllerTest {
             })
     @WithMockUser
     void invalidCustomSlug(String slug) {
-        client.post()
-                .uri("/api/v1/pages")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(Map.of("customSlug", slug)))
-                .exchange()
-                .expectStatus()
-                .isBadRequest()
-                .expectBody()
-                .jsonPath("$.errorDisplay")
-                .value(s -> assertThat((String) s).contains("Validation Failure"));
-
-        verifyNoInteractions(applicationPageService);
-
         client.put()
                 .uri("/api/v1/pages/abcdef")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -231,9 +218,7 @@ public class PageControllerTest {
     @Test
     @WithMockUser
     void emptyCustomSlugShouldBeOkay() {
-        doReturn(Mono.just(new PageDTO()))
-                .when(newPageService)
-                .updatePageByDefaultPageIdAndBranch(anyString(), any(), anyString());
+        doReturn(Mono.just(new PageDTO())).when(newPageService).updatePage(anyString(), any());
 
         client.put()
                 .uri("/api/v1/pages/abcdef")
@@ -241,6 +226,6 @@ public class PageControllerTest {
                 .body(BodyInserters.fromValue(Map.of("customSlug", "")))
                 .exchange();
 
-        verify(newPageService, times(1)).updatePageByDefaultPageIdAndBranch(eq("abcdef"), any(), eq(null));
+        verify(newPageService, times(1)).updatePage(eq("abcdef"), any());
     }
 }

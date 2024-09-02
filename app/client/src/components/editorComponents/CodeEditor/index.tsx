@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   Annotation,
   EditorConfiguration,
@@ -34,10 +34,10 @@ import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
+import type { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";
 import "components/editorComponents/CodeEditor/modes";
 import type {
@@ -73,7 +73,7 @@ import {
 } from "components/editorComponents/CodeEditor/hintHelpers";
 
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -88,7 +88,7 @@ import {
   shouldShowSlashCommandMenu,
 } from "./codeEditorUtils";
 import { slashCommandHintHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getPluginIdToPlugin } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
@@ -101,6 +101,7 @@ import type { SlashCommandPayload } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
+  CURSOR_CLASS_NAME,
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
   LintTooltipDirection,
@@ -125,7 +126,7 @@ import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
@@ -136,22 +137,22 @@ import {
   getSaveAndAutoIndentKey,
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
-import { AskAIButton } from "@appsmith/components/editorComponents/GPT/AskAIButton";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { AIWindow } from "ee/components/editorComponents/GPT";
+import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
-import { isAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
+import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { debug } from "loglevel";
 import { PeekOverlayExpressionIdentifier, SourceType } from "@shared/ast";
 import type { MultiplexingModeConfig } from "components/editorComponents/CodeEditor/modes";
 import { MULTIPLEXING_MODE_CONFIGS } from "components/editorComponents/CodeEditor/modes";
 import { getDeleteLineShortcut } from "./utils/deleteLine";
-import { CodeEditorSignPosting } from "@appsmith/components/editorComponents/CodeEditorSignPosting";
+import { CodeEditorSignPosting } from "ee/components/editorComponents/CodeEditorSignPosting";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import resizeObserver from "utils/resizeObserver";
 import { EMPTY_BINDING } from "../ActionCreator/constants";
@@ -160,7 +161,8 @@ import {
   setActiveEditorField,
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -185,6 +187,8 @@ export interface EditorStyleProps {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   focusElementName?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   borderLess?: boolean;
@@ -224,6 +228,8 @@ export type EditorProps = EditorStyleProps &
     additionalDynamicData?: AdditionalDynamicDataTree;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     errors?: any;
     isInvalid?: boolean;
     isEditorHidden?: boolean;
@@ -240,6 +246,7 @@ export type EditorProps = EditorStyleProps &
     ignoreSlashCommand?: boolean;
     ignoreBinding?: boolean;
     ignoreAutoComplete?: boolean;
+    maxHeight?: string | number;
 
     // Custom gutter
     customGutter?: CodeEditorGutter;
@@ -725,9 +732,10 @@ class CodeEditor extends Component<Props, State> {
     const delayedWork = () => {
       if (!this.state.isFocused) return;
 
-      const cursorElement = cm
+      const [cursorElement] = cm
         .getScrollerElement()
-        .getElementsByClassName("CodeMirror-cursor")[0];
+        .getElementsByClassName(CURSOR_CLASS_NAME);
+
       if (cursorElement) {
         scrollIntoView(cursorElement, {
           block: "nearest",
@@ -912,6 +920,7 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("cursorActivity", this.handleCursorMovement);
     this.editor.off("cursorActivity", this.debouncedArgHints);
     this.editor.off("blur", this.handleEditorBlur);
+    this.editor.off("scrollCursorIntoView", this.handleScrollCursorIntoView);
     CodeMirror.off(
       this.editor.getWrapperElement(),
       "mousemove",
@@ -1002,8 +1011,8 @@ class CodeEditor extends Component<Props, State> {
         const navigationAttribute = event.target.attributes.getNamedItem(
           NAVIGATE_TO_ATTRIBUTE,
         );
+
         if (!navigationAttribute) return;
-        const entityToNavigate = navigationAttribute.value.split(".");
 
         if (
           document.activeElement &&
@@ -1012,39 +1021,46 @@ class CodeEditor extends Component<Props, State> {
           document.activeElement.blur();
         }
 
-        this.setState(
-          {
-            isFocused: false,
-          },
-          () => {
-            if (entityToNavigate[0] in this.props.entitiesForNavigation) {
-              let navigationData =
-                this.props.entitiesForNavigation[entityToNavigate[0]];
-              for (let i = 1; i < entityToNavigate.length; i += 1) {
-                if (entityToNavigate[i] in navigationData.children) {
-                  navigationData = navigationData.children[entityToNavigate[i]];
-                }
-              }
+        this.setState({
+          isFocused: false,
+        });
 
-              if (navigationData.url) {
-                if (navigationData.type === ENTITY_TYPE.ACTION) {
-                  AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
-                    actionId: navigationData?.id,
-                    datasourceId: navigationData?.datasourceId,
-                    pluginName: navigationData?.pluginName,
-                    actionType: navigationData?.actionType,
-                    isMock: !!navigationData?.isMock,
-                    from: NavigationMethod.CommandClick,
-                  });
-                }
-                history.push(navigationData.url, {
-                  invokedBy: NavigationMethod.CommandClick,
-                });
-                this.hidePeekOverlay();
-              }
+        const { entitiesForNavigation } = this.props;
+        const [documentName, ...navigationTargets] =
+          navigationAttribute.value.split(".");
+
+        if (documentName in entitiesForNavigation) {
+          let navigationData = entitiesForNavigation[documentName];
+
+          for (const navigationTarget of navigationTargets) {
+            if (navigationTarget in navigationData.children) {
+              navigationData = navigationData.children[navigationTarget];
             }
-          },
-        );
+          }
+
+          if (navigationData.url) {
+            if (navigationData.type === ENTITY_TYPE.ACTION) {
+              AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
+                actionId: navigationData?.id,
+                datasourceId: navigationData?.datasourceId,
+                pluginName: navigationData?.pluginName,
+                actionType: navigationData?.actionType,
+                isMock: !!navigationData?.isMock,
+                from: NavigationMethod.CommandClick,
+              });
+            }
+
+            history.push(navigationData.url, {
+              invokedBy: NavigationMethod.CommandClick,
+            });
+
+            this.hidePeekOverlay();
+
+            setTimeout(() => {
+              cm.scrollIntoView(cm.getCursor());
+            }, 0);
+          }
+        }
       }
     }
   };
@@ -1561,6 +1577,7 @@ class CodeEditor extends Component<Props, State> {
       height,
       hideEvaluatedValue,
       hoverInteraction,
+      maxHeight,
       showLightningMenu,
       size,
       theme,
@@ -1693,6 +1710,7 @@ class CodeEditor extends Component<Props, State> {
               isNotHover={this.state.isFocused || this.state.isOpened}
               isRawView={this.props.isRawView}
               isReadOnly={this.props.isReadOnly}
+              maxHeight={maxHeight}
               mode={this.props.mode}
               onMouseMove={this.handleLintTooltip}
               onMouseOver={this.handleMouseMove}
@@ -1754,27 +1772,36 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: EditorProps) => ({
-  dynamicData: getDataTreeForAutocomplete(state),
-  datasources: state.entities.datasources,
-  pluginIdToPlugin: getPluginIdToPlugin(state),
-  recentEntities: getRecentEntityIds(state),
-  lintErrors: getEntityLintErrors(state, props.dataTreePath),
-  editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),
-  editorLastCursorPosition: getCodeEditorLastCursorPosition(
-    state,
-    getEditorIdentifier(props),
-  ),
-  entitiesForNavigation: getEntitiesForNavigation(
-    state,
-    props.dataTreePath?.split(".")[0],
-  ),
-  featureFlags: selectFeatureFlags(state),
-  datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
-  installedLibraries: selectInstalledLibraries(state),
-  focusedProperty: getFocusablePropertyPaneField(state),
-});
+const mapStateToProps = (state: AppState, props: EditorProps) => {
+  const currentPageId: string = getCurrentPageId(state);
+  let entitiesForNavigation: EntityNavigationData = {};
+  if (currentPageId) {
+    entitiesForNavigation = getEntitiesForNavigation(
+      state,
+      props.dataTreePath?.split(".")[0],
+    );
+  }
+  return {
+    dynamicData: getDataTreeForAutocomplete(state),
+    datasources: state.entities.datasources,
+    pluginIdToPlugin: getPluginIdToPlugin(state),
+    recentEntities: getRecentEntityIds(state),
+    lintErrors: getEntityLintErrors(state, props.dataTreePath),
+    editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),
+    editorLastCursorPosition: getCodeEditorLastCursorPosition(
+      state,
+      getEditorIdentifier(props),
+    ),
+    entitiesForNavigation,
+    featureFlags: selectFeatureFlags(state),
+    datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
+    installedLibraries: selectInstalledLibraries(state),
+    focusedProperty: getFocusablePropertyPaneField(state),
+  };
+};
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),

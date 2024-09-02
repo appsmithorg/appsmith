@@ -1,7 +1,7 @@
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 import styled from "styled-components";
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 
 const Label = styled.label`
   color: var(--ads-v2-color-fg);

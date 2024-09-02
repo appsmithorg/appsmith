@@ -1,0 +1,30 @@
+@import "../../../shared/colors/colors.module.css";
+
+.inlineButtons {
+  display: flex;
+  width: 100%;
+  gap: var(--inner-spacing-2);
+
+  & :is([data-button]) {
+    flex-shrink: 0;
+  }
+
+  &[data-orientation="vertical"] {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &[data-orientation="vertical"] :is([data-button]) {
+    /*
+     We use !important here to be sure that button width and the logic of useInlineButtons hook will not be changed from the outside
+    */
+    min-inline-size: 100% !important;
+    max-inline-size: none;
+  }
+
+  & :is([data-separator]) {
+    flex-grow: 1;
+    inline-size: var(--sizing-5);
+    block-size: var(--sizing-5);
+  }
+}

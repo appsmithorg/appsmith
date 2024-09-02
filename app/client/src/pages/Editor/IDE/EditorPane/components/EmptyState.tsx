@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Flex, Text, Icon } from "design-system";
+import { Button, Flex, Text, Icon } from "@appsmith/ads";
 
 interface EmptyStateProps {
   icon: string;
@@ -7,10 +7,12 @@ interface EmptyStateProps {
   buttonText: string;
   onClick?: () => void;
   buttonClassName?: string;
+  buttonTestId?: string;
 }
 
 const EmptyState = ({
   buttonClassName,
+  buttonTestId,
   buttonText,
   description,
   icon,
@@ -46,6 +48,7 @@ const EmptyState = ({
       {onClick && (
         <Button
           className={buttonClassName}
+          data-testid={buttonTestId}
           kind={"secondary"}
           onClick={onClick}
           size={"sm"}

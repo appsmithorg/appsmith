@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.RTSCaller;
 import com.appsmith.server.services.AnalyticsService;
@@ -27,7 +28,6 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -126,7 +126,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                             analyticsProperties,
                             false);
                 })
-                .subscribeOn(commonConfig.scheduler())
+                .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();
     }
 
@@ -185,7 +185,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
         return rtsCaller
                 .get("/rts-api/v1/health-check")
-                .flatMap(WebClient.ResponseSpec::toBodilessEntity)
+                .flatMap((spec) -> spec.retrieve().toBodilessEntity())
                 .doOnNext(nextSignal -> {
                     log.debug("RTS health check succeeded");
                     this.isRtsAccessible = true;

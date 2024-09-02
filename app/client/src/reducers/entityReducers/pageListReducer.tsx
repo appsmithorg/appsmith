@@ -1,26 +1,30 @@
-import type {
-  ClonePageSuccessPayload,
-  Page,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
+  ClonePageSuccessPayload,
+  DeletePageActionPayload,
   GenerateCRUDSuccess,
+  UpdateCurrentPagePayload,
+  UpdatePageActionPayload,
   UpdatePageErrorPayload,
 } from "actions/pageActions";
-import type { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
+import type { UpdatePageResponse } from "api/PageApi";
 import { sortBy } from "lodash";
 import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
+import type { Page } from "entities/Page";
 
 const initialState: PageListReduxState = {
   pages: [],
   isGeneratingTemplatePage: false,
+  baseApplicationId: "",
   applicationId: "",
+  currentBasePageId: "",
   currentPageId: "",
+  defaultBasePageId: "",
   defaultPageId: "",
   loading: {},
 };
@@ -28,7 +32,7 @@ const initialState: PageListReduxState = {
 export const pageListReducer = createReducer(initialState, {
   [ReduxActionTypes.DELETE_PAGE_INIT]: (
     state: PageListReduxState,
-    action: ReduxAction<{ id: string }>,
+    action: ReduxAction<DeletePageActionPayload>,
   ) => {
     if (state.defaultPageId !== action.payload.id) {
       const pages = [
@@ -43,14 +47,20 @@ export const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pages: Page[]; applicationId: string }>,
+    action: ReduxAction<{
+      pages: Page[];
+      applicationId: string;
+      baseApplicationId: string;
+    }>,
   ) => {
+    const defaultPage =
+      action.payload.pages.find((page) => page.isDefault) ??
+      action.payload.pages[0];
     return {
       ...state,
       ...action.payload,
-      defaultPageId:
-        action.payload.pages.find((page) => page.isDefault)?.pageId ||
-        action.payload.pages[0].pageId,
+      defaultPageId: defaultPage?.pageId,
+      defaultBasePageId: defaultPage?.basePageId,
     };
   },
   [ReduxActionTypes.UPDATE_PAGE_LIST]: (
@@ -85,6 +95,7 @@ export const pageListReducer = createReducer(initialState, {
       pageName: string;
       description?: string;
       pageId: string;
+      basePageId: string;
       layoutId: string;
       isDefault: boolean;
       slug: string;
@@ -114,6 +125,9 @@ export const pageListReducer = createReducer(initialState, {
       state.applicationId === action.payload.applicationId &&
       state.defaultPageId !== action.payload.pageId
     ) {
+      const defaultPage: Page | null =
+        state.pages.find((page) => page.pageId === action.payload.pageId) ||
+        null;
       const pageList = state.pages.map((page) => {
         if (page.pageId === state.defaultPageId) page.isDefault = false;
         if (page.pageId === action.payload.pageId) page.isDefault = true;
@@ -122,29 +136,40 @@ export const pageListReducer = createReducer(initialState, {
       return {
         ...state,
         pages: pageList,
-        defaultPageId: action.payload.pageId,
+        defaultPageId: defaultPage?.pageId ?? "",
+        defaultBasePageId: defaultPage?.basePageId ?? "",
       };
     }
     return state;
   },
   [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: (
     state: PageListReduxState,
-    action: ReduxAction<{ id: string; slug?: string; permissions?: string[] }>,
+    action: ReduxAction<UpdateCurrentPagePayload>,
   ) => {
-    const pageList = state.pages.map((page) => {
-      if (page.pageId === action.payload.id && action.payload.permissions)
-        page.userPermissions = action.payload.permissions;
-      return page;
+    const pageList: Page[] = [];
+    const currentPageId: string = action.payload.id;
+    let currentBasePageId: string = "";
+    state.pages.forEach((page) => {
+      const modifiedPage = { ...page };
+      if (page.pageId === action.payload.id) {
+        currentBasePageId = page.basePageId;
+        if (action.payload.permissions) {
+          modifiedPage.userPermissions = action.payload.permissions;
+        }
+      }
+      pageList.push(modifiedPage);
     });
+
     return {
       ...state,
-      currentPageId: action.payload.id,
+      currentPageId,
+      currentBasePageId,
       pages: pageList,
     };
   },
   [ReduxActionTypes.UPDATE_PAGE_INIT]: (
     state: PageListReduxState,
-    action: ReduxAction<UpdatePageRequest>,
+    action: ReduxAction<UpdatePageActionPayload>,
   ) => {
     return {
       ...state,
@@ -191,7 +216,7 @@ export const pageListReducer = createReducer(initialState, {
       ...state,
       loading: {
         ...state.loading,
-        [action.payload.request.id]: false,
+        [action.payload.request.pageId]: false,
       },
     };
   },
@@ -210,6 +235,7 @@ export const pageListReducer = createReducer(initialState, {
       const newPage = {
         pageName: action.payload.page.name,
         pageId: action.payload.page.id,
+        basePageId: action.payload.page.baseId,
         layoutId: action.payload.page.layouts[0].id,
         isDefault: !!action.payload.page.isDefault,
         slug: action.payload.page.slug,
@@ -258,9 +284,12 @@ export interface AppLayoutConfig {
 
 export interface PageListReduxState {
   pages: Page[];
+  baseApplicationId: string;
   applicationId: string;
-  defaultPageId: string;
+  currentBasePageId: string;
   currentPageId: string;
+  defaultBasePageId: string;
+  defaultPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
   loading: Record<string, boolean>;

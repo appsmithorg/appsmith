@@ -1,13 +1,14 @@
-import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 
 export const propertyPaneStyleConfig = [
   {
     sectionName: "General",
     children: [
       {
-        propertyName: "buttonVariant",
+        propertyName: "variant",
         label: "Button variant",
         controlType: "ICON_TABS",
         fullWidth: true,
@@ -19,6 +20,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "ghost",
         validation: {
           type: ValidationTypes.TEXT,
           params: {
@@ -28,9 +30,10 @@ export const propertyPaneStyleConfig = [
         },
       },
       {
-        propertyName: "buttonColor",
+        propertyName: "color",
         label: "Button color",
         controlType: "DROP_DOWN",
+        defaultValue: "accent",
         fullWidth: true,
         helpText: "Sets the semantic color of the button",
         options: Object.values(COLORS).map((semantic) => ({

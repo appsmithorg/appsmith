@@ -1,11 +1,19 @@
 import _ from "lodash";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isTernFunctionDef = (data: any) =>
   typeof data === "string" && /^fn\((?:[\w,: \(\)->])*\) -> [\w]*$/.test(data);
 
 export const createObjectPeekData = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defs: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   peekData: any,
   parentKey: string,
 ) => {
@@ -34,5 +42,7 @@ export const createObjectPeekData = (
   return { peekData };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isObject = (data: any) =>
   typeof data === "object" && !Array.isArray(data) && data !== null;

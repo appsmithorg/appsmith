@@ -4,6 +4,9 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigator from "./EditorNavigation";
+import { EntityType } from "./EditorNavigation";
+import ClickOptions = Cypress.ClickOptions;
 
 type ElementType = string | JQuery<HTMLElement>;
 
@@ -18,6 +21,15 @@ interface SubActionParams {
   index?: number;
   force?: boolean;
   toastToValidate?: string;
+}
+interface SelectAndValidateParams {
+  clickOptions?: Partial<ClickOptions>;
+  widgetName: string;
+  widgetType?: EntityType;
+  hierarchy?: string[];
+  propFieldName: string;
+  valueToValidate: string;
+  toggleEle?: string | null;
 }
 
 let LOCAL_STORAGE_MEMORY: any = {};
@@ -121,15 +133,30 @@ export class AggregateHelper {
     });
   }
 
+  /**
+   * Extract the pageId out of the URL, supporting both ObjectID and UUIDv4 values. This implementation is for tests
+   * only. Do NOT copy this over to production code.
+   * @param urlFragment can be either a full absolute URL (like https://dev.appsmith.com/app/name/page1-...) or just a
+   *        path fragment (like /app/name/page1-...) or even a custom slug URL (like /app/custom-slug-...).
+   */
+  public extractPageIdFromUrl(urlFragment: string): null | string {
+    return (
+      urlFragment.match(
+        /\/app(?:\/[^/]+)?\/[^/]+-([0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/,
+      )?.[1] ?? null
+    );
+  }
+
   public AddDsl(
     dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
   ) {
-    let pageid: string, layoutId;
+    let layoutId;
     let appId: string | null;
     cy.fixture(dslFile).then((val) => {
       cy.url().then((url) => {
-        pageid = url.split("/")[5]?.split("-").pop() as string;
+        const pageid = this.extractPageIdFromUrl(url);
+        expect(pageid).to.not.be.null;
         //Fetch the layout id
         cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
           const respBody = JSON.stringify(response.body);
@@ -1733,11 +1760,8 @@ export class AggregateHelper {
   public VisitNAssert(url: string, apiToValidate = "") {
     cy.visit(url);
     this.AssertURL(url);
-    if (
-      apiToValidate.includes("getAllWorkspaces") &&
-      Cypress.env("AIRGAPPED")
-    ) {
-      this.Sleep(2000);
+    if (Cypress.env("AIRGAPPED")) {
+      // Intentionally left blank: No actions needed in air-gapped environment
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }
@@ -1819,5 +1843,41 @@ export class AggregateHelper {
       .children(childSelector)
       .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
+  }
+
+  public selectAndValidateWidgetNameAndProperty({
+    clickOptions = {},
+    hierarchy = [],
+    propFieldName,
+    toggleEle = null,
+    valueToValidate,
+    widgetName,
+    widgetType = EntityType.Widget,
+  }: SelectAndValidateParams) {
+    // Select the widget by name, type, and hierarchy with optional click options
+    EditorNavigator.SelectEntityByName(
+      widgetName,
+      widgetType,
+      clickOptions,
+      hierarchy,
+    );
+
+    // Assert that the Property Pane title matches the widget name
+    this.AssertText(
+      ObjectsRegistry.PropertyPane._paneTitle,
+      "text",
+      widgetName,
+    );
+
+    // If a toggle element is provided, toggle its JavaScript mode
+    if (toggleEle) {
+      ObjectsRegistry.PropertyPane.ToggleJSMode(toggleEle);
+    }
+
+    // Validate that the property field value matches the expected value
+    ObjectsRegistry.PropertyPane.ValidatePropertyFieldValue(
+      propFieldName,
+      valueToValidate,
+    );
   }
 }

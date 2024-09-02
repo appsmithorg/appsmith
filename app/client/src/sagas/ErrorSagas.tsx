@@ -1,19 +1,16 @@
 import { get } from "lodash";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
 import { flushErrors, safeCrashApp } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
-import {
-  ERROR_CODES,
-  SERVER_ERROR_CODES,
-} from "@appsmith/constants/ApiConstants";
+import { ERROR_CODES, SERVER_ERROR_CODES } from "ee/constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -25,12 +22,12 @@ import {
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
-import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
+import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
+import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
 
@@ -42,6 +39,8 @@ import showToast from "sagas/ToastSagas";
 export const getDefaultActionError = (action: string) =>
   `Incurred an error when ${action}`;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
     const response: ApiResponse = yield call(apiCall, requestPayload);
@@ -82,6 +81,8 @@ export class IncorrectBindingError extends Error {}
  * @param logToSentry
  */
 export function* validateResponse(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   response: ApiResponse | any,
   show = true,
   logToSentry = false,
@@ -140,6 +141,8 @@ interface ClientDefinedErrorMetadata {
 }
 
 export function extractClientDefinedErrorMetadata(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   err: any,
 ): ClientDefinedErrorMetadata | undefined {
   if (err?.clientDefinedError && err?.response) {
@@ -227,6 +230,8 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         // This is the toast that is rendered when any page load API fails.
         yield call(showToast, message, { kind: "error" });
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((window as any).Cypress) {
           if (message === "" || message === null) {
             yield put(
@@ -255,6 +260,8 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     payload: {
       source: errorAction.type,
       message,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       stackTrace: (error as any)?.stack,
     },
   });

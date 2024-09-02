@@ -16,7 +16,7 @@ import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { LabelPosition } from "components/constants";
 import { parseDate } from "./utils";
 import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
@@ -30,6 +30,8 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 function hasFulfilledRequiredCondition(
   isRequired: boolean | undefined,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
 ) {
   // if the required condition is not enabled then it has fulfilled
@@ -331,6 +333,8 @@ class DatePickerComponent extends React.Component<
         fill
         isValid={isValid && hasFulfilledRequired}
         labelPosition={this.props.labelPosition}
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onClick={(e: any) => {
           e.stopPropagation();
         }}

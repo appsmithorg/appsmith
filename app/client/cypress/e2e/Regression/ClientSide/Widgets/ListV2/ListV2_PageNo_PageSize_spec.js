@@ -115,9 +115,7 @@ describe(
         .should("have.text", "PageSize 4");
 
       cy.openPropertyPane("textwidget");
-      cy.wait(2000);
       cy.testJsontext("text", `Page Number {{List1.pageNo}}`);
-      cy.wait(2000);
       cy.wait("@updateLayout");
       cy.get(commonlocators.bodyTextStyle)
         .first()
@@ -142,9 +140,10 @@ describe(
       cy.openPropertyPane("listwidgetv2");
 
       cy.openPropertyPane("textwidget");
-      cy.testJsontextclear("text");
-      cy.testJsontext("text", `PageSize {{List1.pageSize}}`);
-      cy.wait("@updateLayout");
+      _.propPane.UpdatePropertyFieldValue(
+        "Text",
+        "PageSize {{List1.pageSize}}",
+      );
 
       cy.get(commonlocators.bodyTextStyle)
         .first()
@@ -152,17 +151,14 @@ describe(
 
       // toggle serversidepagination -> true
       cy.openPropertyPane("listwidgetv2");
-      cy.togglebar(".t--property-control-serversidepagination input");
+      _.agHelper.CheckUncheck(commonlocators.serverSidePaginationCheckbox);
 
       cy.get(commonlocators.bodyTextStyle)
         .first()
         .should("have.text", "PageSize 2");
-    });
 
-    it("3. should reset page no if higher than max when switched from server side to client side", () => {
-      _.agHelper.AddDsl("Listv2/listWithServerSideData");
+      //should reset page no if higher than max when switched from server side to client side"
       // Open Datasource editor
-      cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");
       _.dataSources.CreateQueryAfterDSSaved();
 
@@ -185,19 +181,13 @@ describe(
 
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
-      cy.wait(1000);
-
       // Click next page in list widget
-      cy.get(".t--list-widget-next-page")
-        .find("button")
-        .click({ force: true })
-        .wait(1000);
+      cy.get(".t--list-widget-next-page").find("button").click({ force: true });
 
       // Change to client side pagination
       cy.openPropertyPane("listwidgetv2");
-      cy.togglebarDisable(".t--property-control-serversidepagination input");
-
-      cy.wait(2000);
+      _.propPane.UpdatePropertyFieldValue("Items", "{{Query1.data}}");
+      _.propPane.TogglePropertyState("Server side pagination", "Off");
 
       cy.get(".t--widget-containerwidget").should("have.length", 2);
     });

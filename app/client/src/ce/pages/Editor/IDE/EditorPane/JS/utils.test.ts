@@ -1,12 +1,12 @@
 import { getJSEntityItemUrl, getJSUrl } from "./utils";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { PluginType } from "entities/Action";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
-import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorState } from "ee/entities/IDE/constants";
 
 describe("getJSEntityItemUrl", () => {
-  urlBuilder.setCurrentPageId("testPage");
+  urlBuilder.setCurrentBasePageId("0123456789abcdef00000000");
   it("returns a JS url", () => {
     const url = getJSEntityItemUrl(
       {
@@ -14,15 +14,16 @@ describe("getJSEntityItemUrl", () => {
         key: "abc",
         type: PluginType.JS,
       },
-      "testPage",
+      "0123456789abcdef00000000",
     );
-
-    expect(url).toEqual("/app/application/page-testPage/edit/jsObjects/abc");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/jsObjects/abc",
+    );
   });
 });
 
 describe("getJSUrl", () => {
-  urlBuilder.setCurrentPageId("testPage");
+  urlBuilder.setCurrentBasePageId("0123456789abcdef00000000");
   it("returns a JS collection url", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.JS_OBJECT,
@@ -31,11 +32,13 @@ describe("getJSUrl", () => {
       params: {},
     };
     const url = getJSUrl(focusEntity, false);
-    expect(url).toEqual("/app/application/page-testPage/edit/jsObjects/abc");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/jsObjects/abc",
+    );
 
     const addUrl = getJSUrl(focusEntity);
     expect(addUrl).toEqual(
-      "/app/application/page-testPage/edit/jsObjects/abc/add",
+      "/app/application/page-0123456789abcdef00000000/edit/jsObjects/abc/add",
     );
   });
 
@@ -47,7 +50,9 @@ describe("getJSUrl", () => {
       params: {},
     };
     const url = getJSUrl(focusEntity, false);
-    expect(url).toEqual("/app/application/page-testPage/edit/jsObjects");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/jsObjects",
+    );
   });
 
   it("returns the js url even if the focus is not on JS", () => {
@@ -56,14 +61,18 @@ describe("getJSUrl", () => {
       id: "abc",
       appState: EditorState.EDITOR,
       params: {
-        queryId: "abc",
-        pageId: "testPage",
+        baseQueryId: "abc",
+        basePageId: "0123456789abcdef00000000",
       },
     };
     const url = getJSUrl(focusEntity, false);
-    expect(url).toEqual("/app/application/page-testPage/edit/jsObjects");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/jsObjects",
+    );
 
     const addUrl = getJSUrl(focusEntity);
-    expect(addUrl).toEqual("/app/application/page-testPage/edit/jsObjects/add");
+    expect(addUrl).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/jsObjects/add",
+    );
   });
 });

@@ -1,18 +1,18 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
-  deletePage,
+  deletePageAction,
   setPageAsDefault,
-  updatePage,
+  updatePageAction,
 } from "actions/pageActions";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import {
-  CONTEXT_EDIT_NAME,
+  CONTEXT_RENAME,
   CONTEXT_CLONE,
   CONTEXT_SET_AS_HOME_PAGE,
   CONTEXT_DELETE,
@@ -20,21 +20,21 @@ import {
   createMessage,
   CONTEXT_PARTIAL_EXPORT,
   CONTEXT_PARTIAL_IMPORT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { getPageById } from "selectors/editorSelectors";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import type { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { AppState } from "ee/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasCreatePagePermission,
   getHasDeletePagePermission,
   getHasManagePagePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { openPartialExportModal } from "actions/widgetActions";
-import { openPartialImportModal } from "@appsmith/actions/applicationActions";
+import { openPartialImportModal } from "ee/actions/applicationActions";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -62,7 +62,7 @@ export function PageContextMenu(props: {
    * @return void
    */
   const deletePageCallback = useCallback((): void => {
-    dispatch(deletePage(props.pageId));
+    dispatch(deletePageAction(props.pageId));
     AnalyticsUtil.logEvent("DELETE_PAGE", {
       pageName: props.name,
     });
@@ -105,7 +105,7 @@ export function PageContextMenu(props: {
   const setHiddenField = useCallback(
     () =>
       dispatch(
-        updatePage({
+        updatePageAction({
           id: props.pageId,
           name: props.name,
           isHidden: !props.isHidden,
@@ -156,7 +156,7 @@ export function PageContextMenu(props: {
     canManagePages && {
       value: "rename",
       onSelect: editPageName,
-      label: createMessage(CONTEXT_EDIT_NAME),
+      label: createMessage(CONTEXT_RENAME),
     },
     canCreatePages &&
       canManagePages && {

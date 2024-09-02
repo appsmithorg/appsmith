@@ -2,18 +2,18 @@ import {
   UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { Flex, SearchInput, Text } from "design-system";
+import { Flex, SearchInput, Text } from "@appsmith/ads";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
@@ -30,7 +30,11 @@ function UIEntitySidebar({
     useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
+  const [areSearchResultsEmpty, setAreSearchResultsEmpty] = useState(false);
+  const hideSuggestedWidgets = useMemo(
+    () => isSearching && !areSearchResultsEmpty,
+    [isSearching, areSearchResultsEmpty],
+  );
 
   const searchWildcards = useMemo(
     () =>
@@ -72,11 +76,11 @@ function UIEntitySidebar({
           searchResult.length > 0 ? searchResult : searchWildcards,
         ),
       );
-      setIsEmpty(searchResult.length === 0);
+      setAreSearchResultsEmpty(searchResult.length === 0);
     } else {
       setFilteredCards(groupedCards);
       setIsSearching(false);
-      setIsEmpty(false);
+      setAreSearchResultsEmpty(false);
     }
   };
 
@@ -101,6 +105,7 @@ function UIEntitySidebar({
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
+          // @ts-expect-error fix this the next time the file is edited
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
@@ -114,7 +119,7 @@ function UIEntitySidebar({
         data-testid="t--widget-sidebar-scrollable-wrapper"
         pt="spaces-2"
       >
-        {isEmpty && (
+        {areSearchResultsEmpty && (
           <Text
             color="#6A7585"
             kind="body-m"
@@ -126,18 +131,12 @@ function UIEntitySidebar({
           </Text>
         )}
         <div>
-          {Object.keys(filteredCards).map((tag) => {
-            const cardsForThisTag = filteredCards[tag as WidgetTags];
-
+          {Object.entries(filteredCards).map(([tag, cardsForThisTag]) => {
             if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
               return null;
             }
 
-            if (
-              isSearching &&
-              tag === WIDGET_TAGS.SUGGESTED_WIDGETS &&
-              !isEmpty
-            ) {
+            if (tag === WIDGET_TAGS.SUGGESTED_WIDGETS && hideSuggestedWidgets) {
               return null;
             }
 

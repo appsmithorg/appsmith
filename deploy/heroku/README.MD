@@ -9,7 +9,7 @@ Quickly set up Appsmith to explore product functionality using Heroku.
 - Fill in the required `Config Variables` including:
   - `APPSMITH_ENCRYPTION_PASSWORD`: Encryption password to encrypt all credentials in the database
   - `APPSMITH_ENCRYPTION_SALT`: Encryption salt used to encrypt all credentials in the database
-  - `APPSMITH_MONGODB_URI`: Your Mongo Database URI
+  - `APPSMITH_DB_URL`: Your Mongo Database URI
 - (Optional) Customize the default settings in Heroku
 
   - `App Name`: Optionally select a name for your application (this will be used in the app URL)

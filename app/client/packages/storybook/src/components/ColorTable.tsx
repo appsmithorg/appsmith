@@ -5,8 +5,8 @@ import {
   StyledSquarePreview,
   ThemeSettings,
 } from "@design-system/storybook";
-import { useTheme, ThemeProvider } from "@design-system/theming";
-import { defaultTokens } from "@design-system/theming";
+import { useTheme, ThemeProvider } from "@appsmith/wds-theming";
+import { defaultTokens } from "@appsmith/wds-theming";
 
 interface ColorTableProps {
   filter?: string | string[];
@@ -17,11 +17,13 @@ export const ColorTable = ({
   filter,
   isExactMatch = true,
 }: ColorTableProps) => {
-  const [seedColor, setSeedColor] = useState(defaultTokens.seedColor);
-  const [isDarkMode, setDarkMode] = useState(false);
+  const [seedColor, setSeedColor] = useState<string | undefined>(
+    defaultTokens.seedColor,
+  );
+  const [isDarkMode, setDarkMode] = useState<boolean | undefined>(false);
   const { theme } = useTheme({
     seedColor,
-    colorMode: isDarkMode ? "dark" : "light",
+    colorMode: isDarkMode != null ? "dark" : "light",
   });
   const { color } = theme;
 

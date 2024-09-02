@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.services.EncryptionService;
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
@@ -96,7 +96,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PasswordEncoder passwordEncoder;
 
     private final CommonConfig commonConfig;
-    private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
     private final UserUtils userUtils;
@@ -128,7 +127,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PasswordResetTokenRepository passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
-            EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
             UserUtils userUtils,
@@ -144,7 +142,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.commonConfig = commonConfig;
-        this.encryptionService = encryptionService;
         this.userDataService = userDataService;
         this.tenantService = tenantService;
         this.userUtils = userUtils;
@@ -225,7 +222,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     String resetUrl = String.format(
                             FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
-                            encryptionService.encryptString(urlParams));
+                            EncryptionHelper.encrypt(urlParams));
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
 
@@ -695,7 +692,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
-        String decryptString = encryptionService.decryptString(encryptedToken);
+        String decryptString = EncryptionHelper.decrypt(encryptedToken);
         List<NameValuePair> nameValuePairs = WWWFormCodec.parse(decryptString, StandardCharsets.UTF_8);
         Map<String, String> params = new HashMap<>();
 
@@ -780,7 +777,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     String verificationUrl = String.format(
                             EMAIL_VERIFICATION_CLIENT_URL_FORMAT,
                             resendEmailVerificationDTO.getBaseUrl(),
-                            encryptionService.encryptString(urlParams),
+                            EncryptionHelper.encrypt(urlParams),
                             URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
                             redirectUrlCopy);
 

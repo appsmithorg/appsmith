@@ -2,18 +2,20 @@ const history = jest.fn();
 const dispatch = jest.fn();
 
 import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { builderURL, integrationEditorURL } from "@appsmith/RouteBuilder";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { builderURL, integrationEditorURL } from "ee/RouteBuilder";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
 import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import "@testing-library/jest-dom";
 import * as onboardingSelectors from "selectors/onboardingSelectors";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 jest.mock("react-redux", () => {
@@ -39,6 +41,8 @@ jest.mock("utils/lazyLottie", () => ({
   },
 }));
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderComponent(store: any) {
   render(
     <Provider store={store}>
@@ -55,13 +59,13 @@ describe("Checklist", () => {
     urlBuilder.updateURLParams(
       {
         applicationSlug: initialState.ui.applications.currentApplication.slug,
-        applicationId: initialState.entities.pageList.applicationId,
+        baseApplicationId: initialState.entities.pageList.baseApplicationId,
         applicationVersion: 2,
       },
       [
         {
           pageSlug: initialState.entities.pageList.pages[0].slug,
-          pageId: initialState.entities.pageList.currentPageId,
+          basePageId: initialState.entities.pageList.currentBasePageId,
         },
       ],
     );
@@ -92,7 +96,7 @@ describe("Checklist", () => {
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
-        pageId: initialState.entities.pageList.currentPageId,
+        basePageId: initialState.entities.pageList.currentBasePageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -122,7 +126,7 @@ describe("Checklist", () => {
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
-        pageId: initialState.entities.pageList.currentPageId,
+        basePageId: initialState.entities.pageList.currentBasePageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );
@@ -135,7 +139,9 @@ describe("Checklist", () => {
     const widgetButton = screen.queryAllByTestId("checklist-widget");
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
-      builderURL({ pageId: initialState.entities.pageList.currentPageId }),
+      builderURL({
+        basePageId: initialState.entities.pageList.currentBasePageId,
+      }),
     );
     expect(dispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
@@ -148,6 +154,8 @@ describe("Checklist", () => {
   });
 
   it("with `add a widget` task checked off", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const store: any = getStore(3);
     renderComponent(store);
     const widgetButton = screen.queryAllByTestId("checklist-widget");
@@ -158,7 +166,7 @@ describe("Checklist", () => {
       bindDataOnCanvas({
         queryId: store.getState().entities.actions[0].config.id,
         applicationId: store.getState().entities.pageList.applicationId,
-        pageId: store.getState().entities.pageList.currentPageId,
+        basePageId: store.getState().entities.pageList.currentBasePageId,
       }),
     );
   });

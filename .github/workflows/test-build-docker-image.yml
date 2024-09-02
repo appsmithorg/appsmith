@@ -153,7 +153,8 @@ jobs:
           rm -f ~/combined_failed_spec_ci
 
       # Download failed_spec_ci list for all CI container jobs
-      - uses: actions/download-artifact@v4
+      - name: Download failed_spec_ci list for all CI container jobs
+        uses: actions/download-artifact@v4
         if: needs.ci-test.result != 'success'
         id: download_ci
         with:
@@ -161,7 +162,7 @@ jobs:
           path: ~/failed_spec_ci
 
       # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
+      - name: Combine all specs for CI
         if: needs.ci-test.result != 'success'
         run: |
           rm -f ~/combined_failed_spec_ci
@@ -200,7 +201,7 @@ jobs:
             echo "slack_icon=:warning:" >> $GITHUB_OUTPUT
           fi
 
-      - name: Slack Notification
+      - name: Slack notification
         continue-on-error: true
         if: always()
         uses: rtCamp/action-slack-notify@v2
@@ -226,20 +227,22 @@ jobs:
 
       # This step triggers an external workflow for automated analysis of Cypress test runs.
       - name: Invoke Automated analysis workflow
+        if: ( always() && github.ref == 'refs/heads/release' && github.run_attempt <= 2)
         run: |
           curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
           --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
           --header 'Content-Type: application/json' \
-          --data-raw '{ "workflow_id" : ${{ github.run_id }} , 
-                        "commit_id" : "${{ github.sha }}" , 
-                        "repo" : "${{  github.event.repository.full_name }}" , 
-                        "task" : "${{  github.job }}" ,   
-                        "workflow_type" : "${{ github.event_name }}",  
-                        "workflow_name" : "${{ github.workflow }}", 
-                        "job_id" : "",     
-                        "job_data": { 
-                            "ci_test_result_sample_data" : "sample_data" 
-                         }  
+          --data-raw '{ "workflow_id" : ${{ github.run_id }} ,
+                        "commit_id" : "${{ github.sha }}" ,
+                        "repo" : "${{  github.event.repository.full_name }}" ,
+                        "task" : "${{  github.job }}" ,
+                        "workflow_type" : "${{ github.event_name }}",
+                        "workflow_name" : "TBD",
+                        "job_id" : "",
+                        "attempt" : "${{ github.run_attempt }}",
+                        "job_data": {
+                            "ci_test_result_sample_data" : "sample_data"
+                         }
            }'
 
       # Force save the CI failed spec list into a cache
@@ -253,7 +256,7 @@ jobs:
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
-      - name: upload combined failed spec
+      - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
         uses: actions/upload-artifact@v4
         with:
@@ -263,11 +266,23 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          if [[ "${{ needs.ci-test.result }}" == "success" ]]; then
-            echo "Integration tests completed successfully!";
+          if [[ "${{ needs.ci-test.result }}" == "success" && "${{ needs.client-unit-tests.result }}" == "success" && "${{ needs.server-unit-tests.result }}" == "success" ]]; then
+            echo "Integration, Client unit and Server unit tests completed successfully!";
             exit 0;
           elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
             echo "Integration tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.client-unit-tests.result }}" == "skipped" ]]; then
+            echo "Client unit tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "skipped" ]]; then
+            echo "Server unit tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.client-unit-tests.result }}" == "failure" ]]; then
+            echo "Client unit tests have failed";
+            exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "failure" ]]; then
+            echo "Server unit tests have failed";
             exit 1;
           else
             echo "Integration tests have failed";
@@ -425,7 +440,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly
 
   notify-slack-for-promotion:
-    needs: ci-test
+    needs: ci-test-result
     runs-on: ubuntu-latest
 
     if: ( failure() && github.ref == 'refs/heads/master' )

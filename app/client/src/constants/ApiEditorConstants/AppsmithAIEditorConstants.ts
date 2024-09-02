@@ -1,4 +1,4 @@
-import { DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
+import { DEFAULT_APPSMITH_AI_QUERY_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import type { ActionConfig } from "entities/Action";
 
 // Appsmith AI Default Config

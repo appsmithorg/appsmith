@@ -8,6 +8,7 @@ import {
   anvilLayout,
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`,
@@ -23,21 +24,36 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Change App navigation settings and valdiate the layout settings", () => {
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
-        skipWidgetSearch: true,
-      });
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSINPUT,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
         },
-      });
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
+      );
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSINPUT,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Zone1",
+          },
         },
-      });
+      );
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Zone1",
+          },
+        },
+      );
       propPane.NavigateToPage("Page1", "onClick");
       appSettings.OpenAppSettings();
       agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
@@ -58,10 +74,10 @@ describe(
       agHelper.AssertElementExist(appSettings.locators._sideNavbar);
       agHelper.GetNClick(locators._canvas);
       agHelper.AssertElementExist(
-        locators._anvilWidgetInCanvas(WIDGET.WDSINPUT),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSINPUT),
       );
       agHelper.AssertElementExist(
-        locators._anvilWidgetInCanvas(WIDGET.WDSINPUT),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSINPUT),
         1,
       );
     });

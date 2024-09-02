@@ -3,7 +3,7 @@ import { generateReactKey } from "utils/generators";
 import {
   createMessage,
   BUTTON_WIDGET_DEFAULT_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import ButtonListControl from "./ButtonListControl";
 
 class ToolbarButtonListControl extends ButtonListControl {
@@ -24,8 +24,8 @@ class ToolbarButtonListControl extends ButtonListControl {
         isDisabled: false,
         itemType: isSeparator ? "SEPARATOR" : "BUTTON",
         isVisible: true,
-        buttonVariant: "filled",
-        iconName: "thumb-up",
+        icon: "thumb-up",
+        isSeparator,
       },
     };
 

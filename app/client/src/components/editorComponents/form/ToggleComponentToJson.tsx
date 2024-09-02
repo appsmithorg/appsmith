@@ -5,7 +5,7 @@ import {
   switchViewType,
   ViewTypes,
 } from "components/formControls/utils";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { connect, useSelector } from "react-redux";
@@ -14,12 +14,14 @@ import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { change } from "redux-form";
 import { get } from "lodash";
-import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { ToggleButton, Tooltip } from "design-system";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "ee/constants/messages";
+import { ToggleButton, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 
 interface Props {
   viewType: ViewTypes;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles: Record<string, any>;
   componentControlType: string;
   configProperty: string;
@@ -32,6 +34,8 @@ interface Props {
 interface HandlerProps {
   configProperty: string;
   formName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   change: (formName: string, id: string, value: any) => void;
 }
 
@@ -72,7 +76,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
       content={!!configPropertyPathJsonValue && JS_TOGGLE_DISABLED_MESSAGE}
       isDisabled={!configPropertyPathJsonValue}
     >
-      <span>
+      <span className="flex items-center justify-center h-[16px]">
         <StyledToggleButton
           data-testid={`t--${props.configProperty}-JS`}
           icon="js-toggle-v2"

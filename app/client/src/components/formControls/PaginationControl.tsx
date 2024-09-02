@@ -30,6 +30,8 @@ const PaginationContainer = styled.div`
 `;
 
 // using query dynamic input text for both so user can dynamically change these values.
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const valueFieldConfig: any = {
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
@@ -39,11 +41,15 @@ const valueFieldConfig: any = {
   },
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const limitFieldConfig: any = {
   ...valueFieldConfig,
   placeholderText: "20",
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const offsetFieldConfig: any = {
   ...valueFieldConfig,
   placeholderText: "0",
@@ -58,6 +64,8 @@ export function Pagination(props: {
   isRequired?: boolean;
   name: string;
   disabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles?: any;
   configProperty: string;
   formName: string;

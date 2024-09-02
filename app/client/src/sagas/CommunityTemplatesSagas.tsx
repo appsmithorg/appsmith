@@ -1,25 +1,22 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+} from "ee/constants/ReduxActionConstants";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { validateResponse, type ErrorActionPayload } from "./ErrorSagas";
-import {
-  COMMUNITY_TEMPLATES,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { toast } from "design-system";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
+import { toast } from "@appsmith/ads";
 import type {
   PublishCommunityTemplateRequest,
   PublishCommunityTemplateResponse,
 } from "api/TemplatesApi";
 import TemplatesAPI from "api/TemplatesApi";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import type { UpdateUserRequest } from "@appsmith/api/UserApi";
-import UserApi from "@appsmith/api/UserApi";
+import type { UpdateUserRequest } from "ee/api/UserApi";
+import UserApi from "ee/api/UserApi";
 import type { PublishCommunityTemplatePayload } from "actions/communityTemplateActions";
 import type { ApiResponse } from "api/ApiResponses";
 
@@ -47,6 +44,8 @@ function* handleFailure(error: unknown) {
     show: true,
     error: {
       message:
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (error as any).message ??
         createMessage(COMMUNITY_TEMPLATES.publishFormPage.publishedFailedError),
     },

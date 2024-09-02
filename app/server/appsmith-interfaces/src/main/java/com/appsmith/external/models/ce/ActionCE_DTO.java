@@ -6,10 +6,8 @@ import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.AnalyticsInfo;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.Executable;
@@ -29,8 +27,10 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -43,6 +43,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @Transient
     @JsonView({Views.Public.class, FromRequest.class})
     private String id;
+
+    @Transient
+    @JsonView({Views.Public.class, FromRequest.class})
+    private String baseId;
 
     @Transient
     @JsonView({Views.Public.class, FromRequest.class})
@@ -145,21 +149,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
     @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
+    protected Map<String, Policy> policyMap = new HashMap<>();
 
     @Transient
     @JsonView({Views.Public.class, FromRequest.class})
     public Set<String> userPermissions = new HashSet<>();
-
-    // This field will be used to store the default/root actionId and applicationId for actions generated for git
-    // connected applications and will be used to connect actions across the branches
-    @JsonView(Views.Internal.class)
-    DefaultResources defaultResources;
-
-    // This field will be used to store analytics data related to this specific domain object. It's been introduced in
-    // order to track success metrics of modules. Learn more on GitHub issue#24734
-    @JsonView({Views.Public.class, FromRequest.class})
-    AnalyticsInfo eventData;
 
     @JsonView(Views.Internal.class)
     protected Instant createdAt;
@@ -174,6 +168,33 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @Transient
     @JsonView({Views.Public.class, FromRequest.class})
     ActionCreationSourceTypeEnum source;
+
+    @Transient
+    @JsonView({Views.Internal.class})
+    private String branchName;
+
+    // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
+    /**
+     * An unmodifiable set of policies.
+     */
+    @JsonView(Views.Internal.class)
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public Set<Policy> getPolicies() {
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
+    }
+
+    @JsonView(Views.Internal.class)
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public void setPolicies(Set<Policy> policies) {
+        if (policies == null) {
+            this.policyMap = null;
+            return;
+        }
+        policyMap = new HashMap<>();
+        for (Policy policy : policies) {
+            policyMap.put(policy.getPermission(), policy);
+        }
+    }
 
     @Override
     @JsonView({Views.Internal.class})
@@ -211,8 +232,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     public void sanitiseToExportDBObject() {
         this.resetTransientFields();
-        this.setEventData(null);
-        this.setDefaultResources(null);
         this.setUpdatedAt(null);
         this.setCacheResponse(null);
         if (this.getDatasource() != null) {
@@ -224,10 +243,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
         } else {
             this.setUserPermissions(Set.of());
         }
-        if (this.getPolicies() != null) {
-            this.getPolicies().clear();
+        if (this.getPolicyMap() != null) {
+            this.getPolicyMap().clear();
         } else {
-            this.setPolicies(Set.of());
+            this.setPolicyMap(Map.of());
         }
     }
 
@@ -276,10 +295,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
         dslExecutableDTO.setCollectionId(this.getCollectionId());
         dslExecutableDTO.setClientSideExecution(this.getClientSideExecution());
         dslExecutableDTO.setConfirmBeforeExecute(this.getConfirmBeforeExecute());
-        if (this.getDefaultResources() != null) {
-            dslExecutableDTO.setDefaultActionId(this.getDefaultResources().getActionId());
-            dslExecutableDTO.setDefaultCollectionId(this.getDefaultResources().getCollectionId());
-        }
 
         if (this.getExecutableConfiguration() != null) {
             dslExecutableDTO.setTimeoutInMillisecond(
@@ -311,6 +326,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     protected void resetTransientFields() {
         this.setId(null);
+        this.setBaseId(null);
         this.setApplicationId(null);
         this.setWorkspaceId(null);
         this.setPluginId(null);

@@ -4,15 +4,17 @@ import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
 import classNames from "classnames";
 import styled from "styled-components";
-import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
-import type { AppState } from "@appsmith/reducers";
-import { getApiName } from "selectors/formSelectors";
+import type { AppState } from "ee/reducers";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";
-import { getAction, getActionData } from "@appsmith/selectors/entitiesSelector";
+import {
+  getActionByBaseId,
+  getActionData,
+} from "ee/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
@@ -156,6 +158,8 @@ interface ReduxDispatchProps {
   updateDatasource: (datasource: Datasource) => void;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   updateDatasource: (datasource) => {
     dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource));
@@ -163,6 +167,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
 });
 
 export default connect(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (state: AppState, props: { pluginId: string; match?: any }) => {
     const httpMethodFromForm = selector(
       state,
@@ -179,11 +185,11 @@ export default connect(
       );
     }
 
-    // get messages from action itself
-    const { apiId, queryId } = props.match?.params || {};
-    const actionId = queryId || apiId;
-    // const actionId = selector(state, "id");
-    const action = getAction(state, actionId);
+    const { baseApiId, baseQueryId } = props.match?.params || {};
+    const baseActionId = baseQueryId || baseApiId;
+    const action = getActionByBaseId(state, baseActionId);
+    const apiId = action?.id ?? "";
+    const actionName = action?.name ?? "";
     const hintMessages = action?.messages;
 
     const datasourceHeaders =
@@ -192,10 +198,8 @@ export default connect(
       get(datasourceFromAction, "datasourceConfiguration.queryParameters") ||
       [];
 
-    // const apiId = selector(state, "id");
     const currentActionDatasourceId = selector(state, "datasource.id");
 
-    const actionName = getApiName(state, apiId) || "";
     const headers = selector(state, "actionConfiguration.headers");
     let headersCount = 0;
 
@@ -208,6 +212,8 @@ export default connect(
 
     if (Array.isArray(datasourceHeaders)) {
       const validHeaders = datasourceHeaders.filter(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => value.key && value.key !== "",
       );
       headersCount += validHeaders.length;
@@ -225,6 +231,8 @@ export default connect(
 
     if (Array.isArray(datasourceParams)) {
       const validParams = datasourceParams.filter(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => value.key && value.key !== "",
       );
       paramsCount += validParams.length;
@@ -274,6 +282,8 @@ export default connect(
   },
   mapDispatchToProps,
 )(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reduxForm<Action, any>({
     form: API_EDITOR_FORM_NAME,
     enableReinitialize: true,

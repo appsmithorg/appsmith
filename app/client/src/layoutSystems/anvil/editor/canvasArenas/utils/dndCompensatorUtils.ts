@@ -1,4 +1,4 @@
-import type { Token } from "@design-system/theming";
+import type { Token } from "@appsmith/wds-theming";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { EMPTY_MODAL_PADDING } from "../AnvilModalDropArena";
@@ -67,7 +67,7 @@ const getMainCanvasCompensators = (
   mainCanvasSpacing: number,
 ) => {
   const widgetCompensatorValues = {
-    left: 0,
+    left: -mainCanvasSpacing,
     top: 0,
   };
   const edgeCompensatorValues = {
@@ -149,7 +149,7 @@ const getZoneCompensators = (
   };
   const edgeCompensatorValues = isElevatedWidget
     ? {
-        left: zoneSpacing,
+        left: 0,
         top: zoneSpacing,
       }
     : {

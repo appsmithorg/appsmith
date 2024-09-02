@@ -1,10 +1,13 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { NameComponentStates } from "./types";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { createSelector } from "reselect";
 import { getIsDragging } from "selectors/widgetDragSelectors";
-import { getAnvilHighlightShown } from "layoutSystems/anvil/integrations/selectors";
+import {
+  getAnvilHighlightShown,
+  getAnvilSpaceDistributionStatus,
+} from "layoutSystems/anvil/integrations/selectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 
@@ -58,24 +61,33 @@ export function shouldSelectOrFocus(widgetId: string) {
     getAnvilHighlightShown,
     isWidgetSelected(widgetId),
     isWidgetFocused(widgetId),
+    getAnvilSpaceDistributionStatus,
     (
       isEditorOpen,
       isDragging,
       highlightShown,
       isWidgetSelected,
       isWidgetFocused,
+      isDistributingSpace,
     ) => {
       const baseCondition = isEditorOpen && !isDragging;
       let onCanvasUIState: NameComponentStates = "none";
       if (baseCondition) {
         if (isWidgetSelected) onCanvasUIState = "select";
+
+        // when dragging the resizing handle, the action also makes
+        // the widget selected but we want to show it as focused while distributing space
+        if (isWidgetSelected && isDistributingSpace) onCanvasUIState = "focus";
+
         // A widget can be focused and selected at the same time.
         // I'm not sure if these should be mutually exclusive states.
         if (isWidgetFocused && !isWidgetSelected) onCanvasUIState = "focus";
       }
+
       if (highlightShown && highlightShown.canvasId === widgetId) {
         onCanvasUIState = "focus";
       }
+
       return onCanvasUIState;
     },
   );

@@ -2,6 +2,7 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -12,7 +13,6 @@ import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -40,7 +39,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class GitFileUtilsTest {
@@ -52,7 +50,7 @@ public class GitFileUtilsTest {
     FileInterface fileInterface;
 
     @Autowired
-    GitFileUtils gitFileUtils;
+    CommonGitFileUtils commonGitFileUtils;
 
     @Autowired
     AnalyticsService analyticsService;
@@ -62,6 +60,9 @@ public class GitFileUtilsTest {
 
     @Autowired
     Gson gson;
+
+    @Autowired
+    JsonSchemaMigration jsonSchemaMigration;
 
     private Mono<ApplicationJson> createAppJson(String filePath) {
         FilePart filePart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
@@ -83,13 +84,15 @@ public class GitFileUtilsTest {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
+                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
     @Test
     public void getSerializableResource_allEntitiesArePresentForApplication_keysIncludesSeparator() {
         ApplicationJson validAppJson = createAppJson(filePath).block();
-        ApplicationGitReference applicationGitReference = gitFileUtils.createApplicationReference(validAppJson);
+        ApplicationGitReference applicationGitReference =
+                (ApplicationGitReference) commonGitFileUtils.createArtifactReference(validAppJson);
 
         List<String> pageNames = validAppJson.getPageList().stream()
                 .map(newPage -> newPage.getUnpublishedPage().getName())
@@ -148,7 +151,8 @@ public class GitFileUtilsTest {
                 .get(validAppJson.getActionCollectionList().size() - 1);
         deletedCollection.getUnpublishedCollection().setDeletedAt(Instant.now());
 
-        ApplicationGitReference applicationGitReference = gitFileUtils.createApplicationReference(validAppJson);
+        ApplicationGitReference applicationGitReference =
+                (ApplicationGitReference) commonGitFileUtils.createArtifactReference(validAppJson);
 
         Map<String, Object> actions = applicationGitReference.getActions();
         for (Map.Entry<String, Object> entry : actions.entrySet()) {
@@ -186,7 +190,7 @@ public class GitFileUtilsTest {
                         Mockito.any(Path.class), Mockito.any(ApplicationGitReference.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Path.of("orgId", "appId", "repoName")));
 
-        Mono<Path> resultMono = gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
+        Mono<Path> resultMono = commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(
                 Path.of("orgId/appId/repoName"), validAppJson, "gitFileTest");
 
         StepVerifier.create(resultMono)
@@ -239,8 +243,10 @@ public class GitFileUtilsTest {
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationReference));
 
-        Mono<ApplicationJson> resultMono = gitFileUtils
-                .reconstructApplicationJsonFromGitRepoWithAnalytics("orgId", "appId", "repoName", "branch")
+        Mono<ApplicationJson> resultMono = commonGitFileUtils
+                .reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
+                        "orgId", "appId", "repoName", "branch", ArtifactType.APPLICATION)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .cache();
 
         StepVerifier.create(resultMono)

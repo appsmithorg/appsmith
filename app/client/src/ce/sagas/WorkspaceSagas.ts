@@ -2,11 +2,11 @@ import { call, put, select } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   validateResponse,
   callAPI,
@@ -25,12 +25,12 @@ import type {
   FetchAllRolesRequest,
   SaveWorkspaceLogo,
   FetchWorkspacesResponse,
-} from "@appsmith/api/WorkspaceApi";
-import WorkspaceApi from "@appsmith/api/WorkspaceApi";
+} from "ee/api/WorkspaceApi";
+import WorkspaceApi from "ee/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import history from "utils/history";
 import { APPLICATIONS_URL } from "constants/routes";
 import log from "loglevel";
@@ -38,11 +38,11 @@ import type { User } from "constants/userConstants";
 import {
   createMessage,
   DELETE_WORKSPACE_SUCCESSFUL,
-} from "@appsmith/constants/messages";
-import { toast } from "design-system";
+} from "ee/constants/messages";
+import { toast } from "@appsmith/ads";
 import { failFastApiCalls } from "sagas/InitSagas";
-import { getWorkspaceEntitiesActions } from "@appsmith/utils/workspaceHelpers";
-import type { SearchApiResponse } from "@appsmith/types/ApiResponseTypes";
+import { getWorkspaceEntitiesActions } from "ee/utils/workspaceHelpers";
+import type { SearchApiResponse } from "ee/types/ApiResponseTypes";
 import SearchApi from "api/SearchApi";
 
 export function* fetchAllWorkspacesSaga(
@@ -401,6 +401,8 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
   try {
     const response: SearchApiResponse = yield call(

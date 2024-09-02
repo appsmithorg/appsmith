@@ -1,21 +1,20 @@
+import type { ApplicationVersion } from "ee/actions/applicationActions";
+import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
-import type { AppColorCode } from "constants/DefaultTheme";
-import type { IconNames } from "design-system";
-import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { APP_MODE } from "entities/App";
-import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
-import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
+import type { AppColorCode } from "constants/DefaultTheme";
+import type { EvaluationVersion } from "constants/EvalConstants";
+import type { IconNames } from "@appsmith/ads";
+import type { Action, BaseAction } from "entities/Action";
+import type { APP_MODE } from "entities/App";
+import type { Datasource } from "entities/Datasource";
 import type {
   LayoutSystemTypeConfig,
   LayoutSystemTypes,
 } from "layoutSystems/types";
-import type { BaseAction } from "entities/Action";
-
-export type EvaluationVersion = number;
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -30,12 +29,13 @@ export type PublishApplicationResponse = ApiResponse;
 
 export interface ApplicationPagePayload {
   id: string;
+  baseId: string;
   name: string;
   isDefault: boolean;
   slug: string;
   isHidden?: boolean;
   customSlug?: string;
-  userPermissions?: string;
+  userPermissions?: string[];
 }
 
 export type GitApplicationMetadata =
@@ -53,6 +53,7 @@ export type GitApplicationMetadata =
 
 export interface ApplicationResponsePayload {
   id: string;
+  baseId: string;
   name: string;
   workspaceId: string;
   evaluationVersion?: EvaluationVersion;
@@ -96,7 +97,7 @@ export interface CreateApplicationRequest {
 }
 
 export interface SetDefaultPageRequest {
-  id: string;
+  pageId: string;
   applicationId: string;
 }
 
@@ -165,6 +166,8 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
     workspaceApplications: Array<WorkspaceApplicationObject>;
     user: string;
     newReleasesCount?: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     releaseItems?: Array<Record<string, any>>;
   };
 }
@@ -174,6 +177,8 @@ export interface FetchApplicationsOfWorkspaceResponse extends ApiResponse {
 export interface FetchReleaseItemsResponse extends ApiResponse {
   data: {
     newReleasesCount: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     releaseItems: Array<Record<string, any>>;
   };
 }
@@ -227,7 +232,7 @@ export interface UpdateApplicationResponse {
 export interface PageDefaultMeta {
   id: string;
   isDefault: boolean;
-  defaultPageId: string;
+  baseId: string;
   default: boolean;
 }
 
@@ -277,18 +282,18 @@ interface ImportBuildingBlockOnPageActions extends BaseAction {
 export interface ImportBuildingBlockToApplicationResponse {
   widgetDsl: string;
   onPageLoadActions: ImportBuildingBlockOnPageActions[];
+  newActionList: Action[];
+  datasourceList: Datasource[];
 }
 
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
     `/publish/${applicationId}`;
-  static createApplicationPath = (workspaceId: string) =>
-    `?workspaceId=${workspaceId}`;
   static changeAppViewAccessPath = (applicationId: string) =>
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
-    `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.id}/makeDefault`;
+    `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.pageId}/makeDefault`;
   static async publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {
@@ -307,6 +312,8 @@ export class ApplicationApi extends Api {
 
   static async fetchAllApplicationsOfWorkspace(
     workspaceId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);
   }
@@ -341,28 +348,14 @@ export class ApplicationApi extends Api {
   static async createApplication(
     request: CreateApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {
-    const applicationDetail = {
-      appPositioning: {
-        type: request.layoutSystemType,
-      },
-    } as any;
-
-    if (request.showNavbar !== undefined) {
-      applicationDetail.navigationSetting = {
-        showNavbar: request.showNavbar,
-      };
-    }
-
-    return Api.post(
-      ApplicationApi.baseURL +
-        ApplicationApi.createApplicationPath(request.workspaceId),
-      {
-        name: request.name,
-        color: request.color,
-        icon: request.icon,
-        applicationDetail,
-      },
-    );
+    return Api.post(ApplicationApi.baseURL, {
+      workspaceId: request.workspaceId,
+      name: request.name,
+      color: request.color,
+      icon: request.icon,
+      positioningType: request.layoutSystemType,
+      showNavbar: request.showNavbar ?? null,
+    });
   }
 
   static async setDefaultApplicationPage(
@@ -385,7 +378,11 @@ export class ApplicationApi extends Api {
     request: UpdateApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse<UpdateApplicationResponse>>> {
     const { id, ...rest } = request;
-    return Api.put(ApplicationApi.baseURL + "/" + id, rest);
+    const payload = {
+      ...rest,
+      currentApp: undefined,
+    };
+    return Api.put(ApplicationApi.baseURL + "/" + id, payload);
   }
 
   static async deleteApplication(

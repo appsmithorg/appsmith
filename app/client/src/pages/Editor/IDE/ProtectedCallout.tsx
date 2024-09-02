@@ -1,19 +1,23 @@
 import React from "react";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setShowBranchPopupAction,
   updateGitProtectedBranchesInit,
 } from "actions/gitSyncActions";
-import { getIsUpdateProtectedBranchesLoading } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  getIsUpdateProtectedBranchesLoading,
+  getProtectedBranchesSelector,
+} from "selectors/gitSyncSelectors";
 import {
   BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH,
   BRANCH_PROTECTION_CALLOUT_MSG,
   BRANCH_PROTECTION_CALLOUT_UNPROTECT,
   BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const StyledCallout = styled(Callout)`
   height: 70px;
@@ -23,15 +27,20 @@ const StyledCallout = styled(Callout)`
 function ProtectedCallout() {
   const dispatch = useDispatch();
   const isLoading = useSelector(getIsUpdateProtectedBranchesLoading);
+  const currentBranch = useSelector(getCurrentGitBranch);
+  const protectedBranches = useSelector(getProtectedBranchesSelector);
 
   const handleClickOnNewBranch = () => {
     dispatch(setShowBranchPopupAction(true));
   };
 
   const handleClickOnUnprotect = () => {
+    const remainingBranches = protectedBranches.filter(
+      (protectedBranch) => protectedBranch !== currentBranch,
+    );
     dispatch(
       updateGitProtectedBranchesInit({
-        protectedBranches: [],
+        protectedBranches: remainingBranches,
       }),
     );
   };
@@ -44,11 +53,13 @@ function ProtectedCallout() {
       links={[
         {
           key: "create-branch",
+          "data-testid": "t--git-protected-create-branch-cta",
           children: createMessage(BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH),
           onClick: handleClickOnNewBranch,
         },
         {
           key: "unprotect",
+          "data-testid": "t--git-protected-unprotect-branch-cta",
           children: isLoading
             ? createMessage(BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING)
             : createMessage(BRANCH_PROTECTION_CALLOUT_UNPROTECT),

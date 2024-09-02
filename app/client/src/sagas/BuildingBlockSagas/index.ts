@@ -1,40 +1,19 @@
-import type { ImportBuildingBlockToApplicationResponse } from "@appsmith/api/ApplicationApi";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import type { ImportBuildingBlockToApplicationResponse } from "ee/api/ApplicationApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getAction } from "ee/selectors/entitiesSelector";
 import { flattenDSL } from "@shared/dsl";
 import type { WidgetProps } from "@shared/dsl/src/migrate/types";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { runAction } from "actions/pluginActionActions";
-import {
-  setCurrentForkingBuildingBlockName,
-  showStarterBuildingBlockDatasourcePrompt,
-} from "actions/templateActions";
-import { pasteWidget } from "actions/widgetActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
-import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { Action } from "entities/Action";
 import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
-import { all, call, delay, put, select, takeEvery } from "redux-saga/effects";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import { validateResponse } from "../ErrorSagas";
-import { postPageAdditionSaga } from "../TemplatesSagas";
-import { SelectionRequestType } from "../WidgetSelectUtils";
-
-const isAirgappedInstance = isAirgapped();
+import { all, call, put, select } from "redux-saga/effects";
+import { apiCallToSaveAction } from "sagas/ActionSagas";
+import { accessNestedObjectValue } from "sagas/PasteWidgetUtils";
+import { saveCopiedWidgets } from "utils/storage";
 
 export function* saveBuildingBlockWidgetsToStore(
   response: ApiResponse<ImportBuildingBlockToApplicationResponse>,
@@ -71,100 +50,77 @@ export function* saveBuildingBlockWidgetsToStore(
   );
 }
 
-function* apiCallForForkBuildingBlockToApplication(request: {
-  templateId: string;
-  activePageId: string;
-  applicationId: string;
-  workspaceId: string;
-  templateName: string;
-}) {
-  try {
-    const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
-      yield call(ApplicationApi.importBuildingBlockToApplication, {
-        pageId: request.activePageId,
-        templateId: request.templateId,
-        applicationId: request.applicationId,
-        workspaceId: request.workspaceId,
-      });
-    const isValid: boolean = yield validateResponse(response);
-
-    yield select(getCanvasWidgets);
-
-    if (isValid) {
-      yield saveBuildingBlockWidgetsToStore(response);
-
-      yield put(
-        pasteWidget({
-          groupWidgets: false,
-          mouseLocation: { x: 0, y: 0 },
-        }),
-      );
-      yield call(postPageAdditionSaga, request.applicationId);
-      // remove selecting of recently imported widgets
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-
-      // run all actions in the building block, if any, to populate the page with data
-      if (
-        response.data.onPageLoadActions &&
-        response.data.onPageLoadActions.length > 0
-      ) {
-        yield all(
-          response.data.onPageLoadActions.map(function* (action) {
-            yield put(runAction(action.id));
-          }),
-        );
-      }
-      yield put({
-        type: ReduxActionTypes.IMPORT_STARTER_TEMPLATE_TO_APPLICATION_SUCCESS,
-      });
-
-      // Show datasource prompt after 3 seconds
-      yield delay(STARTER_BUILDING_BLOCKS.DATASOURCE_PROMPT_DELAY);
-      yield put(setCurrentForkingBuildingBlockName(request.templateName));
-      yield put(showStarterBuildingBlockDatasourcePrompt(request.activePageId));
-    } else {
-      throw new Error("Failed importing starter building block");
-    }
-  } catch (error) {
-    throw error;
-  }
-}
-
-function* forkStarterBuildingBlockToApplicationSaga(
-  action: ReduxAction<{
-    templateId: string;
-    templateName: string;
-  }>,
+export function updateWidgetsNameInNewQueries(
+  oldWidgetName: string,
+  newWidgetName: string,
+  queries: Action[],
 ) {
-  const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-  try {
-    const activePageId: string = yield select(getCurrentPageId);
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const workspaceId: string = yield select(getCurrentWorkspaceId);
+  if (!oldWidgetName || !newWidgetName || !queries) {
+    throw new Error(
+      "Invalid input: oldWidgetName, newWidgetName, or queries are missing or empty",
+    );
+  }
 
-    yield call(apiCallForForkBuildingBlockToApplication, {
-      templateId: action.payload.templateId,
-      activePageId,
-      applicationId,
-      workspaceId,
-      templateName: action.payload.templateName,
-    });
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_ERROR,
-    });
+  if (typeof oldWidgetName !== "string" || typeof newWidgetName !== "string") {
+    throw new Error(
+      "Invalid input: oldWidgetName and newWidgetName must be strings",
+    );
   }
-  if (existingCopiedWidgets) {
-    yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
+
+  if (!Array.isArray(queries)) {
+    throw new Error("Invalid input: queries must be an array");
   }
+
+  return queries
+    .filter((query) => !!query)
+    .map((query) => {
+      if (!query.actionConfiguration && !query.jsonPathKeys) {
+        return query;
+      }
+      query?.dynamicBindingPathList?.forEach((path: { key: string }) => {
+        accessNestedObjectValue(
+          query.actionConfiguration,
+          path.key,
+          oldWidgetName,
+          newWidgetName,
+        );
+      });
+      query.jsonPathKeys = query.jsonPathKeys.map((path: string) =>
+        path.replaceAll(oldWidgetName, newWidgetName),
+      );
+      return query;
+    });
 }
 
-export default function* watchActionSagas() {
-  if (!isAirgappedInstance)
-    yield all([
-      takeEvery(
-        ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT,
-        forkStarterBuildingBlockToApplicationSaga,
-      ),
-    ]);
+// new actions needed after the drop of a block need to be added to the redux local state
+export function* addNewlyAddedActionsToRedux(actions: Action[]) {
+  for (const action of actions) {
+    if (!action) {
+      continue;
+    }
+
+    const existingAction: Action = yield select(getAction, action.id);
+    if (existingAction) {
+      continue;
+    }
+
+    try {
+      const actionDataPayload = {
+        isLoading: false,
+        config: action,
+        data: undefined,
+      };
+
+      yield put({
+        type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
+        payload: {
+          data: actionDataPayload,
+        },
+      });
+
+      yield call(apiCallToSaveAction, action);
+    } catch (error) {
+      throw new Error("Error adding new action to Redux");
+    }
+  }
 }

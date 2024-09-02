@@ -70,10 +70,13 @@ export enum CustomLintErrorCode {
   INVALID_APPSMITH_STORE_PROPERTY_SETTER = "INVALID_APPSMITH_STORE_PROPERTY_SETTER",
   // showModal("Modal1")
   ACTION_MODAL_STRING = "ACTION_MODAL_STRING",
+  INVALID_INPUTS = "INVALID_INPUTS",
 }
 
 export const CUSTOM_LINT_ERRORS: Record<
   CustomLintErrorCode,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => string
 > = {
   [CustomLintErrorCode.INVALID_ENTITY_PROPERTY]: (
@@ -121,5 +124,11 @@ export const CUSTOM_LINT_ERRORS: Record<
   },
   [CustomLintErrorCode.ACTION_MODAL_STRING]: (modalName: string) => {
     return `Use ${modalName}.name instead of "${modalName}" as a string`;
+  },
+  [CustomLintErrorCode.INVALID_INPUTS]: (
+    inputs: string[],
+    invalidKey: string,
+  ) => {
+    return `${invalidKey} doesn't exist in valid list of inputs: ${inputs.join(", ")} `;
   },
 };

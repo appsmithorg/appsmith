@@ -8,7 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
-} from "design-system";
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getForkableWorkspaces,
@@ -21,7 +21,7 @@ import {
   createMessage,
   FORK_TEMPLATE,
   SELECT_WORKSPACE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface ForkTemplateProps {
   children?: ReactNode;

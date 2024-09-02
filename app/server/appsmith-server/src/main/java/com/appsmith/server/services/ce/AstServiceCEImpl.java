@@ -118,7 +118,8 @@ public class AstServiceCEImpl implements AstServiceCE {
         }
         return rtsCaller
                 .post("/rts-api/v1/ast/multiple-script-data", new GetIdentifiersRequestBulk(bindingValues, evalVersion))
-                .flatMapMany(spec -> spec.bodyToMono(GetIdentifiersResponseBulk.class)
+                .flatMapMany(spec -> spec.retrieve()
+                        .bodyToMono(GetIdentifiersResponseBulk.class)
                         .retryWhen(Retry.max(3))
                         .flatMapIterable(getIdentifiersResponse -> getIdentifiersResponse.data)
                         .index())
@@ -147,7 +148,7 @@ public class AstServiceCEImpl implements AstServiceCE {
                             bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
                     return rtsCaller
                             .post("/rts-api/v1/ast/entity-refactor", entityRefactorRequest)
-                            .flatMap(spec -> spec.toEntity(EntityRefactorResponse.class))
+                            .flatMap(spec -> spec.retrieve().toEntity(EntityRefactorResponse.class))
                             .flatMap(entityRefactorResponseResponseEntity -> {
                                 if (HttpStatus.OK.equals(entityRefactorResponseResponseEntity.getStatusCode())) {
                                     return Mono.just(
@@ -159,8 +160,8 @@ public class AstServiceCEImpl implements AstServiceCE {
                             })
                             .elapsed()
                             .map(tuple -> {
-                                log.debug("Time elapsed since AST refactor call: {} ms", tuple.getT1());
                                 if (tuple.getT1() > MAX_API_RESPONSE_TIME_IN_MS) {
+                                    log.debug("Time elapsed since AST refactor call: {} ms", tuple.getT1());
                                     log.debug("This call took longer than expected. The binding was: {}", bindingValue);
                                 }
                                 return tuple.getT2();
