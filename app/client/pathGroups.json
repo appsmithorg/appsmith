@@ -1,5 +1,5 @@
 {
-    "packages": [
+    "Packages": [
         "packages/design-system/",
         "packages/dsl/",
         "packages/icons/",
@@ -9,8 +9,8 @@
         "packages/ast/"
     ],
     "IDE": [
-        "src/IDE/",
-        "src/pages/Editor/IDE/"
+        "src/pages/Editor/IDE/",
+        "src/IDE/"
     ],
     "UITelemetry": [
         "src/UITelemetry/"
@@ -21,117 +21,101 @@
     "WidgetQueryGenerators": [
         "src/WidgetQueryGenerators/"
     ],
-    "actions": [
+    "Actions": [
         "src/actions/",
         "src/ee/actions/"
     ],
-    "api": [
+    "API": [
         "src/api/",
         "src/ee/api/"
     ],
-    "CE_specific": [
-        "src/ce/",
-        "src/"
-    ],
-    "components": [
-        "src/ce/components/",
-        "src/components/",
-        "src/ee/components/"
-    ],
-    "constants": [
+    "Constants": [
         "src/ce/constants/",
         "src/constants/",
         "src/ee/constants/"
     ],
-    "entities": [
+    "Entities": [
         "src/ce/entities/",
         "src/ee/entities/",
         "src/entities/"
     ],
-    "hooks": [
+    "Hooks": [
         "src/ce/hooks/",
         "src/ee/hooks/",
         "src/pages/hooks/"
     ],
-    "navigation": [
+    "Navigation": [
         "src/ce/navigation/",
         "src/ee/navigation/",
         "src/navigation/"
     ],
-    "pages": [
-        "src/ce/pages/",
-        "src/ee/pages/"
-    ],
-    "plugins": [
+    "Plugins": [
         "src/ce/plugins/",
         "src/ee/plugins/",
         "src/plugins/"
     ],
-    "reducers": [
+    "Reducers": [
         "src/ce/reducers/",
         "src/ee/reducers/",
         "src/reducers/"
     ],
-    "sagas": [
+    "Sagas": [
         "src/ce/sagas/",
         "src/ee/sagas/",
         "src/sagas/"
     ],
-    "selectors": [
+    "Selectors": [
         "src/ce/selectors/",
         "src/ee/selectors/",
         "src/selectors/"
     ],
-    "utils": [
+    "Utils": [
         "src/ce/utils/",
         "src/components/utils/",
         "src/ee/utils/",
         "src/polyfills/"
     ],
-    "workers": [
+    "Workers": [
         "src/ce/workers/",
         "src/ee/workers/",
         "src/workers/"
     ],
-    "designSystems": [
-        "src/components/designSystems/"
-    ],
-    "editorComponents": [
+    "EditorComponents": [
         "src/components/editorComponents/"
     ],
-    "featureWalkthrough": [
+    "FeatureWalkthrough": [
         "src/components/featureWalkthrough/"
     ],
-    "formControls": [
+    "FormControls": [
         "src/components/formControls/"
     ],
-    "propertyControls": [
+    "PropertyControls": [
         "src/components/propertyControls/"
     ],
-    "EE_specific": [
+    "EE_Specific": [
         "src/ee/"
     ],
     "EE_Config": [
         "src/ee/configs/"
     ],
-    "globalStyles": [
+    "GlobalStyles": [
         "src/globalStyles/"
     ],
-    "anvil": [
+    "Anvil": [
         "src/layoutSystems/anvil/"
     ],
-    "autolayout": [
+    "AutoLayout": [
         "src/layoutSystems/autolayout/"
     ],
-    "Layout_common": [
+    "Layout_Common": [
         "src/layoutSystems/common/",
         "src/layoutSystems/"
     ],
-    "fixedlayout": [
+    "FixedLayout": [
         "src/layoutSystems/fixedlayout/",
         "src/layoutSystems/types/"
     ],
-    "mocks": [
+    "Mocks": [
         "src/mockResponses/",
         "src/mocks/",
         "src/pages/tests/"
@@ -212,14 +196,14 @@
         "src/pages/Editor/WidgetsEditor/",
         "src/widgets"
     ],
-    "Editor_commons": [
+    "Editor_Commons": [
         "src/pages/Editor/commons/",
         "src/pages/common/"
     ],
-    "gitSync": [
+    "GitSync": [
         "src/pages/Editor/gitSync/"
     ],
-    "widgetSidebar": [
+    "WidgetSidebar": [
         "src/pages/Editor/widgetSidebar/"
     ],
     "Editor": [
@@ -233,19 +217,35 @@
         "src/usagePulse/",
         "src/pages/"
     ],
-    "setup": [
+    "Setup": [
         "src/pages/setup/"
     ],
-    "workspace": [
+    "Workspace": [
         "src/pages/workspace/"
     ],
-    "reflow": [
+    "Reflow": [
         "src/reflow/"
     ],
-    "transformers": [
+    "Transformers": [
         "src/transformers/"
     ],
-    "test": [
+    "Test": [
         "test/"
+    ],
+    "DesignSystems": [
+        "src/components/designSystems/"
+    ],
+    "Components": [
+        "src/ce/components/",
+        "src/components/",
+        "src/ee/components/"
+    ],
+    "Pages": [
+        "src/ce/pages/",
+        "src/ee/pages/"
+    ],
+    "CE_Specific": [
+        "src/ce/",
+        "src/"
     ]
 }
