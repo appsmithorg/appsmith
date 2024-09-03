@@ -1,0 +1,6 @@
+export const FONT_SIZE_TO_WIDGET_TYPE_MAP = {
+  body: "WDS_PARAGRAPH_WIDGET",
+  subtitle: "WDS_PARAGRAPH_WIDGET",
+  title: "WDS_PARAGRAPH_WIDGET",
+  heading: "WDS_HEADING_WIDGET",
+};
