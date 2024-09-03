@@ -72,6 +72,9 @@ public class RestApiPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage = Thread.currentThread().getName()
+                    + ": executeParameterized() called for RestAPI plugin. Executing the API call.";
+            System.out.println(printMessage);
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -131,6 +134,9 @@ public class RestApiPlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration,
                 List<Map.Entry<String, String>> insertedParams) {
 
+            String printMessage = Thread.currentThread().getName()
+                    + ": executeCommon() called for RestAPI plugin. Executing the API call.";
+            System.out.println(printMessage);
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);

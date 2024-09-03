@@ -91,6 +91,8 @@ public class DynamoPlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         public Object extractValue(Object rawItem) {
+            String printMessage = Thread.currentThread().getName() + ": extractValue() called for Dynamo plugin.";
+            System.out.println(printMessage);
 
             if (!(rawItem instanceof List) && !(rawItem instanceof Map)) {
                 return rawItem;
@@ -162,7 +164,9 @@ public class DynamoPlugin extends BasePlugin {
          */
         public Object getTransformedResponse(Map<String, Object> rawResponse, String action)
                 throws AppsmithPluginException {
-
+            String printMessage =
+                    Thread.currentThread().getName() + ": getTransformedResponse() called for Dynamo plugin.";
+            System.out.println(printMessage);
             Map<String, Object> transformedResponse = new HashMap<>();
             for (Map.Entry<String, Object> responseEntry : rawResponse.entrySet()) {
                 Object rawItems = responseEntry.getValue();
@@ -184,7 +188,8 @@ public class DynamoPlugin extends BasePlugin {
                 DynamoDbClient ddb,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
-
+            String printMessage = Thread.currentThread().getName() + ": execute() called for Dynamo plugin.";
+            System.out.println(printMessage);
             final Map<String, Object> requestData = new HashMap<>();
             final String body = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams = new ArrayList<>();
@@ -280,7 +285,8 @@ public class DynamoPlugin extends BasePlugin {
 
         @Override
         public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-
+            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.";
+            System.out.println(printMessage);
             return Mono.fromCallable(() -> {
                         final DynamoDbClientBuilder builder = DynamoDbClient.builder();
 
@@ -317,6 +323,8 @@ public class DynamoPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Dynamo plugin.";
+            System.out.println(printMessage);
             Set<String> invalids = new HashSet<>();
 
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -341,6 +349,8 @@ public class DynamoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DynamoDbClient connection) {
+            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Dynamo plugin.";
+            System.out.println(printMessage);
             return Mono.fromCallable(() -> {
                 /*
                  * - Creating a connection with false credentials does not throw an error. Hence,
@@ -354,6 +364,8 @@ public class DynamoPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 DynamoDbClient ddb, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Dynamo plugin.";
+            System.out.println(printMessage);
             return Mono.fromCallable(() -> {
                         final ListTablesResponse listTablesResponse = ddb.listTables();
 

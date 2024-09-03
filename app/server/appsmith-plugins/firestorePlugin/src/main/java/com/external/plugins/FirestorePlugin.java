@@ -138,6 +138,9 @@ public class FirestorePlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage =
+                    Thread.currentThread().getName() + ": executeParameterized() called for Firestore plugin.";
+            System.out.println(printMessage);
             Object smartSubstitutionObject = actionConfiguration.getFormData().getOrDefault(SMART_SUBSTITUTION, TRUE);
             Boolean smartJsonSubstitution = TRUE;
             if (smartSubstitutionObject instanceof Boolean) {
@@ -501,6 +504,9 @@ public class FirestorePlugin extends BasePlugin {
                 Map<String, Object> mapBody,
                 String query,
                 List<RequestParamDTO> requestParams) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": handleDocumentLevelMethod() called for Firestore plugin.";
+            System.out.println(printMessage);
             return Mono.just(method)
                     // Get the actual Java method to be called.
                     .flatMap(method1 -> {
@@ -594,7 +600,9 @@ public class FirestorePlugin extends BasePlugin {
                 List<RequestParamDTO> requestParams,
                 Set<String> hintMessages,
                 ActionConfiguration actionConfiguration) {
-
+            String printMessage =
+                    Thread.currentThread().getName() + ": handleCollectionLevelMethod() called for Firestore plugin.";
+            System.out.println(printMessage);
             final CollectionReference collection = connection.collection(path);
 
             if (method == Method.GET_COLLECTION) {
@@ -892,6 +900,9 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Mono<Firestore> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceCreate() called for Firestore plugin.";
+            System.out.println(printMessage);
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             final Set<String> errors = validateDatasource(datasourceConfiguration);
@@ -937,7 +948,8 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-
+            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Firestore plugin.";
+            System.out.println(printMessage);
             return datasourceCreate(datasourceConfiguration).flatMap(connection -> {
                 try {
                     connection.listCollections();
@@ -964,6 +976,9 @@ public class FirestorePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for Firestore plugin.";
+            System.out.println(printMessage);
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
             Set<String> invalids = new HashSet<>();
@@ -991,6 +1006,8 @@ public class FirestorePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 Firestore connection, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Firestore plugin.";
+            System.out.println(printMessage);
             return Mono.fromSupplier(() -> {
                         Iterable<CollectionReference> collectionReferences = connection.listCollections();
 

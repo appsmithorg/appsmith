@@ -85,6 +85,8 @@ public class ArangoDBPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": execute() called for ArangoDB plugin.";
+            System.out.println(printMessage);
             if (!isConnectionValid(db)) {
                 return Mono.error(new StaleConnectionException(CONNECTION_INVALID_ERROR_MSG));
             }
@@ -176,6 +178,8 @@ public class ArangoDBPlugin extends BasePlugin {
         @Override
         public Mono<ArangoDatabase> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for ArangoDB plugin.";
+            System.out.println(printMessage);
             return (Mono<ArangoDatabase>) Mono.fromCallable(() -> {
                         List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
                                 .filter(endpoint -> isNonEmptyEndpoint(endpoint))
@@ -256,11 +260,17 @@ public class ArangoDBPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(ArangoDatabase db) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceDestroy() called for ArangoDB plugin.";
+            System.out.println(printMessage);
             db.arango().shutdown();
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for ArangoDB plugin.";
+            System.out.println(printMessage);
             Set<String> invalids = new HashSet<>();
 
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -305,6 +315,8 @@ public class ArangoDBPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(ArangoDatabase connection) {
+            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for ArangoDB plugin.";
+            System.out.println(printMessage);
             return Mono.fromCallable(() -> {
                         connection.getVersion();
                         return new DatasourceTestResult();
@@ -321,6 +333,8 @@ public class ArangoDBPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 ArangoDatabase db, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for ArangoDB plugin.";
+            System.out.println(printMessage);
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
@@ -381,6 +395,9 @@ public class ArangoDBPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for ArangoDB plugin.";
+            System.out.println(printMessage);
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier

@@ -80,6 +80,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": execute() called for ElasticSearch plugin.";
+            System.out.println(printMessage);
             final Map<String, Object> requestData = new HashMap<>();
 
             String query = actionConfiguration.getBody();
@@ -192,7 +194,9 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         @Override
         public Mono<RestClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceCreate() called for ElasticSearch plugin.";
+            System.out.println(printMessage);
             final List<HttpHost> hosts = new ArrayList<>();
 
             for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
@@ -247,6 +251,9 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for ElasticSearch plugin.";
+            System.out.println(printMessage);
             Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -271,6 +278,9 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(RestClient connection) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": testDatasource() called for ElasticSearch plugin.";
+            System.out.println(printMessage);
             return Mono.fromCallable(() -> {
                 if (connection == null) {
                     return new DatasourceTestResult("Null client object to ElasticSearch.");
@@ -320,6 +330,9 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for ElasticSearch plugin.";
+            System.out.println(printMessage);
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier

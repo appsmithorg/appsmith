@@ -79,6 +79,8 @@ public class DatabricksPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": execute() called for Databricks plugin.";
+            System.out.println(printMessage);
             String query = actionConfiguration.getBody();
 
             List<Map<String, Object>> rowsList = new ArrayList<>(INITIAL_ROWLIST_CAPACITY);
@@ -179,6 +181,9 @@ public class DatabricksPlugin extends BasePlugin {
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceCreate() called for Databricks plugin.";
+            System.out.println(printMessage);
             // Ensure the databricks JDBC driver is loaded.
             try {
                 Class.forName(JDBC_DRIVER);
@@ -292,6 +297,9 @@ public class DatabricksPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Connection connection) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceDestroy() called for Databricks plugin.";
+            System.out.println(printMessage);
             try {
                 if (connection != null) {
                     connection.close();
@@ -310,6 +318,8 @@ public class DatabricksPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 Connection connection, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Databricks plugin.";
+            System.out.println(printMessage);
             return Mono.fromSupplier(() -> {
                         final DatasourceStructure structure = new DatasourceStructure();
                         final Map<String, DatasourceStructure.Table> tablesByName =
