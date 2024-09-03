@@ -1556,7 +1556,8 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(eq)
       .then(($element) => {
-        const isVisible = Cypress.$($element).length > 0 ? true : false;
+        // Check if the element is present and visible
+        const isVisible = Cypress.$($element).length > 0 && Cypress.$($element).is(':visible');
         console.log(`Element visibility: ${isVisible}`);
         return isVisible;
       }) as Cypress.Chainable<boolean>;

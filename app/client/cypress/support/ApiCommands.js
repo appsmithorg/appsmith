@@ -94,8 +94,8 @@ Cypress.Commands.add(
         if (!isVisible) {
           agHelper.GetNClick(ApiEditor.apiLogResultPointer, index, true);
         } 
-        cy.get(ApiEditor.apiResponseObject).last().contains("request").click();
       });
+      cy.get(ApiEditor.apiResponseObject).last().contains("request").click();
     }    
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
