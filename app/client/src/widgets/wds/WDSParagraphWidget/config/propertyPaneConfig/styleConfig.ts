@@ -34,7 +34,6 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        isReusable: true,
         updateHook: fontSizeUpdateHook,
         validation: {
           type: ValidationTypes.TEXT,
