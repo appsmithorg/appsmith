@@ -1,77 +1,89 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "CHAT",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'GENERATE_CONTENT'}}"
   },
   "children": [
     {
-      "label": "Models",
-      "tooltipText": "Select the model for content generation",
-      "subtitle": "ID of the model to use.",
-      "isRequired": true,
-      "propertyName": "generate_content_model_id",
-      "configProperty": "actionConfiguration.formData.generateContentModel.data",
-      "controlType": "DROP_DOWN",
-      "initialValue": "",
-      "options": [],
-      "placeholderText": "All models will be fetched.",
-      "fetchOptionsConditionally": true,
-      "setFirstOptionAsDefault": true,
-      "alternateViewTypes": ["json"],
-      "conditionals": {
-        "enable": "{{true}}",
-        "fetchDynamicValues": {
-          "condition": "{{actionConfiguration.formData.command.data === 'GENERATE_CONTENT'}}",
-          "config": {
-            "params": {
-              "requestType": "GENERATE_CONTENT_MODELS",
-              "displayType": "DROP_DOWN"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "CHAT-Z1",
+      "children": [
+        {
+          "label": "Models",
+          "tooltipText": "Select the model for content generation",
+          "subtitle": "ID of the model to use.",
+          "isRequired": true,
+          "propertyName": "generate_content_model_id",
+          "configProperty": "actionConfiguration.formData.generateContentModel.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "All models will be fetched.",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'GENERATE_CONTENT'}}",
+              "config": {
+                "params": {
+                  "requestType": "GENERATE_CONTENT_MODELS",
+                  "displayType": "DROP_DOWN"
+                }
+              }
             }
           }
         }
-      }
+      ]
     },
     {
-      "label": "Messages",
-      "tooltipText": "Ask a question",
-      "subtitle": "A list of messages to generate the content",
-      "propertyName": "messages",
-      "isRequired": true,
-      "configProperty": "actionConfiguration.formData.messages.data",
-      "controlType": "ARRAY_FIELD",
-      "addMoreButtonLabel": "Add message",
-      "alternateViewTypes": ["json"],
-      "schema": [
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "CHAT-Z2",
+      "children": [
         {
-          "label": "Role",
-          "key": "role",
-          "controlType": "DROP_DOWN",
-          "initialValue": "user",
-          "options": [
+          "label": "Messages",
+          "tooltipText": "Ask a question",
+          "subtitle": "A list of messages to generate the content",
+          "propertyName": "messages",
+          "isRequired": true,
+          "configProperty": "actionConfiguration.formData.messages.data",
+          "controlType": "ARRAY_FIELD",
+          "addMoreButtonLabel": "Add message",
+          "alternateViewTypes": ["json"],
+          "schema": [
             {
-              "label": "User",
-              "value": "user"
+              "label": "Role",
+              "key": "role",
+              "controlType": "DROP_DOWN",
+              "initialValue": "user",
+              "options": [
+                {
+                  "label": "User",
+                  "value": "user"
+                }
+              ]
+            },
+            {
+              "label": "Type",
+              "key": "type",
+              "controlType": "DROP_DOWN",
+              "initialValue": "text",
+              "options": [
+                {
+                  "label": "Text",
+                  "value": "text"
+                }
+              ]
+            },
+            {
+              "label": "Content",
+              "key": "content",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "{{ UserInput.text }}"
             }
           ]
-        },
-        {
-          "label": "Type",
-          "key": "type",
-          "controlType": "DROP_DOWN",
-          "initialValue": "text",
-          "options": [
-            {
-              "label": "Text",
-              "value": "text"
-            }
-          ]
-        },
-        {
-          "label": "Content",
-          "key": "content",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "{{ UserInput.text }}"
         }
       ]
     }
