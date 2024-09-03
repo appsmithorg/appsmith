@@ -1552,6 +1552,16 @@ export class AggregateHelper {
     ) as Cypress.Chainable<boolean>;
   }
 
+  IsElementVisibleWithEq(selector: ElementType, eq: number = 0) {
+    return this.GetElement(selector)
+      .eq(eq)
+      .then(($element) => {
+        const isVisible = Cypress.$($element).length > 0 ? true : false;
+        console.log(`Element visibility: ${isVisible}`);
+        return isVisible;
+      }) as Cypress.Chainable<boolean>;
+  }
+
   public FailIfErrorToast(error: string) {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._toastMsg).length > 0) {

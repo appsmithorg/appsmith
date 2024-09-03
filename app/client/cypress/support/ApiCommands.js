@@ -85,13 +85,18 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
 
 Cypress.Commands.add(
   "validateRequest",
-  (apiName, baseurl, path, verb, error = false) => {
+  (apiName, baseurl, path, verb, error = false, index = 0) => {
     cy.get(".ads-v2-tabs__list").contains("Logs").click();
     cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
     agHelper.PressEnter(2000);
     if (!error) {
-      cy.get(ApiEditor.apiResponseObject).last().contains("request").click();
-    }
+      agHelper.IsElementVisibleWithEq(ApiEditor.apiResponseObject, index).then(isVisible => {
+        if (!isVisible) {
+          agHelper.GetNClick(ApiEditor.apiLogResultPointer, index, true);
+        } 
+        cy.get(ApiEditor.apiResponseObject).last().contains("request").click();
+      });
+    }    
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
     cy.get("[data-testid=t--tab-response]").first().click({ force: true });

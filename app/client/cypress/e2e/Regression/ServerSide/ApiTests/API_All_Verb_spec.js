@@ -44,6 +44,8 @@ describe(
           testdata.baseUrl,
           testdata.echoMethod,
           testdata.Put,
+          false,
+          0
         );
       });
       cy.ResponseCheck("updatedAt");
@@ -68,6 +70,8 @@ describe(
           testdata.baseUrl,
           testdata.echoMethod,
           testdata.Post,
+          false,
+          0
         );
       });
       cy.ResponseCheck("createdAt");
@@ -92,6 +96,8 @@ describe(
           testdata.baseUrl,
           testdata.echoMethod,
           testdata.Patch,
+          false,
+          0
         );
       });
       cy.ResponseCheck("updatedAt");
@@ -116,6 +122,8 @@ describe(
           testdata.baseUrl,
           testdata.echoMethod,
           testdata.Delete,
+          false,
+          0
         );
       });
     });
@@ -132,6 +140,8 @@ describe(
         testdata.baseUrl,
         testdata.methods,
         testdata.Get,
+        false,
+        0
       );
 
       apiPage.SelectPaneTab("Pagination");
@@ -149,6 +159,8 @@ describe(
         testdata.baseUrl,
         testdata.next,
         testdata.Get,
+        false,
+        0
       );
 
       apiPage.SelectPaneTab("Pagination");
@@ -165,6 +177,8 @@ describe(
         testdata.baseUrl,
         testdata.prev,
         testdata.Get,
+        false,
+        0
       );
     });
 
@@ -179,6 +193,8 @@ describe(
         testdata.baseUrl,
         testdata.queryAndValue,
         testdata.Get,
+        false,
+        0
       );
     });
 
@@ -194,6 +210,7 @@ describe(
         testdata.methods,
         testdata.Get,
         true,
+        0
       );
       cy.ResponseCheck("Invalid value for Content-Type");
     });
