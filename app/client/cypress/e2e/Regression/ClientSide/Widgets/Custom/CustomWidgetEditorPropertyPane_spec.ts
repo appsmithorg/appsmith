@@ -1,9 +1,15 @@
 import {
   agHelper,
+  assertHelper,
   deployMode,
   entityExplorer,
+  locators,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Custom widget Tests",
@@ -26,6 +32,9 @@ describe(
     };
 
     it("shoud check that default model changes are converyed to custom component", () => {
+      agHelper.AssertElementExist(locators._widgetInDeployed("customwidget"));
+      cy.intercept("https://api.segment.io/v1/b").as("widgetLoad");
+      assertHelper.WaitForNetworkCall("widgetLoad");
       getIframeBody().find(".tip-container").should("exist");
 
       agHelper.GetElement(".t--text-widget-container").should("have.text", "");
