@@ -7,9 +7,6 @@
         {
           "controlType": "SINGLE_COLUMN_ZONE",
           "identifier": "SO-Z1",
-          "conditionals": {
-            "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === true}}"
-          },
           "children": [
             {
               "label": "",
@@ -17,24 +14,21 @@
               "propertyName": "query_one",
               "configProperty": "actionConfiguration.body",
               "controlType": "QUERY_DYNAMIC_TEXT",
-              "evaluationSubstitutionType": "PARAMETER"
-            }
-          ]
-        },
-        {
-          "controlType": "SINGLE_COLUMN_ZONE",
-          "identifier": "SO-Z2",
-          "conditionals": {
-            "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === false}}"
-          },
-          "children": [
+              "evaluationSubstitutionType": "PARAMETER",
+              "conditionals": {
+                "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === true}}"
+              }
+            },
             {
               "label": "",
               "internalLabel": "Query",
               "propertyName": "query_two",
               "configProperty": "actionConfiguration.body",
               "controlType": "QUERY_DYNAMIC_TEXT",
-              "evaluationSubstitutionType": "TEMPLATE"
+              "evaluationSubstitutionType": "TEMPLATE",
+              "conditionals": {
+                "show": "{{actionConfiguration.pluginSpecifiedTemplates[0].value === false}}"
+              }
             }
           ]
         }
