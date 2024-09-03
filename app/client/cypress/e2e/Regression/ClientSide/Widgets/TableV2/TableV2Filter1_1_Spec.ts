@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   propPane,
@@ -8,12 +9,62 @@ import {
   draggableWidgets,
   agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
+
+const demoTableData = `
+{{
+  [
+    {
+      role: 10,
+      id: 1,
+      name: "Alice Johnson",
+      email: "alice.johnson@example.com",
+      age: 28,
+      gender: 2
+    },
+    {
+      role: 20,
+      id: 2,
+      name: "Bob Smith",
+      email: "bob.smith@example.com",
+      age: 34,
+      gender: 1
+    },
+    {
+      role: 30,
+      id: 3,
+      name: "Charlie Brown",
+      email: "charlie.brown@example.com",
+      age: 25,
+      gender: 3
+    },
+    {
+      role: 20,
+      id: 4,
+      name: "Diana Prince",
+      email: "diana.prince@example.com",
+      age: 30,
+      gender: 2
+    },
+    {
+      role: 10,
+      id: 5,
+      name: "Evan Williams",
+      email: "evan.williams@example.com",
+      age: 27,
+      gender: 1
+    }
+  ]
+}}
+  `;
 
 describe(
   "Verify various Table_Filter combinations",
   { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
-    it("1. Adding Data to Table Widget", function () {
+    it.only("1. Adding Data to Table Widget", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
       //propPane.EnterJSContext("Table data", JSON.stringify(this.dataSet.TableInput));
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
@@ -135,6 +186,47 @@ describe(
       table.OpenNFilterTable("productName", "is exactly", "Beef STEAK");
       table.WaitForTableEmpty("v2");
       table.RemoveFilterNVerify("2381224", true, true, 0, "v2");
+    });
+
+    it.only("11. Verify table search includes label and value for table with select column type", () => {
+      // This flag is turned on to allow the label show in the table select cell content
+      // when this feature is turned on fully, this flag will be removed
+      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.EnterJSContext("Table data", demoTableData);
+
+      // Edit role column to select type
+      table.ChangeColumnType("role", "Select", "v2");
+      table.EditColumn("role", "v2");
+      agHelper.UpdateCodeInput(
+        locators._controlOption,
+        `
+         {{
+           [
+             {"label": "Software Engineer",
+             "value": 10,},
+             {"label": "Product Manager",
+             "value": 20,},
+             {"label": "UX Designer",
+             "value": 30,}
+           ]
+         }}
+       `,
+      );
+      // Search for a label in the table
+      table.SearchTable("Software Engineer");
+      table.ReadTableRowColumnData(0, 2, "v2").then((afterSearch) => {
+        expect(afterSearch).to.eq("Software Engineer");
+      });
+      table.RemoveSearchTextNVerify("1", "v2");
+
+      // Search for a value in the table
+      table.SearchTable("20");
+      table.ReadTableRowColumnData(0, 2, "v2").then((afterSearch) => {
+        expect(afterSearch).to.eq("Product Manager");
+      });
+      table.RemoveSearchTextNVerify("1", "v2");
     });
   },
 );

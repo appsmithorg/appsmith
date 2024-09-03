@@ -587,8 +587,36 @@ export default {
       const columnWithDisplayText = Object.values(props.primaryColumns).filter(
         (column) => column.columnType === "url" && column.displayText,
       );
+
+      /*
+       * For select columns with label and values, we need to include the label value
+       * in the search
+       */
+      let labelValueForSelectCell = "";
+      const selectColumnKeys = [];
+      Object.entries(props.primaryColumns).forEach(([id, column]) => {
+        const isColumnSelectColumnType =
+          column?.columnType === "select" && column?.selectOptions?.length;
+        if (isColumnSelectColumnType) {
+          selectColumnKeys.push(id);
+        }
+      });
+      if (selectColumnKeys.length) {
+        selectColumnKeys.forEach((key) => {
+          const value = row[key];
+          const selectOptions =
+            primaryColumns[key].selectOptions[row.__originalIndex__];
+          const option = selectOptions.find((option) => option.value === value);
+
+          if (option) {
+            labelValueForSelectCell = option.label;
+          }
+        });
+      }
+
       const displayedRow = {
         ...row,
+        labelValueForSelectCell,
         ...columnWithDisplayText.reduce((acc, column) => {
           let displayText;
           if (_.isArray(column.displayText)) {
