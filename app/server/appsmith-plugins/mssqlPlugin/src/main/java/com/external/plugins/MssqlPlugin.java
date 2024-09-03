@@ -134,6 +134,9 @@ public class MssqlPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage =
+                    Thread.currentThread().getName() + ": executeParameterized() called for MSSQL plugin.";
+            System.out.println(printMessage);
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
             if (!StringUtils.hasLength(query)) {
@@ -182,6 +185,8 @@ public class MssqlPlugin extends BasePlugin {
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO) {
 
+            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for MSSQL plugin.";
+            System.out.println(printMessage);
             final Map<String, Object> requestData = new HashMap<>();
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
@@ -345,6 +350,8 @@ public class MssqlPlugin extends BasePlugin {
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for MSSQL plugin.";
+            System.out.println(printMessage);
             return Mono.fromCallable(() -> {
                         log.debug("Connecting to SQL Server db");
                         return createConnectionPool(datasourceConfiguration);
@@ -361,6 +368,8 @@ public class MssqlPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for MSSQL plugin.";
+            System.out.println(printMessage);
             Set<String> invalids = new HashSet<>();
 
             if (isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -404,6 +413,8 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for MSSQL plugin.";
+            System.out.println(printMessage);
             return MssqlDatasourceUtils.getStructure(connection, datasourceConfiguration);
         }
 
