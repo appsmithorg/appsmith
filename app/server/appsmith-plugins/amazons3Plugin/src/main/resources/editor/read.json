@@ -1,12 +1,12 @@
 {
   "identifier": "READ_FILE",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'READ_FILE'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
+      "controlType": "DOUBLE_COLUMN_ZONE",
       "label": "Select bucket to query",
       "children": [
         {
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "controlType": "SECTION",
+      "controlType": "DOUBLE_COLUMN_ZONE",
       "label": "Query",
       "description": "Optional",
       "children": [

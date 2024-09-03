@@ -1,7 +1,7 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
       "children": [
         {
