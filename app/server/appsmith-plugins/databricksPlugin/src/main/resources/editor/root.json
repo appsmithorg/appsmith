@@ -2,11 +2,11 @@
   "editor": [
     {
       "controlType": "SECTION_V2",
-      "identifier": "SECTION-ONE",
+      "identifier": "SELECTOR",
       "children": [
         {
           "controlType": "SINGLE_COLUMN_ZONE",
-          "identifier": "SO-Z1",
+          "identifier": "SELECTOR-Z1",
           "children": [
             {
               "label": "",
