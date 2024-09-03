@@ -302,7 +302,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
                     }
-                    return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
+                    return Flux.fromIterable(page.getLayouts()).parallel().flatMap(layout -> {
                         layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
                         return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                                 .name(UPDATE_LAYOUT_METHOD)
