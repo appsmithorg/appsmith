@@ -88,9 +88,6 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     private Mono<Boolean> isAutoCommitAllowed(Application defaultApplication, String branchName) {
         String defaultApplicationId = defaultApplication.getId();
 
-        log.info("Check for  auto commit  applicability on application {} and branch {}",
-            defaultApplicationId, branchName);
-
         if (!GitUtils.isAutoCommitEnabled(defaultApplication.getGitApplicationMetadata())) {
             log.info("Auto commit is disabled for application: {}", defaultApplicationId);
             return Mono.just(Boolean.FALSE);
@@ -163,8 +160,6 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
 
         return applicationMono
                 .flatMap(defaultApplication -> {
-                    log.info("Applicability check for auto commit on application {} and branch {}",
-                        defaultApplicationId, branchName);
                     return isAutoCommitAllowed(defaultApplication, finalBranchName)
                             .flatMap(isEligible -> {
                                 log.info(
