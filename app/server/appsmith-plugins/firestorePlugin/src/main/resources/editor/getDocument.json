@@ -1,17 +1,23 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "GET_DOCUMENT",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'GET_DOCUMENT'}}"
   },
   "children": [
     {
-      "label": "Collection/Document path",
-      "configProperty": "actionConfiguration.formData.path.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
-      "initialValue": ""
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "GET-DOCUMENT-Z1",
+      "children": [
+        {
+          "label": "Collection/Document path",
+          "configProperty": "actionConfiguration.formData.path.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
     }
   ]
 }

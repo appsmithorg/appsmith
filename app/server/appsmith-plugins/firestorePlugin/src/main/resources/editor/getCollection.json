@@ -1,101 +1,131 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "GET_COLLECTION",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'GET_COLLECTION'}}"
   },
   "children": [
     {
-      "label": "Collection Name",
-      "configProperty": "actionConfiguration.formData.path.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
-      "initialValue": ""
-    },
-    {
-      "label": "Where",
-      "configProperty": "actionConfiguration.formData.where.data",
-      "nestedLevels": 1,
-      "controlType": "WHERE_CLAUSE",
-      "-subtitle": "Array of Objects",
-      "-tooltipText": "Array of Objects",
-      "-alternateViewTypes": ["json"],
-      "logicalTypes": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "GET-COLLECTION-Z1",
+      "children": [
         {
-          "label": "AND",
-          "value": "AND"
-        }
-      ],
-      "comparisonTypes": [
-        {
-          "label": "==",
-          "value": "EQ"
-        },
-        {
-          "label": "<",
-          "value": "LT"
-        },
-        {
-          "label": "<=",
-          "value": "LTE"
-        },
-        {
-          "label": ">=",
-          "value": "GTE"
-        },
-        {
-          "label": ">",
-          "value": "GT"
-        },
-        {
-          "label": "in",
-          "value": "IN"
-        },
-        {
-          "label": "Contains",
-          "value": "ARRAY_CONTAINS"
-        },
-        {
-          "label": "Contains Any",
-          "value": "ARRAY_CONTAINS_ANY"
+          "label": "Collection Name",
+          "configProperty": "actionConfiguration.formData.path.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
         }
       ]
     },
     {
-      "label": "Order By",
-      "configProperty": "actionConfiguration.formData.orderBy.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "initialValue": "",
-      "placeholderText": "[\"ascKey\", \"-descKey\"]"
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "GET-COLLECTION-Z2",
+      "children": [
+        {
+          "label": "Where",
+          "configProperty": "actionConfiguration.formData.where.data",
+          "nestedLevels": 1,
+          "controlType": "WHERE_CLAUSE",
+          "-subtitle": "Array of Objects",
+          "-tooltipText": "Array of Objects",
+          "-alternateViewTypes": ["json"],
+          "logicalTypes": [
+            {
+              "label": "AND",
+              "value": "AND"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": "<",
+              "value": "LT"
+            },
+            {
+              "label": "<=",
+              "value": "LTE"
+            },
+            {
+              "label": ">=",
+              "value": "GTE"
+            },
+            {
+              "label": ">",
+              "value": "GT"
+            },
+            {
+              "label": "in",
+              "value": "IN"
+            },
+            {
+              "label": "Contains",
+              "value": "ARRAY_CONTAINS"
+            },
+            {
+              "label": "Contains Any",
+              "value": "ARRAY_CONTAINS_ANY"
+            }
+          ]
+        }
+      ]
     },
     {
-      "label": "Start After",
-      "configProperty": "actionConfiguration.formData.next.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "initialValue": "",
-      "palceholderText": ""
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "GET-COLLECTION-Z3",
+      "children": [
+        {
+          "label": "Order By",
+          "configProperty": "actionConfiguration.formData.orderBy.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": false,
+          "initialValue": "",
+          "placeholderText": "[\"ascKey\", \"-descKey\"]"
+        }
+      ]
     },
     {
-      "label": "End Before",
-      "configProperty": "actionConfiguration.formData.prev.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "initialValue": ""
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "GET-COLLECTION-Z4",
+      "children": [
+        {
+          "label": "Start After",
+          "configProperty": "actionConfiguration.formData.next.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": false,
+          "initialValue": "",
+          "palceholderText": ""
+        },
+        {
+          "label": "End Before",
+          "configProperty": "actionConfiguration.formData.prev.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": false,
+          "initialValue": ""
+        }
+      ]
     },
     {
-      "label": "Limit",
-      "configProperty": "actionConfiguration.formData.limitDocuments.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": false,
-      "palceholderText": "{{Table1.pageSize}}",
-      "initialValue": "10"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "GET-COLLECTION-Z5",
+      "children": [
+        {
+          "label": "Limit",
+          "configProperty": "actionConfiguration.formData.limitDocuments.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": false,
+          "palceholderText": "{{Table1.pageSize}}",
+          "initialValue": "10"
+        }
+      ]
     }
   ]
 }
