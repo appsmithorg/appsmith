@@ -82,6 +82,7 @@ export interface AnvilConfig {
 
 export interface WidgetBaseConfiguration {
   name: string;
+  displayOrder?: number;
   iconSVG?: string;
   thumbnailSVG?: string;
   hideCard?: boolean;

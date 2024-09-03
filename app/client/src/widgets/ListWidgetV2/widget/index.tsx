@@ -4,7 +4,6 @@ import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
 import { floor, isEmpty, isNil, isString } from "lodash";
-import { klona } from "klona";
 import hash from "object-hash";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -54,6 +53,7 @@ import defaultProps from "./defaultProps";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -643,7 +643,11 @@ class ListWidget extends BaseWidget<
     }
 
     if (!isEqual(this.prevMetaMainCanvasWidget, mainCanvasWidget)) {
-      this.prevMetaMainCanvasWidget = klona(mainCanvasWidget);
+      this.prevMetaMainCanvasWidget = klonaRegularWithTelemetry(
+        mainCanvasWidget,
+        "ListWidgetV2.generateMainMetaCanvasWidget",
+      );
+
       return mainCanvasWidget;
     }
   };
@@ -887,7 +891,12 @@ class ListWidget extends BaseWidget<
     const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
     const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
     const { componentHeight, componentWidth } = this.props;
-    const metaMainCanvas = klona(mainCanvasWidget) ?? {};
+
+    const metaMainCanvas =
+      klonaRegularWithTelemetry(
+        mainCanvasWidget,
+        "ListWidget.mainMetaCanvasWidget",
+      ) ?? {};
 
     const { metaWidgetId, metaWidgetName } =
       this.metaWidgetGenerator.getContainerParentCache() || {};
