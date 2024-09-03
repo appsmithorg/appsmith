@@ -203,24 +203,22 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<NewAction> findPublishedActionsByApplicationIdAndPluginType(
-            String applicationId, List<String> excludedPluginTypes, AclPermission aclPermission, Sort sort) {
+    public Flux<NewAction> findPublishedActionsByPageIdAndExcludedPluginType(
+            String pageId, List<String> excludedPluginTypes, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
-                .criteria(getCriterionForFindPublishedActionsByApplicationIdAndPluginType(
-                        applicationId, excludedPluginTypes))
+                .criteria(getCriterionForFindPublishedActionsByApplicationIdAndExcludedPluginType(
+                        pageId, excludedPluginTypes))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
     }
 
-    protected BridgeQuery<NewAction> getCriterionForFindPublishedActionsByApplicationIdAndPluginType(
-            String applicationId, List<String> excludedPluginTypes) {
-        final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
+    protected BridgeQuery<NewAction> getCriterionForFindPublishedActionsByApplicationIdAndExcludedPluginType(
+            String pageId, List<String> excludedPluginTypes) {
+        final BridgeQuery<NewAction> q = Bridge.equal(NewAction.Fields.publishedAction_pageId, pageId);
         q.and(Bridge.or(
                 Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
                 Bridge.isNull(NewAction.Fields.pluginType)));
-
-        q.isNotNull(NewAction.Fields.publishedAction_pageId);
 
         return q;
     }

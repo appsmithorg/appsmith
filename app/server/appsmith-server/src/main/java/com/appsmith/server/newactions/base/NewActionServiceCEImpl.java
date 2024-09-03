@@ -730,14 +730,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findAllByApplicationIdAndPluginType(
-            String applicationId,
-            Boolean viewMode,
-            AclPermission permission,
-            Sort sort,
-            List<String> excludedPluginTypes) {
+    public Flux<NewAction> findAllPublishedActionsByPageIdAndExcludedPluginTypes(
+            String pageId, AclPermission permission, Sort sort, List<String> excludedPluginTypes) {
         return repository
-                .findPublishedActionsByApplicationIdAndPluginType(applicationId, excludedPluginTypes, permission, sort)
+                .findPublishedActionsByPageIdAndExcludedPluginType(pageId, excludedPluginTypes, permission, sort)
                 .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -777,18 +773,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
+    public Flux<ActionViewDTO> getActionsForViewMode(String pageId) {
 
-        if (applicationId == null || applicationId.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+        if (pageId == null || pageId.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
         List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
 
         // fetch the published actions by applicationId
         // No need to sort the results
-        return findAllByApplicationIdAndPluginType(
-                        applicationId, true, actionPermission.getExecutePermission(), null, excludedPluginTypes)
+        return findAllPublishedActionsByPageIdAndExcludedPluginTypes(
+                        pageId, actionPermission.getExecutePermission(), null, excludedPluginTypes)
                 .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
     }
 
