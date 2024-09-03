@@ -39,7 +39,7 @@ let evalConfigPaths: string[] = [];
 
 // This regex matches the config property string up to countless places.
 export const MATCH_ACTION_CONFIG_PROPERTY =
-  /\b(actionConfiguration\.\w+.(?:(\w+.)){1,})\b/g;
+  /\b(actionConfiguration\.\w+(\[\d+\]\.){0,1}\w+)(?:(\w+.)){1,}\b/g;
 export function matchExact(r: RegExp, str: string) {
   const match = str.match(r);
   return match || [];
