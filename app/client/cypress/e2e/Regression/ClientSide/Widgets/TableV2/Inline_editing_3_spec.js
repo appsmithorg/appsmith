@@ -3,7 +3,9 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   table as tableHelper,
+  propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Table widget inline editing functionality",
@@ -161,7 +163,12 @@ describe(
     it("6. should check that onsubmit event is available for the columns that are editable", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      cy.wait(500);
+      cy.get(commonlocators.changeColType).last().click();
+      cy.get(tableHelper._dropdownText)
+        .children()
+        .contains("Plain text")
+        .click();
+      propPane.TogglePropertyState("Editable", "Off", "");
       [
         {
           columnType: "URL",
@@ -206,8 +213,7 @@ describe(
           .contains(data.columnType)
           .click();
         cy.wait("@updateLayout");
-        cy.wait(500);
-        cy.get(".t--property-control-onsubmit").should(data.expected);
+        cy.get(PROPERTY_SELECTOR.onSubmit).should(data.expected);
       });
 
       cy.get(propPaneBack).click();
@@ -262,8 +268,7 @@ describe(
           .contains(data.columnType)
           .click();
         cy.wait("@updateLayout");
-        cy.wait(500);
-        cy.get(".t--property-control-onsubmit").should(data.expected);
+        cy.get(PROPERTY_SELECTOR.onSubmit).should(data.expected);
       });
     });
 

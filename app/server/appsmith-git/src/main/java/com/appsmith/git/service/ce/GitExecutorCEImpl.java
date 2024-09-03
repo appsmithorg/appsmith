@@ -224,10 +224,8 @@ public class GitExecutorCEImpl implements GitExecutor {
         // open the repo
         Path baseRepoPath = createRepoPath(repoSuffix);
 
-        return gitConfig
-                .getIsAtomicPushAllowed()
-                .flatMap(isAtomicPushAllowed -> {
-                    return Mono.using(
+        return gitConfig.getIsAtomicPushAllowed().flatMap(isAtomicPushAllowed -> {
+            return Mono.using(
                             () -> Git.open(baseRepoPath.toFile()),
                             git -> Mono.fromCallable(() -> {
                                         log.debug(Thread.currentThread().getName() + ": pushing changes to remote "
@@ -265,9 +263,12 @@ public class GitExecutorCEImpl implements GitExecutor {
                                     .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                     .name(GitSpan.FS_PUSH)
                                     .tap(Micrometer.observation(observationRegistry)),
-                            Git::close);
-                })
-                .subscribeOn(scheduler);
+                            Git::close)
+                    // this subscribeOn on is required because Mono.using
+                    // is not deferring the execution of push and for that reason it runs on the
+                    // lettuce-nioEventLoop thread instead of boundedElastic
+                    .subscribeOn(scheduler);
+        });
     }
 
     /** Clone the repo to the file path : container-volume/orgId/defaultAppId/repo/<Data>
