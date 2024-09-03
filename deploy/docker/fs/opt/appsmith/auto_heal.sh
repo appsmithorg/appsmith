@@ -31,6 +31,8 @@ do
         if [[ "$appsmith_status" -ne 200 ]];
         then
                 echo "TIMESTAMP=`date "+%Y-%m-%d %H:%M:%S"` backend is unresponsive";
+	        /opt/appsmith/record-heap-dump.sh || echo true
+	        /opt/appsmith/record-thread-dump.sh || echo true
                 supervisorctl restart backend || echo true
         else
                 echo "TIMESTAMP=`date "+%Y-%m-%d %H:%M:%S"` backend is responsive";
