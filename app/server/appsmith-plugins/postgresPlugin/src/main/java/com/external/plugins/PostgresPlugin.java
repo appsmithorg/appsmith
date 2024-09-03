@@ -689,9 +689,6 @@ public class PostgresPlugin extends BasePlugin {
                         invalids.add(
                                 String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                     }
-                    if (StringUtils.isEmpty(endpoint.getPort())) {
-                        invalids.add(PostgresErrorMessages.DS_MISSING_PORT_ERROR_MSG);
-                    }
                 }
             }
 

@@ -37,8 +37,6 @@ public class PostgresErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_MISSING_HOSTNAME_ERROR_MSG = "Missing hostname.";
 
-    public static final String DS_MISSING_PORT_ERROR_MSG = "Missing port.";
-
     public static final String DS_INVALID_HOSTNAME_ERROR_MSG =
             "Host value cannot contain `/` or `:` characters. Found `%s`.";
 
