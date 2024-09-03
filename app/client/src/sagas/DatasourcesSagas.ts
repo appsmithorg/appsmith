@@ -803,7 +803,10 @@ function* getOAuthAccessTokenSaga(
       type: ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
       payload: {
         datasourceId: datasourceId,
-        message: OAUTH_AUTHORIZATION_FAILED,
+        show: true,
+        error: {
+          message: OAUTH_AUTHORIZATION_FAILED,
+        },
       },
     });
     log.error(e);
@@ -2102,7 +2105,12 @@ function* updateDatasourceAuthStateSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
-      payload: { error, show: true, message: OAUTH_AUTHORIZATION_FAILED },
+      payload: {
+        error: {
+          message: OAUTH_AUTHORIZATION_FAILED,
+        },
+        show: true,
+      },
     });
   }
 }

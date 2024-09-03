@@ -1,5 +1,8 @@
 import { get } from "lodash";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  type ReduxAction,
+  toastMessageErrorTypes,
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -34,6 +37,10 @@ import AppsmithConsole from "../utils/AppsmithConsole";
 import type { SourceEntity } from "../entities/AppsmithConsole";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import type { APP_MODE } from "../entities/App";
+
+const shouldShowToast = (action: string) => {
+  return action in toastMessageErrorTypes;
+};
 
 /**
  * making with error message with action name
@@ -216,7 +223,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const message = getErrorMessageFromActionType(type, error);
   const appMode: APP_MODE = yield select(getAppMode);
 
-  if (show || appMode === "PUBLISHED") {
+  if (show || appMode === "PUBLISHED" || shouldShowToast(type)) {
     effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
 

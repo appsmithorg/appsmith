@@ -20,7 +20,7 @@ const initialState: DebuggerReduxState = {
   isOpen: false,
   errors: {},
   expandId: "",
-  hideErrors: false,
+  hideErrors: true,
   context: DefaultDebuggerContext,
 };
 

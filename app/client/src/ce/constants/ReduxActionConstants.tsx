@@ -1334,6 +1334,20 @@ export const ReduxActionErrorTypes = {
   ...WorkspaceActionErrorTypes,
 };
 
+export const toastMessageErrorTypes = {
+  ...AdminSettingsActionErrorTypes,
+  ...ApplicationActionErrorTypes,
+  ...AppViewActionErrorTypes,
+  ...DatasourceEditorActionErrorTypes,
+  ...GitActionErrorTypes,
+  ...ImportExportActionErrorTypes,
+  ...PlatformActionErrorTypes,
+  ...TenantActionErrorTypes,
+  ...UserAuthActionErrorTypes,
+  ...UserProfileActionErrorTypes,
+  ...WorkspaceActionErrorTypes,
+};
+
 export type ReduxActionErrorType =
   (typeof ReduxActionErrorTypes)[keyof typeof ReduxActionErrorTypes];
 

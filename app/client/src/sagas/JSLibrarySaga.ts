@@ -249,6 +249,7 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       yield put({
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
         payload: {
+          show: true,
           accessor,
           error: {
             message: createMessage(
