@@ -7,7 +7,6 @@
   "children": [
     {
       "controlType": "DOUBLE_COLUMN_ZONE",
-      "label": "Select bucket to query",
       "children": [
         {
           "label": "Bucket name",
@@ -27,7 +26,6 @@
     },
     {
       "controlType": "DOUBLE_COLUMN_ZONE",
-      "label": "Query",
       "description": "Optional",
       "children": [
         {
@@ -56,7 +54,6 @@
     },
     {
       "controlType": "SINGLE_COLUMN_ZONE",
-      "label": "Query",
       "description": "Optional",
       "children": [
         {

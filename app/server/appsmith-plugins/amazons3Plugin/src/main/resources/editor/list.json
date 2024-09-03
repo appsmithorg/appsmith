@@ -7,7 +7,6 @@
   "children": [
     {
       "controlType": "DOUBLE_COLUMN_ZONE",
-      "label": "Select bucket to query",
       "children": [
         {
           "label": "Bucket name",
@@ -27,7 +26,6 @@
     },
     {
       "controlType": "DOUBLE_COLUMN_ZONE",
-      "label": "Select bucket to query",
       "children": [
         {
           "label": "Generate signed URL",
@@ -83,7 +81,6 @@
     },
     {
       "controlType": "SINGLE_COLUMN_ZONE",
-      "label": "Query",
       "description": "Optional",
       "children": [
         {
@@ -127,7 +124,6 @@
     },
     {
       "controlType": "SINGLE_COLUMN_ZONE",
-      "label": "Options",
       "children": [
         {
           "label": "Sort data",
@@ -141,7 +137,6 @@
     },
     {
       "controlType": "SINGLE_COLUMN_ZONE",
-      "label": "Options",
       "children": [
         {
           "label": "Paginate data",
