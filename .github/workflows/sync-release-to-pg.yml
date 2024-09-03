@@ -16,22 +16,6 @@ jobs:
           ref: release  # Checkout the release branch
           fetch-depth: 0
 
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: app/client/package.json
-
-      # actions/setup-node@v4 doesn’t work properly with Yarn 3
-      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
-      # Restoring the cache manually instead
-      - name: Restore Yarn cache
-        uses: actions/cache@v4
-        with:
-          path: app/client/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
-
       - name: Set Git config values
         run: |
           git config pull.rebase false
