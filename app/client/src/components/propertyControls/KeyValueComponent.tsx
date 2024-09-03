@@ -214,6 +214,8 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
             />
             <StyledBox />
             <Button
+              // At least one pair must be present
+              isDisabled={renderPairs.length <= 1}
               isIconButton
               kind="tertiary"
               onClick={(e: React.MouseEvent) => {
