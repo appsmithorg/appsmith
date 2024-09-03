@@ -39,6 +39,7 @@ import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { createNewQueryBasedOnParentEntity } from "ee/actions/helpers";
 import { useWorkflowOptions } from "ee/utils/workflowHelpers";
+import urlBuilder, { EDITOR_TYPE } from "ee/entities/URLRedirect/URLAssembly";
 
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;
@@ -127,8 +128,13 @@ export const useFilteredAndSortedFileOperations = ({
    */
   const actionOps = updateActionOperations(plugins, actionOperations);
 
-  // Add JS Object operation
-  fileOperations.push(actionOps[2]);
+  // We don't want to show the create new JS object option if the user is in the workflow editor
+  // this is done since worflows runner doesn't support multiple JS objects
+  // TODO: Remove this check once workflows can support multiple JS objects
+  if (urlBuilder.getDefaultEditorType() !== EDITOR_TYPE.WORKFLOW) {
+    // Add JS Object operation
+    fileOperations.push(actionOps[2]);
+  }
 
   // Add Module operations
   if (moduleOptions.length > 0) {
