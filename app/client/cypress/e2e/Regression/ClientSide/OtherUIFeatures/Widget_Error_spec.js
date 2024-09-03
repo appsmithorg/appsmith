@@ -44,8 +44,8 @@ describe("Widget error state", function () {
     );
 
     // All errors should be expanded by default
-    //Updated count to 1 as the decision not to show triggerexecution/uncaughtpromise error in - epic 17720
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(1);
+    //Updated count to 2 as the decision to show the widget trigger lint errors to show in the debugger
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
 
     // Recent errors are shown at the top of the list
     cy.testJsontext("label", "{{[]}}");

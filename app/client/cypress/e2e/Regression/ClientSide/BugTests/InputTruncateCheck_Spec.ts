@@ -191,7 +191,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         debuggerHelper.CloseBottomBar();
         agHelper.GetNClick(getWidgetSelector(draggableWidgets.BUTTON));
         agHelper.ValidateToastMessage(
-          `'${testConfig.widgetPrefixName}1' is not defined`,
+          `${testConfig.widgetPrefixName}1 is not defined`,
         );
         agHelper.PressDelete();
 
