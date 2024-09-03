@@ -63,7 +63,7 @@ describe("Widget error state", function () {
     cy.deleteWidget();
     _.debuggerHelper.AssertVisibleErrorMessagesCount(0);
     cy.get("body").type(`{${modifierKey}}z`);
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(3);
 
     //Bug-2760: Error log on a widget property not clearing out when the widget property is deleted
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);

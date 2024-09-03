@@ -60,7 +60,6 @@ export function* logJSVarCreatedEvent(
 export function* showExecutionErrors(errors: EvaluationError[]) {
   const appMode: APP_MODE = yield select(getAppMode);
   for (const error of errors) {
-    // in view mode we will show the error messages in toast
     const errorMessage = get(
       error,
       "errorMessage.message.message",
@@ -71,6 +70,12 @@ export function* showExecutionErrors(errors: EvaluationError[]) {
       errorMessage,
       appMode === APP_MODE.EDIT,
     );
+    // Add it to the logs tab when in edit mode
+    if (appMode === APP_MODE.EDIT) {
+      AppsmithConsole.error({
+        text: errorMessage,
+      });
+    }
   }
 }
 

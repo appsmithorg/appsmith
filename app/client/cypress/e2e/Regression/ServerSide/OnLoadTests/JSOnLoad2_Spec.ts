@@ -35,7 +35,7 @@ describe(
       AssertJSOnPageLoad("runSpaceCraftImages");
     });
 
-    it.only("3. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while imported - failing JSObj", () => {
+    it("3. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while imported - failing JSObj", () => {
       homePage.ImportApp("ImportApps/JSOnLoadFailureTest.json", "JSOnLoadTest");
       cy.wait("@importNewApplication").then(() => {
         homePage.AssertImportToast();
