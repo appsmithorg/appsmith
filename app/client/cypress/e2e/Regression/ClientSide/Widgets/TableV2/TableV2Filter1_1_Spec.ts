@@ -64,7 +64,7 @@ describe(
   "Verify various Table_Filter combinations",
   { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
-    it.only("1. Adding Data to Table Widget", function () {
+    it("1. Adding Data to Table Widget", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
       //propPane.EnterJSContext("Table data", JSON.stringify(this.dataSet.TableInput));
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
@@ -188,7 +188,7 @@ describe(
       table.RemoveFilterNVerify("2381224", true, true, 0, "v2");
     });
 
-    it.only("11. Verify table search includes label and value for table with select column type", () => {
+    it("11. Verify table search includes label and value for table with select column type", () => {
       // This flag is turned on to allow the label show in the table select cell content
       // when this feature is turned on fully, this flag will be removed
       featureFlagIntercept({ release_table_cell_label_value_enabled: true });
