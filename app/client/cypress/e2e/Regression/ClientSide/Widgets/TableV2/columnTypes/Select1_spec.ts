@@ -42,7 +42,8 @@ describe(
       cy.updateCodeInput(
         ".t--property-control-options",
         `
-      [
+      {{
+        [
         {
           "label": "#1",
           "value": "#1"
@@ -56,6 +57,7 @@ describe(
           "value": "#3"
         }
       ]
+      }}
     `,
       );
       cy.editTableSelectCell(0, 0);
@@ -84,12 +86,14 @@ describe(
       cy.updateCodeInput(
         ".t--property-control-options",
         `
+      {{
       [
         {
           "label": "test",
           "value": "test"
         }
-      ]
+      ]  
+      }}
     `,
       );
       cy.wait(500);
@@ -175,6 +179,7 @@ describe(
       cy.updateCodeInput(
         ".t--property-control-options",
         `
+      {{
       [
         {
           "label": "#1label",
@@ -188,7 +193,8 @@ describe(
           "label": "#3label",
           "value": "#3value"
         }
-      ]
+      ]  
+      }}
     `,
       );
       cy.editTableSelectCell(0, 0);
