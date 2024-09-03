@@ -654,15 +654,11 @@ public class PostgresPlugin extends BasePlugin {
                         e.getMessage()));
             }
 
-            return connectionPoolConfig
-                    .getMaxConnectionPoolSize()
-                    .flatMap(maxPoolSize -> {
-                        return Mono.fromCallable(() -> {
-                            log.debug("Connecting to Postgres db");
-                            return createConnectionPool(datasourceConfiguration, maxPoolSize);
-                        });
+            return connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> Mono.fromCallable(() -> {
+                        log.info("Connecting to Postgres db");
+                        return createConnectionPool(datasourceConfiguration, maxPoolSize);
                     })
-                    .subscribeOn(scheduler);
+                    .subscribeOn(scheduler));
         }
 
         @Override
