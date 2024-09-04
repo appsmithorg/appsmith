@@ -310,7 +310,7 @@ public class MongoPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": executeCommon() called for Mongo plugin.";
             System.out.println(printMessage);
             if (mongoClient == null) {
-                log.info("Encountered null connection in MongoDB plugin. Reporting back.");
+                System.out.println("Encountered null connection in MongoDB plugin. Reporting back.");
                 throw new StaleConnectionException(MONGO_CLIENT_NULL_ERROR_MSG);
             }
             Mono<Document> mongoOutputMono;

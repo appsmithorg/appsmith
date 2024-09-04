@@ -430,9 +430,9 @@ public class SnowflakePlugin extends BasePlugin {
                                 table.getKeys().sort(Comparator.naturalOrder());
                             }
                         } catch (SQLException throwable) {
-                            log.error(
-                                    "Exception caught while fetching structure of Snowflake datasource. Cause: ",
-                                    throwable);
+                            System.out.println(
+                                    "Exception caught while fetching structure of Snowflake datasource. Cause:");
+                            throwable.printStackTrace();
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     SnowflakeErrorMessages.GET_STRUCTURE_ERROR_MSG,

@@ -226,7 +226,7 @@ public class MssqlPlugin extends BasePlugin {
                             if (sqlConnectionFromPool == null
                                     || sqlConnectionFromPool.isClosed()
                                     || !sqlConnectionFromPool.isValid(VALIDITY_CHECK_TIMEOUT)) {
-                                log.info("Encountered stale connection in MsSQL plugin. Reporting back.");
+                                System.out.println("Encountered stale connection in MsSQL plugin. Reporting back.");
 
                                 if (sqlConnectionFromPool == null) {
                                     return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
@@ -245,7 +245,8 @@ public class MssqlPlugin extends BasePlugin {
                             // This exception is thrown only when the timeout to `isValid` is negative. Since, that's
                             // not the case,
                             // here, this should never happen.
-                            log.error("Error checking validity of MsSQL connection.", error);
+                            System.out.println("Error checking validity of MsSQL connection.");
+                            error.printStackTrace();
                         }
 
                         // Log HikariCP status

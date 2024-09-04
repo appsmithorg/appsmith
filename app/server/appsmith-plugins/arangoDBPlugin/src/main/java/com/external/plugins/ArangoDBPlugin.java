@@ -325,7 +325,8 @@ public class ArangoDBPlugin extends BasePlugin {
                         return new DatasourceTestResult();
                     })
                     .onErrorResume(error -> {
-                        log.error("Error when testing ArangoDB datasource.", error);
+                        System.out.println("Error when testing ArangoDB datasource.");
+                        error.printStackTrace();
                         return Mono.just(new DatasourceTestResult(arangoDBErrorUtils.getReadableError(error)));
                     })
                     .timeout(
