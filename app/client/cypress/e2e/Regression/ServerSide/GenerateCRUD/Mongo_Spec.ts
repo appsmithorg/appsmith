@@ -42,21 +42,14 @@ describe(
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
       GenerateCRUDNValidateDeployPage(
-        "http://www.serebii.net/pokemongo/pokemon/150.png",
-        "150",
-        `["Bug","Ghost","Dark"]`,
+        "http://www.serebii.net/pokemongo/pokemon/144.png",
+        "144",
+        `["Fire","Electric","Rock","Steel"]`,
         10,
       );
 
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
-
-      //Delete the test data
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Page2",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
 
       //Should not be able to delete ds until app is published again
       //coz if app is published & shared then deleting ds may cause issue, So!
@@ -65,8 +58,15 @@ describe(
         dataSources.DeleteDatasourceFromWithinDS(dsName as string, 409);
       });
 
-      // deployMode.DeployApp();
-      // agHelper.NavigateBacktoEditor();
+      //Delete the test data
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Page2",
+        action: "Delete",
+        entityType: entityItems.Page,
+      });
+
+      deployMode.DeployApp();
+      deployMode.NavigateBacktoEditor();
     });
 
     it("2. Generate CRUD page from datasource present in ACTIVE section", function () {
