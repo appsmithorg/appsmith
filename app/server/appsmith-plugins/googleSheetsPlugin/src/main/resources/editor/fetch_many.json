@@ -1,76 +1,82 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "FETCH_MANY",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{!!actionConfiguration.formData.entityType.data && actionConfiguration.formData.entityType.data !== 'SPREADSHEET' && actionConfiguration.formData.command.data === 'FETCH_MANY' && !!actionConfiguration.formData.sheetName.data}}"
   },
   "children": [
     {
-      "label": "Columns",
-      "tooltipText": "The columns to fetch from the google sheet",
-      "propertyName": "rows_get_projection",
-      "configProperty": "actionConfiguration.formData.projection.data",
-      "controlType": "PROJECTION",
-      "initialValue": [],
-      "options": [],
-      "placeholderText": "All columns will be fetched.",
-      "fetchOptionsConditionally": true,
-      "alternateViewTypes": ["json"],
-      "conditionals": {
-        "enable": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data && !!actionConfiguration.formData.tableHeaderIndex.data}}",
-        "fetchDynamicValues": {
-          "condition": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data && !!actionConfiguration.formData.tableHeaderIndex.data}}",
-          "config": {
-            "params": {
-              "requestType": "COLUMNS_SELECTOR",
-              "displayType": "DROP_DOWN",
-              "parameters": {
-                "sheetUrl": "{{actionConfiguration.formData.sheetUrl.data}}",
-                "sheetName": "{{actionConfiguration.formData.sheetName.data}}",
-                "tableHeaderIndex": "{{actionConfiguration.formData.tableHeaderIndex.data}}"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "FETCH_MANY-Z1",
+      "children": [
+        {
+          "label": "Columns",
+          "tooltipText": "The columns to fetch from the google sheet",
+          "propertyName": "rows_get_projection",
+          "configProperty": "actionConfiguration.formData.projection.data",
+          "controlType": "PROJECTION",
+          "initialValue": [],
+          "options": [],
+          "placeholderText": "All columns will be fetched.",
+          "fetchOptionsConditionally": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data && !!actionConfiguration.formData.tableHeaderIndex.data}}",
+            "fetchDynamicValues": {
+              "condition": "{{!!actionConfiguration.formData.sheetUrl.data && !!actionConfiguration.formData.sheetName.data && !!actionConfiguration.formData.tableHeaderIndex.data}}",
+              "config": {
+                "params": {
+                  "requestType": "COLUMNS_SELECTOR",
+                  "displayType": "DROP_DOWN",
+                  "parameters": {
+                    "sheetUrl": "{{actionConfiguration.formData.sheetUrl.data}}",
+                    "sheetName": "{{actionConfiguration.formData.sheetName.data}}",
+                    "tableHeaderIndex": "{{actionConfiguration.formData.tableHeaderIndex.data}}"
+                  }
+                }
               }
             }
           }
-        }
-      }
-    },
-    {
-      "label": "Filter Format",
-      "tooltipText": "The format of the filter to be applied on the data",
-      "propertyName": "rows_get_queryFormat",
-      "conditionals": {
-        "show": "{{actionConfiguration.formData.entityType.data === 'ROWS'}}"
-      },
-      "configProperty": "actionConfiguration.formData.queryFormat.data",
-      "controlType": "DROP_DOWN",
-      "initialValue": "ROWS",
-      "options": [
+        },
         {
-          "label": "Where Clause",
-          "value": "ROWS"
+          "label": "Filter Format",
+          "tooltipText": "The format of the filter to be applied on the data",
+          "propertyName": "rows_get_queryFormat",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.entityType.data === 'ROWS'}}"
+          },
+          "configProperty": "actionConfiguration.formData.queryFormat.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "ROWS",
+          "options": [
+            {
+              "label": "Where Clause",
+              "value": "ROWS"
+            },
+            {
+              "label": "Cell range",
+              "value": "RANGE"
+            }
+          ]
         },
         {
           "label": "Cell range",
-          "value": "RANGE"
+          "propertyName": "rows_get_cellRange",
+          "tooltipText": "The Google Sheet notation of cells to filter (A1:B)",
+          "subtitle": "Specify the google sheet range of cells",
+          "configProperty": "actionConfiguration.formData.range.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.queryFormat.data === 'RANGE'}}"
+          },
+          "initialValue": "",
+          "placeholderText": "A2:Z"
         }
       ]
     },
     {
-      "label": "Cell range",
-      "propertyName": "rows_get_cellRange",
-      "tooltipText": "The Google Sheet notation of cells to filter (A1:B)",
-      "subtitle": "Specify the google sheet range of cells",
-      "configProperty": "actionConfiguration.formData.range.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "conditionals": {
-        "show": "{{actionConfiguration.formData.queryFormat.data === 'RANGE'}}"
-      },
-      "initialValue": "",
-      "placeholderText": "A2:Z"
-    },
-    {
-      "identifier": "ROWS_SECTION",
-      "controlType": "SECTION",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "ROWS-SECTION-Z2",
       "label": "Rows Section",
       "conditionals": {
         "show": "{{actionConfiguration.formData.queryFormat.data === 'ROWS'}}"
@@ -133,7 +139,17 @@
             }
           ],
           "alternateViewTypes": ["json"]
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "ROWS-SECTION-Z3",
+      "label": "Rows Section",
+      "conditionals": {
+        "show": "{{actionConfiguration.formData.queryFormat.data === 'ROWS'}}"
+      },
+      "children": [
         {
           "label": "Sort By",
           "tooltipText": "The parameters to sort the data by",
@@ -142,7 +158,17 @@
           "-subtitle": "Array of Objects",
           "-tooltipText": "Array of Objects",
           "alternateViewTypes": ["json"]
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "ROWS-SECTION-Z4",
+      "label": "Rows Section",
+      "conditionals": {
+        "show": "{{actionConfiguration.formData.queryFormat.data === 'ROWS'}}"
+      },
+      "children": [
         {
           "label": "",
           "configProperty": "actionConfiguration.formData.pagination.data",
