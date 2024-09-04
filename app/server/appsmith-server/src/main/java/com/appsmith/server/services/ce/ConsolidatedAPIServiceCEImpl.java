@@ -198,11 +198,14 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Fetch default application id if not provided */
         Mono<Application> branchedApplicationMonoCached;
-        Mono<NewPage> branchedPageMonoCached;
-        if (isBlank(baseApplicationId)) {
+        Mono<NewPage> branchedPageMonoCached = Mono.empty();
+        if (!isBlank(basePageId)) {
             branchedPageMonoCached = newPageService
                     .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
                     .cache();
+        }
+
+        if (isBlank(baseApplicationId)) {
             branchedApplicationMonoCached = branchedPageMonoCached
                     .map(NewPage::getApplicationId)
                     .flatMap(applicationId ->
@@ -211,7 +214,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .tap(Micrometer.observation(observationRegistry))
                     .cache();
         } else {
-            branchedPageMonoCached = Mono.empty();
             branchedApplicationMonoCached = applicationService
                     .findByBaseIdBranchNameAndApplicationMode(baseApplicationId, branchName, mode)
                     .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
