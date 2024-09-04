@@ -14,6 +14,7 @@
               "configProperty": "actionConfiguration.formData.body.data",
               "controlType": "QUERY_DYNAMIC_TEXT",
               "evaluationSubstitutionType": "PARAMETER",
+              "propertyName": "oracleQueryNonPrepared",
               "conditionals": {
                 "show": "{{actionConfiguration.formData.preparedStatement.data === false}}"
               }
@@ -24,6 +25,7 @@
               "configProperty": "actionConfiguration.formData.body.data",
               "controlType": "QUERY_DYNAMIC_TEXT",
               "evaluationSubstitutionType": "TEMPLATE",
+              "propertyName": "oracleQueryPrepared",
               "conditionals": {
                 "show": "{{actionConfiguration.formData.preparedStatement.data === true}}"
               }
