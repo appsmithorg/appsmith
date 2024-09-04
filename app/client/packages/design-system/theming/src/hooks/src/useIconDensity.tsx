@@ -1,23 +1,16 @@
-import { useEffect, useState } from "react";
-import type { IconDensity, TokenObj } from "../../token";
+import { useMemo } from "react";
+import type { IconDensity } from "../../token";
 
 export const useIconDensity = (density: IconDensity, userDensity = 1) => {
-  const [strokeWidth, setStrokeWidth] = useState<TokenObj>();
-
-  useEffect(() => {
-    switch (true) {
-      case userDensity < 1:
-        setStrokeWidth(density.tight);
-        break;
-      case userDensity === 1:
-        setStrokeWidth(density.regular);
-        break;
-      case userDensity > 1:
-        setStrokeWidth(density.loose);
-        break;
-      default:
-        setStrokeWidth(density.regular);
-        break;
+  const strokeWidth = useMemo(() => {
+    if (userDensity < 1) {
+      return density.tight;
+    } else if (userDensity === 1) {
+      return density.regular;
+    } else if (userDensity > 1) {
+      return density.loose;
+    } else {
+      return density.regular;
     }
   }, [userDensity, density]);
 

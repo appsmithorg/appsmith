@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { FONT_METRICS, TYPOGRAPHY_VARIANTS } from "../../token";
 import { calculateScales } from "./calculateScales";
 import { createStyleObject } from "@capsizecss/core";
@@ -61,15 +61,12 @@ export const getTypography = (
 
 export const useTypography = (
   config: TokenScaleConfig,
-  fontFamily?: FontFamily,
   userDensity = 1,
   userSizing = 1,
 ) => {
-  const [typography, setTypography] = useState<Typography | null>(null);
-
-  useEffect(() => {
-    setTypography(getTypography(config, userDensity, userSizing, fontFamily));
-  }, [userDensity, userSizing, fontFamily, config]);
+  const typography = useMemo(() => {
+    return getTypography(config, userDensity, userSizing);
+  }, [config, userDensity, userSizing]);
 
   return {
     typography,

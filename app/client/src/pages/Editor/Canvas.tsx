@@ -56,7 +56,6 @@ const Canvas = (props: CanvasProps) => {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
     colorMode: themeSetting.colorMode.toLowerCase(),
-    fontFamily: themeSetting.fontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
     iconStyle: themeSetting.iconStyle.toLowerCase(),
