@@ -10,31 +10,12 @@ public class ActionCollectionSpanCE {
     // Action Collection spans
     public static final String ACTION_COLLECTION = "actionCollection.";
     public static final String ACTION_COLLECTION_VIEW_MODE_PREFIX = ACTION_COLLECTION;
-    public static final String ACTION_COLLECTION_CREATE_ACTION = APPSMITH_SPAN_PREFIX + "create.action.inCollection";
-    public static final String ACTION_COLLECTION_UPDATE_ACTION = APPSMITH_SPAN_PREFIX + "update.action.inCollection";
-    public static final String ACTION_COLLECTION_DELETE_ACTION = APPSMITH_SPAN_PREFIX + "delete.action.inCollection";
 
-    public static final String ACTION_COLLECTION_VALIDATE_ACTIONS = APPSMITH_SPAN_PREFIX + "validate.actions";
     public static final String ACTION_COLLECTION_UPDATE = APPSMITH_SPAN_PREFIX + "update.actionCollection";
-    public static final String UPDATE_LAYOUT_BASED_ON_CONTEXT = APPSMITH_SPAN_PREFIX + "update.layout.context";
     public static final String GENERATE_ACTION_COLLECTION_BY_VIEW_MODE = APPSMITH_SPAN_PREFIX + "generate.actions";
     public static final String POPULATE_ACTION_COLLECTION_BY_VIEW_MODE = APPSMITH_SPAN_PREFIX + "populate.actions";
     public static final String SAVE_LAST_EDIT_INFORMATION_IN_PARENT = APPSMITH_SPAN_PREFIX + "save.lastEditInfo";
-    public static final String UPDATE_SINGLE_ACTION = APPSMITH_SPAN_PREFIX + "update.single.action";
-    public static final String UPDATE_ACTION_BASED_ON_CONTEXT = APPSMITH_SPAN_PREFIX + "update.action.context";
-    public static final String UPDATE_PAGE_LAYOUT_BY_PAGE_ID = APPSMITH_SPAN_PREFIX + "update.pageLayout.pageId";
-    public static final String UPDATE_LAYOUT_METHOD = APPSMITH_SPAN_PREFIX + "update.layout.method";
-    public static final String UPDATE_LAYOUT_DSL_METHOD = APPSMITH_SPAN_PREFIX + "update.layout.dsl.method";
-    public static final String FIND_ALL_ON_LOAD_EXECUTABLES =
-            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAllOnLoadExecutables";
-    public static final String UPDATE_EXECUTABLES_EXECUTE_ONLOAD =
-            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.updateExecutablesExecuteOnLoad";
-    public static final String FIND_AND_UPDATE_LAYOUT =
-            APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAndUpdateLayout";
-    public static final String EXTRACT_ALL_WIDGETS_NAMES_AND_BINDINGS_FROM_DSL =
-            APPSMITH_SPAN_PREFIX + "extractAllWidgetNamesAndDynamicBindingsFromDSL";
+
     // Getter spans
     public static final String GET_ACTION_COLLECTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.actionCollection.unpublished";
-    public static final String GET_ACTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.action.unpublished";
-    public static final String GET_PAGE_BY_ID = APPSMITH_SPAN_PREFIX + "get.page.unpublished";
 }

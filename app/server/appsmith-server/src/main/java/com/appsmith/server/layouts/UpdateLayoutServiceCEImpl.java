@@ -48,7 +48,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.*;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.ce.UpdateLayoutSpanCE.*;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
@@ -302,7 +303,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
                     }
-                    return Flux.fromIterable(page.getLayouts()).parallel().flatMap(layout -> {
+                    return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
                         layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
                         return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
                                 .name(UPDATE_LAYOUT_METHOD)

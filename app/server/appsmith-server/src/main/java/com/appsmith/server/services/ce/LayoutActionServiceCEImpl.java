@@ -33,7 +33,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.*;
+import static com.appsmith.external.constants.spans.ce.ActionSpanCE.*;
+import static com.appsmith.external.constants.spans.ce.UpdateLayoutSpanCE.UPDATE_PAGE_LAYOUT_BY_PAGE_ID;
 import static java.util.stream.Collectors.toSet;
 import static org.reflections.Reflections.log;
 
