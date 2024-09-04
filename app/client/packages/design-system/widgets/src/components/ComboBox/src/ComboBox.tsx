@@ -33,7 +33,7 @@ export const ComboBox = (props: ComboBoxProps) => {
 
   return (
     <HeadlessCombobox
-      aria-label={Boolean(label) ? undefined : "Select"}
+      aria-label={Boolean(label) ? undefined : "ComboBox"}
       className={styles.formField}
       data-size={size}
       isRequired={isRequired}
