@@ -94,6 +94,8 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Oracle plugin.";
+            System.out.println(printMessage);
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -117,6 +119,8 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Oracle plugin.";
+            System.out.println(printMessage);
             return OracleDatasourceUtils.validateDatasource(datasourceConfiguration);
         }
 
@@ -135,6 +139,10 @@ public class OraclePlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+
+            String printMessage =
+                    Thread.currentThread().getName() + ": executeParameterized() called for Oracle plugin.";
+            System.out.println(printMessage);
             final Map<String, Object> formData = actionConfiguration.getFormData();
             String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
@@ -193,6 +201,8 @@ public class OraclePlugin extends BasePlugin {
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO) {
 
+            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for Oracle plugin.";
+            System.out.println(printMessage);
             final Map<String, Object> requestData = new HashMap<>();
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
@@ -325,6 +335,8 @@ public class OraclePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Oracle plugin.";
+            System.out.println(printMessage);
             return OracleDatasourceUtils.getStructure(connectionPool, datasourceConfiguration);
         }
 
@@ -433,6 +445,9 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for Oracle plugin.";
+            System.out.println(printMessage);
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier

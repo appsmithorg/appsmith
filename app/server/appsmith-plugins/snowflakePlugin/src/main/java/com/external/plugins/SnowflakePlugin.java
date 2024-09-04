@@ -71,6 +71,8 @@ public class SnowflakePlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": execute() called for Snowflake plugin.";
+            System.out.println(printMessage);
             String query = actionConfiguration.getBody();
 
             if (!StringUtils.hasLength(query)) {
@@ -155,6 +157,9 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> createConnectionClient(
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": createConnectionClient() called for Snowflake plugin.";
+            System.out.println(printMessage);
             return getHikariConfig(datasourceConfiguration, properties)
                     .flatMap(config -> Mono.fromCallable(() -> {
                                 // Set up the connection URL
@@ -196,6 +201,9 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Properties addAuthParamsToConnectionConfig(
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            String printMessage = Thread.currentThread().getName()
+                    + ": addAuthParamsToConnectionConfig() called for Snowflake plugin.";
+            System.out.println(printMessage);
             // Only for username password auth, we need to set these properties, for others
             // like key-pair auth, authentication specific properties need to be set on config itself
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
@@ -235,6 +243,9 @@ public class SnowflakePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for Snowflake plugin.";
+            System.out.println(printMessage);
             Set<String> invalids = new HashSet<>();
 
             if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
@@ -303,7 +314,8 @@ public class SnowflakePlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
-
+            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Snowflake plugin.";
+            System.out.println(printMessage);
             return Mono.just(connection)
                     .flatMap(connectionPool -> {
                         Connection connectionFromPool;
@@ -345,6 +357,8 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Snowflake plugin.";
+            System.out.println(printMessage);
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();

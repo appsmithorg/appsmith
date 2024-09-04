@@ -239,6 +239,9 @@ public class PostgresPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage =
+                    Thread.currentThread().getName() + ": executeParameterized() called for Postgres plugin.";
+            System.out.println(printMessage);
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch
             // connection from the pool op.
@@ -293,6 +296,9 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for Postgres plugin.";
+            System.out.println(printMessage);
             ActionConfiguration actionConfig = new ActionConfiguration();
             // Sets query body
             actionConfig.setBody(queryTemplate.getBody());
@@ -308,6 +314,9 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for Postgres plugin.";
+            System.out.println(printMessage);
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             SSHConnection sshProxy = datasourceConfiguration.getSshProxy();
             String identifier = "";
@@ -645,6 +654,8 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Postgres plugin.";
+            System.out.println(printMessage);
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -670,6 +681,9 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for Postgres plugin.";
+            System.out.println(printMessage);
             Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -752,6 +766,8 @@ public class PostgresPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Postgres plugin.";
+            System.out.println(printMessage);
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
