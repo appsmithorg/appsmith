@@ -222,6 +222,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         NewPage mockNewPage = new NewPage();
         mockNewPage.setApplicationId("mockApplicationId");
+        mockNewPage.setId("mockPageId");
         doReturn(Mono.just(mockNewPage))
                 .when(spyNewPageService)
                 .findByBranchNameAndBasePageId(anyString(), anyString(), any());
