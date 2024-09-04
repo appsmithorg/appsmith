@@ -218,13 +218,19 @@ export interface ErrorActionPayload {
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_TO_CONSOLE];
   const { payload, type } = errorAction;
-  const { error, logToDebugger, logToSentry, show, sourceEntity } =
-    payload || {};
+  const {
+    error,
+    logToDebugger,
+    logToSentry,
+    show = true,
+    sourceEntity,
+  } = payload || {};
   const appMode: APP_MODE = yield select(getAppMode);
 
   // "show" means show a toast. We check if the error has been asked to not been shown
-  if (!!show) {
-    // We want to show toasts for certain actions or if it is outside edit mode
+  // By making the default behaviour "true" we are ensuring undefined actions still pass through this check
+  if (show) {
+    // We want to show toasts for certain actions only so we avoid issues or if it is outside edit mode
     if (shouldShowToast(type) || appMode !== APP_MODE.EDIT) {
       effects.push(ErrorEffectTypes.SHOW_ALERT);
     }
