@@ -252,7 +252,6 @@ export const propertyPaneContentConfig = [
         ],
         isBindProperty: false,
         isTriggerProperty: false,
-        defaultValue: "SELECT",
         updateHook: (
           _props: WidgetProps,
           propertyName: string,

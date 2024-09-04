@@ -28,7 +28,6 @@ export const propertyPaneContentConfig = [
         ],
         isBindProperty: false,
         isTriggerProperty: false,
-        defaultValue: "COMBOBOX",
         updateHook: (
           _props: WidgetProps,
           propertyName: string,
