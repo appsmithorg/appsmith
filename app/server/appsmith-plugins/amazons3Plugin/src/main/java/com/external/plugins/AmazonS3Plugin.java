@@ -544,6 +544,8 @@ public class AmazonS3Plugin extends BasePlugin {
                         Object actionResult;
                         switch (s3Action) {
                             case LIST:
+                                System.out.println(
+                                        Thread.currentThread().getName() + ": LIST action called for AmazonS3 plugin.");
                                 String prefix = getDataValueSafelyFromFormData(formData, LIST_PREFIX, STRING_TYPE, "");
                                 requestParams.add(new RequestParamDTO(LIST_PREFIX, prefix, null, null, null));
 
@@ -642,6 +644,8 @@ public class AmazonS3Plugin extends BasePlugin {
 
                                 break;
                             case UPLOAD_FILE_FROM_BODY: {
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": UPLOAD_FILE_FROM_BODY action called for AmazonS3 plugin.");
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
@@ -693,6 +697,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                 break;
                             }
                             case UPLOAD_MULTIPLE_FILES_FROM_BODY: {
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": UPLOAD_MULTIPLE_FILES_FROM_BODY action called for AmazonS3 plugin.");
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
@@ -745,6 +751,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                 break;
                             }
                             case READ_FILE:
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": READ_FILE action called for AmazonS3 plugin.");
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
@@ -762,6 +770,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = Map.of("fileData", result);
                                 break;
                             case DELETE_FILE:
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": DELETE_FILE action called for AmazonS3 plugin.");
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
@@ -773,6 +783,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                 actionResult = Map.of("status", "File deleted successfully");
                                 break;
                             case DELETE_MULTIPLE_FILES:
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": DELETE_MULTIPLE_FILES action called for AmazonS3 plugin.");
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
@@ -830,6 +842,8 @@ public class AmazonS3Plugin extends BasePlugin {
                     })
                     // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": Setting the actionExecutionResult for AmazonS3 plugin.");
                         ActionExecutionRequest actionExecutionRequest = new ActionExecutionRequest();
                         actionExecutionRequest.setQuery(query[0]);
                         actionExecutionRequest.setProperties(requestProperties);
@@ -1014,6 +1028,8 @@ public class AmazonS3Plugin extends BasePlugin {
                                  *   object with wrong credentials does not throw any exception.
                                  * - Hence, adding a listBuckets() method call to test the connection.
                                  */
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": listBuckets() called for AmazonS3 plugin.");
                                 connection.listBuckets();
                                 return new DatasourceTestResult();
                             })
@@ -1051,6 +1067,8 @@ public class AmazonS3Plugin extends BasePlugin {
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(connection -> Mono.fromCallable(() -> {
                                 connection.listObjects(defaultBucket);
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": connection.listObjects() called for AmazonS3 plugin.");
                                 return new DatasourceTestResult();
                             })
                             .onErrorResume(error -> {
@@ -1081,6 +1099,8 @@ public class AmazonS3Plugin extends BasePlugin {
             return Mono.fromSupplier(() -> {
                         List<DatasourceStructure.Table> tableList;
                         try {
+                            System.out.println(Thread.currentThread().getName()
+                                    + ": connection.listBuckets() called for AmazonS3 plugin.");
                             tableList = connection.listBuckets().stream()
                                     /* Get name of each bucket */
                                     .map(Bucket::getName)
