@@ -12,11 +12,22 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 let themeFont;
+let themeColor;
 
 describe(
   "Theme validation usecase for multi-select widget",
   { tags: ["@tag.Theme"] },
   function () {
+    let themesSection = (sectionName, themeName) =>
+      "//*[text()='" +
+      sectionName +
+      "']/following-sibling::div//*[text()='" +
+      themeName +
+      "']";
+    let applyTheme = (sectionName, themeName) =>
+      themesSection(sectionName, themeName) +
+      "/parent::div/following-sibling::div[contains(@class, 't--theme-card')]//div[text()='Apply theme']";
+
     it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
       entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.MULTISELECT,
@@ -81,22 +92,12 @@ describe(
           });
       });
       cy.contains("Font").click({ force: true });
-
-      //Color - Bug 23501 - hence skipping
-      // cy.wait(1000);
-      // theme.ChangeThemeColor("purple", "Primary");
-      // cy.get(themelocator.inputColor).should("have.value", "purple");
-      // cy.wait(1000);
-
-      // theme.ChangeThemeColor("brown", "Background");
-      // cy.get(themelocator.inputColor).should("have.value", "brown");
-      // cy.wait(1000);
-      // cy.contains("Color").click({ force: true });
+ 
       appSettings.ClosePane();
     });
 
     //Skipping due to mentioned bug
-    it.skip("2. Publish the App and validate Font across the app + Bug 15007", function () {
+    it("2. Publish the App and validate Font across the app", function () {
       deployMode.DeployApp();
       cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
         .first()
@@ -107,33 +108,35 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it.skip("3. Validate current theme feature", function () {
-      cy.get("#canvas-selection-0").click({ force: true });
+    it("3. Apply theme and validate the color", function () {
       appSettings.OpenAppSettings();
       appSettings.GoToThemeSettings();
-      //Change the Theme
       cy.get(commonlocators.changeThemeBtn).click({ force: true });
-      cy.get(themelocator.currentTheme).click({ force: true });
-      cy.get(".t--theme-card main > main")
-        .first()
-        .invoke("css", "background-color")
-        .then(() => {
-          cy.get(".t--draggable-multiselectwidgetv2:contains('more')")
-            .last()
-            .invoke("css", "background-color")
-            .then((selectedBackgroudColor) => {
-              expect("rgba(0, 0, 0, 0)").to.equal(selectedBackgroudColor);
-              appSettings.ClosePane();
-            });
-        });
+      cy.xpath(applyTheme("Featured themes", "Sunrise"))
+      .click({ force: true })
+      .wait(1000);
+      cy.contains("Applied theme")
+      .click()
+      .parent()
+      .siblings()
+      .find(".t--theme-card > main > section > div > main")
+      .eq(0)
+      .invoke("css", "background-color")
+      .then((backgroudColor) => {
+        themeColor = backgroudColor;
 
-      //Publish the App and validate change of Theme across the app in publish mode
+        console.log({ backgroudColor })
+        expect(backgroudColor).to.eq("rgb(239, 68, 68)");
+      });
+
       deployMode.DeployApp();
-      cy.xpath("//div[@id='root']//section/parent::div").should(
-        "have.css",
-        "background-color",
-        "rgb(165, 42, 42)",
-      );
+
+      console.log({ themeColor })
+      
+      cy.get(".rc-select-selector").click({force: true});
+      cy.get(".rc-select-item-option-selected .bp3-control-indicator")
+        .first()
+        .should("have.css", "background-color", "rgb(239, 68, 68)");
     });
   },
 );
