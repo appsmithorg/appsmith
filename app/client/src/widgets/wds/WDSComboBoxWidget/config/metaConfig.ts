@@ -12,5 +12,8 @@ export const metaConfig = {
     "combobox",
     "select",
     "dropdown",
+    "filter",
+    "autocomplete",
+    "input",
   ],
 };
