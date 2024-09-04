@@ -34,5 +34,5 @@ export default {
   slashCommandButton: ".commands-button",
   apiResponseObject: ".object-key",
   apiDebuggerLink: ".debugger-entity-link",
-  apiLogResultPointer : "div.debugger-list div.cursor-pointer button div",
+  apiResponseTabsList : ".ads-v2-tabs__list"
 };

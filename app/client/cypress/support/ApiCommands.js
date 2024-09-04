@@ -90,11 +90,6 @@ Cypress.Commands.add(
     cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
     agHelper.PressEnter(2000);
     if (!error) {
-      agHelper.IsElementVisibleWithEq(ApiEditor.apiResponseObject, index).then(isVisible => {
-        if (!isVisible) {
-          agHelper.GetNClick(ApiEditor.apiLogResultPointer, index, true);
-        } 
-      });
       cy.get(ApiEditor.apiResponseObject).last().contains("request").click();
     }    
     cy.get(".string-value").contains(baseurl.concat(path));
