@@ -2,7 +2,7 @@ package com.appsmith.external.constants.spans.ce;
 
 import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
 
-public class UpdateLayoutSpanCE {
+public class LayoutSpanCE {
     public static final String UPDATE_LAYOUT = "updateLayout.";
     public static final String UPDATE_PAGE_LAYOUT_BY_PAGE_ID = APPSMITH_SPAN_PREFIX + UPDATE_LAYOUT + "pageId";
     public static final String UPDATE_LAYOUT_METHOD = APPSMITH_SPAN_PREFIX + UPDATE_LAYOUT + "method";
@@ -15,6 +15,4 @@ public class UpdateLayoutSpanCE {
             APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.updateExecutablesExecuteOnLoad";
     public static final String FIND_AND_UPDATE_LAYOUT =
             APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAndUpdateLayout";
-    public static final String EXTRACT_ALL_WIDGETS_NAMES_AND_BINDINGS_FROM_DSL =
-            APPSMITH_SPAN_PREFIX + "extractAllWidgetNamesAndDynamicBindingsFromDSL";
 }

@@ -38,14 +38,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.ACTION_COLLECTION_UPDATE;
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.GENERATE_ACTION_COLLECTION_BY_VIEW_MODE;
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.POPULATE_ACTION_COLLECTION_BY_VIEW_MODE;
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.SAVE_LAST_EDIT_INFORMATION_IN_PARENT;
+import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.*;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.CREATE_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.DELETE_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.UPDATE_ACTION;
-import static com.appsmith.external.constants.spans.ce.UpdateLayoutSpanCE.UPDATE_LAYOUT_BASED_ON_CONTEXT;
+import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.UPDATE_LAYOUT_BASED_ON_CONTEXT;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 import static java.util.stream.Collectors.toMap;
@@ -411,7 +408,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 .tap(Micrometer.observation(observationRegistry))
                                 .flatMap(actionCollectionDTO2 -> actionCollectionService
                                         .saveLastEditInformationInParent(actionCollectionDTO2)
-                                        .name(SAVE_LAST_EDIT_INFORMATION_IN_PARENT)
+                                        .name(SAVE_ACTION_COLLECTION_LAST_EDIT_INFO)
                                         .tap(Micrometer.observation(observationRegistry))
                                         .thenReturn(actionCollectionDTO2))))
                 .flatMap(branchedActionCollection -> sendErrorReportsFromPageToCollection(branchedActionCollection));

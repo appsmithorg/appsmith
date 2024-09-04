@@ -48,8 +48,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.*;
 import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_BY_ID;
-import static com.appsmith.external.constants.spans.ce.UpdateLayoutSpanCE.*;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
@@ -67,8 +67,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final ObjectMapper objectMapper;
     private final ObservationRegistry observationRegistry;
 
-    private final String layoutOnLoadActionErrorToastMessage =
-            "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
+    private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
 
     private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(
             String creatorId,
@@ -124,17 +123,15 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
-            dsl = Mono.just(extractAllWidgetNamesAndDynamicBindingsFromDSL(
+            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
                             dsl,
                             widgetNames,
                             widgetDynamicBindingsMap,
                             creatorId,
                             layoutId,
                             escapedWidgetNames,
-                            creatorType))
-                    .name(EXTRACT_ALL_WIDGETS_NAMES_AND_BINDINGS_FROM_DSL)
-                    .tap(Micrometer.observation(observationRegistry))
-                    .block();
+                            creatorType);
+
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
                     .then(Mono.error(t));
@@ -248,12 +245,12 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     public Mono<Integer> updateMultipleLayouts(
             String baseApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
         List<Mono<LayoutDTO>> monoList = new ArrayList<>();
-        for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout :
-                updateMultiplePageLayoutDTO.getPageLayouts()) {
+        for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout : updateMultiplePageLayoutDTO
+                .getPageLayouts()) {
             final Layout layout = new Layout();
             layout.setDsl(pageLayout.getLayout().dsl());
-            Mono<LayoutDTO> updatedLayoutMono =
-                    this.updateLayout(pageLayout.getPageId(), baseApplicationId, pageLayout.getLayoutId(), layout);
+            Mono<LayoutDTO> updatedLayoutMono = this.updateLayout(pageLayout.getPageId(), baseApplicationId,
+                    pageLayout.getLayoutId(), layout);
             monoList.add(updatedLayoutMono);
         }
         return Flux.merge(monoList).then(Mono.just(monoList.size()));
@@ -349,7 +346,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
         AtomicReference<Boolean> validOnLoadExecutables = new AtomicReference<>(Boolean.TRUE);
 
-        // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
+        // setting the layoutOnLoadActionActionErrors to empty to remove the existing
+        // errors before new DAG calculation.
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
         return onLoadExecutablesUtil
@@ -389,13 +387,15 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
             if (widgetType.equals(FieldName.TABLE_WIDGET)) {
                 // UnEscape Table widget keys
-                // Since this is a table widget, it wouldnt have children. We can safely return from here with updated
+                // Since this is a table widget, it wouldnt have children. We can safely return
+                // from here with updated
                 // dsl
                 return WidgetSpecificUtils.unEscapeTableWidgetPrimaryColumns(dsl);
             }
         }
 
-        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        // Fetch the children of the current node in the DSL and recursively iterate
+        // over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {
@@ -417,9 +417,11 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
     /**
      * Walks the DSL and extracts all the widget names from it.
-     * A widget is expected to have a few properties defining its own behaviour, with any mustache bindings present
+     * A widget is expected to have a few properties defining its own behaviour,
+     * with any mustache bindings present
      * in them aggregated in the field dynamicBindingsPathList.
-     * A widget may also have other widgets as children, each of which will follow the same structure
+     * A widget may also have other widgets as children, each of which will follow
+     * the same structure
      * Refer to FieldName.DEFAULT_PAGE_LAYOUT for a template
      *
      * @param dsl
@@ -448,27 +450,33 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         String widgetId = dsl.getAsString(FieldName.WIDGET_ID);
         String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
 
-        // Since we are parsing this widget in this, add it to the global set of widgets found so far in the DSL.
+        // Since we are parsing this widget in this, add it to the global set of widgets
+        // found so far in the DSL.
         widgetNames.add(widgetName);
 
-        // Start by picking all fields where we expect to find dynamic bindings for this particular widget
+        // Start by picking all fields where we expect to find dynamic bindings for this
+        // particular widget
         ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
 
-        // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
+        // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no
+        // bindings in that widget.
         // Hence we skip over the extraction of the bindings from that widget.
         if (dynamicallyBoundedPathList != null) {
-            // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+            // Each of these might have nested structures, so we iterate through them to
+            // find the leaf node for each
             for (Object x : dynamicallyBoundedPathList) {
                 final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
                 String[] fields = fieldPath.split("[].\\[]");
-                // For nested fields, the parent dsl to search in would shift by one level every iteration
+                // For nested fields, the parent dsl to search in would shift by one level every
+                // iteration
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields)
                         .filter(fieldToken -> !fieldToken.isBlank())
                         .iterator();
                 boolean isLeafNode = false;
                 Object oldParent;
-                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an
+                // This loop will end at either a leaf node, or the last identified JSON field
+                // (by throwing an
                 // exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
@@ -535,7 +543,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     // Only extract mustache keys from leaf nodes
                     if (isLeafNode) {
 
-                        // We found the path. But if the path does not have any mustache bindings, throw the error
+                        // We found the path. But if the path does not have any mustache bindings, throw
+                        // the error
                         if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
                             try {
                                 String bindingAsString = objectMapper.writeValueAsString(parent);
@@ -557,10 +566,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         }
 
                         // Stricter extraction of dynamic bindings
-                        Set<String> mustacheKeysFromFields =
-                                MustacheHelper.extractMustacheKeysFromFields(parent).stream()
-                                        .map(token -> token.getValue())
-                                        .collect(Collectors.toSet());
+                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent)
+                                .stream()
+                                .map(token -> token.getValue())
+                                .collect(Collectors.toSet());
 
                         String completePath = widgetName + "." + fieldPath;
                         if (widgetDynamicBindingsMap.containsKey(completePath)) {
@@ -576,7 +585,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         // Escape the widget keys if required and update dsl and escapedWidgetNames
         removeSpecialCharactersFromKeys(dsl, escapedWidgetNames);
 
-        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        // Fetch the children of the current node in the DSL and recursively iterate
+        // over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {
