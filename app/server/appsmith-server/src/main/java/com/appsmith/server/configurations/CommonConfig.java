@@ -67,6 +67,9 @@ public class CommonConfig {
     @Value("${appsmith.micrometer.tracing.detail.enabled:false}")
     private boolean tracingDetail;
 
+    @Value("${appsmith.micrometer.metrics.detail.enabled:false}")
+    private boolean metricsDetail;
+
     private List<String> allowedDomains;
 
     private String mongoDBVersion;
