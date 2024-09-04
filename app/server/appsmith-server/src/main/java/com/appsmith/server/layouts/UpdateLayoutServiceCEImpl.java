@@ -67,7 +67,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final ObjectMapper objectMapper;
     private final ObservationRegistry observationRegistry;
 
-    private final String layoutOnLoadActionErrorToastMessage = "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
+    private final String layoutOnLoadActionErrorToastMessage =
+            "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
 
     private Mono<Boolean> sendUpdateLayoutAnalyticsEvent(
             String creatorId,
@@ -124,13 +125,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         Set<String> escapedWidgetNames = new HashSet<>();
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
-                            dsl,
-                            widgetNames,
-                            widgetDynamicBindingsMap,
-                            creatorId,
-                            layoutId,
-                            escapedWidgetNames,
-                            creatorType);
+                    dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
 
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
@@ -245,12 +240,12 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     public Mono<Integer> updateMultipleLayouts(
             String baseApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
         List<Mono<LayoutDTO>> monoList = new ArrayList<>();
-        for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout : updateMultiplePageLayoutDTO
-                .getPageLayouts()) {
+        for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout :
+                updateMultiplePageLayoutDTO.getPageLayouts()) {
             final Layout layout = new Layout();
             layout.setDsl(pageLayout.getLayout().dsl());
-            Mono<LayoutDTO> updatedLayoutMono = this.updateLayout(pageLayout.getPageId(), baseApplicationId,
-                    pageLayout.getLayoutId(), layout);
+            Mono<LayoutDTO> updatedLayoutMono =
+                    this.updateLayout(pageLayout.getPageId(), baseApplicationId, pageLayout.getLayoutId(), layout);
             monoList.add(updatedLayoutMono);
         }
         return Flux.merge(monoList).then(Mono.just(monoList.size()));
@@ -566,10 +561,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         }
 
                         // Stricter extraction of dynamic bindings
-                        Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent)
-                                .stream()
-                                .map(token -> token.getValue())
-                                .collect(Collectors.toSet());
+                        Set<String> mustacheKeysFromFields =
+                                MustacheHelper.extractMustacheKeysFromFields(parent).stream()
+                                        .map(token -> token.getValue())
+                                        .collect(Collectors.toSet());
 
                         String completePath = widgetName + "." + fieldPath;
                         if (widgetDynamicBindingsMap.containsKey(completePath)) {
