@@ -238,8 +238,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                                                     basePageId, application.getBaseId());
                                         }
                                     }))
-                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode)) // Name the span for tracing.
-                    .tap(Micrometer.observation(observationRegistry)) // Observe metrics for performance monitoring.
+                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
+                    .tap(Micrometer.observation(observationRegistry))
                     .cache();
 
         } else {
@@ -248,8 +248,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
             // Retrieve the application details from the application service using the cached application ID.
             branchedApplicationMonoCached = applicationService
                     .findByBaseIdBranchNameAndApplicationMode(baseApplicationId, branchName, mode)
-                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode)) // Name the span for tracing.
-                    .tap(Micrometer.observation(observationRegistry)) // Observe metrics for performance monitoring.
+                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
+                    .tap(Micrometer.observation(observationRegistry))
                     .cache();
         }
 
