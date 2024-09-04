@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -307,7 +308,9 @@ public class MssqlPlugin extends BasePlugin {
                         ActionExecutionResult result = new ActionExecutionResult();
                         System.out.println(Thread.currentThread().getName()
                                 + ": objectMapper.valueToTree invoked from MSSQL plugin.");
+                        Stopwatch processStopwatch = new Stopwatch("MSSQL Plugin objectMapper valueToTree");
                         result.setBody(objectMapper.valueToTree(rowsList));
+                        processStopwatch.stopAndLogTimeInMillis();
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
                         return Mono.just(result);

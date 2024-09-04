@@ -9,6 +9,7 @@ import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.SSHTunnelContext;
 import com.appsmith.external.helpers.SSHUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -399,7 +400,10 @@ public class MySqlPlugin extends BasePlugin {
                                             System.out.println(
                                                     Thread.currentThread().getName()
                                                             + ": objectMapper.valueToTree from MySQL plugin.");
+                                            Stopwatch processStopwatch =
+                                                    new Stopwatch("MySQL Plugin objectMapper valueToTree");
                                             result.setBody(objectMapper.valueToTree(rowsList));
+                                            processStopwatch.stopAndLogTimeInMillis();
                                             result.setMessages(populateHintMessages(columnsList));
                                             result.setIsExecutionSuccess(true);
                                             System.out.println("In the MySqlPlugin, got action execution result");

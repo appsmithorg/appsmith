@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -134,7 +135,12 @@ public class SaasPlugin extends BasePlugin {
 
             String valueAsString = "";
             try {
+                System.out.println(
+                        Thread.currentThread().getName() + ": objectMapper writing value as string for Saas plugin.");
+                Stopwatch processStopwatch =
+                        new Stopwatch("SaaS Plugin objectMapper writing value as string for connection");
                 valueAsString = saasObjectMapper.writeValueAsString(connection);
+                processStopwatch.stopAndLogTimeInMillis();
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -147,7 +153,14 @@ public class SaasPlugin extends BasePlugin {
                         byte[] body = stringResponseEntity.getBody();
                         if (statusCode.is2xxSuccessful()) {
                             try {
-                                return saasObjectMapper.readValue(body, ActionExecutionResult.class);
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": objectMapper reading value as string for Saas plugin.");
+                                Stopwatch processStopwatch =
+                                        new Stopwatch("SaaS Plugin objectMapper reading value as string for body");
+                                ActionExecutionResult result =
+                                        saasObjectMapper.readValue(body, ActionExecutionResult.class);
+                                processStopwatch.stopAndLogTimeInMillis();
+                                return result;
                             } catch (IOException e) {
                                 throw Exceptions.propagate(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, body, e.getMessage()));

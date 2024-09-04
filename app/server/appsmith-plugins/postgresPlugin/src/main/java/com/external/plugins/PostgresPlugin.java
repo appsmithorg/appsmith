@@ -10,6 +10,7 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.SSHUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -499,7 +500,13 @@ public class PostgresPlugin extends BasePlugin {
 
                                         } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
                                                 || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                                            System.out.println(
+                                                    Thread.currentThread().getName()
+                                                            + ": objectMapper readTree for Postgres plugin.");
+                                            Stopwatch processStopwatch =
+                                                    new Stopwatch("Postgres Plugin objectMapper readTree");
                                             value = objectMapper.readTree(resultSet.getString(i));
+                                            processStopwatch.stopAndLogTimeInMillis();
                                         } else {
                                             value = resultSet.getObject(i);
 
@@ -590,7 +597,11 @@ public class PostgresPlugin extends BasePlugin {
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
+                        System.out.println(
+                                Thread.currentThread().getName() + ": objectMapper valueToTree for Postgres plugin.");
+                        Stopwatch processStopwatch = new Stopwatch("Postgres Plugin objectMapper valueToTree");
                         result.setBody(objectMapper.valueToTree(rowsList));
+                        processStopwatch.stopAndLogTimeInMillis();
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
                         System.out.println(Thread.currentThread().getName()
@@ -1084,7 +1095,12 @@ public class PostgresPlugin extends BasePlugin {
                         preparedStatement.setArray(index, null);
                         break;
                     case ARRAY: {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": objectMapper readValue for Postgres plugin ARRAY class");
+                        Stopwatch processStopwatch =
+                                new Stopwatch("Postgres Plugin objectMapper readValue for ARRAY class");
                         List arrayListFromInput = objectMapper.readValue(value, List.class);
+                        processStopwatch.stopAndLogTimeInMillis();
                         if (arrayListFromInput.isEmpty()) {
                             break;
                         }

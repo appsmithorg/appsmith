@@ -12,6 +12,7 @@ import com.appsmith.external.helpers.DataTypeServiceUtils;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -387,9 +388,12 @@ public class MongoPlugin extends BasePlugin {
                                 if (outputJson.has(VALUE)) {
                                     System.out.println(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.VALUE from Mongo plugin.");
+                                    Stopwatch processStopwatch =
+                                            new Stopwatch("Mongo Plugin objectMapper readTree.VALUE");
                                     result.setBody(objectMapper.readTree(
                                             cleanUp(new JSONObject().put(VALUE, outputJson.get(VALUE)))
                                                     .toString()));
+                                    processStopwatch.stopAndLogTimeInMillis();
                                 }
 
                                 /*
@@ -399,9 +403,12 @@ public class MongoPlugin extends BasePlugin {
                                 if (outputJson.has("cursor")) {
                                     System.out.println(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.CURSOR from Mongo plugin.");
+                                    Stopwatch processStopwatch =
+                                            new Stopwatch("Mongo Plugin objectMapper readTree.CURSOR");
                                     JSONArray outputResult = (JSONArray) cleanUp(
                                             outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
                                     result.setBody(objectMapper.readTree(outputResult.toString()));
+                                    processStopwatch.stopAndLogTimeInMillis();
                                 }
 
                                 /*
@@ -412,8 +419,10 @@ public class MongoPlugin extends BasePlugin {
                                 if (outputJson.has("n")) {
                                     System.out.println(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.N from Mongo plugin.");
+                                    Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree.N");
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
                                     result.setBody(objectMapper.readTree(body.toString()));
+                                    processStopwatch.stopAndLogTimeInMillis();
                                     headerArray.put(body);
                                 }
 
@@ -424,9 +433,12 @@ public class MongoPlugin extends BasePlugin {
                                 if (outputJson.has(N_MODIFIED)) {
                                     System.out.println(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.N_MODIFIED from Mongo plugin.");
+                                    Stopwatch processStopwatch =
+                                            new Stopwatch("Mongo Plugin objectMapper readTree.N_MODIFIED");
                                     JSONObject body =
                                             new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
                                     result.setBody(objectMapper.readTree(body.toString()));
+                                    processStopwatch.stopAndLogTimeInMillis();
                                     headerArray.put(body);
                                 }
 
@@ -434,18 +446,27 @@ public class MongoPlugin extends BasePlugin {
                                  The json contains key "values" when distinct command is used.
                                 */
                                 if (outputJson.has(VALUES)) {
-                                    System.out.println(Thread.currentThread().getName()
-                                            + ": objectMapper.readTree.VALUES from Mongo plugin.");
                                     JSONArray outputResult = (JSONArray) cleanUp(outputJson.getJSONArray(VALUES));
 
+                                    System.out.println(Thread.currentThread().getName()
+                                            + ": objectMapper.createObjectNode from Mongo plugin.");
+                                    Stopwatch processStopwatch =
+                                            new Stopwatch("Mongo Plugin objectMapper createObjectNode");
                                     ObjectNode resultNode = objectMapper.createObjectNode();
+                                    processStopwatch.stopAndLogTimeInMillis();
 
                                     // Create a JSON structure with the results stored with a key to abide by the
                                     // Server-Client contract of only sending array of objects in result.
+                                    Stopwatch processStopwatch1 =
+                                            new Stopwatch("Mongo Plugin objectMapper readTree outputResult");
                                     resultNode.putArray(VALUES).addAll((ArrayNode)
                                             objectMapper.readTree(outputResult.toString()));
+                                    processStopwatch1.stopAndLogTimeInMillis();
 
+                                    Stopwatch processStopwatch2 =
+                                            new Stopwatch("Mongo Plugin objectMapper readTree resultNode");
                                     result.setBody(objectMapper.readTree(resultNode.toString()));
+                                    processStopwatch2.stopAndLogTimeInMillis();
                                 }
 
                                 /*
@@ -456,7 +477,11 @@ public class MongoPlugin extends BasePlugin {
 
                             JSONObject statusJson = new JSONObject().put("ok", status);
                             headerArray.put(statusJson);
+                            System.out.println(
+                                    Thread.currentThread().getName() + ": objectMapper readTree for Mongo plugin.");
+                            Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree");
                             result.setHeaders(objectMapper.readTree(headerArray.toString()));
+                            processStopwatch.stopAndLogTimeInMillis();
                         } catch (JsonProcessingException e) {
                             return Mono.error(new AppsmithPluginException(
                                     MongoPluginError.QUERY_EXECUTION_FAILED,
@@ -606,7 +631,12 @@ public class MongoPlugin extends BasePlugin {
                         try {
                             argWithoutQuotes = matcher.group(4);
                             if (specialType.isQuotesRequiredAroundParameter()) {
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": objectMapper writeValueAsString for Mongo plugin.");
+                                Stopwatch processStopwatch =
+                                        new Stopwatch("Mongo Plugin objectMapper writeValueAsString");
                                 argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
+                                processStopwatch.stopAndLogTimeInMillis();
                             }
                         } catch (JsonProcessingException e) {
                             throw new AppsmithPluginException(
