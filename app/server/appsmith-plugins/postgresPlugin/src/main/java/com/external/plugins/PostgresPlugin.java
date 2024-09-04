@@ -359,6 +359,8 @@ public class PostgresPlugin extends BasePlugin {
             Instant requestedAt = Instant.now();
 
             return Mono.fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": Within the executeCommon method of PostgresPluginExecutor.");
                         Connection connectionFromPool;
 
                         try {
@@ -392,13 +394,13 @@ public class PostgresPlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
-                                "Before executing postgres query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
+                        System.out.println(String.format(
+                                "Before executing postgres query [%s] Hikari Pool stats: active - %d, idle - %d, awaiting - %d, total - %d",
                                 query,
                                 activeConnections,
                                 idleConnections,
                                 threadsAwaitingConnection,
-                                totalConnections);
+                                totalConnections));
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = connectionFromPool.createStatement();
@@ -451,10 +453,9 @@ public class PostgresPlugin extends BasePlugin {
                                         int objectSize = sizeof(rowsList);
 
                                         if (objectSize > MAX_SIZE_SUPPORTED) {
-                                            log.debug(
-                                                    "[PostgresPlugin] Result size greater than maximum supported size of {} bytes. Current size : {}",
-                                                    MAX_SIZE_SUPPORTED,
-                                                    objectSize);
+                                            System.out.println(String.format(
+                                                    "[PostgresPlugin] Result size greater than maximum supported size of %d bytes. Current size: %d",
+                                                    MAX_SIZE_SUPPORTED, objectSize));
                                             return Mono.error(new AppsmithPluginException(
                                                     PostgresPluginError.RESPONSE_SIZE_TOO_LARGE,
                                                     (float) (MAX_SIZE_SUPPORTED / (1024 * 1024))));
@@ -527,7 +528,7 @@ public class PostgresPlugin extends BasePlugin {
                             }
 
                         } catch (SQLException e) {
-                            log.debug("In the PostgresPlugin, got action execution error");
+                            System.out.println("In the PostgresPlugin, got action execution error");
                             return Mono.error(new AppsmithPluginException(
                                     PostgresPluginError.QUERY_EXECUTION_FAILED,
                                     PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -537,7 +538,7 @@ public class PostgresPlugin extends BasePlugin {
                             // Since postgres json type field can only hold valid json data, this exception
                             // is not expected
                             // to occur.
-                            log.debug("In the PostgresPlugin, got action execution error");
+                            System.out.println("In the PostgresPlugin, got action execution error");
                             return Mono.error(new AppsmithPluginException(
                                     PostgresPluginError.QUERY_EXECUTION_FAILED,
                                     PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -547,17 +548,15 @@ public class PostgresPlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
-                                    "After executing postgres query, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                                    activeConnections,
-                                    idleConnections,
-                                    threadsAwaitingConnection,
-                                    totalConnections);
+                            System.out.println(String.format(
+                                    "After executing postgres query, Hikari Pool stats active - %d, idle - %d, awaiting - %d, total - %d",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
                             if (resultSet != null) {
                                 try {
                                     resultSet.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres ResultSet", e);
+                                    System.out.println("Execute Error closing Postgres ResultSet");
+                                    e.printStackTrace();
                                 }
                             }
 
@@ -565,7 +564,8 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     statement.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres Statement", e);
+                                    System.out.println("Execute Error closing Postgres Statement");
+                                    e.printStackTrace();
                                 }
                             }
 
@@ -573,7 +573,8 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     preparedQuery.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres Statement", e);
+                                    System.out.println("Execute Error closing Postgres Statement");
+                                    e.printStackTrace();
                                 }
                             }
 
@@ -582,7 +583,8 @@ public class PostgresPlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error returning Postgres connection to pool", e);
+                                    System.out.println("Execute Error returning Postgres connection to pool");
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -591,7 +593,8 @@ public class PostgresPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the PostgresPlugin, got action execution result");
+                        System.out.println(Thread.currentThread().getName()
+                                + ": In the PostgresPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -666,7 +669,7 @@ public class PostgresPlugin extends BasePlugin {
             }
 
             return connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> Mono.fromCallable(() -> {
-                        log.info("Connecting to Postgres db");
+                        System.out.println(Thread.currentThread().getName() + ": Connecting to Postgres db");
                         return createConnectionPool(datasourceConfiguration, maxPoolSize);
                     })
                     .subscribeOn(scheduler));
@@ -796,12 +799,9 @@ public class PostgresPlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
-                                "Before getting postgres db structure Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                                activeConnections,
-                                idleConnections,
-                                threadsAwaitingConnection,
-                                totalConnections);
+                        System.out.println(String.format(
+                                "Before getting postgres db structure Hikari Pool stats active - %d, idle - %d, awaiting - %d, total - %d",
+                                activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
 
                         // Ref:
                         // <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
@@ -983,19 +983,18 @@ public class PostgresPlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
-                                    "After postgres db structure, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                                    activeConnections,
-                                    idleConnections,
-                                    threadsAwaitingConnection,
-                                    totalConnections);
+                            System.out.println(String.format(
+                                    "After postgres db structure, Hikari Pool stats active - %d, idle - %d, awaiting - %d, total - %d",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
 
                             if (connectionFromPool != null) {
                                 try {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Error returning Postgres connection to pool during get structure", e);
+                                    System.out.println(
+                                            "Error returning Postgres connection to pool during get structure");
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -1004,7 +1003,7 @@ public class PostgresPlugin extends BasePlugin {
                         for (DatasourceStructure.Table table : structure.getTables()) {
                             table.getKeys().sort(Comparator.naturalOrder());
                         }
-                        log.debug("Got the structure of postgres db");
+                        System.out.println(Thread.currentThread().getName() + ": Got the structure of postgres db");
                         return structure;
                     })
                     .map(resultStructure -> (DatasourceStructure) resultStructure)

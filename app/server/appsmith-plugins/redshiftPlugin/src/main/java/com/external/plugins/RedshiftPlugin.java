@@ -296,7 +296,8 @@ public class RedshiftPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug("In RedshiftPlugin, got action execution result");
+                        System.out.println(Thread.currentThread().getName()
+                                + ": In the RedshiftPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)

@@ -396,10 +396,13 @@ public class MySqlPlugin extends BasePlugin {
                                 return resultMono
                                         .map(res -> {
                                             ActionExecutionResult result = new ActionExecutionResult();
+                                            System.out.println(
+                                                    Thread.currentThread().getName()
+                                                            + ": objectMapper.valueToTree from MySQL plugin.");
                                             result.setBody(objectMapper.valueToTree(rowsList));
                                             result.setMessages(populateHintMessages(columnsList));
                                             result.setIsExecutionSuccess(true);
-                                            log.debug("In the MySqlPlugin, got action execution result");
+                                            System.out.println("In the MySqlPlugin, got action execution result");
                                             return result;
                                         })
                                         .onErrorResume(error -> {
@@ -439,6 +442,9 @@ public class MySqlPlugin extends BasePlugin {
                                         })
                                         // Now set the request in the result to be returned to the server
                                         .map(actionExecutionResult -> {
+                                            System.out.println(
+                                                    Thread.currentThread().getName()
+                                                            + ": setting the request in actionExecutionResult from MySQL plugin.");
                                             ActionExecutionRequest request = new ActionExecutionRequest();
                                             request.setQuery(finalQuery);
                                             request.setProperties(requestData);
@@ -481,7 +487,7 @@ public class MySqlPlugin extends BasePlugin {
                 return Flux.from(connectionStatement.execute());
             }
 
-            log.debug("Query : {}", query);
+            System.out.println("Query : " + query);
 
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
             try {
@@ -694,7 +700,7 @@ public class MySqlPlugin extends BasePlugin {
                                 sshTunnelContext.getSshClient().disconnect();
                                 sshTunnelContext.getThread().stop();
                             } catch (IOException e) {
-                                log.debug("Failed to destroy SSH tunnel context: {}", e.getMessage());
+                                System.out.println("Failed to destroy SSH tunnel context: " + e.getMessage());
                             }
                         }
 
@@ -712,7 +718,8 @@ public class MySqlPlugin extends BasePlugin {
                 connectionPool
                         .disposeLater()
                         .onErrorResume(exception -> {
-                            log.debug("Could not destroy MySQL connection pool", exception);
+                            System.out.println("Could not destroy MySQL connection pool");
+                            exception.printStackTrace();
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)
@@ -790,6 +797,8 @@ public class MySqlPlugin extends BasePlugin {
                                     })
                                     .collectList()
                                     .map(list -> {
+                                        System.out.println(
+                                                Thread.currentThread().getName() + ": getTemplates from MySQL plugin.");
                                         /* Get templates for each table and put those in. */
                                         getTemplates(tablesByName);
                                         structure.setTables(new ArrayList<>(tablesByName.values()));

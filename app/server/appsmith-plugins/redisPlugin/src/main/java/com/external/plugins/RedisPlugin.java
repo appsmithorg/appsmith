@@ -121,7 +121,9 @@ public class RedisPlugin extends BasePlugin {
                                 objectMapper.valueToTree(removeQuotes(processCommandOutput(commandOutput))));
                         actionExecutionResult.setIsExecutionSuccess(true);
 
-                        log.debug("In the RedisPlugin, got action execution result");
+                        System.out.println(
+                                Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result");
+
                         return Mono.just(actionExecutionResult);
                     })
                     .flatMap(obj -> obj)
@@ -262,6 +264,7 @@ public class RedisPlugin extends BasePlugin {
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration);
                         JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
+                        System.out.println(Thread.currentThread().getName() + ": Created Jedis pool.");
                         return jedisPool;
                     })
                     .subscribeOn(scheduler);
@@ -278,7 +281,7 @@ public class RedisPlugin extends BasePlugin {
                                 jedisPool.destroy();
                             }
                         } catch (JedisException e) {
-                            log.debug("Error destroying Jedis pool.");
+                            System.out.println("Error destroying Jedis pool.");
                         }
 
                         return Mono.empty();

@@ -106,7 +106,7 @@ public class OraclePlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to Oracle db");
+                        System.out.println(Thread.currentThread().getName() + ": Connecting to Oracle db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -231,7 +231,8 @@ public class OraclePlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            log.debug("Exception Occurred while getting connection from pool" + e.getMessage());
+                            System.out.println(
+                                    "Exception Occurred while getting connection from pool" + e.getMessage());
                             e.printStackTrace(System.out);
                             return Mono.error(
                                     e instanceof StaleConnectionException
@@ -284,9 +285,9 @@ public class OraclePlugin extends BasePlugin {
                                     statement,
                                     preparedQuery);
                         } catch (SQLException e) {
-                            log.debug(Thread.currentThread().getName()
+                            System.out.println(Thread.currentThread().getName()
                                     + ": In the OraclePlugin, got action execution error");
-                            log.debug(e.getMessage());
+                            System.out.println(e.getMessage());
                             return Mono.error(new AppsmithPluginException(
                                     OraclePluginError.QUERY_EXECUTION_FAILED,
                                     OracleErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -304,7 +305,7 @@ public class OraclePlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug(Thread.currentThread().getName()
+                        System.out.println(Thread.currentThread().getName()
                                 + ": In the OraclePlugin, got action execution result");
                         return Mono.just(result);
                     })

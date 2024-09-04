@@ -197,6 +197,8 @@ public class MssqlPlugin extends BasePlugin {
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
+                        System.out.println(
+                                Thread.currentThread().getName() + ": within mono callable from MSSQL plugin.");
                         boolean isResultSet;
                         Connection sqlConnectionFromPool;
                         Statement statement = null;
@@ -302,6 +304,8 @@ public class MssqlPlugin extends BasePlugin {
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
+                        System.out.println(Thread.currentThread().getName()
+                                + ": objectMapper.valueToTree invoked from MSSQL plugin.");
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
@@ -321,6 +325,8 @@ public class MssqlPlugin extends BasePlugin {
                     })
                     // Now set the request in the result to be returned back to the server
                     .map(actionExecutionResult -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": setting request in the actionExecutionResult from MSSQL plugin.");
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         request.setProperties(requestData);
@@ -353,7 +359,7 @@ public class MssqlPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for MSSQL plugin.";
             System.out.println(printMessage);
             return Mono.fromCallable(() -> {
-                        log.debug("Connecting to SQL Server db");
+                        System.out.println(Thread.currentThread().getName() + ": Connecting to SQL Server db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);

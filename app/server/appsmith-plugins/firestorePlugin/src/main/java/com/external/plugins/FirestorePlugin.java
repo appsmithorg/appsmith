@@ -247,6 +247,8 @@ public class FirestorePlugin extends BasePlugin {
                         }
 
                         try {
+                            System.out.println(Thread.currentThread().getName()
+                                    + ": objectMapper.readValue invoked from Firestore plugin.");
                             return Mono.just(objectMapper.readValue(strBody, HashMap.class));
                         } catch (IOException e) {
                             return Mono.error(new AppsmithPluginException(
@@ -318,6 +320,8 @@ public class FirestorePlugin extends BasePlugin {
                     })
                     // Now set the request in the result to be returned to the server
                     .map(result -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": setting the request in action execution result from Firestore plugin.");
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);
@@ -918,6 +922,8 @@ public class FirestorePlugin extends BasePlugin {
             InputStream serviceAccount = new ByteArrayInputStream(clientJson.getBytes());
 
             return Mono.fromSupplier(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": instantiating googlecredentials object from Firestore plugin.");
                         GoogleCredentials credentials;
                         try {
                             credentials = GoogleCredentials.fromStream(serviceAccount);
@@ -1009,6 +1015,8 @@ public class FirestorePlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": getStructure() called for Firestore plugin.";
             System.out.println(printMessage);
             return Mono.fromSupplier(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": invoking connection.listCollections() from Firestore plugin.");
                         Iterable<CollectionReference> collectionReferences = connection.listCollections();
 
                         List<DatasourceStructure.Table> tables = StreamSupport.stream(

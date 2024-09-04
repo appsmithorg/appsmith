@@ -88,6 +88,8 @@ public class ElasticSearchPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = new ArrayList<>();
 
             return Mono.fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": creating action execution result from ElasticSearch plugin.");
                         final ActionExecutionResult result = new ActionExecutionResult();
 
                         String body = query;
@@ -169,6 +171,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                     })
                     // Now set the request in the result to be returned to the server
                     .map(result -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": setting the request in the result to be returned from ElasticSearch plugin.");
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setProperties(requestData);
                         request.setQuery(query);

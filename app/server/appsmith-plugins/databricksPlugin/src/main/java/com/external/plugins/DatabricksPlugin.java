@@ -87,6 +87,8 @@ public class DatabricksPlugin extends BasePlugin {
             final List<String> columnsList = new ArrayList<>();
 
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": creating action execution result from Databricks plugin.");
                         try {
 
                             // Check for connection validity :
@@ -247,6 +249,8 @@ public class DatabricksPlugin extends BasePlugin {
             }
 
             return (Mono<Connection>) Mono.fromCallable(() -> {
+                        System.out.println(
+                                Thread.currentThread().getName() + ": creating connection from Databricks plugin.");
                         Connection connection = DriverManager.getConnection(url, p);
 
                         // Execute statements to default catalog and schema for all queries on this datasource.
@@ -321,6 +325,8 @@ public class DatabricksPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": getStructure() called for Databricks plugin.";
             System.out.println(printMessage);
             return Mono.fromSupplier(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": fetching datasource structure from Databricks plugin.");
                         final DatasourceStructure structure = new DatasourceStructure();
                         final Map<String, DatasourceStructure.Table> tablesByName =
                                 new TreeMap<>(String.CASE_INSENSITIVE_ORDER);

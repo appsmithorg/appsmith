@@ -195,6 +195,8 @@ public class DynamoPlugin extends BasePlugin {
             List<RequestParamDTO> requestParams = new ArrayList<>();
 
             return Mono.fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": creating action execution result from DynamoDB plugin.");
                         ActionExecutionResult result = new ActionExecutionResult();
 
                         final String action = actionConfiguration.getPath();
@@ -288,6 +290,8 @@ public class DynamoPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.";
             System.out.println(printMessage);
             return Mono.fromCallable(() -> {
+                        System.out.println(
+                                Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
                         final DynamoDbClientBuilder builder = DynamoDbClient.builder();
 
                         if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -367,6 +371,8 @@ public class DynamoPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": getStructure() called for Dynamo plugin.";
             System.out.println(printMessage);
             return Mono.fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": creating datasourceStructure from DynamoDB plugin.");
                         final ListTablesResponse listTablesResponse = ddb.listTables();
 
                         List<DatasourceStructure.Table> tables = new ArrayList<>();

@@ -318,6 +318,7 @@ public class MongoPlugin extends BasePlugin {
             String query;
             List<RequestParamDTO> requestParams;
             try {
+                System.out.println(Thread.currentThread().getName() + ": mongoClient.getDatabase from Mongo plugin.");
                 MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
                 final Map<String, Object> formData = actionConfiguration.getFormData();
@@ -384,6 +385,8 @@ public class MongoPlugin extends BasePlugin {
                                  `new` field in the command. Let's return that value to the user.
                                 */
                                 if (outputJson.has(VALUE)) {
+                                    System.out.println(Thread.currentThread().getName()
+                                            + ": objectMapper.readTree.VALUE from Mongo plugin.");
                                     result.setBody(objectMapper.readTree(
                                             cleanUp(new JSONObject().put(VALUE, outputJson.get(VALUE)))
                                                     .toString()));
@@ -394,6 +397,8 @@ public class MongoPlugin extends BasePlugin {
                                  results. In case there are no results for find, this key is not present in the result json.
                                 */
                                 if (outputJson.has("cursor")) {
+                                    System.out.println(Thread.currentThread().getName()
+                                            + ": objectMapper.readTree.CURSOR from Mongo plugin.");
                                     JSONArray outputResult = (JSONArray) cleanUp(
                                             outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
                                     result.setBody(objectMapper.readTree(outputResult.toString()));
@@ -405,6 +410,8 @@ public class MongoPlugin extends BasePlugin {
                                  number of documents inserted.
                                 */
                                 if (outputJson.has("n")) {
+                                    System.out.println(Thread.currentThread().getName()
+                                            + ": objectMapper.readTree.N from Mongo plugin.");
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
                                     result.setBody(objectMapper.readTree(body.toString()));
                                     headerArray.put(body);
@@ -415,6 +422,8 @@ public class MongoPlugin extends BasePlugin {
                                  documents updated.
                                 */
                                 if (outputJson.has(N_MODIFIED)) {
+                                    System.out.println(Thread.currentThread().getName()
+                                            + ": objectMapper.readTree.N_MODIFIED from Mongo plugin.");
                                     JSONObject body =
                                             new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
                                     result.setBody(objectMapper.readTree(body.toString()));
@@ -425,6 +434,8 @@ public class MongoPlugin extends BasePlugin {
                                  The json contains key "values" when distinct command is used.
                                 */
                                 if (outputJson.has(VALUES)) {
+                                    System.out.println(Thread.currentThread().getName()
+                                            + ": objectMapper.readTree.VALUES from Mongo plugin.");
                                     JSONArray outputResult = (JSONArray) cleanUp(outputJson.getJSONArray(VALUES));
 
                                     ObjectNode resultNode = objectMapper.createObjectNode();
@@ -472,6 +483,8 @@ public class MongoPlugin extends BasePlugin {
                     })
                     // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": building actionExecutionResult from Mongo plugin.");
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
                         if (!parameters.isEmpty()) {
@@ -718,6 +731,8 @@ public class MongoPlugin extends BasePlugin {
             System.out.println(printMessage);
             return Mono.just(datasourceConfiguration)
                     .flatMap(dsConfig -> {
+                        System.out.println(
+                                Thread.currentThread().getName() + ": buildClientURI called from Mongo plugin.");
                         try {
                             return Mono.just(buildClientURI(dsConfig));
                         } catch (AppsmithPluginException e) {
@@ -856,6 +871,8 @@ public class MongoPlugin extends BasePlugin {
 
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
+                        System.out.println(
+                                Thread.currentThread().getName() + ":Finding list of databases for Mongo plugin.");
                         final Publisher<String> result = mongoClient.listDatabaseNames();
                         final Mono<List<String>> documentMono =
                                 Flux.from(result).collectList().cache();
