@@ -36,7 +36,7 @@ import showToast from "sagas/ToastSagas";
 import AppsmithConsole from "../utils/AppsmithConsole";
 import type { SourceEntity } from "../entities/AppsmithConsole";
 import { getAppMode } from "ee/selectors/applicationSelectors";
-import type { APP_MODE } from "../entities/App";
+import { APP_MODE } from "../entities/App";
 
 const shouldShowToast = (action: string) => {
   return action in toastMessageErrorTypes;
@@ -220,11 +220,14 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const { payload, type } = errorAction;
   const { error, logToDebugger, logToSentry, show, sourceEntity } =
     payload || {};
-  const message = getErrorMessageFromActionType(type, error);
   const appMode: APP_MODE = yield select(getAppMode);
 
-  if (show || appMode === "PUBLISHED" || shouldShowToast(type)) {
-    effects.push(ErrorEffectTypes.SHOW_ALERT);
+  // "show" means show a toast. We check if the error has been asked to not been shown
+  if (!!show) {
+    // We want to show toasts for certain actions or if it is outside edit mode
+    if (shouldShowToast(type) || appMode !== APP_MODE.EDIT) {
+      effects.push(ErrorEffectTypes.SHOW_ALERT);
+    }
   }
 
   if (logToDebugger) {
@@ -239,6 +242,8 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   if (error && logToSentry) {
     effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
   }
+
+  const message = getErrorMessageFromActionType(type, error);
 
   for (const effect of effects) {
     switch (effect) {
