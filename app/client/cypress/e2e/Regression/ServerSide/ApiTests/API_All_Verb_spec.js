@@ -1,18 +1,18 @@
 import {
   AppSidebarButton,
-  AppSidebar
+  AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+import apiLocators from "../../../../locators/ApiEditor";
 
 import {
   agHelper,
   apiPage,
   dataSources,
-  entityItems
+  entityItems,
 } from "../../../../support/Objects/ObjectsCore";
-import apiLocators from "../../../../locators/apiLocators";
 
 describe(
   "API Panel Test Functionality",
