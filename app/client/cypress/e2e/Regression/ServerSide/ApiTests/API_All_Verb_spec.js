@@ -40,10 +40,6 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        // agHelper.GetNAssertContains(
-        //   ApiEditor.
-        //   "Executed successfully from user request",
-        // );
         agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
         agHelper.AssertContains("Executed successfully from user request"); 
       });
