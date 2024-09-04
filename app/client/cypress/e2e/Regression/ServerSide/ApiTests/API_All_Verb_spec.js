@@ -41,7 +41,7 @@ describe(
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
         agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-        agHelper.AssertContains("Executed successfully from user request"); 
+        agHelper.AssertContains("Executed successfully from user request");
       });
       cy.ResponseCheck("updatedAt");
     });
@@ -61,7 +61,7 @@ describe(
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
         agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-        agHelper.AssertContains("Executed successfully from user request"); 
+        agHelper.AssertContains("Executed successfully from user request");
       });
       cy.ResponseCheck("createdAt");
     });
@@ -81,7 +81,7 @@ describe(
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
         agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-        agHelper.AssertContains("Executed successfully from user request"); 
+        agHelper.AssertContains("Executed successfully from user request");
       });
       cy.ResponseCheck("updatedAt");
     });
@@ -101,7 +101,7 @@ describe(
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
         agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-        agHelper.AssertContains("Executed successfully from user request"); 
+        agHelper.AssertContains("Executed successfully from user request");
       });
     });
 
@@ -113,7 +113,7 @@ describe(
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext);
       agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-      agHelper.AssertContains("Executed successfully from user request"); 
+      agHelper.AssertContains("Executed successfully from user request");
 
       apiPage.SelectPaneTab("Pagination");
       agHelper.GetNClick(apiwidget.paginationWithUrl);
@@ -126,7 +126,7 @@ describe(
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck("Josh M Krantz");
       agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-      agHelper.AssertContains("Executed successfully from user request"); 
+      agHelper.AssertContains("Executed successfully from user request");
 
       apiPage.SelectPaneTab("Pagination");
       cy.enterUrl(
@@ -138,7 +138,7 @@ describe(
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext);
       agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-      agHelper.AssertContains("Executed successfully from user request"); 
+      agHelper.AssertContains("Executed successfully from user request");
     });
 
     it("6. API check with query params test API feature", function () {
@@ -148,7 +148,7 @@ describe(
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext3);
       agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
-      agHelper.AssertContains("Executed successfully from user request"); 
+      agHelper.AssertContains("Executed successfully from user request");
     });
 
     it("7. API check with Invalid Header", function () {
@@ -157,7 +157,7 @@ describe(
       agHelper.AssertAutoSave();
       apiPage.RunAPI(false);
       apiPage.ResponseStatusCheck("5000");
-      agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs"); 
+      agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
       agHelper.AssertContains("Executed successfully from user request");
       cy.ResponseCheck("Invalid value for Content-Type");
     });
