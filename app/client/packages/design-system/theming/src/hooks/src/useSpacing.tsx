@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { calculateScales } from "./calculateScales";
 
-import type { TokenObj, TokenScaleConfig } from "../../token";
+import type { TokenScaleConfig } from "../../token";
 
 export const getSpacing = (
   spacing: TokenScaleConfig,
@@ -36,16 +36,13 @@ export const useSpacing = (
   userDensity = 1,
   userSizing = 1,
 ) => {
-  const [outerSpacing, setOuterSpacing] = useState<TokenObj>();
-  const [innerSpacing, setInnerSpacing] = useState<TokenObj>();
+  const outerSpacing = useMemo(() => {
+    return getSpacing(outerSpacingConfig, userDensity, userSizing);
+  }, [outerSpacingConfig, userDensity, userSizing]);
 
-  useEffect(() => {
-    setOuterSpacing(getSpacing(outerSpacingConfig, userDensity, userSizing));
-  }, [userDensity, userSizing, outerSpacingConfig]);
-
-  useEffect(() => {
-    setInnerSpacing(getSpacing(innerSpacingConfig, userDensity, userSizing));
-  }, [userDensity, userSizing, innerSpacingConfig]);
+  const innerSpacing = useMemo(() => {
+    return getSpacing(innerSpacingConfig, userDensity, userSizing);
+  }, [innerSpacingConfig, userDensity, userSizing]);
 
   return {
     outerSpacing,

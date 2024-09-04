@@ -1,23 +1,16 @@
-import { useEffect, useState } from "react";
-import type { IconSizing, TokenObj } from "../../token";
+import { useMemo } from "react";
+import type { IconSizing } from "../../token";
 
 export const useIconSizing = (sizing: IconSizing, userSizing = 1) => {
-  const [iconSize, setIconSize] = useState<TokenObj>();
-
-  useEffect(() => {
-    switch (true) {
-      case userSizing < 1:
-        setIconSize(sizing.small);
-        break;
-      case userSizing === 1:
-        setIconSize(sizing.regular);
-        break;
-      case userSizing > 1:
-        setIconSize(sizing.big);
-        break;
-      default:
-        setIconSize(sizing.regular);
-        break;
+  const iconSize = useMemo(() => {
+    if (userSizing < 1) {
+      return sizing.small;
+    } else if (userSizing === 1) {
+      return sizing.regular;
+    } else if (userSizing > 1) {
+      return sizing.big;
+    } else {
+      return sizing.regular;
     }
   }, [userSizing, sizing]);
 
