@@ -102,6 +102,8 @@ public class ArangoDBPlugin extends BasePlugin {
 
             return Mono.fromCallable(() -> {
                         log.debug("In the ArangoDBPlugin, got action execution result");
+                        System.out.println(Thread.currentThread().getName()
+                                + ": got action execution result from ArangoDB plugin.");
                         ArangoCursor<Map> cursor = db.query(query, null, null, Map.class);
                         ActionExecutionResult result = new ActionExecutionResult();
                         result.setIsExecutionSuccess(true);
@@ -181,6 +183,8 @@ public class ArangoDBPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for ArangoDB plugin.";
             System.out.println(printMessage);
             return (Mono<ArangoDatabase>) Mono.fromCallable(() -> {
+                        System.out.println(
+                                Thread.currentThread().getName() + ": inside schdeuled thread from ArangoDB plugin.");
                         List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
                                 .filter(endpoint -> isNonEmptyEndpoint(endpoint))
                                 .collect(Collectors.toList());
@@ -354,6 +358,8 @@ public class ArangoDBPlugin extends BasePlugin {
             return Flux.fromIterable(collections)
                     .filter(collectionEntity -> !collectionEntity.getIsSystem())
                     .flatMap(collectionEntity -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": got collectionEntity result from ArangoDB plugin.");
                         final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();
                         final String collectionName = collectionEntity.getName();
@@ -379,6 +385,8 @@ public class ArangoDBPlugin extends BasePlugin {
                                 Mono.just(document));
                     })
                     .flatMap(tuple -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": generating templates and structure in ArangoDB plugin.");
                         final ArrayList<DatasourceStructure.Column> columns = tuple.getT1();
                         final ArrayList<DatasourceStructure.Template> templates = tuple.getT2();
                         String collectionName = tuple.getT3();

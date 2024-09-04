@@ -66,6 +66,8 @@ public class AwsLambdaPlugin extends BasePlugin {
             String command = getDataValueSafelyFromFormData(formData, "command", STRING_TYPE);
 
             return Mono.fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": creating action execution result for AWS Lambda plugin.");
                         ActionExecutionResult result;
                         switch (Objects.requireNonNull(command)) {
                             case "LIST_FUNCTIONS" -> result = listFunctions(actionConfiguration, connection);
