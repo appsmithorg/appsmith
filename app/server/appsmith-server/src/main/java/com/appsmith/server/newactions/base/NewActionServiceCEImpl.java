@@ -781,7 +781,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
 
-        // fetch the published actions by applicationId
+        // fetch the published actions by pageId
         // No need to sort the results
         return findAllPublishedActionsByPageIdAndExcludedPluginTypes(
                         pageId, actionPermission.getExecutePermission(), null, excludedPluginTypes)
