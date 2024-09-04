@@ -23,7 +23,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -280,10 +279,10 @@ public class FileUtilsCEImpl implements FileInterface {
         fileOperations.scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
 
         // Save JS Libs if there's at least one change
-        if (modifiedResources != null
-                && (modifiedResources.isAllModified()
-                        || !CollectionUtils.isEmpty(
-                                modifiedResources.getModifiedResourceMap().get(CUSTOM_JS_LIB_LIST)))) {
+        if (modifiedResources != null) {
+            // && (modifiedResources.isAllModified()
+            //   || !CollectionUtils.isEmpty(
+            // modifiedResources.getModifiedResourceMap().get(CUSTOM_JS_LIB_LIST)))) {
 
             Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
             Set<Map.Entry<String, Object>> jsLibEntries =
