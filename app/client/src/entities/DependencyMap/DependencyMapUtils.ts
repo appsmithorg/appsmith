@@ -49,6 +49,24 @@ export class DependencyMapUtils {
     return dependencyMap;
   }
 
+  static makeParentsDependOnChildrenForAffectedNodes(
+    dependencyMap: DependencyMap,
+    affectedSet: Set<string>,
+  ) {
+    const dependencies = dependencyMap.rawDependencies;
+    for (const [node, deps] of dependencies.entries()) {
+      if (affectedSet.has(node)) {
+        this.makeParentsDependOnChild(dependencyMap, node);
+      }
+      deps.forEach((dep) => {
+        if (affectedSet.has(dep)) {
+          this.makeParentsDependOnChild(dependencyMap, dep);
+        }
+      });
+    }
+    return dependencyMap;
+  }
+
   static makeParentsDependOnChild = (
     dependencyMap: DependencyMap,
     child: string,
