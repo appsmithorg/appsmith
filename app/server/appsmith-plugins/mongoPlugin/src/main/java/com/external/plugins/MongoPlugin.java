@@ -468,7 +468,8 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
-                            log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
+                            System.out.println(
+                                    "The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
                         } else if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(

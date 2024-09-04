@@ -215,10 +215,9 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
                                 actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
-                        log.debug(
-                                "An error has occurred while trying to run the API query for url: {}, path : {}",
-                                datasourceConfiguration.getUrl(),
-                                actionConfiguration.getPath());
+                        System.out.println(String.format(
+                                "An error has occurred while trying to run the API query for url: %s, path: %s",
+                                datasourceConfiguration.getUrl(), actionConfiguration.getPath()));
                         error.printStackTrace();
                         if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(

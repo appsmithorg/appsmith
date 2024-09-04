@@ -82,7 +82,7 @@ public class SnowflakePlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Execute Snowflake Query");
+                        System.out.println(Thread.currentThread().getName() + ": Execute Snowflake Query");
                         Connection connectionFromPool;
 
                         try {
@@ -161,7 +161,8 @@ public class SnowflakePlugin extends BasePlugin {
             System.out.println(printMessage);
             return getHikariConfig(datasourceConfiguration, properties)
                     .flatMap(config -> Mono.fromCallable(() -> {
-                                log.debug(Thread.currentThread().getName() + ": creating Snowflake connection client");
+                                System.out.println(
+                                        Thread.currentThread().getName() + ": creating Snowflake connection client");
                                 // Set up the connection URL
                                 String jdbcUrl = getJDBCUrl(datasourceConfiguration);
                                 config.setJdbcUrl(jdbcUrl);
@@ -318,7 +319,7 @@ public class SnowflakePlugin extends BasePlugin {
             System.out.println(printMessage);
             return Mono.just(connection)
                     .flatMap(connectionPool -> {
-                        log.debug(Thread.currentThread().getName() + ": Testing Snowflake Datasource");
+                        System.out.println(Thread.currentThread().getName() + ": Testing Snowflake Datasource");
                         Connection connectionFromPool;
                         try {
                             /**
@@ -438,7 +439,7 @@ public class SnowflakePlugin extends BasePlugin {
                                     throwable.getMessage(),
                                     "SQLSTATE: " + throwable.getSQLState());
                         } finally {
-                            log.debug(Thread.currentThread().getName() + ": Get Structure Snowflake");
+                            System.out.println(Thread.currentThread().getName() + ": Get Structure Snowflake");
                             idleConnections = poolProxy.getIdleConnections();
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();

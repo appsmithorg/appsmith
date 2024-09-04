@@ -131,7 +131,7 @@ public class RedshiftPlugin extends BasePlugin {
 
         private void checkResultSetValidity(ResultSet resultSet) throws AppsmithPluginException {
             if (resultSet == null) {
-                log.debug("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
+                System.out.println("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
                 throw new AppsmithPluginException(
                         RedshiftPluginError.QUERY_EXECUTION_FAILED, RedshiftErrorMessages.NULL_RESULTSET_ERROR_MSG);
             }
@@ -147,7 +147,7 @@ public class RedshiftPlugin extends BasePlugin {
              *    ResultSetMetaData.
              */
             if (metaData == null) {
-                log.debug("Redshift plugin: getRow: metaData is null. Ideally this is never supposed to "
+                System.out.println("Redshift plugin: getRow: metaData is null. Ideally this is never supposed to "
                         + "happen as the Redshift JDBC driver does a null check before passing this object. This means "
                         + "that something has gone wrong while processing the query result.");
                 throw new AppsmithPluginException(
@@ -338,14 +338,17 @@ public class RedshiftPlugin extends BasePlugin {
             int activeConnections = poolProxy.getActiveConnections();
             int totalConnections = poolProxy.getTotalConnections();
             int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-            log.debug(Thread.currentThread().getName()
+            System.out.println(Thread.currentThread().getName()
                     + (isFetchingStructure
-                            ? "Before fetching Redshift db" + " structure."
-                            : "Before executing Redshift query.")
-                    + " Hikari Pool stats : " + " active - "
-                    + activeConnections + ", idle - "
-                    + idleConnections + ", awaiting - "
-                    + threadsAwaitingConnection + ", total - "
+                            ? " Before fetching Redshift db structure."
+                            : " Before executing Redshift query.")
+                    + " Hikari Pool stats: active - "
+                    + activeConnections
+                    + ", idle - "
+                    + idleConnections
+                    + ", awaiting - "
+                    + threadsAwaitingConnection
+                    + ", total - "
                     + totalConnections);
         }
 
@@ -378,7 +381,7 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to Redshift db");
+                        System.out.println(Thread.currentThread().getName() + ": Connecting to Redshift db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -659,7 +662,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                         // Ref:
                         // <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-                        log.debug(Thread.currentThread().getName() + ": Getting Redshift Db structure");
+                        System.out.println(Thread.currentThread().getName() + ": Getting Redshift Db structure");
                         try (Statement statement = connection.createStatement()) {
 
                             // Get tables' schema and fill up their columns.

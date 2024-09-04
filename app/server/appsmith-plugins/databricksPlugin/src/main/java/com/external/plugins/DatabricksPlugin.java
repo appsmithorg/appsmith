@@ -363,7 +363,6 @@ public class DatabricksPlugin extends BasePlugin {
                             for (DatasourceStructure.Table table : structure.getTables()) {
                                 table.getKeys().sort(Comparator.naturalOrder());
                             }
-                            log.debug("Got the structure of Databricks DB");
                             return structure;
                         } catch (SQLException e) {
                             return Mono.error(new AppsmithPluginException(

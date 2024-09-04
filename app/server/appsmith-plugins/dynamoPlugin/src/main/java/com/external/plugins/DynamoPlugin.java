@@ -258,7 +258,6 @@ public class DynamoPlugin extends BasePlugin {
                         }
 
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the DynamoPlugin, got action execution result");
                         return result;
                     })
                     .onErrorResume(error -> {

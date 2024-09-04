@@ -152,7 +152,7 @@ public class ElasticSearchPlugin extends BasePlugin {
                         }
 
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the Elastic Search Plugin, got action execution result");
+                        System.out.println("In the Elastic Search Plugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)

@@ -309,7 +309,6 @@ public class MssqlPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug("In the MssqlPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
