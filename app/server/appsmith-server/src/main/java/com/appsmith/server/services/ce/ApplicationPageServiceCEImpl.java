@@ -311,7 +311,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
-                .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission())
+                .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission(), null)
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
                         .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
                         .tap(Micrometer.observation(observationRegistry)));

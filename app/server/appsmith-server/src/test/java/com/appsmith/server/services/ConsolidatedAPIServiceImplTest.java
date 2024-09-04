@@ -224,7 +224,7 @@ public class ConsolidatedAPIServiceImplTest {
         mockNewPage.setApplicationId("mockApplicationId");
         doReturn(Mono.just(mockNewPage))
                 .when(spyNewPageService)
-                .findByBranchNameAndBasePageId(anyString(), anyString(), any());
+                .findByBranchNameAndBasePageId(anyString(), anyString(), any(), any());
 
         doReturn(Mono.just(List.of(mockNewPage)))
                 .when(spyApplicationPageService)
@@ -406,16 +406,16 @@ public class ConsolidatedAPIServiceImplTest {
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
 
         Application mockApplication = new Application();
-        mockApplication.setId("mockApplicationId");
+        mockApplication.setId("mockApplicationId123");
         doReturn(Mono.just(mockApplication))
                 .when(spyApplicationService)
                 .findByBranchedApplicationIdAndApplicationMode(anyString(), any());
 
         NewPage mockNewPage = new NewPage();
-        mockNewPage.setApplicationId("mockApplicationId");
+        mockNewPage.setApplicationId("mockApplicationId123");
         doReturn(Mono.just(mockNewPage))
                 .when(spyNewPageService)
-                .findByBranchNameAndBasePageId(anyString(), anyString(), any());
+                .findByBranchNameAndBasePageId(anyString(), anyString(), any(), any());
 
         doReturn(Mono.just(List.of(mockNewPage)))
                 .when(spyApplicationPageService)
@@ -507,7 +507,8 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockMockDataService.getMockDataSet()).thenReturn(Mono.just(sampleMockDataDTO));
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
-                consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, "branch", ApplicationMode.EDIT);
+                consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                        "pageId123", null, "branch", ApplicationMode.EDIT);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
@@ -720,7 +721,7 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockProductAlertService.getSingleApplicableMessage())
                 .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
-        when(mockNewPageRepository.findPageByBranchNameAndBasePageId(anyString(), anyString(), any()))
+        when(mockNewPageRepository.findPageByBranchNameAndBasePageId(anyString(), anyString(), any(), any()))
                 .thenReturn(Mono.empty());
         doReturn(Mono.empty())
                 .when(spyApplicationRepository)

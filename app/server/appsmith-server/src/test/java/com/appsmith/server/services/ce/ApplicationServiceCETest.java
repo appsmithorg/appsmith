@@ -1710,7 +1710,7 @@ public class ApplicationServiceCETest {
 
         Mono<List<NewPage>> srcNewPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
                 .flatMap(applicationPage -> newPageService.findByBranchNameAndBasePageId(
-                        branchName, applicationPage.getDefaultPageId(), READ_PAGES))
+                        branchName, applicationPage.getDefaultPageId(), READ_PAGES, null))
                 .collectList();
 
         StepVerifier.create(Mono.zip(clonedNewPageListMono, srcNewPageListMono))
