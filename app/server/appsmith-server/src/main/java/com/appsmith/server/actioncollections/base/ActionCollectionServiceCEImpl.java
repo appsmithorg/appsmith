@@ -43,7 +43,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.appsmith.external.constants.spans.ce.ActionCollectionSpanCE.GET_ACTION_COLLECTION_BY_ID;
+import static com.appsmith.external.constants.spans.ActionCollectionSpan.GET_ACTION_COLLECTION_BY_ID;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static java.lang.Boolean.TRUE;
 
