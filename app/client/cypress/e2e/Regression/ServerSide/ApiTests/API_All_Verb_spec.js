@@ -1,6 +1,6 @@
 import {
   AppSidebarButton,
-  AppSidebar,
+  AppSidebar
 } from "../../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../../fixtures/testdata.json");
@@ -10,9 +10,9 @@ import {
   agHelper,
   apiPage,
   dataSources,
-  entityItems,
+  entityItems
 } from "../../../../support/Objects/ObjectsCore";
-import ApiEditor from "../../../../locators/ApiEditor";
+import apiLocators from "../../../../locators/apiLocators";
 
 describe(
   "API Panel Test Functionality",
@@ -40,7 +40,7 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
         agHelper.AssertContains("Executed successfully from user request");
       });
       cy.ResponseCheck("updatedAt");
@@ -60,7 +60,7 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
         agHelper.AssertContains("Executed successfully from user request");
       });
       cy.ResponseCheck("createdAt");
@@ -80,7 +80,7 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
         agHelper.AssertContains("Executed successfully from user request");
       });
       cy.ResponseCheck("updatedAt");
@@ -100,7 +100,7 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
         agHelper.AssertContains("Executed successfully from user request");
       });
     });
@@ -112,7 +112,7 @@ describe(
       apiPage.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext);
-      agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
       agHelper.AssertContains("Executed successfully from user request");
 
       apiPage.SelectPaneTab("Pagination");
@@ -125,7 +125,7 @@ describe(
       cy.clickTest(apiwidget.TestNextUrl);
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck("Josh M Krantz");
-      agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
       agHelper.AssertContains("Executed successfully from user request");
 
       apiPage.SelectPaneTab("Pagination");
@@ -137,7 +137,7 @@ describe(
       cy.clickTest(apiwidget.TestPreUrl);
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext);
-      agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
       agHelper.AssertContains("Executed successfully from user request");
     });
 
@@ -147,7 +147,7 @@ describe(
       apiPage.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext3);
-      agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
       agHelper.AssertContains("Executed successfully from user request");
     });
 
@@ -157,7 +157,7 @@ describe(
       agHelper.AssertAutoSave();
       apiPage.RunAPI(false);
       apiPage.ResponseStatusCheck("5000");
-      agHelper.GetNClickByContains(ApiEditor.apiResponseTabsList, "Logs");
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
       agHelper.AssertContains("Executed successfully from user request");
       cy.ResponseCheck("Invalid value for Content-Type");
     });
