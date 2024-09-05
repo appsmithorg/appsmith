@@ -49,13 +49,7 @@
           "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "IMAGE-CLASSIFY-Z3",
-      "children": [
+        },
         {
           "label": "Labels",
           "Description": "Provide labels as comma-separated string input for classification",
@@ -64,13 +58,7 @@
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
           "isRequired": true
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "IMAGE-CLASSIFY-Z4",
-      "children": [
+        },
         {
           "label": "Additional Instructions",
           "Description": "Provide additional instructions to tweak the classification",

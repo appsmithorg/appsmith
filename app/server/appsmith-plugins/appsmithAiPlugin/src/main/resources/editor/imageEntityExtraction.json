@@ -48,17 +48,8 @@
           "configProperty": "actionConfiguration.formData.imageEntity.input.data",
           "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "isRequired": true,
-          "customStyles": {
-            "width": "700px"
-          }
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "IMAGE-ENTITY-EXTRACT-Z3",
-      "children": [
+          "isRequired": true
+        },
         {
           "label": "Entities",
           "Description": "Provide a comma separated list of entities to extract from the Input",
@@ -66,17 +57,8 @@
           "configProperty": "actionConfiguration.formData.imageEntity.labels.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
-          "isRequired": true,
-          "customStyles": {
-            "width": "700px"
-          }
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "IMAGE-ENTITY-EXTRACT-Z4",
-      "children": [
+          "isRequired": true
+        },
         {
           "label": "Additional Instructions",
           "Description": "Provide additional instructions for the AI to tweak the entity extraction",

@@ -54,13 +54,7 @@
           "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "isRequired": true
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "TEXT-SUMMARY-Z3",
-      "children": [
+        },
         {
           "label": "Additional Instructions",
           "Description": "Provide additional instructions for the AI to tweak the summarization",

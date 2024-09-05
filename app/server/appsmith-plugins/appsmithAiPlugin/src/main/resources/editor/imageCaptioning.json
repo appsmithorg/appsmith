@@ -39,17 +39,8 @@
           "configProperty": "actionConfiguration.formData.imageCaption.input.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-          "isRequired": true,
-          "customStyles": {
-            "width": "700px"
-          }
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "IMAGE-CAPTION-Z3",
-      "children": [
+          "isRequired": true
+        },
         {
           "label": "Additional Instructions",
           "Description": "Provide additional instructions to tweak the caption",
@@ -58,10 +49,7 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
           "isRequired": false,
-          "initialValue": "",
-          "customStyles": {
-            "width": "700px"
-          }
+          "initialValue": ""
         }
       ]
     }

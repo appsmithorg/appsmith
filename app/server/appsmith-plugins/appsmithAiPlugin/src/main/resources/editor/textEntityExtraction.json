@@ -49,13 +49,7 @@
           "configProperty": "actionConfiguration.formData.textEntity.input.data",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "isRequired": true
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "TEXT-ENTITY-EXTRACT-Z3",
-      "children": [
+        },
         {
           "label": "Entities",
           "Description": "Provide a comma separated list of entities to extract from the Input",
@@ -64,13 +58,7 @@
           "configProperty": "actionConfiguration.formData.textEntity.labels.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "identifier": "TEXT-ENTITY-EXTRACT-Z4",
-      "children": [
+        },
         {
           "label": "Additional Instructions",
           "Description": "Provide additional instructions for the AI to tweak the entity extraction",
