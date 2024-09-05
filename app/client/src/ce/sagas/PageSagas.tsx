@@ -404,6 +404,7 @@ export function* fetchPublishedPageResourcesSaga(
       // In future, we can reuse this saga to fetch other resources of the page like actionCollections etc
       const { publishedActions } = response;
       yield put(fetchActionsForView({ applicationId: "", publishedActions }));
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
     }
   } catch (error) {
     yield put({
