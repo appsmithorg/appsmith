@@ -8,6 +8,38 @@ import { optionsCustomValidation } from "./validations";
 
 type WidgetTypeValue = "SELECT" | "COMBOBOX";
 
+export const handleWidgetTypeUpdate = (
+  _props: WidgetProps,
+  propertyName: string,
+  propertyValue: WidgetTypeValue,
+) => {
+  const updates: PropertyUpdates[] = [
+    {
+      propertyPath: propertyName,
+      propertyValue: propertyValue,
+    },
+  ];
+
+  // Handle widget morphing
+  if (propertyName === "widgetType") {
+    const morphingMap: Record<WidgetTypeValue, string> = {
+      SELECT: "WDS_SELECT_WIDGET",
+      COMBOBOX: "WDS_COMBOBOX_WIDGET",
+    };
+
+    const targetWidgetType = morphingMap[propertyValue];
+
+    if (targetWidgetType) {
+      updates.push({
+        propertyPath: "type",
+        propertyValue: targetWidgetType,
+      });
+    }
+  }
+
+  return updates;
+};
+
 export const propertyPaneContentConfig = [
   {
     sectionName: "Data",
@@ -28,37 +60,7 @@ export const propertyPaneContentConfig = [
         ],
         isBindProperty: false,
         isTriggerProperty: false,
-        updateHook: (
-          _props: WidgetProps,
-          propertyName: string,
-          propertyValue: WidgetTypeValue,
-        ) => {
-          const updates: PropertyUpdates[] = [
-            {
-              propertyPath: propertyName,
-              propertyValue: propertyValue,
-            },
-          ];
-
-          // Handle widget morphing
-          if (propertyName === "widgetType") {
-            const morphingMap: Record<WidgetTypeValue, string> = {
-              SELECT: "WDS_SELECT_WIDGET",
-              COMBOBOX: "WDS_COMBOBOX_WIDGET",
-            };
-
-            const targetWidgetType = morphingMap[propertyValue];
-
-            if (targetWidgetType) {
-              updates.push({
-                propertyPath: "type",
-                propertyValue: targetWidgetType,
-              });
-            }
-          }
-
-          return updates;
-        },
+        updateHook: handleWidgetTypeUpdate,
       },
       {
         helpText: "Displays a list of unique options",
