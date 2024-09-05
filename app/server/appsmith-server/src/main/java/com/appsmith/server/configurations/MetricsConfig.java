@@ -33,7 +33,6 @@ public class MetricsConfig {
 
     public static final String NEW_RELIC_MICROMETER_METRICS_ENDPOINT = "https://otlp.nr-data.net:4317";
     public static final String API_KEY = "api-key";
-    public static final String CONTAINER_NAME_KEY = "container.name";
     public static final String SERVICE_NAME_KEY = "service.name";
     public static final String INSTRUMENTATION_PROVIDER_KEY = "instrumentation.provider";
     public static final String MICROMETER = "micrometer";
@@ -48,13 +47,6 @@ public class MetricsConfig {
     private String newRelicContainerName;
 
     private final CommonConfig commonConfig;
-
-    private int getMetricsInterval() {
-        if (commonConfig.isMetricsDetail()) {
-            return 1;
-        }
-        return 60;
-    }
 
     @Bean
     @ConditionalOnMicrometerMetricsEnabled
@@ -72,33 +64,34 @@ public class MetricsConfig {
     @ConditionalOnMicrometerMetricsEnabled
     public OpenTelemetry openTelemetry() {
         return OpenTelemetrySdk.builder()
-                .setMeterProvider(SdkMeterProvider.builder()
-                        .setResource(Resource.getDefault().toBuilder()
-                                .put(SERVICE_NAME_KEY, newRelicApplicationName)
-                                // Include instrumentation.provider=micrometer to enable micrometer metrics
-                                // experience in New Relic
-                                .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
-                                .put(CONTAINER_NAME_KEY, newRelicContainerName)
-                                .build())
-                        .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
-                                        .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
-                                        .addHeader(API_KEY, newRelicKey)
-                                        // IMPORTANT: New Relic requires metrics to be delta temporality
+            .setMeterProvider(SdkMeterProvider.builder()
+                .setResource(Resource.getDefault().toBuilder()
+                    .put(SERVICE_NAME_KEY, newRelicApplicationName)
+                    // Include instrumentation.provider=micrometer to enable micrometer metrics
+                    // experience in New Relic
+                    .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
+                    .put("container.name", newRelicContainerName)
+                    .build())
+                .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
+                        .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
+                        .addHeader(API_KEY, newRelicKey)
+                        // IMPORTANT: New Relic requires metrics to be delta temporality
 
-                                        .setAggregationTemporalitySelector(
-                                                AggregationTemporalitySelector.deltaPreferred())
-                                        // Use exponential histogram aggregation for histogram instruments
-                                        // to produce better data and compression
-                                        .setDefaultAggregationSelector(DefaultAggregationSelector.getDefault()
-                                                .with(
-                                                        InstrumentType.HISTOGRAM,
-                                                        Aggregation.base2ExponentialBucketHistogram()))
-                                        .build())
-                                // Match default micrometer collection interval of 60 seconds
-                                .setInterval(Duration.ofSeconds(getMetricsInterval()))
-                                .build())
+                        .setAggregationTemporalitySelector(
+                            AggregationTemporalitySelector.deltaPreferred())
+                        // Use exponential histogram aggregation for histogram instruments
+                        // to
+                        // produce better data and compression
+                        .setDefaultAggregationSelector(DefaultAggregationSelector.getDefault()
+                            .with(
+                                InstrumentType.HISTOGRAM,
+                                Aggregation.base2ExponentialBucketHistogram()))
                         .build())
-                .build();
+                    // Match default micrometer collection interval of 60 seconds
+                    .setInterval(Duration.ofMillis(commonConfig.getMetricsIntervalMillis()))
+                    .build())
+                .build())
+            .build();
     }
 
     @Bean
