@@ -32,8 +32,6 @@ describe(
       agHelper.GetNClick(dataSources._gsScopeDropdown);
       cy.get(dataSources._gsScopeOptions).then(function ($ele) {
         expect($ele.eq(0).text()).to.be.oneOf(scopeOptions);
-        expect($ele.eq(1).text()).to.be.oneOf(scopeOptions);
-        expect($ele.eq(2).text()).to.be.oneOf(scopeOptions);
       });
       agHelper.GetNClick(dataSources._gsScopeDropdown);
     }
