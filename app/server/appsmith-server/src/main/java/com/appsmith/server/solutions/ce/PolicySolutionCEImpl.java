@@ -101,8 +101,9 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
             policyMap1.put(entry.getKey(), entry.getValue());
         }
 
+        Set<Policy> policies = new HashSet<>(obj.getPolicies());
         // Remove the user from the existing permission policy if it exists.
-        for (Policy policy : obj.getPolicies()) {
+        for (Policy policy : policies) {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
                 if (policy.getPermissionGroups() == null) {
@@ -116,7 +117,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                 policyMap1.remove(permission);
             }
         }
-
+        obj.setPolicies(policies);
         return obj;
     }
 

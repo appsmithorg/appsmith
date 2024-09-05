@@ -1,6 +1,6 @@
 import { call, spawn } from "redux-saga/effects";
 import {
-  logActionExecutionError,
+  showToastOnExecutionError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { isEmpty } from "lodash";
@@ -35,6 +35,6 @@ export function* executePostMessage(
       }
     }
   } catch (error) {
-    yield call(logActionExecutionError, (error as Error).message, true);
+    yield call(showToastOnExecutionError, (error as Error).message);
   }
 }

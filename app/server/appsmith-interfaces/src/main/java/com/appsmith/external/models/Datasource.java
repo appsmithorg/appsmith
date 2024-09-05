@@ -56,7 +56,7 @@ public class Datasource extends GitSyncedDomain {
     // This is only kept public for embedded datasource
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     DatasourceConfiguration datasourceConfiguration;
 
     @Transient
