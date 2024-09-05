@@ -137,10 +137,12 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     options: WDSSelectWidgetProps["options"],
   ): SelectItem[] => {
     if (Array.isArray(options)) {
-      return options.map((option) => ({
-        label: option[this.props.optionLabel || "label"] as string,
-        id: option[this.props.optionValue || "value"] as string,
+      const items = options.map((option) => ({
+        label: option["label"] as string,
+        id: option["value"] as string,
       }));
+
+      return items;
     }
 
     return [];

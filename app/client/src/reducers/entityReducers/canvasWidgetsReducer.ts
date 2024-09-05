@@ -1,17 +1,17 @@
-import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { uniq, get, set } from "lodash";
+import { objectKeys } from "@appsmith/utils";
+import type { UpdateCanvasPayload } from "actions/pageActions";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { klona } from "klona";
+import { get, set, uniq } from "lodash";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   getCanvasBottomRow,
   getCanvasWidgetHeightsToUpdate,
 } from "utils/WidgetSizeUtils";
-import { klona } from "klona";
-import type { UpdateCanvasPayload } from "actions/pageActions";
-import type { SetWidgetDynamicPropertyPayload } from "../../actions/controlActions";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values
@@ -129,7 +129,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
 
     const canvasWidgetHeightsToUpdate: Record<string, number> =
       getCanvasWidgetHeightsToUpdate(
-        Object.keys(action.payload.widgetsToUpdate),
+        objectKeys(action.payload.widgetsToUpdate),
         state,
       );
     for (const widgetId in canvasWidgetHeightsToUpdate) {
@@ -138,25 +138,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
-  },
-  [ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<SetWidgetDynamicPropertyPayload>,
-  ) => {
-    const { isDynamic, propertyPath, widgetId } = action.payload;
-    const widget = state[widgetId];
-
-    // When options JS mode is disabled, reset the optionLabel and optionValue to standard values
-    if (
-      widget.type === "WDS_SELECT_WIDGET" &&
-      propertyPath === "options" &&
-      !isDynamic
-    ) {
-      set(state, `${widgetId}.optionLabel`, "label");
-      set(state, `${widgetId}.optionValue`, "value");
-    }
-
-    return state;
   },
 });
 
