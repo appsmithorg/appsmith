@@ -403,6 +403,9 @@ export function* fetchPublishedPageResourcesSaga(
       // As in the first call only actions of the current page are fetched
       // In future, we can reuse this saga to fetch other resources of the page like actionCollections etc
       const { publishedActions } = response;
+
+      // Sending applicationId as empty as we have publishedActions present,
+      // it won't call the actions view api with applicationId
       yield put(fetchActionsForView({ applicationId: "", publishedActions }));
       yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
     }
