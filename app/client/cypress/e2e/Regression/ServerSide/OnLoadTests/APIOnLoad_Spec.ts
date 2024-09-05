@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   assertHelper,
+  debuggerHelper,
   entityExplorer,
   entityItems,
   propPane,
@@ -58,7 +59,12 @@ describe(
         `{{PageLoadApi2.data.data}}`,
       );
       agHelper.RefreshPage();
-      agHelper.ValidateToastMessage(`The action "PageLoadApi2" has failed.`);
+      debuggerHelper.AssertDebugError(
+        'The action "PageLoadApi2" has failed.',
+        "",
+        true,
+        false,
+      );
     });
 
     after(() => {
