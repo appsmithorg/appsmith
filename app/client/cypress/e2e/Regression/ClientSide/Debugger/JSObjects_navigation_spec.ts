@@ -30,7 +30,7 @@ describe("JSObjects", () => {
       shouldCreateNewJSObj: true,
     });
 
-    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.OpenDebugger();
     debuggerHelper.ClicklogEntityLink();
     agHelper.AssertCursorInput(".js-editor", { ch: 20, line: 6 });
 
