@@ -173,7 +173,11 @@ function SortingComponent(props: any) {
             undefined,
           );
           return (
-            <SortingDropdownContainer key={index} size={size}>
+            <SortingDropdownContainer
+              className="sorting-dropdown-container"
+              key={index}
+              size={size}
+            >
               <ColumnDropdownContainer>
                 <FormControl
                   config={{

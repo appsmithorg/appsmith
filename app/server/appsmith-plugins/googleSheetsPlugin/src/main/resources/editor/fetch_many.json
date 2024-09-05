@@ -37,7 +37,13 @@
               }
             }
           }
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "FETCH_MANY-Z2",
+      "children": [
         {
           "label": "Filter Format",
           "tooltipText": "The format of the filter to be applied on the data",
