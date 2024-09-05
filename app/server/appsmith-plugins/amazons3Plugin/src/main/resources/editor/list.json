@@ -119,12 +119,7 @@
               "value": "NOT_IN"
             }
           ]
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "children": [
+        },
         {
           "label": "Sort data",
           "configProperty": "actionConfiguration.formData.list.sortBy.data",
@@ -132,12 +127,7 @@
           "-subtitle": "Array of Objects",
           "-tooltipText": "Array of Objects",
           "-alternateViewTypes": ["json"]
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "children": [
+        },
         {
           "label": "Paginate data",
           "configProperty": "actionConfiguration.formData.list.pagination.data",
