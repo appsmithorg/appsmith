@@ -91,10 +91,11 @@ describe(
         1,
       );
       //Open debugger by clicking debugger icon in canvas.
-      debuggerHelper.ClickDebuggerIcon();
-      agHelper.GetNAssertContains(
-        debuggerHelper.locators._debuggerList,
+      debuggerHelper.AssertDebugError(
         "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+        "",
+        true,
+        false,
       );
     });
   },

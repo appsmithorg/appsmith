@@ -65,7 +65,7 @@ class DynamicTextControl extends BaseControl<
 
     return (
       <Wrapper
-        className={`t--${configProperty}`}
+        className={`t--${configProperty} dynamic-text-field-control`}
         fullWidth={isActionRedesignEnabled}
       >
         <DynamicTextField

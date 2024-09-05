@@ -85,6 +85,7 @@ import { WDSEmailInputWidget } from "./wds/WDSEmailInputWidget";
 import { WDSPasswordInputWidget } from "./wds/WDSPasswordInputWidget";
 import { WDSNumberInputWidget } from "./wds/WDSNumberInputWidget";
 import { WDSMultilineInputWidget } from "./wds/WDSMultilineInputWidget";
+import { WDSSelectWidget } from "./wds/WDSSelectWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -181,6 +182,7 @@ const WDSWidgets = [
   WDSPasswordInputWidget,
   WDSNumberInputWidget,
   WDSMultilineInputWidget,
+  WDSSelectWidget,
 ];
 
 const Widgets = [

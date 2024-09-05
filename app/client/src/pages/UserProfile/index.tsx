@@ -56,7 +56,7 @@ function UserProfile() {
   return (
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
-        <BackButton />
+        <BackButton goTo="/applications" />
         <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>
             {tabs.map((tab) => {

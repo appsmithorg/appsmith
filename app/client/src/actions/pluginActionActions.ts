@@ -15,6 +15,7 @@ import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import type { ApiResponse } from "api/ApiResponses";
 import type { JSCollection } from "entities/JSCollection";
+import type { ErrorActionPayload } from "sagas/ErrorSagas";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -205,10 +206,12 @@ export const moveActionSuccess = (payload: Action) => {
   };
 };
 
-export const moveActionError = (payload: {
-  id: string;
-  originalPageId: string;
-}) => {
+export const moveActionError = (
+  payload: {
+    id: string;
+    originalPageId: string;
+  } & ErrorActionPayload,
+) => {
   return {
     type: ReduxActionErrorTypes.MOVE_ACTION_ERROR,
     payload,
@@ -233,10 +236,12 @@ export const copyActionSuccess = (payload: Action) => {
   };
 };
 
-export const copyActionError = (payload: {
-  id: string;
-  destinationPageId: string;
-}) => {
+export const copyActionError = (
+  payload: {
+    id: string;
+    destinationPageId: string;
+  } & ErrorActionPayload,
+) => {
   return {
     type: ReduxActionErrorTypes.COPY_ACTION_ERROR,
     payload,
