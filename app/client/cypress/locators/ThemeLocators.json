@@ -10,5 +10,6 @@
   "fontsSelected": ".leading-normal",
   "currentTheme": ".cursor-pointer:contains('Applied theme')",
   "purpleColor": "[style='background-color: rgb(107,114,128);']",
-  "featuredThemeSection": "[data-testid='t--featured-themes']"
+  "featuredThemeSection": "[data-testid='t--featured-themes']",
+  "fontOption": ".rc-virtual-list .rc-select-item-option"
 }
