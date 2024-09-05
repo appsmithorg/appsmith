@@ -16,14 +16,12 @@ describe(
         _.homePage.CreateNewWorkspace(workspaceId, true);
         _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
         _.homePage.InviteUserToWorkspaceErrorMessage(workspaceId, "abcdef");
-        cy.log("Inviting user from UI");
         cy.visit("/applications", { timeout: 60000 });
         _.homePage.InviteUserToWorkspace(
           workspaceId,
           Cypress.env("TESTUSERNAME1"),
           "App Viewer",
         );
-        cy.log("Inviting user from UI");
         _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage users"));
         _.homePage.NavigateToHome();
         _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 2);
