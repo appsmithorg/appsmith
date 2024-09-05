@@ -99,6 +99,9 @@
   */
   &[data-disabled] {
     cursor: not-allowed;
+  }
+
+  &[data-disabled]:not([data-loading]) {
     opacity: var(--opacity-disabled);
   }
 

@@ -63,7 +63,7 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
       data-loading={isLoading ? "" : undefined}
       data-size={Boolean(size) ? size : undefined}
       data-variant={variant}
-      isDisabled={isDisabled}
+      isDisabled={isDisabled || isLoading}
       ref={ref}
       {...rest}
     >

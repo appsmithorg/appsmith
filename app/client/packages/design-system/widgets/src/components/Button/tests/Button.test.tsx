@@ -32,6 +32,7 @@ describe("@appsmith/wds/Button", () => {
   it("sets data-loading attribute and icon based on loading prop", () => {
     render(<Button isLoading />);
     expect(screen.getByRole("button")).toHaveAttribute("data-loading");
+    expect(screen.getByRole("button")).toBeDisabled();
 
     // eslint-disable-next-line testing-library/no-node-access
     const icon = screen.getByRole("button").querySelector("[data-icon]");
