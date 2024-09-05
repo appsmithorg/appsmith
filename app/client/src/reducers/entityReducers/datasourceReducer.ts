@@ -370,7 +370,7 @@ const datasourceReducer = createReducer(initialState, {
       loadingTokenForDatasourceId: null,
     };
   },
-  [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR]: (
+  [ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR]: (
     state: DatasourceDataState,
   ) => {
     return {
