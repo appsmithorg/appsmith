@@ -35,12 +35,12 @@ import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "ee/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
-import { logActionExecutionError } from "./ActionExecution/errorUtils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
+import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -57,14 +57,24 @@ export function* logJSVarCreatedEvent(
   });
 }
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function* dynamicTriggerErrorHandler(errors: any[]) {
-  if (errors.length > 0) {
-    for (const error of errors) {
-      const errorMessage =
-        error.errorMessage.message.message || error.errorMessage.message;
-      yield call(logActionExecutionError, errorMessage, true);
+export function* showExecutionErrors(errors: EvaluationError[]) {
+  const appMode: APP_MODE = yield select(getAppMode);
+  for (const error of errors) {
+    const errorMessage = get(
+      error,
+      "errorMessage.message.message",
+      error.errorMessage.message,
+    );
+    yield call(
+      showToastOnExecutionError,
+      errorMessage,
+      appMode === APP_MODE.EDIT,
+    );
+    // Add it to the logs tab when in edit mode
+    if (appMode === APP_MODE.EDIT) {
+      AppsmithConsole.error({
+        text: errorMessage,
+      });
     }
   }
 }
