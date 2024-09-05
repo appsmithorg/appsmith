@@ -267,9 +267,7 @@ function LogItem(props: LogItemProps) {
           size="md"
         />
         <span className={`debugger-time ${props.severity}`}>
-          {props.severity === Severity.ERROR
-            ? moment(parseInt(props.timestamp)).format("HH:mm:ss")
-            : props.timestamp}
+          {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
         </span>
 
         <Button
