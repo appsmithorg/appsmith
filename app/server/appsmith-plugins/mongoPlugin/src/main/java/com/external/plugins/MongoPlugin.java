@@ -393,7 +393,7 @@ public class MongoPlugin extends BasePlugin {
                                     result.setBody(objectMapper.readTree(
                                             cleanUp(new JSONObject().put(VALUE, outputJson.get(VALUE)))
                                                     .toString()));
-                                    processStopwatch.stopAndLogTimeInMillis();
+                                    processStopwatch.stopAndLogTimeInMillisWithSysOut();
                                 }
 
                                 /*
@@ -408,7 +408,7 @@ public class MongoPlugin extends BasePlugin {
                                     JSONArray outputResult = (JSONArray) cleanUp(
                                             outputJson.getJSONObject("cursor").getJSONArray("firstBatch"));
                                     result.setBody(objectMapper.readTree(outputResult.toString()));
-                                    processStopwatch.stopAndLogTimeInMillis();
+                                    processStopwatch.stopAndLogTimeInMillisWithSysOut();
                                 }
 
                                 /*
@@ -422,7 +422,7 @@ public class MongoPlugin extends BasePlugin {
                                     Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree.N");
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
                                     result.setBody(objectMapper.readTree(body.toString()));
-                                    processStopwatch.stopAndLogTimeInMillis();
+                                    processStopwatch.stopAndLogTimeInMillisWithSysOut();
                                     headerArray.put(body);
                                 }
 
@@ -438,7 +438,7 @@ public class MongoPlugin extends BasePlugin {
                                     JSONObject body =
                                             new JSONObject().put(N_MODIFIED, outputJson.getBigInteger(N_MODIFIED));
                                     result.setBody(objectMapper.readTree(body.toString()));
-                                    processStopwatch.stopAndLogTimeInMillis();
+                                    processStopwatch.stopAndLogTimeInMillisWithSysOut();
                                     headerArray.put(body);
                                 }
 
@@ -453,7 +453,7 @@ public class MongoPlugin extends BasePlugin {
                                     Stopwatch processStopwatch =
                                             new Stopwatch("Mongo Plugin objectMapper createObjectNode");
                                     ObjectNode resultNode = objectMapper.createObjectNode();
-                                    processStopwatch.stopAndLogTimeInMillis();
+                                    processStopwatch.stopAndLogTimeInMillisWithSysOut();
 
                                     // Create a JSON structure with the results stored with a key to abide by the
                                     // Server-Client contract of only sending array of objects in result.
@@ -461,12 +461,12 @@ public class MongoPlugin extends BasePlugin {
                                             new Stopwatch("Mongo Plugin objectMapper readTree outputResult");
                                     resultNode.putArray(VALUES).addAll((ArrayNode)
                                             objectMapper.readTree(outputResult.toString()));
-                                    processStopwatch1.stopAndLogTimeInMillis();
+                                    processStopwatch1.stopAndLogTimeInMillisWithSysOut();
 
                                     Stopwatch processStopwatch2 =
                                             new Stopwatch("Mongo Plugin objectMapper readTree resultNode");
                                     result.setBody(objectMapper.readTree(resultNode.toString()));
-                                    processStopwatch2.stopAndLogTimeInMillis();
+                                    processStopwatch2.stopAndLogTimeInMillisWithSysOut();
                                 }
 
                                 /*
@@ -481,7 +481,7 @@ public class MongoPlugin extends BasePlugin {
                                     Thread.currentThread().getName() + ": objectMapper readTree for Mongo plugin.");
                             Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree");
                             result.setHeaders(objectMapper.readTree(headerArray.toString()));
-                            processStopwatch.stopAndLogTimeInMillis();
+                            processStopwatch.stopAndLogTimeInMillisWithSysOut();
                         } catch (JsonProcessingException e) {
                             return Mono.error(new AppsmithPluginException(
                                     MongoPluginError.QUERY_EXECUTION_FAILED,
@@ -636,7 +636,7 @@ public class MongoPlugin extends BasePlugin {
                                 Stopwatch processStopwatch =
                                         new Stopwatch("Mongo Plugin objectMapper writeValueAsString");
                                 argWithoutQuotes = objectMapper.writeValueAsString(argWithoutQuotes);
-                                processStopwatch.stopAndLogTimeInMillis();
+                                processStopwatch.stopAndLogTimeInMillisWithSysOut();
                             }
                         } catch (JsonProcessingException e) {
                             throw new AppsmithPluginException(

@@ -506,7 +506,7 @@ public class PostgresPlugin extends BasePlugin {
                                             Stopwatch processStopwatch =
                                                     new Stopwatch("Postgres Plugin objectMapper readTree");
                                             value = objectMapper.readTree(resultSet.getString(i));
-                                            processStopwatch.stopAndLogTimeInMillis();
+                                            processStopwatch.stopAndLogTimeInMillisWithSysOut();
                                         } else {
                                             value = resultSet.getObject(i);
 
@@ -601,7 +601,7 @@ public class PostgresPlugin extends BasePlugin {
                                 Thread.currentThread().getName() + ": objectMapper valueToTree for Postgres plugin.");
                         Stopwatch processStopwatch = new Stopwatch("Postgres Plugin objectMapper valueToTree");
                         result.setBody(objectMapper.valueToTree(rowsList));
-                        processStopwatch.stopAndLogTimeInMillis();
+                        processStopwatch.stopAndLogTimeInMillisWithSysOut();
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
                         System.out.println(Thread.currentThread().getName()
@@ -1100,7 +1100,7 @@ public class PostgresPlugin extends BasePlugin {
                         Stopwatch processStopwatch =
                                 new Stopwatch("Postgres Plugin objectMapper readValue for ARRAY class");
                         List arrayListFromInput = objectMapper.readValue(value, List.class);
-                        processStopwatch.stopAndLogTimeInMillis();
+                        processStopwatch.stopAndLogTimeInMillisWithSysOut();
                         if (arrayListFromInput.isEmpty()) {
                             break;
                         }
