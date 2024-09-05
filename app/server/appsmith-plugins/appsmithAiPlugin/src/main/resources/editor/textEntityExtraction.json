@@ -1,66 +1,75 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "TEXT_ENTITY_EXTRACT",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_ENTITY_EXTRACT'}}"
   },
   "children": [
     {
-      "label": "Try out these examples",
-      "Description": "Try out these examples",
-      "subtitle": "",
-      "configProperty": "",
-      "controlType": "FORM_TEMPLATE",
-      "isRequired": false,
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "TEXT-ENTITY-EXTRACT-Z1",
+      "children": [
         {
-          "label": "Customer support",
-          "value": {
-            "actionConfiguration.formData.textEntity.input.data": "Dear team,\n\nI have a query regarding the address update process in my profile. I recently moved to a new location, and I need to update my address to 1234 Oak Street, Newville, NV 12345. However, I am encountering an error on the website. Could you assist me with this? My account number is 99892.\n\nRegards, \nMark ",
-            "actionConfiguration.formData.textEntity.instructions.data": "If you’re unable to extract an entity, respond with \"Not found\"",
-            "actionConfiguration.formData.textEntity.labels.data": "name, address, account number, gender"
-          }
-        },
-        {
-          "label": "Inspection report",
-          "value": {
-            "actionConfiguration.formData.textEntity.input.data": "The 2018 Toyota Camry with a mileage of 45,000 miles, VIN 1HGBH41JXMN109186, was thoroughly inspected on January 9, 2024. The engine and transmission are in good condition, showing no significant issues and well-maintained fluid levels. The brakes, however, require attention with the front brake pads and rear brake discs needing replacement due to wear and warping. The suspension system also needs attention; both front struts and rear shock absorbers show signs of leakage and wear and are recommended for replacement. Tire inspection revealed uneven wear patterns with the front left and rear right tires nearing the legal limit for tread depth, necessitating replacement. The exhaust system is in good condition with no observable leaks or corrosion. The electrical system needs attention, particularly the battery, which shows reduced capacity and needs replacement. Cooling system checks out well with adequate coolant levels and no leaks. Some lights and indicators, including the right headlight bulb and rear left turn indicator, are non-functional or dimming and need replacing. The windshield wipers are ineffective and require replacement. Interior components and the body and frame are in good condition, showing only minor wear and superficial damage. In conclusion, while the 2018 Toyota Camry is generally in good condition, it requires maintenance, particularly for the braking system, suspension, tires, electrical systems, lights, and windshield wipers. Addressing these issues will ensure the vehicle’s safety and performance. Regular check-ups are advised to monitor the condition of parts currently in good or fair condition. This inspection was conducted by John Doe, an ASE Certified Mechanic, at XYZ Auto Service Center.",
-            "actionConfiguration.formData.textEntity.instructions.data": "Remove special characters in the VIN and extract the date in MM/DD/YYYY format.",
-            "actionConfiguration.formData.textEntity.labels.data": "year, make, model, VIN, date, mechanic name, service centre name, overall condition"
-          }
+          "label": "Try out these examples",
+          "Description": "Try out these examples",
+          "subtitle": "",
+          "configProperty": "",
+          "controlType": "FORM_TEMPLATE",
+          "isRequired": false,
+          "options": [
+            {
+              "label": "Customer support",
+              "value": {
+                "actionConfiguration.formData.textEntity.input.data": "Dear team,\n\nI have a query regarding the address update process in my profile. I recently moved to a new location, and I need to update my address to 1234 Oak Street, Newville, NV 12345. However, I am encountering an error on the website. Could you assist me with this? My account number is 99892.\n\nRegards, \nMark ",
+                "actionConfiguration.formData.textEntity.instructions.data": "If you’re unable to extract an entity, respond with \"Not found\"",
+                "actionConfiguration.formData.textEntity.labels.data": "name, address, account number, gender"
+              }
+            },
+            {
+              "label": "Inspection report",
+              "value": {
+                "actionConfiguration.formData.textEntity.input.data": "The 2018 Toyota Camry with a mileage of 45,000 miles, VIN 1HGBH41JXMN109186, was thoroughly inspected on January 9, 2024. The engine and transmission are in good condition, showing no significant issues and well-maintained fluid levels. The brakes, however, require attention with the front brake pads and rear brake discs needing replacement due to wear and warping. The suspension system also needs attention; both front struts and rear shock absorbers show signs of leakage and wear and are recommended for replacement. Tire inspection revealed uneven wear patterns with the front left and rear right tires nearing the legal limit for tread depth, necessitating replacement. The exhaust system is in good condition with no observable leaks or corrosion. The electrical system needs attention, particularly the battery, which shows reduced capacity and needs replacement. Cooling system checks out well with adequate coolant levels and no leaks. Some lights and indicators, including the right headlight bulb and rear left turn indicator, are non-functional or dimming and need replacing. The windshield wipers are ineffective and require replacement. Interior components and the body and frame are in good condition, showing only minor wear and superficial damage. In conclusion, while the 2018 Toyota Camry is generally in good condition, it requires maintenance, particularly for the braking system, suspension, tires, electrical systems, lights, and windshield wipers. Addressing these issues will ensure the vehicle’s safety and performance. Regular check-ups are advised to monitor the condition of parts currently in good or fair condition. This inspection was conducted by John Doe, an ASE Certified Mechanic, at XYZ Auto Service Center.",
+                "actionConfiguration.formData.textEntity.instructions.data": "Remove special characters in the VIN and extract the date in MM/DD/YYYY format.",
+                "actionConfiguration.formData.textEntity.labels.data": "year, make, model, VIN, date, mechanic name, service centre name, overall condition"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Input",
-      "Description": "Provide some text for AI to extract entities from",
-      "subtitle": "Provide some text for AI to extract entities from",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "configProperty": "actionConfiguration.formData.textEntity.input.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "isRequired": true
-    },
-    {
-      "label": "Entities",
-      "Description": "Provide a comma separated list of entities to extract from the Input",
-      "subtitle": "Provide a comma separated list of entities to extract from the Input",
-      "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
-      "configProperty": "actionConfiguration.formData.textEntity.labels.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "isRequired": true,
-      "customStyles": {
-        "width": "872px"
-      }
-    },
-    {
-      "label": "Additional Instructions",
-      "Description": "Provide additional instructions for the AI to tweak the entity extraction",
-      "subtitle": "Provide additional instructions for the AI to tweak the entity extraction",
-      "configProperty": "actionConfiguration.formData.textEntity.instructions.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "initialValue": "",
-      "isRequired": false
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "TEXT-ENTITY-EXTRACT-Z2",
+      "children": [
+        {
+          "label": "Input",
+          "Description": "Provide some text for AI to extract entities from",
+          "subtitle": "Provide some text for AI to extract entities from",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "configProperty": "actionConfiguration.formData.textEntity.input.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true
+        },
+        {
+          "label": "Entities",
+          "Description": "Provide a comma separated list of entities to extract from the Input",
+          "subtitle": "Provide a comma separated list of entities to extract from the Input",
+          "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
+          "configProperty": "actionConfiguration.formData.textEntity.labels.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "isRequired": true
+        },
+        {
+          "label": "Additional Instructions",
+          "Description": "Provide additional instructions for the AI to tweak the entity extraction",
+          "subtitle": "Provide additional instructions for the AI to tweak the entity extraction",
+          "configProperty": "actionConfiguration.formData.textEntity.instructions.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "initialValue": "",
+          "isRequired": false
+        }
+      ]
     }
   ]
 }

@@ -1,69 +1,75 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "IMAGE_ENTITY_EXTRACT",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'IMAGE_ENTITY_EXTRACT'}}"
   },
   "children": [
     {
-      "label": "Try out these examples",
-      "Description": "Try out these examples",
-      "subtitle": "",
-      "configProperty": "",
-      "controlType": "FORM_TEMPLATE",
-      "isRequired": false,
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "IMAGE-ENTITY-EXTRACT-Z1",
+      "children": [
         {
-          "label": "KYC document",
-          "value": {
-            "actionConfiguration.formData.imageEntity.input.data": "https://i.imgur.com/5h9SfGf.jpgg",
-            "actionConfiguration.formData.imageEntity.labels.data": "name, date of birth, gender, licence number, height",
-            "actionConfiguration.formData.imageEntity.instructions.data": ""
-          }
-        },
-        {
-          "label": "Expense report",
-          "value": {
-            "actionConfiguration.formData.imageEntity.input.data": "https://i.imgur.com/z2PlaKB.jpg",
-            "actionConfiguration.formData.imageEntity.labels.data": "food items, tax, total cost, date of purchase",
-            "actionConfiguration.formData.imageEntity.instructions.data": "The date should be in dd/mm/yyyy format"
-          }
+          "label": "Try out these examples",
+          "Description": "Try out these examples",
+          "subtitle": "",
+          "configProperty": "",
+          "controlType": "FORM_TEMPLATE",
+          "isRequired": false,
+          "options": [
+            {
+              "label": "KYC document",
+              "value": {
+                "actionConfiguration.formData.imageEntity.input.data": "https://i.imgur.com/5h9SfGf.jpgg",
+                "actionConfiguration.formData.imageEntity.labels.data": "name, date of birth, gender, licence number, height",
+                "actionConfiguration.formData.imageEntity.instructions.data": ""
+              }
+            },
+            {
+              "label": "Expense report",
+              "value": {
+                "actionConfiguration.formData.imageEntity.input.data": "https://i.imgur.com/z2PlaKB.jpg",
+                "actionConfiguration.formData.imageEntity.labels.data": "food items, tax, total cost, date of purchase",
+                "actionConfiguration.formData.imageEntity.instructions.data": "The date should be in dd/mm/yyyy format"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Input",
-      "Description": "Provide an image URL or the base64 encoded image",
-      "subtitle": "Provide an image URL or the base64 encoded image",
-      "configProperty": "actionConfiguration.formData.imageEntity.input.data",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "isRequired": true,
-      "customStyles": {
-        "width": "700px"
-      }
-    },
-    {
-      "label": "Entities",
-      "Description": "Provide a comma separated list of entities to extract from the Input",
-      "subtitle": "Provide a comma separated list of entities to extract from the Input",
-      "configProperty": "actionConfiguration.formData.imageEntity.labels.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
-      "isRequired": true,
-      "customStyles": {
-        "width": "700px"
-      }
-    },
-    {
-      "label": "Additional Instructions",
-      "Description": "Provide additional instructions for the AI to tweak the entity extraction",
-      "subtitle": "Provide additional instructions for the AI to tweak the entity extraction",
-      "configProperty": "actionConfiguration.formData.imageEntity.instructions.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "initialValue": "",
-      "isRequired": false
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "IMAGE-ENTITY-EXTRACT-Z2",
+      "children": [
+        {
+          "label": "Input",
+          "Description": "Provide an image URL or the base64 encoded image",
+          "subtitle": "Provide an image URL or the base64 encoded image",
+          "configProperty": "actionConfiguration.formData.imageEntity.input.data",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "isRequired": true
+        },
+        {
+          "label": "Entities",
+          "Description": "Provide a comma separated list of entities to extract from the Input",
+          "subtitle": "Provide a comma separated list of entities to extract from the Input",
+          "configProperty": "actionConfiguration.formData.imageEntity.labels.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
+          "isRequired": true
+        },
+        {
+          "label": "Additional Instructions",
+          "Description": "Provide additional instructions for the AI to tweak the entity extraction",
+          "subtitle": "Provide additional instructions for the AI to tweak the entity extraction",
+          "configProperty": "actionConfiguration.formData.imageEntity.instructions.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "initialValue": "",
+          "isRequired": false
+        }
+      ]
     }
   ]
 }

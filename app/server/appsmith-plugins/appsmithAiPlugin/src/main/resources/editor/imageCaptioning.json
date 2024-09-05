@@ -1,51 +1,57 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "IMAGE_CAPTION",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'IMAGE_CAPTION'}}"
   },
   "children": [
     {
-      "label": "Try out these examples",
-      "Description": "Try out these examples",
-      "subtitle": "",
-      "configProperty": "",
-      "controlType": "FORM_TEMPLATE",
-      "isRequired": false,
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "IMAGE-CAPTION-Z1",
+      "children": [
         {
-          "label": "Product description",
-          "value": {
-            "actionConfiguration.formData.imageCaption.input.data": "https://i.imgur.com/Eiq5s0F.png",
-            "actionConfiguration.formData.imageCaption.instructions.data": "Write a 200 word product description"
-          }
+          "label": "Try out these examples",
+          "Description": "Try out these examples",
+          "subtitle": "",
+          "configProperty": "",
+          "controlType": "FORM_TEMPLATE",
+          "isRequired": false,
+          "options": [
+            {
+              "label": "Product description",
+              "value": {
+                "actionConfiguration.formData.imageCaption.input.data": "https://i.imgur.com/Eiq5s0F.png",
+                "actionConfiguration.formData.imageCaption.instructions.data": "Write a 200 word product description"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Input",
-      "Description": "Provide an image URL or the base64 encoded image",
-      "subtitle": "Provide an image URL or the base64 encoded image",
-      "configProperty": "actionConfiguration.formData.imageCaption.input.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "isRequired": true,
-      "customStyles": {
-        "width": "700px"
-      }
-    },
-    {
-      "label": "Additional Instructions",
-      "Description": "Provide additional instructions to tweak the caption",
-      "subtitle": "Provide additional instructions to tweak the caption",
-      "configProperty": "actionConfiguration.formData.imageCaption.instructions.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "isRequired": false,
-      "initialValue": "",
-      "customStyles": {
-        "width": "700px"
-      }
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "IMAGE-CAPTION-Z2",
+      "children": [
+        {
+          "label": "Input",
+          "Description": "Provide an image URL or the base64 encoded image",
+          "subtitle": "Provide an image URL or the base64 encoded image",
+          "configProperty": "actionConfiguration.formData.imageCaption.input.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "isRequired": true
+        },
+        {
+          "label": "Additional Instructions",
+          "Description": "Provide additional instructions to tweak the caption",
+          "subtitle": "Provide additional instructions to tweak the caption",
+          "configProperty": "actionConfiguration.formData.imageCaption.instructions.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "isRequired": false,
+          "initialValue": ""
+        }
+      ]
     }
   ]
 }
