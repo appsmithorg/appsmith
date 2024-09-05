@@ -16,7 +16,7 @@ let themeFont;
 describe(
   "Theme validation usecase for multi-select widget",
   { tags: ["@tag.Theme"] },
-  function () { 
+  function () {
     it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
       entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.MULTISELECT,
@@ -81,7 +81,7 @@ describe(
           });
       });
       cy.contains("Font").click({ force: true });
- 
+
       appSettings.ClosePane();
     });
 
@@ -101,13 +101,15 @@ describe(
       appSettings.OpenAppSettings();
       appSettings.GoToThemeSettings();
       cy.get(commonlocators.changeThemeBtn).click({ force: true });
-      cy.get(`${themelocator.featuredThemeSection} [data-testid='t--theme-card-Sunrise']`)
-      .click({ force: true })
-      .wait(1000);
+      cy.get(
+        `${themelocator.featuredThemeSection} [data-testid='t--theme-card-Sunrise']`,
+      )
+        .click({ force: true })
+        .wait(1000);
 
       deployMode.DeployApp();
- 
-      cy.get(".rc-select-selector").click({force: true});
+
+      cy.get(".rc-select-selector").click({ force: true });
       cy.get(".rc-select-item-option-selected .bp3-control-indicator")
         .first()
         .should("have.css", "background-color", "rgb(239, 68, 68)");
