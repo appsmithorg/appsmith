@@ -78,10 +78,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
 
-    Flux<NewAction> findAllPublishedActionsByPageIdAndExcludedPluginTypes(
-            String pageId, AclPermission permission, Sort sort, List<String> excludedPluginTypes);
+    Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
-    Flux<ActionViewDTO> getActionsForViewMode(String pageId);
+    Flux<ActionViewDTO> getActionsForViewModeByPageId(String pageId);
 
     ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode);
 

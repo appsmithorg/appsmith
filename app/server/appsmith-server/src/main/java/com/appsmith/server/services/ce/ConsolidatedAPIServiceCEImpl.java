@@ -295,7 +295,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         : branchedPageMonoCached.map(NewPage::getId);
                 fetches.add(branchedPageIdMono
                         .flatMap(branchedPageId -> newActionService
-                                .getActionsForViewMode(branchedPageId)
+                                .getActionsForViewModeByPageId(branchedPageId)
                                 .collectList())
                         .as(this::toResponseDTO)
                         .doOnError(e -> log.error("Error fetching actions for view mode", e))

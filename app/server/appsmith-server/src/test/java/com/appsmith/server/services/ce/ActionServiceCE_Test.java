@@ -696,7 +696,7 @@ public class ActionServiceCE_Test {
                 .then(layoutActionService.createSingleAction(action1, Boolean.FALSE))
                 .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                 .then(applicationPageService.publish(testPage.getApplicationId(), true))
-                .then(newActionService.getActionsForViewMode(testPage.getId()).collectList());
+                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionsListMono)
                 .assertNext(actionsList -> {
@@ -752,7 +752,7 @@ public class ActionServiceCE_Test {
         Mono<List<ActionViewDTO>> actionViewModeListMono = createActionMono
                 // Publish the application before fetching the action in view mode
                 .then(applicationPageService.publish(testApp.getId(), true))
-                .then(newActionService.getActionsForViewMode(testPage.getId()).collectList());
+                .then(newActionService.getActionsForViewMode(testApp.getId()).collectList());
 
         StepVerifier.create(actionViewModeListMono)
                 .assertNext(actions -> {

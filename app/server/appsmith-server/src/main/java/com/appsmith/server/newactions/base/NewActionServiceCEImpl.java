@@ -730,15 +730,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findAllPublishedActionsByPageIdAndExcludedPluginTypes(
-            String pageId, AclPermission permission, Sort sort, List<String> excludedPluginTypes) {
-        return repository
-                .findPublishedActionsByPageIdAndExcludedPluginType(pageId, excludedPluginTypes, permission, sort)
-                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
-                .tap(Micrometer.observation(observationRegistry));
-    }
-
-    @Override
     public Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
@@ -772,8 +763,26 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
+    public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
+
+        if (applicationId == null || applicationId.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+
+        List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
+
+        // fetch the published actions by appId
+        // No need to sort the results
+        return repository
+                .findPublishedActionsByAppIdAndExcludedPluginType(
+                        applicationId, excludedPluginTypes, actionPermission.getExecutePermission(), null)
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry))
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
+    }
+
     @Override
-    public Flux<ActionViewDTO> getActionsForViewMode(String pageId) {
+    public Flux<ActionViewDTO> getActionsForViewModeByPageId(String pageId) {
 
         if (pageId == null || pageId.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
@@ -783,8 +792,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         // fetch the published actions by pageId
         // No need to sort the results
-        return findAllPublishedActionsByPageIdAndExcludedPluginTypes(
-                        pageId, actionPermission.getExecutePermission(), null, excludedPluginTypes)
+        return repository
+                .findPublishedActionsByPageIdAndExcludedPluginType(
+                        pageId, excludedPluginTypes, actionPermission.getExecutePermission(), null)
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry))
                 .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
     }
 
