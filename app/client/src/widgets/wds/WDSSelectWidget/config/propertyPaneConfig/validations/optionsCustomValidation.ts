@@ -38,8 +38,23 @@ export function optionsCustomValidation(
   const hasDuplicates = (array: unknown[]): boolean =>
     new Set(array).size !== array.length;
 
-  // Is Form mode, otherwise it is JS mode
   if (Array.isArray(options)) {
+    const isValidKeys = options.every((option) => {
+      return (
+        _.isPlainObject(option) &&
+        _.has(option, "label") &&
+        _.has(option, "value")
+      );
+    });
+
+    if (!isValidKeys) {
+      return createErrorValidationResponse(options, {
+        name: "ValidationError",
+        message:
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      });
+    }
+
     return createSuccessValidationResponse(options);
   }
 
@@ -59,6 +74,22 @@ export function optionsCustomValidation(
       return createErrorValidationResponse(options, {
         name: "ValidationError",
         message: "Options cannot be an empty array",
+      });
+    }
+
+    const isValidKeys = options.every((option) => {
+      return (
+        _.isPlainObject(option) &&
+        _.has(option, "label") &&
+        _.has(option, "value")
+      );
+    });
+
+    if (!isValidKeys) {
+      return createErrorValidationResponse(options, {
+        name: "ValidationError",
+        message:
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
       });
     }
 
