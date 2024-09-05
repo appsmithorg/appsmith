@@ -39,7 +39,7 @@ const toast = {
     const toastId = JSON.stringify({ ...options, content });
     return toastifyToast(
       <ToastBody kind="body-m">
-        <pre style={{font:'inherit'}}>{content}</pre>
+        <pre style={{ font: "inherit" }}>{content}</pre>
         {actionText && (
           <StyledButton
             kind="tertiary"
