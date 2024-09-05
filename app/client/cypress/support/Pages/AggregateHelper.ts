@@ -1552,6 +1552,13 @@ export class AggregateHelper {
     ) as Cypress.Chainable<boolean>;
   }
 
+  /**
+   * Checks if the specified instance of the element is present with number and visible on the page.
+   *
+   * @param {ElementType} selector - The element selector.
+   * @param {number} [eq=0] - The index of the element to check (default is 0).
+   * @returns {Cypress.Chainable<boolean>} - Returns a boolean wrapped in a Cypress Chainable indicating visibility.
+   */
   IsElementVisibleWithEq(selector: ElementType, eq: number = 0) {
     return this.GetElement(selector)
       .eq(eq)
