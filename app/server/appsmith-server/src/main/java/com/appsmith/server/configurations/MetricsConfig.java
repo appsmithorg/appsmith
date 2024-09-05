@@ -64,34 +64,34 @@ public class MetricsConfig {
     @ConditionalOnMicrometerMetricsEnabled
     public OpenTelemetry openTelemetry() {
         return OpenTelemetrySdk.builder()
-            .setMeterProvider(SdkMeterProvider.builder()
-                .setResource(Resource.getDefault().toBuilder()
-                    .put(SERVICE_NAME_KEY, newRelicApplicationName)
-                    // Include instrumentation.provider=micrometer to enable micrometer metrics
-                    // experience in New Relic
-                    .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
-                    .put("container.name", newRelicContainerName)
-                    .build())
-                .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
-                        .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
-                        .addHeader(API_KEY, newRelicKey)
-                        // IMPORTANT: New Relic requires metrics to be delta temporality
+                .setMeterProvider(SdkMeterProvider.builder()
+                        .setResource(Resource.getDefault().toBuilder()
+                                .put(SERVICE_NAME_KEY, newRelicApplicationName)
+                                // Include instrumentation.provider=micrometer to enable micrometer metrics
+                                // experience in New Relic
+                                .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
+                                .put("container.name", newRelicContainerName)
+                                .build())
+                        .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
+                                        .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
+                                        .addHeader(API_KEY, newRelicKey)
+                                        // IMPORTANT: New Relic requires metrics to be delta temporality
 
-                        .setAggregationTemporalitySelector(
-                            AggregationTemporalitySelector.deltaPreferred())
-                        // Use exponential histogram aggregation for histogram instruments
-                        // to
-                        // produce better data and compression
-                        .setDefaultAggregationSelector(DefaultAggregationSelector.getDefault()
-                            .with(
-                                InstrumentType.HISTOGRAM,
-                                Aggregation.base2ExponentialBucketHistogram()))
+                                        .setAggregationTemporalitySelector(
+                                                AggregationTemporalitySelector.deltaPreferred())
+                                        // Use exponential histogram aggregation for histogram instruments
+                                        // to
+                                        // produce better data and compression
+                                        .setDefaultAggregationSelector(DefaultAggregationSelector.getDefault()
+                                                .with(
+                                                        InstrumentType.HISTOGRAM,
+                                                        Aggregation.base2ExponentialBucketHistogram()))
+                                        .build())
+                                // Match default micrometer collection interval of 60 seconds
+                                .setInterval(Duration.ofMillis(commonConfig.getMetricsIntervalMillis()))
+                                .build())
                         .build())
-                    // Match default micrometer collection interval of 60 seconds
-                    .setInterval(Duration.ofMillis(commonConfig.getMetricsIntervalMillis()))
-                    .build())
-                .build())
-            .build();
+                .build();
     }
 
     @Bean
