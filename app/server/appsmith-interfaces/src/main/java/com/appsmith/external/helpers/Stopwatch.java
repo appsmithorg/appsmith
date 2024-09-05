@@ -25,6 +25,18 @@ public class Stopwatch {
         log.debug("Execute time: {}, Time elapsed: {}ms", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This is a temporary function created to log stopwatch timer within the plugin package
+     * Due to this bug https://github.com/appsmithorg/appsmith/issues/36073 logging is not working in the plugin package
+     */
+    public void stopAndLogTimeInMillisWithSysOut() {
+        if (!this.watch.isStopped()) {
+            this.watch.stop();
+        }
+        System.out.println(String.format(
+                "Execute time: %s, Time elapsed: %dms", this.flow, this.watch.getTime(TimeUnit.MILLISECONDS)));
+    }
+
     public void stopTimer() {
         if (!this.watch.isStopped()) {
             this.watch.stop();
