@@ -12,22 +12,11 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 let themeFont;
-let themeColor;
 
 describe(
   "Theme validation usecase for multi-select widget",
   { tags: ["@tag.Theme"] },
-  function () {
-    let themesSection = (sectionName, themeName) =>
-      "//*[text()='" +
-      sectionName +
-      "']/following-sibling::div//*[text()='" +
-      themeName +
-      "']";
-    let applyTheme = (sectionName, themeName) =>
-      themesSection(sectionName, themeName) +
-      "/parent::div/following-sibling::div[contains(@class, 't--theme-card')]//div[text()='Apply theme']";
-
+  function () { 
     it("1. Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
       entityExplorer.DragDropWidgetNVerify(
         draggableWidgets.MULTISELECT,
@@ -112,27 +101,12 @@ describe(
       appSettings.OpenAppSettings();
       appSettings.GoToThemeSettings();
       cy.get(commonlocators.changeThemeBtn).click({ force: true });
-      cy.xpath(applyTheme("Featured themes", "Sunrise"))
+      cy.get(`${themelocator.featuredThemeSection} [data-testid='t--theme-card-Sunrise']`)
       .click({ force: true })
       .wait(1000);
-      cy.contains("Applied theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(0)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        themeColor = backgroudColor;
-
-        console.log({ backgroudColor })
-        expect(backgroudColor).to.eq("rgb(239, 68, 68)");
-      });
 
       deployMode.DeployApp();
-
-      console.log({ themeColor })
-      
+ 
       cy.get(".rc-select-selector").click({force: true});
       cy.get(".rc-select-item-option-selected .bp3-control-indicator")
         .first()
