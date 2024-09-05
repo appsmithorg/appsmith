@@ -7,7 +7,9 @@ export interface ButtonWidgetState extends WidgetState {
   isLoading: boolean;
 }
 
-export interface ButtonWidgetProps extends WidgetProps {
+export interface ButtonWidgetProps
+  extends WidgetProps,
+    Omit<ButtonComponentProps, "type"> {
   text?: string;
   isVisible?: boolean;
   isDisabled?: boolean;
@@ -15,9 +17,4 @@ export interface ButtonWidgetProps extends WidgetProps {
   googleRecaptchaKey?: string;
   recaptchaType?: RecaptchaType;
   disabledWhenInvalid?: boolean;
-  buttonType?: ButtonComponentProps["type"];
-  iconName?: ButtonComponentProps["iconName"];
-  buttonVariant?: ButtonComponentProps["variant"];
-  iconAlign?: ButtonComponentProps["iconPosition"];
-  buttonColor?: ButtonComponentProps["color"];
 }

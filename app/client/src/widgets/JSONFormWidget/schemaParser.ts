@@ -7,7 +7,6 @@ import {
   sortBy,
   startCase,
 } from "lodash";
-import { klona } from "klona";
 
 import { sanitizeKey } from "widgets/WidgetUtils";
 import type {
@@ -28,6 +27,7 @@ import {
   ROOT_SCHEMA_KEY,
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type Obj = Record<string, unknown>;
 
@@ -138,7 +138,11 @@ export const getSourceDataPathFromSchemaItemPath = (
   schemaItemPath: string,
 ) => {
   const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", ROOT_SCHEMA_KEY, "children", "name"]
-  let clonedSchema = klona(schema);
+  let clonedSchema = klonaRegularWithTelemetry(
+    schema,
+    "schemaParser.getSourceDataPathFromSchemaItemPath",
+  );
+
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
   let skipIteration = false;
@@ -178,6 +182,8 @@ export const getSourceDataPathFromSchemaItemPath = (
   return sourceDataPath;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const dataTypeFor = (value: any) => {
   const typeOfValue = typeof value;
 
@@ -187,6 +193,8 @@ export const dataTypeFor = (value: any) => {
   return typeOfValue as DataType;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const subDataTypeFor = (value: any) => {
   const dataType = dataTypeFor(value);
 
@@ -206,6 +214,8 @@ export const subDataTypeFor = (value: any) => {
  *  normalizeArrayValue([""]) -> ""
  *  normalizeArrayValue([{ foo: 10 }, { bar: "hello"}]) -> { foo: 10, bar: "hello" }
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const normalizeArrayValue = (data: any[]) => {
   if (subDataTypeFor(data) === DataType.OBJECT) {
     return constructPlausibleObjectFromArray(data);
@@ -214,6 +224,8 @@ export const normalizeArrayValue = (data: any[]) => {
   return data[0];
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fieldTypeFor = (value: any): FieldType => {
   const dataType = dataTypeFor(value);
   const potentialFieldType = DATA_TYPE_POTENTIAL_FIELD[dataType];
@@ -327,7 +339,11 @@ export const applyPositions = (schema: Schema, newKeys?: string[]) => {
  *  checkIfArrayAndSubDataTypeChanged(["test"], "test") -> false
  */
 export const checkIfArrayAndSubDataTypeChanged = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentData: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prevData: any,
 ) => {
   if (!Array.isArray(currentData) || !Array.isArray(prevData)) return false;
@@ -338,6 +354,8 @@ export const checkIfArrayAndSubDataTypeChanged = (
   return currSubDataType !== prevSubDataType;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const hasNullOrUndefined = (items: any[]) =>
   items.includes(null) || items.includes(undefined);
 
@@ -646,7 +664,10 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = klona(prevSchema);
+    const schema = klonaRegularWithTelemetry(
+      prevSchema,
+      "schemaParser.convertArrayToSchema",
+    );
 
     if (!Array.isArray(currSourceData)) {
       return schema;
@@ -715,7 +736,11 @@ class SchemaParser {
     sourceDataPath,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = klona(prevSchema);
+    const schema = klonaRegularWithTelemetry(
+      prevSchema,
+      "schemaParser.convertObjectToSchema",
+    );
+
     const origIdentifierToIdentifierMap =
       mapOriginalIdentifierToSanitizedIdentifier(schema);
 
@@ -748,7 +773,11 @@ class SchemaParser {
 
     modifiedKeys.forEach((modifiedKey) => {
       const identifier = origIdentifierToIdentifierMap[modifiedKey];
-      const prevSchemaItem = klona(schema[identifier]);
+      const prevSchemaItem = klonaRegularWithTelemetry(
+        schema[identifier],
+        "schemaParser.convertObjectToSchema.modifiedKeys",
+      );
+
       const currData = currSourceData[modifiedKey];
       const prevData = prevSchemaItem.sourceData;
       const currDataType = dataTypeFor(currData);

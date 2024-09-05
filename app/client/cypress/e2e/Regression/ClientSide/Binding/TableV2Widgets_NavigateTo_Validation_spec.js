@@ -11,6 +11,7 @@ import {
   agHelper,
   propPane,
   deployMode,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -54,14 +55,14 @@ describe(
       cy.get(commonlocators.singleSelectMenuItem)
         .contains(pageid)
         .click({ force: true });
-      cy.assertPageSave();
+      agHelper.AssertAutoSave();
     });
 
     it("2. Validate NavigateTo Page functionality ", function () {
       cy.wait(2000);
       deployMode.DeployApp();
       cy.get(widgetsPage.chartWidget).should("not.exist");
-      cy.isSelectRow(1);
+      table.SelectTableRow(1, 0, true, "v2");
       cy.get(widgetsPage.chartWidget).should("be.visible");
     });
   },

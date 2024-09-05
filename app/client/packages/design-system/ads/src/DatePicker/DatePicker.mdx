@@ -1,0 +1,53 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as DatePickerStories from "./DatePicker.stories";
+
+<Meta of={DatePickerStories} />
+
+### Overview
+
+Date and time pickers enable users to select either a single date and time or a range of dates and times.
+
+Date pickers let users to choose dates from the past, present, or future. The type of date you require from the user will determine whether a simple or calendar date picker is more suitable.
+
+### Anatomy
+
+[//]: # "<Screenshot>"
+
+1. Calendar icon
+2. Input text
+3. Input field
+4. Previous and next month selectors
+5. Year selector
+6. Previous month date cell
+7. Current date cell
+8. Selected range start date
+9. Selected range highlight
+10. Selected range hovered cell
+11. Selected range end date
+12. Hovered cell
+13. Next month date cell
+14. Container elevation
+
+Variations
+
+Single Select / Range Select
+
+### Usage
+
+**Date Picker:**
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/664c7a08-a953-49f9-89e4-f84396f06101/Untitled.png)
+
+- Users can choose a single date using the date picker.
+- When a user enters a new date in the date field input or selects a date from the calendar, it automatically replaces any previously-selected or placeholder value in the date input field.
+
+---
+
+**Date Range Selection:**
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/bca765c3-3250-4735-980a-571139297389/Untitled.png)
+
+- To specify a date range, two date pickers are used together.
+- The first date picker represents the start ("from") date.
+- The second date picker represents the end ("to") date.

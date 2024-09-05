@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { getTypographyByKey } from "design-system-old";
-import { Icon } from "design-system";
+import { getTypographyByKey } from "@appsmith/ads-old";
+import { Icon } from "@appsmith/ads";
 
 export const Container = styled.div`
   display: flex;

@@ -59,7 +59,6 @@ abstract class BaseLayoutComponent extends PureComponent<
       layoutIndex: this.props.layoutIndex,
       layoutType: this.props.layoutType,
       parentDropTarget: this.props.parentDropTarget,
-      renderMode: this.props.renderMode,
       ...(this.props.layoutStyle || {}),
     };
   }

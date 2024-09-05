@@ -2,15 +2,15 @@ import AddDatasourceSecurely from "./AddDatasourceSecurely";
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { thinScrollbar } from "constants/DefaultTheme";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
   getDatasources,
   getMockDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -18,26 +18,25 @@ import {
 import { connect } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import MockDataSources from "./MockDataSources";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import history from "utils/history";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import {
   createMessage,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
   SAMPLE_DATASOURCES,
-} from "@appsmith/constants/messages";
-import { Divider } from "design-system";
+} from "ee/constants/messages";
+import { Divider } from "@appsmith/ads";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
-import { useEditorType } from "@appsmith/hooks";
-import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
+} from "ee/selectors/applicationSelectors";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 
@@ -85,11 +84,11 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
 
 function CreateNewAPI({
   active,
-  history,
   isCreating,
   isOnboardingScreen,
   pageId,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
@@ -111,7 +110,6 @@ function CreateNewAPI({
     <div id="new-api" ref={newAPIRef}>
       <Text kind="heading-m">APIs</Text>
       <NewApiScreen
-        history={history}
         isCreating={isCreating}
         isOnboardingScreen={isOnboardingScreen}
         location={location}
@@ -125,12 +123,12 @@ function CreateNewAPI({
 
 function CreateNewDatasource({
   active,
-  history,
   isCreating,
   isOnboardingScreen,
   pageId,
   showMostPopularPlugins,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const editorType = useEditorType(location.pathname);
   const { editorId, parentEntityId, parentEntityType } =
@@ -159,7 +157,6 @@ function CreateNewDatasource({
       <NewQueryScreen
         editorId={editorId}
         editorType={editorType}
-        history={history}
         isAirgappedInstance={isAirgappedInstance}
         isCreating={isCreating}
         location={location}
@@ -174,10 +171,10 @@ function CreateNewDatasource({
 
 function CreateNewSaasIntegration({
   active,
-  history,
   isCreating,
   pageId,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const newSaasAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
@@ -202,7 +199,6 @@ function CreateNewSaasIntegration({
       <div id="new-saas-api" ref={newSaasAPIRef}>
         <Text kind="heading-m">SaaS integrations</Text>
         <NewApiScreen
-          history={history}
           isCreating={isCreating}
           location={location}
           pageId={pageId}
@@ -215,10 +211,10 @@ function CreateNewSaasIntegration({
 }
 
 function CreateNewAIIntegration({
-  history,
   isCreating,
   pageId,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const isAirgappedInstance = isAirgapped();
 
@@ -228,7 +224,6 @@ function CreateNewAIIntegration({
       <div id="new-ai-query">
         <Text kind="heading-m">AI integrations</Text>
         <AIDataSources
-          history={history}
           isCreating={isCreating}
           location={location}
           pageId={pageId}
@@ -304,7 +299,6 @@ class CreateNewDatasourceTab extends React.Component<
             )}
           <CreateNewDatasource
             active={false}
-            history={history}
             isCreating={isCreating}
             isOnboardingScreen={!!isOnboardingScreen}
             location={location}
@@ -315,7 +309,6 @@ class CreateNewDatasourceTab extends React.Component<
           <StyledDivider />
           <CreateNewAPI
             active={false}
-            history={history}
             isCreating={isCreating}
             isOnboardingScreen={!!isOnboardingScreen}
             location={location}
@@ -325,7 +318,6 @@ class CreateNewDatasourceTab extends React.Component<
           <StyledDivider />
           <CreateNewDatasource
             active={false}
-            history={history}
             isCreating={isCreating}
             location={location}
             pageId={pageId}
@@ -333,14 +325,12 @@ class CreateNewDatasourceTab extends React.Component<
           />
           <CreateNewSaasIntegration
             active={false}
-            history={history}
             isCreating={isCreating}
             location={location}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
           />
           <CreateNewAIIntegration
-            history={history}
             isCreating={isCreating}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
@@ -367,6 +357,7 @@ const mapStateToProps = (state: AppState) => {
   const pageId = !!onboardingAppId
     ? onboardingApplication?.defaultPageId || ""
     : getCurrentPageId(state);
+
   const showDebugger = showDebuggerFlag(state);
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];

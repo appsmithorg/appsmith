@@ -65,6 +65,8 @@ interface ReactTableComponentProps {
   columnSizeMap?: { [key: string]: number };
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;

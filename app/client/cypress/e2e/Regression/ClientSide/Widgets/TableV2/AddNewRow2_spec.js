@@ -12,8 +12,7 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.openPropertyPane("tablewidgetv2");
     _.propPane.TogglePropertyState("Allow adding a row", "On");
     cy.get(".t--add-new-row").click();
-    cy.makeColumnEditable("step");
-    cy.editColumn("step");
+    _.table.toggleColumnEditableViaColSettingsPane("step", "v2", true, false);
 
     _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
     cy.wait(500);
@@ -88,6 +87,18 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
     _.propPane.UpdatePropertyFieldValue("Max", "");
 
+    // check that date isRequired validation is working
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("Date").click();
+    cy.wait("@updateLayout");
+    cy.enterTableCellValue(0, 0, "");
+    cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
+
+    // revert to Number for remainder of tests
+    cy.get(commonlocators.changeColType).last().click();
+    cy.get(".t--dropdown-option").children().contains("Number").click();
+    cy.wait("@updateLayout");
+
     cy.get(".t--discard-new-row").click({ force: true });
   });
 
@@ -124,9 +135,7 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === 1}}");
     cy.get("[data-testid='t--property-pane-back-btn']").click();
     cy.wait(500);
-    cy.makeColumnEditable("task");
-    cy.editColumn("task");
-    cy.wait(500);
+    _.table.toggleColumnEditableViaColSettingsPane("task", "v2", true, false);
     _.propPane.UpdatePropertyFieldValue(
       "Valid",
       "{{editedValue === 'invalid'}}",

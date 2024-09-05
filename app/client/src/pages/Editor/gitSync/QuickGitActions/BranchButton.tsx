@@ -5,17 +5,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import {
   getGitStatus,
+  getIsPollingAutocommit,
+  getIsTriggeringAutocommit,
   protectedModeSelector,
   showBranchPopupSelector,
 } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { Button, Icon, Tooltip } from "design-system";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 import { setShowBranchPopupAction } from "actions/gitSyncActions";
 
 const ProtectedIcon = importRemixIcon(
@@ -28,6 +30,10 @@ const ButtonContainer = styled(Button)`
   margin: 0 ${(props) => props.theme.spaces[4]}px;
   max-width: 122px;
   min-width: unset !important;
+
+  :active {
+    border: 1px solid var(--ads-v2-color-border-muted);
+  }
 `;
 
 function BranchButton() {
@@ -38,6 +44,9 @@ function BranchButton() {
   const labelTarget = useRef<HTMLSpanElement>(null);
   const status = useSelector(getGitStatus);
   const isOpen = useSelector(showBranchPopupSelector);
+  const triggeringAutocommit = useSelector(getIsTriggeringAutocommit);
+  const pollingAutocommit = useSelector(getIsPollingAutocommit);
+  const isBranchChangeDisabled = triggeringAutocommit || pollingAutocommit;
 
   const setIsOpen = (isOpen: boolean) => {
     dispatch(setShowBranchPopupAction(isOpen));
@@ -47,6 +56,7 @@ function BranchButton() {
     <Popover2
       content={<BranchList setIsPopupOpen={setIsOpen} />}
       data-testid={"t--git-branch-button-popover"}
+      disabled={isBranchChangeDisabled}
       hasBackdrop
       isOpen={isOpen}
       minimal
@@ -69,6 +79,7 @@ function BranchButton() {
         <ButtonContainer
           className="t--branch-button"
           data-testid={"t--branch-button-currentBranch"}
+          isDisabled={isBranchChangeDisabled}
           kind="secondary"
         >
           {isProtectedMode ? (

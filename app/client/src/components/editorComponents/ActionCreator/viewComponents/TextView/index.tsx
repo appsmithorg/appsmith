@@ -5,20 +5,26 @@ import {
 } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getCodeFromMoustache } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { generateReactKey } from "utils/generators";
 import {
   clearEvaluatedActionSelectorField,
   evaluateActionSelectorField,
 } from "actions/actionSelectorActions";
 import { isFunctionPresent } from "@shared/ast";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleHeader,
+} from "@appsmith/ads";
 
 export function TextView(props: TextViewProps) {
   const id = useMemo(() => generateReactKey(), []);
   const textValue = props.get(props.value, props.index, false) as string;
+  const [isDefaultOpenFlag, setIsDefaultOpenFlag] = useState<boolean>(true);
 
   const dispatch = useDispatch();
 
@@ -50,9 +56,15 @@ export function TextView(props: TextViewProps) {
 
   const value = evaluatedCodeValue?.value || codeWithoutMoustache;
 
+  useEffect(() => {
+    if (typeof props.isValueChanged === "function") {
+      setIsDefaultOpenFlag(props.isValueChanged(textValue));
+    }
+  }, []);
+
   return (
-    <FieldWrapper className="text-view">
-      <ControlWrapper isAction key={props.label}>
+    <Collapsible isOpen={isDefaultOpenFlag} key={props.label}>
+      <CollapsibleHeader>
         {props.label && (
           <label
             className="!text-gray-600 !text-xs"
@@ -62,28 +74,36 @@ export function TextView(props: TextViewProps) {
             {props.label}
           </label>
         )}
-        <InputText
-          additionalAutocomplete={props.additionalAutoComplete}
-          dataTreePath={props.dataTreePath}
-          enableAI={false}
-          evaluatedValue={value}
-          expected={{
-            type: "string",
-            example: props.exampleText,
-            autocompleteDataType: AutocompleteDataType.STRING,
-            openExampleTextByDefault: true,
-          }}
-          label={props.label}
-          onChange={(event: any) => {
-            if (event.target) {
-              props.set(event.target.value, true);
-            } else {
-              props.set(event, true);
-            }
-          }}
-          value={textValue}
-        />
-      </ControlWrapper>
-    </FieldWrapper>
+      </CollapsibleHeader>
+      <CollapsibleContent>
+        <FieldWrapper className="text-view">
+          <ControlWrapper isAction key={props.label}>
+            <InputText
+              additionalAutocomplete={props.additionalAutoComplete}
+              dataTreePath={props.dataTreePath}
+              enableAI={false}
+              evaluatedValue={value}
+              expected={{
+                type: "string",
+                example: props.exampleText,
+                autocompleteDataType: AutocompleteDataType.STRING,
+                openExampleTextByDefault: true,
+              }}
+              label={props.label}
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              onChange={(event: any) => {
+                if (event.target) {
+                  props.set(event.target.value, true);
+                } else {
+                  props.set(event, true);
+                }
+              }}
+              value={textValue}
+            />
+          </ControlWrapper>
+        </FieldWrapper>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

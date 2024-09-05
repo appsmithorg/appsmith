@@ -10,9 +10,9 @@ import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-import { get, set, isNil, has, uniq } from "lodash";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import { get, isNil, has, uniq } from "lodash";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import moment from "moment";
 import { isDynamicValue } from "./DynamicBindingUtils";
 import type { ApiResponse } from "api/ApiResponses";
@@ -38,7 +38,12 @@ import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { klona as clone } from "klona/full";
+import { klona as klonaFull } from "klona/full";
+import { klona as klonaRegular } from "klona";
+import { klona as klonaLite } from "klona/lite";
+import { klona as klonaJson } from "klona/json";
+
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -496,6 +501,8 @@ export const convertArrayToSentence = (arr: string[]) => {
  */
 export const isNameValid = (
   name: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   invalidNames: Record<string, any>,
 ) => {
   return !(
@@ -513,6 +520,8 @@ export const isNameValid = (
  *
  * @param array any[]
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const removeFalsyEntries = (arr: any[]): any[] => {
   return arr.filter(Boolean);
 };
@@ -524,7 +533,9 @@ export const removeFalsyEntries = (arr: any[]): any[] => {
  * ['Pawan', 'Goku'] -> false
  * { name: "Pawan"} -> false
  */
-export const isString = (str: any) => {
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const isString = (str: any): str is string => {
   return typeof str === "string" || str instanceof String;
 };
 
@@ -554,6 +565,8 @@ export const playWelcomeAnimation = (container: string) => {
 const playLottieAnimation = (
   selector: string,
   animationURL: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   styles?: any,
 ) => {
   const container: Element = document.querySelector(selector) as Element;
@@ -613,9 +626,15 @@ export const scrollbarWidth = () => {
 // Flatten object
 // From { isValid: false, settings: { color: false}}
 // To { isValid: false, settings.color: false}
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const flattenObject = (data: Record<string, any>) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: Record<string, any> = {};
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function recurse(cur: any, prop: any) {
     if (Object(cur) !== cur) {
       result[prop] = cur;
@@ -635,22 +654,6 @@ export const flattenObject = (data: Record<string, any>) => {
 
   recurse(data, "");
   return result;
-};
-
-/**
- * renames key in object
- *
- * @param object
- * @param key
- * @param newKey
- * @returns
- */
-export const renameKeyInObject = (object: any, key: string, newKey: string) => {
-  if (object[key]) {
-    set(object, newKey, object[key]);
-  }
-
-  return object;
 };
 
 // Can be used to check if the user has developer role access to workspace
@@ -820,18 +823,55 @@ export function isValidColor(color: string) {
   return color?.includes("url") || validateColor(color) || isEmptyOrNill(color);
 }
 
+function klonaWithTelemetryWrapper<T>(
+  value: T,
+  codeSegment: string,
+  variant: string,
+  klonaFn: (input: T) => T,
+): T {
+  return startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment,
+      variant,
+    },
+    () => klonaFn(value),
+  );
+}
+export function klonaFullWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "full", klonaFull);
+}
+export function klonaRegularWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "regular", klonaRegular);
+}
+export function klonaLiteWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "lite", klonaLite);
+}
+export function klonaJsonWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "json", klonaJson);
+}
+
 /*
  *  Function to merge property pane config of a widget
  *
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mergeWidgetConfig = (target: any, source: any) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sectionMap: Record<string, any> = {};
-  const mergedConfig = clone(target);
+  const mergedConfig = klonaFullWithTelemetry(
+    target,
+    "helpers.mergeWidgetConfig",
+  );
 
   mergedConfig.forEach((section: { sectionName: string }) => {
     sectionMap[section.sectionName] = section;
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   source.forEach((section: { sectionName: string; children: any[] }) => {
     const targetSection = sectionMap[section.sectionName];
 
@@ -902,6 +942,8 @@ export function shouldBeDefined<T>(
  *
  * @param value: any
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isEmptyOrNill = (value: any) => {
   return isNil(value) || (isString(value) && value === "");
 };
@@ -1127,6 +1169,8 @@ export const getSupportedMimeTypes = (media: "video" | "audio") => {
   return supported[0];
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AutoBind(target: any, _: string, descriptor: any) {
   if (typeof descriptor.value === "function")
     descriptor.value = descriptor.value.bind(target);

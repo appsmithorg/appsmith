@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { Link, Text } from "design-system";
+import { Link, Text } from "@appsmith/ads";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);

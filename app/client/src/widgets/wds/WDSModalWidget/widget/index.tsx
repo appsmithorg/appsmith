@@ -3,16 +3,11 @@ import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import * as config from "./../config";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import {
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@design-system/widgets";
+import { Modal, ModalContent, ModalFooter, ModalHeader } from "@appsmith/wds";
 import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { ModalBody } from "@design-system/widgets";
+import { ModalBody } from "@appsmith/wds";
 import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
@@ -24,6 +19,9 @@ import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
 import styles from "./styles.module.css";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
@@ -85,7 +83,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   onModalClose = () => {
-    if (this.props.onClose) {
+    if (!this.props.disableWidgetInteraction && this.props.onClose) {
       super.executeAction({
         triggerPropertyName: "onClose",
         dynamicString: this.props.onClose,
@@ -100,7 +98,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   onSubmitClick = () => {
-    if (this.props.onSubmit) {
+    if (this.props.onSubmit && this.props.showSubmitButton) {
       super.executeAction({
         triggerPropertyName: "onSubmit",
         dynamicString: this.props.onSubmit,
@@ -121,27 +119,38 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return this.props.isVisible;
   };
 
+  getModalClassNames = () => {
+    const { disableWidgetInteraction, type, widgetId } = this.props;
+    return `${getAnvilWidgetDOMId(widgetId)} ${widgetTypeClassname(type)} ${
+      disableWidgetInteraction ? styles.disableModalInteraction : ""
+    }`;
+  };
+
   getWidgetView() {
     const closeText = this.props.cancelButtonText || "Cancel";
 
     const submitText = this.props.showSubmitButton
       ? this.props.submitButtonText || "Submit"
       : undefined;
-    const contentClassName = `${this.props.className} ${
-      this.props.allowWidgetInteraction ? "" : styles.disableModalInteraction
-    }`;
+    const modalClassNames = `${this.getModalClassNames()}`;
     return (
       <Modal
+        dataAttributes={{
+          [AnvilDataAttributes.MODAL_SIZE]: this.props.size,
+          [AnvilDataAttributes.WIDGET_NAME]: this.props.widgetName,
+          [AnvilDataAttributes.IS_SELECTED_WIDGET]: this.props.isWidgetSelected
+            ? "true"
+            : "false",
+        }}
         isOpen={this.state.isVisible as boolean}
         onClose={this.onModalClose}
         setOpen={(val) => this.setState({ isVisible: val })}
-        size={this.props.size}
       >
         {this.state.isVisible && (
-          <ModalContent className={contentClassName.trim()}>
+          <ModalContent className={modalClassNames.trim()}>
             {this.props.showHeader && (
               <ModalHeader
-                excludeFromTabOrder={!this.props.allowWidgetInteraction}
+                excludeFromTabOrder={this.props.disableWidgetInteraction}
                 title={this.props.title}
               />
             )}
@@ -150,8 +159,9 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             </ModalBody>
             {this.props.showFooter && (
               <ModalFooter
+                closeOnSubmit={this.props.closeOnSubmit}
                 closeText={closeText}
-                excludeFromTabOrder={!this.props.allowWidgetInteraction}
+                excludeFromTabOrder={this.props.disableWidgetInteraction}
                 onSubmit={submitText ? this.onSubmitClick : undefined}
                 submitText={submitText}
               />

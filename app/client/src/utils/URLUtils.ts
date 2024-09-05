@@ -12,6 +12,8 @@ export function getQueryParams() {
   return queryParams;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertObjectToQueryParams(object: any): string {
   if (!_.isNil(object)) {
     const paramArray: string[] = _.map(_.keys(object), (key) => {
@@ -39,3 +41,7 @@ export function matchesURLPattern(url: string) {
     ) !== null
   );
 }
+
+export const sanitizeString = (str: string): string => {
+  return str.toLowerCase().replace(/[^a-z0-9]/g, "_");
+};

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { FloatingPortal } from "@floating-ui/react";
@@ -19,7 +19,6 @@ import type { NameComponentStates } from "./types";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { isWidgetSelected } from "selectors/widgetSelectors";
 
 export function AnvilWidgetName(props: {
   widgetId: string;
@@ -43,13 +42,10 @@ export function AnvilWidgetName(props: {
     (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
 
-  const isParentSelected = useSelector(isWidgetSelected(parentId));
-
   const styleProps = getWidgetNameComponentStyleProps(
     widgetType,
     nameComponentState,
     showError,
-    isParentSelected,
   );
 
   const { setDraggingState } = useWidgetDragResize();
@@ -60,11 +56,19 @@ export function AnvilWidgetName(props: {
       e.preventDefault();
       e.stopPropagation();
       // If we're dragging a focused widget, we need to select it before dragging
-      // Otherwise, the currently selected widget will instead be dragged.
-      selectWidget(SelectionRequestType.One, [widgetId]);
+      // Otherwise, the currently selected widget(s) will instead be dragged.
+      if (nameComponentState === "focus") {
+        selectWidget(SelectionRequestType.One, [widgetId]);
+      }
       setDraggingState(generateDragState());
     },
-    [setDraggingState],
+    [
+      widgetId,
+      nameComponentState,
+      setDraggingState,
+      selectWidget,
+      generateDragState,
+    ],
   );
 
   /** Setup Floating UI logic */
@@ -83,7 +87,7 @@ export function AnvilWidgetName(props: {
     "widgets-editor",
   ) as HTMLDivElement | null;
 
-  let cleanup = () => {};
+  const cleanup = useRef(() => {});
   useEffect(() => {
     if (
       widgetElement &&
@@ -92,7 +96,7 @@ export function AnvilWidgetName(props: {
       // Makes sure we add listeners only if the widget is selected or focused
       nameComponentState !== "none"
     ) {
-      cleanup = handleWidgetUpdate(
+      cleanup.current = handleWidgetUpdate(
         widgetElement,
         widgetNameComponent,
         widgetsEditorElement,
@@ -100,9 +104,14 @@ export function AnvilWidgetName(props: {
       );
     }
     return () => {
-      cleanup();
+      cleanup.current();
     };
-  }, [nameComponentState, widgetElement, widgetNameComponent]);
+  }, [
+    nameComponentState,
+    widgetElement,
+    widgetNameComponent,
+    widgetsEditorElement,
+  ]);
 
   /** EO Floating UI Logic */
 

@@ -7,4 +7,5 @@ public interface AnalyticsConstants {
     String IP = "ip";
     String IP_ADDRESS = "ipAddress";
     String EMAIL_DOMAIN_HASH = "emailDomainHash";
+    String ADMIN_EMAIL_DOMAIN_HASH = "adminEmailDomainHash";
 }

@@ -582,6 +582,8 @@ export function ShouldAddToCollisionSpacesArray(
 
   const prevCollisionMap: {
     children: {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [key: string]: any;
     };
   } = (prevSecondOrderCollisionMap &&
@@ -763,6 +765,8 @@ export function filterSpaceById(
  * @mutates occupiedSpaceMap
  */
 export function filterCommonSpaces(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newSpacePositionsMap: { [key: string]: any },
   occupiedSpaceMap: SpaceMap,
 ) {
@@ -1631,6 +1635,8 @@ function getCollisionStatusBasedOnPrevValue(
   gridProps: GridProps,
   prevCollisionMap: {
     children: {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       [key: string]: any;
     };
   },

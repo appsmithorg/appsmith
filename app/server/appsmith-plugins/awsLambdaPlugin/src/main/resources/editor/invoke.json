@@ -22,9 +22,7 @@
           "placeholderText": "All function names will be fetched.",
           "fetchOptionsConditionally": true,
           "setFirstOptionAsDefault": true,
-          "alternateViewTypes": [
-            "json"
-          ],
+          "alternateViewTypes": ["json"],
           "conditionals": {
             "enable": "{{true}}",
             "fetchDynamicValues": {
@@ -64,9 +62,7 @@
           "placeholderText": "",
           "fetchOptionsConditionally": false,
           "setFirstOptionAsDefault": true,
-          "alternateViewTypes": [
-            "json"
-          ]
+          "alternateViewTypes": ["json"]
         },
         {
           "label": "Post body",

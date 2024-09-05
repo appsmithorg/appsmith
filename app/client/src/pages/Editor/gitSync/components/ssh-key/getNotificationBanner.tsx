@@ -3,8 +3,8 @@ import { NotificationBannerContainer } from "./StyledComponents";
 import {
   createMessage,
   DEPLOY_KEY_USAGE_GUIDE_MESSAGE,
-} from "@appsmith/constants/messages";
-import { Callout } from "design-system";
+} from "ee/constants/messages";
+import { Callout } from "@appsmith/ads";
 
 /**
  * getNotificationBanner returns a notification banner about copying the key to repo settings.

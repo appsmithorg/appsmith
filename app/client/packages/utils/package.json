@@ -1,0 +1,14 @@
+{
+  "name": "@appsmith/utils",
+  "version": "1.0.0",
+  "description": "This package has all the shared util functions which can be used in different packages e.g. client, rts etc",
+  "main": "src/index.ts",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier",
+    "test:unit": "yarn g:jest"
+  },
+  "author": "Aman Agarwal <aman@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
+  "license": "ISC"
+}

@@ -26,7 +26,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create a page/moveQuery/rename/delete in explorer", function () {
@@ -97,7 +97,7 @@ describe(
       cy.get(".t--entity-property-close").click(); //closing Bindings overlay
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
-        action: "Edit name",
+        action: "Rename",
       });
       cy.EditApiNameFromExplorer("MyQuery");
       entityExplorer.ActionContextMenuByEntityName({

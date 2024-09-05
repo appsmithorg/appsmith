@@ -1,9 +1,9 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
@@ -15,7 +15,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
@@ -199,6 +199,7 @@ export function* addWidgetAndMoveWidgetsSaga(
       payload: {
         action: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -363,6 +364,8 @@ function* moveWidgetsSaga(
        */
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
       const mainCanvasWidth: number = yield select(getCanvasWidth);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
@@ -422,6 +425,7 @@ function* moveWidgetsSaga(
       payload: {
         action: ReduxActionTypes.WIDGETS_MOVE,
         error,
+        logToDebugger: true,
       },
     });
   }

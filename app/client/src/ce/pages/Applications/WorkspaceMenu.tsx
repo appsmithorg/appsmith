@@ -1,18 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Icon, Menu, MenuContent, MenuTrigger } from "design-system";
+import { Button, Icon, Menu, MenuContent, MenuTrigger } from "@appsmith/ads";
 import {
   EditInteractionKind,
   EditableText,
   SavingState,
   notEmptyValidator,
-} from "design-system-old";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+} from "@appsmith/ads-old";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import { ManageEnvironmentsMenu } from "@appsmith/pages/Applications/ManageEnvironmentsMenu";
+import { ManageEnvironmentsMenu } from "ee/pages/Applications/ManageEnvironmentsMenu";
 
 interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;

@@ -2,15 +2,15 @@ import { useEffect, useMemo } from "react";
 import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getIsNewWidgetBeingDragged } from "sagas/selectors";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 export const useAnvilWidgetStyles = (
   widgetId: string,
   widgetName: string,
   isVisible = true,
   widgetType: string,
-  elevatedBackground: boolean,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
   // Selectors to determine whether the widget is selected or dragging
@@ -19,17 +19,15 @@ export const useAnvilWidgetStyles = (
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
   // Get widget border styles using useWidgetBorderStyles
-  const widgetBorderStyles = useWidgetBorderStyles(
-    widgetId,
-    widgetType,
-    elevatedBackground,
-  );
+  const widgetBorderStyles = useWidgetBorderStyles(widgetId, widgetType);
 
   // Effect hook to apply widget border styles to the widget
   useEffect(() => {
     Object.entries(widgetBorderStyles).forEach(([property, value]) => {
       if (ref.current) {
         // Set each border style property on the widget's DOM element
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref.current.style[property as any] = value;
       }
     });
@@ -38,8 +36,10 @@ export const useAnvilWidgetStyles = (
   // Effect hook to set a data attribute for testing purposes
   useEffect(() => {
     if (ref.current) {
-      ref.current.setAttribute("data-widgetname-cy", widgetName);
-      ref.current.setAttribute("data-selected", isSelected ? "true" : "false");
+      ref.current.setAttribute(
+        AnvilDataAttributes.IS_SELECTED_WIDGET,
+        isSelected ? "true" : "false",
+      );
     }
   }, [widgetName, isSelected]);
   const isNewWidgetDrag = useSelector(getIsNewWidgetBeingDragged);

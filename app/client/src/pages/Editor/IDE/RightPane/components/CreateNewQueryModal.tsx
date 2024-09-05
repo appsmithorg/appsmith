@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody } from "design-system";
+import { Modal, ModalContent, ModalHeader, ModalBody } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 
-import { CREATE_A_NEW_ITEM, createMessage } from "@appsmith/constants/messages";
+import { CREATE_A_NEW_ITEM, createMessage } from "ee/constants/messages";
 import GroupedList from "pages/Editor/IDE/EditorPane/components/GroupedList";
 import {
   useAddQueryListItems,
   useGroupedAddQueryOperations,
-} from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+} from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
 import { getShowCreateNewModal } from "selectors/ideSelectors";
 import { setShowQueryCreateNewModal } from "actions/ideActions";
 

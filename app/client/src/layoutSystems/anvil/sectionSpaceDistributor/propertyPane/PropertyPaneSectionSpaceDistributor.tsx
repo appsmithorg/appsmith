@@ -9,7 +9,7 @@ import {
 import { useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
 import { getParentWidget } from "selectors/widgetSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { PropertyPaneSpaceDistributionHandle } from "./PropertyPaneSpaceDistributionHandle";
 
@@ -71,6 +71,7 @@ export const PropertyPaneSectionSpaceDistributor = ({
           // Render mocked zone and distribution handle for each zone
           <>
             <MockedZone
+              data-testid={"t--anvil-zone-distribution-value"}
               flexBasis={flexBasisValue}
               id={propPaneZoneId}
               key={propPaneZoneId}

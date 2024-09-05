@@ -2,17 +2,17 @@ import React from "react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
+import { RadioGroup } from "@appsmith/wds";
 
-import { RadioGroup } from "../";
-import { Radio } from "../../Radio";
+describe("@appsmith/wds/RadioGroup", () => {
+  const items = [
+    { label: "Value 1", value: "value-1" },
+    { label: "Value 2", value: "value-2" },
+  ];
 
-describe("@design-system/widgets/RadioGroup", () => {
   it("should render the Radio group", async () => {
     const { container } = render(
-      <RadioGroup label="Radio Group">
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>,
+      <RadioGroup items={items} label="Radio Group" />,
     );
 
     expect(screen.getByText("Value 1")).toBeInTheDocument();
@@ -43,11 +43,11 @@ describe("@design-system/widgets/RadioGroup", () => {
 
   it("should support custom props", () => {
     render(
-      <RadioGroup data-testid="t--radio-group" label="Radio Group Label">
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-        <Radio value="value-3">Value 3</Radio>
-      </RadioGroup>,
+      <RadioGroup
+        data-testid="t--radio-group"
+        items={items}
+        label="Radio Group Label"
+      />,
     );
 
     const radioGroup = screen.getByTestId("t--radio-group");
@@ -56,10 +56,7 @@ describe("@design-system/widgets/RadioGroup", () => {
 
   it("should render checked checkboxes when value is passed", () => {
     render(
-      <RadioGroup label="Radio  Group Label" value="value-1">
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>,
+      <RadioGroup items={items} label="Radio  Group Label" value="value-1" />,
     );
 
     const options = screen.getAllByRole("radio");
@@ -71,10 +68,11 @@ describe("@design-system/widgets/RadioGroup", () => {
     const onChangeSpy = jest.fn();
 
     render(
-      <RadioGroup label="Radio  Group Label" onChange={onChangeSpy}>
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>,
+      <RadioGroup
+        items={items}
+        label="Radio  Group Label"
+        onChange={onChangeSpy}
+      />,
     );
 
     const options = screen.getAllByRole("radio");
@@ -83,12 +81,7 @@ describe("@design-system/widgets/RadioGroup", () => {
   });
 
   it("should be able to render disabled checkboxes", () => {
-    render(
-      <RadioGroup isDisabled label="Radio  Group Label">
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>,
-    );
+    render(<RadioGroup isDisabled items={items} label="Radio  Group Label" />);
 
     const options = screen.getAllByRole("radio");
     expect(options[0]).toBeDisabled();

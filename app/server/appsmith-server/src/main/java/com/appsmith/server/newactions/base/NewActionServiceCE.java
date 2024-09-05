@@ -39,6 +39,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<NewAction> validateAction(NewAction newAction);
 
+    Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps);
+
     Mono<Void> bulkValidateAndInsertActionInRepository(List<NewAction> newActionList);
 
     Mono<Void> bulkValidateAndUpdateActionInRepository(List<NewAction> newActionList);
@@ -48,7 +50,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
     Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
-            String id, ActionDTO action, Optional<AclPermission> permission);
+            String id, ActionDTO action, AclPermission permission);
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
@@ -76,16 +78,16 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort);
 
-    Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
+    Flux<NewAction> findAllByApplicationIdAndPluginType(
+            String applicationId, Boolean viewMode, AclPermission permission, Sort sort, List<String> pluginTypes);
 
-    Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
+    Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
     ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
-    Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
-            String id, Optional<AclPermission> newActionDeletePermission);
+    Mono<ActionDTO> deleteUnpublishedAction(String id, AclPermission newActionDeletePermission);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
 
@@ -128,13 +130,11 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
-    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName);
+    Mono<NewAction> findByBranchNameAndBaseActionId(
+            String branchName, String baseActionId, Boolean viewMode, AclPermission permission);
 
-    Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission);
-
-    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission);
+    Mono<String> findBranchedIdByBranchNameAndBaseActionId(
+            String branchName, String baseActionId, AclPermission permission);
 
     Mono<NewAction> sanitizeAction(NewAction action);
 
@@ -162,8 +162,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
             boolean includeJs);
 
     NewAction generateActionDomain(ActionDTO action);
-
-    void updateDefaultResourcesInAction(NewAction newAction);
 
     Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
 

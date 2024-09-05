@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch } from "@design-system/widgets";
+import { Switch } from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 
@@ -12,7 +12,7 @@ export default meta;
 
 type Story = StoryObj<typeof Switch>;
 
-const states = ["", "data-hovered", "data-focused", "data-disabled"];
+const states = ["", "data-hovered", "data-focus-visible", "data-disabled"];
 
 export const LightMode: Story = {
   render: () => (

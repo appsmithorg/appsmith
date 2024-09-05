@@ -1,12 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import type { JSCollection } from "entities/JSCollection";
-import type { SelectProps } from "design-system";
-import { Button, Option, Select, Tooltip, Text } from "design-system";
-import {
-  createMessage,
-  NO_JS_FUNCTION_TO_RUN,
-} from "@appsmith/constants/messages";
+import type { SelectProps } from "@appsmith/ads";
+import { Button, Option, Select, Tooltip, Text } from "@appsmith/ads";
+import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ee/constants/messages";
 import type { JSActionDropdownOption } from "./utils";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 

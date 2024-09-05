@@ -3,11 +3,6 @@ import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
-import {
-  createMessage,
-  IMPORT_APP_SUCCESSFUL,
-  UNABLE_TO_IMPORT_APP,
-} from "../../../src/ce/constants/messages";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -27,11 +22,12 @@ export class HomePage {
   private _renameWorkspaceContainer = ".editable-text-container";
   private _renameWorkspaceParent = ".t--workspace-rename-input";
   private _renameWorkspaceInput = this._renameWorkspaceParent + " input";
+  /* I'm not sure if asserting the copy of our app is a good idea. This seems like extra complexity when making changes to the copy */
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceNoApps = (workspaceName: string) =>
     this._workspaceList(workspaceName) +
-    ":contains('There are no applications in this workspace')";
+    ":contains('applications in this workspace')";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ") .ads-v2-avatar";
   _shareWorkspace = (workspaceName: string) =>
@@ -73,7 +69,6 @@ export class HomePage {
   _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".ads-v2-menu__menu-item-children";
-  _buildFromDataTableActionCard = "[data-testid='generate-app']";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
   _appHoverIcon = (action: string) => ".t--application-" + action + "-link";
@@ -311,6 +306,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._newButtonCreateApplication, 0, true);
     this.AssertApplicationCreated();
     if (skipSignposting) {
+      this.agHelper.WaitUntilEleDisappear(this.locator._btnSpinner);
       AppSidebar.assertVisible();
       this.agHelper.AssertElementVisibility(PageLeftPane.locators.selector);
       this.onboarding.skipSignposting();
@@ -646,7 +642,9 @@ export class HomePage {
       HomePageLocators.workspaceImportAppModal,
     );
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP)),
+      this.locator._specificToast(
+        Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
+      ),
     );
   }
 
@@ -738,7 +736,9 @@ export class HomePage {
   }
 
   public AssertImportToast(timeout = 5000) {
-    this.agHelper.AssertContains(createMessage(IMPORT_APP_SUCCESSFUL));
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
+    );
     this.agHelper.Sleep(timeout); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }
@@ -755,6 +755,7 @@ export class HomePage {
     }
     this.agHelper.ClickButton("Fork");
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    this.agHelper.WaitUntilEleDisappear(this._forkModal);
   }
 
   public DeleteApplication(appliName: string) {

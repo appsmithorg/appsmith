@@ -7,7 +7,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
-  text: "The important thing is not to stop questioning. Curiosity has its own reason for existence. One cannot help but be in awe when he contemplates the mysteries of eternity, of life, of the marvelous structure of reality. It is enough if one tries merely to comprehend a little of this mystery each day.",
+  text: "The important thing is not to stop questioning. Curiosity has its reason for existence. One cannot help but be in awe when one contemplates the mysteries of eternity, life, and the marvelous structure of reality. It is enough if one merely tries to comprehend a little of this mystery each day.",
   fontSize: "body",
   textAlign: "left",
   textColor: "neutral",
@@ -15,6 +15,7 @@ export const defaultsConfig = {
   shouldTruncate: false,
   version: 1,
   animateLoading: true,
+  isVisible: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
   blueprint: {
     operations: [

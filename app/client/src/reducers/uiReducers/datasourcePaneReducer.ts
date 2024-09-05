@@ -1,6 +1,6 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Datasource } from "entities/Datasource";
 import _ from "lodash";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -21,10 +21,10 @@ export interface DatasourcePaneReduxState {
   drafts: Record<string, Datasource>;
   expandDatasourceId: string;
   actionRouteInfo: Partial<{
-    apiId: string;
+    baseApiId: string;
     datasourceId: string;
-    pageId: string;
-    applicationId: string;
+    baseParentEntityId: string;
+    baseApplicationId: string;
   }>;
   newDatasource: string;
   viewMode: boolean;
@@ -60,12 +60,7 @@ const datasourcePaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE]: (
     state: DatasourcePaneReduxState,
-    action: ReduxAction<{
-      apiId: string;
-      datasourceId: string;
-      pageId: string;
-      applicationId: string;
-    }>,
+    action: ReduxAction<DatasourcePaneReduxState["actionRouteInfo"]>,
   ) => {
     return {
       ...state,

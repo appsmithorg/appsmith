@@ -1,6 +1,6 @@
 import React from "react";
-import type { CheckboxProps } from "design-system";
-import { Checkbox } from "design-system";
+import type { CheckboxProps } from "@appsmith/ads";
+import { Checkbox } from "@appsmith/ads";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";

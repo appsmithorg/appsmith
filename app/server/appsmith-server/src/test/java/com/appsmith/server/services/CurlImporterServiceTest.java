@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -44,7 +42,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -317,7 +314,7 @@ public class CurlImporterServiceTest {
     public void testImportActionOnInvalidInput() {
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
-        app.setName("curlTest Incorrect Command");
+        app.setName("curlTest testImportActionOnInvalidInput");
 
         Application application =
                 applicationPageService.createApplication(app, workspaceId).block();
@@ -327,8 +324,7 @@ public class CurlImporterServiceTest {
                 .block();
 
         assert page != null;
-        Mono<ActionDTO> action =
-                curlImporterService.importAction("'", null, page.getId(), "actionName", workspaceId, null);
+        Mono<ActionDTO> action = curlImporterService.importAction("'", null, page.getId(), "actionName", workspaceId);
 
         StepVerifier.create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -341,7 +337,7 @@ public class CurlImporterServiceTest {
     public void testImportActionOnNullInput() {
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
-        app.setName("curlTest Incorrect Command");
+        app.setName("curlTest testImportActionOnNullInput");
 
         Application application =
                 applicationPageService.createApplication(app, workspaceId).block();
@@ -351,8 +347,7 @@ public class CurlImporterServiceTest {
                 .block();
 
         assert page != null;
-        Mono<ActionDTO> action =
-                curlImporterService.importAction(null, null, page.getId(), "actionName", workspaceId, null);
+        Mono<ActionDTO> action = curlImporterService.importAction(null, null, page.getId(), "actionName", workspaceId);
 
         StepVerifier.create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -365,7 +360,7 @@ public class CurlImporterServiceTest {
     public void testImportActionOnEmptyInput() {
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
-        app.setName("curlTest Incorrect Command");
+        app.setName("curlTest testImportActionOnEmptyInput");
 
         Application application =
                 applicationPageService.createApplication(app, workspaceId).block();
@@ -375,8 +370,7 @@ public class CurlImporterServiceTest {
                 .block();
 
         assert page != null;
-        Mono<ActionDTO> action =
-                curlImporterService.importAction("", null, page.getId(), "actionName", workspaceId, null);
+        Mono<ActionDTO> action = curlImporterService.importAction("", null, page.getId(), "actionName", workspaceId);
 
         StepVerifier.create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -393,7 +387,7 @@ public class CurlImporterServiceTest {
 
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
-        app.setName("curlTest App");
+        app.setName("curlTest importValidCurlCommand");
 
         Mono<Application> applicationMono = applicationPageService
                 .createApplication(app, workspaceId)
@@ -402,7 +396,7 @@ public class CurlImporterServiceTest {
                     return newPageService
                             .findById(pageId, AclPermission.MANAGE_PAGES)
                             .flatMap(newPage -> {
-                                newPage.getDefaultResources().setBranchName("main");
+                                newPage.setBranchName("main");
                                 return newPageService.update(pageId, newPage);
                             })
                             .thenReturn(application1);
@@ -418,8 +412,8 @@ public class CurlImporterServiceTest {
                 "curl -X GET http://localhost:8080/api/v1/actions?name=something -H 'Accept: */*' -H 'Accept-Encoding: gzip, deflate' -H 'Authorization: Basic YXBpX3VzZXI6OHVBQDsmbUI6Y252Tn57Iw==' -H 'Cache-Control: no-cache' -H 'Connection: keep-alive' -H 'Content-Type: application/json' -H 'Cookie: SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5,SESSION=97c5def4-4f72-45aa-96fe-e8a9f5ade0b5; SESSION=' -H 'Host: localhost:8080' -H 'Postman-Token: 16e4b6bc-2c7a-4ab1-a127-bca382dfc0f0,a6655daa-db07-4c5e-aca3-3fd505bd230d' -H 'User-Agent: PostmanRuntime/7.20.1' -H 'cache-control: no-cache' -d '{someJson}'";
 
         Mono<ActionDTO> resultMono = defaultPageMono
-                .flatMap(page -> curlImporterService.importAction(
-                        command, null, page.getId(), "actionName", workspaceId, "main"))
+                .flatMap(page ->
+                        curlImporterService.importAction(command, null, page.getId(), "actionName", workspaceId))
                 .cache();
 
         Mono<NewAction> savedActionMono =
@@ -446,14 +440,8 @@ public class CurlImporterServiceTest {
                     assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
                     assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
 
-                    assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
-                    assertThat(action1.getDefaultResources().getPageId())
-                            .isEqualTo(newPage.getDefaultResources().getPageId());
-                    assertThat(newAction.getDefaultResources().getBranchName()).isNotEmpty();
-                    assertThat(newAction.getDefaultResources().getBranchName())
-                            .isEqualTo(newPage.getDefaultResources().getBranchName());
-                    assertThat(newAction.getDefaultResources().getApplicationId())
-                            .isEqualTo(newPage.getDefaultResources().getApplicationId());
+                    assertThat(newAction.getBaseId()).isEqualTo(newAction.getId());
+                    assertThat(newAction.getBranchName()).isEqualTo(newPage.getBranchName());
                 })
                 .verifyComplete();
 
@@ -468,21 +456,21 @@ public class CurlImporterServiceTest {
                 .flatMap(defaultPage -> newPageService
                         .findById(branchedPageId, AclPermission.MANAGE_PAGES)
                         .flatMap(newPage -> {
-                            newPage.setDefaultResources(defaultPage.getDefaultResources());
-                            newPage.getDefaultResources().setBranchName("testBranch");
+                            newPage.setBaseId(defaultPage.getId());
+                            newPage.setBranchName("testBranch");
                             return newPageService.save(newPage);
                         }))
                 .cache();
 
         Mono<ActionDTO> branchedResultMono = branchedPageMono
-                .flatMap(page -> curlImporterService.importAction(
-                        command, null, page.getDefaultResources().getPageId(), "actionName", workspaceId, "testBranch"))
+                .flatMap(page ->
+                        curlImporterService.importAction(command, null, page.getId(), "actionName", workspaceId))
                 .cache();
 
         // As importAction updates the ids with the defaultIds before sending the response to client we have to again
         // fetch branched action
         Mono<NewAction> branchedSavedActionMono =
-                branchedResultMono.flatMap(actionDTO -> newActionService.findByBranchNameAndDefaultActionId(
+                branchedResultMono.flatMap(actionDTO -> newActionService.findByBranchNameAndBaseActionId(
                         "testBranch", actionDTO.getId(), false, AclPermission.MANAGE_ACTIONS));
 
         StepVerifier.create(Mono.zip(branchedResultMono, branchedPageMono, branchedSavedActionMono))
@@ -506,15 +494,9 @@ public class CurlImporterServiceTest {
                     assertThat(action1.getActionConfiguration().getHttpMethod()).isEqualTo(HttpMethod.GET);
                     assertThat(action1.getActionConfiguration().getBody()).isEqualTo("{someJson}");
 
-                    assertThat(newAction.getDefaultResources().getActionId()).isEqualTo(newAction.getId());
-                    assertThat(action1.getDefaultResources().getPageId())
-                            .isEqualTo(newPage.getDefaultResources().getPageId());
-                    assertThat(action1.getDefaultResources().getPageId()).isNotEqualTo(newPage.getId());
+                    assertThat(newAction.getBaseId()).isEqualTo(newAction.getId());
 
-                    assertThat(newAction.getDefaultResources().getBranchName()).isNotEmpty();
-                    assertThat(newAction.getDefaultResources().getBranchName()).isEqualTo("testBranch");
-                    assertThat(newAction.getDefaultResources().getApplicationId())
-                            .isEqualTo(newPage.getDefaultResources().getApplicationId());
+                    assertThat(newAction.getBranchName()).isEqualTo("testBranch");
                 })
                 .verifyComplete();
     }
@@ -1051,7 +1033,7 @@ public class CurlImporterServiceTest {
         String command = "invalid curl command here";
 
         Mono<ActionDTO> actionMono =
-                curlImporterService.importAction(command, null, "pageId", "actionName", workspaceId, null);
+                curlImporterService.importAction(command, null, "pageId", "actionName", workspaceId);
 
         StepVerifier.create(actionMono).verifyError();
     }

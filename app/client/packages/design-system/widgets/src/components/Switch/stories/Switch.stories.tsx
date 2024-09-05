@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Switch, Flex } from "@design-system/widgets";
+import { Switch, Flex } from "@appsmith/wds";
 
 /**
  * Switch is a component that allows the user to select one or more options from a set.
  */
 const meta: Meta<typeof Switch> = {
   component: Switch,
-  title: "Design-system/Widgets/Switch",
+  title: "WDS/Widgets/Switch",
 };
 
 export default meta;
@@ -28,7 +28,6 @@ export const States: Story = {
       <Switch defaultSelected isDisabled>
         Disabled checked
       </Switch>
-      <Switch validationState="invalid">Error</Switch>
     </Flex>
   ),
 };
@@ -40,7 +39,7 @@ export const LabelPosition: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4">
       <Switch>Label Position — end</Switch>
-      <Switch labelPosition="end">Label Position — start</Switch>
+      <Switch labelPosition="start">Label Position — start</Switch>
     </Flex>
   ),
 };

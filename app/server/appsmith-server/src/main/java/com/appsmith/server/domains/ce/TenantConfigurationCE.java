@@ -10,12 +10,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Data
-public class TenantConfigurationCE {
+public class TenantConfigurationCE implements Serializable {
 
     private String googleMapsKey;
 
@@ -53,7 +54,7 @@ public class TenantConfigurationCE {
 
     Boolean isStrongPasswordPolicyEnabled;
 
-    private Boolean isAtomicPushAllowed;
+    private Boolean isAtomicPushAllowed = false;
 
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {

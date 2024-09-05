@@ -1,4 +1,4 @@
-import { APPSMITH_NAMESPACED_FUNCTIONS as EE_APPSMITH_NAMESPACED_FUNCTIONS } from "@appsmith/entities/Engine/actionHelpers";
+import { APPSMITH_NAMESPACED_FUNCTIONS as EE_APPSMITH_NAMESPACED_FUNCTIONS } from "ee/entities/Engine/actionHelpers";
 
 export enum APPSMITH_GLOBAL_FUNCTIONS {
   navigateTo = "navigateTo",

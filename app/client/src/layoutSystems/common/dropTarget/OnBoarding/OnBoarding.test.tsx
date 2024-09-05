@@ -1,9 +1,5 @@
-import {
-  EMPTY_CANVAS_HINTS,
-  STARTER_TEMPLATE_PAGE_LAYOUTS,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { EditorEntityTab, EditorState } from "@appsmith/entities/IDE/constants";
+import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
+import { EditorEntityTab, EditorState } from "ee/entities/IDE/constants";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import "jest-styled-components";
@@ -29,13 +25,13 @@ const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
   }));
 };
 
-jest.mock("@appsmith/utils/airgapHelpers", () => ({
+jest.mock("ee/utils/airgapHelpers", () => ({
   isAirgapped: jest.fn(),
 }));
 
 const mockIsAirGapped = (val: boolean) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
-  const { isAirgapped } = require("@appsmith/utils/airgapHelpers");
+  const { isAirgapped } = require("ee/utils/airgapHelpers");
   isAirgapped.mockImplementation(() => val);
 };
 
@@ -52,52 +48,60 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender(storeToUseWithStarterBuildingBlocksEnabled));
     const title = screen.getByText(
-      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
-    );
-    expect(title).toBeInTheDocument();
-  });
-
-  it("2. renders the default onboarding component when on mobile layout", () => {
-    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
-    render(BaseComponentRender(storeToUseWithMobileCanvas));
-    const onboardingElement = screen.getByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
-    expect(onboardingElement).toBeInTheDocument();
+    expect(title).toBeInTheDocument();
   });
 
-  it("3. renders the onboarding component when drag and drop is enabled", () => {
+  it("2. does not render onboarding component when in preview mode", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
-    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
-    const title = screen.getByText(
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: false,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
+
+    const buildingBlockOnboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
-    expect(title).toBeInTheDocument();
-    const description = screen.getByText(
-      createMessage(
-        EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.DESCRIPTION,
-      ),
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
-    expect(description).toBeInTheDocument();
-  });
-
-  it("4. renders the onboarding component when drag and drop is enabled, with JS segment enabled", () => {
-    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.JS);
-    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
-
-    const onboardingElement = screen.getByText(
-      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
-    );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
     expect(onboardingElement).toBeInTheDocument();
   });
 
-  it("5. renders the onboarding component when drag and drop is enabled, with Queries segment enabled", () => {
-    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.QUERIES);
-    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
+  it("3. does not render onboarding component when in preview mode", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: false,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
 
-    const onboardingElement = screen.getByText(
-      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+    const buildingBlockOnboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
     expect(onboardingElement).toBeInTheDocument();
   });
 });
@@ -141,6 +145,32 @@ describe("OnBoarding - AirGap Edition", () => {
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
     assertOnboardingElement();
   });
+
+  it("6. [Airgap] does not render onboarding component when in preview mode", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: true,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
+
+    const buildingBlockOnboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
+    );
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
+    expect(onboardingElement).toBeInTheDocument();
+  });
 });
 
 const baseStoreForSpec = {
@@ -149,6 +179,12 @@ const baseStoreForSpec = {
     ...unitTestBaseMockStore.ui,
     buildingBlocks: {
       isDraggingBuildingBlocksToCanvas: false,
+    },
+    gitSync: {
+      protectedBranches: false,
+    },
+    editor: {
+      isPreviewMode: false,
     },
     users: {
       featureFlag: {

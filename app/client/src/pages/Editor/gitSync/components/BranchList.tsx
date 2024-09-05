@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -29,7 +29,7 @@ import {
   FIND_OR_CREATE_A_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Icon,
   Spinner,
@@ -37,14 +37,14 @@ import {
   Button,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { get } from "lodash";
 import {
   isLocalBranch,
   isRemoteBranch,
   removeSpecialChars,
 } from "pages/Editor/gitSync/utils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useActiveHoverIndex, useFilteredBranches } from "../hooks";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";
@@ -110,7 +110,8 @@ function CreateNewBranch({
   hovered,
   isCreatingNewBranch,
   onClick,
-  shouldScrollIntoView,
+  shouldScrollIntoView, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView)
@@ -365,6 +366,7 @@ export default function BranchList(props: {
             <SearchInput
               autoFocus
               className="branch-search t--branch-search-input"
+              // @ts-expect-error Fix this the next time the file is edited
               fill
               onChange={changeSearchText}
               placeholder={createMessage(FIND_OR_CREATE_A_BRANCH)}

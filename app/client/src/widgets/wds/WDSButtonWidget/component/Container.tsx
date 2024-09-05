@@ -16,9 +16,6 @@ interface ContainerProps {
   children?: React.ReactNode;
   renderMode?: RenderMode;
   showInAllModes?: boolean;
-  minWidth?: number;
-  maxWidth?: number;
-  minHeight?: number;
 }
 
 export function Container(props: ContainerProps) {

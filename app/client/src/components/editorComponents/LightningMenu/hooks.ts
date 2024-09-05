@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";

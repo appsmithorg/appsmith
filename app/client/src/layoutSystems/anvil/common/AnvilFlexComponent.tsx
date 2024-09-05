@@ -1,11 +1,11 @@
 import React, { forwardRef, useMemo } from "react";
 import type { CSSProperties } from "react";
-import { Flex } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
+import type { FlexProps } from "@appsmith/wds/src/components/Flex/src/types";
 import type { AnvilFlexComponentProps } from "../utils/types";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -15,6 +15,7 @@ import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 import styles from "./styles.module.css";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -44,13 +45,15 @@ export const AnvilFlexComponent = forwardRef(
       onClick = noop,
       onClickCapture = noop,
       widgetId,
+      widgetName,
       widgetSize,
       widgetType,
     }: AnvilFlexComponentProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ref: any,
   ) => {
     const _className = `${className} ${styles.anvilWidgetWrapper}`;
-
     const widgetConfigProps = useMemo(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
@@ -79,7 +82,7 @@ export const AnvilFlexComponent = forwardRef(
         flexShrink: isFillWidget ? 1 : 0,
         flexBasis,
         alignItems: "center",
-        width: "max-content",
+        width: "fit-content",
       };
       if (widgetSize) {
         const {
@@ -99,12 +102,15 @@ export const AnvilFlexComponent = forwardRef(
       }
       return data;
     }, [widgetConfigProps, widgetSize, flexGrow]);
-
+    const testDataAttributes = {
+      [AnvilDataAttributes.WIDGET_NAME]: widgetName,
+    };
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex
         isInner
         {...flexProps}
+        {...testDataAttributes}
         className={_className}
         data-testid="t--anvil-widget-wrapper"
         data-widget-wrapper=""

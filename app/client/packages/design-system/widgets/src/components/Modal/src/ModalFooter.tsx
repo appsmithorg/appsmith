@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePopoverContext } from "@design-system/headless";
+import { usePopoverContext } from "@appsmith/wds-headless";
 import { Flex } from "../../Flex";
 import { Button } from "../../Button";
 
@@ -7,6 +7,7 @@ import type { ModalFooterProps } from "./types";
 
 export const ModalFooter = (props: ModalFooterProps) => {
   const {
+    closeOnSubmit = true,
     closeText = "Close",
     excludeFromTabOrder = false,
     onSubmit,
@@ -20,7 +21,7 @@ export const ModalFooter = (props: ModalFooterProps) => {
       setIsLoading(true);
       await onSubmit();
       setIsLoading(false);
-      setOpen(false);
+      if (closeOnSubmit) setOpen(false);
     }
   };
 

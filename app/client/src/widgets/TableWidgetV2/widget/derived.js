@@ -187,7 +187,9 @@ export default {
         tableSizes.COLUMN_HEADER_HEIGHT) /
       tableSizes.ROW_HEIGHT;
 
-    return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
+    return pageSize % 1 > 0.3 && props.tableData.length > pageSize
+      ? Math.ceil(pageSize)
+      : Math.floor(pageSize);
   },
   //
   getProcessedTableData: (props, moment, _) => {
@@ -315,6 +317,45 @@ export default {
     const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
+    /* 
+    Check if there are select columns, 
+    and if the columns are sorting by label instead of default value 
+    */
+    const selectColumnKeysWithSortByLabel = [];
+    Object.entries(primaryColumns).forEach(([id, column]) => {
+      const isColumnSortedByLabel =
+        column?.columnType === "select" &&
+        column?.sortBy === "label" &&
+        column?.selectOptions?.length;
+      if (isColumnSortedByLabel) {
+        selectColumnKeysWithSortByLabel.push(id);
+      }
+    });
+
+    /* 
+    If there are select columns, 
+    transform the specific columns data to show the label instead of the value for sorting 
+    */
+    let processedTableDataWithLabelInsteadOfValue;
+    if (selectColumnKeysWithSortByLabel.length) {
+      const transformedValueToLabelTableData = processedTableData.map((row) => {
+        const newRow = { ...row };
+        selectColumnKeysWithSortByLabel.forEach((key) => {
+          const value = row[key];
+          const selectOptions =
+            primaryColumns[key].selectOptions[row.__originalIndex__];
+          const option = selectOptions.find((option) => option.value === value);
+
+          if (option) {
+            newRow[key] = option.label;
+          }
+        });
+
+        return newRow;
+      });
+      processedTableDataWithLabelInsteadOfValue =
+        transformedValueToLabelTableData;
+    }
 
     if (sortByColumnId) {
       const sortBycolumn = columns.find(
@@ -350,7 +391,12 @@ export default {
         }
       };
 
-      sortedTableData = processedTableData.sort((a, b) => {
+      const transformedTableDataForSorting =
+        selectColumnKeysWithSortByLabel.length
+          ? processedTableDataWithLabelInsteadOfValue
+          : processedTableData;
+
+      sortedTableData = transformedTableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
           if (
             isEmptyOrNil(a[sortByColumnOriginalId]) ||
@@ -403,6 +449,26 @@ export default {
           return isAscOrder ? 1 : 0;
         }
       });
+
+      if (selectColumnKeysWithSortByLabel.length) {
+        const transformedLabelToValueData = sortedTableData.map((row) => {
+          const newRow = { ...row };
+          selectColumnKeysWithSortByLabel.forEach((key) => {
+            const label = row[key];
+            const selectOptions =
+              primaryColumns[key].selectOptions[row.__originalIndex__];
+            const option = selectOptions.find(
+              (option) => option.label === label,
+            );
+            if (option) {
+              newRow[key] = option.value;
+            }
+          });
+
+          return newRow;
+        });
+        sortedTableData = transformedLabelToValueData;
+      }
     } else {
       sortedTableData = [...processedTableData];
     }
@@ -785,7 +851,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number", "currency"];
+    const validatableColumns = ["text", "number", "currency", "date"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)

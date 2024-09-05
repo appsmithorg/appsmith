@@ -5,11 +5,8 @@ import {
   getCurrentPageId,
   getCurrentPageName,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { WidgetEditorContainer } from "./WidgetEditorContainer";
 import { WidgetEditorHeader } from "./WidgetEditorHeader";
 import { WidgetEditorContent } from "./WidgetEditorContent";
@@ -28,10 +25,6 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
 
   useEffect(() => {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
-  });
-
-  useEffect(() => {
     if (currentPageName !== undefined && currentPageId !== undefined) {
       // Logging page load event
       AnalyticsUtil.logEvent("PAGE_LOAD", {
@@ -43,7 +36,6 @@ function WidgetsEditor() {
     }
   }, [currentPageName, currentPageId]);
 
-  PerformanceTracker.stopTracking();
   return (
     <WidgetEditorContainer>
       <WidgetEditorHeader />

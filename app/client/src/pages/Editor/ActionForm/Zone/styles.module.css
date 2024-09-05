@@ -1,0 +1,66 @@
+.zone {
+  display: grid;
+  gap: var(--ads-v2-spaces-4);
+  width: 100%;
+  box-sizing: border-box;
+
+  &[data-layout="double_column"] {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+
+  &[data-layout="single_column"] {
+    grid-template-columns: 1fr;
+  }
+
+  /*
+   This section can be removed once the condition abouve each is resolved
+  */
+  /*  1. Margin is removed from FieldWrapper component in FormRender file */
+  & :global(.uqi-form-wrapper) {
+    margin: 0;
+  }
+  /* DropdownControl default width is removed */
+  & :global(.uqi-dropdown-select) {
+    width: unset !important;
+  }
+  /* InputTexctControl min,max and width removed */
+  & :global(.uqi-input-text) {
+    width: unset !important;
+    min-width: unset !important;
+    max-width: unset !important;
+  }
+  /* FieldArrayControl hardcoded width is removed */
+  & :global(.t--form-control-ARRAY_FIELD) {
+    & :global(.t--form-control-QUERY_DYNAMIC_INPUT_TEXT) > div {
+      width: unset !important;
+    }
+
+    & > div {
+      width: 100% !important;
+
+      & > :global(.array-control-secondary-box) {
+        width: 100% !important;
+
+        & > div {
+          flex: 1;
+        }
+      }
+    }
+  }
+  /* DynamicInputTextControl min height and width removed */
+  & :global(.uqi-dynamic-input-text) {
+    width: unset !important;
+    min-height: unset !important;
+  }
+
+  /* Remove when code editor min width is resolved in DynamicTextFeildControl */
+  & :global(.dynamic-text-field-control) {
+    min-width: 260px;
+  }
+
+  /* reset ads select min width */
+  & :global(.ads-v2-select > .rc-select-selector) {
+    min-width: unset;
+  }
+  /* Removable section ends here */
+}

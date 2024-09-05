@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { NumberInput } from "design-system";
+import { NumberInput } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -81,6 +81,8 @@ class StepControl extends BaseControl<StepControlProps> {
     return "STEP";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: StepControlProps, value: any): boolean {
     let steps = 1;
     if (config.stepType === "ZOOM_PERCENTAGE") {

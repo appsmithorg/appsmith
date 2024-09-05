@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   all,
   call,
@@ -14,7 +14,7 @@ import {
   restoreRecentEntitiesSuccess,
   setRecentEntities,
 } from "actions/globalSearchActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -23,6 +23,7 @@ import type { RecentEntity } from "components/editorComponents/GlobalSearch/util
 import log from "loglevel";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntity, FocusEntityInfo } from "navigation/FocusEntity";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
 
 const getRecentEntitiesKey = (applicationId: string, branch?: string) =>
   branch ? `${applicationId}-${branch}` : applicationId;
@@ -55,8 +56,12 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
     const {
       entity,
       id,
-      params: { pageId },
+      params: { basePageId },
     } = entityInfo;
+    const pageId: string = yield select(
+      convertToPageIdSelector,
+      basePageId ?? "",
+    );
     let recentEntities: RecentEntity[] = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntities,
     );
@@ -67,7 +72,12 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
       (recentEntity: { type: FocusEntity; id: string }) =>
         recentEntity.id !== id,
     );
-    recentEntities.unshift(<RecentEntity>{ type: entity, id, pageId });
+
+    recentEntities.unshift(<RecentEntity>{
+      type: entity,
+      id,
+      pageId,
+    });
     recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));

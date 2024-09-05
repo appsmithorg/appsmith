@@ -79,15 +79,32 @@ fi
 
 pretty_print "Starting server build ..."
 
-pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful. Starting client build ..."
+pushd app/server > /dev/null
+if ! ./build.sh -DskipTests > /dev/null; then
+  echo Server build failed >&2
+  exit 1
+fi
+pretty_print "Server build successful. Starting client build ..."
 
 popd
-pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && pretty_print "Client build successful. Starting RTS build ..."
+pushd app/client > /dev/null
+yarn > /dev/null
+if ! yarn build > /dev/null; then
+  echo Client build failed >&2
+  exit 1
+fi
+pretty_print "Client build successful. Starting RTS build ..."
 
 popd
-pushd app/client/packages/rts/ > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."
+pushd app/client/packages/rts/ > /dev/null
+if ! ./build.sh > /dev/null; then
+  echo RTS build failed >&2
+  exit 1
+fi
+pretty_print "RTS build successful. Starting Docker build ..."
 
 popd
+bash "$(dirname "$0")/generate_info_json.sh"
 docker build -t appsmith/appsmith-ce:local-testing \
   --build-arg BASE="appsmith/base-$edition:release" \
   --build-arg APPSMITH_CLOUD_SERVICES_BASE_URL="${cs_url:-https://release-cs.appsmith.com}" \

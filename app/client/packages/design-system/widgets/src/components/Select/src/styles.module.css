@@ -1,7 +1,6 @@
 .formField {
   display: flex;
   flex-direction: column;
-  gap: var(--inner-spacing-3);
   width: 100%;
 }
 
@@ -9,6 +8,7 @@
   display: flex;
   position: relative;
   padding: 0;
+  height: var(--sizing-9);
   border: none;
   align-items: center;
   border-radius: var(--border-radius-elevation-3);
@@ -44,7 +44,7 @@
 
 .textField [data-icon] {
   position: absolute;
-  right: var(--inner-spacing-2);
+  right: var(--inner-spacing-1);
 }
 
 .necessityIndicator {
@@ -53,16 +53,22 @@
 }
 
 .errorText {
+  margin-block-start: var(--inner-spacing-3);
   color: var(--color-fg-negative);
 }
 
 .description {
+  margin-block-start: var(--inner-spacing-3);
   color: var(--color-fg-neutral);
 }
 
 .fieldValue {
   text-align: left;
   flex: 1;
+}
+
+.fieldValue[data-placeholder] {
+  color: var(--color-fg-neutral-subtle);
 }
 
 .fieldValue [data-icon] {

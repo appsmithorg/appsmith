@@ -2,7 +2,7 @@ import type { Template } from "api/TemplatesApi";
 import React from "react";
 import styled from "styled-components";
 import DatasourceChip from "../DatasourceChip";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import {
   createMessage,
   DATASOURCES,
@@ -12,7 +12,7 @@ import {
   NOTE_MESSAGE,
   OVERVIEW,
   WIDGET_USED,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import WidgetInfo from "../WidgetInfo";
 
 export const DescriptionWrapper = styled.div`

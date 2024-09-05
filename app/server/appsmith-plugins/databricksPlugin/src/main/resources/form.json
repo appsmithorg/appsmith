@@ -40,7 +40,7 @@
           "dataType": "NUMBER",
           "controlType": "INPUT_TEXT",
           "placeholderText": "443",
-          "initialValue" : "443",
+          "initialValue": "443",
           "hidden": {
             "path": "datasourceConfiguration.properties[0].value",
             "comparison": "NOT_EQUALS",
@@ -110,8 +110,8 @@
           "label": "Authentication type",
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "INPUT_TEXT",
-          "initialValue" : "bearerToken",
-          "hidden" : true
+          "initialValue": "bearerToken",
+          "hidden": true
         },
         {
           "label": "Personal access token",

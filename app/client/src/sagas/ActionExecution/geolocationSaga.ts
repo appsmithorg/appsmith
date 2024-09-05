@@ -1,7 +1,7 @@
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
-import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { showToastOnExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import type { Channel } from "redux-saga";
 import { channel } from "redux-saga";
@@ -14,6 +14,8 @@ import type {
 class GeoLocationError extends Error {
   constructor(
     message: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private responseData?: any,
   ) {
     super(message);
@@ -105,7 +107,7 @@ function* errorCallbackHandler(triggerMeta: TriggerMeta, listenerId?: string) {
         { error: sanitizeGeolocationError(error) },
         listenerId,
       );
-    yield call(logActionExecutionError, error.message, true);
+    yield call(showToastOnExecutionError, error.message);
   }
 }
 
@@ -120,7 +122,7 @@ export function* getCurrentLocationSaga(action: TGetGeoLocationDescription) {
     yield put(setUserCurrentGeoLocation(currentLocation));
     return currentLocation;
   } catch (error) {
-    yield call(logActionExecutionError, (error as Error).message, true);
+    yield call(showToastOnExecutionError, (error as Error).message);
     if (error instanceof GeolocationPositionError) {
       const sanitizedError = sanitizeGeolocationError(error);
       throw new GeoLocationError(sanitizedError.message, [sanitizedError]);
@@ -139,9 +141,8 @@ export function* watchCurrentLocation(
     // When a watch is already active, we will not start a new watch.
     // at a given point in time, only one watch is active
     yield call(
-      logActionExecutionError,
+      showToastOnExecutionError,
       "A watchLocation is already active. Clear it before before starting a new one",
-      true,
     );
 
     return;
@@ -169,7 +170,7 @@ export function* watchCurrentLocation(
 
 export function* stopWatchCurrentLocation() {
   if (watchId === undefined) {
-    yield call(logActionExecutionError, "No location watch active", true);
+    yield call(showToastOnExecutionError, "No location watch active");
     return;
   }
   navigator.geolocation.clearWatch(watchId);

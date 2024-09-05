@@ -234,6 +234,8 @@ export function getDerivedColumns(
 }
 
 export const getPropertyValue = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   index: number,
   preserveCase = false,
@@ -243,6 +245,8 @@ export const getPropertyValue = (
     return value;
   }
   if (value && Array.isArray(value) && value[index]) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const getValueForSourceData = (value: any, index: number) => {
       return Array.isArray(value[index]) ? value[index] : value;
     };
@@ -609,6 +613,8 @@ export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
   const { __evaluation__, primaryColumns } = props;
   const primaryColumnKeys = primaryColumns ? Object.keys(primaryColumns) : [];
   const columnName = primaryColumnKeys?.length ? primaryColumnKeys[0] : "";
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evaluatedColumns: any = __evaluation__?.evaluatedValues?.primaryColumns;
 
   if (evaluatedColumns) {

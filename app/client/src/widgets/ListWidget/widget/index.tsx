@@ -1,14 +1,34 @@
+import type { PrivateWidgets } from "ee/entities/DataTree/types";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+  WidgetCallout,
+} from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  type DSLWidget,
+  type FlattenedWidgetProps,
+} from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import equal from "fast-deep-equal/es6";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
-import equal from "fast-deep-equal/es6";
-import { klona } from "klona/lite";
 import {
   cloneDeep,
   compact,
@@ -26,24 +46,19 @@ import {
 } from "lodash";
 import log from "loglevel";
 import memoizeOne from "memoize-one";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
 import React from "react";
 import shallowEqual from "shallowequal";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { removeFalsyEntries } from "utils/helpers";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import WidgetFactory from "WidgetProvider/factory";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import { klonaLiteWithTelemetry, removeFalsyEntries } from "utils/helpers";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  type FlattenedWidgetProps,
-  type DSLWidget,
-} from "WidgetProvider/constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
@@ -51,22 +66,12 @@ import ListComponent, {
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
+import IconSVG from "../icon.svg";
 import derivedProperties from "./parseDerivedProperties";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import IconSVG from "../icon.svg";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -92,6 +97,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       hideCard: true,
       replacement: "LIST_WIDGET_V2",
       needsHeightForContent: true,
+      tags: [WIDGET_TAGS.DISPLAY],
     };
   }
 
@@ -109,18 +115,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       positioning: Positioning.Fixed,
       enhancements: {
         child: {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           updateDataTreePath: (parentProps: any, dataTreePath: string) => {
             return `${parentProps.widgetName}.template.${dataTreePath}`;
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           shouldHideProperty: (parentProps: any, propertyName: string) => {
             if (propertyName === "dynamicHeight") return true;
 
             return false;
           },
           propertyUpdateHook: (
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             parentProps: any,
             widgetName: string,
             propertyPath: string,
@@ -317,13 +331,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
             ) => {
               let template = {};
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const logBlackListMap: any = {};
               const container = get(
                 widgets,
                 `${get(widget, "children.0.children.0")}`,
               );
               const canvas = get(widgets, `${get(container, "children.0")}`);
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               let updatePropertyMap: any = [];
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const dynamicBindingPathList: any[] = get(
                 widget,
                 "dynamicBindingPathList",
@@ -498,6 +518,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           },
         ];
       },
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(ListWidget.getConfig().name),
+          },
+        ];
+      },
     };
   }
 
@@ -614,6 +641,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   generateChildrenEntityDefinitions(props: ListWidgetProps<WidgetProps>) {
     const template = props.template;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const childrenEntityDefinitions: Record<string, any> = {};
 
     if (template) {
@@ -798,6 +827,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -1266,7 +1297,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.childWidgets));
+      const children = removeFalsyEntries(
+        klonaLiteWithTelemetry(
+          this.props.childWidgets,
+          "ListWidget.renderChildren",
+        ),
+      );
       const childCanvas = children[0];
       const { perPage } = this.shouldPaginate();
 
@@ -1295,9 +1331,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   getCanvasChildren = memoizeOne(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       template: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       listData: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       staticTemplate: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       canvasChildren: any,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1312,7 +1356,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const canvasChildrenList = [];
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = klona(template);
+          canvasChildrenList[i] = klonaLiteWithTelemetry(
+            template,
+            "ListWidget.renderChildren",
+          );
         }
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
@@ -1321,10 +1368,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       return canvasChildren;
     },
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (prev: any, next: any) => this.compareProps(prev, next),
   );
 
   // DeepEqual Comparison
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   compareProps = (prev: any[], next: any[]) => {
     return (
       equal(prev[0], next[0]) &&

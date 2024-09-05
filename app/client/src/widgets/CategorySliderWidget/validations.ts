@@ -4,6 +4,8 @@ import type { CategorySliderWidgetProps, SliderOption } from "./widget";
 export function optionsCustomValidation(
   options: unknown,
   props: CategorySliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   const validationUtil = (
@@ -133,6 +135,8 @@ export function optionsCustomValidation(
 export function defaultOptionValidation(
   value: unknown,
   props: CategorySliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   //Checks if the value is not of object type in {{}}

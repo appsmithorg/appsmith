@@ -121,6 +121,8 @@ export function getFixedLayoutSystem(renderMode: RenderModes): LayoutSystem {
       propertyEnhancer: getFixedLayoutSystemWidgetPropsEnhancer,
     },
     canvasSystem: {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Canvas: getFixedLayoutSystemCanvasWrapper(renderMode) as any,
       propertyEnhancer: getFixedLayoutSystemCanvasPropsEnhancer,
     },

@@ -38,6 +38,8 @@ const getCorrectEvaluationSubstitutionType = (substitutionType?: string) => {
 
 export const getBindingAndReactivePathsOfAction = (
   action: Action,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfig?: any[],
   dynamicBindingPathList?: DynamicPath[],
 ): { reactivePaths: ReactivePaths; bindingPaths: BindingPaths } => {
@@ -65,6 +67,8 @@ export const getBindingAndReactivePathsOfAction = (
   // for example in json mode, sorting component bindingPath should be formData.sortBy.data.(column | order)
   // in component mode, the sorting component binding path should be more specific e.g. formData.sortBy.data[0].(column | order)
   // the condition below checks if the viewType of the config and computes the binding path respectively
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recursiveFindBindingPaths = (formConfig: any) => {
     if (formConfig.children) {
       formConfig.children.forEach(recursiveFindBindingPaths);
@@ -93,6 +97,8 @@ export const getBindingAndReactivePathsOfAction = (
         if (Array.isArray(actionValue)) {
           actionValue = actionValue.filter((val) => val);
           for (let i = 0; i < actionValue.length; i++) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             formConfig.schema.forEach((schemaField: any) => {
               if (
                 schemaField.key in actionValue[i] &&
@@ -110,6 +116,8 @@ export const getBindingAndReactivePathsOfAction = (
       } else if (formConfig.controlType === formControlTypes.WHERE_CLAUSE) {
         const recursiveFindBindingPathsForWhereClause = (
           newConfigPath: string,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           actionValue: any,
         ) => {
           if (
@@ -117,6 +125,8 @@ export const getBindingAndReactivePathsOfAction = (
             actionValue.hasOwnProperty("children") &&
             Array.isArray(actionValue.children)
           ) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             actionValue.children.forEach((value: any, index: number) => {
               const childrenPath = getBindingOrConfigPathsForWhereClauseControl(
                 newConfigPath,
@@ -155,6 +165,8 @@ export const getBindingAndReactivePathsOfAction = (
           actionValue.hasOwnProperty("children") &&
           Array.isArray(actionValue.children)
         ) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           actionValue.children.forEach((value: any, index: number) => {
             const childrenPath = getBindingOrConfigPathsForWhereClauseControl(
               configPath,
@@ -182,6 +194,8 @@ export const getBindingAndReactivePathsOfAction = (
       } else if (formConfig.controlType === formControlTypes.SORTING) {
         const actionValue = _.get(action, formConfig.configProperty);
         if (Array.isArray(actionValue)) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           actionValue.forEach((fieldConfig: any, index: number) => {
             const columnPath = getBindingOrConfigPathsForSortingControl(
               SortingSubComponent.Column,
@@ -203,6 +217,8 @@ export const getBindingAndReactivePathsOfAction = (
         }
       } else if (formConfig.controlType === formControlTypes.ENTITY_SELECTOR) {
         if (Array.isArray(formConfig.schema)) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           formConfig.schema.forEach((schemaField: any) => {
             let columnPath = "";
             if (

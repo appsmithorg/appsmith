@@ -8,9 +8,9 @@ import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import { Classes, getTypographyByKey } from "design-system-old";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import ContextualMenu from "./ContextualMenu";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 import moment from "moment";
 import classNames from "classnames";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
@@ -88,10 +88,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      -webkit-user-select: all; /* Chrome 49+ */
-      -moz-user-select: all; /* Firefox 43+ */
-      -ms-user-select: all; /* No support yet */
-      user-select: all; /* Likely future */
     }
     .debugger-entity {
       color: var(--ads-v2-color-fg-emphasis);
@@ -220,7 +216,11 @@ interface LogItemProps {
   severity: Severity;
   text: string;
   category: LOG_CATEGORY;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logData?: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
@@ -267,9 +267,7 @@ function LogItem(props: LogItemProps) {
           size="md"
         />
         <span className={`debugger-time ${props.severity}`}>
-          {props.severity === Severity.ERROR
-            ? moment(parseInt(props.timestamp)).format("HH:mm:ss")
-            : props.timestamp}
+          {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
         </span>
 
         <Button
@@ -367,6 +365,8 @@ function LogItem(props: LogItemProps) {
           )}
           {props.logData &&
             props.logData.length > 0 &&
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             props.logData.map((logDatum: any) => {
               if (typeof logDatum === "object") {
                 return (

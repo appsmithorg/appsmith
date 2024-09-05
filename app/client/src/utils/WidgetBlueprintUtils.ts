@@ -7,6 +7,8 @@ import type { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
  * @returns
  */
 export function getWidgetBluePrintUpdates(widgetUpdates: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }): UpdatePropertyArgs[] {
   const widgetIds = Object.keys(widgetUpdates);

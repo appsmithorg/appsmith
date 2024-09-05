@@ -35,6 +35,8 @@ export function ClickContentToOpenPropPane({
 
   const isCurrentWidgetFocused = useSelector(isWidgetFocused(widgetId));
   const resizingOrDragging = useSelector(isResizingOrDragging);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMouseOver = (e: any) => {
     focusWidget &&
       !resizingOrDragging &&
@@ -65,6 +67,8 @@ export const useClickToSelectWidget = (widgetId: string) => {
   const layoutSystemType = useSelector(getLayoutSystemType);
 
   const clickToSelectWidget = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       // Ignore click captures
       // 1. If the component is resizing or dragging because it is handled internally in draggable component.

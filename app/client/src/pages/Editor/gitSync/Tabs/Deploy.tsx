@@ -12,7 +12,7 @@ import {
   GIT_UPSTREAM_CHANGES,
   PULL_CHANGES,
   READ_DOCUMENTATION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled from "styled-components";
 import {
   Button,
@@ -22,7 +22,7 @@ import {
   ModalFooter,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   getConflictFoundDocUrlDeploy,
   getGitCommitAndPushError,
@@ -38,7 +38,10 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentAppGitMetaData,
+  getCurrentApplication,
+} from "ee/selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
 import {
   clearCommitErrorState,
@@ -56,11 +59,8 @@ import GitChangesList from "../components/GitChangesList";
 import ConflictInfo from "../components/ConflictInfo";
 
 import { isEllipsisActive, isMacOrIOS } from "utils/helpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import {
-  getApplicationLastDeployedAt,
-  getCurrentApplication,
-} from "selectors/editorSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getApplicationLastDeployedAt } from "selectors/editorSelectors";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { Container, Space } from "../components/StyledComponents";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";

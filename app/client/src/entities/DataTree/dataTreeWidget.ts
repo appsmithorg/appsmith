@@ -7,15 +7,15 @@ import { getEntityDynamicBindingPathList } from "utils/DynamicBindingUtils";
 import type {
   WidgetEntityConfig,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "./dataTreeFactory";
 import type {
   OverridingPropertyPaths,
   PropertyOverrideDependency,
-} from "@appsmith/entities/DataTree/types";
-import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
+import { OverridingPropertyType } from "ee/entities/DataTree/types";
 
-import { setOverridingProperty } from "@appsmith/entities/DataTree/utils";
+import { setOverridingProperty } from "ee/entities/DataTree/utils";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
@@ -66,9 +66,13 @@ import { LayoutSystemTypes } from "layoutSystems/types";
  */
 
 export function getSetterConfig(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setterConfig: Record<string, any>,
   widget: FlattenedWidgetProps,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const modifiedSetterConfig: Record<string, any> = {};
 
   try {
@@ -139,6 +143,8 @@ export function getSetterConfig(
 
         for (const [setterName, setterBody] of entries) {
           //path = primaryColumns.action.isRequired
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const path = (setterBody as any).path.replace(placeHolder, accesskey);
           const setterPathArray = path.split(".");
           setterPathArray.pop();
@@ -171,6 +177,8 @@ const generateDataTreeWidgetWithoutMeta = (
   defaultMetaProps: Record<string, unknown>;
   entityConfig: WidgetEntityConfig;
 } => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};

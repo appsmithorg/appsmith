@@ -1,10 +1,10 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import type { Branch } from "entities/GitSync";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
@@ -256,6 +256,9 @@ export const getIsAutocommitToggling = (state: AppState) =>
 
 export const getIsAutocommitModalOpen = (state: AppState) =>
   state.ui.gitSync.isAutocommitModalOpen;
+
+export const getIsTriggeringAutocommit = (state: AppState) =>
+  state.ui.gitSync.triggeringAutocommit;
 
 export const getIsPollingAutocommit = (state: AppState) =>
   state.ui.gitSync.pollingAutocommitStatus;

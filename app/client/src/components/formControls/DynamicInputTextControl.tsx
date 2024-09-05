@@ -3,9 +3,9 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { formValueSelector } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import { connect } from "react-redux";
 import { actionPathFromName } from "components/formControls/utils";
 import {
@@ -47,6 +47,8 @@ export function InputText(props: {
   name: string;
   actionName: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles?: any;
   disabled?: boolean;
   showLineNumbers?: boolean;
@@ -82,7 +84,10 @@ export function InputText(props: {
     }
   }
   return (
-    <div className={`t--${props?.name}`} style={customStyle}>
+    <div
+      className={`t--${props?.name} uqi-dynamic-input-text`}
+      style={customStyle}
+    >
       {/* <div style={customStyle}> */}
       <StyledDynamicTextField
         dataTreePath={dataTreePath}

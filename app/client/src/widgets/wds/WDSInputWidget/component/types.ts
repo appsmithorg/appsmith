@@ -1,4 +1,4 @@
-import type { IconProps } from "@design-system/widgets";
+import type { IconProps } from "@appsmith/wds";
 import type { BaseInputComponentProps } from "../../WDSBaseInputWidget";
 
 import type { INPUT_TYPES } from "../constants";
@@ -14,4 +14,5 @@ export interface InputComponentProps extends BaseInputComponentProps {
   autoComplete?: string;
   iconAlign?: "left" | "right";
   iconName?: IconProps["name"];
+  onPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
 }

@@ -3,10 +3,11 @@ import { set } from "lodash";
 import type { ControllerProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 import { useContext, useEffect } from "react";
-import { klona } from "klona";
 
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;
@@ -22,8 +23,9 @@ function useRegisterFieldValidity({
   fieldType,
   isValid,
 }: UseRegisterFieldValidityProps) {
-  const { clearErrors, setError } = useFormContext();
+  const { clearErrors, getFieldState, setError } = useFormContext();
   const { setMetaInternalFieldState } = useContext(FormContext);
+  const { error } = getFieldState(fieldName);
 
   useEffect(() => {
     /**
@@ -33,19 +35,35 @@ function useRegisterFieldValidity({
      */
     setTimeout(() => {
       try {
-        isValid
-          ? clearErrors(fieldName)
-          : setError(fieldName, {
-              type: fieldType,
-              message: "Invalid field",
+        if (isValid) {
+          if (error) {
+            startAndEndSpanForFn("JSONFormWidget.clearErrors", {}, () => {
+              clearErrors(fieldName);
             });
+          }
+        } else {
+          if (!error) {
+            startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
+              setError(fieldName, {
+                type: fieldType,
+                message: "Invalid field",
+              });
+            });
+          }
+        }
       } catch (e) {
         Sentry.captureException(e);
       }
     }, 0);
+  }, [isValid, fieldName, fieldType, error, clearErrors, setError]);
 
+  useEffect(() => {
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = klona(prevState.metaInternalFieldState);
+      const metaInternalFieldState = klonaRegularWithTelemetry(
+        prevState.metaInternalFieldState,
+        "useRegisterFieldValidity.setMetaInternalFieldState",
+      );
+
       set(metaInternalFieldState, `${fieldName}.isValid`, isValid);
 
       return {
@@ -53,7 +71,7 @@ function useRegisterFieldValidity({
         metaInternalFieldState,
       };
     });
-  }, [isValid, fieldName, fieldType]);
+  }, [fieldName, isValid, setMetaInternalFieldState]);
 }
 
 export default useRegisterFieldValidity;

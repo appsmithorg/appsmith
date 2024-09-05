@@ -11,7 +11,7 @@ import {
   MenuSubTrigger,
   MenuTrigger,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 export interface ContextMenuOption {
   id?: string;
@@ -78,6 +78,8 @@ export function JSEditorContextMenu({
             <MenuItem
               className={option?.className}
               key={option.value}
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               onSelect={option.onSelect as any}
               startIcon={option.icon}
             >

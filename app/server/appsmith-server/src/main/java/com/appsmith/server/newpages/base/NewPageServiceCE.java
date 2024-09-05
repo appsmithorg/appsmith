@@ -7,14 +7,13 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
@@ -22,13 +21,14 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> findById(String pageId, AclPermission aclPermission);
 
-    Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission);
-
     Mono<PageDTO> findPageById(String pageId, AclPermission aclPermission, Boolean view);
 
     Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
 
     Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
+
+    Flux<NewPage> findNewPagesByApplicationId(
+            String applicationId, AclPermission permission, List<String> includeFields);
 
     Mono<NewPage> findByIdAndBranchName(String id, String branchName);
 
@@ -42,14 +42,11 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<Void> deleteAll();
 
-    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewModeAndBranch(
-            String applicationId, String branchName, Boolean view, boolean markApplicationAsRecentlyAccessed);
-
     Mono<ApplicationPagesDTO> findApplicationPages(
-            String applicationId, String pageId, String branchName, ApplicationMode mode);
+            String branchedApplicationId, String branchedPageId, ApplicationMode mode);
 
-    Mono<ApplicationPagesDTO> findApplicationPagesByApplicationIdViewMode(
-            String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed);
+    Mono<ApplicationPagesDTO> findApplicationPagesByBranchedApplicationIdAndViewMode(
+            String branchedApplicationId, Boolean view, boolean markApplicationAsRecentlyAccessed);
 
     Layout createDefaultLayout();
 
@@ -58,11 +55,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission);
 
-    Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission permission, Boolean view);
-
     Mono<PageDTO> updatePage(String pageId, PageDTO page);
-
-    Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageUpdateDTO page, String branchName);
 
     Mono<NewPage> save(NewPage page);
 
@@ -72,30 +65,30 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<Boolean> archiveByIds(Collection<String> idList);
 
-    Mono<NewPage> archiveWithoutPermissionById(String id);
+    Mono<NewPage> archiveByIdWithoutPermission(String id);
 
     Flux<NewPage> saveAll(List<NewPage> pages);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
-    Mono<NewPage> findByBranchNameAndDefaultPageId(String branchName, String defaultPageId, AclPermission permission);
+    Mono<NewPage> findByBranchNameAndBasePageId(String branchName, String defaultPageId, AclPermission permission);
 
-    Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission);
+    Mono<NewPage> findByBranchNameAndBasePageIdAndApplicationMode(
+            String branchName, String basePageId, ApplicationMode mode);
 
-    Mono<String> findRootApplicationIdFromNewPage(String branchName, String defaultPageId);
-
-    Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission);
-
-    Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
-
-    Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
+    Mono<String> findBranchedPageId(String branchName, String basePageId, AclPermission permission);
 
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
+
+    Flux<NewPage> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields);
 
     ApplicationPagesDTO getApplicationPagesDTO(Application application, List<NewPage> newPages, boolean viewMode);
 
     Mono<ApplicationPagesDTO> createApplicationPagesDTO(
             Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean isRecentlyAccessed);
+
+    Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName);
+
+    Flux<PageDTO> findByApplicationIdAndApplicationMode(
+            String applicationId, AclPermission permission, ApplicationMode applicationMode);
 }

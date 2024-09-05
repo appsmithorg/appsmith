@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { usePopoverContext } from "@design-system/headless";
+import { usePopoverContext } from "@appsmith/wds-headless";
 
 import { Text } from "../../Text";
 import { IconButton } from "../../IconButton";

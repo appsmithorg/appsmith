@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
-import type { ButtonProps, COLORS } from "@design-system/widgets";
-import { Button } from "@design-system/widgets";
+import type { ButtonProps, COLORS } from "@appsmith/wds";
+import { Button } from "@appsmith/wds";
 
 import type { BaseCellComponentProps } from "../Constants";
 
@@ -10,6 +10,7 @@ export interface ButtonCellProps {
   buttonVariant?: ButtonProps["variant"];
   onClick?: (onComplete: () => void) => void;
   isDisabled?: boolean;
+  excludeFromTabOrder?: boolean;
 }
 
 function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
@@ -17,6 +18,7 @@ function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
     buttonColor = "accent",
     buttonLabel,
     buttonVariant,
+    excludeFromTabOrder,
     isDisabled,
   } = props;
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +38,7 @@ function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
   return (
     <Button
       color={buttonColor}
+      excludeFromTabOrder={excludeFromTabOrder}
       isDisabled={isDisabled}
       isLoading={isLoading}
       onPress={onClick}

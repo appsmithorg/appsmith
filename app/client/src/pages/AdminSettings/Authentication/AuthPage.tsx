@@ -1,6 +1,6 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingCategories } from "ee/pages/AdminSettings/config/types";
 import styled from "styled-components";
 import {
   ENABLE,
@@ -10,10 +10,10 @@ import {
   EDIT,
   UPGRADE,
   AUTHENTICATION_METHOD_ENABLED,
-} from "@appsmith/constants/messages";
-import { Button, Callout, Divider, Icon, Text, Tooltip } from "design-system";
-import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import { Button, Callout, Divider, Icon, Text, Tooltip } from "@appsmith/ads";
+import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 import EnterpriseTag from "components/EnterpriseTag";
@@ -89,6 +89,8 @@ export interface AuthMethodType {
   category?: string;
   label: string;
   subText?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image?: any;
   isConnected?: boolean;
   calloutBanner?: banner;

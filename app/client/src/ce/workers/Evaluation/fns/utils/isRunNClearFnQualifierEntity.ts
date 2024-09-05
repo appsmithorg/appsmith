@@ -1,6 +1,6 @@
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { isAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isAction } from "ee/workers/Evaluation/evaluationUtils";
 
 export function isRunNClearFnQualifierEntity(
   entity: DataTreeEntity,

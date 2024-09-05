@@ -32,7 +32,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: appsmith-self-hosted-deployment-runner
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -119,7 +119,7 @@ jobs:
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
+        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
         run: yarn run test:unit
 
       - name: Build

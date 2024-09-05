@@ -39,6 +39,8 @@ describe("test AutoLayoutDraggingUtils methods", () => {
   describe("test removeWidgetsFromCurrentLayers method", () => {
     it("should remove the widget from given flex layers", () => {
       const widgets = { ...data };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const layers: any[] = widgets["a3lldg1wg9"].flexLayers;
       const result: FlexLayer[] = removeWidgetsFromCurrentLayers(
         ["pt32jvs72k"],
@@ -53,6 +55,8 @@ describe("test AutoLayoutDraggingUtils methods", () => {
     });
     it("should return input flexLayers as is if moved widgets are not found amongst them", () => {
       const widgets = { ...data };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const layers: any[] = widgets["a3lldg1wg9"].flexLayers;
       const result: FlexLayer[] = removeWidgetsFromCurrentLayers(
         ["33", "44"],

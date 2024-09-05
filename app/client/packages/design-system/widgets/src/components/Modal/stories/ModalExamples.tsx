@@ -6,7 +6,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 // Since the Modal is rendered at the root of the Provider, we need to add Unstyled as a wrapper
 // so that Storybook does not break styles.
 import { Unstyled } from "@storybook/blocks";
@@ -51,10 +51,10 @@ export const ModalExamples = () => {
         }}
       />
       <Modal
+        dataAttributes={{ "data-size": "large" }}
         initialFocus={2}
         isOpen={isLargeOpen}
         setOpen={setLargeOpen}
-        size="large"
         triggerRef={largeRef}
       >
         <Unstyled>
@@ -121,10 +121,10 @@ export const ModalExamples = () => {
         </Unstyled>
       </Modal>
       <Modal
+        dataAttributes={{ "data-size": "small" }}
         initialFocus={2}
         isOpen={isSmallOpen}
         setOpen={setSmallOpen}
-        size="small"
         triggerRef={smallRef}
       >
         <Unstyled>

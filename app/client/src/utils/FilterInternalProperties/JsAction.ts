@@ -1,6 +1,6 @@
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export const getJsActionPeekData = (
   jsAction: JSCollectionData,
@@ -16,6 +16,8 @@ export const getJsActionPeekData = (
       peekData[jsChild.name] = function () {};
 
       if (jsAction.data?.[jsChild.id] && jsChild.executeOnLoad) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (peekData[jsChild.name] as any).data = jsAction.data[jsChild.id];
       }
     });
