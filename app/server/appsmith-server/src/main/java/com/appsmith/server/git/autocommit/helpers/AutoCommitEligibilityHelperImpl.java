@@ -1,7 +1,5 @@
 package com.appsmith.server.git.autocommit.helpers;
 
-import com.appsmith.external.annotations.FeatureFlagged;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
@@ -36,7 +34,6 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
     private final JsonSchemaVersions jsonSchemaVersions;
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
     public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
 
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
@@ -75,7 +72,6 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
      */
     @Override
     @Deprecated
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
     public Mono<Boolean> isClientMigrationRequired(PageDTO pageDTO) {
         return dslMigrationUtils
                 .getLatestDslVersion()
@@ -95,7 +91,6 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
     public Mono<Boolean> isClientMigrationRequiredFSOps(
             String workspaceId, GitArtifactMetadata gitMetadata, PageDTO pageDTO) {
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
@@ -127,7 +122,6 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
     public Mono<AutoCommitTriggerDTO> isAutoCommitRequired(
             String workspaceId, GitArtifactMetadata gitArtifactMetadata, PageDTO pageDTO) {
 

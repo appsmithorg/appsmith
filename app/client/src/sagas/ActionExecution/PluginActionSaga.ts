@@ -9,9 +9,9 @@ import {
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type { updateActionDataPayloadType } from "actions/pluginActionActions";
-import { executePageLoadActions } from "actions/pluginActionActions";
 import {
   clearActionResponse,
+  executePageLoadActions,
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
@@ -72,8 +72,7 @@ import {
 } from "sagas/ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
-import { ActionExecutionContext } from "entities/Action";
-import { PluginType } from "entities/Action";
+import { ActionExecutionContext, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   ACTION_EXECUTION_CANCELLED,
@@ -1267,9 +1266,8 @@ function* executePageLoadActionsSaga(
     checkAndLogErrorsIfCyclicDependency(layoutOnLoadActionErrors);
   } catch (e) {
     log.error(e);
-
-    toast.show(createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS), {
-      kind: "error",
+    AppsmithConsole.error({
+      text: createMessage(ERROR_FAIL_ON_PAGE_LOAD_ACTIONS),
     });
   }
   endSpan(span);

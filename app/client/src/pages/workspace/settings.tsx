@@ -127,7 +127,7 @@ export default function Settings() {
     <>
       <SettingsWrapper data-testid="t--settings-wrapper" isMobile={isMobile}>
         <StyledStickyHeader isMobile={isMobile}>
-          <BackButton />
+          <BackButton goTo={`/applications?workspaceId=${workspaceId}`} />
           <SettingsPageHeader
             buttonText="Add users"
             onButtonClick={onButtonClick}
