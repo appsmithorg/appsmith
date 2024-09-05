@@ -33,6 +33,7 @@ public class MetricsConfig {
 
     public static final String NEW_RELIC_MICROMETER_METRICS_ENDPOINT = "https://otlp.nr-data.net:4317";
     public static final String API_KEY = "api-key";
+    public static final String CONTAINER_NAME_KEY = "container.name";
     public static final String SERVICE_NAME_KEY = "service.name";
     public static final String INSTRUMENTATION_PROVIDER_KEY = "instrumentation.provider";
     public static final String MICROMETER = "micrometer";
@@ -77,7 +78,7 @@ public class MetricsConfig {
                                 // Include instrumentation.provider=micrometer to enable micrometer metrics
                                 // experience in New Relic
                                 .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
-                                .put("container.name", newRelicContainerName)
+                                .put(CONTAINER_NAME_KEY, newRelicContainerName)
                                 .build())
                         .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
                                         .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
@@ -87,8 +88,7 @@ public class MetricsConfig {
                                         .setAggregationTemporalitySelector(
                                                 AggregationTemporalitySelector.deltaPreferred())
                                         // Use exponential histogram aggregation for histogram instruments
-                                        // to
-                                        // produce better data and compression
+                                        // to produce better data and compression
                                         .setDefaultAggregationSelector(DefaultAggregationSelector.getDefault()
                                                 .with(
                                                         InstrumentType.HISTOGRAM,
