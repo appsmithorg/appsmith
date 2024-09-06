@@ -27,17 +27,19 @@ describe(
       agHelper.GetNClick(locators._canvas);
       appSettings.OpenAppSettings();
       appSettings.GoToThemeSettings();
-      
+
       cy.xpath(
         "//p[text()='App font']/following-sibling::section//div//input",
       ).then(($elem) => {
-       agHelper.GetNClick($elem);
-      
-        agHelper.GetElement(themelocator.fontsSelected)
+        agHelper.GetNClick($elem);
+
+        agHelper
+          .GetElement(themelocator.fontsSelected)
           .should("contain.text", "Nunito Sans");
 
-        agHelper.GetElement(".rc-virtual-list .rc-select-item-option")
-          .find(".leading-normal")
+        agHelper
+          .GetElement(themelocator.fontOption)
+          .find(themelocator.fontsSelected)
           .eq(3)
           .then(($childElem) => {
             cy.get($childElem).click({ force: true });
@@ -57,10 +59,16 @@ describe(
 
     it("2. Publish the App and validate Font across the app", function () {
       deployMode.DeployApp();
-      agHelper.GetElement(multiSelectWidgetLocators.multiSelectWidgetSelectedOptionContent)
+      agHelper
+        .GetElement(
+          multiSelectWidgetLocators.multiSelectWidgetSelectedOptionContent,
+        )
         .first()
         .should("have.css", "font-family", themeFont);
-      agHelper.GetElement(multiSelectWidgetLocators.multiSelectWidgetSelectedOptionContent)
+      agHelper
+        .GetElement(
+          multiSelectWidgetLocators.multiSelectWidgetSelectedOptionContent,
+        )
         .last()
         .should("have.css", "font-family", themeFont);
       deployMode.NavigateBacktoEditor();
@@ -72,12 +80,15 @@ describe(
       agHelper.GetNClick(commonlocators.changeThemeBtn, 0, true);
       agHelper.GetNClick(
         `${themelocator.featuredThemeSection} [data-testid='t--theme-card-Sunrise']`,
-      )
-      
+      );
+
       deployMode.DeployApp();
 
       agHelper.GetNClick(multiSelectWidgetLocators.multiSelectWidgetTrigger);
-      agHelper.GetElement(multiSelectWidgetLocators.multiSelectWidgetDropdownOptionCheckbox)
+      agHelper
+        .GetElement(
+          multiSelectWidgetLocators.multiSelectWidgetDropdownOptionCheckbox,
+        )
         .first()
         .should("have.css", "background-color", "rgb(239, 68, 68)");
     });
