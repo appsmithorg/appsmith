@@ -558,7 +558,7 @@ export function setFormEvaluationSaga(
       hasRouteChanged,
     } = payload;
     // In case the formData is not ready or the form is not of type UQI, return empty state
-    if (!actionConfiguration || !actionConfiguration.formData) {
+    if (!actionConfiguration) {
       return currentEvalState;
     } else {
       return getFormEvaluation(
