@@ -44,6 +44,7 @@ export function useTheme(props: UseThemeProps = {}) {
   );
   const { typography } = useTypography(
     tokensConfigs.typography,
+    "System Default",
     userDensity,
     userSizing,
   );
