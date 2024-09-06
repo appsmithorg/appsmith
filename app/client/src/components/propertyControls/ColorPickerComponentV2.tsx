@@ -546,9 +546,7 @@ const ColorPickerComponent = React.forwardRef(
 
     const handleChangeColor = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-
-        if (!value) return;
+        const value = event.target.value || "";
 
         if (isValidColor(value)) {
           debouncedOnChange(value, true);
