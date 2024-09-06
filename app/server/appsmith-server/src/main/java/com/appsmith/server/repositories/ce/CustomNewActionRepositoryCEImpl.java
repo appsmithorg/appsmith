@@ -222,11 +222,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Flux<NewAction> findPublishedActionsByPageIdAndExcludedPluginType(
-            String pageId, List<String> excludedPluginTypes, AclPermission aclPermission, Sort sort) {
+    public List<NewAction> findPublishedActionsByPageIdAndExcludedPluginType(
+            String pageId, List<String> excludedPluginTypes, AclPermission permission, User currentUser, Sort sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindPublishedActionsByPageIdAndExcludedPluginType(pageId, excludedPluginTypes))
-                .permission(aclPermission)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
