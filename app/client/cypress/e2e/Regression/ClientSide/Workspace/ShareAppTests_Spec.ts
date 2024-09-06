@@ -124,7 +124,17 @@ describe(
         Cypress.env("TESTPASSWORD2"),
       );
       agHelper.VisitNAssert(currentUrl);
-      agHelper.ValidateToastMessage("Resource Not Found"); //for 404 screen
+      cy.get(locators.errorPageTitle).should(($x) => {
+        //for 404 screen
+        expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());
+      });
+      cy.get(locators.errorPageDescription).should(($x) => {
+        //for 404 screen
+        expect($x).contain(
+          "Either this page doesn't exist, or you don't have access to this page",
+        );
+      });
+      agHelper.ValidateToastMessage("Resource Not Found");
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
