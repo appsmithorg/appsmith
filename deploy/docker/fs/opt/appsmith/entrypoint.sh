@@ -4,9 +4,6 @@ set -e
 
 tlog "Running as: $(id)"
 
-# Temporary, remove after this change goes into `base.dockerfile`.
-export PATH="/usr/lib/postgresql/13/bin:${PATH}"
-
 stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
@@ -428,7 +425,9 @@ init_postgres() {
     # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
     chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
-    if [[ ! -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      /opt/appsmith/pg-upgrade.sh
+    else
       tlog "Initializing local Postgres data folder"
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
@@ -438,10 +437,19 @@ init_postgres() {
 
 }
 
-safe_init_postgres(){
-runEmbeddedPostgres=1
-# fail safe to prevent entrypoint from exiting, and prevent postgres from starting
-init_postgres || runEmbeddedPostgres=0
+safe_init_postgres() {
+  runEmbeddedPostgres=1
+  # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
+  # when runEmbeddedPostgres=0 , postgres conf file for supervisord will not be copied
+  # so postgres will not be started by supervisor. Explicit message helps us to know upgrade script failed.
+
+  if init_postgres; then
+    tlog "init_postgres succeeded."
+  else
+    local exit_status=$?
+    tlog "init_postgres failed with exit status $exit_status."
+    runEmbeddedPostgres=0
+  fi
 }
 
 setup_caddy() {

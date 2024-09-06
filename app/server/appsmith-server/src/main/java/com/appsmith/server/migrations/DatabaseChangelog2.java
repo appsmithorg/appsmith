@@ -2,8 +2,8 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.GitSyncedDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -109,13 +109,12 @@ public class DatabaseChangelog2 {
     }
 
     public static void doAddIndexesForGit(MongoTemplate mongoTemplate) {
-        String defaultResources = BranchAwareDomain.Fields.defaultResources;
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
                 makeIndex(
-                                defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                "defaultResources." + FieldName.APPLICATION_ID,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -123,8 +122,8 @@ public class DatabaseChangelog2 {
                 mongoTemplate,
                 NewAction.class,
                 makeIndex(
-                                defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                "defaultResources." + FieldName.APPLICATION_ID,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -132,8 +131,8 @@ public class DatabaseChangelog2 {
                 mongoTemplate,
                 NewPage.class,
                 makeIndex(
-                                defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                "defaultResources." + FieldName.APPLICATION_ID,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
     }
@@ -264,7 +263,7 @@ public class DatabaseChangelog2 {
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
-        savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)));
+        savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)), false);
 
         mongoTemplate.save(savedInstanceConfig);
 
@@ -280,7 +279,7 @@ public class DatabaseChangelog2 {
                 .build();
 
         savedPermissionGroup.setPolicies(
-                new HashSet<>(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy)));
+                new HashSet<>(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy)), false);
 
         Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
         permissions.addAll(Set.of(
@@ -387,18 +386,18 @@ public class DatabaseChangelog2 {
         for (Theme theme : themes) {
             theme.setSystemTheme(true);
             theme.setCreatedAt(Instant.now());
-            theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)));
             Query query = new Query(Criteria.where(Theme.Fields.name)
                     .is(theme.getName())
                     .and(Theme.Fields.isSystemTheme)
                     .is(true));
-
+            Set<Policy> themePolicies = new HashSet<>(Set.of(policyWithCurrentPermission));
             Theme savedTheme = mongoTemplate.findOne(query, Theme.class);
             if (savedTheme == null) { // this theme does not exist, create it
+                theme.setPolicies(themePolicies);
                 savedTheme = mongoTemplate.save(theme);
             } else { // theme already found, update
                 savedTheme.setDisplayName(theme.getDisplayName());
-                savedTheme.setPolicies(theme.getPolicies());
+                savedTheme.setPolicies(themePolicies);
                 savedTheme.setConfig(theme.getConfig());
                 savedTheme.setProperties(theme.getProperties());
                 savedTheme.setStylesheet(theme.getStylesheet());
@@ -535,7 +534,7 @@ public class DatabaseChangelog2 {
                     if (i == 0) {
                         // Don't create a new theme for the first application
                         // Just update the policies
-                        theme.setPolicies(themePolicies);
+                        theme.setPolicies(themePolicies, false);
                         mongoTemplate.save(theme);
                     } else {
 
@@ -548,7 +547,7 @@ public class DatabaseChangelog2 {
                         newTheme.setProperties(theme.getProperties());
                         newTheme.setCreatedAt(Instant.now());
                         newTheme.setUpdatedAt(Instant.now());
-                        newTheme.setPolicies(themePolicies);
+                        newTheme.setPolicies(themePolicies, false);
 
                         newTheme = mongoTemplate.save(newTheme);
 
@@ -623,17 +622,18 @@ public class DatabaseChangelog2 {
         HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());
         permissions.addAll(tenantPermissions);
         instanceAdminPG.setPermissions(permissions);
+        instanceAdminPG.setPolicies(instanceAdminPG.getPolicies(), false);
         mongoTemplate.save(instanceAdminPG);
 
         Map<String, Policy> tenantPolicy =
                 policySolution.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
         Tenant updatedTenant = policySolution.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        updatedTenant.setPolicies(updatedTenant.getPolicies(), false);
         mongoTemplate.save(updatedTenant);
     }
 
     @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
-    public void modifyReadPermissionGroupToReadPermissionGroupMembers(
-            MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
+    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongoTemplate mongoTemplate) {
 
         Query query = new Query(Criteria.where("policies.permission").is("read:permissionGroups"));
         Update update = new Update().set("policies.$.permission", "read:permissionGroupMembers");

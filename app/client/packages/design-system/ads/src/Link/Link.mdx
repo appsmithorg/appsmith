@@ -1,0 +1,54 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as LinkStories from "./Link.stories";
+
+<Meta of={LinkStories} />
+
+# Link
+
+Links are used to redirect users to another location and are typically embedded within or immediately following a sentence. They are suitable for both inline text links within paragraphs and standalone links. By default, links open in the same browser tab.
+
+Links should be designed to blend seamlessly with the surrounding text, adopting its characteristics such as font style, color, and alignment.
+
+## Anatomy
+
+![Link anatomy](./docs/link-anatomy.png)
+
+## Spacing
+
+![Link spacing](./docs/link-spacing.png)
+
+## Kind
+
+### Primary
+
+<Canvas of={LinkStories.PrimaryLink} />
+
+### Secondary
+
+<Canvas of={LinkStories.SecondaryLink} />
+
+## Usage
+
+### Buttons versus links
+
+Links are primarily used for navigation and typically appear within or directly following a sentence.
+Buttons, on the other hand, are primarily used for actions, such as "Add", "Close", "Cancel", or "Save". Plain buttons, which resemble links in appearance, are used for less important or less frequently used actions.
+
+### Copy
+
+To enhance usability, ensure that link text is meaningful even when viewed out of context, without relying on generic text like "here" or repetitive phrases like "learn more". Instead, use nouns or specific details in the link text to provide clear and relevant information.
+
+### Colour
+
+Links should be visually consistent with the surrounding text by adopting the default primary color. Links inher
+
+---
+
+## Resources
+
+1. Internally, our link component uses [React Aria's useLink hook](https://react-spectrum.adobe.com/react-aria/useLink.html).
+
+## References
+
+1. https://marcysutton.com/links-vs-buttons-in-modern-web-applications

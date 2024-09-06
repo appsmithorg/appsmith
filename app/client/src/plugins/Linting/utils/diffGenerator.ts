@@ -2,7 +2,7 @@ import type { TParsedJSProperty } from "@shared/ast";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { jsLintEntityParser } from "./entityParser";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 
 export interface EntityDiffGenerator {

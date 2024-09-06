@@ -4,7 +4,6 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -41,7 +40,6 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,7 +53,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -71,7 +68,6 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class PartialImportServiceTest {
 
@@ -335,13 +331,8 @@ public class PartialImportServiceTest {
         PageDTO savedPage = new PageDTO();
         savedPage.setName("Page 2");
         savedPage.setApplicationId(application.getId());
-        DefaultResources defaultResources = new DefaultResources();
-        defaultResources.setApplicationId(application.getId());
-        defaultResources.setBranchName("master");
-        savedPage.setDefaultResources(defaultResources);
-        savedPage = applicationPageService
-                .createPageWithBranchName(savedPage, "master")
-                .block();
+        savedPage.setBranchName("master");
+        savedPage = applicationPageService.createPage(savedPage).block();
 
         Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-valid-without-widget.json");
 
@@ -497,8 +488,8 @@ public class PartialImportServiceTest {
         buildingBlockDTO1.setTemplateId("templatedId1");
 
         Mono<Tuple3<BuildingBlockResponseDTO, List<ActionCollection>, List<NewAction>>> result = partialImportService
-                .importBuildingBlock(buildingBlockDTO, null)
-                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1, null))
+                .importBuildingBlock(buildingBlockDTO)
+                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1))
                 .flatMap(buildingBlockResponseDTO -> {
                     return Mono.zip(
                             Mono.just(buildingBlockResponseDTO),

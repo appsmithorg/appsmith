@@ -7,6 +7,7 @@ import type { AnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
 import { useAnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
 import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
 import { AnvilWidgetElevationProvider } from "./providers/AnvilWidgetElevationProvider";
+import { AnalyticsWrapper } from "../../../common/AnalyticsWrapper";
 
 export const AnvilDnDStatesContext = React.createContext<
   AnvilGlobalDnDStates | undefined
@@ -58,7 +59,9 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   return (
     <AnvilWidgetElevationProvider>
       <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>
-        <AnvilViewerCanvas {...props} ref={canvasRef} />
+        <AnalyticsWrapper>
+          <AnvilViewerCanvas {...props} ref={canvasRef} />
+        </AnalyticsWrapper>
         <AnvilDragPreview
           dragDetails={anvilGlobalDnDStates.dragDetails}
           draggedBlocks={anvilGlobalDnDStates.draggedBlocks}

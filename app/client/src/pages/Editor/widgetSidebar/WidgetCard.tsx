@@ -2,13 +2,13 @@ import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { BUILDING_BLOCK_EXPLORER_TYPE } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { noop } from "utils/AppsmithUtils";
 
 export interface CardProps {
@@ -81,6 +81,8 @@ function WidgetCardComponent({
   onDragStart = noop,
 }: {
   details: WidgetCardProps;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDragStart?: (e: any) => void;
 }) {
   const type = `${details.type.split("_").join("").toLowerCase()}`;
@@ -110,6 +112,8 @@ function WidgetCard(props: CardProps) {
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const { setDraggingNewWidget } = useWidgetDragResize();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();

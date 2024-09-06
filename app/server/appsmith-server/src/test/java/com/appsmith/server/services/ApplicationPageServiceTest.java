@@ -26,14 +26,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -49,7 +47,6 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -143,7 +140,7 @@ public class ApplicationPageServiceTest {
     @WithUserDetails("api_user")
     public void cloneApplication_WhenClonedSuccessfully_ApplicationIsPublished() {
         Mono<Application> applicationMono = createPageMono(UUID.randomUUID().toString())
-                .flatMap(pageDTO -> applicationPageService.cloneApplication(pageDTO.getApplicationId(), null));
+                .flatMap(pageDTO -> applicationPageService.cloneApplication(pageDTO.getApplicationId()));
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
@@ -200,7 +197,7 @@ public class ApplicationPageServiceTest {
         int currentDslVersion = layout.getDsl().getAsNumber("version").intValue();
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(currentDslVersion));
 
-        StepVerifier.create(applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+        StepVerifier.create(applicationPageService.getPageAndMigrateDslByBranchAndBasePageId(
                         newPage.getId(), null, false, true))
                 .assertNext(pageDTO -> {
                     Layout layout2 = pageDTO.getLayouts().get(0);
@@ -245,7 +242,7 @@ public class ApplicationPageServiceTest {
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         Mono<NewPage> newPageMono = applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, false, true)
+                .getPageAndMigrateDslByBranchAndBasePageId(newPage.getId(), null, false, true)
                 .then(newPageService.getByIdWithoutPermissionCheck(newPage.getId()));
 
         StepVerifier.create(newPageMono)
@@ -305,7 +302,7 @@ public class ApplicationPageServiceTest {
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         Mono<NewPage> newPageMono = applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, false, true)
+                .getPageAndMigrateDslByBranchAndBasePageId(newPage.getId(), null, false, true)
                 .then(newPageService.getByIdWithoutPermissionCheck(newPage.getId()));
 
         StepVerifier.create(newPageMono)
@@ -353,7 +350,7 @@ public class ApplicationPageServiceTest {
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         Mono<NewPage> newPageMono = applicationPageService
-                .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, true, true)
+                .getPageAndMigrateDslByBranchAndBasePageId(newPage.getId(), null, true, true)
                 .then(newPageService.getByIdWithoutPermissionCheck(newPage.getId()));
 
         StepVerifier.create(newPageMono)
@@ -475,7 +472,7 @@ public class ApplicationPageServiceTest {
                 .assertNext(pages -> {
                     assertThat(pages.size()).isEqualTo(2);
                     Set<String> pageNames = pages.stream()
-                            .map(page -> page.getUnpublishedPage().getName())
+                            .map(page -> page.getPublishedPage().getName())
                             .collect(Collectors.toSet());
                     assertThat(pageNames).contains(pageName);
                     assertThat(pageNames).doesNotContain(unpublishedPageName);

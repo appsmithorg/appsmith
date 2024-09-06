@@ -4,11 +4,11 @@ import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { ToggleButton, Tooltip, Button } from "design-system";
+import { ToggleButton, Tooltip, Button } from "@appsmith/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import {
   batchUpdateMultipleWidgetProperties,
@@ -33,16 +33,16 @@ import {
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   JS_TOGGLE_DISABLED_MESSAGE,
   JS_TOGGLE_SWITCH_JS_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
@@ -56,12 +56,12 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
 import styled from "styled-components";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
 import { getParentWidget } from "selectors/widgetSelectors";
 
@@ -286,6 +286,8 @@ const PropertyControl = memo((props: Props) => {
   const getWidgetsOwnUpdatesOnPropertyChange = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
       let propertiesToUpdate: Array<PropertyUpdates> | undefined;
@@ -388,6 +390,8 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const getOtherWidgetPropertyChanges = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (propertyName: string, propertyValue: any) => {
       let otherWidgetPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
 
@@ -456,6 +460,8 @@ const PropertyControl = memo((props: Props) => {
   const getPropertyUpdatesWithAssociatedWidgetUpdates = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
     ): UpdateWidgetPropertyPayload[] => {
       const selfUpdates: UpdateWidgetPropertyPayload | undefined =
@@ -484,6 +490,8 @@ const PropertyControl = memo((props: Props) => {
 
   const onBatchUpdateWithAssociatedWidgetUpdates = useCallback(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       updates: { propertyName: string; propertyValue: any }[],
       isUpdatedViaKeyboard?: boolean,
     ) => {
@@ -543,6 +551,8 @@ const PropertyControl = memo((props: Props) => {
   const onPropertyChange = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
       isUpdatedViaKeyboard?: boolean,
       isDynamicPropertyPath?: boolean,
@@ -600,6 +610,8 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const openPanel = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (panelProps: any) => {
       if (props.panelConfig) {
         dispatch(
@@ -932,7 +944,7 @@ const PropertyControl = memo((props: Props) => {
                   onClick={() => {
                     onEditSave();
                   }}
-                  size="small"
+                  size="sm"
                   startIcon="check-line"
                 />
               </div>
@@ -948,7 +960,7 @@ const PropertyControl = memo((props: Props) => {
                   onClick={() => {
                     resetEditing();
                   }}
-                  size="small"
+                  size="sm"
                   startIcon="close-x"
                 />
               </div>
@@ -963,7 +975,7 @@ const PropertyControl = memo((props: Props) => {
                 }
               >
                 <PropertyHelpLabel
-                  className="w-full"
+                  className="fit-content"
                   label={label}
                   theme={props.theme}
                   tooltip={helpText}
@@ -1033,7 +1045,7 @@ const PropertyControl = memo((props: Props) => {
                         },
                       );
                     }}
-                    size="small"
+                    size="sm"
                     startIcon="pencil-line"
                   />
                 )}
@@ -1065,7 +1077,7 @@ const PropertyControl = memo((props: Props) => {
                         },
                       );
                     }}
-                    size="small"
+                    size="sm"
                     startIcon="trash"
                   />
                 )}
@@ -1115,6 +1127,8 @@ const PropertyControl = memo((props: Props) => {
 
 PropertyControl.displayName = "PropertyControl";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (PropertyControl as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };

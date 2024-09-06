@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Flex } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
 
 import { Search } from "./Search";
 import styles from "./styles.module.css";
@@ -12,6 +12,7 @@ interface TableHeaderProps extends SearchProps, PaginationProps {}
 function TableHeader(props: TableHeaderProps) {
   const {
     columns,
+    excludeFromTabOrder,
     isVisiblePagination,
     isVisibleSearch,
     onSearch,
@@ -28,6 +29,7 @@ function TableHeader(props: TableHeaderProps) {
     return (
       <>
         <Search
+          excludeFromTabOrder={excludeFromTabOrder}
           isVisibleSearch={isVisibleSearch}
           onSearch={onSearch}
           searchKey={searchKey}
@@ -36,6 +38,7 @@ function TableHeader(props: TableHeaderProps) {
           <Flex flexGrow={1} gap="spacing-1" justifyContent="space-between">
             <Pagination
               columns={columns}
+              excludeFromTabOrder={excludeFromTabOrder}
               isVisiblePagination={isVisiblePagination}
               tableData={tableData}
               {...rest}

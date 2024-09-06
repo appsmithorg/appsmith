@@ -1,6 +1,6 @@
 import type { Key } from "react";
 import React, { useState } from "react";
-import { InlineButtons } from "@design-system/widgets";
+import { InlineButtons } from "@appsmith/wds";
 import type {
   InlineButtonsComponentProps,
   InlineButtonsItemComponentProps,
@@ -12,7 +12,7 @@ export const InlineButtonsComponent = (props: InlineButtonsComponentProps) => {
     Array<InlineButtonsItemComponentProps["id"]>
   >([]);
 
-  const { buttonsList, onButtonClick } = props;
+  const { buttonsList, excludeFromTabOrder, onButtonClick } = props;
 
   const sortedButtons = sortBy(
     Object.keys(buttonsList)
@@ -54,6 +54,7 @@ export const InlineButtonsComponent = (props: InlineButtonsComponentProps) => {
   return (
     <InlineButtons
       disabledKeys={disabledKeys}
+      excludeFromTabOrder={excludeFromTabOrder}
       items={sortedButtons}
       onAction={onAction}
     />

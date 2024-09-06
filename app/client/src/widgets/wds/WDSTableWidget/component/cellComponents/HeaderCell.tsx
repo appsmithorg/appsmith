@@ -3,14 +3,7 @@ import React, { useCallback, memo } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import {
-  Flex,
-  Icon,
-  IconButton,
-  Menu,
-  MenuTrigger,
-  Text,
-} from "@design-system/widgets";
+import { Flex, Icon, IconButton, Menu, MenuTrigger, Text } from "@appsmith/wds";
 
 interface HeaderProps {
   canFreezeColumn?: boolean;
@@ -23,6 +16,8 @@ interface HeaderProps {
   columnOrder?: string[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
@@ -43,6 +38,7 @@ interface HeaderProps {
     e: React.DragEvent<HTMLDivElement>,
     destinationIndex: number,
   ) => void;
+  excludeFromTabOrder?: boolean;
 }
 
 const HeaderCellComponent = (props: HeaderProps) => {
@@ -133,7 +129,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     <th
       {...headerProps}
       aria-hidden={props.isHidden ? "true" : undefined}
-      className={`th header-reorder ${props.stickyRightModifier}`}
+      className={`th header-reorder justify-end ${props.stickyRightModifier}`}
       data-header={props.columnName}
     >
       <div
@@ -186,6 +182,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
           <MenuTrigger>
             <IconButton
               color="neutral"
+              excludeFromTabOrder={props.excludeFromTabOrder}
               icon="chevron-down"
               size="small"
               variant="ghost"

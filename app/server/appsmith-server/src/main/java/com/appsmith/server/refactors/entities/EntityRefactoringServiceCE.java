@@ -20,7 +20,7 @@ public interface EntityRefactoringServiceCE<T> {
     Mono<Void> refactorReferencesInExistingEntities(
             RefactorEntityNameDTO refactorEntityNameDTO, RefactoringMetaDTO refactoringMetaDTO);
 
-    Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName);
+    Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO);
 
     default Flux<String> getExistingEntityNames(
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {

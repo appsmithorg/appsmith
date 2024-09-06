@@ -25,7 +25,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Document
 @FieldNameConstants
-public class Datasource extends BranchAwareDomain {
+public class Datasource extends GitSyncedDomain {
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled datasource";
@@ -54,7 +54,7 @@ public class Datasource extends BranchAwareDomain {
     String templateName;
 
     // This is only kept public for embedded datasource
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     DatasourceConfiguration datasourceConfiguration;
 
     @Transient

@@ -155,6 +155,8 @@ describe("ArrayField", () => {
                   active: "#302D2D",
                 },
               },
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any
           }
         >
@@ -207,6 +209,8 @@ describe("ArrayField", () => {
           name: "Crime",
           id: 80,
         },
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any;
 
       const methods = useForm({
@@ -225,6 +229,8 @@ describe("ArrayField", () => {
                   active: "#302D2D",
                 },
               },
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any
           }
         >

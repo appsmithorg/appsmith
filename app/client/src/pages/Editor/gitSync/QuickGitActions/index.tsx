@@ -17,7 +17,7 @@ import {
   NO_COMMITS_TO_PULL,
   NOT_LIVE_FOR_YOU_YET,
   PULL_CHANGES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -40,11 +40,11 @@ import {
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
-import { getTypographyByKey } from "design-system-old";
-import { Button, Icon, Tooltip } from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getTypographyByKey } from "@appsmith/ads-old";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import AutocommitStatusbar from "./AutocommitStatusbar";
 import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
@@ -132,6 +132,8 @@ function QuickActionButton({
 }
 
 const getPullBtnStatus = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gitStatus: any,
   pullFailed: boolean,
   isProtected: boolean,
@@ -175,6 +177,8 @@ const getQuickActionButtons = ({
   settings: () => void;
   pull: () => void;
   merge: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gitStatus: any;
   isFetchingGitStatus: boolean;
   pullDisabled: boolean;

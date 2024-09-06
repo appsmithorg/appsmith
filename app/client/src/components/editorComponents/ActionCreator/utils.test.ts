@@ -20,7 +20,7 @@ import {
   objectSetter,
   sortSubMenuOptions,
 } from "./utils";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 
 describe("Test argStringToArray", () => {
   const cases = [

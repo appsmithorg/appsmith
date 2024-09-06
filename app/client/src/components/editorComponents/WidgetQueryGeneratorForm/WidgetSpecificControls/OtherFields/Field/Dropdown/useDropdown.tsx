@@ -5,14 +5,14 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { Option } from "design-system";
+import { Option } from "@appsmith/ads";
 import { DropdownOption } from "../../../../CommonControls/DatasourceDropdown/DropdownOption";
 import { WidgetQueryGeneratorFormContext } from "../../../../index";
 import { useColumns } from "../../../ColumnDropdown/useColumns";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
-import { getCurrentPageWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCurrentPageWidgets } from "ee/selectors/entitiesSelector";
 import { StyledImage } from "./styles";
 import { FieldOptionsType } from "./types";
 import type { DropdownOptionType } from "../../../../types";
@@ -21,10 +21,10 @@ import WidgetFactory from "WidgetProvider/factory";
 import {
   createMessage,
   NO_CONNECTABLE_WIDGET_FOUND,
-} from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import { getWidget } from "sagas/selectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export interface OneClickDropdownFieldProps {
   label: string;
@@ -119,6 +119,8 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
 
   const handleSelect = (value: string, selectedOption: DefaultOptionType) => {
     const option = (options as DropdownOptionType[]).find(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (d: any) => d.id === selectedOption.key,
     );
     if (option) {

@@ -12,5 +12,5 @@ public interface ActionCollectionRepositoryCE
         extends BaseRepository<ActionCollection, String>, CustomActionCollectionRepository {
     Flux<ActionCollection> findByApplicationId(String applicationId);
 
-    Flux<IdPoliciesOnly> findIdsAndPoliciesByApplicationIdIn(List<String> applicationIds);
+    Flux<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
 }

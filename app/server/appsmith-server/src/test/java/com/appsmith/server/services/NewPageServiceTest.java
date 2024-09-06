@@ -24,11 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -45,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class NewPageServiceTest {
 
     @Autowired
@@ -98,7 +95,7 @@ public class NewPageServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void findApplicationPages_WhenApplicationIdAndPageIdNotPresent_ThrowsException() {
-        StepVerifier.create(newPageService.findApplicationPages(null, null, "master", ApplicationMode.EDIT))
+        StepVerifier.create(newPageService.findApplicationPages(null, null, ApplicationMode.EDIT))
                 .expectError(AppsmithException.class)
                 .verify();
     }
@@ -117,8 +114,8 @@ public class NewPageServiceTest {
                     pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO -> newPageService.findApplicationPages(
-                        pageDTO.getApplicationId(), null, null, ApplicationMode.EDIT));
+                .flatMap(pageDTO ->
+                        newPageService.findApplicationPages(pageDTO.getApplicationId(), null, ApplicationMode.EDIT));
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
@@ -153,7 +150,7 @@ public class NewPageServiceTest {
                             .then(pageDTOMono);
                 })
                 .flatMap(pageDTO -> newPageService.findApplicationPages(
-                        pageDTO.getApplicationId(), null, null, ApplicationMode.PUBLISHED));
+                        pageDTO.getApplicationId(), null, ApplicationMode.PUBLISHED));
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
@@ -183,8 +180,7 @@ public class NewPageServiceTest {
                     pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO ->
-                        newPageService.findApplicationPages(null, pageDTO.getId(), null, ApplicationMode.EDIT));
+                .flatMap(pageDTO -> newPageService.findApplicationPages(null, pageDTO.getId(), ApplicationMode.EDIT));
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
@@ -213,7 +209,7 @@ public class NewPageServiceTest {
                     return applicationService
                             .save(application1)
                             .then(newPageService.findApplicationPages(
-                                    null, applicationPage.getId(), null, ApplicationMode.EDIT));
+                                    null, applicationPage.getId(), ApplicationMode.EDIT));
                 });
 
         StepVerifier.create(applicationPagesDTOMono)
@@ -239,7 +235,7 @@ public class NewPageServiceTest {
                     pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                .flatMap(pageDTO -> applicationPageService.getPageAndMigrateDslByBranchAndBasePageId(
                         pageDTO.getId(), null, false, false));
 
         StepVerifier.create(applicationPageDTOMono)
@@ -290,10 +286,11 @@ public class NewPageServiceTest {
                             .findFirst()
                             .get();
 
-                    firstPage
-                            .getPolicies()
-                            .forEach(policy -> policy.setPermission(
-                                    pagePermission.getReadPermission().getValue()));
+                    Set<Policy> pagePolicies = firstPage.getPolicies().stream()
+                            .peek(policy -> policy.setPermission(
+                                    pagePermission.getReadPermission().getValue()))
+                            .collect(Collectors.toUnmodifiableSet());
+                    firstPage.setPolicies(pagePolicies);
                     return newPageRepository.save(firstPage).thenMany(Flux.fromIterable(savedPages));
                 })
                 .map(NewPage::getId)
@@ -398,8 +395,8 @@ public class NewPageServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<ApplicationPagesDTO> viewModeTrueMono = newPageService.createApplicationPagesDTO(
-                applicationService.findById(applicationId).block(), allPages, true, true);
+        Mono<ApplicationPagesDTO> viewModeTrueMono = Mono.defer(() -> newPageService.createApplicationPagesDTO(
+                applicationService.findById(applicationId).block(), allPages, true, true));
 
         StepVerifier.create(viewModeTrueMono).verifyErrorSatisfies(error -> {
             assertThat(error).isInstanceOf(AppsmithException.class);
@@ -466,7 +463,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
                             .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
-                            .flatMap(page -> applicationPageService.publish(application.getId(), null, false))
+                            .flatMap(page -> applicationPageService.publish(application.getId(), false))
                             .then(newPageService.findById(pageDTO.getId(), null));
                 });
 

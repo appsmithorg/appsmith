@@ -3,7 +3,7 @@ import _ from "lodash";
 import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import DropdownFieldWrapper from "components/editorComponents/form/fields/DropdownFieldWrapper";
-import type { SelectOptionProps } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
 
 const renderComponent = (
   componentProps: WrappedFieldProps & SelectOptionProps,

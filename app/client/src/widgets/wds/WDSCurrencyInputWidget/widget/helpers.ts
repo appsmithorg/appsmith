@@ -1,8 +1,7 @@
-import {
-  createMessage,
-  FIELD_REQUIRED_ERROR,
-} from "@appsmith/constants/messages";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import { CurrencyTypeOptions } from "constants/Currency";
+import { isNil } from "lodash";
+import type { CurrencyInputWidgetProps } from "./types";
 
 export function getCountryCodeFromCurrencyCode(
   currencyCode?: (typeof CurrencyTypeOptions)[number]["currency"],
@@ -16,21 +15,33 @@ export function getCountryCodeFromCurrencyCode(
   return "";
 }
 
-export function validateInput(props: any) {
-  const value = props.text ?? "";
-  const isInvalid = "isValid" in props && !props.isValid && !!props.isDirty;
+export function validateInput(props: CurrencyInputWidgetProps) {
+  const { errorMessage, isDirty, isRequired, isValid, rawText } = props;
 
-  const conditionalProps: any = {};
+  if (isDirty && isRequired && !isNil(rawText) && rawText.length === 0) {
+    return {
+      validationStatus: "invalid",
+      errorMessage: createMessage(FIELD_REQUIRED_ERROR),
+    } as const;
+  }
 
-  conditionalProps.errorMessage = props.errorMessage;
+  if (isDirty && isRequired && rawText === "") {
+    return {
+      validationStatus: "invalid",
+      errorMessage: createMessage(FIELD_REQUIRED_ERROR),
+    } as const;
+  }
 
-  if (props.isRequired && value.length === 0) {
-    conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+  if (isDirty && !isValid) {
+    return {
+      validationStatus: "invalid",
+      errorMessage: errorMessage || "",
+    } as const;
   }
 
   return {
-    validattionStatus: isInvalid ? "invalid" : undefined,
-    errorMessage: isInvalid ? conditionalProps.errorMessage : undefined,
+    validationStatus: "valid",
+    errorMessage: "",
   } as const;
 }
 

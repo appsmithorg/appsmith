@@ -1,11 +1,12 @@
 import { groupBy, keyBy, sortBy } from "lodash";
 import { createSelector } from "reselect";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
+import type { AppState } from "ee/reducers";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";
@@ -45,28 +46,22 @@ export const selectJSSegmentEditorList = createSelector(
   },
 );
 
-export const selectJSSegmentEditorTabs = createSelector(
-  getJSSegmentItems,
-  getJSTabs,
-  (items, tabs) => {
-    const keyedItems = keyBy(items, "key");
-    return tabs
-      .map((tab) => {
-        return keyedItems[tab];
-      })
-      .filter(Boolean);
-  },
-);
+export const selectJSSegmentEditorTabs = (state: AppState) => {
+  const items = getJSSegmentItems(state);
+  const tabs = getJSTabs(state);
 
-export const selectQuerySegmentEditorTabs = createSelector(
-  getQuerySegmentItems,
-  getQueryTabs,
-  (items, tabs) => {
-    const keyedItems = keyBy(items, "key");
-    return tabs
-      .map((tab) => {
-        return keyedItems[tab];
-      })
-      .filter(Boolean);
-  },
-);
+  const keyedItems = keyBy(items, "key");
+  return tabs
+    .map((tab) => {
+      return keyedItems[tab];
+    })
+    .filter(Boolean);
+};
+
+export const selectQuerySegmentEditorTabs = (state: AppState) => {
+  const items = getQuerySegmentItems(state);
+  const tabs = getQueryTabs(state);
+
+  const keyedItems = keyBy(items, "key");
+  return tabs.map((tab) => keyedItems[tab]).filter(Boolean);
+};

@@ -1,10 +1,10 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 
-describe("@design-system/widgets/Checkbox", () => {
+describe("@appsmith/wds/Checkbox", () => {
   const onChangeSpy = jest.fn();
 
   it("should render the checkbox", () => {

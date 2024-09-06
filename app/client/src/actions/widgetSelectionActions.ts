@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { NavigationMethod } from "utils/history";
 
@@ -7,14 +7,14 @@ export interface WidgetSelectionRequestPayload {
   selectionRequestType: SelectionRequestType;
   payload?: string[];
   invokedBy?: NavigationMethod;
-  pageId?: string;
+  basePageId?: string;
 }
 
 export type WidgetSelectionRequest = (
   selectionRequestType: SelectionRequestType,
   payload?: string[],
   invokedBy?: NavigationMethod,
-  pageId?: string,
+  basePageId?: string,
 ) => ReduxAction<WidgetSelectionRequestPayload>;
 
 // Use to select a widget programmatically via platform action
@@ -22,10 +22,10 @@ export const selectWidgetInitAction: WidgetSelectionRequest = (
   selectionRequestType,
   payload,
   invokedBy?: NavigationMethod,
-  pageId?: string,
+  basePageId?: string,
 ) => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { selectionRequestType, payload, pageId, invokedBy },
+  payload: { selectionRequestType, payload, basePageId, invokedBy },
 });
 
 export interface SetSelectedWidgetsPayload {

@@ -2,13 +2,13 @@ import React from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { Form, reduxForm, Field } from "redux-form";
-import { CREATE_APPLICATION_FORM_NAME } from "@appsmith/constants/forms";
+import { CREATE_APPLICATION_FORM_NAME } from "ee/constants/forms";
 import {
   createMessage,
   ERROR_MESSAGE_NAME_EMPTY,
   NAME_SPACE_ERROR,
-} from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import type { CreateApplicationFormValues } from "./helpers";
 import {
   createApplicationFormSubmitHandler,
@@ -76,6 +76,8 @@ function CreateApplicationForm(props: Props) {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: Props): any => {
   const workspaceId = props.workspaceId;
   return {

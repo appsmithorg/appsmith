@@ -585,6 +585,20 @@ export class Table {
     cy.get(this._defaultColName).type(colId, { force: true });
   }
 
+  public toggleColumnEditableViaColSettingsPane(
+    columnName: string,
+    tableVersion: "v1" | "v2" = "v2",
+    editable = true,
+    goBackToPropertyPane = true,
+  ) {
+    this.EditColumn(columnName, tableVersion);
+    this.propPane.TogglePropertyState(
+      "Editable",
+      editable === true ? "On" : "Off",
+    );
+    goBackToPropertyPane && this.propPane.NavigateBackToPropertyPane();
+  }
+
   public EditColumn(columnName: string, tableVersion: "v1" | "v2") {
     const colSettings =
       tableVersion == "v1"
@@ -812,5 +826,17 @@ export class Table {
     this.agHelper
       .GetText(this._listActivePage(version), "text")
       .then(($newPageNo) => expect(Number($newPageNo)).to.eq(pageNumber));
+  }
+
+  public DiscardEditRow(row: number, col: number, verify = true) {
+    /*
+     * Why not get it with text `Discard`?
+     * We've tried using selector: `[data-colindex="${col}"][data-rowindex="${row}"] button span:contains('Discard')` and this dosn't work, making this spec fail.
+     */
+    const selector = `${this._tableRow(row, col, "v2")} button`;
+
+    cy.get(selector).eq(1).should("be.enabled");
+    this.agHelper.GetHoverNClick(selector, 1, true);
+    verify && cy.get(selector).eq(1).should("be.disabled");
   }
 }

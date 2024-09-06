@@ -1,27 +1,24 @@
 import React from "react";
+import type { FlexProps } from "@appsmith/ads";
+import { Flex } from "@appsmith/ads";
 import styled from "styled-components";
-import type { FlexProps, ListItemProps } from "design-system";
-import { Flex, List, Text } from "design-system";
-
-const StyledList = styled(List)`
-  padding: 0;
-  gap: 0;
-`;
-
-export type GroupedListProps = Array<{
-  groupTitle?: string;
-  className: string;
-  items: ListItemProps[];
-}>;
+import type { GroupedListProps } from "./types";
+import { Group } from "./Group";
 
 interface Props {
-  groups: GroupedListProps;
+  groups: GroupedListProps[];
   flexProps?: FlexProps;
 }
 
+const StyledFlex = styled(Flex)`
+  & .groups-list-group:last-child {
+    border-bottom: none;
+  }
+`;
+
 const GroupedList = (props: Props) => {
   return (
-    <Flex
+    <StyledFlex
       flex="1"
       flexDirection="column"
       gap="spaces-4"
@@ -29,20 +26,9 @@ const GroupedList = (props: Props) => {
       {...props.flexProps}
     >
       {props.groups.map((group) => (
-        <Flex flexDirection="column" key={group.groupTitle}>
-          {group.groupTitle ? (
-            <Text
-              className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
-              color="var(--ads-v2-color-fg-muted)"
-              kind="body-s"
-            >
-              {group.groupTitle}
-            </Text>
-          ) : null}
-          <StyledList className={group.className} items={group.items} />
-        </Flex>
+        <Group group={group} key={group.groupTitle} />
       ))}
-    </Flex>
+    </StyledFlex>
   );
 };
 

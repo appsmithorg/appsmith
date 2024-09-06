@@ -1,7 +1,7 @@
 import {
   importPartialApplication,
   openPartialImportModal,
-} from "@appsmith/actions/applicationActions";
+} from "ee/actions/applicationActions";
 import {
   IMPORT_APP_FROM_FILE_MESSAGE,
   IMPORT_APP_FROM_FILE_TITLE,
@@ -9,14 +9,14 @@ import {
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   getIsImportingPartialApplication,
   getPartialImportExportLoadingState,
-} from "@appsmith/selectors/applicationSelectors";
-import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
-import type { SetProgress } from "design-system-old";
-import { FilePickerV2, FileType } from "design-system-old";
+} from "ee/selectors/applicationSelectors";
+import { Icon, Modal, ModalContent, ModalHeader, Text } from "@appsmith/ads";
+import type { SetProgress } from "@appsmith/ads-old";
+import { FilePickerV2, FileType } from "@appsmith/ads-old";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -66,7 +66,7 @@ const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
       height: 100%;
       justify-content: flex-start;
 
-      .cs-icon {
+      .ads-v2-icon {
         border-radius: 50%;
         width: ${(props) => props.theme.spaces[12] + 2}px;
         height: ${(props) => props.theme.spaces[12] + 2}px;
@@ -113,7 +113,7 @@ const StatusbarWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  .cs-icon {
+  .ads-v2-icon {
     margin: auto;
     border-radius: var(--ads-v2-border-radius-circle);
     width: 32px;

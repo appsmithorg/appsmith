@@ -1,4 +1,4 @@
-import { COLORS } from "@design-system/widgets";
+import { COLORS } from "@appsmith/wds";
 import { ValidationTypes } from "constants/WidgetValidation";
 import capitalize from "lodash/capitalize";
 
@@ -32,20 +32,19 @@ export const propertyPaneContentConfig = [
         controlType: "DROP_DOWN",
         fullWidth: true,
         helpText: "Emphasizes the value's semantic impact",
-        options: Object.values(COLORS).map((semantic) => ({
-          label: capitalize(semantic),
-          value: semantic,
-        })),
+        options: [
+          {
+            label: "Default",
+            value: "default",
+          },
+          ...Object.values(COLORS).map((semantic) => ({
+            label: capitalize(semantic),
+            value: semantic,
+          })),
+        ],
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: Object.values(COLORS),
-            default: COLORS.accent,
-          },
-        },
       },
     ],
   },
@@ -156,20 +155,6 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-      },
-    ],
-  },
-  {
-    sectionName: "Events",
-    children: [
-      {
-        helpText: "when the button is clicked",
-        propertyName: "onClick",
-        label: "onClick",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
       },
     ],
   },

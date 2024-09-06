@@ -229,7 +229,6 @@ export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
 export const WIDGET_TAGS = {
-  BUILDING_BLOCKS: "Building Blocks",
   SUGGESTED_WIDGETS: "Suggested",
   INPUTS: "Inputs",
   BUTTONS: "Buttons",
@@ -241,6 +240,7 @@ export const WIDGET_TAGS = {
   SLIDERS: "Sliders",
   CONTENT: "Content",
   EXTERNAL: "External",
+  BUILDING_BLOCKS: "Building Blocks",
 } as const;
 
 export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
@@ -256,11 +256,9 @@ export const initialEntityCountForExplorerTag: Partial<
 
 export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
   TABLE_WIDGET_V2: 1,
-  JSON_FORM_WIDGET: 2,
-  INPUT_WIDGET_V2: 3,
-  TEXT_WIDGET: 4,
-  SELECT_WIDGET: 5,
-  LIST_WIDGET_V2: 6,
+  INPUT_WIDGET_V2: 2,
+  TEXT_WIDGET: 3,
+  SELECT_WIDGET: 4,
 };
 
 // Constant key to show walkthrough for a widget -> stores widget id
@@ -278,4 +276,5 @@ export type EitherMouseLocationORGridPosition =
 
 export type PasteWidgetReduxAction = {
   groupWidgets: boolean;
+  existingWidgets?: unknown;
 } & EitherMouseLocationORGridPosition;

@@ -133,15 +133,30 @@ export class AggregateHelper {
     });
   }
 
+  /**
+   * Extract the pageId out of the URL, supporting both ObjectID and UUIDv4 values. This implementation is for tests
+   * only. Do NOT copy this over to production code.
+   * @param urlFragment can be either a full absolute URL (like https://dev.appsmith.com/app/name/page1-...) or just a
+   *        path fragment (like /app/name/page1-...) or even a custom slug URL (like /app/custom-slug-...).
+   */
+  public extractPageIdFromUrl(urlFragment: string): null | string {
+    return (
+      urlFragment.match(
+        /\/app(?:\/[^/]+)?\/[^/]+-([0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/,
+      )?.[1] ?? null
+    );
+  }
+
   public AddDsl(
     dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
   ) {
-    let pageid: string, layoutId;
+    let layoutId;
     let appId: string | null;
     cy.fixture(dslFile).then((val) => {
       cy.url().then((url) => {
-        pageid = url.split("/")[5]?.split("-").pop() as string;
+        const pageid = this.extractPageIdFromUrl(url);
+        expect(pageid).to.not.be.null;
         //Fetch the layout id
         cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
           const respBody = JSON.stringify(response.body);
@@ -1537,6 +1552,25 @@ export class AggregateHelper {
     ) as Cypress.Chainable<boolean>;
   }
 
+  /**
+   * Checks if the specified instance of the element is present with number and visible on the page.
+   *
+   * @param {ElementType} selector - The element selector.
+   * @param {number} [eq=0] - The index of the element to check (default is 0).
+   * @returns {Cypress.Chainable<boolean>} - Returns a boolean wrapped in a Cypress Chainable indicating visibility.
+   */
+  IsElementVisibleWithEq(selector: ElementType, eq: number = 0) {
+    return this.GetElement(selector)
+      .eq(eq)
+      .then(($element) => {
+        // Check if the element is present and visible
+        const isVisible =
+          Cypress.$($element).length > 0 && Cypress.$($element).is(":visible");
+        console.log(`Element visibility: ${isVisible}`);
+        return isVisible;
+      }) as Cypress.Chainable<boolean>;
+  }
+
   public FailIfErrorToast(error: string) {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._toastMsg).length > 0) {
@@ -1745,11 +1779,8 @@ export class AggregateHelper {
   public VisitNAssert(url: string, apiToValidate = "") {
     cy.visit(url);
     this.AssertURL(url);
-    if (
-      apiToValidate.includes("getAllWorkspaces") &&
-      Cypress.env("AIRGAPPED")
-    ) {
-      this.Sleep(2000);
+    if (Cypress.env("AIRGAPPED")) {
+      // Intentionally left blank: No actions needed in air-gapped environment
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }

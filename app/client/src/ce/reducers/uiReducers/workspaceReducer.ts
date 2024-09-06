@@ -1,13 +1,10 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import type {
-  WorkspaceRole,
-  Workspace,
-} from "@appsmith/constants/workspaceConstants";
+} from "ee/constants/ReduxActionConstants";
+import type { WorkspaceRole, Workspace } from "ee/constants/workspaceConstants";
 
 export interface WorkspaceReduxState {
   list: Workspace[];
@@ -19,7 +16,11 @@ export interface WorkspaceReduxState {
     isFetchingEntities: boolean;
     isDeletingWorkspace: boolean;
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaceRoles: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchEntities: any;
 }
 
@@ -125,6 +126,8 @@ export const handlers = {
   },
   [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS]: (
     state: WorkspaceReduxState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     return {

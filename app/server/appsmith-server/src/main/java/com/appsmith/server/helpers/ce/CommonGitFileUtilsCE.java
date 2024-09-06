@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -93,7 +94,9 @@ public class CommonGitFileUtilsCE {
 
         // Save application to git repo
         try {
-            return fileUtils.saveApplicationToGitRepo(baseRepoSuffix, artifactGitReference, branchName);
+            return fileUtils
+                    .saveApplicationToGitRepo(baseRepoSuffix, artifactGitReference, branchName)
+                    .subscribeOn(Schedulers.boundedElastic());
         } catch (IOException | GitAPIException e) {
             log.error("Error occurred while saving files to local git repo: ", e);
             throw Exceptions.propagate(e);
@@ -144,14 +147,14 @@ public class CommonGitFileUtilsCE {
 
     public Mono<Path> saveArtifactToLocalRepo(
             String workspaceId,
-            String defaultArtifactId,
+            String baseArtifactId,
             String repoName,
             ApplicationJson applicationJson,
             String branchName)
             throws GitAPIException, IOException {
 
         // TODO: Paths are to populated by artifact specific services
-        Path baseRepoSuffix = Paths.get(workspaceId, defaultArtifactId, repoName);
+        Path baseRepoSuffix = Paths.get(workspaceId, baseArtifactId, repoName);
         return saveArtifactToLocalRepo(baseRepoSuffix, applicationJson, branchName);
     }
 
@@ -191,30 +194,26 @@ public class CommonGitFileUtilsCE {
      * Method to reconstruct the application from the local git repo
      *
      * @param workspaceId       To which workspace application needs to be rehydrated
-     * @param defaultArtifactId Root application for the current branched application
+     * @param baseArtifactId Root application for the current branched application
      * @param branchName        for which branch the application needs to rehydrate
      * @param artifactType
      * @return application reference from which entire application can be rehydrated
      */
     public Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
-            String workspaceId,
-            String defaultArtifactId,
-            String repoName,
-            String branchName,
-            ArtifactType artifactType) {
+            String workspaceId, String baseArtifactId, String repoName, String branchName, ArtifactType artifactType) {
 
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
         Map<String, String> constantsMap = artifactGitFileUtils.getConstantsMap();
         return Mono.zip(
                         reconstructArtifactExchangeJsonFromGitRepo(
-                                workspaceId, defaultArtifactId, repoName, branchName, artifactType),
+                                workspaceId, baseArtifactId, repoName, branchName, artifactType),
                         sessionUserService.getCurrentUser())
                 .flatMap(tuple -> {
                     stopwatch.stopTimer();
                     final Map<String, Object> data = Map.of(
                             constantsMap.get(FieldName.ID),
-                            defaultArtifactId,
+                            baseArtifactId,
                             FieldName.ORGANIZATION_ID,
                             workspaceId,
                             FieldName.FLOW_NAME,
@@ -231,15 +230,11 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromGitRepo(
-            String workspaceId,
-            String defaultApplicationId,
-            String repoName,
-            String branchName,
-            ArtifactType artifactType) {
+            String workspaceId, String baseArtifactId, String repoName, String branchName, ArtifactType artifactType) {
 
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
         return artifactGitFileUtils.reconstructArtifactExchangeJsonFromFilesInRepository(
-                workspaceId, defaultApplicationId, repoName, branchName);
+                workspaceId, baseArtifactId, repoName, branchName);
     }
 
     /**

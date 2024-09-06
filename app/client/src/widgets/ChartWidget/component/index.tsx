@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import * as echarts from "echarts";
 import { invisible } from "constants/DefaultTheme";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import type {
   ChartType,
   CustomFusionChartConfig,
@@ -25,16 +25,18 @@ import {
 } from "./helpers";
 
 import { CustomEChartIFrameComponent } from "./CustomEChartIFrameComponent";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { connect } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const FusionCharts = require("fusioncharts");
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const plugins: Record<string, any> = {
   Charts: require("fusioncharts/fusioncharts.charts"),
   FusionTheme: require("fusioncharts/themes/fusioncharts.theme.fusion"),
@@ -54,6 +56,8 @@ const plugins: Record<string, any> = {
 // Enable all plugins.
 // This is needed to support custom chart configs
 Object.keys(plugins).forEach((key: string) =>
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (plugins[key] as any)(FusionCharts),
 );
 
@@ -121,6 +125,8 @@ class ChartComponent extends React.Component<
   ChartComponentConnectedProps,
   ChartComponentState
 > {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fusionChartsInstance: any = null;
   echartsInstance: echarts.ECharts | undefined;
 
@@ -132,6 +138,8 @@ class ChartComponent extends React.Component<
 
   echartsConfigurationBuilder: EChartsConfigurationBuilder;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   echartConfiguration: Record<string, any> = {};
   prevProps: ChartComponentProps;
 
@@ -179,6 +187,8 @@ class ChartComponent extends React.Component<
     );
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shouldSetOptions(eChartOptions: any) {
     return !equal(this.echartConfiguration, eChartOptions);
   }
@@ -311,6 +321,8 @@ class ChartComponent extends React.Component<
       width: "100%",
       height: "100%",
       events: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dataPlotClick: (evt: any) => {
           const dataPointClickParams = parseOnDataPointClickParams(
             evt,

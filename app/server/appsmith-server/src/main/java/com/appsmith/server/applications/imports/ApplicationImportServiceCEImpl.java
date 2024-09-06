@@ -310,10 +310,8 @@ public class ApplicationImportServiceCEImpl
         }
 
         if (applicationJson.getCustomJSLibList() != null) {
-            List<CustomJSLib> importedCustomJSLibList = applicationJson.getCustomJSLibList().stream()
-                    .peek(customJSLib -> customJSLib.setGitSyncId(
-                            null)) // setting this null so that this custom js lib can be imported again
-                    .collect(Collectors.toList());
+            List<CustomJSLib> importedCustomJSLibList =
+                    applicationJson.getCustomJSLibList().stream().collect(Collectors.toList());
             applicationJson.setCustomJSLibList(importedCustomJSLibList);
         }
     }
@@ -459,6 +457,12 @@ public class ApplicationImportServiceCEImpl
             }
         }
         return importApplicationMono
+                .doOnNext(application -> {
+                    if (application.getGitArtifactMetadata() != null) {
+                        importingMetaDTO.setBranchName(
+                                application.getGitArtifactMetadata().getBranchName());
+                    }
+                })
                 .elapsed()
                 .map(tuples -> {
                     log.debug("time to create or update application object: {}", tuples.getT1());
@@ -585,8 +589,8 @@ public class ApplicationImportServiceCEImpl
             Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
-        return importableArtifactMono.flatMapMany(importableContext -> {
-            Application application = (Application) importableContext;
+        return importableArtifactMono.flatMapMany(importableArtifact -> {
+            Application application = (Application) importableArtifact;
             ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
 
             List<Mono<Void>> pageDependentImportables = getPageDependentImportables(
@@ -621,13 +625,18 @@ public class ApplicationImportServiceCEImpl
     }
 
     @Override
-    public Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String defaultApplicationId) {
+    public Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String baseArtifactId) {
         return newActionService
-                .findAllByApplicationIdAndViewMode(defaultApplicationId, false, Optional.empty(), Optional.empty())
+                .findAllByApplicationIdAndViewMode(baseArtifactId, false, Optional.empty(), Optional.empty())
                 .filter(newAction -> StringUtils.hasText(
                         newAction.getUnpublishedAction().getDatasource().getId()))
                 .mapNotNull(newAction ->
                         newAction.getUnpublishedAction().getDatasource().getId())
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Flux<String> getBranchedArtifactIdsByBranchedArtifactId(String branchedArtifactId) {
+        return applicationService.findAllBranchedApplicationIdsByBranchedApplicationId(branchedArtifactId, null);
     }
 }

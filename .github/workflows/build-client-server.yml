@@ -14,6 +14,7 @@ jobs:
       pr: ${{steps.args.outputs.pr}}
       runId: ${{steps.args.outputs.runId}}
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
+      is-pg-build: ${{steps.args.outputs.is-pg-build}}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -27,6 +28,7 @@ jobs:
         id: args
         run: |
           echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "is-pg-build=${{ github.event.client_payload.pull_request.base.ref == 'pg' }}" >> $GITHUB_OUTPUT
           checkArg=`echo '${{toJSON(github.event.client_payload.slash_command.args.named)}}' | jq 'has("runId")'`
           if [[ $checkArg == 'true' ]]; then
             echo "runId=${{ github.event.client_payload.slash_command.args.named.runId }}" >> $GITHUB_OUTPUT
@@ -92,6 +94,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       skip-tests: "true"
+      is-pg-build: ${{fromJson(needs.file-check.outputs.is-pg-build)}}
 
   client-build:
     name: client-build
@@ -131,7 +134,6 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      matrix: ${{needs.file-check.outputs.matrix_count}}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
@@ -143,7 +145,6 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
-      matrix: ${{ needs.file-check.outputs.matrix_count }}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]

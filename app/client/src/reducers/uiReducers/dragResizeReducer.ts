@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
@@ -55,6 +55,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       isDragging: boolean;
       dragGroupActualParent: string;
       draggingGroupCenter: DraggingGroupCenter;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       startPoints: any;
       draggedOn?: string;
     }>,
@@ -73,6 +75,8 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state: WidgetDragResizeState,
     action: ReduxAction<{
       isDragging: boolean;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       newWidgetProps: any;
     }>,
   ) => {
@@ -178,14 +182,20 @@ export interface DraggingGroupCenter {
 export interface DragDetails {
   dragGroupActualParent?: string;
   draggingGroupCenter?: DraggingGroupCenter;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newWidget?: any;
   draggedOn?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dragOffset?: any;
 }
 
 export interface WidgetDragResizeState {
   isDragging: boolean;
   dragDetails: DragDetails;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   autoLayoutDragDetails: any;
   isResizing: boolean;
   anvil: {

@@ -1,9 +1,9 @@
 import type { WidgetAddChild } from "actions/pageActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { PaginationType, PluginType, type Action } from "entities/Action";
 
-// Mock return value of getWidgetByName
 export const skeletonWidget: FlattenedWidgetProps = {
   needsErrorInfo: false,
   mobileBottomRow: 69,
@@ -101,3 +101,55 @@ export const addEntityAction: ReduxAction<WidgetAddChild> = {
     tabId: "0",
   },
 };
+
+export const newlyCreatedActions: Action[] = [
+  {
+    id: "6673f0a0b64fdc719809bf28",
+    baseId: "6673f0a0b64fdc719809bf29",
+    workspaceId: "6672debbb64fdc719809bf05",
+    applicationId: "6672debbb64fdc719809b111",
+    cacheResponse: "",
+    pluginType: PluginType.DB,
+    pluginId: "667115877cb2c839782babdd",
+    name: "fetch_users5",
+    datasource: {
+      id: "6673d7cdb64fdc719809bf19",
+      name: "Sample Database",
+      pluginId: "667115877cb2c839782babdd",
+    },
+    pageId: "6673d78fb64fdc719809bf17",
+    actionConfiguration: {
+      timeoutInMillisecond: 10000,
+      paginationType: PaginationType.NONE,
+      body: 'SELECT * FROM user_data WHERE name ILIKE \'{{"%" + (tbl_usersCopy4.searchText || "") + "%"}}',
+      pluginSpecifiedTemplates: [
+        {
+          value: false,
+        },
+      ],
+    },
+    executeOnLoad: true,
+    dynamicBindingPathList: [
+      {
+        key: "body",
+      },
+    ],
+    isValid: true,
+    invalids: [],
+    messages: [],
+    jsonPathKeys: [
+      "dat_bornAfterCopy4.selectedDate",
+      '"%" + (tbl_usersCopy4.searchText || "") + "%"',
+      "tbl_usersCopy4.pageOffset",
+      'sel_countryCopy4.selectedOptionValue !== "" ? "AND country = \'" + sel_countryCopy4.selectedOptionValue + "\'" : ""',
+      "tbl_usersCopy4.pageSize - 1",
+    ],
+    confirmBeforeExecute: false,
+    userPermissions: [
+      "read:actions",
+      "delete:actions",
+      "execute:actions",
+      "manage:actions",
+    ],
+  },
+];

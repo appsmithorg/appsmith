@@ -3,8 +3,8 @@ import {
   createMessage,
   DISCARD_CHANGES_WARNING,
   DISCARD_MESSAGE,
-} from "@appsmith/constants/messages";
-import { Callout, Text } from "design-system";
+} from "ee/constants/messages";
+import { Callout, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -12,7 +12,8 @@ const Container = styled.div`
 `;
 
 export default function DiscardChangesWarning({
-  onCloseDiscardChangesWarning,
+  onCloseDiscardChangesWarning, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const discardDocUrl =
     "https://docs.appsmith.com/advanced-concepts/version-control-with-git/commit-and-push";

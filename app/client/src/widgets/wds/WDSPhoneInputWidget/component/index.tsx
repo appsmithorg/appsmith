@@ -1,6 +1,6 @@
 import React from "react";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
-import { Text, TextInput } from "@design-system/widgets";
+import { Text, TextInput } from "@appsmith/wds";
 
 import type { PhoneInputComponentProps } from "./types";
 
@@ -21,6 +21,7 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
       autoFocus={props.autoFocus}
       contextualHelp={props.tooltip}
       errorMessage={props.errorMessage}
+      excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}

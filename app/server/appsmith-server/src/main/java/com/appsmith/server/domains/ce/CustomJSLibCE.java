@@ -1,5 +1,6 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
@@ -21,7 +22,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @FieldNameConstants
-public class CustomJSLibCE extends BranchAwareDomain {
+public class CustomJSLibCE extends BaseDomain {
     /* Library name */
     @JsonView({Views.Public.class, Git.class})
     String name;

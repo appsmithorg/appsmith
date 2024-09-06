@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   Button,
   Flex,
@@ -8,8 +8,8 @@ import {
   MenuItem,
   MenuTrigger,
   Text,
-} from "design-system";
-import { ListIconContainer, TabTextContainer } from "./StyledComponents";
+} from "@appsmith/ads";
+import { ListIconContainer, ListTitle } from "./StyledComponents";
 
 interface Props {
   items: EntityItem[];
@@ -50,7 +50,7 @@ const ListButton = (props: Props) => {
               gap="spaces-2"
             >
               <ListIconContainer>{item.icon}</ListIconContainer>
-              <TabTextContainer>{item.title}</TabTextContainer>
+              <ListTitle>{item.title}</ListTitle>
             </Flex>
           </MenuItem>
         ))}

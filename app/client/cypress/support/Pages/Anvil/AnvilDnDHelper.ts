@@ -11,6 +11,7 @@ import { anvilLocators } from "./Locators";
 interface DropTargetDetails {
   id?: string;
   name?: string;
+  dropModal?: boolean;
 }
 
 interface DragDropWidgetOptions {
@@ -26,11 +27,14 @@ export class AnvilDnDHelper {
     dropTarget?: DropTargetDetails,
   ) => {
     if (dropTarget) {
+      if (dropTarget.dropModal) {
+        return anvilLocators.anvilDetachedWidgetsDropArena;
+      }
       if (dropTarget.id) {
         return `#${dropTarget.id}`;
       }
       if (dropTarget.name) {
-        return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
+        return `${anvilLocators.anvilWidgetNameSelector(dropTarget.name)} ${
           anvilLocators.anvilDnDListener
         }`;
       }
@@ -56,15 +60,12 @@ export class AnvilDnDHelper {
       eventConstructor: "MouseEvent",
       force: true,
     });
-    cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
-      eventConstructor: "MouseEvent",
-      force: true,
-    });
-    cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
-      eventConstructor: "MouseEvent",
-      force: true,
-    });
-    cy.get(this.locator._anvilDnDHighlight);
+    cy.get(dropAreaSelector).first().realMouseMove(xPos, yPos);
+    cy.get(dropAreaSelector).first().realMouseMove(xPos, yPos);
+    if (!options.dropTargetDetails?.dropModal) {
+      // no need to show highlight for modal drop
+      cy.get(this.locator._anvilDnDHighlight);
+    }
     cy.get(dropAreaSelector).first().trigger("mouseup", xPos, yPos, {
       eventConstructor: "MouseEvent",
       force: true,
@@ -97,6 +98,9 @@ export class AnvilDnDHelper {
     this.startDraggingWidgetFromPane(widgetType);
     this.performDnDInAnvil(x, y, options);
   }
+
+  /* This function will drag and drop a new widget of the specified type to the specified x and y pixel coordinates.
+    The x and y coordinates are relative to the main canvas's top left corner on the viewport */
   public DragDropNewAnvilWidgetNVerify(
     widgetType: string,
     x = 300,
@@ -122,8 +126,12 @@ export class AnvilDnDHelper {
       });
   }
 
+  /* If __only one__ widget is selected on the canvas, 
+    this function will move the widget to the specified x and y coordinates using the widget name component. 
+    In this case, the widgetName argument is not necessary */
+  // This function uses the widget name on canvas UI to drag and drop the widget
   public MoveAnvilWidget(
-    widgetName: string,
+    widgetName?: string,
     x = 300,
     y = 100,
     options = {} as DragDropWidgetOptions,
@@ -133,8 +141,9 @@ export class AnvilDnDHelper {
       .then((mainCanvas) => {
         const mainCanvasX = mainCanvas.position().left;
         const mainCanvasY = mainCanvas.position().top;
-        const widgetSelector =
-          anvilLocators.anvilWidgetNameSelector(widgetName);
+        const widgetSelector = widgetName
+          ? anvilLocators.anvilWidgetNameSelector(widgetName)
+          : anvilLocators.anvilOnCanvasWidgetNameSelector;
         // perform mouseover to focus the widget before drag to allow dragging
         cy.get(widgetSelector).first().trigger("mouseover", { force: true });
         cy.get(widgetSelector).first().trigger("dragstart", { force: true });

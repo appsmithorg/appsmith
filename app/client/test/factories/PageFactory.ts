@@ -1,5 +1,5 @@
+import type { Page } from "entities/Page";
 import * as Factory from "factory.ts";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
 
 function generateRandomHexId() {
   const hexChars = "0123456789abcdef";
@@ -13,6 +13,7 @@ function generateRandomHexId() {
 export const PageFactory = Factory.Sync.makeFactory<Page>({
   pageName: Factory.each((i) => `Page${i + 1}`),
   pageId: Factory.each(() => generateRandomHexId()),
+  basePageId: Factory.each(() => generateRandomHexId()),
   isDefault: false,
   isHidden: false,
   slug: Factory.each((i) => `pageSlug${i + 1}`),

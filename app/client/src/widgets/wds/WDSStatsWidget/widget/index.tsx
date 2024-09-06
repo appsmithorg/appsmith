@@ -7,9 +7,8 @@ import * as config from "../config";
 import { StatsComponent } from "../component";
 import type { StatsWidgetProps } from "./types";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { Elevations } from "widgets/anvil/constants";
-import { ContainerComponent } from "widgets/anvil/Container";
+import { Elevations } from "widgets/wds/constants";
+import { ContainerComponent } from "widgets/wds/Container";
 
 class WDSStatsWidget extends BaseWidget<StatsWidgetProps, WidgetState> {
   constructor(props: StatsWidgetProps) {
@@ -51,32 +50,13 @@ class WDSStatsWidget extends BaseWidget<StatsWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
-    const onClick = () => {
-      if (this.props.onClick) {
-        this.setState({ isLoading: true });
-
-        super.executeAction({
-          triggerPropertyName: "onClick",
-          dynamicString: this.props.onClick,
-          event: {
-            type: EventType.ON_CLICK,
-          },
-        });
-
-        return;
-      }
-    };
-
     return (
       <ContainerComponent
         elevatedBackground={this.props.elevatedBackground || false}
         elevation={Elevations.CARD_ELEVATION}
         widgetId={this.props.widgetId}
       >
-        <StatsComponent
-          {...this.props}
-          onClick={this.props.onClick !== undefined ? onClick : undefined}
-        />
+        <StatsComponent {...this.props} />
       </ContainerComponent>
     );
   }

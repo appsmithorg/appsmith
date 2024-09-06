@@ -1,14 +1,11 @@
 import type { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { ActionPattern } from "redux-saga/effects";
 import {
   actionChannel,
@@ -22,18 +19,18 @@ import {
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
 import { EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
-import { toast } from "design-system";
+import { selectInstalledLibraries } from "ee/selectors/entitiesSelector";
+import { toast } from "@appsmith/ads";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
@@ -58,14 +55,15 @@ function* handleInstallationFailure(
     text: `Failed to install library script at ${url}`,
   });
 
-  toast.show(message || `Failed to install library script at ${url}`, {
-    kind: "error",
-  });
   const applicationid: ReturnType<typeof getCurrentApplicationId> =
     yield select(getCurrentApplicationId);
   yield put({
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
-    payload: { url, show: false },
+    payload: {
+      url,
+      show: true,
+      message: message || `Failed to install library script at ${url}`,
+    },
   });
   AnalyticsUtil.logEvent("INSTALL_LIBRARY", {
     url,
@@ -250,7 +248,16 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
     if (!isValidResponse) {
       yield put({
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
-        payload: accessor,
+        payload: {
+          show: true,
+          accessor,
+          error: {
+            message: createMessage(
+              customJSLibraryMessages.UNINSTALL_FAILED,
+              name,
+            ),
+          },
+        },
       });
       AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
         url: action.payload.url,
@@ -273,12 +280,19 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       accessor,
     );
     if (!success) {
-      toast.show(
-        createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
-        {
-          kind: "error",
+      yield put({
+        type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
+        payload: {
+          accessor,
+          show: true,
+          error: {
+            message: createMessage(
+              customJSLibraryMessages.UNINSTALL_FAILED,
+              name,
+            ),
+          },
         },
-      );
+      });
     }
 
     try {
@@ -300,8 +314,18 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       success: true,
     });
   } catch (e) {
-    toast.show(createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name), {
-      kind: "error",
+    yield put({
+      type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
+      payload: {
+        accessor,
+        show: true,
+        error: {
+          message: createMessage(
+            customJSLibraryMessages.UNINSTALL_FAILED,
+            name,
+          ),
+        },
+      },
     });
     AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
       url: action.payload.url,
@@ -416,6 +440,8 @@ function* fetchJSLibraries(
 }
 
 function* startInstallationRequestChannel() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const queueInstallChannel: ActionPattern<any> = yield actionChannel([
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
   ]);

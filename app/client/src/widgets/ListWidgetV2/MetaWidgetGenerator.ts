@@ -1,5 +1,4 @@
 import hash from "object-hash";
-import { klona } from "klona";
 import { difference, omit, set, get, isEmpty, isString, isNil } from "lodash";
 import type { VirtualizerOptions } from "@tanstack/virtual-core";
 import {
@@ -35,6 +34,7 @@ import {
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
 import WidgetFactory from "WidgetProvider/factory";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type TemplateWidgets =
   ListWidgetProps<WidgetProps>["flattenedChildCanvasWidgets"];
@@ -334,7 +334,11 @@ class MetaWidgetGenerator {
     }
 
     // Maybe don't deep-clone for perf?
-    const prevOptions = klona(this.prevOptions);
+    const prevOptions = klonaRegularWithTelemetry(
+      this.prevOptions,
+      "MetaWidgetGenerator.withOptions",
+    );
+
     this.prevOptions = options;
 
     this._didUpdate(options, prevOptions);
@@ -541,8 +545,11 @@ class MetaWidgetGenerator {
       return { metaWidgetId: undefined, metaWidgetName: undefined };
 
     const key = options ? options.key : this.getPrimaryKey(rowIndex);
+    const metaWidget = klonaRegularWithTelemetry(
+      templateWidget,
+      "MetaWidgetGenerator.generateMetaWidgetRecursively",
+    ) as MetaWidget;
 
-    const metaWidget = klona(templateWidget) as MetaWidget;
     const metaCacheProps = this.getRowTemplateCache(
       key,
       templateWidgetId,
@@ -1494,9 +1501,17 @@ class MetaWidgetGenerator {
   ) => {
     const { metaWidget, originalMetaWidgetId, templateWidgetId } = options;
     const viewIndex = this.getViewIndex(rowIndex);
-    const referenceCache = klona(this.getWidgetReferenceCache());
+    const referenceCache = klonaRegularWithTelemetry(
+      this.getWidgetReferenceCache(),
+      "MetaWidgetGenerator.updateSiblings.getWidgetReferenceCache",
+    );
+
     const currentCache = referenceCache?.[templateWidgetId];
-    const siblings = klona(currentCache?.siblings || new Set<string>());
+    const siblings = klonaRegularWithTelemetry(
+      currentCache?.siblings || new Set<string>(),
+      "MetaWidgetGenerator.updateSiblings.siblings",
+    );
+
     const isCandidateListWidget =
       this.nestedViewIndex === 0 || !this.nestedViewIndex;
     const isCandidateWidget = isCandidateListWidget && viewIndex === 0;

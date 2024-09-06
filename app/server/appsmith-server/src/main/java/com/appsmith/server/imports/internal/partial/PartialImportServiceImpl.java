@@ -5,16 +5,22 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -36,7 +42,6 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 @Service
 @Primary
 public class PartialImportServiceImpl extends PartialImportServiceCEImpl implements PartialImportService {
-
     public PartialImportServiceImpl(
             ImportService importService,
             WorkspaceService workspaceService,
@@ -63,8 +68,11 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ApplicationPageService applicationPageService,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
+            ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> applicationImportService,
             DatasourceService datasourceService,
-            CustomJSLibService customJSLibService) {
+            CustomJSLibService customJSLibService,
+            UpdateLayoutService updateLayoutService,
+            DryOperationRepository dryOperationRepository) {
         super(
                 importService,
                 workspaceService,
@@ -91,7 +99,10 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 applicationPageService,
                 newActionService,
                 actionCollectionService,
+                applicationImportService,
                 datasourceService,
-                customJSLibService);
+                customJSLibService,
+                updateLayoutService,
+                dryOperationRepository);
     }
 }

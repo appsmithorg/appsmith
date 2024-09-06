@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 
+import { isReadOnlyUpdateHook } from "../helpers";
 import type { BaseInputWidgetProps } from "../widget/types";
 
 export const propertyPaneContentConfig = [
@@ -27,7 +28,7 @@ export const propertyPaneContentConfig = [
         propertyName: "regex",
         label: "Regex",
         controlType: "INPUT_TEXT",
-        placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
+        placeholderText: "^\\w+@[a-zA-Z_]$",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.REGEX },
@@ -37,7 +38,7 @@ export const propertyPaneContentConfig = [
         propertyName: "validation",
         label: "Valid",
         controlType: "INPUT_TEXT",
-        placeholderText: "{{ Input1.text.length > 0 }}",
+        placeholderText: "{{ Input1.isValid }}",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -68,8 +69,7 @@ export const propertyPaneContentConfig = [
         propertyName: "tooltip",
         label: "Tooltip",
         controlType: "INPUT_TEXT",
-        placeholderText:
-          "The tooltip may include relevant information or instructions",
+        placeholderText: "Tooltips show contextual help",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -122,6 +122,8 @@ export const propertyPaneContentConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        dependencies: ["type", "inputType"],
+        updateHook: isReadOnlyUpdateHook,
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {

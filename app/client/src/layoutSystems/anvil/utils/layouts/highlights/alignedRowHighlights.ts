@@ -235,6 +235,12 @@ export function getHighlightsForWidgets(
      * then derive initial highlights for the alignment.
      */
     if (!widgets.length) {
+      const isFillWidgetDragged = draggedWidgets.some(
+        (widget) => widget.responsiveBehavior === ResponsiveBehavior.Fill,
+      );
+
+      if (isFillWidgetDragged) return;
+
       /**
        * If it is an empty Center alignment,
        * which is no longer in the center position due to the size of its siblings,
@@ -459,6 +465,8 @@ function extractAlignmentInfo(
   layout: WidgetLayoutProps[],
   getDimensions: GetDimensions,
 ): AlignmentInfo {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map: { [key: string]: any } = {
     [FlexLayerAlignment.Start]: {
       dimension: getDimensions(

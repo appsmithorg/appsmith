@@ -8,7 +8,7 @@ import type {
   UseFormResetField,
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { Button, Icon, Text, Tooltip } from "design-system";
+import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
 
 import type { Inputs } from "./BrandingPage";
 import {
@@ -21,12 +21,12 @@ import {
   ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED,
   ADMIN_BRANDING_COLOR_TOOLTIP,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { ColorInput } from "pages/AdminSettings/FormGroup/ColorInput";
 import { ImageInput } from "pages/AdminSettings/FormGroup/ImageInput";
 import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
-import { useBrandingForm } from "@appsmith/pages/AdminSettings/Branding/useBrandingForm";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { useBrandingForm } from "ee/pages/AdminSettings/Branding/useBrandingForm";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import styled from "styled-components";
 import { HelperText } from "pages/AdminSettings/components";
 
@@ -42,6 +42,8 @@ const StyledText = styled(Text)`
 
 interface SettingsFormProps {
   disabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<Inputs, any>;
   formState: FormState<Inputs>;
   handleSubmit: UseFormHandleSubmit<Inputs>;

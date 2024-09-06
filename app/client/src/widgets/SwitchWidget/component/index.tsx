@@ -17,6 +17,8 @@ export interface SwitchComponentProps extends ComponentProps {
   alignWidget: AlignWidgetTypes;
   labelPosition: LabelPosition;
   accentColor: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputRef?: (ref: HTMLInputElement | null) => any;
   labelTextColor?: string;
   labelTextSize?: string;

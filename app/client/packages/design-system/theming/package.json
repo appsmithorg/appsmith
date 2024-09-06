@@ -1,5 +1,5 @@
 {
-  "name": "@design-system/theming",
+  "name": "@appsmith/wds-theming",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",

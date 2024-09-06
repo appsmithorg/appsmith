@@ -11,11 +11,11 @@ export const zonePreset = (): LayoutProps[] => {
       isDropTarget: true,
       isPermanent: true,
       layout: [],
-      layoutId: generateReactKey(),
       layoutStyle: {
         border: "none",
         height: "100%",
       },
+      layoutId: generateReactKey(),
       layoutType: LayoutComponentTypes.ZONE,
     },
   ];

@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.PrettyPrinter;
@@ -19,7 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,7 +34,6 @@ import java.util.Set;
 @Configuration
 public class CommonConfig {
 
-    private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
     public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
     @Setter(AccessLevel.NONE)
@@ -68,6 +67,12 @@ public class CommonConfig {
     @Value("${appsmith.micrometer.tracing.detail.enabled:false}")
     private boolean tracingDetail;
 
+    @Value("${appsmith.micrometer.metrics.detail.enabled:false}")
+    private boolean metricsDetail;
+
+    @Value("${appsmith.micrometer.metrics.interval.millis:60000}")
+    private int metricsIntervalMillis;
+
     private List<String> allowedDomains;
 
     private String mongoDBVersion;
@@ -77,11 +82,8 @@ public class CommonConfig {
     private static String adminEmailDomainHash;
 
     @Bean
-    public Scheduler scheduler() {
-        return Schedulers.newBoundedElastic(
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
-                ELASTIC_THREAD_POOL_NAME);
+    public Scheduler elasticScheduler() {
+        return LoadShifter.elasticScheduler;
     }
 
     @Bean
