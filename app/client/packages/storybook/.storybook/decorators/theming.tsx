@@ -18,7 +18,6 @@ export const theming = (Story, args) => {
     seedColor: args.globals.seedColor,
     colorMode: args.parameters.colorMode || args.globals.colorMode,
     borderRadius: args.globals.borderRadius,
-    fontFamily: args.globals.fontFamily,
     userDensity: args.globals.userDensity,
     userSizing: args.globals.userSizing,
   });
