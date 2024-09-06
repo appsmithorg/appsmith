@@ -2,9 +2,11 @@ package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 public class GitAutoCommitHelperFallbackImpl implements GitAutoCommitHelper {
 

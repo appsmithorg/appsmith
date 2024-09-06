@@ -311,6 +311,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_RESIZE,
         error,
+        logToDebugger: true,
       },
     });
   }

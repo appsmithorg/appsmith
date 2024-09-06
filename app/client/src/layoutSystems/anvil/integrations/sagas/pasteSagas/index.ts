@@ -158,6 +158,7 @@ export function* pasteWidgetSagas() {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }
