@@ -42,12 +42,15 @@ describe(
       assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
+
+      agHelper.GetNClick(dataSources._selectTableDropdown, 1, true);
+      agHelper.GetNClickByContains(dataSources._dropdownOption, "img");
+
       GenerateCRUDNValidateDeployPage(
         "http://www.serebii.net/pokemongo/pokemon/150.png",
         "150",
         `["Bug","Ghost","Dark"]`,
         10,
-        `{ img: /{{data_table.searchText||""}}/i }`,
       );
 
       deployMode.NavigateBacktoEditor();
@@ -97,7 +100,6 @@ describe(
       col2Text: string,
       col3Text: string,
       idIndex: number,
-      updateFindQuery?: string,
     ) {
       agHelper.GetNClick(dataSources._generatePageBtn);
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
@@ -106,15 +108,6 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
-
-      if (updateFindQuery) {
-        EditorNavigation.NavigateToQuery("FindQuery");
-        agHelper.UpdateCodeInput(
-          ".t--actionConfiguration.formData.find.query.data",
-          updateFindQuery,
-          "query",
-        );
-      }
 
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
