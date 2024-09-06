@@ -166,7 +166,10 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
 
-  if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+  if (
+    uiComponent === UIComponentTypes.UQIDbEditorForm ||
+    uiComponent === UIComponentTypes.DbEditorForm
+  ) {
     // Once the initial values are set, we can run the evaluations based on them.
     yield put(
       startFormEvaluations(
@@ -312,7 +315,8 @@ function* formValueChangeSaga(
         datasourceStorages[currentEnvironment]?.datasourceConfiguration;
     }
     const postEvalActions =
-      uiComponent === UIComponentTypes.UQIDbEditorForm
+      uiComponent === UIComponentTypes.UQIDbEditorForm ||
+      uiComponent === UIComponentTypes.DbEditorForm
         ? [
             startFormEvaluations(
               values.id,

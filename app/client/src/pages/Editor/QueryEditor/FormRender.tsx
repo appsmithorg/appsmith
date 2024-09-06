@@ -79,7 +79,10 @@ const FormRender = (props: Props) => {
   const renderConfig = () => {
     try {
       // Selectively rendering form based on uiComponent prop
-      if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+      if (
+        uiComponent === UIComponentTypes.UQIDbEditorForm ||
+        uiComponent === UIComponentTypes.DbEditorForm
+      ) {
         // If the formEvaluation is not ready yet, just show loading state.
         if (
           props.hasOwnProperty("formEvaluationState") &&

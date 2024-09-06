@@ -1,13 +1,19 @@
 {
   "editor": [
     {
-      "sectionName": "",
-      "id": 1,
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION-ONE",
       "children": [
         {
-          "label": "",
-          "configProperty": "actionConfiguration.body",
-          "controlType": "QUERY_DYNAMIC_TEXT"
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z1",
+          "children": [
+            {
+              "label": "",
+              "configProperty": "actionConfiguration.body",
+              "controlType": "QUERY_DYNAMIC_TEXT"
+            }
+          ]
         }
       ]
     }
