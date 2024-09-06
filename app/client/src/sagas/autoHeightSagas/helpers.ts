@@ -39,7 +39,7 @@ export function* getChildOfContainerLikeWidget(
 ) {
   // Todo: Abstraction leak (abhinav): This is an abstraction leak
   // I don't have a better solution right now.
-  // What we're trying to acheive is to skip the canvas which
+  // What we're trying to achieve is to skip the canvas which
   // is not currently visible in the tabs widget.
   if (containerLikeWidget.type === "TABS_WIDGET") {
     // Get the current tabs widget meta
