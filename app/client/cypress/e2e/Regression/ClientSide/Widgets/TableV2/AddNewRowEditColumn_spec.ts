@@ -29,10 +29,10 @@ describe(
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
       _.propPane.EnterJSContext("Table data", tableData);
     });
-    
+
     const togglePropertyAndGoBack = (
       propertyName: string,
-      toggle: "On" | "Off" = "On"
+      toggle: "On" | "Off" = "On",
     ) => {
       _.propPane.TogglePropertyState(propertyName, toggle);
       cy.get('[data-testid="t--property-pane-back-btn"]').click();
@@ -40,15 +40,15 @@ describe(
 
     it("1. Verify Date column is visible and editable", () => {
       _.propPane.TogglePropertyState("Allow adding a row", "On");
-      cy.get(".t--add-new-row").should("exist");
+      cy.get(_.table._addNewRow).should("exist");
       // enabling the ediatable option for the three columns
       _.table.EditColumn("step", "v2");
 
       togglePropertyAndGoBack("Editable", "On");
-      _.table.EditColumn("Date","v2")
-     
+      _.table.EditColumn("Date", "v2");
+
       togglePropertyAndGoBack("Editable", "On");
-      cy.get(".t--add-new-row").click();
+      cy.get(_.table._addNewRow).click();
       cy.get(".tableWrap .new-row").should("exist");
 
       // entering the values in the table
