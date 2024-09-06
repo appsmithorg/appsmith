@@ -1,6 +1,6 @@
-import type {
-  DeleteErrorLogPayload,
-  LogDebuggerErrorAnalyticsPayload,
+import {
+  type DeleteErrorLogPayload,
+  type LogDebuggerErrorAnalyticsPayload,
 } from "actions/debuggerActions";
 import {
   addErrorLogs,

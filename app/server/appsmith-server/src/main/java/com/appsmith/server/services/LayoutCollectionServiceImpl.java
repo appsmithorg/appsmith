@@ -9,6 +9,7 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.ce.LayoutCollectionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,8 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             AnalyticsService analyticsService,
             ActionCollectionRepository actionCollectionRepository,
             PagePermission pagePermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ObservationRegistry observationRegistry) {
         super(
                 newPageService,
                 layoutActionService,
@@ -37,6 +39,7 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                 analyticsService,
                 actionCollectionRepository,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
     }
 }
