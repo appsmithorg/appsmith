@@ -41,7 +41,7 @@ describe(
       });
       assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "movies");
+      agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
       GenerateCRUDNValidateDeployPage(
         "http://www.serebii.net/pokemongo/pokemon/150.png",
         "150",
