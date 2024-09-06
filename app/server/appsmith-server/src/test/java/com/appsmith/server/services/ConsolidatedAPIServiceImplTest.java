@@ -406,13 +406,13 @@ public class ConsolidatedAPIServiceImplTest {
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
 
         Application mockApplication = new Application();
-        mockApplication.setId("mockApplicationId123");
+        mockApplication.setId("mockApplicationId");
         doReturn(Mono.just(mockApplication))
                 .when(spyApplicationService)
                 .findByBranchedApplicationIdAndApplicationMode(anyString(), any());
 
         NewPage mockNewPage = new NewPage();
-        mockNewPage.setApplicationId("mockApplicationId123");
+        mockNewPage.setApplicationId("mockApplicationId");
         doReturn(Mono.just(mockNewPage))
                 .when(spyNewPageService)
                 .findByBranchNameAndBasePageId(anyString(), anyString(), any(), any());
@@ -507,8 +507,7 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockMockDataService.getMockDataSet()).thenReturn(Mono.just(sampleMockDataDTO));
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
-                consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId123", null, "branch", ApplicationMode.EDIT);
+                consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, "branch", ApplicationMode.EDIT);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
