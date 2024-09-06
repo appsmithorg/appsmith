@@ -38,8 +38,11 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     List<NewAction> findByApplicationId(String applicationId, AclPermission permission, User currentUser, Sort sort);
 
-    List<NewAction> findPublishedActionsByApplicationIdAndPluginType(
-            String applicationId, List<String> pluginTypes, AclPermission permission, User currentUser, Sort sort);
+    List<NewAction> findPublishedActionsByPageIdAndExcludedPluginType(
+            String pageId, List<String> pluginTypes, AclPermission aclPermission, Sort sort);
+
+    Flux<NewAction> findPublishedActionsByAppIdAndExcludedPluginType(
+            String appId, List<String> pluginTypes, AclPermission permission, User currentUser, Sort sort);
 
     List<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort);

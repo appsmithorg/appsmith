@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             PolicyGenerator policyGenerator,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ObservationRegistry observationRegistry) {
         super(
                 validator,
                 repositoryDirect,
@@ -34,6 +36,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 policyGenerator,
                 applicationService,
                 applicationPermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
     }
 }

@@ -1,59 +1,71 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "TEXT_SUMMARY",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_SUMMARY'}}"
   },
   "children": [
     {
-      "label": "Try out these examples",
-      "Description": "Try out these examples",
-      "subtitle": "",
-      "configProperty": "",
-      "controlType": "FORM_TEMPLATE",
-      "isRequired": false,
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "TEXT-SUMMARY-Z1",
+      "children": [
         {
-          "label": "Support conversation",
-          "value": {
-            "actionConfiguration.formData.textSummary.input.data": "[\"Hey team, I am experiencing difficulties with logging into my account. Despite entering the correct credentials, I keep getting an error message. This issue is preventing me from accessing your services, and I would appreciate a prompt resolution. Regards, Bob\", \n\"Hello Bob, Thank you for reaching out. We apologize for the inconvenience. Can you please confirm if you have tried resetting your password? Additionally, please ensure that your browser is up-to-date. Best, Support Team\",\n\"Hi, I tried resetting my password, but the issue persists. Also, my browser is updated to the latest version. Can you please look into this further? Thanks, Bob\",\n\"Thank you for the update, Bob. We will investigate this further and get back to you shortly. In the meantime, can you try accessing your account from a different device? Regards, Support Team\"]",
-            "actionConfiguration.formData.textSummary.instructions.data": "The input is a customer support conversation and contains an array of messages between the customer and the support agent. Summarise the conversation in less than 200 words."
-          }
-        },
-        {
-          "label": "Blog post",
-          "value": {
-            "actionConfiguration.formData.textSummary.input.data": "The iPhone 15, Apple's latest entry in its iconic smartphone series, is a testament to the company's continued innovation and commitment to user experience. This review delves into its design, performance, camera, battery life, and unique features, offering a comprehensive overview for both tech enthusiasts and the average consumer. The iPhone 15 sports a sleek design that follows Apple's philosophy of elegance and simplicity. The chassis, a harmonious blend of glass and stainless steel, feels robust yet luxurious. It’s slightly lighter than its predecessor, making it more comfortable to hold for extended periods. The standout design element is the bezel-less OLED display, which offers an immersive viewing experience. The IP68 rating ensures durability against dust and water, making it a reliable companion for everyday use. The Super Retina XDR display on the iPhone 15 is a visual feast. The colors are vibrant, and the blacks are deep, thanks to the OLED technology. With a 120Hz refresh rate, the responsiveness is fluid, whether scrolling through web pages or playing high-intensity games. The brightness levels are impressive, offering excellent visibility even in direct sunlight.\nAudio quality has also seen an upgrade. The speakers deliver richer and more detailed sound, enhancing the overall multimedia experience. Whether it's watching movies or playing games, the audio is immersive and well-balanced. At the heart of the iPhone 15 is Apple's new A17 Bionic chip, which sets a new benchmark in smartphone performance. Coupled with improved machine learning capabilities and a more efficient GPU, it handles everything from everyday tasks to demanding applications with ease. The iOS integration is seamless, providing a user-friendly and intuitive interface. The camera system on the iPhone 15 is where Apple has made significant strides. The new sensor-shift optical image stabilization is a game-changer, particularly in low-light conditions. The images are sharp, with excellent dynamic range and color accuracy. The Night mode is more refined, capturing stunning details in dark environments.\nThe video capabilities are equally impressive. The Cinematic mode, which allows for depth-of-field adjustments, brings a professional touch to video recordings. The ProRAW and ProRes formats cater to professional photographers and videographers who demand higher control and quality. Battery life has always been a strong suit for iPhones, and the iPhone 15 continues this tradition. Even with heavy usage, the phone comfortably lasts a full day, thanks to the efficiency of the A17 chip and the larger battery. The fast charging and MagSafe wireless charging are convenient, though the absence of a charging brick in the box may be a point of contention for some users.The iPhone 15 introduces some noteworthy features. The integration of satellite connectivity for emergency services is a significant safety addition. The improved Face ID works flawlessly, even with masks, making it more practical in current times. The iPhone 15 is a remarkable smartphone that balances innovation with user experience. While it follows the evolutionary path rather than a revolutionary leap, the refinements in camera technology, performance, and unique features like satellite connectivity make it a compelling choice for anyone looking to upgrade. The higher price point might be a hurdle, but for those invested in the Apple ecosystem, the iPhone 15 offers a seamless and premium experience that's hard to match.",
-            "actionConfiguration.formData.textSummary.instructions.data": "Summarise the phone review in less than 250 words and highlight the key features."
-          }
-        },
-        {
-          "label": "Inspection report",
-          "value": {
-            "actionConfiguration.formData.textSummary.input.data": "So, this Honda Civic here is 5 years old, got an automatic transmission, and a 1.2L engine. She's been on the road for about 50,000 km. Overall, she's doing okay, but there are a few things that need some attention. The brake pads are pretty much worn out. It's important to get these changed soon for safety, especially when you need to stop quickly or in wet conditions. Next, let's talk tires. The tread on these is getting pretty low, almost hitting the legal limit. Definitely need new ones for a better grip on the road, you don't want to be slipping around, especially when it's raining. Now, the battery is showing its age, not holding charge like it used to. Wouldn't be surprised if one day it just doesn't start the car. Better to swap it out now than be stuck later. The suspension bushings, too, are worn. Changing them will definitely improve the ride, make it smoother. The rest of the car – the engine, transmission, and the interior – they're all in pretty good shape. Just the usual signs of use, nothing major. If you keep up with regular maintenance and take care of these issues I've mentioned, she's going to keep running smoothly for a good long time. Regular check-ups, fixing these bits, and she'll be good as new.",
-            "actionConfiguration.formData.textSummary.instructions.data": "Summarise the inspection report in less than 100 words and highlight the most important points to be noted"
-          }
+          "label": "Try out these examples",
+          "Description": "Try out these examples",
+          "subtitle": "",
+          "configProperty": "",
+          "controlType": "FORM_TEMPLATE",
+          "isRequired": false,
+          "options": [
+            {
+              "label": "Support conversation",
+              "value": {
+                "actionConfiguration.formData.textSummary.input.data": "[\"Hey team, I am experiencing difficulties with logging into my account. Despite entering the correct credentials, I keep getting an error message. This issue is preventing me from accessing your services, and I would appreciate a prompt resolution. Regards, Bob\", \n\"Hello Bob, Thank you for reaching out. We apologize for the inconvenience. Can you please confirm if you have tried resetting your password? Additionally, please ensure that your browser is up-to-date. Best, Support Team\",\n\"Hi, I tried resetting my password, but the issue persists. Also, my browser is updated to the latest version. Can you please look into this further? Thanks, Bob\",\n\"Thank you for the update, Bob. We will investigate this further and get back to you shortly. In the meantime, can you try accessing your account from a different device? Regards, Support Team\"]",
+                "actionConfiguration.formData.textSummary.instructions.data": "The input is a customer support conversation and contains an array of messages between the customer and the support agent. Summarise the conversation in less than 200 words."
+              }
+            },
+            {
+              "label": "Blog post",
+              "value": {
+                "actionConfiguration.formData.textSummary.input.data": "The iPhone 15, Apple's latest entry in its iconic smartphone series, is a testament to the company's continued innovation and commitment to user experience. This review delves into its design, performance, camera, battery life, and unique features, offering a comprehensive overview for both tech enthusiasts and the average consumer. The iPhone 15 sports a sleek design that follows Apple's philosophy of elegance and simplicity. The chassis, a harmonious blend of glass and stainless steel, feels robust yet luxurious. It’s slightly lighter than its predecessor, making it more comfortable to hold for extended periods. The standout design element is the bezel-less OLED display, which offers an immersive viewing experience. The IP68 rating ensures durability against dust and water, making it a reliable companion for everyday use. The Super Retina XDR display on the iPhone 15 is a visual feast. The colors are vibrant, and the blacks are deep, thanks to the OLED technology. With a 120Hz refresh rate, the responsiveness is fluid, whether scrolling through web pages or playing high-intensity games. The brightness levels are impressive, offering excellent visibility even in direct sunlight.\nAudio quality has also seen an upgrade. The speakers deliver richer and more detailed sound, enhancing the overall multimedia experience. Whether it's watching movies or playing games, the audio is immersive and well-balanced. At the heart of the iPhone 15 is Apple's new A17 Bionic chip, which sets a new benchmark in smartphone performance. Coupled with improved machine learning capabilities and a more efficient GPU, it handles everything from everyday tasks to demanding applications with ease. The iOS integration is seamless, providing a user-friendly and intuitive interface. The camera system on the iPhone 15 is where Apple has made significant strides. The new sensor-shift optical image stabilization is a game-changer, particularly in low-light conditions. The images are sharp, with excellent dynamic range and color accuracy. The Night mode is more refined, capturing stunning details in dark environments.\nThe video capabilities are equally impressive. The Cinematic mode, which allows for depth-of-field adjustments, brings a professional touch to video recordings. The ProRAW and ProRes formats cater to professional photographers and videographers who demand higher control and quality. Battery life has always been a strong suit for iPhones, and the iPhone 15 continues this tradition. Even with heavy usage, the phone comfortably lasts a full day, thanks to the efficiency of the A17 chip and the larger battery. The fast charging and MagSafe wireless charging are convenient, though the absence of a charging brick in the box may be a point of contention for some users.The iPhone 15 introduces some noteworthy features. The integration of satellite connectivity for emergency services is a significant safety addition. The improved Face ID works flawlessly, even with masks, making it more practical in current times. The iPhone 15 is a remarkable smartphone that balances innovation with user experience. While it follows the evolutionary path rather than a revolutionary leap, the refinements in camera technology, performance, and unique features like satellite connectivity make it a compelling choice for anyone looking to upgrade. The higher price point might be a hurdle, but for those invested in the Apple ecosystem, the iPhone 15 offers a seamless and premium experience that's hard to match.",
+                "actionConfiguration.formData.textSummary.instructions.data": "Summarise the phone review in less than 250 words and highlight the key features."
+              }
+            },
+            {
+              "label": "Inspection report",
+              "value": {
+                "actionConfiguration.formData.textSummary.input.data": "So, this Honda Civic here is 5 years old, got an automatic transmission, and a 1.2L engine. She's been on the road for about 50,000 km. Overall, she's doing okay, but there are a few things that need some attention. The brake pads are pretty much worn out. It's important to get these changed soon for safety, especially when you need to stop quickly or in wet conditions. Next, let's talk tires. The tread on these is getting pretty low, almost hitting the legal limit. Definitely need new ones for a better grip on the road, you don't want to be slipping around, especially when it's raining. Now, the battery is showing its age, not holding charge like it used to. Wouldn't be surprised if one day it just doesn't start the car. Better to swap it out now than be stuck later. The suspension bushings, too, are worn. Changing them will definitely improve the ride, make it smoother. The rest of the car – the engine, transmission, and the interior – they're all in pretty good shape. Just the usual signs of use, nothing major. If you keep up with regular maintenance and take care of these issues I've mentioned, she's going to keep running smoothly for a good long time. Regular check-ups, fixing these bits, and she'll be good as new.",
+                "actionConfiguration.formData.textSummary.instructions.data": "Summarise the inspection report in less than 100 words and highlight the most important points to be noted"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Input",
-      "Description": "Provide some text for AI to summarise",
-      "subtitle": "Provide some text for AI to summarise",
-      "configProperty": "actionConfiguration.formData.textSummary.input.data",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "isRequired": true
-    },
-    {
-      "label": "Additional Instructions",
-      "Description": "Provide additional instructions for the AI to tweak the summarization",
-      "subtitle": "Provide additional instructions for the AI to tweak the summarization",
-      "configProperty": "actionConfiguration.formData.textSummary.instructions.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "initialValue": "",
-      "isRequired": false
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "TEXT-SUMMARY-Z2",
+      "children": [
+        {
+          "label": "Input",
+          "Description": "Provide some text for AI to summarise",
+          "subtitle": "Provide some text for AI to summarise",
+          "configProperty": "actionConfiguration.formData.textSummary.input.data",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true
+        },
+        {
+          "label": "Additional Instructions",
+          "Description": "Provide additional instructions for the AI to tweak the summarization",
+          "subtitle": "Provide additional instructions for the AI to tweak the summarization",
+          "configProperty": "actionConfiguration.formData.textSummary.instructions.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "initialValue": "",
+          "isRequired": false
+        }
+      ]
     }
   ]
 }

@@ -367,12 +367,11 @@ const ColorPickerComponent = React.forwardRef(
       defaultFullColorPickerValue,
     );
 
-    const debouncedOnChange = React.useCallback(
-      debounce((color: string, isUpdatedViaKeyboard: boolean) => {
+    const debouncedOnChange = useMemo(() => {
+      return debounce((color: string, isUpdatedViaKeyboard: boolean) => {
         props.changeColor(color, isUpdatedViaKeyboard);
-      }, DEBOUNCE_TIMER),
-      [],
-    );
+      }, DEBOUNCE_TIMER);
+    }, [props]);
 
     useEffect(() => {
       setIsOpen(isOpenProp);
@@ -545,13 +544,17 @@ const ColorPickerComponent = React.forwardRef(
       };
     }, [handleKeydown]);
 
-    const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      if (isValidColor(value)) {
-        debouncedOnChange(value, true);
-      }
-      setColor(value);
-    };
+    const handleChangeColor = useCallback(
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value || "";
+
+        if (isValidColor(value)) {
+          debouncedOnChange(value, true);
+        }
+        setColor(value);
+      },
+      [debouncedOnChange],
+    );
 
     // if props.color changes and state color is different,
     // sets the state color to props color
