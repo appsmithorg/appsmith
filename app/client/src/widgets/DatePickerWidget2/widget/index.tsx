@@ -702,6 +702,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
         onFocus={this.onFocus}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
+        showActionsBar={!this.props.isRequired}
         timePrecision={this.props.timePrecision}
         widgetId={this.props.widgetId}
       />
