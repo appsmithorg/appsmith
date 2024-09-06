@@ -215,7 +215,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .name(getQualifiedSpanName(APPLICATION_ID_FETCH_REDIS_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
-        
+
         Mono<NewPage> branchedPageMonoCached = Mono.empty();
         if (!isBlank(basePageId)) {
             branchedPageMonoCached = newPageService
