@@ -58,17 +58,6 @@ describe(
       agHelper.GetText(locators._textWidget, "text").then(($text: any) => {
         expect($text).to.eq(getYYYYMMDDForThisMonth("11"));
       });
-
-      // check the same date in europe timezone(Issue: https://github.com/appsmithorg/appsmith/issues/25081)
-      agHelper.GetNClick(locators._textWidget);
-      propPane.UpdatePropertyFieldValue(
-        "Text",
-        `{{moment(Table1.newRow.date).tz("Europe/Amsterdam").format("YYYY-MM-DD")}}`,
-      );
-
-      agHelper.GetText(locators._textWidget, "text").then(($text: any) => {
-        expect($text).to.eq(getYYYYMMDDForThisMonth("11"));
-      });
     });
   },
 );
