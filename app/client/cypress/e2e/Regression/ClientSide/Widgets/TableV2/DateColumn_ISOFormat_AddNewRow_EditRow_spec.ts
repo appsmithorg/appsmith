@@ -47,7 +47,7 @@ describe(
       toggle: "On" | "Off" = "On",
     ) => {
       propPane.TogglePropertyState(propertyName, toggle);
-      agHelper.GetNClick(propPane._goBackToProperty);
+      propPane.NavigateBackToPropertyPane();
     };
 
     it("1. Verify Date column is visible and editable", () => {
