@@ -305,6 +305,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
   }
 
+  // This returns env id based on whether form is opened inside reconnect modal or inside app
   getEnvironmentId = () => {
     if (
       this.props.isInsideReconnectModal &&
