@@ -58,7 +58,7 @@ export class Table {
     ".t--widget-tablewidget .t--table-widget-page-input input";
   _tableRow = (rowNum: number, colNum: number, version: "v1" | "v2") =>
     this._tableWidgetVersion(version) +
-    ` .tbody .td${rowNum > -1 ? `[data-rowindex=${rowNum}]` : ""}[data-colindex=${colNum}]`;
+    ` .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   _editCellIconDiv = ".t--editable-cell-icon";
   _editCellEditor = ".t--inlined-cell-editor";
   _editCellEditorInput = this._editCellEditor + " input";
