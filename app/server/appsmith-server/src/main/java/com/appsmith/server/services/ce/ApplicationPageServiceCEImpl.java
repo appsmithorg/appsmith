@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
@@ -90,6 +91,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
 import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
+import static com.appsmith.server.services.ce.ConsolidatedAPIServiceCEImpl.VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -128,6 +130,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
     private final ObservationRegistry observationRegistry;
+    private final CacheManager cacheManager;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -1084,6 +1087,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     Mono<Boolean> archivePageMono;
 
+                    Mono<Boolean> evictDeletedDefaultPageIdsMono = Flux.fromIterable(publishedPageIds)
+                            .flatMap(toBeDeletedPageId -> cacheManager.evict(
+                                    VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME, toBeDeletedPageId))
+                            .collectList()
+                            .thenReturn(Boolean.TRUE);
+
                     if (!publishedPageIds.isEmpty()) {
                         archivePageMono = newPageService.archiveByIds(publishedPageIds);
                     } else {
@@ -1102,8 +1111,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             newPageService.publishPages(editedPageIds, pagePermission.getEditPermission());
 
                     // Archive the deleted pages and save the application changes and then return the pages so that
-                    // the pages can also be published
-                    return Mono.when(archivePageMono, publishPagesMono, applicationService.save(application))
+                    // the pages can also be published; In addition invalidate the cache for the deleted page Ids
+                    return Mono.when(
+                                    archivePageMono,
+                                    publishPagesMono,
+                                    applicationService.save(application),
+                                    evictDeletedDefaultPageIdsMono)
                             .thenReturn(pages);
                 })
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app

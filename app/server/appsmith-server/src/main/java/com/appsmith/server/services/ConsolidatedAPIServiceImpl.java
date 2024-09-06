@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -33,7 +34,8 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
             PluginService pluginService,
             DatasourceService datasourceService,
             MockDataService mockDataService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            CacheManager cacheManager) {
         super(
                 sessionUserService,
                 userService,
@@ -50,6 +52,7 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
                 pluginService,
                 datasourceService,
                 mockDataService,
-                observationRegistry);
+                observationRegistry,
+                cacheManager);
     }
 }

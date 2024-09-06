@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
@@ -29,8 +30,6 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +69,8 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.TEN
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.THEMES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.USER_PROFILE_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.WORKSPACE_SPAN;
+import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_ID_FETCH_REDIS_SPAN;
+import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_ID_UPDATE_REDIS_SPAN;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
@@ -83,20 +84,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     public static final int INTERNAL_SERVER_ERROR_STATUS = AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode();
     public static final String INTERNAL_SERVER_ERROR_CODE = AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode();
     public static final String EMPTY_WORKSPACE_ID_ON_ERROR = "";
-
-    /**
-     * Cache to store mappings between default page IDs and default application IDs.
-     *
-     * <p>This cache uses an LRU (Least Recently Used) eviction policy and is configured to
-     * hold a maximum of 330,000 entries. Each entry consists of a key-value pair where both
-     * the key and the value are UUIDs (Version 4). Since each UUID is 16 bytes, a single
-     * key-value pair consumes 32 bytes of memory.</p>
-     *
-     * <p>The total capacity of the cache is therefore approximately 10 MB (330,000 entries
-     * * 32 bytes per entry = 10,560,000 bytes, which is roughly 10.08 MB).</p>
-     */
-    private final Cache<String, String> viewModeDefaultPageIdToDefaultAppIdLRUCache =
-            CacheBuilder.newBuilder().maximumSize(330_000L).build();
+    public static final String VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME = "pageIdToAppIdCache";
 
     private final SessionUserService sessionUserService;
     private final UserService userService;
@@ -114,6 +102,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final DatasourceService datasourceService;
     private final MockDataService mockDataService;
     private final ObservationRegistry observationRegistry;
+    private final CacheManager cacheManager;
 
     <T> ResponseDTO<T> getSuccessResponse(T data) {
         return new ResponseDTO<>(HttpStatus.OK.value(), data, null);
@@ -213,45 +202,56 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Fetch default application id if not provided */
         Mono<Application> branchedApplicationMonoCached;
+        Mono<String> baseApplicationIdMono = Mono.just("NA");
         if (isViewMode) {
             // Attempt to retrieve the application ID associated with the given base page ID from the cache.
-            baseApplicationId = viewModeDefaultPageIdToDefaultAppIdLRUCache.getIfPresent(basePageId);
+            baseApplicationIdMono = cacheManager
+                    .get(VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME, basePageId)
+                    .switchIfEmpty(Mono.just("NA"))
+                    .cast(String.class);
         }
+        baseApplicationIdMono = baseApplicationIdMono
+                .name(getQualifiedSpanName(APPLICATION_ID_FETCH_REDIS_SPAN, mode))
+                .tap(Micrometer.observation(observationRegistry))
+                .cache();
 
-        // Check if the application ID was found in the cache.
-        if (isBlank(baseApplicationId)) {
-            // Cache miss detected. We need to fetch the application ID and update the cache.
+        branchedApplicationMonoCached = baseApplicationIdMono.flatMap(cachedBaseApplicationId -> {
+            if (cachedBaseApplicationId.equals("NA")) {
+                // Handle empty or null baseApplicationId
+                return newPageService
+                        .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                        .flatMap(branchedPage ->
+                                // Use the application ID to find the complete application details.
+                                applicationService
+                                        .findByBranchedApplicationIdAndApplicationMode(
+                                                branchedPage.getApplicationId(), mode)
+                                        .flatMap(application -> {
+                                            if (isViewMode) {
+                                                // Update the cache with the new application’s base ID for future
+                                                // queries.
+                                                return cacheManager
+                                                        .put(
+                                                                VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME,
+                                                                basePageId,
+                                                                application.getBaseId())
+                                                        .thenReturn(application)
+                                                        .name(getQualifiedSpanName(
+                                                                APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
+                                                        .tap(Micrometer.observation(observationRegistry));
+                                            }
+                                            return Mono.just(application);
+                                        }));
+            } else {
+                // Handle non-empty baseApplicationId
+                return applicationService.findByBaseIdBranchNameAndApplicationMode(
+                        cachedBaseApplicationId, branchName, mode);
+            }
+        });
 
-            // Retrieve the application ID by querying the new page service using branch name, base page ID, and
-            // application mode.
-            branchedApplicationMonoCached = newPageService
-                    .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
-                    .flatMap(branchedPage ->
-                            // Use the application ID to find the complete application details.
-                            applicationService
-                                    .findByBranchedApplicationIdAndApplicationMode(
-                                            branchedPage.getApplicationId(), mode)
-                                    .doOnNext(application -> {
-                                        if (isViewMode) {
-                                            // Update the cache with the new application’s base ID for future queries.
-                                            viewModeDefaultPageIdToDefaultAppIdLRUCache.put(
-                                                    basePageId, application.getBaseId());
-                                        }
-                                    }))
-                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
-                    .tap(Micrometer.observation(observationRegistry))
-                    .cache();
-
-        } else {
-            // Cache hit! We already have the application ID, so we can directly fetch the application details.
-
-            // Retrieve the application details from the application service using the cached application ID.
-            branchedApplicationMonoCached = applicationService
-                    .findByBaseIdBranchNameAndApplicationMode(baseApplicationId, branchName, mode)
-                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
-                    .tap(Micrometer.observation(observationRegistry))
-                    .cache();
-        }
+        branchedApplicationMonoCached = branchedApplicationMonoCached
+                .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
+                .tap(Micrometer.observation(observationRegistry))
+                .cache();
 
         Mono<List<NewPage>> pagesFromCurrentApplicationMonoCached = branchedApplicationMonoCached
                 .flatMap(branchedApplication ->

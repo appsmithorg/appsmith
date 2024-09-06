@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -60,7 +61,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DSLMigrationUtils dslMigrationUtils,
             ClonePageService<NewAction> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            CacheManager cacheManager) {
         super(
                 workspaceService,
                 applicationService,
@@ -89,6 +91,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 dslMigrationUtils,
                 actionClonePageService,
                 actionCollectionClonePageService,
-                observationRegistry);
+                observationRegistry,
+                cacheManager);
     }
 }
