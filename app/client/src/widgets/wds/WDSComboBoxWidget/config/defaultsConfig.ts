@@ -14,8 +14,8 @@ export const defaultsConfig = {
   isDisabled: false,
   isVisible: true,
   isInline: false,
-  widgetName: "Select",
-  widgetType: "SELECT",
+  widgetName: "ComboBox",
+  widgetType: "COMBOBOX",
   version: 1,
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;
