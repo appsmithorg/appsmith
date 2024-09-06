@@ -61,12 +61,13 @@ export const getTypography = (
 
 export const useTypography = (
   config: TokenScaleConfig,
+  fontFamily?: FontFamily,
   userDensity = 1,
   userSizing = 1,
 ) => {
   const typography = useMemo(() => {
-    return getTypography(config, userDensity, userSizing);
-  }, [config, userDensity, userSizing]);
+    return getTypography(config, userDensity, userSizing, fontFamily);
+  }, [config, userDensity, userSizing, fontFamily]);
 
   return {
     typography,
