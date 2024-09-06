@@ -178,7 +178,8 @@ function ReactTableComponent(props: ReactTableComponentProps) {
           const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
           if (
             columnType !== ColumnTypes.IMAGE &&
-            columnType !== ColumnTypes.VIDEO
+            columnType !== ColumnTypes.VIDEO &&
+            columnType !== ColumnTypes.EDIT_ACTIONS
           ) {
             _sortTableColumn(column.alias, asc);
           }

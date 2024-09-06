@@ -25,6 +25,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "@design-system/widgets-old";
 import { importRemixIcon, importSvg } from "@design-system/widgets-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 const Check = importRemixIcon(
   async () => import("remixicon-react/CheckFillIcon"),
@@ -279,30 +280,36 @@ const HeaderCellComponent = (props: HeaderProps) => {
         <Popover2
           content={
             <Menu className={MENU_CONTENT_CLASS}>
-              <MenuItem
-                disabled={disableSort}
+              {column.metaProperties.type !== ColumnTypes.EDIT_ACTIONS ? (
+                <>
+                  <MenuItem
+                    disabled={disableSort}
                 labelElement={props.isAscOrder === true ? <Check /> : undefined}
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, true);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
-              />
-              <MenuItem
-                disabled={disableSort}
-                labelElement={
-                  props.isAscOrder === false ? <Check /> : undefined
-                }
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, false);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
-              />
-              <MenuDivider
-                style={{
-                  marginLeft: 0,
-                  marginRight: 0,
-                }}
-              />
+                    onClick={() => {
+                      props.sortTableColumn(props.columnIndex, true);
+                    }}
+                    text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
+                  />
+                  <MenuItem
+                    disabled={disableSort}
+                    labelElement={
+                      props.isAscOrder === false ? <Check /> : undefined
+                    }
+                    onClick={() => {
+                      props.sortTableColumn(props.columnIndex, false);
+                    }}
+                    text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
+                  />
+                  <MenuDivider
+                    style={{
+                      marginLeft: 0,
+                      marginRight: 0,
+                    }}
+                  />
+                </>
+              ) : (
+                <></>
+              )}
               <MenuItem
                 disabled={!props.canFreezeColumn}
                 labelElement={
