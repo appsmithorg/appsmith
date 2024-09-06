@@ -23,14 +23,20 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CollectionService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_BY_ID;
+import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION_BASED_ON_CONTEXT;
+import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_SINGLE_ACTION;
+import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_PAGE_LAYOUT_BY_PAGE_ID;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -47,6 +53,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final DatasourceService datasourceService;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final ObservationRegistry observationRegistry;
 
     /**
      * Called by Action controller to create Action
@@ -214,7 +221,11 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<ActionDTO> updateNewActionByBranchedId(String branchedId, ActionDTO actionDTO) {
         return newActionService
                 .findById(branchedId, actionPermission.getEditPermission())
-                .flatMap(newAction -> updateActionBasedOnContextType(newAction, actionDTO));
+                .name(GET_ACTION_BY_ID)
+                .tap(Micrometer.observation(observationRegistry))
+                .flatMap(newAction -> updateActionBasedOnContextType(newAction, actionDTO)
+                        .name(UPDATE_ACTION_BASED_ON_CONTEXT)
+                        .tap(Micrometer.observation(observationRegistry)));
     }
 
     /**
@@ -227,8 +238,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         action.setApplicationId(null);
         action.setPageId(null);
         return updateSingleAction(newAction.getId(), action)
-                .flatMap(updatedAction ->
-                        updateLayoutService.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
+                .name(UPDATE_SINGLE_ACTION)
+                .tap(Micrometer.observation(observationRegistry))
+                .flatMap(updatedAction -> updateLayoutService
+                        .updatePageLayoutsByPageId(pageId)
+                        .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                        .tap(Micrometer.observation(observationRegistry))
+                        .thenReturn(updatedAction))
                 .zipWhen(actionDTO -> newPageService.findPageById(pageId, pagePermission.getEditPermission(), false))
                 .map(tuple2 -> {
                     ActionDTO actionDTO = tuple2.getT1();

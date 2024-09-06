@@ -57,7 +57,7 @@ export default function AutocommitStatusbar({
     }
   });
   return (
-    <StatusbarWrapper>
+    <StatusbarWrapper data-testid="t--autocommit-statusbar">
       <Statusbar
         active={false}
         message={createMessage(AUTOCOMMIT_IN_PROGRESS_MESSAGE)}

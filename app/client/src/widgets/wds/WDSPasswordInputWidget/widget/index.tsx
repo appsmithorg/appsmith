@@ -1,8 +1,8 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
-import { PasswordInputIcon, PasswordInputThumbnail } from "appsmith-icons";
-import { INPUT_TYPES } from "widgets/wds/WDSInputWidget/constants";
+import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import { PasswordInputIcon, PasswordInputThumbnail } from "appsmith-icons";
 
 class WDSPasswordInputWidget extends WDSInputWidget {
   static type = "WDS_PASSWORD_INPUT_WIDGET";
