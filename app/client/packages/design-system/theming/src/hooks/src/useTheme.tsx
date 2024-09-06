@@ -102,6 +102,7 @@ export function useTheme(props: UseThemeProps = {}) {
     }
 
     return {
+      ...tokensAccessor.getAllTokens(),
       ...tokensAccessor.getColors(),
       colorMode: tokensAccessor.getColorMode(),
       ...tokensAccessor.getBorderRadiusElevation(),
