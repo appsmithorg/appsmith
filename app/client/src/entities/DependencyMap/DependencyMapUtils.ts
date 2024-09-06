@@ -37,13 +37,32 @@ export class DependencyMapUtils {
       return { success: false, cyclicNode: node, error };
     }
   }
-
+  // this function links childNode to its parent as a dependency for the entire dependencyGraph
   static makeParentsDependOnChildren(dependencyMap: DependencyMap) {
     const dependencies = dependencyMap.rawDependencies;
     for (const [node, deps] of dependencies.entries()) {
       this.makeParentsDependOnChild(dependencyMap, node);
       deps.forEach((dep) => {
         this.makeParentsDependOnChild(dependencyMap, dep);
+      });
+    }
+    return dependencyMap;
+  }
+
+  // this function links childNode to its parent as a dependency for only affectedNodes in the graph
+  static linkChildToItsParentNodeForAffectedChildNodes(
+    dependencyMap: DependencyMap,
+    affectedSet: Set<string>,
+  ) {
+    const dependencies = dependencyMap.rawDependencies;
+    for (const [node, deps] of dependencies.entries()) {
+      if (affectedSet.has(node)) {
+        DependencyMapUtils.makeParentsDependOnChild(dependencyMap, node);
+      }
+      deps.forEach((dep) => {
+        if (affectedSet.has(dep)) {
+          DependencyMapUtils.makeParentsDependOnChild(dependencyMap, dep);
+        }
       });
     }
     return dependencyMap;
