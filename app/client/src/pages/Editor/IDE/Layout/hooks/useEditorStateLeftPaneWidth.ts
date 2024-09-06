@@ -11,6 +11,7 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { useCurrentEditorState } from "../../hooks";
 import { previewModeSelector } from "selectors/editorSelectors";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 export const useEditorStateLeftPaneWidth = (): number => {
   const [windowWidth] = useWindowDimensions();
@@ -19,9 +20,10 @@ export const useEditorStateLeftPaneWidth = (): number => {
   const { segment } = useCurrentEditorState();
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
   useEffect(
     function updateWidth() {
-      if (isPreviewMode) {
+      if (isPreviewMode || isProtectedMode) {
         setWidth(0);
       } else if (segment !== EditorEntityTab.UI) {
         if (editorMode === EditorViewMode.SplitScreen) {
@@ -33,7 +35,14 @@ export const useEditorStateLeftPaneWidth = (): number => {
         setWidth(DEFAULT_EXPLORER_PANE_WIDTH);
       }
     },
-    [editorMode, segment, propertyPaneWidth, windowWidth, isPreviewMode],
+    [
+      editorMode,
+      segment,
+      propertyPaneWidth,
+      windowWidth,
+      isPreviewMode,
+      isProtectedMode,
+    ],
   );
 
   return width;
