@@ -822,7 +822,7 @@ public class FirestorePlugin extends BasePlugin {
             return true;
         }
 
-        private Mono<ActionExecutionResult> methodAddToCollection(
+        public Mono<ActionExecutionResult> methodAddToCollection(
                 CollectionReference collection, Map<String, Object> mapBody) {
 
             mapBody.replaceAll((key, value) -> checkAndConvertDataType(value, collection));
