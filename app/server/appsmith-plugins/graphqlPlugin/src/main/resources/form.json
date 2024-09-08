@@ -119,6 +119,29 @@
           }
         },
         {
+          "label": "Scope(s)",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "e.g. read, write",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
+          "label": "Expires In",
+          "configProperty": "datasourceConfiguration.authentication.expiresIn",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "oAuth2"
+          }
+        },
+        {
           "label": "Grant type",
           "configProperty": "datasourceConfiguration.authentication.grantType",
           "controlType": "DROP_DOWN",
@@ -213,18 +236,7 @@
             "value": "oAuth2"
           }
         },
-        {
-          "label": "Scope(s)",
-          "configProperty": "datasourceConfiguration.authentication.scopeString",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "e.g. read, write",
-          "isRequired": false,
-          "hidden": {
-            "path": "datasourceConfiguration.authentication.authenticationType",
-            "comparison": "NOT_EQUALS",
-            "value": "oAuth2"
-          }
-        },
+
         {
           "label": "Authorization URL",
           "configProperty": "datasourceConfiguration.authentication.authorizationUrl",
