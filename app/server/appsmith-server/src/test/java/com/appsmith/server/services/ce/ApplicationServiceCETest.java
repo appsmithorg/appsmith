@@ -19,6 +19,7 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.CustomJSLib;
@@ -62,6 +63,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.ConsolidatedAPIService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -124,6 +126,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
@@ -288,6 +291,9 @@ public class ApplicationServiceCETest {
 
     @Autowired
     private AssetRepository assetRepository;
+
+    @Autowired
+    private ConsolidatedAPIService consolidatedAPIService;
 
     private <I> Mono<I> runAs(Mono<I> input, User user) {
         log.info("Running as user: {}", user.getEmail());
@@ -1710,7 +1716,7 @@ public class ApplicationServiceCETest {
 
         Mono<List<NewPage>> srcNewPageListMono = Flux.fromIterable(gitConnectedApp.getPages())
                 .flatMap(applicationPage -> newPageService.findByBranchNameAndBasePageId(
-                        branchName, applicationPage.getDefaultPageId(), READ_PAGES))
+                        branchName, applicationPage.getDefaultPageId(), READ_PAGES, null))
                 .collectList();
 
         StepVerifier.create(Mono.zip(clonedNewPageListMono, srcNewPageListMono))
@@ -4391,5 +4397,127 @@ public class ApplicationServiceCETest {
                             .isEqualTo(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKSPACE, invalidWorkspaceId));
                 })
                 .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCacheEviction_whenPagesDeletedInEditModeFollowedByAppPublish_shouldInvalidateCache() {
+        // Step 1: Initialize the test application and page identifiers
+        Application testApplication = new Application();
+        String appName = "ApplicationServiceTest Publish Application Delete Page";
+        testApplication.setName(appName);
+        AtomicReference<String> basePageId1Ref = new AtomicReference<>();
+        AtomicReference<String> basePageId2Ref = new AtomicReference<>();
+
+        // Step 2: Create an application with a page and publish it
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .flatMap(application -> {
+                    // Step 2.1: Create a new page and set default layout
+                    PageDTO page = new PageDTO();
+                    page.setName("New Page");
+                    page.setApplicationId(application.getId());
+                    Layout defaultLayout = newPageService.createDefaultLayout();
+                    List<Layout> layouts = new ArrayList<>();
+                    layouts.add(defaultLayout);
+                    page.setLayouts(layouts);
+
+                    // Step 2.2: Create and clone the page, then publish the application
+                    return applicationPageService
+                            .createPage(page)
+                            .flatMap(page1 -> {
+                                basePageId1Ref.set(page1.getBaseId());
+                                return applicationPageService
+                                        .clonePage(page1.getId())
+                                        .flatMap(clonedPage -> {
+                                            basePageId2Ref.set(clonedPage.getId());
+                                            return applicationPageService.publish(page1.getApplicationId(), true);
+                                        });
+                            })
+                            .then(applicationService.findById(application.getId(), MANAGE_APPLICATIONS));
+                })
+                .cache();
+
+        // Step 3: Fetch the new page and verify its existence
+        PageDTO newPage = applicationMono
+                .flatMap(application -> newPageService
+                        .findByNameAndApplicationIdAndViewMode("New Page", application.getId(), READ_PAGES, false)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "page"))))
+                .block();
+
+        // Step 4: Assert that page IDs are not null
+        assertThat(basePageId1Ref.get()).isNotNull();
+        assertThat(basePageId2Ref.get()).isNotNull();
+
+        // Step 5: Delete the pages in edit mode
+        applicationPageService.deleteUnpublishedPage(basePageId1Ref.get()).block();
+        applicationPageService.deleteUnpublishedPage(basePageId2Ref.get()).block();
+
+        // Step 6: Verify basePageId1 is not cached before calling the consolidated API
+        String cachedBaseAppId1 = cacheableRepositoryHelper
+                .fetchBaseApplicationId(basePageId1Ref.get(), null)
+                .block();
+        assertThat(cachedBaseAppId1).isNull();
+
+        // Step 7: Call the consolidated API to force cache update
+        consolidatedAPIService
+                .getConsolidatedInfoForPageLoad(basePageId1Ref.get(), null, null, ApplicationMode.PUBLISHED)
+                .block();
+
+        // Step 8: Verify basePageId1 is now cached after the consolidated API call
+        cachedBaseAppId1 = cacheableRepositoryHelper
+                .fetchBaseApplicationId(basePageId1Ref.get(), null)
+                .block();
+        assertThat(cachedBaseAppId1).isNotNull();
+
+        // Step 9: Verify basePageId2 is not cached before calling the consolidated API
+        String cachedBaseAppId2 = cacheableRepositoryHelper
+                .fetchBaseApplicationId(basePageId2Ref.get(), null)
+                .block();
+        assertThat(cachedBaseAppId2).isNull();
+
+        // Step 10: Call the consolidated API to force cache update for basePageId2
+        consolidatedAPIService
+                .getConsolidatedInfoForPageLoad(basePageId2Ref.get(), null, null, ApplicationMode.PUBLISHED)
+                .block();
+
+        // Step 11: Verify basePageId2 is now cached after the consolidated API call
+        cachedBaseAppId2 = cacheableRepositoryHelper
+                .fetchBaseApplicationId(basePageId2Ref.get(), null)
+                .block();
+        assertThat(cachedBaseAppId2).isNotNull();
+
+        // Step 12: Verify the application pages after deletion and publishing
+        ApplicationPage applicationPage = new ApplicationPage();
+        applicationPage.setId(newPage.getId());
+        applicationPage.setIsDefault(false);
+        applicationPage.setDefaultPageId(newPage.getId());
+
+        StepVerifier.create(applicationService.findById(newPage.getApplicationId(), MANAGE_APPLICATIONS))
+                .assertNext(editedApplication -> {
+                    // Step 12.1: Check the published pages and edited pages
+                    List<ApplicationPage> publishedPages = editedApplication.getPublishedPages();
+                    assertThat(publishedPages).size().isEqualTo(3);
+                    assertThat(publishedPages).containsAnyOf(applicationPage);
+
+                    List<ApplicationPage> editedApplicationPages = editedApplication.getPages();
+                    assertThat(editedApplicationPages).hasSize(1);
+                    assertThat(editedApplicationPages).doesNotContain(applicationPage);
+                })
+                .verifyComplete();
+
+        // Step 13: Publish the application again
+        applicationPageService.publish(newPage.getApplicationId(), true).block();
+
+        // Step 14: Verify that the cache entries for deleted pages are evicted
+        cachedBaseAppId1 = cacheableRepositoryHelper
+                .fetchBaseApplicationId(basePageId1Ref.get(), null)
+                .block();
+        assertThat(cachedBaseAppId1).isNull();
+
+        cachedBaseAppId2 = cacheableRepositoryHelper
+                .fetchBaseApplicationId(basePageId2Ref.get(), null)
+                .block();
+        assertThat(cachedBaseAppId2).isNull();
     }
 }

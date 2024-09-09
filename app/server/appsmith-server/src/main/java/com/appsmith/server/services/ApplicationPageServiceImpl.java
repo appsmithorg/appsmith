@@ -13,6 +13,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -60,7 +61,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DSLMigrationUtils dslMigrationUtils,
             ClonePageService<NewAction> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(
                 workspaceService,
                 applicationService,
@@ -89,6 +91,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 dslMigrationUtils,
                 actionClonePageService,
                 actionCollectionClonePageService,
-                observationRegistry);
+                observationRegistry,
+                cacheableRepositoryHelper);
     }
 }

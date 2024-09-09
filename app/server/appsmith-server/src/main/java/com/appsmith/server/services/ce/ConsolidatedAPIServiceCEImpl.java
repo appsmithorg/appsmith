@@ -21,6 +21,7 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.ProductAlertService;
@@ -51,6 +52,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE;
+import static com.appsmith.external.constants.spans.ApplicationSpan.APPLICATION_ID_FETCH_REDIS_SPAN;
+import static com.appsmith.external.constants.spans.ApplicationSpan.APPLICATION_ID_UPDATE_REDIS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTION_COLLECTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.APPLICATION_ID_SPAN;
@@ -99,6 +102,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final DatasourceService datasourceService;
     private final MockDataService mockDataService;
     private final ObservationRegistry observationRegistry;
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     <T> ResponseDTO<T> getSuccessResponse(T data) {
         return new ResponseDTO<>(HttpStatus.OK.value(), data, null);
@@ -198,6 +202,19 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Fetch default application id if not provided */
         Mono<Application> branchedApplicationMonoCached;
+        Mono<String> baseApplicationIdMono = Mono.just("");
+        if (isViewMode) {
+            // Attempt to retrieve the application ID associated with the given base page ID from the cache.
+            baseApplicationIdMono = cacheableRepositoryHelper
+                    .fetchBaseApplicationId(basePageId, baseApplicationId)
+                    .switchIfEmpty(Mono.just(""))
+                    .cast(String.class);
+        }
+        baseApplicationIdMono = baseApplicationIdMono
+                .name(getQualifiedSpanName(APPLICATION_ID_FETCH_REDIS_SPAN, mode))
+                .tap(Micrometer.observation(observationRegistry))
+                .cache();
+
         Mono<NewPage> branchedPageMonoCached = Mono.empty();
         if (!isBlank(basePageId)) {
             branchedPageMonoCached = newPageService
@@ -205,21 +222,40 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .cache();
         }
 
-        if (isBlank(baseApplicationId)) {
-            branchedApplicationMonoCached = branchedPageMonoCached
-                    .map(NewPage::getApplicationId)
-                    .flatMap(applicationId ->
-                            applicationService.findByBranchedApplicationIdAndApplicationMode(applicationId, mode))
-                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
-                    .tap(Micrometer.observation(observationRegistry))
-                    .cache();
-        } else {
-            branchedApplicationMonoCached = applicationService
-                    .findByBaseIdBranchNameAndApplicationMode(baseApplicationId, branchName, mode)
-                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
-                    .tap(Micrometer.observation(observationRegistry))
-                    .cache();
-        }
+        branchedApplicationMonoCached = baseApplicationIdMono.flatMap(cachedBaseApplicationId -> {
+            if (!StringUtils.hasText(cachedBaseApplicationId)) {
+                // Handle empty or null baseApplicationId
+                return newPageService
+                        .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                        .flatMap(branchedPage ->
+                                // Use the application ID to find the complete application details.
+                                applicationService
+                                        .findByBranchedApplicationIdAndApplicationMode(
+                                                branchedPage.getApplicationId(), mode)
+                                        .flatMap(application -> {
+                                            if (isViewMode) {
+                                                // Update the cache with the new application’s base ID for future
+                                                // queries.
+                                                return cacheableRepositoryHelper
+                                                        .fetchBaseApplicationId(basePageId, application.getBaseId())
+                                                        .thenReturn(application)
+                                                        .name(getQualifiedSpanName(
+                                                                APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
+                                                        .tap(Micrometer.observation(observationRegistry));
+                                            }
+                                            return Mono.just(application);
+                                        }));
+            } else {
+                // Handle non-empty baseApplicationId
+                return applicationService.findByBaseIdBranchNameAndApplicationMode(
+                        cachedBaseApplicationId, branchName, mode);
+            }
+        });
+
+        branchedApplicationMonoCached = branchedApplicationMonoCached
+                .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
+                .tap(Micrometer.observation(observationRegistry))
+                .cache();
 
         Mono<List<NewPage>> pagesFromCurrentApplicationMonoCached = branchedApplicationMonoCached
                 .flatMap(branchedApplication ->
