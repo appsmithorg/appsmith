@@ -284,7 +284,8 @@ public class AutoCommitServiceTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(any(ApplicationJson.class));
+                .migrateApplicationJsonToLatestSchema(
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -571,7 +572,8 @@ public class AutoCommitServiceTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(any(ApplicationJson.class));
+                .migrateApplicationJsonToLatestSchema(
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -644,7 +646,8 @@ public class AutoCommitServiceTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(any(ApplicationJson.class));
+                .migrateApplicationJsonToLatestSchema(
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);

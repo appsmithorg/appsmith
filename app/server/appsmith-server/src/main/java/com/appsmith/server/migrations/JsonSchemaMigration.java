@@ -6,10 +6,13 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.migrations.utils.JsonSchemaMigrationHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -17,6 +20,7 @@ import reactor.core.publisher.Mono;
 public class JsonSchemaMigration {
 
     private final JsonSchemaVersions jsonSchemaVersions;
+    private final JsonSchemaMigrationHelper jsonSchemaMigrationHelper;
 
     private boolean isCompatible(ApplicationJson applicationJson) {
         return (applicationJson.getClientSchemaVersion() <= jsonSchemaVersions.getClientVersion())
@@ -53,24 +57,53 @@ public class JsonSchemaMigration {
             ArtifactExchangeJson artifactExchangeJson) {
 
         if (ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
-            return migrateApplicationJsonToLatestSchema((ApplicationJson) artifactExchangeJson);
+            return migrateApplicationJsonToLatestSchema((ApplicationJson) artifactExchangeJson, null, null);
         }
 
         return Mono.fromCallable(() -> artifactExchangeJson);
     }
 
-    public Mono<ApplicationJson> migrateApplicationJsonToLatestSchema(ApplicationJson applicationJson) {
+    public Mono<ApplicationJson> migrateApplicationJsonToLatestSchema(
+            ApplicationJson applicationJson, String baseApplicationId, String branchName) {
         return Mono.fromCallable(() -> {
                     setSchemaVersions(applicationJson);
-                    if (isCompatible(applicationJson)) {
-                        return migrateServerSchema(applicationJson);
+                    return applicationJson;
+                })
+                .flatMap(appJson -> {
+                    if (!isCompatible(appJson)) {
+                        return Mono.empty();
                     }
 
-                    if (isAutocommitVersionBump(applicationJson)) {
-                        return migrateServerSchema(applicationJson);
-                    }
+                    // Taking a tech debt over here for import of file application.
+                    // All migration above version 9 is reactive
+                    // TODO: make import flow migration reactive
+                    return Mono.just(migrateServerSchema(appJson))
+                            .flatMap(migratedApplicationJson -> {
+                                if (migratedApplicationJson.getServerSchemaVersion() == 9
+                                        && Boolean.TRUE.equals(MigrationHelperMethods.doesRestApiRequireMigration(
+                                                migratedApplicationJson))) {
+                                    return jsonSchemaMigrationHelper
+                                            .addDatasourceConfigurationToDefaultRestApiActions(
+                                                    baseApplicationId, branchName, migratedApplicationJson)
+                                            .map(applicationJsonWithMigration10 -> {
+                                                applicationJsonWithMigration10.setServerSchemaVersion(10);
+                                                return applicationJsonWithMigration10;
+                                            });
+                                }
 
-                    return null;
+                                migratedApplicationJson.setServerSchemaVersion(10);
+                                return Mono.just(migratedApplicationJson);
+                            })
+                            .map(migratedAppJson -> {
+                                if (applicationJson
+                                        .getServerSchemaVersion()
+                                        .equals(jsonSchemaVersions.getServerVersion())) {
+                                    return applicationJson;
+                                }
+
+                                applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
+                                return applicationJson;
+                            });
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON)));
     }
@@ -95,7 +128,9 @@ public class JsonSchemaMigration {
                 throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
             }
         }
-        return migrateServerSchema(applicationJson);
+
+        applicationJson = migrateServerSchema(applicationJson);
+        return nonReactiveServerMigrationForImport(applicationJson);
     }
 
     /**
@@ -145,11 +180,36 @@ public class JsonSchemaMigration {
                 MigrationHelperMethods.ensureXmlParserPresenceInCustomJsLibList(applicationJson);
                 applicationJson.setServerSchemaVersion(7);
             case 7:
+                applicationJson.setServerSchemaVersion(8);
             case 8:
                 MigrationHelperMethods.migrateThemeSettingsForAnvil(applicationJson);
                 applicationJson.setServerSchemaVersion(9);
+
+                // This is not supposed to have anymore additions to the schema.
             default:
                 // Unable to detect the serverSchema
+
+        }
+
+        return applicationJson;
+    }
+
+    /**
+     * This is non reactive way of adding migrations in the
+     * @param applicationJson
+     * @return
+     */
+    private ApplicationJson nonReactiveServerMigrationForImport(ApplicationJson applicationJson) {
+        if (jsonSchemaVersions.getServerVersion().equals(applicationJson.getServerSchemaVersion())) {
+            return applicationJson;
+        }
+
+        switch (applicationJson.getServerSchemaVersion()) {
+            case 9:
+                // this if for cases where we have empty datasource configs
+                MigrationHelperMethods.migrateApplicationJsonToVersionTen(applicationJson, Map.of());
+                applicationJson.setServerSchemaVersion(10);
+            default:
         }
 
         if (applicationJson.getServerSchemaVersion().equals(jsonSchemaVersions.getServerVersion())) {

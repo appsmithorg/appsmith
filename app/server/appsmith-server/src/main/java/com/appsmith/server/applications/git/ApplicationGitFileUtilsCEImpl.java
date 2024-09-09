@@ -362,7 +362,8 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                     getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
+                    applicationJson, baseArtifactId, branchName);
         });
     }
 

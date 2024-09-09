@@ -442,7 +442,7 @@ public class AutoCommitEventHandlerImplTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(applicationJson);
+                .migrateApplicationJsonToLatestSchema(applicationJson, Mockito.anyString(), Mockito.anyString());
 
         doReturn(Mono.just("success"))
                 .when(gitExecutor)
@@ -574,7 +574,9 @@ public class AutoCommitEventHandlerImplTest {
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
         applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
-        doReturn(Mono.just(applicationJson1)).when(jsonSchemaMigration).migrateApplicationJsonToLatestSchema(any());
+        doReturn(Mono.just(applicationJson1))
+                .when(jsonSchemaMigration)
+                .migrateApplicationJsonToLatestSchema(any(), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
 
