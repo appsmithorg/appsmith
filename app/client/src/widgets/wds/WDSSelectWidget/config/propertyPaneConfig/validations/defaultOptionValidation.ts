@@ -48,7 +48,7 @@ export function defaultOptionValidation(
   if (Array.isArray(options)) {
     const values = _.map(widgetProps.options, (option) => {
       if (isTrueObject(option)) {
-        return option[widgetProps.optionValue];
+        return option["value"];
       }
     });
 
