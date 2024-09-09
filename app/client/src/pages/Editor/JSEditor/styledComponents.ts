@@ -6,6 +6,7 @@ import {
   RUN_GUTTER_ID,
 } from "./constants";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { IDE_HEADER_HEIGHT } from "IDE";
 
 export const CodeEditorWithGutterStyles = css`
   .${RUN_GUTTER_ID} {
@@ -31,7 +32,7 @@ export const CodeEditorWithGutterStyles = css`
 `;
 
 export const FormWrapper = styled.div`
-  height: ${({ theme }) => `calc(100vh - ${theme.smallHeaderHeight})`};
+  height: calc(100vh - ${IDE_HEADER_HEIGHT}px);
   overflow: hidden;
   .${JS_OBJECT_HOTKEYS_CLASSNAME} {
     width: 100%;
