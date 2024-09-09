@@ -202,12 +202,12 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Fetch default application id if not provided */
         Mono<Application> branchedApplicationMonoCached;
-        Mono<String> baseApplicationIdMono = Mono.just("NA");
+        Mono<String> baseApplicationIdMono = Mono.just("");
         if (isViewMode) {
             // Attempt to retrieve the application ID associated with the given base page ID from the cache.
             baseApplicationIdMono = cacheableRepositoryHelper
                     .fetchBaseApplicationId(basePageId, baseApplicationId)
-                    .switchIfEmpty(Mono.just("NA"))
+                    .switchIfEmpty(Mono.just(""))
                     .cast(String.class);
         }
         baseApplicationIdMono = baseApplicationIdMono
@@ -223,7 +223,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         }
 
         branchedApplicationMonoCached = baseApplicationIdMono.flatMap(cachedBaseApplicationId -> {
-            if (cachedBaseApplicationId.equals("NA")) {
+            if (!StringUtils.hasText(cachedBaseApplicationId)) {
                 // Handle empty or null baseApplicationId
                 return newPageService
                         .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
