@@ -44,7 +44,6 @@ export function useTheme(props: UseThemeProps = {}) {
   );
   const { typography } = useTypography(
     tokensConfigs.typography,
-    "System Default",
     userDensity,
     userSizing,
   );
@@ -108,7 +107,6 @@ export function useTheme(props: UseThemeProps = {}) {
       colorMode: tokensAccessor.getColorMode(),
       ...tokensAccessor.getBorderRadiusElevation(),
       typography: tokensAccessor.getTypography(),
-      fontFamily: tokensAccessor.getFontFamily(),
       ...tokensAccessor.getSizing(),
       ...tokensAccessor.getOuterSpacing(),
       ...tokensAccessor.getInnerSpacing(),
