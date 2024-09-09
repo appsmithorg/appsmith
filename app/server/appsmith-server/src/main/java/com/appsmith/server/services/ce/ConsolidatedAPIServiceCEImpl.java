@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
@@ -22,6 +21,7 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.ProductAlertService;
@@ -52,6 +52,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.PluginConstants.PLUGINS_THAT_ALLOW_QUERY_CREATION_WITHOUT_DATASOURCE;
+import static com.appsmith.external.constants.spans.ApplicationSpan.APPLICATION_ID_FETCH_REDIS_SPAN;
+import static com.appsmith.external.constants.spans.ApplicationSpan.APPLICATION_ID_UPDATE_REDIS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.ACTION_COLLECTIONS_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.APPLICATION_ID_SPAN;
@@ -70,8 +72,6 @@ import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.TEN
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.THEMES_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.USER_PROFILE_SPAN;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.WORKSPACE_SPAN;
-import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_ID_FETCH_REDIS_SPAN;
-import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_ID_UPDATE_REDIS_SPAN;
 import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.APP_MODE;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE_ID;
@@ -85,7 +85,6 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     public static final int INTERNAL_SERVER_ERROR_STATUS = AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode();
     public static final String INTERNAL_SERVER_ERROR_CODE = AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode();
     public static final String EMPTY_WORKSPACE_ID_ON_ERROR = "";
-    public static final String VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME = "pageIdToAppIdCache";
 
     private final SessionUserService sessionUserService;
     private final UserService userService;
@@ -103,7 +102,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
     private final DatasourceService datasourceService;
     private final MockDataService mockDataService;
     private final ObservationRegistry observationRegistry;
-    private final CacheManager cacheManager;
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     <T> ResponseDTO<T> getSuccessResponse(T data) {
         return new ResponseDTO<>(HttpStatus.OK.value(), data, null);
@@ -206,8 +205,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         Mono<String> baseApplicationIdMono = Mono.just("NA");
         if (isViewMode) {
             // Attempt to retrieve the application ID associated with the given base page ID from the cache.
-            baseApplicationIdMono = cacheManager
-                    .get(VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME, basePageId)
+            baseApplicationIdMono = cacheableRepositoryHelper
+                    .fetchBaseApplicationId(basePageId, baseApplicationId)
                     .switchIfEmpty(Mono.just("NA"))
                     .cast(String.class);
         }
@@ -237,11 +236,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                                             if (isViewMode) {
                                                 // Update the cache with the new application’s base ID for future
                                                 // queries.
-                                                return cacheManager
-                                                        .put(
-                                                                VIEW_MODE_DEFAULT_PAGE_ID_TO_APP_ID_CACHE_NAME,
-                                                                basePageId,
-                                                                application.getBaseId())
+                                                return cacheableRepositoryHelper
+                                                        .fetchBaseApplicationId(basePageId, application.getBaseId())
                                                         .thenReturn(application)
                                                         .name(getQualifiedSpanName(
                                                                 APPLICATION_ID_UPDATE_REDIS_SPAN, mode))

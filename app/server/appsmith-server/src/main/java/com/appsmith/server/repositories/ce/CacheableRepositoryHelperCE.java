@@ -4,6 +4,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Set;
 
 public interface CacheableRepositoryHelperCE {
@@ -23,4 +24,8 @@ public interface CacheableRepositoryHelperCE {
     Mono<Tenant> fetchDefaultTenant(String tenantId);
 
     Mono<Void> evictCachedTenant(String tenantId);
+
+    Mono<String> fetchBaseApplicationId(String basePageId, String baseApplicationId);
+
+    Mono<Boolean> evictCachedBasePageIds(List<String> basePageIds);
 }

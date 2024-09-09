@@ -268,7 +268,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", null, "branch", ApplicationMode.PUBLISHED);
+                        "pageId123", null, "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getPublishedActions());

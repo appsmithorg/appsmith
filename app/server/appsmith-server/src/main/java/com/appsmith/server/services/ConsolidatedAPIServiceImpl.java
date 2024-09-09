@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -8,6 +7,7 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ce_compatible.ConsolidatedAPIServiceCECompatibleImpl;
 import com.appsmith.server.themes.base.ThemeService;
 import io.micrometer.observation.ObservationRegistry;
@@ -35,7 +35,7 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
             DatasourceService datasourceService,
             MockDataService mockDataService,
             ObservationRegistry observationRegistry,
-            CacheManager cacheManager) {
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(
                 sessionUserService,
                 userService,
@@ -53,6 +53,6 @@ public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatib
                 datasourceService,
                 mockDataService,
                 observationRegistry,
-                cacheManager);
+                cacheableRepositoryHelper);
     }
 }

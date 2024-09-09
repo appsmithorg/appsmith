@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -14,6 +13,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -62,7 +62,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             ClonePageService<NewAction> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService,
             ObservationRegistry observationRegistry,
-            CacheManager cacheManager) {
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(
                 workspaceService,
                 applicationService,
@@ -92,6 +92,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 actionClonePageService,
                 actionCollectionClonePageService,
                 observationRegistry,
-                cacheManager);
+                cacheableRepositoryHelper);
     }
 }
