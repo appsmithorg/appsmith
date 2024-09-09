@@ -7,12 +7,15 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "../../../../../utils/DynamicBindingUtils";
+import type { PropertyUpdates } from "../../../../../WidgetProvider/constants";
 import type { WidgetProps } from "../../../../BaseWidget";
 import type { WDSSelectWidgetProps } from "../../widget/types";
 import {
   defaultOptionValidation,
   optionsCustomValidation,
 } from "./validations";
+
+type WidgetTypeValue = "SELECT" | "COMBOBOX";
 
 interface ValidationErrorMessage {
   name: string;
@@ -233,6 +236,54 @@ export const propertyPaneContentConfig = [
   {
     sectionName: "Data",
     children: [
+      {
+        propertyName: "widgetType",
+        label: "Data type",
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "Select",
+            value: "SELECT",
+          },
+          {
+            label: "ComboBox",
+            value: "COMBOBOX",
+          },
+        ],
+        isBindProperty: false,
+        isTriggerProperty: false,
+        updateHook: (
+          _props: WidgetProps,
+          propertyName: string,
+          propertyValue: WidgetTypeValue,
+        ) => {
+          const updates: PropertyUpdates[] = [
+            {
+              propertyPath: propertyName,
+              propertyValue: propertyValue,
+            },
+          ];
+
+          // Handle widget morphing
+          if (propertyName === "widgetType") {
+            const morphingMap: Record<WidgetTypeValue, string> = {
+              SELECT: "WDS_SELECT_WIDGET",
+              COMBOBOX: "WDS_COMBOBOX_WIDGET",
+            };
+
+            const targetWidgetType = morphingMap[propertyValue];
+
+            if (targetWidgetType) {
+              updates.push({
+                propertyPath: "type",
+                propertyValue: targetWidgetType,
+              });
+            }
+          }
+
+          return updates;
+        },
+      },
       {
         helpText: "Displays a list of unique options",
         propertyName: "options",

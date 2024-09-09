@@ -33,6 +33,18 @@ public class PolicySolutionCEImplTest {
     }
 
     @Test
+    void testAddNewPoliciesToNullPoliciesObject() {
+        TestClass obj = new TestClass();
+        obj.setPolicies(null);
+        Map<String, Policy> policyMap = new HashMap<>();
+        policyMap.put("read", new Policy("read", new HashSet<>(Set.of("group1"))));
+
+        BaseDomain result = policySolution.addPoliciesToExistingObject(policyMap, obj);
+
+        assertTrue(result.getPolicies().containsAll(policyMap.values()));
+    }
+
+    @Test
     void testAddNewPoliciesToEmptyObject() {
         BaseDomain obj = new TestClass(); // Assuming BaseDomain has a default empty set of policies.
         Map<String, Policy> policyMap = new HashMap<>();

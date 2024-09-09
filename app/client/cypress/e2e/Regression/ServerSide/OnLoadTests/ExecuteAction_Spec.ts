@@ -1,5 +1,6 @@
 import {
   agHelper,
+  assertHelper,
   deployMode,
   homePage,
   locators,
@@ -16,6 +17,8 @@ describe(
     it("1. Checks whether execute action is getting called on page load only once", function () {
       agHelper.AssertElementVisibility(locators._widgetInCanvas("textwidget"));
       deployMode.DeployApp();
+
+      assertHelper.AssertNetworkStatus("@postExecute", 200, true);
 
       agHelper.GetNAssertContains(
         locators._widgetInDeployed("textwidget"),
@@ -37,6 +40,9 @@ describe(
 
       agHelper.GetNClickByContains(locators._deployedPage, "Page2");
 
+      assertHelper.AssertNetworkStatus("@getConsolidatedData", 200, true);
+      assertHelper.AssertNetworkStatus("@postExecute", 200, true);
+
       agHelper.GetNAssertContains(
         locators._widgetInDeployed("textwidget"),
         "User count :10",
@@ -54,6 +60,9 @@ describe(
         .should("have.length", 1); // Since Page 2 is switched - previous count is washed out, and this is only call
 
       agHelper.GetNClickByContains(locators._deployedPage, "Page1");
+
+      assertHelper.AssertNetworkStatus("@getConsolidatedData", 200, true);
+      assertHelper.AssertNetworkStatus("@postExecute", 200, true);
 
       agHelper.GetNAssertContains(
         locators._widgetInDeployed("textwidget"),
