@@ -1,13 +1,12 @@
 {
   "identifier": "UPLOAD_MULTIPLE_FILES_FROM_BODY",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'UPLOAD_MULTIPLE_FILES_FROM_BODY'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select bucket to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
       "children": [
         {
           "label": "Bucket name",
@@ -16,12 +15,17 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "isRequired": true,
           "initialValue": ""
+        },
+        {
+          "label": "Expiry duration of signed URL (minutes)",
+          "configProperty": "actionConfiguration.formData.create.expiry.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5"
         }
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
       "description": "Optional",
       "children": [
         {
@@ -45,13 +49,13 @@
               "value": "NO"
             }
           ]
-        },
-        {
-          "label": "Expiry duration of signed URL (minutes)",
-          "configProperty": "actionConfiguration.formData.create.expiry.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "initialValue": "5"
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "description": "Optional",
+      "children": [
         {
           "label": "Content",
           "configProperty": "actionConfiguration.formData.body.data",
