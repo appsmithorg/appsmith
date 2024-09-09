@@ -72,9 +72,12 @@ export async function evalTree(
   const {
     affectedJSObjects,
     allActionValidationConfig,
+    applicationId,
     appMode,
     forceEvaluation,
+    lastDeployedAt,
     metaWidgets,
+    pageId,
     shouldReplay,
     shouldRespondWithLogs,
     theme,
@@ -107,14 +110,20 @@ export async function evalTree(
 
       const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        { description: "during initialisation" },
         webworkerTelemetry,
         (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
           dataTreeEvaluator,
           unevalTree,
           configTree,
           webworkerTelemetry,
+          {
+            appId: applicationId,
+            pageId,
+            timestamp: lastDeployedAt,
+            appMode,
+          },
         ),
+        { description: "during initialisation" },
       );
 
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -156,13 +165,20 @@ export async function evalTree(
 
       const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        { description: "non-initialisation" },
         webworkerTelemetry,
-        async () =>
-          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
-            unevalTree,
-            configTree,
-          ),
+        (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
+          dataTreeEvaluator,
+          unevalTree,
+          configTree,
+          webworkerTelemetry,
+          {
+            appId: applicationId,
+            pageId,
+            timestamp: lastDeployedAt,
+            appMode,
+          },
+        ),
+        { description: "non-initialisation" },
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;

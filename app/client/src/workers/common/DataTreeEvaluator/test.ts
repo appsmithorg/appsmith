@@ -26,6 +26,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
+import { APP_MODE } from "entities/App";
 
 const widgetConfigMap: Record<
   string,
@@ -270,6 +271,13 @@ describe("DataTreeEvaluator", () => {
       await dataTreeEvaluator.setupFirstTree(
         unEvalTree as unknown as DataTree,
         configTree as unknown as ConfigTree,
+        {},
+        {
+          appId: "appId",
+          pageId: "pageId",
+          timestamp: "timestamp",
+          appMode: APP_MODE.PUBLISHED,
+        },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });
@@ -363,6 +371,13 @@ describe("DataTreeEvaluator", () => {
       dataTreeEvaluator.setupFirstTree(
         nestedArrayAccessorCyclicDependency.initUnEvalTree,
         nestedArrayAccessorCyclicDependencyConfig.initConfigTree,
+        {},
+        {
+          appId: "appId",
+          pageId: "pageId",
+          timestamp: "timestamp",
+          appMode: APP_MODE.PUBLISHED,
+        },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
     });

@@ -1,4 +1,4 @@
-export enum EComputationName {
+export enum EComputationCacheName {
   AllKeys = "allKeys",
   DependencyMap = "dependencyMap",
 }

@@ -9,6 +9,7 @@ import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import * as evalTreeWithChanges from "./evalTreeWithChanges";
+import { APP_MODE } from "entities/App";
 export const BASE_WIDGET = {
   widgetId: "randomID",
   widgetName: "randomWidgetName",
@@ -181,7 +182,17 @@ describe("evaluateAndGenerateResponse", () => {
   };
   beforeEach(async () => {
     evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
-    await evaluator.setupFirstTree(unEvalTree, configTree);
+    await evaluator.setupFirstTree(
+      unEvalTree,
+      configTree,
+      {},
+      {
+        appId: "appId",
+        pageId: "pageId",
+        timestamp: "timestamp",
+        appMode: APP_MODE.PUBLISHED,
+      },
+    );
     evaluator.evalAndValidateFirstTree();
   });
 

@@ -136,12 +136,16 @@ import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 import microDiff from "microdiff";
 import {
+  profileAsyncFn,
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
+import appComputationCache from "../AppComputationCache";
+import type { APP_MODE } from "entities/App";
+import { EComputationCacheName } from "../AppComputationCache/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -241,6 +245,12 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
+    cacheProps: {
+      appId: string;
+      pageId: string;
+      appMode?: APP_MODE;
+      timestamp: string;
+    },
   ) {
     this.setConfigTree(configTree);
 
@@ -284,19 +294,32 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
 
-    this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
+    const { appId, appMode, pageId, timestamp } = cacheProps;
+
+    this.allKeys = await appComputationCache.fetchOrCompute({
+      appId,
+      pageId,
+      timestamp,
+      appMode,
+      cacheName: EComputationCacheName.AllKeys,
+      computeFn: getAllPaths.bind(this, unEvalTreeWithStrigifiedJSFunctions),
+    });
+
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
 
-    const { dependencies, inverseDependencies } = profileFn(
+    const { dependencies, inverseDependencies } = await profileAsyncFn(
       "createDependencyMap",
-      undefined,
       webworkerTelemetry,
-      () => {
-        return createDependencyMap(this, localUnEvalTree, configTree);
-      },
+      createDependencyMap.bind(null, this, localUnEvalTree, configTree, {
+        appId,
+        pageId,
+        timestamp,
+        appMode,
+      }),
     );
+
     const createDependencyMapEndTime = performance.now();
 
     this.dependencies = dependencies;

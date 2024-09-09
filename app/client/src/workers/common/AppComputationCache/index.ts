@@ -2,81 +2,88 @@ import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import isNull from "lodash/isNull";
 import loglevel from "loglevel";
-import { EComputationName } from "./types";
+import { EComputationCacheName } from "./types";
 
 interface ICachedData<T> {
   value: T;
   timestamp: string;
 }
 
-class ComputationCache {
-  private static instance: ComputationCache | null = null;
+class AppComputationCache {
+  private static instance: AppComputationCache | null = null;
   private readonly store = localforage.createInstance({
     name: "AppComputationCache",
     storeName: "computationResults",
   });
+  private readonly cacheLogsStore = localforage.createInstance({
+    name: "AppComputationCache",
+    storeName: "cacheLogs",
+  });
   private readonly appModeConfig = {
-    [EComputationName.AllKeys]: [APP_MODE.PUBLISHED],
-    [EComputationName.DependencyMap]: [APP_MODE.PUBLISHED],
+    [EComputationCacheName.AllKeys]: [APP_MODE.PUBLISHED],
+    [EComputationCacheName.DependencyMap]: [APP_MODE.PUBLISHED],
   };
 
-  static getInstance(): ComputationCache {
-    if (!ComputationCache.instance) {
-      ComputationCache.instance = new ComputationCache();
+  static getInstance(): AppComputationCache {
+    if (!AppComputationCache.instance) {
+      AppComputationCache.instance = new AppComputationCache();
     }
-    return ComputationCache.instance;
+    return AppComputationCache.instance;
   }
 
   isComputationCached({
-    computationName,
-    viewMode,
+    appMode,
+    cacheName,
   }: {
-    computationName: EComputationName;
-    viewMode?: APP_MODE;
+    cacheName: EComputationCacheName;
+    appMode?: APP_MODE;
   }) {
-    if (!viewMode) {
+    if (!appMode) {
       return false;
     }
 
-    return this.appModeConfig[computationName].includes(viewMode);
+    return this.appModeConfig[cacheName].includes(appMode);
+  }
+
+  async logCacheReadStatus(name: string) {
+    await this.cacheLogsStore.setItem(name, {
+      lastReadAt: new Date().toISOString(),
+    });
   }
 
   async cacheComputationResult<T>({
     appId,
-    computationName,
+    appMode,
+    cacheName,
     computationResult,
     pageId,
     timestamp,
-    viewMode,
   }: {
     appId: string;
-    computationName: EComputationName;
+    cacheName: EComputationCacheName;
     computationResult: T;
     pageId: string;
     timestamp: string;
-    viewMode: APP_MODE;
+    appMode?: APP_MODE;
   }) {
     const shouldCache = this.isComputationCached({
-      computationName,
-      viewMode,
+      cacheName,
+      appMode,
     });
 
-    if (!shouldCache) {
+    if (!shouldCache || !appMode) {
       return;
     }
 
-    const cacheKey = this.generateCacheKey([
-      appId,
-      pageId,
-      viewMode,
-      computationName,
-    ]);
+    const cacheKey = this.generateCacheKey([appId, pageId, appMode, cacheName]);
 
     try {
       await this.store.setItem<ICachedData<T>>(cacheKey, {
         value: computationResult,
         timestamp,
       });
+
+      await this.logCacheReadStatus(cacheName);
     } catch (error) {
       loglevel.debug("Error caching computation result:", error);
     }
@@ -84,27 +91,22 @@ class ComputationCache {
 
   async getCachedComputationResult<T>({
     appId,
-    computationName,
+    appMode,
+    cacheName,
     pageId,
     timestamp,
-    viewMode,
   }: {
     appId: string;
-    computationName: EComputationName;
+    cacheName: EComputationCacheName;
     pageId: string;
     timestamp: string;
-    viewMode?: APP_MODE;
+    appMode?: APP_MODE;
   }): Promise<T | null> {
-    if (!viewMode) {
+    if (!appMode) {
       return null;
     }
 
-    const cacheKey = this.generateCacheKey([
-      appId,
-      pageId,
-      viewMode,
-      computationName,
-    ]);
+    const cacheKey = this.generateCacheKey([appId, pageId, appMode, cacheName]);
 
     try {
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
@@ -113,8 +115,11 @@ class ComputationCache {
       }
 
       if (cached.timestamp !== timestamp) {
+        await this.store.removeItem(cacheKey);
         return null;
       }
+
+      await this.logCacheReadStatus(cacheName);
 
       return cached.value;
     } catch (error) {
@@ -127,28 +132,28 @@ class ComputationCache {
     return indexParts.join("_");
   }
 
-  async performComputation<T>({
+  async fetchOrCompute<T>({
     appId,
-    computationName,
+    appMode,
+    cacheName,
     computeFn,
     pageId,
     timestamp,
-    viewMode,
   }: {
     appId: string;
+    appMode?: APP_MODE;
     timestamp: string;
     pageId: string;
-    viewMode?: APP_MODE;
     computeFn: () => Promise<T> | T;
-    computationName: EComputationName;
+    cacheName: EComputationCacheName;
   }) {
     try {
-      const cachedResult = await this.getCachedComputationResult({
+      const cachedResult = await this.getCachedComputationResult<T>({
         appId,
         timestamp,
         pageId,
-        viewMode,
-        computationName,
+        appMode,
+        cacheName,
       });
 
       if (cachedResult) {
@@ -156,11 +161,11 @@ class ComputationCache {
       }
 
       const shouldCache = this.isComputationCached({
-        computationName,
-        viewMode,
+        cacheName,
+        appMode,
       });
 
-      if (!shouldCache || !viewMode) {
+      if (!shouldCache || !appMode) {
         return computeFn();
       }
 
@@ -170,9 +175,9 @@ class ComputationCache {
         appId,
         timestamp,
         pageId,
-        viewMode,
+        appMode,
         computationResult,
-        computationName,
+        cacheName,
       });
 
       return computationResult;
@@ -185,6 +190,6 @@ class ComputationCache {
   }
 }
 
-export const computationCache = ComputationCache.getInstance();
+export const appComputationCache = AppComputationCache.getInstance();
 
-export default computationCache;
+export default appComputationCache;
