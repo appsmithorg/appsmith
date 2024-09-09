@@ -114,7 +114,7 @@ describe(
       if (updateFindQuery) {
         EditorNavigation.NavigateToQuery("FindQuery");
         agHelper.UpdateCodeInput(
-          ".t--actionConfiguration.formData.find.query.data",
+          ".t--actionConfiguration\\.formData\\.find\\.query\\.data",
           updateFindQuery,
           "query",
         );
