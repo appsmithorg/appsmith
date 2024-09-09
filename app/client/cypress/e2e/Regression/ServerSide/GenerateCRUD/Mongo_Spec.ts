@@ -44,7 +44,7 @@ describe(
       agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
 
       agHelper.GetNClick(dataSources._selectTableDropdown, 1, true);
-      agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
+      agHelper.GetNClickByContains(dataSources._dropdownOption, "img");
 
       GenerateCRUDNValidateDeployPage(
         "http://www.serebii.net/pokemongo/pokemon/150.png",
@@ -118,6 +118,7 @@ describe(
           updateFindQuery,
           "query",
         );
+        dataSources.RunQuery();
       }
 
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
