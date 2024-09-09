@@ -48,7 +48,7 @@ import {
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
-  dynamicTriggerErrorHandler,
+  showExecutionErrors,
   handleJSFunctionExecutionErrorLog,
   logJSVarCreatedEvent,
   logSuccessfulBindings,
@@ -351,16 +351,15 @@ export function* evaluateAndExecuteDynamicTrigger(
       triggerMeta,
     },
   );
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { errors = [] } = response as any;
+  const { errors = [] } = response;
 
   const transformedErrors: EvaluationError[] = yield call(
     transformTriggerEvalErrors,
     errors,
   );
-
-  yield call(dynamicTriggerErrorHandler, transformedErrors);
+  if (transformedErrors.length) {
+    yield fork(showExecutionErrors, transformedErrors);
+  }
   yield fork(logDynamicTriggerExecution, {
     dynamicTrigger,
     errors: transformedErrors,

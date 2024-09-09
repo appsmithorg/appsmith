@@ -1,6 +1,8 @@
 import { TYPOGRAPHY_VARIANTS } from "@appsmith/wds-theming";
 import { ValidationTypes } from "constants/WidgetValidation";
 
+import { fontSizeUpdateHook } from "../../helpers";
+
 export const propertyPaneStyleConfig = [
   {
     sectionName: "General",
@@ -32,7 +34,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
-        isReusable: true,
+        updateHook: fontSizeUpdateHook,
         validation: {
           type: ValidationTypes.TEXT,
           params: {

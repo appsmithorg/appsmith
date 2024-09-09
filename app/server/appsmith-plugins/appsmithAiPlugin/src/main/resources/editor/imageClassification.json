@@ -1,72 +1,75 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "IMAGE_CLASSIFY",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'IMAGE_CLASSIFY'}}"
   },
   "children": [
     {
-      "label": "Try out these examples",
-      "Description": "Try out these examples",
-      "subtitle": "",
-      "configProperty": "",
-      "controlType": "FORM_TEMPLATE",
-      "isRequired": false,
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "IMAGE-CLASSIFY-Z1",
+      "children": [
         {
-          "label": "Product category",
-          "value": {
-            "actionConfiguration.formData.imageClassify.input.data": "https://i.imgur.com/Eiq5s0F.png",
-            "actionConfiguration.formData.imageClassify.instructions.data": "Identify the category of clothing. Apply only one category.",
-            "actionConfiguration.formData.imageClassify.labels.data": "Jacket, Shirt, Pant, T-Shirt, Shorts, Dress, Skirt"
-          }
-        },
-        {
-          "label": "IT Asset Tagging",
-          "value": {
-            "actionConfiguration.formData.imageClassify.input.data": "https://i.imgur.com/EqfqRQY.png",
-            "actionConfiguration.formData.imageClassify.instructions.data": "Tag the IT hardware.",
-            "actionConfiguration.formData.imageClassify.labels.data": "Laptop, Phone, Headphones, Mouse, Keyboard, Monitor"
-          }
+          "label": "Try out these examples",
+          "Description": "Try out these examples",
+          "subtitle": "",
+          "configProperty": "",
+          "controlType": "FORM_TEMPLATE",
+          "isRequired": false,
+          "options": [
+            {
+              "label": "Product category",
+              "value": {
+                "actionConfiguration.formData.imageClassify.input.data": "https://i.imgur.com/Eiq5s0F.png",
+                "actionConfiguration.formData.imageClassify.instructions.data": "Identify the category of clothing. Apply only one category.",
+                "actionConfiguration.formData.imageClassify.labels.data": "Jacket, Shirt, Pant, T-Shirt, Shorts, Dress, Skirt"
+              }
+            },
+            {
+              "label": "IT Asset Tagging",
+              "value": {
+                "actionConfiguration.formData.imageClassify.input.data": "https://i.imgur.com/EqfqRQY.png",
+                "actionConfiguration.formData.imageClassify.instructions.data": "Tag the IT hardware.",
+                "actionConfiguration.formData.imageClassify.labels.data": "Laptop, Phone, Headphones, Mouse, Keyboard, Monitor"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Input",
-      "Description": "Provide an image URL or the base64 encoded image for AI to extract entities from",
-      "subtitle": "Provide an image URL or the base64 encoded image for AI to extract entities from",
-      "configProperty": "actionConfiguration.formData.imageClassify.input.data",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "isRequired": true,
-      "customStyles": {
-        "width": "700px"
-      }
-    },
-    {
-      "label": "Labels",
-      "Description": "Provide labels as comma-separated string input for classification",
-      "subtitle": "Provide a comma separated list of labels to classify the Input on",
-      "configProperty": "actionConfiguration.formData.imageClassify.labels.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
-      "isRequired": true,
-      "customStyles": {
-        "width": "700px"
-      }
-    },
-    {
-      "label": "Additional Instructions",
-      "Description": "Provide additional instructions to tweak the classification",
-      "subtitle": "Provide additional instructions to tweak the classification",
-      "configProperty": "actionConfiguration.formData.imageClassify.instructions.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "isRequired": false,
-      "initialValue": "",
-      "customStyles": {
-        "width": "700px"
-      }
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "IMAGE-CLASSIFY-Z2",
+      "children": [
+        {
+          "label": "Input",
+          "Description": "Provide an image URL or the base64 encoded image for AI to extract entities from",
+          "subtitle": "Provide an image URL or the base64 encoded image for AI to extract entities from",
+          "configProperty": "actionConfiguration.formData.imageClassify.input.data",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "isRequired": true
+        },
+        {
+          "label": "Labels",
+          "Description": "Provide labels as comma-separated string input for classification",
+          "subtitle": "Provide a comma separated list of labels to classify the Input on",
+          "configProperty": "actionConfiguration.formData.imageClassify.labels.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
+          "isRequired": true
+        },
+        {
+          "label": "Additional Instructions",
+          "Description": "Provide additional instructions to tweak the classification",
+          "subtitle": "Provide additional instructions to tweak the classification",
+          "configProperty": "actionConfiguration.formData.imageClassify.instructions.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "isRequired": false,
+          "initialValue": ""
+        }
+      ]
     }
   ]
 }

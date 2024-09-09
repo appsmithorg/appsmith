@@ -23,9 +23,11 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,6 +38,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ActionCollectionSpan.ACTION_COLLECTION_UPDATE;
+import static com.appsmith.external.constants.spans.ActionCollectionSpan.GENERATE_ACTION_COLLECTION_BY_VIEW_MODE;
+import static com.appsmith.external.constants.spans.ActionCollectionSpan.POPULATE_ACTION_COLLECTION_BY_VIEW_MODE;
+import static com.appsmith.external.constants.spans.ActionCollectionSpan.SAVE_ACTION_COLLECTION_LAST_EDIT_INFO;
+import static com.appsmith.external.constants.spans.ActionSpan.CREATE_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpan.DELETE_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION;
+import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_BASED_ON_CONTEXT;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.helpers.ContextTypeUtils.isPageContext;
 import static java.util.stream.Collectors.toMap;
@@ -55,6 +65,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final ActionCollectionRepository actionCollectionRepository;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final ObservationRegistry observationRegistry;
 
     @Override
     public Mono<ActionCollectionDTO> createCollection(ActionCollection actionCollection) {
@@ -325,7 +336,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionDTO.setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.setBranchName(branchedActionCollection.getBranchName());
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService.createSingleAction(actionDTO, Boolean.TRUE);
+                                return layoutActionService
+                                        .createSingleAction(actionDTO, Boolean.TRUE)
+                                        .name(CREATE_ACTION)
+                                        .tap(Micrometer.observation(observationRegistry));
                             } else {
                                 actionDTO.setCollectionId(null);
                                 // Client only knows about the default action ID, fetch branched action id to update the
@@ -333,7 +347,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 String branchedActionId = actionDTO.getId();
                                 actionDTO.setId(null);
                                 actionDTO.setBaseId(null);
-                                return layoutActionService.updateNewActionByBranchedId(branchedActionId, actionDTO);
+                                return layoutActionService
+                                        .updateNewActionByBranchedId(branchedActionId, actionDTO)
+                                        .name(UPDATE_ACTION)
+                                        .tap(Micrometer.observation(observationRegistry));
                             }
                         })
                         .collect(toMap(actionDTO -> actionDTO.getBaseId(), ActionDTO::getId)));
@@ -354,7 +371,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             log.error(throwable.getMessage());
                             return Mono.empty();
                         }))
-                .collectList();
+                .collectList()
+                .name(DELETE_ACTION)
+                .tap(Micrometer.observation(observationRegistry));
 
         return deleteNonExistingActionMono
                 .then(newValidActionIdsMono)
@@ -373,17 +392,27 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
+                .name(ACTION_COLLECTION_UPDATE)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject)
-                .flatMap(savedActionCollection ->
-                        updateLayoutBasedOnContext(savedActionCollection).thenReturn(savedActionCollection))
+                .flatMap(savedActionCollection -> updateLayoutBasedOnContext(savedActionCollection)
+                        .name(UPDATE_LAYOUT_BASED_ON_CONTEXT)
+                        .tap(Micrometer.observation(observationRegistry))
+                        .thenReturn(savedActionCollection))
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(
                         savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService
                         .generateActionCollectionByViewMode(actionCollection, false)
+                        .name(GENERATE_ACTION_COLLECTION_BY_VIEW_MODE)
+                        .tap(Micrometer.observation(observationRegistry))
                         .flatMap(actionCollectionDTO1 -> actionCollectionService
                                 .populateActionCollectionByViewMode(actionCollection.getUnpublishedCollection(), false)
+                                .name(POPULATE_ACTION_COLLECTION_BY_VIEW_MODE)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .flatMap(actionCollectionDTO2 -> actionCollectionService
                                         .saveLastEditInformationInParent(actionCollectionDTO2)
+                                        .name(SAVE_ACTION_COLLECTION_LAST_EDIT_INFO)
+                                        .tap(Micrometer.observation(observationRegistry))
                                         .thenReturn(actionCollectionDTO2))))
                 .flatMap(branchedActionCollection -> sendErrorReportsFromPageToCollection(branchedActionCollection));
     }

@@ -37,6 +37,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -197,9 +198,15 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Fetch default application id if not provided */
         Mono<Application> branchedApplicationMonoCached;
-        if (isBlank(baseApplicationId)) {
-            branchedApplicationMonoCached = newPageService
+        Mono<NewPage> branchedPageMonoCached = Mono.empty();
+        if (!isBlank(basePageId)) {
+            branchedPageMonoCached = newPageService
                     .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                    .cache();
+        }
+
+        if (isBlank(baseApplicationId)) {
+            branchedApplicationMonoCached = branchedPageMonoCached
                     .map(NewPage::getApplicationId)
                     .flatMap(applicationId ->
                             applicationService.findByBranchedApplicationIdAndApplicationMode(applicationId, mode))
@@ -279,18 +286,23 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         /* Fetch view specific data */
         if (isViewMode) {
-            /* Get list of all actions in view mode */
-            fetches.add(branchedApplicationMonoCached
-                    .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
-                    .tap(Micrometer.observation(observationRegistry))
-                    .flatMap(branchedApplication -> newActionService
-                            .getActionsForViewMode(branchedApplication.getId())
-                            .collectList())
-                    .as(this::toResponseDTO)
-                    .doOnError(e -> log.error("Error fetching actions for view mode", e))
-                    .doOnSuccess(consolidatedAPIResponseDTO::setPublishedActions)
-                    .name(getQualifiedSpanName(ACTIONS_SPAN, mode))
-                    .tap(Micrometer.observation(observationRegistry)));
+            /* Get list of all actions of the page in view mode */
+            if (!isBlank(basePageId)) {
+                // When branchName is null, we don't need to fetch page from DB to derive pageId
+                // We can simply reuse the pageId that is passed by client to query actions
+                Mono<String> branchedPageIdMono = !StringUtils.hasText(branchName)
+                        ? Mono.just(basePageId)
+                        : branchedPageMonoCached.map(NewPage::getId);
+                fetches.add(branchedPageIdMono
+                        .flatMap(branchedPageId -> newActionService
+                                .getActionsForViewModeByPageId(branchedPageId)
+                                .collectList())
+                        .as(this::toResponseDTO)
+                        .doOnError(e -> log.error("Error fetching actions for view mode", e))
+                        .doOnSuccess(consolidatedAPIResponseDTO::setPublishedActions)
+                        .name(getQualifiedSpanName(ACTIONS_SPAN, mode))
+                        .tap(Micrometer.observation(observationRegistry)));
+            }
 
             /* Get list of all action collections in view mode */
             fetches.add(branchedApplicationMonoCached
