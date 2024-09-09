@@ -13,18 +13,18 @@ import {
   createMessage,
   EMPTY_WIDGET_BUTTON_TEXT,
   EMPTY_WIDGET_MAIN_TEXT,
-} from "@appsmith/constants/messages";
-import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/messages";
+import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
 import {
   getExplorerStatus,
   saveExplorerStatus,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+} from "ee/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 interface ExplorerWidgetGroupProps {
   step: number;

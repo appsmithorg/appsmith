@@ -1,8 +1,8 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
@@ -69,11 +69,11 @@ export const showModal = (id: string, shouldSelectModal = true) => {
   };
 };
 
-export const closePropertyPane = () => {
+export const closePropertyPane = (force = false) => {
   return {
     type: ReduxActionTypes.HIDE_PROPERTY_PANE,
     payload: {
-      force: false,
+      force,
     },
   };
 };

@@ -1,7 +1,7 @@
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
@@ -10,35 +10,32 @@ import EditorButton from "components/editorComponents/Button";
 import history from "utils/history";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { useDispatch, useSelector } from "react-redux";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
 import {
   getCurrentApplication,
   getCurrentApplicationIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { debounce, get } from "lodash";
 import HomepageHeaderAction from "pages/common/SearchBar/HomepageHeaderAction";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import MobileSideBar from "pages/common/MobileSidebar";
-import {
-  resetSearchEntity,
-  searchEntities,
-} from "@appsmith/actions/workspaceActions";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { viewerURL } from "@appsmith/RouteBuilder";
+import { resetSearchEntity, searchEntities } from "ee/actions/workspaceActions";
+import type { ApplicationPayload } from "entities/Application";
+import { viewerURL } from "ee/RouteBuilder";
 import {
   getIsFetchingEntities,
   getSearchedApplications,
   getSearchedWorkflows,
   getSearchedWorkspaces,
-} from "@appsmith/selectors/workspaceSelectors";
+} from "ee/selectors/workspaceSelectors";
 import DesktopEntitySearchField from "pages/common/SearchBar/DesktopEntitySearchField";
 import MobileEntitySearchField from "pages/common/SearchBar/MobileEntitySearchField";
-import { getPackagesList } from "@appsmith/selectors/packageSelectors";
+import { getPackagesList } from "ee/selectors/packageSelectors";
 import Fuse from "fuse.js";
-import { useOutsideClick } from "@appsmith/hooks";
-import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
+import { useOutsideClick } from "ee/hooks";
+import type { PageDefaultMeta } from "ee/api/ApplicationApi";
 
 const HeaderSection = styled.div`
   display: flex;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -81,17 +81,19 @@ class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   }
 
   onChange = (isChecked: boolean) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("isChecked", isChecked, {
+    pushBatchMetaUpdates("isChecked", isChecked, {
       triggerPropertyName: "onCheckChange",
       dynamicString: this.props.onCheckChange,
       event: {
         type: EventType.ON_CHECK_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {

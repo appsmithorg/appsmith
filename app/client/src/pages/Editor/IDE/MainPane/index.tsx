@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router";
 import * as Sentry from "@sentry/react";
-import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/useRoutes";
+import useRoutes from "ee/pages/Editor/IDE/MainPane/useRoutes";
 import { useWidgetSelectionBlockListener } from "pages/Editor/IDE/hooks";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -12,7 +12,7 @@ export const MainPane = (props: { id: string }) => {
 
   return (
     <div
-      className="relative flex flex-col flex-1 overflow-auto z-2"
+      className="relative flex flex-col flex-1 overflow-auto z-2 h-full"
       data-testid="t--ide-main-pane"
       id={props.id}
     >

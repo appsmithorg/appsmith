@@ -42,6 +42,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -50,6 +51,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -63,6 +65,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_FETCH_FROM_DB;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
@@ -84,6 +87,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final UserDataService userDataService;
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
+    private final ObservationRegistry observationRegistry;
 
     private static final Integer MAX_RETRIES = 5;
 
@@ -101,7 +105,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             SessionUserService sessionUserService,
             UserDataService userDataService,
             WorkspaceService workspaceService,
-            WorkspacePermission workspacePermission) {
+            WorkspacePermission workspacePermission,
+            ObservationRegistry observationRegistry) {
 
         super(validator, repository, analyticsService);
         this.policySolution = policySolution;
@@ -114,6 +119,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.userDataService = userDataService;
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -1031,7 +1037,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 ? applicationPermission.getReadPermission()
                 : applicationPermission.getEditPermission();
 
-        return findByBranchNameAndBaseApplicationId(branchName, defaultApplicationId, permissionForApplication);
+        return findByBranchNameAndBaseApplicationId(branchName, defaultApplicationId, permissionForApplication)
+                .name(APPLICATION_FETCH_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -1042,6 +1050,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 : applicationPermission.getEditPermission();
 
         return findById(branchedApplicationId, permissionForApplication)
+                .name(APPLICATION_FETCH_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
     }

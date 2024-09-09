@@ -14,12 +14,12 @@ import {
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
 import type { AppTheme } from "entities/AppTheming";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import DeleteThemeModal from "./DeleteThemeModal";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const DeleteIcon = importRemixIcon(
   async () => import("remixicon-react/DeleteBinLineIcon"),
@@ -177,6 +177,7 @@ export function ThemeCard(props: ThemeCard) {
             "overflow-hidden": !selectable,
             "hover:shadow-xl cursor-pointer": selectable,
           })}
+          data-testid={`t--theme-card-${theme.name}`}
           onClick={changeSelectedTheme}
         >
           <MainContainer backgroundColor={backgroundColor}>

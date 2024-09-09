@@ -1,4 +1,4 @@
-import { isEnvironmentValid } from "@appsmith/utils/Environments";
+import { isEnvironmentValid } from "ee/utils/Environments";
 import type { Property } from "entities/Action";
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import type {

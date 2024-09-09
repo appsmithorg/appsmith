@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
-import { SentryRoute } from "@appsmith/AppRouter";
+import { SentryRoute } from "ee/AppRouter";
 import {
   APP_LIBRARIES_EDITOR_PATH,
   APP_SETTINGS_EDITOR_PATH,
@@ -20,6 +20,7 @@ export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
   border-right: ${({ showRightBorder = true }) =>
     showRightBorder ? "1px solid var(--ads-v2-color-border)" : "none"};
   background: var(--ads-v2-color-bg);
+  overflow: hidden;
 `;
 
 const LeftPane = () => {

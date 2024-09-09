@@ -3,16 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDefaultBasePageId } from "sagas/selectors";
 import { getSettings } from "selectors/settingsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
-import { updateApplication } from "@appsmith/actions/applicationActions";
-import { viewerURL } from "@appsmith/RouteBuilder";
-import {
-  createMessage,
-  IN_APP_EMBED_SETTING,
-} from "@appsmith/constants/messages";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { updateApplication } from "ee/actions/applicationActions";
+import { viewerURL } from "ee/RouteBuilder";
+import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { AppsmithFrameAncestorsSetting } from "./Constants/constants";
 import { formatEmbedSettings } from "./Utils/utils";
 

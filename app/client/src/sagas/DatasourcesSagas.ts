@@ -19,22 +19,21 @@ import {
 import { get, isEmpty, merge, omit, partition, set } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
   ReduxActionWithMeta,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxFormActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import type { DatasourceGroupByPluginCategory } from "@appsmith/selectors/entitiesSelector";
+import type { DatasourceGroupByPluginCategory } from "ee/selectors/entitiesSelector";
 import {
   getDatasource,
   getDatasourceActionRouteInfo,
@@ -50,7 +49,7 @@ import {
   getPluginForm,
   getPluginPackageFromDatasourceId,
   PluginCategory,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type {
   executeDatasourceQueryReduxAction,
   UpdateDatasourceSuccessAction,
@@ -93,12 +92,12 @@ import {
   API_EDITOR_FORM_NAME,
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
-} from "@appsmith/constants/forms";
+} from "ee/constants/forms";
 import { validateResponse } from "./ErrorSagas";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
 import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
@@ -115,9 +114,9 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
   OAUTH_AUTHORIZATION_SUCCESSFUL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
@@ -128,23 +127,27 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { shouldBeDefined, trimQueryString } from "utils/helpers";
+import {
+  klonaLiteWithTelemetry,
+  shouldBeDefined,
+  trimQueryString,
+} from "utils/helpers";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplication,
   getCurrentApplicationIdForCreateNewApp,
   getWorkspaceIdForImport,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
   GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
@@ -152,7 +155,7 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentRoot } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
@@ -161,22 +164,22 @@ import {
   getFormName,
   isGoogleSheetPluginDS,
 } from "utils/editorContextUtils";
-import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { klona } from "klona/lite";
+import { getDefaultEnvId } from "ee/api/ApiUtils";
 import {
   getCurrentEditingEnvironmentId,
   getCurrentEnvironmentDetails,
   isEnvironmentFetching,
-} from "@appsmith/selectors/environmentSelectors";
-import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
+} from "ee/selectors/environmentSelectors";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import FocusRetention from "./FocusRetentionSaga";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { getCurrentModuleId } from "ee/selectors/modulesSelector";
+import type { ApplicationPayload } from "entities/Application";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -468,12 +471,9 @@ export function* deleteDatasourceSaga(
       yield select(getDatasource, actionPayload.payload.id),
       `Datasource not found for id - ${actionPayload.payload.id}`,
     );
-    toast.show((error as Error).message, {
-      kind: "error",
-    });
     yield put({
       type: ReduxActionErrorTypes.DELETE_DATASOURCE_ERROR,
-      payload: { error, id: actionPayload.payload.id, show: false },
+      payload: { error, id: actionPayload.payload.id, show: true },
     });
     AppsmithConsole.error({
       text: (error as Error).message,
@@ -733,12 +733,15 @@ function* getOAuthAccessTokenSaga(
   if (!appsmithToken) {
     // Error out because auth token should been here
     log.error(OAUTH_APPSMITH_TOKEN_NOT_FOUND);
-    toast.show(OAUTH_AUTHORIZATION_APPSMITH_ERROR, {
-      kind: "error",
-    });
     yield put({
-      type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
-      payload: { datasourceId: datasourceId },
+      type: ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
+      show: true,
+      payload: {
+        datasourceId: datasourceId,
+        error: {
+          message: OAUTH_AUTHORIZATION_APPSMITH_ERROR,
+        },
+      },
     });
     return;
   }
@@ -797,11 +800,14 @@ function* getOAuthAccessTokenSaga(
     }
   } catch (e) {
     yield put({
-      type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
-      payload: { datasourceId: datasourceId },
-    });
-    toast.show(OAUTH_AUTHORIZATION_FAILED, {
-      kind: "error",
+      type: ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
+      payload: {
+        datasourceId: datasourceId,
+        show: true,
+        error: {
+          message: OAUTH_AUTHORIZATION_FAILED,
+        },
+      },
     });
     log.error(e);
   }
@@ -910,25 +916,20 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       }
       if (responseData.invalids && responseData.invalids.length) {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
-          datasoureId: datasource?.id,
+          datasourceId: datasource?.id,
           environmentId: currentEnvironment,
           environmentName: currentEnvDetails.name,
           pluginName: plugin?.name,
           errorMessages: responseData.invalids,
           messages: responseData.messages,
         });
-        responseData.invalids.forEach((message: string) => {
-          toast.show(message, {
-            kind: "error",
-          });
-        });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
           payload: {
-            show: false,
             id: datasource.id,
             environmentId: currentEnvironment,
-            messages: messages,
+            show: true,
+            error: { message: responseData.invalids.join("\n") },
           },
         });
         AppsmithConsole.error({
@@ -1780,7 +1781,11 @@ function* filePickerActionCallbackSaga(
       getDatasource,
       datasourceId,
     );
-    const datasource: Datasource = klona(datasourceFromState);
+    const datasource: Datasource = klonaLiteWithTelemetry(
+      datasourceFromState,
+      "DatasourcesSagas.filePickerActionCallbackSaga",
+    );
+
     const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
     const applicationId: string = yield select(getCurrentApplicationId);
     const pageId: string = yield select(getCurrentPageId);
@@ -2100,10 +2105,12 @@ function* updateDatasourceAuthStateSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
-      payload: { error },
-    });
-    toast.show(OAUTH_AUTHORIZATION_FAILED, {
-      kind: "error",
+      payload: {
+        error: {
+          message: OAUTH_AUTHORIZATION_FAILED,
+        },
+        show: true,
+      },
     });
   }
 }

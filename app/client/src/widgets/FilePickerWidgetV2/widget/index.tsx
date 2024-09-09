@@ -6,7 +6,6 @@ import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
 
@@ -31,6 +30,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
@@ -614,8 +614,12 @@ class FilePickerWidget extends BaseWidget<
 
     uppy.on("files-added", (files: UppyFile[]) => {
       // Deep cloning the selectedFiles
+
       const selectedFiles = this.props.selectedFiles
-        ? klona(this.props.selectedFiles)
+        ? (klonaRegularWithTelemetry(
+            this.props.selectedFiles,
+            "initializeUppyEventListeners.selectedFiles",
+          ) as Array<unknown>)
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;

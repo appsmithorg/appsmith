@@ -5,14 +5,14 @@ import {
   getUserLocation,
 } from "./geolocationSaga";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
-import { logActionExecutionError } from "./errorUtils";
+import { showToastOnExecutionError } from "./errorUtils";
 
 const mockFn = jest.fn();
 
 jest.mock("./errorUtils.ts", () => ({
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logActionExecutionError: (payload: any) => mockFn(payload),
+  showToastOnExecutionError: (payload: any) => mockFn(payload),
 }));
 
 describe("getCurrentLocationSaga", () => {
@@ -86,7 +86,7 @@ describe("getCurrentLocationSaga", () => {
 
     expect(iter.next().value).toHaveProperty(
       "payload.fn",
-      logActionExecutionError,
+      showToastOnExecutionError,
     );
     expect(iter.next().done).toBe(true);
   });

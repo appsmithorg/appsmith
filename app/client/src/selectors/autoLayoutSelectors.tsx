@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import { createSelector } from "reselect";
 import { getCanvasAndMetaWidgets } from "sagas/selectors";

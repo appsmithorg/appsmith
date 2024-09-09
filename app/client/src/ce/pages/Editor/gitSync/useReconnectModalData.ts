@@ -1,11 +1,11 @@
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import {
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
   SKIP_TO_APPLICATION,
   createMessage,
-} from "@appsmith/constants/messages";
-import { EditorNames } from "@appsmith/hooks";
-import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
+} from "ee/constants/messages";
+import { EditorNames } from "ee/hooks";
+import { getApplicationByIdFromWorkspaces } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 
 interface UseReconnectModalDataProps {

@@ -1,7 +1,7 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
-import type { CalloutKind } from "design-system";
-import { Callout } from "design-system";
+import type { CalloutKind } from "@appsmith/ads";
+import { Callout } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import React from "react";
@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getPlugin,
   getPluginTypeFromDatasourceId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
@@ -17,8 +17,8 @@ import {
   createMessage,
   GOOGLE_SHEETS_ASK_FOR_SUPPORT,
   DATASOURCE_INTERCOM_TEXT,
-} from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
+} from "ee/constants/messages";
+import { getAppsmithConfigs } from "ee/configs";
 import { DocsLink, openDoc } from "constants/DocumentationLinks";
 import type { Plugin } from "api/PluginApi";
 const { intercomAppID } = getAppsmithConfigs();

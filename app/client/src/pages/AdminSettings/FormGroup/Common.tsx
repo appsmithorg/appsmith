@@ -1,8 +1,8 @@
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import { Icon, Tooltip, Text } from "design-system";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import { Icon, Tooltip, Text } from "@appsmith/ads";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
 import EnterpriseTag from "components/EnterpriseTag";
 import BusinessTag from "components/BusinessTag";
 

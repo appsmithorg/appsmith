@@ -334,4 +334,8 @@ export class CommonLocators {
   _menuItem = ".bp3-menu-item";
   _slashCommandHintText = ".slash-command-hint-text";
   _selectionItem = ".rc-select-selection-item";
+  errorPageTitle = ".t--error-page-title";
+  errorPageDescription = ".t--error-page-description";
+  _selectClearButton_testId = "selectbutton.btn.cancel";
+  _selectClearButton_dataTestId = `[data-testid="${this._selectClearButton_testId}"]`;
 }

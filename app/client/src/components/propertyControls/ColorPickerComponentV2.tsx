@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { Switch } from "design-system";
+import { Switch } from "@appsmith/ads";
 import {
   Popover,
   InputGroup,
@@ -29,12 +29,9 @@ import {
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
-import { getBrandColors } from "@appsmith/selectors/tenantSelectors";
+import { getBrandColors } from "ee/selectors/tenantSelectors";
 import FocusTrap from "focus-trap-react";
-import {
-  createMessage,
-  FULL_COLOR_PICKER_LABEL,
-} from "@appsmith/constants/messages";
+import { createMessage, FULL_COLOR_PICKER_LABEL } from "ee/constants/messages";
 
 const MAX_COLS = 10;
 
@@ -370,12 +367,11 @@ const ColorPickerComponent = React.forwardRef(
       defaultFullColorPickerValue,
     );
 
-    const debouncedOnChange = React.useCallback(
-      debounce((color: string, isUpdatedViaKeyboard: boolean) => {
+    const debouncedOnChange = useMemo(() => {
+      return debounce((color: string, isUpdatedViaKeyboard: boolean) => {
         props.changeColor(color, isUpdatedViaKeyboard);
-      }, DEBOUNCE_TIMER),
-      [],
-    );
+      }, DEBOUNCE_TIMER);
+    }, [props]);
 
     useEffect(() => {
       setIsOpen(isOpenProp);
@@ -548,13 +544,17 @@ const ColorPickerComponent = React.forwardRef(
       };
     }, [handleKeydown]);
 
-    const handleChangeColor = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      if (isValidColor(value)) {
-        debouncedOnChange(value, true);
-      }
-      setColor(value);
-    };
+    const handleChangeColor = useCallback(
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value || "";
+
+        if (isValidColor(value)) {
+          debouncedOnChange(value, true);
+        }
+        setColor(value);
+      },
+      [debouncedOnChange],
+    );
 
     // if props.color changes and state color is different,
     // sets the state color to props color

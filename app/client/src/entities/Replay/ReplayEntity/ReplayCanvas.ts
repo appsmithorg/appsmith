@@ -11,7 +11,7 @@ import {
   WIDGETS,
 } from "../replayUtils";
 import type { AppTheme } from "entities/AppTheming";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 export interface Canvas {
   widgets: CanvasWidgetsReduxState;

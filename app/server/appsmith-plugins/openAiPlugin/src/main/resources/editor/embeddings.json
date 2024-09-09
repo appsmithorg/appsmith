@@ -1,63 +1,78 @@
 {
   "identifier": "EMBEDDINGS",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'EMBEDDINGS'}}"
   },
   "children": [
     {
-      "label": "Models",
-      "tooltipText": "Select the model for embedding generation",
-      "subtitle": "ID of the model to use.",
-      "isRequired": true,
-      "propertyName": "embedding_model_id",
-      "configProperty": "actionConfiguration.formData.embeddingsModel.data",
-      "controlType": "DROP_DOWN",
-      "initialValue": "",
-      "options": [],
-      "placeholderText": "All models will be fetched.",
-      "fetchOptionsConditionally": true,
-      "setFirstOptionAsDefault": true,
-      "alternateViewTypes": ["json"],
-      "conditionals": {
-        "enable": "{{true}}",
-        "fetchDynamicValues": {
-          "condition": "{{actionConfiguration.formData.command.data === 'EMBEDDINGS'}}",
-          "config": {
-            "params": {
-              "requestType": "EMBEDDING_MODELS",
-              "displayType": "DROP_DOWN"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Models",
+          "tooltipText": "Select the model for embedding generation",
+          "subtitle": "ID of the model to use.",
+          "isRequired": true,
+          "propertyName": "embedding_model_id",
+          "configProperty": "actionConfiguration.formData.embeddingsModel.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "All models will be fetched.",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'EMBEDDINGS'}}",
+              "config": {
+                "params": {
+                  "requestType": "EMBEDDING_MODELS",
+                  "displayType": "DROP_DOWN"
+                }
+              }
             }
           }
         }
-      }
+      ]
     },
     {
-      "label": "Input",
-      "tooltipText": "Provide the string or array of strings",
-      "subtitle" : "Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays.",
-      "propertyName": "input",
-      "configProperty": "actionConfiguration.formData.input",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "isRequired": true,
-      "placeholderText": "Hello World! OR ['hello', 'world']"
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Input",
+          "tooltipText": "Provide the string or array of strings",
+          "subtitle": "Input text to embed, encoded as a string or array of tokens. To embed multiple inputs in a single request, pass an array of strings or array of token arrays.",
+          "propertyName": "input",
+          "configProperty": "actionConfiguration.formData.input",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true,
+          "placeholderText": "Hello World! OR ['hello', 'world']"
+        }
+      ]
     },
     {
-      "label": "Encoding Format",
-      "tooltipText": "Defaults to float",
-      "subtitle" : "The format to return the embeddings in. Can be either float or base64",
-      "configProperty": "actionConfiguration.formData.encodingFormat",
-      "controlType": "DROP_DOWN",
-      "isRequired": false,
-      "initialValue": "float",
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "children": [
         {
-          "label": "float",
-          "value": "float"
-        },
-        {
-          "label": "base64",
-          "value": "base64"
+          "label": "Encoding Format",
+          "tooltipText": "Defaults to float",
+          "subtitle": "The format to return the embeddings in. Can be either float or base64",
+          "configProperty": "actionConfiguration.formData.encodingFormat",
+          "controlType": "DROP_DOWN",
+          "isRequired": false,
+          "initialValue": "float",
+          "options": [
+            {
+              "label": "float",
+              "value": "float"
+            },
+            {
+              "label": "base64",
+              "value": "base64"
+            }
+          ]
         }
       ]
     }

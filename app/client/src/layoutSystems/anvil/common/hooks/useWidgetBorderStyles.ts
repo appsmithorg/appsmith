@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import WidgetFactory from "WidgetProvider/factory";
 import { getWidgetErrorCount } from "layoutSystems/anvil/editor/AnvilWidgetName/selectors";
 import {
@@ -10,11 +10,7 @@ import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 
-export function useWidgetBorderStyles(
-  widgetId: string,
-  widgetType: string,
-  elevatedBackground?: boolean,
-) {
+export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   /** Selectors */
   const isFocused = useSelector(isWidgetFocused(widgetId));
   const isSelected = useSelector(isWidgetSelected(widgetId));
@@ -44,14 +40,13 @@ export function useWidgetBorderStyles(
   if (isPreviewMode) {
     return {};
   }
-  const isZoneDistributingSpace =
-    widgetsEffectedBySpaceDistribution.zones.includes(widgetId);
-  // If the widget is a zone and is distributing space and has no elevated background
-  const isZoneNotElevated = isZoneDistributingSpace && !elevatedBackground;
+
+  const isSectionDistributingSpace =
+    widgetsEffectedBySpaceDistribution.section == widgetId;
   // Show the border if the widget has widgets being dragged or redistributed inside it
   const showDraggedOnBorder =
     (highlightShown && highlightShown.canvasId === widgetId) ||
-    isZoneNotElevated;
+    isSectionDistributingSpace;
 
   const onCanvasUI = WidgetFactory.getConfig(widgetType)?.onCanvasUI;
 

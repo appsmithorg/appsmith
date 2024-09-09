@@ -17,6 +17,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.SSHConnection;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.PostgresErrorMessages;
@@ -191,6 +192,40 @@ public class PostgresPluginTest {
                         + "    texts VARCHAR[2] ,\n"
                         + "    rating FLOAT4 \n"
                         + ")");
+
+                statement.execute("CREATE TABLE \"testing-table-data\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
+                statement.execute("CREATE TABLE \"table_name-123\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
+                statement.execute("CREATE TABLE \"table-name.with.dots\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
+
+                statement.execute("CREATE TABLE \"table@name#special$chars\" (\n"
+                        + "    id serial PRIMARY KEY,\n"
+                        + "    name VARCHAR,\n"
+                        + "    age INTEGER,\n"
+                        + "    email VARCHAR (255) UNIQUE,\n"
+                        + "    join_date DATE,\n"
+                        + "    salary FLOAT4\n"
+                        + ")");
             }
 
             try (Statement statement = connection.createStatement()) {
@@ -235,6 +270,22 @@ public class PostgresPluginTest {
                         + "1, '{\"type\":\"racket\", \"manufacturer\":\"butterfly\"}',"
                         + "'{\"country\":\"japan\", \"city\":\"kyoto\"}', 'A Lincoln'"
                         + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute(
+                        "INSERT INTO \"testing-table-data\" VALUES (" + " 1, '', 30, '', '2023-07-31', 75000.00" + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO \"table_name-123\" VALUES ("
+                        + " 1, 'John Doe', 30, 'john.doe@example.com', '2023-07-31', 75000.00" + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO \"table-name.with.dots\" VALUES ("
+                        + " 1, 'Jane Doe', 28, 'jane.doe@example.com', '2023-08-01', 65000.00" + ")");
+            }
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("INSERT INTO \"table@name#special$chars\" VALUES ("
+                        + " 1, 'Alice Smith', 35, 'alice.smith@example.com', '2023-08-15', 80000.00" + ")");
             }
 
         } catch (SQLException throwable) {
@@ -300,6 +351,198 @@ public class PostgresPluginTest {
     }
 
     @Test
+    public void testStructure_containing_special_chars() throws SQLException {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.table@name#special$chars");
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"table@name#special$chars_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("table@name#special$chars_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"table@name#special$chars\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"table@name#special$chars\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"table@name#special$chars\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"table@name#special$chars\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure_containing_underscore_and_hyphen() throws SQLException {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.table_name-123");
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"table_name-123_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("table_name-123_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"table_name-123\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"table_name-123\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"table_name-123\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"table_name-123\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure_containing_dots() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.table-name.with.dots");
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"table-name.with.dots_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("table-name.with.dots_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"table-name.with.dots\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"table-name.with.dots\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"table-name.with.dots\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"table-name.with.dots\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     public void testConnectPostgresContainer() {
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
@@ -334,7 +577,7 @@ public class PostgresPluginTest {
 
         final Set<String> datasourceValidationInvalids = pluginExecutor.validateDatasource(dsConfig);
 
-        assertTrue(datasourceValidationInvalids.isEmpty());
+        assertEquals(Set.of("Missing password for authentication."), datasourceValidationInvalids);
     }
 
     @Test
@@ -501,7 +744,7 @@ public class PostgresPluginTest {
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {
                     assertNotNull(structure);
-                    assertEquals(5, structure.getTables().size());
+                    assertEquals(9, structure.getTables().size());
 
                     DatasourceStructure.Table campusTable = findTableByName(structure.getTables(), "public.campus");
                     assertNotNull(campusTable);
@@ -688,6 +931,73 @@ public class PostgresPluginTest {
                                 new DatasourceStructure.Template(
                                         "DELETE",
                                         "DELETE FROM sample_schema.\"sample_table\"\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
+                                        false),
+                            },
+                            sampleTable.getTemplates().toArray());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testStructure_containing_hyphen() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor
+                .datasourceCreate(dsConfig)
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig));
+
+        StepVerifier.create(structureMono)
+                .assertNext(structure -> {
+                    assertNotNull(structure);
+                    assertEquals(9, structure.getTables().size());
+
+                    DatasourceStructure.Table sampleTable =
+                            findTableByName(structure.getTables(), "public.testing-table-data");
+                    assertNotNull(sampleTable);
+                    assertEquals(DatasourceStructure.TableType.TABLE, sampleTable.getType());
+                    assertArrayEquals(
+                            new DatasourceStructure.Column[] {
+                                new DatasourceStructure.Column(
+                                        "id", "int4", "nextval('\"testing-table-data_id_seq\"'::regclass)", true),
+                                new DatasourceStructure.Column("name", "varchar", null, false),
+                                new DatasourceStructure.Column("age", "int4", null, false),
+                                new DatasourceStructure.Column("email", "varchar", null, false),
+                                new DatasourceStructure.Column("join_date", "date", null, false),
+                                new DatasourceStructure.Column("salary", "float4", null, false),
+                            },
+                            sampleTable.getColumns().toArray());
+
+                    final DatasourceStructure.PrimaryKey samplePrimaryKey =
+                            new DatasourceStructure.PrimaryKey("testing-table-data_pkey", new ArrayList<>());
+                    samplePrimaryKey.getColumnNames().add("id");
+                    assertArrayEquals(
+                            new DatasourceStructure.Key[] {samplePrimaryKey},
+                            sampleTable.getKeys().toArray());
+
+                    assertArrayEquals(
+                            new DatasourceStructure.Template[] {
+                                new DatasourceStructure.Template(
+                                        "SELECT", "SELECT * FROM public.\"testing-table-data\" LIMIT 10;", true),
+                                new DatasourceStructure.Template(
+                                        "INSERT",
+                                        "INSERT INTO public.\"testing-table-data\" "
+                                                + "(\"name\", \"age\", \"email\", \"join_date\", \"salary\")\n  "
+                                                + "VALUES ('', 1, '', '2019-07-01', 1.0);",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "UPDATE",
+                                        "UPDATE public.\"testing-table-data\" SET\n"
+                                                + "    \"name\" = '',\n"
+                                                + "    \"age\" = 1,\n"
+                                                + "    \"email\" = '',\n"
+                                                + "    \"join_date\" = '2019-07-01',\n"
+                                                + "    \"salary\" = 1.0\n"
+                                                + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may update every row in the table!",
+                                        false),
+                                new DatasourceStructure.Template(
+                                        "DELETE",
+                                        "DELETE FROM public.\"testing-table-data\"\n"
                                                 + "  WHERE 1 = 0; -- Specify a valid condition here. Removing the condition may delete everything in the table!",
                                         false),
                             },
@@ -1716,6 +2026,113 @@ public class PostgresPluginTest {
         StepVerifier.create(endPointIdentifierMono)
                 .assertNext(endpointIdentifier -> {
                     assertEquals("localhost_5432", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabled_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabledwithHostAndPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        sshProxy.setPort(22L);
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432_sshHost_22", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_HostPresentPortAbsentSshEnabledwithHostAndNullPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.getEndpoints().get(0).setHost("localhost");
+        dsConfig.getEndpoints().get(0).setPort(null);
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("localhost_5432_sshHost_22", endpointIdentifier);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            testGetEndpointIdentifierForRateLimit_EndpointAbsentSshEnabledwithHostAndNullPort_ReturnsCorrectString() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+
+        // Setting hostname and port
+        dsConfig.setEndpoints(new ArrayList());
+
+        // Set ssh enabled
+        List<Property> properties = new ArrayList();
+        properties.add(null);
+        properties.add(new Property("Connection Method", "SSH"));
+        dsConfig.setProperties(properties);
+
+        SSHConnection sshProxy = new SSHConnection();
+        sshProxy.setHost("sshHost");
+        dsConfig.setSshProxy(sshProxy);
+
+        final Mono<String> endPointIdentifierMono = pluginExecutor.getEndpointIdentifierForRateLimit(dsConfig);
+
+        StepVerifier.create(endPointIdentifierMono)
+                .assertNext(endpointIdentifier -> {
+                    assertEquals("_sshHost_22", endpointIdentifier);
                 })
                 .verifyComplete();
     }

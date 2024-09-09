@@ -8,7 +8,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import React, { useEffect, useMemo, useState } from "react";
 import { getCodeFromMoustache } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { generateReactKey } from "utils/generators";
 import {
   clearEvaluatedActionSelectorField,
@@ -19,7 +19,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
-} from "design-system";
+} from "@appsmith/ads";
 
 export function TextView(props: TextViewProps) {
   const id = useMemo(() => generateReactKey(), []);

@@ -1,12 +1,9 @@
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
 import styles from "./styles.module.css";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export default function ReferenceTrigger() {
   const { isReferenceOpen, toggleReference, widgetId } = useContext(

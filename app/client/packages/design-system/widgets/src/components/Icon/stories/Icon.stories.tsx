@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Flex, Icon, ICONS, SIZES } from "@design-system/widgets";
+import { Flex, Icon, ICONS, SIZES } from "@appsmith/wds";
 
 /**
  * Icon is a component that just displays an icon.
  */
 const meta: Meta<typeof Icon> = {
   component: Icon,
-  title: "Design-system/Widgets/Icon",
+  title: "WDS/Widgets/Icon",
 };
 
 export default meta;

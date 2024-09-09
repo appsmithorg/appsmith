@@ -3,12 +3,12 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import type { ControllerProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
-import { klona } from "klona";
 
 import type { FieldLabelProps } from "./FieldLabel";
 import FieldLabel from "./FieldLabel";
 import useUpdateAccessor from "../fields/useObserveAccessor";
 import { FIELD_MARGIN_BOTTOM } from "./styleConstants";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type FieldProps<TValue> = React.PropsWithChildren<
   {
@@ -61,7 +61,7 @@ function Field<TValue>({
 
       // Follow the comment in Form component above reset(convertedFormData);
       setTimeout(() => {
-        setValue(name, klona(defaultValue));
+        setValue(name, klonaRegularWithTelemetry(defaultValue, "Field"));
       }, 0);
     }
   }, [defaultValue, setValue]);

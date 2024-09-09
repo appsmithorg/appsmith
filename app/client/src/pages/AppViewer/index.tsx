@@ -3,7 +3,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type {
   AppViewerRouteParams,
   BuilderRouteParams,
@@ -19,7 +19,7 @@ import * as Sentry from "@sentry/react";
 import {
   getCurrentPageDescription,
   getIsAutoLayout,
-  getViewModePageList,
+  getPageList,
 } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { getSearchQuery } from "utils/helpers";
@@ -28,7 +28,10 @@ import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { setupPublishedPage } from "actions/pageActions";
+import {
+  setupPublishedPage,
+  fetchPublishedPageResourcesAction,
+} from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
@@ -36,21 +39,21 @@ import { initAppViewerAction } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   getAppThemeSettings,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import type { FontFamily } from "@design-system/theming";
+import type { FontFamily } from "@appsmith/wds-theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
-} from "@design-system/theming";
-import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
+} from "@appsmith/wds-theming";
+import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { getHideWatermark } from "ee/selectors/tenantSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const AppViewerBody = styled.section<{
@@ -88,7 +91,7 @@ function AppViewer(props: Props) {
   const { pathname, search } = props.location;
   const { baseApplicationId, basePageId } = props.match.params;
   const isInitialized = useSelector(getIsInitialized);
-  const pages = useSelector(getViewModePageList);
+  const pages = useSelector(getPageList);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const lightTheme = useSelector((state: AppState) =>
     getThemeDetails(state, ThemeMode.LIGHT),
@@ -168,6 +171,9 @@ function AppViewer(props: Props) {
         )?.pageId;
         if (pageId) {
           dispatch(setupPublishedPage(pageId, true));
+
+          // Used for fetching page resources
+          dispatch(fetchPublishedPageResourcesAction(basePageId));
         }
       }
     }

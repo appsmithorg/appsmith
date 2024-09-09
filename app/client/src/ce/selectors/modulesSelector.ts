@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { AppState } from "@appsmith/reducers";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { AppState } from "ee/reducers";
+import type { Module } from "ee/constants/ModuleConstants";
 
 export const getAllModules = (
   state: AppState,

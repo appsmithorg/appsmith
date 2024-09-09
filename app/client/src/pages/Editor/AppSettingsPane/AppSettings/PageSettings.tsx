@@ -1,4 +1,4 @@
-import { ApplicationVersion } from "@appsmith/actions/applicationActions";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 import type { UpdatePageActionPayload } from "actions/pageActions";
 import { setPageAsDefault, updatePageAction } from "actions/pageActions";
 import {
@@ -14,10 +14,10 @@ import {
   PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP,
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
   PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
-} from "@appsmith/constants/messages";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/messages";
+import type { Page } from "entities/Page";
 import classNames from "classnames";
-import { Input, Switch } from "design-system";
+import { Input, Switch } from "@appsmith/ads";
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
@@ -31,12 +31,12 @@ import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
 import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../Utils";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, toValidPageName } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 const UrlPreviewWrapper = styled.div`
   height: 52px;

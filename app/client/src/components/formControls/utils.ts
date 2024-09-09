@@ -11,15 +11,13 @@ import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import _ from "lodash";
 import { getType, Types } from "utils/TypeHelpers";
-import {
-  FIELD_REQUIRED_ERROR,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
@@ -685,7 +683,15 @@ export const updateEvaluatedSectionConfig = (
 
   // leaving the commented code as a reminder of the above observation.
   // const updatedSection = { ...section };
-  const updatedSection = klona(section);
+
+  const updatedSection = startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment: "utils.updateEvaluatedSectionConfig",
+    },
+    () => klona(section),
+  );
+
   let evaluatedConfig: FormConfigEvalObject = {};
   if (
     conditionalOutput.hasOwnProperty("evaluateFormConfig") &&

@@ -9,6 +9,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
@@ -21,18 +22,20 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.bson.types.ObjectId;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,8 +47,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FROM_DB;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITHOUT_BRANCH;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.GET_PAGE_WITH_BRANCH;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.MARK_RECENTLY_ACCESSED_RESOURCES_PAGES;
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
+import static com.appsmith.server.helpers.ObservationUtils.getQualifiedSpanName;
 
 @Slf4j
 public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage, String> implements NewPageServiceCE {
@@ -54,6 +64,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     private final UserDataService userDataService;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final ObservationRegistry observationRegistry;
 
     @Autowired
     public NewPageServiceCEImpl(
@@ -63,12 +74,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             ApplicationService applicationService,
             UserDataService userDataService,
             ApplicationPermission applicationPermission,
-            PagePermission pagePermission) {
+            PagePermission pagePermission,
+            ObservationRegistry observationRegistry) {
         super(validator, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -107,7 +120,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> findById(String pageId, AclPermission aclPermission) {
-        return repository.findById(pageId, aclPermission);
+        return repository
+                .findById(pageId, aclPermission)
+                .name(FETCH_PAGE_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -118,11 +134,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission).flatMap(page -> getPageByViewMode(page, view));
-    }
-
-    @Override
-    public Mono<NewPage> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndBasePageId(branchName, id, pagePermission.getReadPermission());
     }
 
     @Override
@@ -276,19 +287,25 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<ApplicationPagesDTO> createApplicationPagesDTO(
             Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean markRecentlyAccessed) {
 
-        Mono<Void> markedRecentlyAccessedMono = Mono.empty();
-
-        if (Boolean.TRUE.equals(markRecentlyAccessed)) {
-            markedRecentlyAccessedMono = userDataService
+        ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
+        Mono<ApplicationPagesDTO> getApplicationPagesDTOMono = Mono.just(
+                        getApplicationPagesDTO(branchedApplication, newPages, viewMode))
+                .name(getQualifiedSpanName(PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES, applicationMode))
+                .tap(Micrometer.observation(observationRegistry));
+        if (Boolean.TRUE.equals(markRecentlyAccessed) && !viewMode) {
+            Mono<UserData> markedRecentlyAccessedMono = userDataService
                     .updateLastUsedResourceAndWorkspaceList(
                             branchedApplication.getId(),
                             branchedApplication.getWorkspaceId(),
                             WorkspaceResourceContext.APPLICATIONS)
-                    .then();
+                    .name(getQualifiedSpanName(MARK_RECENTLY_ACCESSED_RESOURCES_PAGES, applicationMode))
+                    .tap(Micrometer.observation(observationRegistry));
+
+            return Mono.zip(markedRecentlyAccessedMono, getApplicationPagesDTOMono)
+                    .map(Tuple2::getT2);
         }
 
-        return markedRecentlyAccessedMono.then(
-                Mono.fromCallable(() -> getApplicationPagesDTO(branchedApplication, newPages, viewMode)));
+        return getApplicationPagesDTOMono;
     }
 
     private List<ApplicationPage> getApplicationPages(Application application, boolean viewMode) {
@@ -365,7 +382,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return applicationPagesDTO;
     }
 
-    private static @NotNull PageNameIdDTO getPageNameIdDTO(NewPage pageFromDb, String homePageId, boolean viewMode) {
+    private static PageNameIdDTO getPageNameIdDTO(NewPage pageFromDb, String homePageId, boolean viewMode) {
         PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
         pageNameIdDTO.setId(pageFromDb.getId());
         pageNameIdDTO.setBaseId(pageFromDb.getBaseIdOrFallback());
@@ -407,32 +424,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
-        return findNewPagesByApplicationId(applicationId, permission)
-                .flatMap(repository::archive)
-                .collectList();
+    public Flux<NewPage> findNewPagesByApplicationId(
+            String applicationId, AclPermission permission, List<String> includeFields) {
+        return repository.findByApplicationId(applicationId, permission, includeFields);
     }
 
     @Override
-    // Remove if not used
-    public Mono<List<String>> findAllPageIdsInApplication(
-            String applicationId, AclPermission aclPermission, Boolean view) {
-        return findNewPagesByApplicationId(applicationId, aclPermission)
-                .flatMap(newPage -> {
-                    // Look if the page is migrated
-                    // Real time migration
-                    if (Boolean.TRUE.equals(view)) {
-                        if (newPage.getPublishedPage().getDeletedAt() != null) {
-                            return Mono.just(newPage.getId());
-                        }
-                    } else {
-                        if (newPage.getUnpublishedPage().getDeletedAt() != null) {
-                            return Mono.just(newPage.getId());
-                        }
-                    }
-                    // Looks like the page has been deleted in the `view` mode. Don't return the id for this page.
-                    return Mono.empty();
-                })
+    public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
+        return findNewPagesByApplicationId(applicationId, permission)
+                .flatMap(repository::archive)
                 .collectList();
     }
 
@@ -506,17 +506,23 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findByBranchNameAndBasePageId(String branchName, String basePageId, AclPermission permission) {
+    public Mono<NewPage> findByBranchNameAndBasePageId(
+            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames) {
 
         if (!StringUtils.hasText(basePageId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (!StringUtils.hasText(branchName)) {
-            return this.findById(basePageId, permission)
+            return repository
+                    .findById(basePageId, permission, projectedFieldNames)
+                    .name(GET_PAGE_WITHOUT_BRANCH)
+                    .tap(Micrometer.observation(observationRegistry))
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId)));
         }
         return repository
-                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission)
+                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission, projectedFieldNames)
+                .name(GET_PAGE_WITH_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId + ", " + branchName)));
     }
@@ -532,7 +538,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = pagePermission.getReadPermission();
         }
 
-        return this.findByBranchNameAndBasePageId(branchName, basePageId, permission);
+        return this.findByBranchNameAndBasePageId(
+                        branchName, basePageId, permission, List.of(NewPage.Fields.id, NewPage.Fields.applicationId))
+                .name(getQualifiedSpanName(GET_PAGE, mode))
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -545,7 +554,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.just(basePageId);
         }
         return repository
-                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission)
+                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission, null)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, basePageId + ", " + branchName)))
                 .map(NewPage::getId);

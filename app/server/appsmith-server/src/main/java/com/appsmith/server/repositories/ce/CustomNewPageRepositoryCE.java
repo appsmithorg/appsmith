@@ -12,7 +12,11 @@ import java.util.Map;
 
 public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
+    Mono<NewPage> findById(String id, AclPermission permission, List<String> projectedFields);
+
     Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
+
+    Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission, List<String> includeFields);
 
     Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission);
 
@@ -28,7 +32,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 
-    Mono<NewPage> findPageByBranchNameAndBasePageId(String branchName, String basePageId, AclPermission permission);
+    Mono<NewPage> findPageByBranchNameAndBasePageId(
+            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames);
 
     Flux<NewPage> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
 

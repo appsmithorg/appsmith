@@ -391,23 +391,19 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgNeutralSubtle() {
-    const color = this.seedColor.clone();
+    const color = this.bgAccentSubtle.clone();
 
-    // Adjusted version of bgAccentSubtle (less or no chroma)
+    // Adjusted version of bgAccentSubtle (less or no chroma), slightly higher lightness since neutrals are perceived heavier than saturated colors
     if (this.seedIsVeryLight) {
-      color.oklch.l = 0.985;
+      color.oklch.l = 0.955;
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.935;
+      color.oklch.l = 0.97;
     }
 
-    if (this.seedChroma > 0.001) {
-      color.oklch.c = 0.001;
-    }
-
-    if (this.seedIsAchromatic) {
-      color.oklch.c = 0;
+    if (this.seedChroma > 0.002) {
+      color.oklch.c = 0.002;
     }
 
     return color;
@@ -416,7 +412,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgNeutralSubtleHover() {
     const color = this.bgNeutralSubtle.clone();
 
-    color.oklch.l += 0.02;
+    color.oklch.l += 0.012;
 
     return color;
   }
@@ -734,7 +730,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Neutral foreground. Slightly less prominent than main fg
     const color = this.fg.clone();
 
-    color.oklch.l += 0.1;
+    color.oklch.l += 0.125;
 
     return color;
   }
@@ -742,7 +738,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l += 0.1;
+    color.oklch.l += 0.35;
 
     return color;
   }
@@ -1164,7 +1160,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Low contrast indicator of interactivity in TextInput and similar
     const color = this.bgNeutralSubtle.clone();
 
-    color.oklch.l -= 0.06;
+    color.oklch.l -= 0.03;
 
     return color;
   }
@@ -1172,7 +1168,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bdOnNeutralSubtleHover() {
     const color = this.bdOnNeutralSubtle.clone();
 
-    color.oklch.l += 0.03;
+    color.oklch.l -= 0.015;
 
     return color;
   }

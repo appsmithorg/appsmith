@@ -4,13 +4,13 @@ import { all, call, put, select, takeLeading } from "redux-saga/effects";
 import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
 import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import history from "utils/history";
@@ -158,6 +158,7 @@ export function* pasteWidgetSagas() {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }

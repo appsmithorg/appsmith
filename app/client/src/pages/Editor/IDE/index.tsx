@@ -1,61 +1,28 @@
 import React from "react";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { AnimatedLayout, UnanimatedLayout } from "./Layout";
 import { useSelector } from "react-redux";
+import type { AppState } from "ee/reducers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
-import BottomBar from "components/BottomBar";
-import {
-  combinedPreviewModeSelector,
-  previewModeSelector,
-} from "selectors/editorSelectors";
-import EditorWrapperContainer from "../commons/EditorWrapperContainer";
-import Sidebar from "pages/Editor/IDE/Sidebar";
-import LeftPane from "./LeftPane";
-import MainPane from "./MainPane";
-import RightPane from "./RightPane";
-import classNames from "classnames";
-import { tailwindLayers } from "constants/Layers";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import ProtectedCallout from "./ProtectedCallout";
+const checkAnimatedIDEFlagValue = (state: AppState) => {
+  return selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_ide_animations_enabled,
+  );
+};
 
 /**
  * OldName: MainContainer
  */
 function IDE() {
-  const isPreviewMode = useSelector(previewModeSelector);
-  const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
-  const isProtectedMode = useSelector(protectedModeSelector);
-
-  return (
-    <>
-      {isProtectedMode && <ProtectedCallout />}
-      <EditorWrapperContainer>
-        <div
-          className={classNames({
-            [`transition-transform transform duration-400 flex h-full ${tailwindLayers.entityExplorer}`]:
-              true,
-            relative: !isCombinedPreviewMode,
-            "-translate-x-full fixed": isCombinedPreviewMode,
-          })}
-        >
-          <Sidebar />
-          <LeftPane />
-        </div>
-        <MainPane id="app-body" />
-        <div
-          className={classNames({
-            [`transition-transform transform duration-400 h-full ${tailwindLayers.propertyPane}`]:
-              true,
-            relative: !isCombinedPreviewMode,
-            "translate-x-full fixed right-0": isCombinedPreviewMode,
-          })}
-        >
-          <RightPane />
-        </div>
-      </EditorWrapperContainer>
-      <BottomBar viewMode={isPreviewMode} />
-    </>
-  );
+  const isAnimatedIDEEnabled = useSelector(checkAnimatedIDEFlagValue);
+  if (isAnimatedIDEEnabled) {
+    return <AnimatedLayout />;
+  }
+  return <UnanimatedLayout />;
 }
 
-IDE.displayName = "AppsmithIDE";
+IDE.displayName = "AppIDE";
 
 export default React.memo(IDE);

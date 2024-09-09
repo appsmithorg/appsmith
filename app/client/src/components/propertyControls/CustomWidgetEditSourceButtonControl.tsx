@@ -2,15 +2,12 @@ import React from "react";
 
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 import { CUSTOM_WIDGET_BUILDER_EVENTS } from "pages/Editor/CustomWidgetBuilder/constants";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import CustomWidgetBuilderService from "utils/CustomWidgetBuilderService";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { xor } from "lodash";
 
 interface ButtonControlState {

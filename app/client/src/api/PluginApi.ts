@@ -3,7 +3,7 @@ import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 import type { PluginPackageName, PluginType } from "entities/Action";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
+import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "ee/constants/ApiConstants";
 
 export type PluginId = string;
 export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;

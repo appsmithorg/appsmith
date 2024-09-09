@@ -6,7 +6,7 @@ import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
 import Debugger from "./Debugger";
 

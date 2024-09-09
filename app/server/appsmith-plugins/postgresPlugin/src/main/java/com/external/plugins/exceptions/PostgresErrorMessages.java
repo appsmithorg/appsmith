@@ -46,5 +46,9 @@ public class PostgresErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_MISSING_USERNAME_ERROR_MSG = "Missing username for authentication.";
 
+    public static final String DS_MISSING_PASSWORD_ERROR_MSG = "Missing password for authentication.";
+
     public static final String DS_MISSING_DATABASE_NAME_ERROR_MSG = "Missing database name.";
+
+    public static final String DS_INVALID_HOSTNAME_AND_PORT_MSG = "Please check the host and port.";
 }

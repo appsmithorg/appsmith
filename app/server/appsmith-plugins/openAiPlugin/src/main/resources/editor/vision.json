@@ -1,124 +1,128 @@
 {
   "identifier": "VISION",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
   },
   "children": [
     {
-      "label": "Models",
-      "tooltipText": "Select the model for response generation",
-      "subtitle": "ID of the model to use.",
-      "isRequired": true,
-      "propertyName": "vision_model_id",
-      "configProperty": "actionConfiguration.formData.visionModel.data",
-      "controlType": "DROP_DOWN",
-      "initialValue": "",
-      "options": [],
-      "placeholderText": "All models will be fetched.",
-      "fetchOptionsConditionally": true,
-      "setFirstOptionAsDefault": true,
-      "alternateViewTypes": ["json"],
-      "conditionals": {
-        "enable": "{{true}}",
-        "fetchDynamicValues": {
-          "condition": "{{actionConfiguration.formData.command.data === 'VISION'}}",
-          "config": {
-            "params": {
-              "requestType": "VISION_MODELS",
-              "displayType": "DROP_DOWN"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Models",
+          "tooltipText": "Select the model for response generation",
+          "subtitle": "ID of the model to use.",
+          "isRequired": true,
+          "propertyName": "vision_model_id",
+          "configProperty": "actionConfiguration.formData.visionModel.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "All models will be fetched.",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'VISION'}}",
+              "config": {
+                "params": {
+                  "requestType": "VISION_MODELS",
+                  "displayType": "DROP_DOWN"
+                }
+              }
             }
           }
-        }
-      }
-    },
-    {
-      "label": "Max Tokens",
-      "tooltipText": "The maximum number of tokens to generate in the chat completion.",
-      "subtitle": "The maximum number of tokens to generate in the chat completion.",
-      "Description": "Put a positive integer value",
-      "configProperty": "actionConfiguration.formData.maxTokens",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "16",
-      "isRequired": true,
-      "dataType": "NUMBER",
-      "customStyles": {
-        "width": "270px",
-        "minWidth": "270px"
-      }
-    },
-    {
-      "label": "System Messages",
-      "tooltipText": "Provide system instructions to the assistant",
-      "subtitle": "A list of messages for Assistant as instructions",
-      "propertyName": "systemMessages",
-      "isRequired": false,
-      "configProperty": "actionConfiguration.formData.systemMessages.data",
-      "controlType": "ARRAY_FIELD",
-      "alternateViewTypes": ["json"],
-      "addMoreButtonLabel": "Add System Message",
-      "customStyles": {
-        "width": "40vw"
-      },
-      "schema": [
+        },
         {
-          "label": "Content",
-          "key": "content",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "{{ UserInput.text }}",
-          "initialValue": "As an OCR expert your skills are unparalleled. Respond with just the text in the image"
+          "label": "Max Tokens",
+          "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+          "subtitle": "The maximum number of tokens to generate in the chat completion.",
+          "Description": "Put a positive integer value",
+          "configProperty": "actionConfiguration.formData.maxTokens",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "16",
+          "isRequired": true,
+          "dataType": "NUMBER"
         }
       ]
     },
     {
-      "label": "User Messages",
-      "tooltipText": "Provide User queries",
-      "subtitle": "A list of user messages or images. You can pass a link to the image or the base64 encoded image directly in the request.",
-      "propertyName": "userMessages",
-      "isRequired": true,
-      "configProperty": "actionConfiguration.formData.userMessages.data",
-      "controlType": "ARRAY_FIELD",
-      "alternateViewTypes": ["json"],
-      "addMoreButtonLabel": "Add User message or Image",
-      "schema": [
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "children": [
         {
-          "label": "Type",
-          "key": "type",
-          "controlType": "DROP_DOWN",
-          "initialValue": "text",        
-          "options": [
+          "label": "System Messages",
+          "tooltipText": "Provide system instructions to the assistant",
+          "subtitle": "A list of messages for Assistant as instructions",
+          "propertyName": "systemMessages",
+          "isRequired": false,
+          "configProperty": "actionConfiguration.formData.systemMessages.data",
+          "controlType": "ARRAY_FIELD",
+          "alternateViewTypes": ["json"],
+          "addMoreButtonLabel": "Add System Message",
+          "schema": [
             {
-              "label": "Text",
-              "value": "text"
-            },
-            {
-              "label": "Image",
-              "value": "image"
+              "label": "Content",
+              "key": "content",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "{{ UserInput.text }}",
+              "initialValue": "As an OCR expert your skills are unparalleled. Respond with just the text in the image"
             }
           ]
         },
         {
-          "label": "Content",
-          "key": "content",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "{{Img1.image}} or {{Input1.text}}"
+          "label": "User Messages",
+          "tooltipText": "Provide User queries",
+          "subtitle": "A list of user messages or images. You can pass a link to the image or the base64 encoded image directly in the request.",
+          "propertyName": "userMessages",
+          "isRequired": true,
+          "configProperty": "actionConfiguration.formData.userMessages.data",
+          "controlType": "ARRAY_FIELD",
+          "alternateViewTypes": ["json"],
+          "addMoreButtonLabel": "Add User message or Image",
+          "schema": [
+            {
+              "label": "Type",
+              "key": "type",
+              "controlType": "DROP_DOWN",
+              "initialValue": "text",
+              "options": [
+                {
+                  "label": "Text",
+                  "value": "text"
+                },
+                {
+                  "label": "Image",
+                  "value": "image"
+                }
+              ]
+            },
+            {
+              "label": "Content",
+              "key": "content",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "{{Img1.image}} or {{Input1.text}}"
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Temperature",
-      "tooltipText": "Put a value between 0 and 2",
-      "Description": "Put a value between 0 and 2",
-      "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
-      "configProperty": "actionConfiguration.formData.temperature",
-      "controlType": "INPUT_TEXT",
-      "dataType": "NUMBER",
-      "initialValue": "0",
-      "isRequired": false,
-      "customStyles": {
-        "width": "270px",
-        "minWidth": "270px"
-      }
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Temperature",
+          "tooltipText": "Put a value between 0 and 2",
+          "Description": "Put a value between 0 and 2",
+          "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+          "configProperty": "actionConfiguration.formData.temperature",
+          "controlType": "INPUT_TEXT",
+          "dataType": "NUMBER",
+          "initialValue": "0",
+          "isRequired": false
+        }
+      ]
     }
   ]
 }

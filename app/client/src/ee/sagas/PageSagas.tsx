@@ -1,5 +1,5 @@
 export * from "ce/sagas/PageSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   fetchPageSaga,
   fetchPublishedPageSaga,
@@ -21,6 +21,7 @@ import {
   refreshTheApp,
   setupPageSaga,
   setupPublishedPageSaga,
+  fetchPublishedPageResourcesSaga,
 } from "ce/sagas/PageSagas";
 import {
   all,
@@ -71,6 +72,10 @@ export default function* pageSagas() {
     takeLatest(
       ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
       setupPublishedPageSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
+      fetchPublishedPageResourcesSaga,
     ),
   ]);
 }

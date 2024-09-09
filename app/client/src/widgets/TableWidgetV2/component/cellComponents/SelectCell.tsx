@@ -1,4 +1,4 @@
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -200,6 +200,7 @@ export const SelectCell = (props: SelectProps) => {
 
   const cellLabelValue = useMemo(() => {
     if (releaseTableSelectCellLabelValue) {
+      if (!options.length) return value;
       const selectedOption = options.find(
         (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
       );

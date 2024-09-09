@@ -3,18 +3,17 @@ import styled from "styled-components";
 import type { DropTargetMonitor } from "react-dnd";
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
-import Button, { Category, IconPositions, Size } from "../Button";
-import type { IconName } from "../Icon";
-import Icon, { IconSize } from "../Icon";
+import { Button } from "@appsmith/ads";
+import type { IconNames } from "@appsmith/ads";
+import { Icon } from "@appsmith/ads";
 import Text, { TextType } from "../Text";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import TooltipComponent from "../Tooltip";
 import {
   createMessage,
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
 } from "../constants/messages";
-import { Classes } from "../constants/classes";
 import { importSvg } from "../utils/icon-loadables";
 
 const UploadSuccessIcon = importSvg(
@@ -51,7 +50,7 @@ export interface FilePickerProps {
   logoUploadError?: string;
   fileType: FileType;
   delayedUpload?: boolean;
-  uploadIcon?: IconName;
+  uploadIcon?: IconNames;
   title?: string;
   description?: string;
   containerClickable?: boolean; // when container is clicked, it'll work as button
@@ -172,20 +171,10 @@ export const ContainerDiv = styled.div<{
       bottom: 0;
       border-radius: 0 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius);
     }
-    a {
+    .ads-v2-button {
       width: 110px;
       margin: var(--ads-spaces-13) var(--ads-spaces-3) var(--ads-spaces-3) auto;
-      color: var(--ads-v2-color-fg);
-      border-radius: var(--ads-v2-border-radius);
-      border-color: var(--ads-v2-color-border);
-      text-transform: capitalize;
-      background: var(--ads-v2-color-bg);
-      .${Classes.ICON} {
-        margin-right: calc(var(--ads-spaces-2) - 1px);
-      }
-      &:hover {
-        background: var(--ads-v2-color-bg-subtle);
-      }
+      display: flex;
     }
   }
 
@@ -407,7 +396,7 @@ function FilePickerComponent(props: FilePickerProps) {
     <div className="button-wrapper" ref={fileContainerRef}>
       <UploadIconWrapper>
         <Icon
-          fillColor={
+          color={
             props.iconFillColor ||
             "var(--ads-file-picker-v2-upload-icon-fill-color)"
           }
@@ -434,12 +423,13 @@ function FilePickerComponent(props: FilePickerProps) {
         />
         {!props.containerClickable && (
           <Button
-            category={Category.secondary}
             className="browse-button"
+            kind="secondary"
             onClick={(el: React.MouseEvent<HTMLElement>) => ButtonClick(el)}
-            size={Size.medium}
-            text="Browse"
-          />
+            size="sm"
+          >
+            Browse
+          </Button>
         )}
       </form>
     </div>
@@ -466,13 +456,14 @@ function FilePickerComponent(props: FilePickerProps) {
       <div className="remove-button">
         <div className="overlay" />
         <Button
-          category={Category.secondary}
-          icon="delete"
-          iconPosition={IconPositions.left}
+          data-testid="t--remove-logo"
+          kind="secondary"
           onClick={() => removeFile()}
-          size={Size.medium}
-          text="Remove"
-        />
+          size="sm"
+          startIcon="delete"
+        >
+          Remove
+        </Button>
       </div>
     </>
   );
@@ -493,7 +484,7 @@ function FilePickerComponent(props: FilePickerProps) {
           </Text>
           <TooltipComponent content={REMOVE_FILE_TOOL_TIP()} position="top">
             <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
-              <Icon name="close" size={IconSize.XL} />
+              <Icon name="close" size="lg" />
             </IconWrapper>
           </TooltipComponent>
         </div>

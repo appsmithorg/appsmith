@@ -1,8 +1,8 @@
-import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
+import { tenantConfigConnection } from "ee/constants/tenantConstants";
 import type {
   AdminConfigType,
   Category,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import type { User } from "constants/userConstants";
 

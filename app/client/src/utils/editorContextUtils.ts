@@ -3,8 +3,8 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
-} from "@appsmith/constants/forms";
-import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
+} from "ee/constants/forms";
+import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import type {
@@ -16,8 +16,8 @@ import type {
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
 import store from "store";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import { getPlugin } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import {
   DATASOURCES_ALLOWED_FOR_PREVIEW_MODE,
   MOCK_DB_TABLE_NAMES,

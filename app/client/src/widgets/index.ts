@@ -68,19 +68,25 @@ import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
 import { WDSToolbarButtonsWidget } from "./wds/WDSToolbarButtonsWidget";
 import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
+import { WDSComboBoxWidget } from "./wds/WDSComboBoxWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
 import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
 import { WDSMenuButtonWidget } from "./wds/WDSMenuButtonWidget";
 import CustomWidget from "./CustomWidget";
-import { SectionWidget } from "./anvil/SectionWidget";
-import { ZoneWidget } from "./anvil/ZoneWidget";
+import { WDSSectionWidget } from "./wds/WDSSectionWidget";
+import { WDSZoneWidget } from "./wds/WDSZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 import { WDSModalWidget } from "./wds/WDSModalWidget";
 import { WDSStatsWidget } from "./wds/WDSStatsWidget";
 import { WDSKeyValueWidget } from "./wds/WDSKeyValueWidget";
 import { WDSInlineButtonsWidget } from "./wds/WDSInlineButtonsWidget";
+import { WDSEmailInputWidget } from "./wds/WDSEmailInputWidget";
+import { WDSPasswordInputWidget } from "./wds/WDSPasswordInputWidget";
+import { WDSNumberInputWidget } from "./wds/WDSNumberInputWidget";
+import { WDSMultilineInputWidget } from "./wds/WDSMultilineInputWidget";
+import { WDSSelectWidget } from "./wds/WDSSelectWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -160,19 +166,25 @@ const WDSWidgets = [
   WDSToolbarButtonsWidget,
   WDSPhoneInputWidget,
   WDSCheckboxGroupWidget,
+  WDSComboBoxWidget,
   WDSSwitchWidget,
   WDSSwitchGroupWidget,
   WDSRadioGroupWidget,
   WDSMenuButtonWidget,
   CustomWidget,
-  SectionWidget,
-  ZoneWidget,
+  WDSSectionWidget,
+  WDSZoneWidget,
   WDSParagraphWidget,
   WDSHeadingWidget,
   WDSModalWidget,
   WDSStatsWidget,
   WDSKeyValueWidget,
   WDSInlineButtonsWidget,
+  WDSEmailInputWidget,
+  WDSPasswordInputWidget,
+  WDSNumberInputWidget,
+  WDSMultilineInputWidget,
+  WDSSelectWidget,
 ];
 
 const Widgets = [

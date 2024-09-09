@@ -4,10 +4,9 @@ import {
   debuggerLogInit,
   deleteErrorLogsInit,
 } from "actions/debuggerActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { LogActionPayload, Log } from "entities/AppsmithConsole";
 import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
-import moment from "moment";
 import store from "store";
 import { isEmpty } from "lodash";
 
@@ -29,7 +28,7 @@ function log(ev: Log) {
 }
 
 function getTimeStamp() {
-  return moment().format("HH:mm:ss");
+  return Date.now().toString();
 }
 
 function addLogs(logs: Log[]) {
@@ -90,7 +89,7 @@ function addErrors(errors: ErrorObject[]) {
   const refinedErrors = errors.map((error) => ({
     ...error.payload,
     severity: error.severity ?? Severity.ERROR,
-    timestamp: Date.now().toString(),
+    timestamp: getTimeStamp(),
     occurrenceCount: 1,
     category: error.category ?? LOG_CATEGORY.PLATFORM_GENERATED,
     isExpanded: false,

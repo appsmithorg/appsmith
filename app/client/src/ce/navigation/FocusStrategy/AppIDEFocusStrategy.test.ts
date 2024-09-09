@@ -3,7 +3,7 @@ import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
 import { NavigationMethod } from "utils/history";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { all, take } from "redux-saga/effects";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 const basePageId1 = "0123456789abcdef00000000";
 const basePageId2 = "0123456789abcdef00000001";

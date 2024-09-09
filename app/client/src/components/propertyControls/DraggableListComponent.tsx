@@ -1,6 +1,6 @@
 import equal from "fast-deep-equal/es6";
 import React from "react";
-import { DraggableList } from "design-system-old";
+import { DraggableList } from "@appsmith/ads-old";
 
 export interface BaseItemProps {
   id: string;

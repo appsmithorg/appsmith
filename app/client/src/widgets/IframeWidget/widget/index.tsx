@@ -14,7 +14,7 @@ import type {
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import type {
   SnipingModeProperty,
   PropertyUpdates,

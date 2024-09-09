@@ -1,8 +1,8 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   CHANGES_SINCE_LAST_DEPLOYMENT,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 export const getIsStartingWithRemoteBranches = (
   local: string,

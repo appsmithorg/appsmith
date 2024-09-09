@@ -1,28 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import {
   createMessage,
   DOCUMENTATION,
   INVITE_USERS_PLACEHOLDER,
   SEARCH_USERS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { debounce } from "lodash";
-import { WorkspaceSettingsTabs } from "@appsmith/components/WorkspaceSettingsTabs";
+import { WorkspaceSettingsTabs } from "ee/components/WorkspaceSettingsTabs";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { fetchAllWorkspaces } from "@appsmith/actions/workspaceActions";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -130,7 +127,7 @@ export default function Settings() {
     <>
       <SettingsWrapper data-testid="t--settings-wrapper" isMobile={isMobile}>
         <StyledStickyHeader isMobile={isMobile}>
-          <BackButton />
+          <BackButton goTo={`/applications?workspaceId=${workspaceId}`} />
           <SettingsPageHeader
             buttonText="Add users"
             onButtonClick={onButtonClick}

@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
@@ -13,24 +13,24 @@ import {
   EMPTY_QUERY_JS_BUTTON_TEXT,
   EMPTY_QUERY_JS_MAIN_TEXT,
   ADD_QUERY_JS_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import {
   getExplorerStatus,
   saveExplorerStatus,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+} from "ee/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { ExplorerModuleInstanceEntity } from "@appsmith/pages/Editor/Explorer/ModuleInstanceEntity";
+import { ExplorerModuleInstanceEntity } from "ee/pages/Editor/Explorer/ModuleInstanceEntity";
 import { FilesContext } from "./FilesContextProvider";
-import { selectFilesForExplorer as default_selectFilesForExplorer } from "@appsmith/selectors/entitiesSelector";
+import { selectFilesForExplorer as default_selectFilesForExplorer } from "ee/selectors/entitiesSelector";
 
 const StyledText = styled(Text)`
   color: var(--ads-v2-color-fg-emphasis);
@@ -67,7 +67,7 @@ function Files() {
 
   const onCreate = useCallback(() => {
     openMenu(true);
-  }, [dispatch, openMenu]);
+  }, [openMenu]);
 
   const activeActionBaseId = useActiveActionBaseId();
 
@@ -141,7 +141,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionBaseId, parentEntityId],
+    [files, activeActionBaseId, parentEntityId, parentEntityType],
   );
 
   const handleClick = useCallback(
@@ -161,7 +161,7 @@ function Files() {
         item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
       }
     },
-    [parentEntityId, dispatch],
+    [dispatch, parentEntityId, parentEntityType],
   );
 
   return (

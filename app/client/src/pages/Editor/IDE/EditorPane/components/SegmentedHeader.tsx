@@ -1,14 +1,14 @@
 import React from "react";
-import { Button, Flex, SegmentedControl } from "design-system";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
+import { Button, Flex, SegmentedControl } from "@appsmith/ads";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
+import { EditorEntityTab } from "ee/entities/IDE/constants";
 import history from "utils/history";
-import { globalAddURL } from "@appsmith/RouteBuilder";
+import { globalAddURL } from "ee/RouteBuilder";
 import { useSelector } from "react-redux";
 import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 const Container = styled(Flex)`

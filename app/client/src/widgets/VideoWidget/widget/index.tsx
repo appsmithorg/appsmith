@@ -13,7 +13,7 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   FlexVerticalAlignment,

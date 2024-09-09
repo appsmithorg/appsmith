@@ -1,12 +1,12 @@
 import { EventEmitter } from "events";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import type { UpdatedPathsMap } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import ExecutionMetaData from "./ExecutionMetaData";
 import type { UpdateActionProps } from "workers/Evaluation/handlers/updateActionData";
 import { handleActionsDataUpdate } from "workers/Evaluation/handlers/updateActionData";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import type { Patch } from "workers/Evaluation/JSObject/Collection";
 
 const _internalSetTimeout = self.setTimeout;

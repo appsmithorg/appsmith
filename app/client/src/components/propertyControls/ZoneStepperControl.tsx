@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { NumberInput } from "design-system";
+import { NumberInput } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -14,7 +14,7 @@ import {
   MAX_ZONE_COUNT,
   MIN_ZONE_COUNT,
 } from "layoutSystems/anvil/utils/constants";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 const ZoneNumInput = React.forwardRef(
   (

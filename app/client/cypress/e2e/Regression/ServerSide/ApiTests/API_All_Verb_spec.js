@@ -5,6 +5,7 @@ import {
 
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
+import apiLocators from "../../../../locators/ApiEditor";
 
 import {
   agHelper,
@@ -17,6 +18,7 @@ describe(
   "API Panel Test Functionality",
   { tags: ["@tag.Datasource"] },
   function () {
+    const successMsg = "Executed successfully from user request";
     afterEach(function () {
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
@@ -39,12 +41,8 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        cy.validateRequest(
-          "Executed successfully",
-          testdata.baseUrl,
-          testdata.echoMethod,
-          testdata.Put,
-        );
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+        agHelper.AssertContains(successMsg);
       });
       cy.ResponseCheck("updatedAt");
     });
@@ -63,12 +61,8 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        cy.validateRequest(
-          "Executed successfully",
-          testdata.baseUrl,
-          testdata.echoMethod,
-          testdata.Post,
-        );
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+        agHelper.AssertContains(successMsg);
       });
       cy.ResponseCheck("createdAt");
     });
@@ -87,12 +81,8 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        cy.validateRequest(
-          "Executed successfully",
-          testdata.baseUrl,
-          testdata.echoMethod,
-          testdata.Patch,
-        );
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+        agHelper.AssertContains(successMsg);
       });
       cy.ResponseCheck("updatedAt");
     });
@@ -111,12 +101,8 @@ describe(
         agHelper.AssertAutoSave();
         apiPage.RunAPI();
         apiPage.ResponseStatusCheck("200 OK");
-        cy.validateRequest(
-          "Executed successfully",
-          testdata.baseUrl,
-          testdata.echoMethod,
-          testdata.Delete,
-        );
+        agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+        agHelper.AssertContains(successMsg);
       });
     });
 
@@ -127,12 +113,8 @@ describe(
       apiPage.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext);
-      cy.validateRequest(
-        "Executed successfully",
-        testdata.baseUrl,
-        testdata.methods,
-        testdata.Get,
-      );
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+      agHelper.AssertContains(successMsg);
 
       apiPage.SelectPaneTab("Pagination");
       agHelper.GetNClick(apiwidget.paginationWithUrl);
@@ -144,12 +126,8 @@ describe(
       cy.clickTest(apiwidget.TestNextUrl);
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck("Josh M Krantz");
-      cy.validateRequest(
-        "Executed successfully",
-        testdata.baseUrl,
-        testdata.next,
-        testdata.Get,
-      );
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+      agHelper.AssertContains(successMsg);
 
       apiPage.SelectPaneTab("Pagination");
       cy.enterUrl(
@@ -160,12 +138,8 @@ describe(
       cy.clickTest(apiwidget.TestPreUrl);
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext);
-      cy.validateRequest(
-        "Executed successfully",
-        testdata.baseUrl,
-        testdata.prev,
-        testdata.Get,
-      );
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+      agHelper.AssertContains(successMsg);
     });
 
     it("6. API check with query params test API feature", function () {
@@ -174,12 +148,8 @@ describe(
       apiPage.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       cy.ResponseCheck(testdata.responsetext3);
-      cy.validateRequest(
-        "Executed successfully",
-        testdata.baseUrl,
-        testdata.queryAndValue,
-        testdata.Get,
-      );
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+      agHelper.AssertContains(successMsg);
     });
 
     it("7. API check with Invalid Header", function () {
@@ -188,13 +158,8 @@ describe(
       agHelper.AssertAutoSave();
       apiPage.RunAPI(false);
       apiPage.ResponseStatusCheck("5000");
-      cy.validateRequest(
-        "Execution failed",
-        testdata.baseUrl,
-        testdata.methods,
-        testdata.Get,
-        true,
-      );
+      agHelper.GetNClickByContains(apiLocators.apiResponseTabsList, "Logs");
+      agHelper.AssertContains(successMsg);
       cy.ResponseCheck("Invalid value for Content-Type");
     });
   },

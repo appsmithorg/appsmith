@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePopoverContext } from "@design-system/headless";
+import { usePopoverContext } from "@appsmith/wds-headless";
 import { Flex } from "../../Flex";
 import { Button } from "../../Button";
 

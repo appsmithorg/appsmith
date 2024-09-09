@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 
 export const Title = styled.p`
   ${getTypographyByKey("h2")};

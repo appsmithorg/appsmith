@@ -2,7 +2,6 @@ import React from "react";
 import { isNumber, merge, toString } from "lodash";
 import * as config from "../config";
 import InputComponent from "../component";
-import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps } from "./types";
 import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
@@ -13,11 +12,13 @@ import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static type = "WDS_INPUT_WIDGET";
 
-  static getConfig() {
+  static getConfig(): WidgetBaseConfiguration {
     return config.metaConfig;
   }
 
@@ -152,18 +153,19 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   };
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     if (
       prevProps.rawText !== this.props.rawText &&
       this.props.rawText !== toString(this.props.parsedText)
     ) {
-      this.props.updateWidgetMetaProperty(
+      pushBatchMetaUpdates(
         "parsedText",
         parseText(this.props.rawText, this.props.inputType),
       );
     }
 
     if (prevProps.inputType !== this.props.inputType) {
-      this.props.updateWidgetMetaProperty(
+      pushBatchMetaUpdates(
         "parsedText",
         parseText(this.props.rawText, this.props.inputType),
       );
@@ -173,21 +175,20 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       this.props.defaultText !== prevProps.defaultText &&
       this.props.isDirty
     ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
+      pushBatchMetaUpdates("isDirty", false);
     }
+    commitBatchMetaUpdates();
   };
 
   onValueChange = (value: string) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     // Ideally text property should be derived property. But widgets with
     // derived properties won't work as expected inside a List widget.
     // TODO(Balaji): Once we refactor the List widget, need to conver
     // text to a derived property.
-    this.props.updateWidgetMetaProperty(
-      "parsedText",
-      parseText(value, this.props.inputType),
-    );
+    pushBatchMetaUpdates("parsedText", parseText(value, this.props.inputType));
 
-    this.props.updateWidgetMetaProperty("rawText", value, {
+    pushBatchMetaUpdates("rawText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -196,16 +197,16 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     });
 
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
+    commitBatchMetaUpdates();
   };
 
   resetWidgetText = () => {
-    this.props.updateWidgetMetaProperty("rawText", "");
-    this.props.updateWidgetMetaProperty(
-      "parsedText",
-      parseText("", this.props.inputType),
-    );
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+    pushBatchMetaUpdates("rawText", "");
+    pushBatchMetaUpdates("parsedText", parseText("", this.props.inputType));
+    commitBatchMetaUpdates();
   };
 
   onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {

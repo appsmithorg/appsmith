@@ -9,6 +9,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -41,6 +42,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         implements CustomNewActionRepositoryCE {
 
     private final ReactiveMongoOperations mongoOperations;
+
+    private final ObservationRegistry observationRegistry;
 
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
@@ -197,6 +200,47 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     protected BridgeQuery<NewAction> getCriterionForFindByApplicationId(String applicationId) {
         return Bridge.equal(NewAction.Fields.applicationId, applicationId);
+    }
+
+    public Flux<NewAction> findPublishedActionsByAppIdAndExcludedPluginType(
+            String applicationId, List<String> excludedPluginTypes, AclPermission aclPermission, Sort sort) {
+        return queryBuilder()
+                .criteria(getCriterionForFindPublishedActionsByAppIdAndExcludedPluginType(
+                        applicationId, excludedPluginTypes))
+                .permission(aclPermission)
+                .sort(sort)
+                .all();
+    }
+
+    protected BridgeQuery<NewAction> getCriterionForFindPublishedActionsByAppIdAndExcludedPluginType(
+            String applicationId, List<String> excludedPluginTypes) {
+        final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
+        q.and(Bridge.or(
+                Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
+                Bridge.isNull(NewAction.Fields.pluginType)));
+
+        q.isNotNull(NewAction.Fields.publishedAction_pageId);
+        return q;
+    }
+
+    @Override
+    public Flux<NewAction> findPublishedActionsByPageIdAndExcludedPluginType(
+            String pageId, List<String> excludedPluginTypes, AclPermission aclPermission, Sort sort) {
+        return queryBuilder()
+                .criteria(getCriterionForFindPublishedActionsByPageIdAndExcludedPluginType(pageId, excludedPluginTypes))
+                .permission(aclPermission)
+                .sort(sort)
+                .all();
+    }
+
+    protected BridgeQuery<NewAction> getCriterionForFindPublishedActionsByPageIdAndExcludedPluginType(
+            String pageId, List<String> excludedPluginTypes) {
+        final BridgeQuery<NewAction> q = Bridge.equal(NewAction.Fields.publishedAction_pageId, pageId);
+        q.and(Bridge.or(
+                Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
+                Bridge.isNull(NewAction.Fields.pluginType)));
+
+        return q;
     }
 
     @Override

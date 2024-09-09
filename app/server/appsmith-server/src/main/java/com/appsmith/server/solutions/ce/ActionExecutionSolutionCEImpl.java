@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -19,6 +20,7 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -117,6 +119,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
     private final TenantService tenantService;
+    private final CommonConfig commonConfig;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -143,7 +146,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             ConfigService configService,
-            TenantService tenantService) {
+            TenantService tenantService,
+            CommonConfig commonConfig) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -162,6 +166,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.environmentPermission = environmentPermission;
         this.configService = configService;
         this.tenantService = tenantService;
+        this.commonConfig = commonConfig;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -766,6 +771,25 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
+     * This function deep copies the actionConfiguration object to send the original object to mixpanel which contains
+     * the actual user query with bindings
+     * @param actionConfiguration
+     * @return
+     */
+    private ActionConfiguration deepCopyActionConfiguration(ActionConfiguration actionConfiguration) {
+        try {
+            // Convert the ActionConfiguration object to JSON string
+            String json = objectMapper.writeValueAsString(actionConfiguration);
+
+            // Convert the JSON string back to an ActionConfiguration object
+            return objectMapper.readValue(json, ActionConfiguration.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Handles the execution logic, call to pluginExecutor with the payload post retrieval and validation of action, datasource, and plugin
      *
      * @param executeActionDTO
@@ -789,6 +813,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     final DatasourceStorage datasourceStorage = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
                     final Plugin plugin = tuple.getT4();
+                    // This is to return the raw user query including bindings
+                    ActionConfiguration rawActionConfiguration = null;
+                    if (actionDTO != null && actionDTO.getActionConfiguration() != null) {
+                        // deep copying the actionConfiguration to avoid any changes in the original object
+                        rawActionConfiguration = this.deepCopyActionConfiguration(actionDTO.getActionConfiguration());
+                    }
 
                     log.debug(
                             "[{}]Execute Action called in Page {}, for action id : {}  action name : {}",
@@ -807,6 +837,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                             executeActionDTO, actionDTO, datasourceStorage, plugin, pluginExecutor)
                                     .timeout(Duration.ofMillis(timeoutDuration)));
 
+                    ActionConfiguration finalRawActionConfiguration = rawActionConfiguration;
                     return actionExecutionResultMono
                             .onErrorMap(executionExceptionMapper(actionDTO, timeoutDuration))
                             .onErrorResume(executionExceptionHandler(actionDTO))
@@ -824,7 +855,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                         timeElapsed);
 
                                 return sendExecuteAnalyticsEvent(
-                                                actionDTO, datasourceStorage, executeActionDTO, result, timeElapsed)
+                                                actionDTO,
+                                                datasourceStorage,
+                                                executeActionDTO,
+                                                result,
+                                                timeElapsed,
+                                                finalRawActionConfiguration)
                                         .thenReturn(result);
                             });
                 });
@@ -925,7 +961,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             DatasourceStorage datasourceStorage,
             ExecuteActionDTO executeActionDto,
             ActionExecutionResult actionExecutionResult,
-            Long timeElapsed) {
+            Long timeElapsed,
+            ActionConfiguration rawActionConfiguration) {
 
         if (!isSendExecuteAnalyticsEvent()) {
             return Mono.empty();
@@ -1113,8 +1150,19 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     } else {
                         eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
                     }
+                    if (executeActionDto != null) {
+                        // Remove the value from the executeActionDto.params before sending to mixpanel as it contains
+                        // user submitted data
+                        if (executeActionDto.getParams() != null) {
+                            executeActionDto.getParams().forEach(param -> param.setValue(REDACTED_DATA));
+                        }
+                        data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
+                        data.put(
+                                FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
+                                executeActionDto.getInvertParameterMap());
+                    }
+                    data.put(FieldName.ACTION_CONFIGURATION, rawActionConfiguration);
                     data.put(FieldName.EVENT_DATA, eventData);
-
                     return analyticsService
                             .sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, actionDTO, data)
                             .thenReturn(request);

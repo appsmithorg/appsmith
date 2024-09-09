@@ -10,7 +10,7 @@ import { ThemeCard } from "./ThemeCard";
 import { SettingSection } from "./SettingSection";
 import { setAppThemingModeStackAction } from "actions/appThemingActions";
 import styled from "styled-components";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 
 const Title = styled.h3`
   color: var(--ads-v2-color-fg-emphasis);
@@ -76,7 +76,10 @@ function ThemeSelector() {
           ))}
         </section>
       )}
-      <section className="relative p-4 space-y-3">
+      <section
+        className="relative p-4 space-y-3"
+        data-testid="t--featured-themes"
+      >
         <Title className="text-sm font-medium">Featured themes</Title>
         {systemThemes.map((theme) => (
           <ThemeCard

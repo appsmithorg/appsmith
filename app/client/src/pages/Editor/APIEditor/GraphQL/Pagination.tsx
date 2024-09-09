@@ -4,12 +4,12 @@ import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
@@ -21,7 +21,7 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
-import { Select, Option, Checkbox, Text, Tooltip, Link } from "design-system";
+import { Select, Option, Checkbox, Text, Tooltip, Link } from "@appsmith/ads";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";

@@ -1,37 +1,38 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose the method you would like to use",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "CHAT",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "children": [
             {
-              "label": "Chat",
-              "value": "CHAT"
-            },
-            {
-              "label": "Embeddings",
-              "value": "EMBEDDINGS"
-            },
-            {
-              "label": "Vision",
-              "value": "VISION"
+              "label": "Command",
+              "description": "Choose the method you would like to use",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "initialValue": "CHAT",
+              "options": [
+                {
+                  "label": "Chat",
+                  "value": "CHAT"
+                },
+                {
+                  "label": "Embeddings",
+                  "value": "EMBEDDINGS"
+                },
+                {
+                  "label": "Vision",
+                  "value": "VISION"
+                }
+              ]
             }
           ]
         }
       ]
     }
   ],
-  "files": [
-    "chat.json",
-    "embeddings.json",
-    "vision.json"
-  ]
+  "files": ["chat.json", "embeddings.json", "vision.json"]
 }
