@@ -67,7 +67,7 @@ function Files() {
 
   const onCreate = useCallback(() => {
     openMenu(true);
-  }, [dispatch, openMenu]);
+  }, [openMenu]);
 
   const activeActionBaseId = useActiveActionBaseId();
 
@@ -141,7 +141,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionBaseId, parentEntityId],
+    [files, activeActionBaseId, parentEntityId, parentEntityType],
   );
 
   const handleClick = useCallback(
@@ -161,7 +161,7 @@ function Files() {
         item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
       }
     },
-    [parentEntityId, dispatch],
+    [dispatch, parentEntityId, parentEntityType],
   );
 
   return (

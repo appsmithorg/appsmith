@@ -101,7 +101,7 @@ public class DatasourceUtils {
      */
     public static AmazonS3ClientBuilder getS3ClientBuilder(DatasourceConfiguration datasourceConfiguration)
             throws AppsmithPluginException {
-
+        System.out.println(Thread.currentThread().getName() + ": getS3ClientBuilder action called.");
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
         String accessKey = authentication.getUsername();
         String secretKey = authentication.getPassword();

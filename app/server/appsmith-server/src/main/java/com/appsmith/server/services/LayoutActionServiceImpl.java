@@ -8,6 +8,7 @@ import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.ce.LayoutActionServiceCEImpl;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,9 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
             UpdateLayoutService updateLayoutService,
             DatasourceService datasourceService,
             PagePermission pagePermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ObservationRegistry observationRegistry) {
+
         super(
                 analyticsService,
                 newPageService,
@@ -34,6 +37,7 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                 updateLayoutService,
                 datasourceService,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                observationRegistry);
     }
 }
