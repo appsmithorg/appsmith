@@ -1,92 +1,99 @@
 {
   "identifier": "CHAT",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
   },
   "children": [
     {
-      "label": "Models",
-      "tooltipText": "Select the model for response generation",
-      "subtitle": "ID of the model to use.",
-      "isRequired": true,
-      "propertyName": "chat_model_id",
-      "configProperty": "actionConfiguration.formData.chatModel.data",
-      "controlType": "DROP_DOWN",
-      "initialValue": "",
-      "options": [],
-      "placeholderText": "All models will be fetched.",
-      "fetchOptionsConditionally": true,
-      "setFirstOptionAsDefault": true,
-      "alternateViewTypes": ["json"],
-      "conditionals": {
-        "enable": "{{true}}",
-        "fetchDynamicValues": {
-          "condition": "{{actionConfiguration.formData.command.data === 'CHAT'}}",
-          "config": {
-            "params": {
-              "requestType": "CHAT_MODELS",
-              "displayType": "DROP_DOWN"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Models",
+          "tooltipText": "Select the model for response generation",
+          "subtitle": "ID of the model to use.",
+          "isRequired": true,
+          "propertyName": "chat_model_id",
+          "configProperty": "actionConfiguration.formData.chatModel.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "",
+          "options": [],
+          "placeholderText": "All models will be fetched.",
+          "fetchOptionsConditionally": true,
+          "setFirstOptionAsDefault": true,
+          "alternateViewTypes": ["json"],
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.command.data === 'CHAT'}}",
+              "config": {
+                "params": {
+                  "requestType": "CHAT_MODELS",
+                  "displayType": "DROP_DOWN"
+                }
+              }
             }
           }
-        }
-      }
-    },
-    {
-      "label": "Max Tokens",
-      "tooltipText": "The maximum number of tokens to generate in the chat completion.",
-      "subtitle": "The maximum number of tokens to generate in the chat completion.",
-      "Description": "Put a positive integer value",
-      "configProperty": "actionConfiguration.formData.maxTokens",
-      "controlType": "INPUT_TEXT",
-      "initialValue": "16",
-      "isRequired": true,
-      "dataType": "NUMBER",
-      "customStyles": {
-        "width": "270px",
-        "minWidth": "270px"
-      }
-    },
-    {
-      "label": "Messages",
-      "tooltipText": "Ask a question",
-      "subtitle": "A list of messages comprising the conversation so far.",
-      "propertyName": "messages",
-      "isRequired": true,
-      "configProperty": "actionConfiguration.formData.messages.data",
-      "controlType": "ARRAY_FIELD",
-      "alternateViewTypes": ["json"],
-      "addMoreButtonLabel": "Add message",
-      "schema": [
-        {
-          "label": "Role",
-          "key": "role",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "user OR system",
-          "initialValue": "user"
         },
         {
-          "label": "Content",
-          "key": "content",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "placeholderText": "{{ UserInput.text }}"
+          "label": "Max Tokens",
+          "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+          "subtitle": "The maximum number of tokens to generate in the chat completion.",
+          "Description": "Put a positive integer value",
+          "configProperty": "actionConfiguration.formData.maxTokens",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "16",
+          "isRequired": true,
+          "dataType": "NUMBER"
         }
       ]
     },
     {
-      "label": "Temperature",
-      "tooltipText": "Put a value between 0 and 2",
-      "Description": "Put a value between 0 and 2",
-      "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
-      "configProperty": "actionConfiguration.formData.temperature",
-      "controlType": "INPUT_TEXT",
-      "dataType": "NUMBER",
-      "initialValue": "0",
-      "isRequired": false,
-      "customStyles": {
-        "width": "270px",
-        "minWidth": "270px"
-      }
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Messages",
+          "tooltipText": "Ask a question",
+          "subtitle": "A list of messages comprising the conversation so far.",
+          "propertyName": "messages",
+          "isRequired": true,
+          "configProperty": "actionConfiguration.formData.messages.data",
+          "controlType": "ARRAY_FIELD",
+          "alternateViewTypes": ["json"],
+          "addMoreButtonLabel": "Add message",
+          "schema": [
+            {
+              "label": "Role",
+              "key": "role",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "user OR system",
+              "initialValue": "user"
+            },
+            {
+              "label": "Content",
+              "key": "content",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+              "placeholderText": "{{ UserInput.text }}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Temperature",
+          "tooltipText": "Put a value between 0 and 2",
+          "Description": "Put a value between 0 and 2",
+          "subtitle": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+          "configProperty": "actionConfiguration.formData.temperature",
+          "controlType": "INPUT_TEXT",
+          "dataType": "NUMBER",
+          "initialValue": "0",
+          "isRequired": false
+        }
+      ]
     }
   ]
 }
