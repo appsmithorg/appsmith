@@ -38,6 +38,7 @@ import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
+import { AppPluginActionEditor } from "pages/Editor/AppPluginActionEditor";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -176,6 +177,14 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
 
     return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
   }, [action?.name, isConverting]);
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
+  if (isActionRedesignEnabled) {
+    return <AppPluginActionEditor />;
+  }
 
   return (
     <ApiEditorContextProvider
