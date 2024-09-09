@@ -51,7 +51,6 @@ describe(
         "150",
         `["Bug","Ghost","Dark"]`,
         10,
-        `{ img: /{{data_table.searchText||""}}/i }`,
       );
 
       deployMode.NavigateBacktoEditor();
@@ -101,7 +100,6 @@ describe(
       col2Text: string,
       col3Text: string,
       idIndex: number,
-      updateFindQuery?: string,
     ) {
       agHelper.GetNClick(dataSources._generatePageBtn);
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
@@ -111,41 +109,67 @@ describe(
       agHelper.ClickButton("Got it");
       assertHelper.AssertNetworkStatus("@updateLayout", 200);
 
-      if (updateFindQuery) {
-        EditorNavigation.NavigateToQuery("FindQuery");
-        agHelper.UpdateCodeInput(
-          ".t--actionConfiguration\\.formData\\.find\\.query\\.data",
-          updateFindQuery,
-          "query",
-        );
-        dataSources.RunQuery();
-      }
-
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      table.SearchTable(col1Text);
-      table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
-        expect($cellData).to.eq(col1Text);
-      });
-      table.ReadTableRowColumnData(0, 3, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq(col2Text);
-      });
-      table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq(col3Text);
-      });
-
-      //Validating loaded JSON form
-      cy.xpath(locators._buttonByText("Update")).then((selector) => {
-        cy.wrap(selector)
-          .invoke("attr", "class")
-          .then((classes) => {
-            //cy.log("classes are:" + classes);
-            expect(classes).not.contain("bp3-disabled");
+      // @ts-ignore
+      findTheDataRow(col1Text).then((rowIndex: number) => {
+        cy.log(`This is the rowIndex of ${col1Text} : ${rowIndex}`);
+        table
+          .ReadTableRowColumnData(rowIndex, 0, "v2", 2000)
+          .then(($cellData) => {
+            expect($cellData).to.eq(col1Text);
           });
+        table
+          .ReadTableRowColumnData(rowIndex, 3, "v2", 200)
+          .then(($cellData) => {
+            expect($cellData).to.eq(col2Text);
+          });
+        table
+          .ReadTableRowColumnData(rowIndex, 6, "v2", 200)
+          .then(($cellData) => {
+            expect($cellData).to.eq(col3Text);
+          });
+
+        //Validating loaded JSON form
+        cy.xpath(locators._buttonByText("Update")).then((selector) => {
+          cy.wrap(selector)
+            .invoke("attr", "class")
+            .then((classes) => {
+              //cy.log("classes are:" + classes);
+              expect(classes).not.contain("bp3-disabled");
+            });
+        });
+        dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
       });
-      dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
+    }
+
+    function findTheDataRow(col1Text: string) {
+      if (col1Text.length === 0) {
+        return cy.wrap(0);
+      }
+
+      return agHelper
+        .GetElement(table._tableColumnDataWithText(0, col1Text, "v2"))
+        .closest(".tr")
+        .then(($p1) => {
+          return cy
+            .wrap($p1)
+            .parent()
+            .children()
+            .then(($children) => {
+              let index;
+              $children.each((i, el) => {
+                // Iterate through the children
+                if (Cypress.$(el).is($p1)) {
+                  // Check if the current child is p1
+                  index = i; // Assign the index when found
+                }
+              });
+              return index;
+            });
+        });
     }
   },
 );
