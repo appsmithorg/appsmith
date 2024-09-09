@@ -41,7 +41,7 @@ export function LayoutArea(props: LayoutAreaProps) {
     >
       <div
         style={{
-          minWidth: dimensions?.width || "100%",
+          width: dimensions?.width || "100%",
           height: "100%",
           position: "absolute",
           overflow: "auto",

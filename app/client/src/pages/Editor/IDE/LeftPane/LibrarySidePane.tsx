@@ -6,7 +6,6 @@ import { selectLibrariesForExplorer } from "ee/selectors/entitiesSelector";
 import { animated, useTransition } from "react-spring";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
 import { Flex } from "@appsmith/ads";
-import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const LibrarySidePane = () => {
   const libraries = useSelector(selectLibrariesForExplorer);
@@ -21,7 +20,7 @@ const LibrarySidePane = () => {
       borderRight="1px solid var(--ads-v2-color-border)"
       flexDirection="column"
       height="100%"
-      width={DEFAULT_EXPLORER_PANE_WIDTH + "px"}
+      width={"100%"}
     >
       <PaneHeader
         rightIcon={<AddLibraryPopover />}
