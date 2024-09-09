@@ -39,6 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
@@ -747,5 +750,39 @@ public class UserServiceTest {
                     assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();
+    }
+
+    private <I> Mono<I> runAs(Mono<I> input, User user, String password) {
+        log.info("Running as user: {}", user.getEmail());
+        return input.contextWrite((ctx) -> {
+            SecurityContext securityContext = new SecurityContextImpl(
+                    new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities()));
+            return ctx.put(SecurityContext.class, Mono.just(securityContext));
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateName_shouldNotUpdatePolicies() {
+        String testName = "testUpdateName_shouldNotUpdatePolicies";
+        User user = new User();
+        user.setEmail(testName + "@test.com");
+        user.setPassword(testName);
+        User createdUser = userService.create(user).block();
+        Set<Policy> policies = createdUser.getPolicies();
+
+        assertThat(createdUser.getName()).isNull();
+        assertThat(createdUser.getPolicies()).isNotEmpty();
+
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("Test Name");
+
+        User userUpdatedPostNameUpdate = runAs(userService.updateCurrentUser(updateUser, null), createdUser, testName)
+                .block();
+
+        assertThat(userUpdatedPostNameUpdate.getName()).isEqualTo("Test Name");
+        userUpdatedPostNameUpdate.getPolicies().forEach(policy -> {
+            assertThat(policies).contains(policy);
+        });
     }
 }
