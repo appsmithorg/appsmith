@@ -287,7 +287,8 @@ export class ApiPage {
       | "Response"
       | "Errors"
       | "Logs"
-      | "Inspect entity",
+      | "Inspect entity"
+      | "Query",
   ) {
     this.agHelper.PressEscape();
     this.agHelper.GetNClick(this._visibleTextSpan(tabName), 0, true);

@@ -1120,6 +1120,7 @@ export class DataSources {
     this.apiPage.SelectPaneTab("Settings");
     if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
     else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+    this.apiPage.SelectPaneTab("Query");
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
