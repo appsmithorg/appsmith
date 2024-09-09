@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 
+import { isReadOnlyUpdateHook } from "../helpers";
 import type { BaseInputWidgetProps } from "../widget/types";
 
 export const propertyPaneContentConfig = [
@@ -121,6 +122,8 @@ export const propertyPaneContentConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        dependencies: ["type", "inputType"],
+        updateHook: isReadOnlyUpdateHook,
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {

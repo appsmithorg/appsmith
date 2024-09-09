@@ -2,7 +2,6 @@ import React from "react";
 import { isNumber, merge, toString } from "lodash";
 import * as config from "../config";
 import InputComponent from "../component";
-import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps } from "./types";
 import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
@@ -14,6 +13,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static type = "WDS_INPUT_WIDGET";
