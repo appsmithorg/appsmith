@@ -923,18 +923,13 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
           errorMessages: responseData.invalids,
           messages: responseData.messages,
         });
-        responseData.invalids.forEach((message: string) => {
-          toast.show(message, {
-            kind: "error",
-          });
-        });
         yield put({
           type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
           payload: {
-            show: false,
             id: datasource.id,
             environmentId: currentEnvironment,
-            messages: messages,
+            show: true,
+            error: { message: responseData.invalids.join("\n") },
           },
         });
         AppsmithConsole.error({

@@ -161,45 +161,45 @@ public class PostgresPlugin extends BasePlugin {
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         private static final String TABLES_QUERY =
-            "select a.attname                                                      as name,\n"
-                + "       t1.typname                                                     as column_type,\n"
-                + "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n"
-                + "       c.relkind                                                      as kind,\n"
-                + "       c.relname                                                      as table_name,\n"
-                + "       n.nspname                                                      as schema_name\n"
-                + "from pg_catalog.pg_attribute a\n"
-                + "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n"
-                + "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n"
-                + "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n"
-                + "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid and d.adnum = a.attnum\n"
-                + "where a.attnum > 0\n"
-                + "  and not a.attisdropped\n"
-                + "  and n.nspname not in ('information_schema', 'pg_catalog')\n"
-                + "  and c.relkind in ('r', 'v')\n"
-                + "order by c.relname, a.attnum;";
+                "select a.attname                                                      as name,\n"
+                        + "       t1.typname                                                     as column_type,\n"
+                        + "       case when a.atthasdef then pg_get_expr(d.adbin, d.adrelid) end as default_expr,\n"
+                        + "       c.relkind                                                      as kind,\n"
+                        + "       c.relname                                                      as table_name,\n"
+                        + "       n.nspname                                                      as schema_name\n"
+                        + "from pg_catalog.pg_attribute a\n"
+                        + "         left join pg_catalog.pg_type t1 on t1.oid = a.atttypid\n"
+                        + "         inner join pg_catalog.pg_class c on a.attrelid = c.oid\n"
+                        + "         left join pg_catalog.pg_namespace n on c.relnamespace = n.oid\n"
+                        + "         left join pg_catalog.pg_attrdef d on d.adrelid = c.oid and d.adnum = a.attnum\n"
+                        + "where a.attnum > 0\n"
+                        + "  and not a.attisdropped\n"
+                        + "  and n.nspname not in ('information_schema', 'pg_catalog')\n"
+                        + "  and c.relkind in ('r', 'v')\n"
+                        + "order by c.relname, a.attnum;";
 
         public static final String KEYS_QUERY =
-            "select c.conname                                         as constraint_name,\n"
-                + "       c.contype                                         as constraint_type,\n"
-                + "       sch.nspname                                       as self_schema,\n"
-                + "       tbl.relname                                       as self_table,\n"
-                + "       array_agg(col.attname order by u.attposition)     as self_columns,\n"
-                + "       f_sch.nspname                                     as foreign_schema,\n"
-                + "       f_tbl.relname                                     as foreign_table,\n"
-                + "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n"
-                + "       pg_get_constraintdef(c.oid)                       as definition\n"
-                + "from pg_constraint c\n"
-                + "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n"
-                + "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n"
-                + "                   on f_u.attposition = u.attposition\n"
-                + "         join pg_class tbl on tbl.oid = c.conrelid\n"
-                + "         join pg_namespace sch on sch.oid = tbl.relnamespace\n"
-                + "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n"
-                + "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n"
-                + "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n"
-                + "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n"
-                + "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n"
-                + "order by self_schema, self_table;";
+                "select c.conname                                         as constraint_name,\n"
+                        + "       c.contype                                         as constraint_type,\n"
+                        + "       sch.nspname                                       as self_schema,\n"
+                        + "       tbl.relname                                       as self_table,\n"
+                        + "       array_agg(col.attname order by u.attposition)     as self_columns,\n"
+                        + "       f_sch.nspname                                     as foreign_schema,\n"
+                        + "       f_tbl.relname                                     as foreign_table,\n"
+                        + "       array_agg(f_col.attname order by f_u.attposition) as foreign_columns,\n"
+                        + "       pg_get_constraintdef(c.oid)                       as definition\n"
+                        + "from pg_constraint c\n"
+                        + "         left join lateral unnest(c.conkey) with ordinality as u(attnum, attposition) on true\n"
+                        + "         left join lateral unnest(c.confkey) with ordinality as f_u(attnum, attposition)\n"
+                        + "                   on f_u.attposition = u.attposition\n"
+                        + "         join pg_class tbl on tbl.oid = c.conrelid\n"
+                        + "         join pg_namespace sch on sch.oid = tbl.relnamespace\n"
+                        + "         left join pg_attribute col on (col.attrelid = tbl.oid and col.attnum = u.attnum)\n"
+                        + "         left join pg_class f_tbl on f_tbl.oid = c.confrelid\n"
+                        + "         left join pg_namespace f_sch on f_sch.oid = f_tbl.relnamespace\n"
+                        + "         left join pg_attribute f_col on (f_col.attrelid = f_tbl.oid and f_col.attnum = f_u.attnum)\n"
+                        + "group by constraint_name, constraint_type, self_schema, self_table, definition, foreign_schema, foreign_table\n"
+                        + "order by self_schema, self_table;";
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
@@ -237,10 +237,10 @@ public class PostgresPlugin extends BasePlugin {
          */
         @Override
         public Mono<ActionExecutionResult> executeParameterized(
-            HikariDataSource connection,
-            ExecuteActionDTO executeActionDTO,
-            DatasourceConfiguration datasourceConfiguration,
-            ActionConfiguration actionConfiguration) {
+                HikariDataSource connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
 
             String printMessage =
                     Thread.currentThread().getName() + ": executeParameterized() called for Postgres plugin.";
@@ -250,8 +250,8 @@ public class PostgresPlugin extends BasePlugin {
             // connection from the pool op.
             if (!StringUtils.hasLength(query)) {
                 return Mono.error(new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                    PostgresErrorMessages.MISSING_QUERY_ERROR_MSG));
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        PostgresErrorMessages.MISSING_QUERY_ERROR_MSG));
             }
 
             Boolean isPreparedStatement;
@@ -288,13 +288,13 @@ public class PostgresPlugin extends BasePlugin {
             List<DataType> explicitCastDataTypes = extractExplicitCasting(updatedQuery);
             actionConfiguration.setBody(updatedQuery);
             return executeCommon(
-                connection,
-                datasourceConfiguration,
-                actionConfiguration,
-                TRUE,
-                mustacheKeysInOrder,
-                executeActionDTO,
-                explicitCastDataTypes);
+                    connection,
+                    datasourceConfiguration,
+                    actionConfiguration,
+                    TRUE,
+                    mustacheKeysInOrder,
+                    executeActionDTO,
+                    explicitCastDataTypes);
         }
 
         @Override
@@ -334,15 +334,14 @@ public class PostgresPlugin extends BasePlugin {
                 }
             }
             if (SSHUtils.isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)
-                && sshProxy != null
-                && !isBlank(sshProxy.getHost())) {
+                    && sshProxy != null
+                    && !isBlank(sshProxy.getHost())) {
                 identifier += "_" + sshProxy.getHost() + "_"
-                    + SSHUtils.getSSHPortFromConfigOrDefault(datasourceConfiguration);
+                        + SSHUtils.getSSHPortFromConfigOrDefault(datasourceConfiguration);
             }
             return Mono.just(identifier);
         }
 
-      
         private Mono<ActionExecutionResult> executeCommon(
                 HikariDataSource connection,
                 DatasourceConfiguration datasourceConfiguration,
@@ -643,7 +642,7 @@ public class PostgresPlugin extends BasePlugin {
                     .timeout(Duration.ofMillis(actionConfiguration.getTimeoutInMillisecond()))
                     .subscribeOn(scheduler);
         }
-        
+
         private Set<String> populateHintMessages(List<String> columnNames) {
 
             Set<String> messages = new HashSet<>();
@@ -651,9 +650,9 @@ public class PostgresPlugin extends BasePlugin {
             List<String> identicalColumns = getIdenticalColumns(columnNames);
             if (!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your PostgreSQL query result may not have all the columns because duplicate column "
-                    + "names were found for the column(s): "
-                    + String.join(", ", identicalColumns) + ". You may use"
-                    + " the SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
+                        + "names were found for the column(s): "
+                        + String.join(", ", identicalColumns) + ". You may use"
+                        + " the SQL keyword 'as' to rename the duplicate column name(s) and resolve this issue.");
             }
 
             return messages;
@@ -661,12 +660,12 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> execute(
-            HikariDataSource connection,
-            DatasourceConfiguration datasourceConfiguration,
-            ActionConfiguration actionConfiguration) {
+                HikariDataSource connection,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
             // Unused function
             return Mono.error(
-                new AppsmithPluginException(PostgresPluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
+                    new AppsmithPluginException(PostgresPluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -677,9 +676,9 @@ public class PostgresPlugin extends BasePlugin {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
                 return Mono.error(new AppsmithPluginException(
-                    PostgresPluginError.POSTGRES_PLUGIN_ERROR,
-                    PostgresErrorMessages.POSTGRES_JDBC_DRIVER_LOADING_ERROR_MSG,
-                    e.getMessage()));
+                        PostgresPluginError.POSTGRES_PLUGIN_ERROR,
+                        PostgresErrorMessages.POSTGRES_JDBC_DRIVER_LOADING_ERROR_MSG,
+                        e.getMessage()));
             }
 
             return connectionPoolConfig.getMaxConnectionPoolSize().flatMap(maxPoolSize -> Mono.fromCallable(() -> {
@@ -710,15 +709,15 @@ public class PostgresPlugin extends BasePlugin {
                     if (StringUtils.isEmpty(endpoint.getHost())) {
                         invalids.add(PostgresErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                     } else if (endpoint.getHost().contains("/")
-                        || endpoint.getHost().contains(":")) {
+                            || endpoint.getHost().contains(":")) {
                         invalids.add(
-                            String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
+                                String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                     }
                 }
             }
 
             if (datasourceConfiguration.getConnection() != null
-                && datasourceConfiguration.getConnection().getMode() == null) {
+                    && datasourceConfiguration.getConnection().getMode() == null) {
                 invalids.add(PostgresErrorMessages.DS_MISSING_CONNECTION_MODE_ERROR_MSG);
             }
 
@@ -745,14 +744,14 @@ public class PostgresPlugin extends BasePlugin {
              * a initial value.
              */
             if (datasourceConfiguration.getConnection() == null
-                || datasourceConfiguration.getConnection().getSsl() == null
-                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                    || datasourceConfiguration.getConnection().getSsl() == null
+                    || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
                 invalids.add(PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
             }
 
             if (isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)) {
                 if (datasourceConfiguration.getSshProxy() == null
-                    || isBlank(datasourceConfiguration.getSshProxy().getHost())) {
+                        || isBlank(datasourceConfiguration.getSshProxy().getHost())) {
                     invalids.add(DS_MISSING_SSH_HOSTNAME_ERROR_MSG);
                 } else {
                     String sshHost = datasourceConfiguration.getSshProxy().getHost();
@@ -766,12 +765,12 @@ public class PostgresPlugin extends BasePlugin {
                 }
 
                 if (datasourceConfiguration.getSshProxy().getPrivateKey() == null
-                    || datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile() == null
-                    || isBlank(datasourceConfiguration
-                    .getSshProxy()
-                    .getPrivateKey()
-                    .getKeyFile()
-                    .getBase64Content())) {
+                        || datasourceConfiguration.getSshProxy().getPrivateKey().getKeyFile() == null
+                        || isBlank(datasourceConfiguration
+                                .getSshProxy()
+                                .getPrivateKey()
+                                .getKeyFile()
+                                .getBase64Content())) {
                     invalids.add(DS_MISSING_SSH_KEY_ERROR_MSG);
                 }
             }
@@ -1026,13 +1025,13 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Object substituteValueInInput(
-            int index,
-            String binding,
-            String value,
-            Object input,
-            List<Map.Entry<String, String>> insertedParams,
-            Object... args)
-            throws AppsmithPluginException {
+                int index,
+                String binding,
+                String value,
+                Object input,
+                List<Map.Entry<String, String>> insertedParams,
+                Object... args)
+                throws AppsmithPluginException {
 
             PreparedStatement preparedStatement = (PreparedStatement) input;
             HikariProxyConnection connection = (HikariProxyConnection) args[0];
@@ -1044,7 +1043,7 @@ public class PostgresPlugin extends BasePlugin {
                 valueType = explicitCastDataTypes.get(index - 1);
             } else {
                 AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(
-                    param.getClientDataType(), value, PostgresSpecificDataTypes.pluginSpecificTypes);
+                        param.getClientDataType(), value, PostgresSpecificDataTypes.pluginSpecificTypes);
                 valueType = appsmithType.type();
             }
 
@@ -1110,7 +1109,7 @@ public class PostgresPlugin extends BasePlugin {
                         // Find the type of the entries in the list
                         Object firstEntry = arrayListFromInput.get(0);
                         AppsmithType appsmithType = DataTypeServiceUtils.getAppsmithType(
-                            param.getDataTypesOfArrayElements().get(0), String.valueOf(firstEntry));
+                                param.getDataTypesOfArrayElements().get(0), String.valueOf(firstEntry));
                         DataType dataType = appsmithType.type();
                         String typeName = toPostgresqlPrimitiveTypeName(dataType);
 
@@ -1136,9 +1135,9 @@ public class PostgresPlugin extends BasePlugin {
                     // the query. Ignore the exception
                 } else {
                     throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        String.format(PostgresErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding),
-                        e.getMessage());
+                            AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            String.format(PostgresErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding),
+                            e.getMessage());
                 }
             }
 
@@ -1167,7 +1166,7 @@ public class PostgresPlugin extends BasePlugin {
                     throw new IllegalArgumentException("Array of Array datatype is not supported.");
                 default:
                     throw new IllegalArgumentException(
-                        "Unable to map the computed data type to primitive Postgresql type");
+                            "Unable to map the computed data type to primitive Postgresql type");
             }
         }
     }
@@ -1180,8 +1179,8 @@ public class PostgresPlugin extends BasePlugin {
      * @return connection pool
      */
     private static HikariDataSource createConnectionPool(
-        DatasourceConfiguration datasourceConfiguration, Integer maximumConfigurablePoolSize)
-        throws AppsmithPluginException {
+            DatasourceConfiguration datasourceConfiguration, Integer maximumConfigurablePoolSize)
+            throws AppsmithPluginException {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
@@ -1218,10 +1217,10 @@ public class PostgresPlugin extends BasePlugin {
         } else {
             ConnectionContext<HikariDataSource> connectionContext;
             connectionContext = getConnectionContext(
-                datasourceConfiguration, CONNECTION_METHOD_INDEX, DEFAULT_POSTGRES_PORT, HikariDataSource.class);
+                    datasourceConfiguration, CONNECTION_METHOD_INDEX, DEFAULT_POSTGRES_PORT, HikariDataSource.class);
 
             hosts.add(LOCALHOST + ":"
-                + connectionContext.getSshTunnelContext().getServerSocket().getLocalPort());
+                    + connectionContext.getSshTunnelContext().getServerSocket().getLocalPort());
         }
 
         urlBuilder.append(String.join(",", hosts)).append("/");
@@ -1249,17 +1248,17 @@ public class PostgresPlugin extends BasePlugin {
          * a initial value.
          */
         if (datasourceConfiguration.getConnection() == null
-            || datasourceConfiguration.getConnection().getSsl() == null
-            || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+                || datasourceConfiguration.getConnection().getSsl() == null
+                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
             throw new AppsmithPluginException(
-                PostgresPluginError.POSTGRES_PLUGIN_ERROR, PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
+                    PostgresPluginError.POSTGRES_PLUGIN_ERROR, PostgresErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
         }
 
         /*
          * - By default, the driver configures SSL in the preferred mode.
          */
         SSLDetails.AuthType sslAuthType =
-            datasourceConfiguration.getConnection().getSsl().getAuthType();
+                datasourceConfiguration.getConnection().getSsl().getAuthType();
         switch (sslAuthType) {
             case ALLOW:
             case PREFER:
@@ -1288,39 +1287,39 @@ public class PostgresPlugin extends BasePlugin {
                 // Common properties for both VERIFY_CA and VERIFY_FULL
                 config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
                 config.addDataSourceProperty(
-                    "clientCertString",
-                    new String(
-                        datasourceConfiguration
-                            .getConnection()
-                            .getSsl()
-                            .getClientCACertificateFile()
-                            .getDecodedContent(),
-                        StandardCharsets.UTF_8));
+                        "clientCertString",
+                        new String(
+                                datasourceConfiguration
+                                        .getConnection()
+                                        .getSsl()
+                                        .getClientCACertificateFile()
+                                        .getDecodedContent(),
+                                StandardCharsets.UTF_8));
                 config.addDataSourceProperty(
-                    "clientKeyString",
-                    new String(
-                        datasourceConfiguration
-                            .getConnection()
-                            .getSsl()
-                            .getClientKeyCertificateFile()
-                            .getDecodedContent(),
-                        StandardCharsets.UTF_8));
+                        "clientKeyString",
+                        new String(
+                                datasourceConfiguration
+                                        .getConnection()
+                                        .getSsl()
+                                        .getClientKeyCertificateFile()
+                                        .getDecodedContent(),
+                                StandardCharsets.UTF_8));
                 config.addDataSourceProperty(
-                    "serverCACertString",
-                    new String(
-                        datasourceConfiguration
-                            .getConnection()
-                            .getSsl()
-                            .getServerCACertificateFile()
-                            .getDecodedContent(),
-                        StandardCharsets.UTF_8));
+                        "serverCACertString",
+                        new String(
+                                datasourceConfiguration
+                                        .getConnection()
+                                        .getSsl()
+                                        .getServerCACertificateFile()
+                                        .getDecodedContent(),
+                                StandardCharsets.UTF_8));
 
                 break;
 
             default:
                 throw new AppsmithPluginException(
-                    PostgresPluginError.POSTGRES_PLUGIN_ERROR,
-                    String.format(PostgresErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
+                        PostgresPluginError.POSTGRES_PLUGIN_ERROR,
+                        String.format(PostgresErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
         }
 
         String url = urlBuilder.toString();
@@ -1356,16 +1355,15 @@ public class PostgresPlugin extends BasePlugin {
                 String sqlState = psqlException.getSQLState();
                 if (PSQLState.CONNECTION_UNABLE_TO_CONNECT.getState().equals(sqlState)) {
                     throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        PostgresErrorMessages.DS_INVALID_HOSTNAME_AND_PORT_MSG,
-                        psqlException.getMessage());
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            PostgresErrorMessages.DS_INVALID_HOSTNAME_AND_PORT_MSG,
+                            psqlException.getMessage());
                 }
             }
             throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                cause != null ? cause.getMessage() : e.getMessage());
-
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
+                    cause != null ? cause.getMessage() : e.getMessage());
         }
 
         return datasource;
