@@ -4,13 +4,10 @@ import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorState,
-  EditorViewMode,
 } from "ee/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import history, { NavigationMethod } from "utils/history";
 import {
   builderURL,
@@ -20,11 +17,6 @@ import {
 } from "ee/RouteBuilder";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import {
-  APP_SIDEBAR_WIDTH,
-  DEFAULT_EXPLORER_PANE_WIDTH,
-  SPLIT_SCREEN_RATIO,
-} from "constants/AppConstants";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
@@ -36,7 +28,6 @@ import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
-import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -73,32 +64,6 @@ export const useCurrentEditorState = () => {
     segment: selectedSegment,
     segmentMode: selectedSegmentState,
   };
-};
-
-export const useEditorPaneWidth = (): string => {
-  const [windowWidth] = useWindowDimensions();
-  const [width, setWidth] = useState(windowWidth - APP_SIDEBAR_WIDTH + "px");
-  const editorMode = useSelector(getIDEViewMode);
-  const { segment } = useCurrentEditorState();
-  const propertyPaneWidth = useSelector(getPropertyPaneWidth);
-  useEffect(() => {
-    if (editorMode === EditorViewMode.SplitScreen) {
-      if (segment !== EditorEntityTab.UI) {
-        // 1px is propertypane border width
-        setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
-      } else {
-        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
-      }
-    } else {
-      if (segment !== EditorEntityTab.UI) {
-        setWidth(windowWidth - APP_SIDEBAR_WIDTH + "px");
-      } else {
-        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
-      }
-    }
-  }, [editorMode, segment, propertyPaneWidth, windowWidth]);
-
-  return width;
 };
 
 export const useSegmentNavigation = (): {
