@@ -72,7 +72,9 @@ export function useCssTokens(props: Theme) {
     }
   }, [typography]);
 
-  const fontFamilyClassName = fontFamilyCss();
+  const fontFamilyClassName = css`
+    ${fontFamilyCss()}
+  `;
 
   const providerClassName = useMemo(() => {
     return css`
