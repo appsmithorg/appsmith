@@ -20,7 +20,6 @@ class AppComputationCache {
     storeName: "cacheLogs",
   });
   private readonly appModeConfig = {
-    [EComputationCacheName.AllKeys]: [APP_MODE.PUBLISHED],
     [EComputationCacheName.DependencyMap]: [APP_MODE.PUBLISHED],
   };
 
@@ -83,7 +82,7 @@ class AppComputationCache {
         timestamp,
       });
 
-      await this.logCacheReadStatus(cacheName);
+      await this.logCacheReadStatus(cacheKey);
     } catch (error) {
       loglevel.debug("Error caching computation result:", error);
     }
@@ -119,7 +118,7 @@ class AppComputationCache {
         return null;
       }
 
-      await this.logCacheReadStatus(cacheName);
+      await this.logCacheReadStatus(cacheKey);
 
       return cached.value;
     } catch (error) {

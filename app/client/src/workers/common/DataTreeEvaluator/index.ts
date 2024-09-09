@@ -143,9 +143,7 @@ import {
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
-import appComputationCache from "../AppComputationCache";
 import type { APP_MODE } from "entities/App";
-import { EComputationCacheName } from "../AppComputationCache/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -296,14 +294,7 @@ export default class DataTreeEvaluator {
 
     const { appId, appMode, pageId, timestamp } = cacheProps;
 
-    this.allKeys = await appComputationCache.fetchOrCompute({
-      appId,
-      pageId,
-      timestamp,
-      appMode,
-      cacheName: EComputationCacheName.AllKeys,
-      computeFn: getAllPaths.bind(this, unEvalTreeWithStrigifiedJSFunctions),
-    });
+    this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
 
     const allKeysGenerationEndTime = performance.now();
 
