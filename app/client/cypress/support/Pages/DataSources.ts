@@ -1373,7 +1373,7 @@ export class DataSources {
     expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
-    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+    this.agHelper.ClearNType(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(1000); //for search result to load
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }

@@ -3,6 +3,7 @@ import {
   dataSources,
   entityItems,
   homePage,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -70,13 +71,14 @@ describe(
         agHelper.RefreshPage();
         dataSources.CreateMockDB("Users");
         dataSources.CreateQueryAfterDSSaved();
-        dataSources.VerifyTableSchemaOnQueryEditor("public.users");
-        dataSources.SelectTableFromPreviewSchemaList("public.users");
-        dataSources.VerifyColumnSchemaOnQueryEditor("id", 1);
+        agHelper.GetNClick('[data-testid="t--tab-schema"]');
+        agHelper.AssertElementAbsence(locators._btnSpinner, 5000);
         dataSources.FilterAndVerifyDatasourceSchemaBySearch(
           "public.us",
           "public.users",
         );
+        dataSources.SelectTableFromPreviewSchemaList("public.users");
+        dataSources.VerifyColumnSchemaOnQueryEditor("id", 1);
       },
     );
 
@@ -87,10 +89,13 @@ describe(
         agHelper.RefreshPage();
         dataSources.CreateMockDB("Users");
         dataSources.CreateQueryAfterDSSaved();
+        agHelper.GetNClick('[data-testid="t--tab-schema"]');
+        dataSources.FilterAndVerifyDatasourceSchemaBySearch("public.users");
         dataSources.VerifyTableSchemaOnQueryEditor("public.users");
         // then refresh
         dataSources.RefreshDatasourceSchema();
         // assert the schema is still shown.
+        dataSources.FilterAndVerifyDatasourceSchemaBySearch("public.users");
         dataSources.VerifyTableSchemaOnQueryEditor("public.users");
       },
     );
