@@ -21,9 +21,9 @@ on:
         type: string
         default: latest
 
-  # trigger for pushes to master
+  # trigger for pushes to master and pg
   push:
-    branches: [master]
+    branches: [master, pg]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -100,7 +100,7 @@ jobs:
   ci-test:
     needs: [setup, build-docker-image]
     # Only run if the build step is successful
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
     name: ci-test
     uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
@@ -113,7 +113,7 @@ jobs:
   server-unit-tests:
     name: server-unit-tests
     needs: [build-docker-image]
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
@@ -123,7 +123,7 @@ jobs:
   client-unit-tests:
     name: client-unit-tests
     needs: [build-docker-image]
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
     uses: ./.github/workflows/client-unit-tests.yml
     secrets: inherit
     with:
@@ -341,6 +341,12 @@ jobs:
             scripts/generate_info_json.sh
           fi
 
+      - name: Place server artifacts-es
+        run: |
+          if [[ -f scripts/prepare_server_artifacts.sh ]]; then
+            scripts/prepare_server_artifacts.sh
+          fi
+
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
@@ -362,7 +368,7 @@ jobs:
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
           tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.ref_name }}
 
   package-master:
     needs: [ci-test, client-unit-tests, server-unit-tests]

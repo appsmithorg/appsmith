@@ -175,3 +175,9 @@ export const buttongroupwidgetlocators = {
     `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
   button: "//*[contains(@class,'t--widget-buttongroupwidget')]//button",
 };
+
+export const multiSelectWidgetLocators = {
+  multiSelectWidgetTrigger: ".t--widget-multiselectwidgetv2 .rc-select-selector",
+  multiSelectWidgetSelectedOptionContent: ".rc-select-selection-item > .rc-select-selection-item-content",
+  multiSelectWidgetDropdownOptionCheckbox: ".multi-select-dropdown .rc-select-item-option-selected .bp3-control-indicator"
+};
