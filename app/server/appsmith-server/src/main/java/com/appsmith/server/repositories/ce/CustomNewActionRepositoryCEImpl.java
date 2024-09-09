@@ -235,7 +235,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String pageId, List<String> excludedPluginTypes) {
         final BridgeQuery<NewAction> q = Bridge.equal(NewAction.Fields.publishedAction_pageId, pageId);
         q.and(Bridge.or(
-                Bridge.notIn(NewAction.Fields.pluginType, excludedPluginTypes),
+                Bridge.enumNotIn(NewAction.Fields.pluginType, getPluginTypes(excludedPluginTypes)),
                 Bridge.isNull(NewAction.Fields.pluginType)));
 
         return q;
