@@ -1116,11 +1116,8 @@ export class DataSources {
       });
   }
 
-  ToggleUsePreparedStatement(
-    enable = true || false,
-    toNavigateToSettings = false,
-  ) {
-    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+  ToggleUsePreparedStatement(enable = true || false) {
+    this.apiPage.SelectPaneTab("Settings");
     if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
     else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
   }
