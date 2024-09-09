@@ -235,7 +235,7 @@ export default class DataTreeEvaluator {
    * Method to create all data required for linting and
    * evaluation of the first tree
    */
-  setupFirstTree(
+  async setupFirstTree(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     unEvalTree: any,

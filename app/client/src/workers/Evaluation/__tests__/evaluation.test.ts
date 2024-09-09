@@ -563,8 +563,8 @@ describe("DataTreeEvaluator", () => {
 
   const evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
 
-  it("Checks the number of clone operations in first tree flow", () => {
-    evaluator.setupFirstTree(unEvalTree, configTree);
+  it("Checks the number of clone operations in first tree flow", async () => {
+    await evaluator.setupFirstTree(unEvalTree, configTree);
     evaluator.evalAndValidateFirstTree();
     // Hard check to not regress on the number of clone operations. Try to improve this number.
     expect(klonaFullSpy).toBeCalledTimes(41);

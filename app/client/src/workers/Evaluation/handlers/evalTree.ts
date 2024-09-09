@@ -29,6 +29,7 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import {
   profileFn,
   newWebWorkerSpanData,
+  profileAsyncFn,
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -104,7 +105,7 @@ export async function evalTree(
         allActionValidationConfig,
       );
 
-      const setupFirstTreeResponse = profileFn(
+      const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
@@ -153,11 +154,11 @@ export async function evalTree(
         );
       }
 
-      const setupFirstTreeResponse = profileFn(
+      const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
         { description: "non-initialisation" },
         webworkerTelemetry,
-        () =>
+        async () =>
           (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
             unevalTree,
             configTree,

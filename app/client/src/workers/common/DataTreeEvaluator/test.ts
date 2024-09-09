@@ -266,8 +266,8 @@ describe("DataTreeEvaluator", () => {
   });
 
   describe("test updateDependencyMap", () => {
-    beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(
+    beforeEach(async () => {
+      await dataTreeEvaluator.setupFirstTree(
         unEvalTree as unknown as DataTree,
         configTree as unknown as ConfigTree,
       );
