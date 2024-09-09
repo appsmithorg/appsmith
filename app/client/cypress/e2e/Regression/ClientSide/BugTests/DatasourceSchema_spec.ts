@@ -71,8 +71,8 @@ describe(
         agHelper.RefreshPage();
         dataSources.CreateMockDB("Users");
         dataSources.CreateQueryAfterDSSaved();
-        agHelper.GetNClick('[data-testid="t--tab-schema"]');
-        agHelper.AssertElementAbsence(locators._btnSpinner, 5000);
+        agHelper.GetNClick(dataSources._dsTabSchema);
+        agHelper.AssertElementAbsence(locators._btnSpinner);
         dataSources.FilterAndVerifyDatasourceSchemaBySearch(
           "public.us",
           "public.users",
@@ -89,7 +89,7 @@ describe(
         agHelper.RefreshPage();
         dataSources.CreateMockDB("Users");
         dataSources.CreateQueryAfterDSSaved();
-        agHelper.GetNClick('[data-testid="t--tab-schema"]');
+        agHelper.GetNClick(dataSources._dsTabSchema);
         dataSources.FilterAndVerifyDatasourceSchemaBySearch("public.users");
         dataSources.VerifyTableSchemaOnQueryEditor("public.users");
         // then refresh

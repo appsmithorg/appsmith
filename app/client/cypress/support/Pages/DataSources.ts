@@ -311,6 +311,7 @@ export class DataSources {
   private _dsSchemaEntityItem = ".t--entity-item";
   private _entityTriggerElement = ".t--template-menu-trigger";
   _dsSchemaTableResponse = ".t--table-response";
+  _dsTabSchema = "[data-testid='t--tab-schema']";
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
