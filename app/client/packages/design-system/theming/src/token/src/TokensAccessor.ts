@@ -7,7 +7,6 @@ import type {
   TokenObj,
   TokenSource,
   TokenType,
-  FontFamily,
   Typography,
   IconStyle,
 } from "./types";
@@ -20,7 +19,6 @@ export class TokensAccessor {
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
   private typography?: Typography;
-  private fontFamily?: FontFamily;
   private outerSpacing?: TokenObj;
   private innerSpacing?: TokenObj;
   private sizing?: TokenObj;
@@ -34,7 +32,6 @@ export class TokensAccessor {
     borderWidth,
     boxShadow,
     colorMode,
-    fontFamily,
     iconSize,
     iconStyle,
     innerSpacing,
@@ -52,7 +49,6 @@ export class TokensAccessor {
     this.boxShadow = boxShadow;
     this.borderWidth = borderWidth;
     this.opacity = opacity;
-    this.fontFamily = fontFamily;
     this.sizing = sizing;
     this.outerSpacing = outerSpacing;
     this.innerSpacing = innerSpacing;
@@ -62,10 +58,6 @@ export class TokensAccessor {
     this.strokeWidth = strokeWidth;
     this.iconSize = iconSize;
   }
-
-  updateFontFamily = (fontFamily?: FontFamily) => {
-    this.fontFamily = fontFamily;
-  };
 
   updateTypography = (typography: Typography) => {
     this.typography = typography;
@@ -135,7 +127,6 @@ export class TokensAccessor {
   getAllTokens = () => {
     return {
       typography: this.getTypography(),
-      fontFamily: this.getFontFamily(),
       ...this.getOuterSpacing(),
       ...this.getInnerSpacing(),
       ...this.getSizing(),
@@ -154,10 +145,6 @@ export class TokensAccessor {
 
   getTypography = () => {
     return this.typography;
-  };
-
-  getFontFamily = () => {
-    return this.fontFamily;
   };
 
   getColors = () => {
