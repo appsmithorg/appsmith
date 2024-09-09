@@ -929,7 +929,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
             id: datasource.id,
             environmentId: currentEnvironment,
             show: true,
-            error: { message: responseData.invalids.join("\n") },
+            error: { message: responseData.invalids.join(", ") },
           },
         });
         AppsmithConsole.error({
