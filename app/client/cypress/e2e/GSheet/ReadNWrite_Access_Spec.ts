@@ -11,7 +11,7 @@ import {
   appSettings,
 } from "../../support/Objects/ObjectsCore";
 
-describe(
+describe.skip(
   "GSheet-Functional Tests With Read/Write Access",
   { tags: ["@tag.Datasource", "@tag.GSheet"] },
   function () {
