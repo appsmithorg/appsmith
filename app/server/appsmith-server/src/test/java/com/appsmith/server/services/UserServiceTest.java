@@ -13,6 +13,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserState;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
@@ -763,7 +764,7 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateName_shouldNotUpdatePolicies() {
+    public void testUpdateCurrentUser_shouldNotUpdatePolicies() {
         String testName = "testUpdateName_shouldNotUpdatePolicies";
         User user = new User();
         user.setEmail(testName + "@test.com");
@@ -783,6 +784,29 @@ public class UserServiceTest {
         assertThat(userUpdatedPostNameUpdate.getName()).isEqualTo("Test Name");
         userUpdatedPostNameUpdate.getPolicies().forEach(policy -> {
             assertThat(policies).contains(policy);
+        });
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateWithoutPermission_shouldUpdateChangedFields() {
+        String testName = "testUpdateWithoutPermission_shouldUpdateChangedFields";
+        User user = new User();
+        user.setEmail(testName + "@test.com");
+        user.setPassword(testName);
+        User createdUser = userService.create(user).block();
+        Set<Policy> policies = createdUser.getPolicies();
+
+        User update = new User();
+        update.setName("Test Name");
+        update.setState(UserState.ACTIVATED);
+        User updatedUser =
+                userService.updateWithoutPermission(createdUser.getId(), update).block();
+
+        assertThat(updatedUser.getName()).isEqualTo("Test Name");
+        assertThat(updatedUser.getState()).isEqualTo(UserState.ACTIVATED);
+        policies.forEach(policy -> {
+            assertThat(updatedUser.getPolicies()).contains(policy);
         });
     }
 }
