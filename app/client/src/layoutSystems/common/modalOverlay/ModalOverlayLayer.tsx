@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
-import { theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
+
 const Container = styled.div<{
   width?: number;
   height?: number;
@@ -22,7 +22,6 @@ const Container = styled.div<{
   minSize?: number;
   isEditMode?: boolean;
   headerHeight?: number;
-  smallHeaderHeight?: string;
   leftSidebarWidth?: string;
 }>`
   &&& {
@@ -152,7 +151,6 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
           maxWidth={maxModalWidth}
           minSize={props.minSize}
           right={props.bottom}
-          smallHeaderHeight={theme.smallHeaderHeight}
           top={props.top}
           width={props.width}
           zIndex={

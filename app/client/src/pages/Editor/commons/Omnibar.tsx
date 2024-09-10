@@ -3,13 +3,14 @@ import styled from "styled-components";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useSelector } from "react-redux";
+import { IDE_HEADER_HEIGHT } from "IDE";
 
 const BindingBanner = styled.div`
   position: fixed;
   width: 199px;
   height: 36px;
   left: 50%;
-  top: ${(props) => props.theme.smallHeaderHeight};
+  top: ${IDE_HEADER_HEIGHT}px;
   transform: translate(-50%, 0);
   text-align: center;
   background: var(--ads-v2-color-fg-information);
