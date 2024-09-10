@@ -36,6 +36,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
   const dispatch = useDispatch();
   const basePageId = useSelector(getCurrentBasePageId);
 
+  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
   const saveOrEditDatasource = () => {
     if (props.shouldSave) {
       dispatch(storeAsDatasource());
@@ -64,7 +65,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
       kind="secondary"
       onClick={saveOrEditDatasource}
       size="md"
-      startIcon={props.shouldSave ? "cloud" : "pencil-line"}
+      startIcon={props.shouldSave ? "database-2-line" : "pencil-line"}
     >
       {props.shouldSave
         ? createMessage(SAVE_DATASOURCE)
