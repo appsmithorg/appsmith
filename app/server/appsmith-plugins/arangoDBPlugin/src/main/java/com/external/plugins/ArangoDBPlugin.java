@@ -182,8 +182,7 @@ public class ArangoDBPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for ArangoDB plugin.";
             log.debug(printMessage);
             return (Mono<ArangoDatabase>) Mono.fromCallable(() -> {
-                        log.debug(
-                                Thread.currentThread().getName() + ": inside schdeuled thread from ArangoDB plugin.");
+                        log.debug(Thread.currentThread().getName() + ": inside schdeuled thread from ArangoDB plugin.");
                         List<Endpoint> nonEmptyEndpoints = datasourceConfiguration.getEndpoints().stream()
                                 .filter(endpoint -> isNonEmptyEndpoint(endpoint))
                                 .collect(Collectors.toList());

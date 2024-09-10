@@ -108,8 +108,7 @@ public class DatabricksPlugin extends BasePlugin {
                         } catch (SQLException error) {
                             error.printStackTrace();
                             // This should not happen ideally.
-                            log.debug(
-                                    "Error checking validity of Databricks connection : " + error.getMessage());
+                            log.debug("Error checking validity of Databricks connection : " + error.getMessage());
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -249,8 +248,7 @@ public class DatabricksPlugin extends BasePlugin {
             }
 
             return (Mono<Connection>) Mono.fromCallable(() -> {
-                        log.debug(
-                                Thread.currentThread().getName() + ": creating connection from Databricks plugin.");
+                        log.debug(Thread.currentThread().getName() + ": creating connection from Databricks plugin.");
                         Connection connection = DriverManager.getConnection(url, p);
 
                         // Execute statements to default catalog and schema for all queries on this datasource.

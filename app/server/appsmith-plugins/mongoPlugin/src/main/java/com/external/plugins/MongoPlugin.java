@@ -477,8 +477,7 @@ public class MongoPlugin extends BasePlugin {
 
                             JSONObject statusJson = new JSONObject().put("ok", status);
                             headerArray.put(statusJson);
-                            log.debug(
-                                    Thread.currentThread().getName() + ": objectMapper readTree for Mongo plugin.");
+                            log.debug(Thread.currentThread().getName() + ": objectMapper readTree for Mongo plugin.");
                             Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree");
                             result.setHeaders(objectMapper.readTree(headerArray.toString()));
                             processStopwatch.stopAndLogTimeInMillisWithSysOut();
@@ -493,8 +492,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
-                            log.debug(
-                                    "The mongo connection seems to have been invalidated or doesn't exist anymore");
+                            log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
                         } else if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(
@@ -762,8 +760,7 @@ public class MongoPlugin extends BasePlugin {
             log.debug(printMessage);
             return Mono.just(datasourceConfiguration)
                     .flatMap(dsConfig -> {
-                        log.debug(
-                                Thread.currentThread().getName() + ": buildClientURI called from Mongo plugin.");
+                        log.debug(Thread.currentThread().getName() + ": buildClientURI called from Mongo plugin.");
                         try {
                             return Mono.just(buildClientURI(dsConfig));
                         } catch (AppsmithPluginException e) {
@@ -902,8 +899,7 @@ public class MongoPlugin extends BasePlugin {
 
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
-                        log.debug(
-                                Thread.currentThread().getName() + ":Finding list of databases for Mongo plugin.");
+                        log.debug(Thread.currentThread().getName() + ":Finding list of databases for Mongo plugin.");
                         final Publisher<String> result = mongoClient.listDatabaseNames();
                         final Mono<List<String>> documentMono =
                                 Flux.from(result).collectList().cache();

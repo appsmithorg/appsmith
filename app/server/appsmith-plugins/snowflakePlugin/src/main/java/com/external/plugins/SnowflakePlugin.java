@@ -161,8 +161,7 @@ public class SnowflakePlugin extends BasePlugin {
             log.debug(printMessage);
             return getHikariConfig(datasourceConfiguration, properties)
                     .flatMap(config -> Mono.fromCallable(() -> {
-                                log.debug(
-                                        Thread.currentThread().getName() + ": creating Snowflake connection client");
+                                log.debug(Thread.currentThread().getName() + ": creating Snowflake connection client");
                                 // Set up the connection URL
                                 String jdbcUrl = getJDBCUrl(datasourceConfiguration);
                                 config.setJdbcUrl(jdbcUrl);
@@ -430,8 +429,7 @@ public class SnowflakePlugin extends BasePlugin {
                                 table.getKeys().sort(Comparator.naturalOrder());
                             }
                         } catch (SQLException throwable) {
-                            log.debug(
-                                    "Exception caught while fetching structure of Snowflake datasource. Cause:");
+                            log.debug("Exception caught while fetching structure of Snowflake datasource. Cause:");
                             throwable.printStackTrace();
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
@@ -453,8 +451,7 @@ public class SnowflakePlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug(
-                                            "Error returning snowflake connection to pool during get structure");
+                                    log.debug("Error returning snowflake connection to pool during get structure");
                                     e.printStackTrace();
                                 }
                             }

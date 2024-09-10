@@ -87,8 +87,8 @@ public class DatasourceUtils {
             }
 
             throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                S3ErrorMessages.S3_SERVICE_PROVIDER_IDENTIFICATION_ERROR_MSG);
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.S3_SERVICE_PROVIDER_IDENTIFICATION_ERROR_MSG);
         }
     }
 
@@ -102,7 +102,7 @@ public class DatasourceUtils {
      *                                 datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
      */
     public static AmazonS3ClientBuilder getS3ClientBuilder(DatasourceConfiguration datasourceConfiguration)
-        throws AppsmithPluginException {
+            throws AppsmithPluginException {
         log.debug(Thread.currentThread().getName() + ": getS3ClientBuilder action called.");
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
         String accessKey = authentication.getUsername();
@@ -112,14 +112,14 @@ public class DatasourceUtils {
             awsCreds = new BasicAWSCredentials(accessKey, secretKey);
         } catch (IllegalArgumentException e) {
             throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                S3ErrorMessages.AWS_CREDENTIALS_PARSING_ERROR_MSG,
-                e.getMessage());
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.AWS_CREDENTIALS_PARSING_ERROR_MSG,
+                    e.getMessage());
         }
 
         /* Set credentials in client builder. */
         AmazonS3ClientBuilder s3ClientBuilder =
-            AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds));
+                AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds));
 
         List<Property> properties = datasourceConfiguration.getProperties();
 
@@ -130,16 +130,16 @@ public class DatasourceUtils {
          * Service Provider` dropdown has a default value.
          */
         if (properties == null
-            || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
-            || StringUtils.isEmpty((String)
-            properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
+                || properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX) == null
+                || StringUtils.isEmpty((String)
+                        properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue())) {
             throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                S3ErrorMessages.DS_S3_SERVICE_PROVIDER_PROPERTIES_FETCHING_ERROR_MSG);
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.DS_S3_SERVICE_PROVIDER_PROPERTIES_FETCHING_ERROR_MSG);
         }
 
         S3ServiceProvider s3ServiceProvider = S3ServiceProvider.fromString(
-            (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
+                (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
         /**
          * AmazonS3 provides an attribute `forceGlobalBucketAccessEnabled` that automatically routes the request to a
          * region such that request should succeed.
@@ -161,9 +161,9 @@ public class DatasourceUtils {
             s3ClientBuilder = s3ClientBuilder.withRegion(DEFAULT_REGION).enableForceGlobalBucketAccess();
         } else {
             String endpoint = datasourceConfiguration
-                .getEndpoints()
-                .get(CUSTOM_ENDPOINT_INDEX)
-                .getHost();
+                    .getEndpoints()
+                    .get(CUSTOM_ENDPOINT_INDEX)
+                    .getHost();
             String region = "";
 
             switch (s3ServiceProvider) {
@@ -177,22 +177,22 @@ public class DatasourceUtils {
                     break;
                 case UPCLOUD:
                     region = getRegionFromEndpointPattern(
-                        endpoint, UPCLOUD_URL_ENDPOINT_PATTERN, UPCLOUD_REGION_GROUP_INDEX);
+                            endpoint, UPCLOUD_URL_ENDPOINT_PATTERN, UPCLOUD_REGION_GROUP_INDEX);
 
                     break;
                 case WASABI:
                     region = getRegionFromEndpointPattern(
-                        endpoint, WASABI_URL_ENDPOINT_PATTERN, WASABI_REGION_GROUP_INDEX);
+                            endpoint, WASABI_URL_ENDPOINT_PATTERN, WASABI_REGION_GROUP_INDEX);
 
                     break;
                 case DIGITAL_OCEAN_SPACES:
                     region = getRegionFromEndpointPattern(
-                        endpoint, DIGITAL_OCEAN_URL_ENDPOINT_PATTERN, DIGITAL_OCEAN_REGION_GROUP_INDEX);
+                            endpoint, DIGITAL_OCEAN_URL_ENDPOINT_PATTERN, DIGITAL_OCEAN_REGION_GROUP_INDEX);
 
                     break;
                 case DREAM_OBJECTS:
                     region = getRegionFromEndpointPattern(
-                        endpoint, DREAM_OBJECTS_URL_ENDPOINT_PATTERN, DREAM_OBJECTS_REGION_GROUP_INDEX);
+                            endpoint, DREAM_OBJECTS_URL_ENDPOINT_PATTERN, DREAM_OBJECTS_REGION_GROUP_INDEX);
 
                     break;
                 case MINIO:
@@ -216,17 +216,17 @@ public class DatasourceUtils {
 
                     /* Ref: https://docs.min.io/docs/how-to-use-aws-sdk-for-java-with-minio-server.html */
                     s3ClientBuilder = s3ClientBuilder
-                        .withPathStyleAccessEnabled(true)
-                        .withClientConfiguration(clientConfiguration);
+                            .withPathStyleAccessEnabled(true)
+                            .withClientConfiguration(clientConfiguration);
 
                     break;
                 default:
                     region = getValueSafelyFromPropertyList(
-                        properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX, String.class, "");
+                            properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX, String.class, "");
             }
 
             s3ClientBuilder = s3ClientBuilder.withEndpointConfiguration(
-                new AwsClientBuilder.EndpointConfiguration(endpoint, region));
+                    new AwsClientBuilder.EndpointConfiguration(endpoint, region));
         }
 
         return s3ClientBuilder;
@@ -246,13 +246,13 @@ public class DatasourceUtils {
      * @throws AppsmithPluginException when then endpoint URL does not match the expected regex pattern.
      */
     private static String getRegionFromEndpointPattern(String endpoint, String regex, int regionGroupIndex)
-        throws AppsmithPluginException {
+            throws AppsmithPluginException {
 
         /* endpoint is expected to be non-null at this point */
         if (!endpoint.matches(regex)) {
             throw new AppsmithPluginException(
-                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
         }
 
         Pattern pattern = Pattern.compile(regex);
@@ -263,7 +263,7 @@ public class DatasourceUtils {
 
         /* Code flow is never expected to reach here. */
         throw new AppsmithPluginException(
-            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-            S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
+                AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                S3ErrorMessages.INCORRECT_S3_ENDPOINT_URL_ERROR_MSG);
     }
 }

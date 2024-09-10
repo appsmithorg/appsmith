@@ -198,8 +198,7 @@ public class MssqlPlugin extends BasePlugin {
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, transformedQuery, null, null, psParams));
 
             return Mono.fromCallable(() -> {
-                        log.debug(
-                                Thread.currentThread().getName() + ": within mono callable from MSSQL plugin.");
+                        log.debug(Thread.currentThread().getName() + ": within mono callable from MSSQL plugin.");
                         boolean isResultSet;
                         Connection sqlConnectionFromPool;
                         Statement statement = null;

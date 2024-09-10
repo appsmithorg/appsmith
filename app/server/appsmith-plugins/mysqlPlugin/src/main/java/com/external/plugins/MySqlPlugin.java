@@ -168,7 +168,7 @@ public class MySqlPlugin extends BasePlugin {
          * supported by PreparedStatement. In case of PreparedStatement turned off, the action and datasource configurations are
          * prepared (binding replacement) using PluginExecutor.variableSubstitution
          *
-         * @param connectionContext              : This is the connection that is established to the data source. This connection is according
+         * @param connectionContext       : This is the connection that is established to the data source. This connection is according
          *                                to the parameters in Datasource Configuration
          * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
          *                                which would be used for substitution
@@ -397,9 +397,8 @@ public class MySqlPlugin extends BasePlugin {
                                 return resultMono
                                         .map(res -> {
                                             ActionExecutionResult result = new ActionExecutionResult();
-                                            log.debug(
-                                                    Thread.currentThread().getName()
-                                                            + ": objectMapper.valueToTree from MySQL plugin.");
+                                            log.debug(Thread.currentThread().getName()
+                                                    + ": objectMapper.valueToTree from MySQL plugin.");
                                             Stopwatch processStopwatch =
                                                     new Stopwatch("MySQL Plugin objectMapper valueToTree");
                                             result.setBody(objectMapper.valueToTree(rowsList));
@@ -722,7 +721,7 @@ public class MySqlPlugin extends BasePlugin {
                 connectionPool
                         .disposeLater()
                         .onErrorResume(exception -> {
-                            log.debug("Could not destroy MySQL connection pool"+exception);
+                            log.debug("Could not destroy MySQL connection pool", exception);
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)

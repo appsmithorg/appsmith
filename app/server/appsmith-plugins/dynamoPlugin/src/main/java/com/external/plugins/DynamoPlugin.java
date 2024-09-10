@@ -289,8 +289,7 @@ public class DynamoPlugin extends BasePlugin {
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.";
             log.debug(printMessage);
             return Mono.fromCallable(() -> {
-                        log.debug(
-                                Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
+                        log.debug(Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
                         final DynamoDbClientBuilder builder = DynamoDbClient.builder();
 
                         if (!CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {

@@ -502,9 +502,8 @@ public class PostgresPlugin extends BasePlugin {
 
                                         } else if (JSON_TYPE_NAME.equalsIgnoreCase(typeName)
                                                 || JSONB_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                                            log.debug(
-                                                    Thread.currentThread().getName()
-                                                            + ": objectMapper readTree for Postgres plugin.");
+                                            log.debug(Thread.currentThread().getName()
+                                                    + ": objectMapper readTree for Postgres plugin.");
                                             Stopwatch processStopwatch =
                                                     new Stopwatch("Postgres Plugin objectMapper readTree");
                                             value = objectMapper.readTree(resultSet.getString(i));
@@ -599,8 +598,7 @@ public class PostgresPlugin extends BasePlugin {
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
-                        log.debug(
-                                Thread.currentThread().getName() + ": objectMapper valueToTree for Postgres plugin.");
+                        log.debug(Thread.currentThread().getName() + ": objectMapper valueToTree for Postgres plugin.");
                         Stopwatch processStopwatch = new Stopwatch("Postgres Plugin objectMapper valueToTree");
                         result.setBody(objectMapper.valueToTree(rowsList));
                         processStopwatch.stopAndLogTimeInMillisWithSysOut();
@@ -1005,8 +1003,7 @@ public class PostgresPlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug(
-                                            "Error returning Postgres connection to pool during get structure");
+                                    log.debug("Error returning Postgres connection to pool during get structure");
                                     e.printStackTrace();
                                 }
                             }

@@ -231,8 +231,7 @@ public class OraclePlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            log.debug(
-                                    "Exception Occurred while getting connection from pool" + e.getMessage());
+                            log.debug("Exception Occurred while getting connection from pool" + e.getMessage());
                             e.printStackTrace(System.out);
                             return Mono.error(
                                     e instanceof StaleConnectionException
