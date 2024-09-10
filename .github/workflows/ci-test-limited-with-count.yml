@@ -404,7 +404,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: snapshotsreport
-            path: ${{ github.workspace }}/app/client/results/**
+            path: ${{ github.workspace }}/app/client/results/.json
             overwrite: true
   
 
