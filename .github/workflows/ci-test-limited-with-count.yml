@@ -396,6 +396,7 @@ jobs:
           overwrite: true
 
       - name: Check if file exists
+        if: always()
         run: ls -la ${{ github.workspace }}/app/client/results
 
       - name: Upload cypress html
@@ -403,7 +404,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: snapshotsreport
-            path: ${{ github.workspace }}/app/client/results
+            path: ${{ github.workspace }}/app/client/results/**
             overwrite: true
   
 
