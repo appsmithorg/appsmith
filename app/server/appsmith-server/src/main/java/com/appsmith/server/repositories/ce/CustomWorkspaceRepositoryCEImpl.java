@@ -45,6 +45,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<Workspace> findAll(AclPermission permission, User currentUser) {
         return Flux.fromIterable(queryBuilder()
                         .criteria(Bridge.equal(Workspace.Fields.tenantId, currentUser.getTenantId()))
+                        .sort(Sort.by(Sort.Order.asc(Workspace.Fields.createdAt))) // Sort by name by createdAt
                         .permission(permission, currentUser)
                         .all())
                 .collectList()
