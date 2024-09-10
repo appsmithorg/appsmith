@@ -44,7 +44,6 @@ import {
 } from "./Constants.js";
 const registerCypressGrep = require("@cypress/grep");
 /// <reference types="cypress-xpath" />
-import "cypress-mochawesome-reporter/register";
 
 registerCypressGrep();
 installLogsCollector();

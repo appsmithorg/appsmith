@@ -358,6 +358,9 @@ jobs:
             summary_content=$(cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt | tr '\n' ' ')
             echo "summary_content=$summary_content"
             echo "summary_content=$summary_content" >> $GITHUB_OUTPUT
+            ls -la ${{ github.workspace }}/app/client/results
+            echo "Tests failed, failing the GitHub Action."
+            ls -la ${{ github.workspace }}/app/client/cypress/results
             # Check if "Total Failed: 0" is present
             if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
               echo "Tests failed, failing the GitHub Action."
