@@ -1235,6 +1235,22 @@ public class MigrationHelperMethods {
         }
     }
 
+    private static boolean conditionForDefaultRestDatasourceMigration(NewAction action) {
+        Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
+
+        // condition to check if the action is default rest datasource.
+        // it has no datasource id and name is equal to DEFAULT_REST_DATASOURCE
+        boolean isActionDefaultRestDatasource = !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
+                && PluginConstants.DEFAULT_REST_DATASOURCE.equals(actionDatasource.getName());
+
+        // condition to check if the action has missing url or has no config at all
+        boolean isDatasourceConfigurationOrUrlMissing = actionDatasource.getDatasourceConfiguration() == null
+                || !org.springframework.util.StringUtils.hasText(
+                        actionDatasource.getDatasourceConfiguration().getUrl());
+
+        return isActionDefaultRestDatasource && isDatasourceConfigurationOrUrlMissing;
+    }
+
     /**
      * Adds datasource configuration and relevant url to the embedded datasource actions.
      * @param applicationJson: ApplicationJson for which the migration has to be performed
@@ -1253,22 +1269,21 @@ public class MigrationHelperMethods {
                 continue;
             }
 
-            // Idea is to add datasourceConfiguration to existing DEFAULT_REST_DATASOURCE apis,
-            // for which the datasource configuration is missing
-            // the url would be set to empty string as right url is not present over here.
             Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
-            if (actionDatasource.getDatasourceConfiguration() == null
-                    && !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
-                    && PluginConstants.DEFAULT_REST_DATASOURCE.equals(actionDatasource.getName())) {
+            if (conditionForDefaultRestDatasourceMigration(action)) {
+                // Idea is to add datasourceConfiguration to existing DEFAULT_REST_DATASOURCE apis,
+                // for which the datasource configuration is missing
+                // the url would be set to empty string as right url is not present over here.
                 setDatasourceConfigDetailsInDefaultRestDatasourceForActions(action, defaultDatasourceActionMap);
             }
         }
     }
 
     /**
-     * Finds if the applicationJson has any
-     * @param applicationJson : application Json
-     * @return if the application has a rest api which doesn't have valid datasource configuration
+     * Finds if the applicationJson has any default rest datasource which has a null datasource configuration
+     * or an unset url.
+     * @param applicationJson : Application Json for which requirement is to be checked.
+     * @return true if the application has a rest api which doesn't have a valid datasource configuration.
      */
     public static Boolean doesRestApiRequireMigration(ApplicationJson applicationJson) {
         List<NewAction> actionList = applicationJson.getActionList();
@@ -1283,9 +1298,7 @@ public class MigrationHelperMethods {
             }
 
             Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
-            if (actionDatasource.getDatasourceConfiguration() == null
-                    && !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
-                    && PluginConstants.DEFAULT_REST_DATASOURCE.equals(actionDatasource.getName())) {
+            if (conditionForDefaultRestDatasourceMigration(action)) {
                 return Boolean.TRUE;
             }
         }

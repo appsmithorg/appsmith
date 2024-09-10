@@ -27,18 +27,6 @@ public class JsonSchemaMigration {
                 && (applicationJson.getServerSchemaVersion() <= jsonSchemaVersions.getServerVersion());
     }
 
-    /**
-     * This is a temporary check which is being placed for the compatibility of server versions in scenarios
-     * where user is moving a json from an instance which has
-     * release_autocommit_feature_enabled true to an instance which has the flag as false. In that case the server
-     * version number of json would be 8 and in new instance it would be not compatible.
-     * @param applicationJson
-     * @return
-     */
-    private boolean isAutocommitVersionBump(ApplicationJson applicationJson) {
-        return jsonSchemaVersions.getServerVersion() == 7 && applicationJson.getServerSchemaVersion() == 8;
-    }
-
     private void setSchemaVersions(ApplicationJson applicationJson) {
         applicationJson.setServerSchemaVersion(getCorrectSchemaVersion(applicationJson.getServerSchemaVersion()));
         applicationJson.setClientSchemaVersion(getCorrectSchemaVersion(applicationJson.getClientSchemaVersion()));
@@ -114,7 +102,7 @@ public class JsonSchemaMigration {
      * @param artifactExchangeJson : the json to be imported
      * @return transformed artifact exchange json
      */
-    @Deprecated
+    @Deprecated(forRemoval = true, since = "Use migrateArtifactJsonToLatestSchema")
     public ArtifactExchangeJson migrateArtifactToLatestSchema(ArtifactExchangeJson artifactExchangeJson) {
 
         if (!ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
@@ -124,9 +112,7 @@ public class JsonSchemaMigration {
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         setSchemaVersions(applicationJson);
         if (!isCompatible(applicationJson)) {
-            if (!isAutocommitVersionBump(applicationJson)) {
-                throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
-            }
+            throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
         }
 
         applicationJson = migrateServerSchema(applicationJson);
@@ -195,9 +181,10 @@ public class JsonSchemaMigration {
     }
 
     /**
-     * This is non reactive way of adding migrations in the
-     * @param applicationJson
-     * @return
+     * This method is an alternative to reactive way of adding migrations to application json.
+     * this is getting used by flows which haven't implemented the reactive way yet.
+     * @param applicationJson : application json for which migration has to be done.
+     * @return return application json after migration
      */
     private ApplicationJson nonReactiveServerMigrationForImport(ApplicationJson applicationJson) {
         if (jsonSchemaVersions.getServerVersion().equals(applicationJson.getServerSchemaVersion())) {
