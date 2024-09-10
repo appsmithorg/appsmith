@@ -28,10 +28,7 @@ import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import {
-  setupPublishedPage,
-  fetchPublishedPageResourcesAction,
-} from "actions/pageActions";
+import { fetchPublishedPageResourcesAction } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
@@ -170,8 +167,6 @@ function AppViewer(props: Props) {
           (page) => page.basePageId === basePageId,
         )?.pageId;
         if (pageId) {
-          dispatch(setupPublishedPage(pageId, true));
-
           // Used for fetching page resources
           dispatch(fetchPublishedPageResourcesAction(basePageId));
         }
