@@ -10,7 +10,7 @@ import {
 } from "./";
 
 import type { ColorMode } from "../../color";
-import type { TokenSource, IconStyle } from "../../token";
+import type { TokenSource } from "../../token";
 
 const tokensAccessor = new TokensAccessor({
   ...(defaultTokens as TokenSource),
@@ -22,14 +22,12 @@ export interface UseThemeProps {
   borderRadius?: string;
   userDensity?: number;
   userSizing?: number;
-  iconStyle?: IconStyle;
 }
 
 export function useTheme(props: UseThemeProps = {}) {
   const {
     borderRadius,
     colorMode = "light",
-    iconStyle = "outlined",
     seedColor,
     userDensity = 1,
     userSizing = 1,
@@ -88,9 +86,6 @@ export function useTheme(props: UseThemeProps = {}) {
     tokensAccessor.updateOuterSpacing(outerSpacing);
     tokensAccessor.updateInnerSpacing(innerSpacing);
 
-    // Icon style
-    tokensAccessor.updateIconStyle(iconStyle);
-
     // Icon size
     if (iconSize != null) {
       tokensAccessor.updateIconSize(iconSize);
@@ -110,7 +105,6 @@ export function useTheme(props: UseThemeProps = {}) {
       ...tokensAccessor.getSizing(),
       ...tokensAccessor.getOuterSpacing(),
       ...tokensAccessor.getInnerSpacing(),
-      iconStyle: tokensAccessor.getIconStyle(),
       ...tokensAccessor.getIconSize(),
       ...tokensAccessor.getStrokeWidth(),
     };
@@ -122,7 +116,6 @@ export function useTheme(props: UseThemeProps = {}) {
     sizing,
     outerSpacing,
     innerSpacing,
-    iconStyle,
     iconSize,
     strokeWidth,
   ]);

@@ -34,7 +34,6 @@ export interface TokenSource {
   sizing?: TokenObj;
   outerSpacing?: TokenObj;
   innerSpacing?: TokenObj;
-  iconStyle?: IconStyle;
   strokeWidth?: TokenObj;
   iconSize?: TokenObj;
 }
@@ -105,8 +104,6 @@ export interface TypographyVariantMetric {
 export type Typography = {
   [key in keyof typeof TYPOGRAPHY_VARIANTS]: TypographyVariantMetric;
 };
-
-export type IconStyle = "outlined" | "filled";
 
 export const APP_MAX_WIDTH = {
   Unlimited: "UNLIMITED",

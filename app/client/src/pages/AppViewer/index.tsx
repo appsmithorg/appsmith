@@ -50,7 +50,6 @@ import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
   type ColorMode,
-  type IconStyle,
 } from "@appsmith/wds-theming";
 import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
@@ -117,7 +116,6 @@ function AppViewer(props: Props) {
     colorMode: themeSetting.colorMode.toLowerCase() as ColorMode,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
-    iconStyle: themeSetting.iconStyle.toLowerCase() as IconStyle,
   };
   const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
