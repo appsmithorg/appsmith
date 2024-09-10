@@ -8,6 +8,9 @@
     {
       "controlType": "DOUBLE_COLUMN_ZONE",
       "identifier": "INSERT-Z1",
+      "conditionals": {
+        "show": "{{actionConfiguration.formData.entityType.data === 'SPREADSHEET'}}"
+      },
       "children": [
         {
           "label": "Spreadsheet Name",
@@ -16,9 +19,6 @@
           "configProperty": "actionConfiguration.formData.spreadsheetName.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "isRequired": true,
-          "conditionals": {
-            "show": "{{actionConfiguration.formData.entityType.data === 'SPREADSHEET'}}"
-          },
           "placeholderText": "Goals"
         }
       ]

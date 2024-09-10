@@ -8,7 +8,7 @@
   "description": "",
   "children": [
     {
-      "controlType": "SINGLE_ZOLUMN_ZONE",
+      "controlType": "SINGLE_COLUMN_ZONE",
       "identifier": "UPDATE-Z1",
       "children": [
         {
