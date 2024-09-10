@@ -358,7 +358,6 @@ jobs:
             summary_content=$(cat ${{ github.workspace }}/app/client/cy-repeat-summary.txt | tr '\n' ' ')
             echo "summary_content=$summary_content"
             echo "summary_content=$summary_content" >> $GITHUB_OUTPUT
-            ls -la ${{ github.workspace }}/app/client/cypress/results || true  # Ignore failure
             # Check if "Total Failed: 0" is present
             if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
               echo "Tests failed, failing the GitHub Action."
@@ -379,22 +378,7 @@ jobs:
             path: ${{ github.workspace }}/app/client/cy-repeat-summary.txt
             overwrite: true
 
-      - name: Upload repeat-pro results html report artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-            name: cypress-results-dir
-            path: ${{ github.workspace }}/app/client/cypress/results
-            overwrite: true      
-
-      - name: Upload repeat-pro results path update html test
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-                name: cypress-results-dir-newpath
-                path: ${{ github.workspace }}/app/client/results
-                overwrite: true            
-
+    
       - name: Upload failed test cypress logs artifact
         if: failure()
         uses: actions/upload-artifact@v4
@@ -410,6 +394,18 @@ jobs:
           name: snapshots
           path: ${{ github.workspace }}/app/client/cypress/snapshots
           overwrite: true
+
+      - name: Check if file exists
+        run: ls -la ${{ github.workspace }}/app/client/results
+
+      - name: Upload cypress html
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+            name: snapshotsreport
+            path: ${{ github.workspace }}/app/client/results
+            overwrite: true
+  
 
       - name: Collect CI container logs
         if: failure()
