@@ -375,4 +375,31 @@ public class UserWorkspaceServiceTest {
                 .cleanPermissionGroupCacheForUsers(List.of(api_user.getId(), test_user.getId()))
                 .block();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getUserWorkspaceInAlphabeticalOrder_WhenUserHasWorkspaces_ReturnsWorkspacesSortedAlphabetically() {
+        // Arrange: Create multiple workspaces with different names
+        String[] workspaceNames = {"Zebra Workspace", "Alpha Workspace", "Beta Workspace"};
+
+        for (String name : workspaceNames) {
+            Workspace workspace = new Workspace();
+            workspace.setName(name);
+            workspaceRepository.save(workspace).block();
+        }
+
+        // Act: Call the method to get the user's workspaces in alphabetical order
+        Mono<List<Workspace>> workspacesMono = userWorkspaceService.getUserWorkspaceInAlphabeticalOrder();
+
+        // Assert: Verify the workspaces are returned in alphabetical order
+        StepVerifier.create(workspacesMono)
+                .assertNext(workspaces -> {
+                    assertThat(workspaces).isNotNull();
+                    assertThat(workspaces).hasSize(3);
+                    assertThat(workspaces.get(0).getName()).isEqualTo("Alpha Workspace");
+                    assertThat(workspaces.get(1).getName()).isEqualTo("Beta Workspace");
+                    assertThat(workspaces.get(2).getName()).isEqualTo("Zebra Workspace");
+                })
+                .verifyComplete();
+    }
 }

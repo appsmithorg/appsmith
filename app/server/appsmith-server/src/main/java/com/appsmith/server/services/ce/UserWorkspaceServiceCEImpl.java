@@ -32,6 +32,7 @@ import reactor.util.function.Tuple2;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -412,6 +413,33 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 // sort transformation
                 .transform(domainFlux -> sortDomainsBasedOnOrderedDomainIds(domainFlux, workspaceIds))
                 // collect to list to keep the order of the workspaces
+                .collectList());
+    }
+
+    /*
+     * Returns a list of workspaces for the current user, sorted in alphabetical order.
+     *
+     * @return Mono containing the list of workspaces
+     */
+    @Override
+    public Mono<List<Workspace>> getUserWorkspaceInAlphabeticalOrder() {
+        Mono<List<String>> workspaceIdsMono = userDataService
+                .getForCurrentUser()
+                .defaultIfEmpty(new UserData())
+                .map(userData -> {
+                    if (userData.getRecentlyUsedEntityIds() == null) {
+                        return Collections.emptyList();
+                    }
+                    return userData.getRecentlyUsedEntityIds().stream()
+                            .map(RecentlyUsedEntityDTO::getWorkspaceId)
+                            .collect(Collectors.toList());
+                });
+
+        return workspaceIdsMono.flatMap(workspaceIds -> workspaceService
+                .getAll(workspacePermission.getReadPermission())
+                // Sort by workspace names alphabetically
+                .sort(Comparator.comparing(workspace -> workspace.getName().toLowerCase()))
+                // Collect to list to keep the order of the workspaces
                 .collectList());
     }
 }
