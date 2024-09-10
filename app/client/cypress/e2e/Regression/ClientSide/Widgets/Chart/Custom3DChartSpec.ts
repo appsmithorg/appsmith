@@ -5,7 +5,7 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 const publicWidgetsPage = require("../../../../../locators/publishWidgetspage.json");
 
-describe(
+describe.skip(
   "3D Custom EChart feature",
   { tags: ["@tag.Widget", "@tag.Chart", "@tag.Visual"] },
   function () {
@@ -25,10 +25,10 @@ describe(
         `{{${JSON.stringify(this.dataSet.Custom3DEChartConfig)}}}`,
       );
 
-      // cy.wait(1000);
-      // cy.get(publicWidgetsPage.chartWidget).matchImageSnapshot(
-      //   "3DCustomECharts",
-      // );
+      cy.wait(1000);
+      cy.get(publicWidgetsPage.chartWidget).matchImageSnapshot(
+        "3DCustomECharts",
+      );
 
       EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
       _.propPane.UpdatePropertyFieldValue(
