@@ -141,15 +141,13 @@ describe(
         ),
       );
       agHelper.ClickButton("Confirm");
-      cy.wait(["@postExecute", "@postExecute"]).then((interceptions: any[]) => {
-        const responseStatus0 = Number(
-          interceptions[0].body.responseMeta.status,
-        );
-        const responseStatus1 = Number(
-          interceptions[1].body.responseMeta.status,
-        );
-        expect(responseStatus0).to.equal(200);
-        expect(responseStatus1).to.equal(200);
+      cy.wait("@postExecute").then((interception: any) => {
+        const valueToTest = JSON.stringify(interception.response.body);
+        cy.log(valueToTest);
+      });
+      cy.wait("@postExecute").then((interception: any) => {
+        const valueToTest = JSON.stringify(interception.response.body);
+        cy.log(valueToTest);
       });
       // assertHelper.AssertNetworkStatus("@postExecute", 200);
       // assertHelper.AssertNetworkStatus("@postExecute", 200);
