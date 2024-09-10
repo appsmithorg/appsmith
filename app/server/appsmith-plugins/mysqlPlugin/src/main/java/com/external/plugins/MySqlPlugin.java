@@ -722,8 +722,7 @@ public class MySqlPlugin extends BasePlugin {
                 connectionPool
                         .disposeLater()
                         .onErrorResume(exception -> {
-                            log.debug("Could not destroy MySQL connection pool");
-                            exception.printStackTrace();
+                            log.debug("Could not destroy MySQL connection pool"+exception);
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)

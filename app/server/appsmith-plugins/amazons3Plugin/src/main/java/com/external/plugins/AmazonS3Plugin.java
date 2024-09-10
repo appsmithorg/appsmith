@@ -930,8 +930,7 @@ public class AmazonS3Plugin extends BasePlugin {
                             return connection;
                         })
                         .onErrorResume(exception -> {
-                            log.debug("Error closing S3 connection.");
-                            exception.printStackTrace();
+                            log.debug("Error closing S3 connection."+exception);
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)
