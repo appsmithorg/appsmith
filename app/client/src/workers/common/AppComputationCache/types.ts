@@ -1,3 +1,4 @@
 export enum EComputationCacheName {
-  DependencyMap = "dependencyMap",
+  DEPENDENCY_MAP = "DEPENDENCY_MAP",
+  ALL_KEYS = "ALL_KEYS",
 }

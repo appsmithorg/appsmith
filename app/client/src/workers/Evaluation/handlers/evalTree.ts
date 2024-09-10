@@ -110,7 +110,6 @@ export async function evalTree(
 
       const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        webworkerTelemetry,
         (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
           dataTreeEvaluator,
           unevalTree,
@@ -123,6 +122,7 @@ export async function evalTree(
             appMode,
           },
         ),
+        webworkerTelemetry,
         { description: "during initialisation" },
       );
 
@@ -165,7 +165,6 @@ export async function evalTree(
 
       const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        webworkerTelemetry,
         (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
           dataTreeEvaluator,
           unevalTree,
@@ -178,6 +177,7 @@ export async function evalTree(
             appMode,
           },
         ),
+        webworkerTelemetry,
         { description: "non-initialisation" },
       );
       isCreateFirstTree = true;

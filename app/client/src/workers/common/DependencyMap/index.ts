@@ -62,7 +62,7 @@ export async function createDependencyMap(
       Record<string, string[]>
     >({
       appId,
-      cacheName: EComputationCacheName.DependencyMap,
+      cacheName: EComputationCacheName.DEPENDENCY_MAP,
       pageId,
       timestamp,
       appMode,
@@ -104,7 +104,7 @@ export async function createDependencyMap(
     if (shouldCache) {
       await appComputationCache.cacheComputationResult({
         appId,
-        cacheName: EComputationCacheName.DependencyMap,
+        cacheName: EComputationCacheName.DEPENDENCY_MAP,
         pageId,
         timestamp,
         appMode,

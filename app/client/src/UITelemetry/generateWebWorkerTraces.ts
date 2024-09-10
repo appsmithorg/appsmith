@@ -30,8 +30,8 @@ const addEndTimeForWebWorkerSpanData = (span: WebworkerSpanData) => {
 
 export const profileAsyncFn = async <T>(
   spanName: string,
-  allSpans: Record<string, WebworkerSpanData | SpanAttributes>,
   fn: () => Promise<T>,
+  allSpans: Record<string, WebworkerSpanData | SpanAttributes>,
   attributes: SpanAttributes = {},
 ) => {
   const span = newWebWorkerSpanData(spanName, attributes);

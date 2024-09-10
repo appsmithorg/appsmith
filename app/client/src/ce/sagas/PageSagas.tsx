@@ -403,10 +403,18 @@ export function* fetchPublishedPageResourcesSaga(
       // We need to recall consolidated view API in order to fetch actions when page is switched
       // As in the first call only actions of the current page are fetched
       // In future, we can reuse this saga to fetch other resources of the page like actionCollections etc
-      const { pageWithMigratedDsl, publishedActions } = response;
+      const { pages, pageWithMigratedDsl, publishedActions } = response;
       // Sending applicationId as empty as we have publishedActions present,
       // it won't call the actions view api with applicationId
-      yield put(fetchActionsForView({ applicationId: "", publishedActions }));
+      const applicationId = pages.data.application.id;
+      yield put(
+        updateCurrentPage(
+          pageId,
+          pageWithMigratedDsl.data.slug,
+          pageWithMigratedDsl.data.userPermissions,
+        ),
+      );
+      yield put(fetchActionsForView({ applicationId, publishedActions }));
       yield put(setupPublishedPage(pageId, true, false, pageWithMigratedDsl));
     }
   } catch (error) {
