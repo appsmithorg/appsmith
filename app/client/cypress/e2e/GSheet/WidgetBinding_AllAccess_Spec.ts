@@ -21,7 +21,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-all";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
-describes.skip(
+describe.skip(
   "GSheet-widget binding",
   { tags: ["@tag.Datasource", "@tag.GSheet"] },
   function () {
