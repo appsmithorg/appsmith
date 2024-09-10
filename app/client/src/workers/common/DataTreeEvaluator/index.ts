@@ -143,9 +143,11 @@ import {
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
-import type { APP_MODE } from "entities/App";
 import appComputationCache from "../AppComputationCache";
-import { EComputationCacheName } from "../AppComputationCache/types";
+import {
+  EComputationCacheName,
+  type ICacheProps,
+} from "../AppComputationCache/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -245,12 +247,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
-    cacheProps: {
-      appId: string;
-      pageId: string;
-      appMode?: APP_MODE;
-      timestamp: string;
-    },
+    cacheProps: ICacheProps,
   ) {
     this.setConfigTree(configTree);
 
@@ -294,15 +291,10 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
 
-    const { appId, appMode, pageId, timestamp } = cacheProps;
-
     this.allKeys = await appComputationCache.fetchOrCompute({
-      appId,
-      pageId,
-      timestamp,
-      appMode,
+      ...cacheProps,
       cacheName: EComputationCacheName.ALL_KEYS,
-      computeFn: getAllPaths.bind(null, unEvalTreeWithStrigifiedJSFunctions),
+      computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
     });
 
     const allKeysGenerationEndTime = performance.now();
@@ -311,12 +303,8 @@ export default class DataTreeEvaluator {
 
     const { dependencies, inverseDependencies } = await profileAsyncFn(
       "createDependencyMap",
-      createDependencyMap.bind(null, this, localUnEvalTree, configTree, {
-        appId,
-        pageId,
-        timestamp,
-        appMode,
-      }),
+      async () =>
+        createDependencyMap(this, localUnEvalTree, configTree, cacheProps),
       webworkerTelemetry,
     );
 

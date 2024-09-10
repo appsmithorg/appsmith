@@ -29,20 +29,17 @@ import {
 } from "ee/workers/Evaluation/Actions";
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
-import type { APP_MODE } from "entities/App";
 import appComputationCache from "../AppComputationCache";
-import { EComputationCacheName } from "../AppComputationCache/types";
+import {
+  EComputationCacheName,
+  type ICacheProps,
+} from "../AppComputationCache/types";
 
 export async function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
-  cacheProps: {
-    appId: string;
-    pageId: string;
-    appMode?: APP_MODE;
-    timestamp: string;
-  },
+  cacheProps: ICacheProps,
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
 
@@ -61,11 +58,8 @@ export async function createDependencyMap(
     await appComputationCache.getCachedComputationResult<
       Record<string, string[]>
     >({
-      appId,
+      ...cacheProps,
       cacheName: EComputationCacheName.DEPENDENCY_MAP,
-      pageId,
-      timestamp,
-      appMode,
     });
 
   if (dependencyMapCache) {
