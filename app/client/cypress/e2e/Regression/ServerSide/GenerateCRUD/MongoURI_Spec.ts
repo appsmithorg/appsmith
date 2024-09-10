@@ -141,8 +141,18 @@ describe(
         ),
       );
       agHelper.ClickButton("Confirm");
-      assertHelper.AssertNetworkStatus("@postExecute", 200);
-      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      cy.wait(["@postExecute", "@postExecute"]).then((interceptions: any[]) => {
+        const responseStatus0 = Number(
+          interceptions[0].body.responseMeta.status,
+        );
+        const responseStatus1 = Number(
+          interceptions[1].body.responseMeta.status,
+        );
+        expect(responseStatus0).to.equal(200);
+        expect(responseStatus1).to.equal(200);
+      });
+      // assertHelper.AssertNetworkStatus("@postExecute", 200);
+      // assertHelper.AssertNetworkStatus("@postExecute", 200);
       table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Coffee Mug");
       });
