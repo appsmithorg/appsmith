@@ -9,6 +9,7 @@
  * These are composable components that you can use to spread the content of the header
  * It is possible to use the IDE Header without using these subsections
  */
+export { IDE_HEADER_HEIGHT } from "./Structure/constants";
 export { default as IDEHeader } from "./Structure/Header";
 
 /* ====================================================

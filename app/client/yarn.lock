@@ -10631,6 +10631,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dom-view-transitions@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@types/dom-view-transitions@npm:1.0.5"
+  checksum: 4190915a3d4c63d4c590d5e64d14ca1d1140496a75adb5af64b0ef13e075cc7676bff926f5c5c60305c4f6d46965a196c119a7960cbe0ff40e95e17e82334c22
+  languageName: node
+  linkType: hard
+
 "@types/dom4@npm:^2.0.1":
   version: 2.0.2
   resolution: "@types/dom4@npm:2.0.2"
@@ -13214,6 +13221,7 @@ __metadata:
     "@types/d3-geo": ^3.1.0
     "@types/deep-diff": ^1.0.0
     "@types/dom-mediacapture-record": ^1.0.11
+    "@types/dom-view-transitions": ^1.0.5
     "@types/downloadjs": ^1.4.2
     "@types/google.maps": ^3.51.0
     "@types/jest": ^27.4.1

@@ -140,11 +140,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndBasePageId(branchName, id, pagePermission.getReadPermission());
-    }
-
-    @Override
     public Mono<PageDTO> saveUnpublishedPage(PageDTO page) {
         return findById(page.getId(), pagePermission.getEditPermission())
                 .flatMap(newPage -> {
@@ -514,19 +509,21 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findByBranchNameAndBasePageId(String branchName, String basePageId, AclPermission permission) {
+    public Mono<NewPage> findByBranchNameAndBasePageId(
+            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames) {
 
         if (!StringUtils.hasText(basePageId)) {
             return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID));
         } else if (!StringUtils.hasText(branchName)) {
-            return this.findById(basePageId, permission)
+            return repository
+                    .findById(basePageId, permission, projectedFieldNames)
                     .name(GET_PAGE_WITHOUT_BRANCH)
                     .tap(Micrometer.observation(observationRegistry))
                     .switchIfEmpty(Mono.error(
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, basePageId)));
         }
         return repository
-                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission)
+                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission, projectedFieldNames)
                 .name(GET_PAGE_WITH_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
@@ -544,7 +541,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             permission = pagePermission.getReadPermission();
         }
 
-        return this.findByBranchNameAndBasePageId(branchName, basePageId, permission)
+        return this.findByBranchNameAndBasePageId(
+                        branchName, basePageId, permission, List.of(NewPage.Fields.id, NewPage.Fields.applicationId))
                 .name(getQualifiedSpanName(GET_PAGE, mode))
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -558,7 +556,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.just(basePageId);
         }
         return repository
-                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission)
+                .findPageByBranchNameAndBasePageId(branchName, basePageId, permission, null)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, basePageId + ", " + branchName)))
                 .map(NewPage::getId);

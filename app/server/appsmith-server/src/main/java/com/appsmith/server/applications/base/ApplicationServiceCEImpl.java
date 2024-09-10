@@ -1049,7 +1049,9 @@ public class ApplicationServiceCEImpl
                 ? applicationPermission.getReadPermission()
                 : applicationPermission.getEditPermission();
 
-        return findByBranchNameAndBaseApplicationId(branchName, defaultApplicationId, permissionForApplication);
+        return findByBranchNameAndBaseApplicationId(branchName, defaultApplicationId, permissionForApplication)
+                .name(APPLICATION_FETCH_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override

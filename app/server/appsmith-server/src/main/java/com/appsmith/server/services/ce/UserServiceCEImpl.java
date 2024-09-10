@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
@@ -579,8 +578,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
             userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
         }
 
-        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-        return repository.save(existingUser);
+        return repository.updateById(existingUser.getId(), userUpdate, null);
     }
 
     private boolean validateName(String name) {
@@ -606,6 +604,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
             }
             updates.setName(inputName);
+            // Set policies to null to avoid overriding them.
+            updates.setPolicies(null);
             updatedUserMono = sessionUserService
                     .getCurrentUser()
                     .flatMap(user -> updateWithoutPermission(user.getId(), updates)

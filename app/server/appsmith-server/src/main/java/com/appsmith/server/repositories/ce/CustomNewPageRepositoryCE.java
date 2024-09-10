@@ -12,6 +12,8 @@ import java.util.Optional;
 
 public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
+    Optional<NewPage> findById(String id, AclPermission permission, User currentUser, List<String> projectedFields);
+
     List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser);
 
     List<NewPage> findByApplicationId(
@@ -33,7 +35,11 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Optional<String> getNameByPageId(String pageId, boolean isPublishedName);
 
     Optional<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName, String basePageId, AclPermission permission, User currentUser);
+            String branchName,
+            String basePageId,
+            AclPermission permission,
+            User currentUser,
+            List<String> projectedFieldNames);
 
     List<NewPage> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
 

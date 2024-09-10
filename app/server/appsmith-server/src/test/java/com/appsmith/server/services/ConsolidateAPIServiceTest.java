@@ -129,7 +129,7 @@ public class ConsolidateAPIServiceTest {
         when(mockProductAlertService.getSingleApplicableMessage())
                 .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
-        when(mockNewPageRepository.findPageByBranchNameAndBasePageId(anyString(), anyString(), any()))
+        when(mockNewPageRepository.findPageByBranchNameAndBasePageId(anyString(), anyString(), any(), any()))
                 .thenReturn(Mono.empty());
 
         doReturn(Mono.empty())

@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -227,7 +228,7 @@ public class ConsolidatedAPIServiceImplTest {
         mockNewPage.setId("mockPageId");
         doReturn(Mono.just(mockNewPage))
                 .when(spyNewPageService)
-                .findByBranchNameAndBasePageId(anyString(), anyString(), any());
+                .findByBranchNameAndBasePageId(anyString(), anyString(), any(), any());
 
         doReturn(Mono.just(List.of(mockNewPage)))
                 .when(spyApplicationPageService)
@@ -270,7 +271,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        "pageId", null, "branch", ApplicationMode.PUBLISHED);
+                        "pageId123", null, "branch", ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
                 .assertNext(consolidatedAPIResponseDTO -> {
                     assertNotNull(consolidatedAPIResponseDTO.getPublishedActions());
@@ -418,7 +419,7 @@ public class ConsolidatedAPIServiceImplTest {
         mockNewPage.setApplicationId("mockApplicationId");
         doReturn(Mono.just(mockNewPage))
                 .when(spyNewPageService)
-                .findByBranchNameAndBasePageId(anyString(), anyString(), any());
+                .findByBranchNameAndBasePageId(anyString(), anyString(), any(), any());
 
         doReturn(Mono.just(List.of(mockNewPage)))
                 .when(spyApplicationPageService)
@@ -693,6 +694,181 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getData()
                                     .get(0)
                                     .getName());
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * To mimic error response the DB fetch call from repository has been mocked in this test i.e. the repository has
+     * been mocked to return empty response.
+     */
+    @Test
+    public void testErrorResponseWhenAnonymousUserAccessPrivateApp() {
+        User sampleUser = new User();
+        when(mockSessionUserService.getCurrentUser()).thenReturn(Mono.just(sampleUser));
+
+        UserProfileDTO sampleUserProfileDTO = new UserProfileDTO();
+        sampleUserProfileDTO.setName("sampleUserProfileDTO");
+        when(mockUserService.buildUserProfileDTO(any())).thenReturn(Mono.just(sampleUserProfileDTO));
+
+        Map<String, Boolean> sampleFeatureFlagMap = new HashMap<>();
+        sampleFeatureFlagMap.put("sampleFeatureFlag", true);
+        when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
+
+        Tenant sampleTenant = new Tenant();
+        sampleTenant.setDisplayName("sampleTenant");
+        when(mockTenantService.getTenantConfiguration()).thenReturn(Mono.just(sampleTenant));
+
+        ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
+        sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
+        when(mockProductAlertService.getSingleApplicableMessage())
+                .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
+
+        when(mockNewPageRepository.findPageByBranchNameAndBasePageId(anyString(), anyString(), any(), any()))
+                .thenReturn(Mono.empty());
+        doReturn(Mono.empty())
+                .when(spyApplicationRepository)
+                .getApplicationByGitBranchAndBaseApplicationId(anyString(), anyString(), any(AclPermission.class));
+
+        Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
+                consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                        "pageId", "appId", "branch", ApplicationMode.PUBLISHED);
+        StepVerifier.create(consolidatedInfoForPageLoad)
+                .assertNext(consolidatedAPIResponseDTO -> {
+                    assertNotNull(consolidatedAPIResponseDTO.getUserProfile());
+                    assertEquals(
+                            "sampleUserProfileDTO",
+                            consolidatedAPIResponseDTO
+                                    .getUserProfile()
+                                    .getData()
+                                    .getName());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getTenantConfig());
+                    assertEquals(
+                            "sampleTenant",
+                            consolidatedAPIResponseDTO
+                                    .getTenantConfig()
+                                    .getData()
+                                    .getDisplayName());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getFeatureFlags());
+                    assertTrue(consolidatedAPIResponseDTO
+                            .getFeatureFlags()
+                            .getData()
+                            .get("sampleFeatureFlag"));
+
+                    assertNotNull(consolidatedAPIResponseDTO.getProductAlert());
+                    assertEquals(
+                            "sampleProductAlert",
+                            consolidatedAPIResponseDTO
+                                    .getProductAlert()
+                                    .getData()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPublishedActions());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActions()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActions()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPages());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPages()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPages()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getCurrentTheme());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getCurrentTheme()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getCurrentTheme()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getThemes());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getThemes()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getThemes()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPublishedActionCollections());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActionCollections()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPublishedActionCollections()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getPageWithMigratedDsl());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getPageWithMigratedDsl()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getPageWithMigratedDsl()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
+
+                    assertNotNull(consolidatedAPIResponseDTO.getCustomJSLibraries());
+                    assertEquals(
+                            404,
+                            consolidatedAPIResponseDTO
+                                    .getCustomJSLibraries()
+                                    .getResponseMeta()
+                                    .getStatus());
+                    assertEquals(
+                            "No resource found",
+                            consolidatedAPIResponseDTO
+                                    .getCustomJSLibraries()
+                                    .getResponseMeta()
+                                    .getError()
+                                    .getTitle());
                 })
                 .verifyComplete();
     }

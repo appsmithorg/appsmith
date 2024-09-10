@@ -35,6 +35,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     private final ObservationRegistry observationRegistry;
 
     @Override
+    public Optional<NewPage> findById(
+            String id, AclPermission permission, User currentUser, List<String> projectedFields) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewPage.Fields.id, id))
+                .permission(permission, currentUser)
+                .fields(projectedFields)
+                .one();
+    }
+
+    @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
@@ -173,7 +183,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName, String basePageId, AclPermission permission, User currentUser) {
+            String branchName,
+            String basePageId,
+            AclPermission permission,
+            User currentUser,
+            List<String> projectedFieldNames) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
@@ -186,7 +200,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.branchName);
         }
 
-        return queryBuilder().criteria(q).permission(permission, currentUser).one()
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission, currentUser)
+                .fields(projectedFieldNames)
+                .one()
         /*.name(FETCH_PAGE_FROM_DB)
         .tap(Micrometer.observation(observationRegistry))*/ ;
     }
