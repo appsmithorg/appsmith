@@ -278,7 +278,7 @@ export const updateDependencyMap = ({
   const updateChangedDependenciesStart = performance.now();
 
   if (didUpdateDependencyMap) {
-    DependencyMapUtils.linkChildToItsParentNodeForAffectedChildNodes(
+    DependencyMapUtils.linkAffectedChildNodesToParent(
       dependencyMap,
       affectedNodes,
     );

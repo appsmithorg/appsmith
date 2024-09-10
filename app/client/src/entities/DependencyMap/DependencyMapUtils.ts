@@ -50,7 +50,7 @@ export class DependencyMapUtils {
   }
 
   // this function links childNode to its parent as a dependency for only affectedNodes in the graph
-  static linkChildToItsParentNodeForAffectedChildNodes(
+  static linkAffectedChildNodesToParent(
     dependencyMap: DependencyMap,
     affectedSet: Set<string>,
   ) {

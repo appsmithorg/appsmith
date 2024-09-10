@@ -2708,7 +2708,7 @@ describe("Tests for DependencyMapUtils", () => {
       "Api1",
     ]);
   }
-  describe("linkChildToItsParentNodeForAffectedChildNodes", () => {
+  describe("linkAffectedChildNodesToParent", () => {
     const createSomeDependencyMap = () => {
       const dependencyMap = new DependencyMap();
       dependencyMap.addNodes({
@@ -2729,11 +2729,11 @@ describe("Tests for DependencyMapUtils", () => {
       // although "apiData.data" was attached as a dependency to "tableWidget.tableData", it's parent "apiData" also needs to be linked to "apiData.data"
       expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
       const affectedNodes = new Set(["apiData.data"]);
-      DependencyMapUtils.linkChildToItsParentNodeForAffectedChildNodes(
+      DependencyMapUtils.linkAffectedChildNodesToParent(
         dependencyMap,
         affectedNodes,
       );
-      // after linkChildToItsParentNodeForAffectedChildNodes execution "apiData" does get linked to "apiData.data"
+      // after linkAffectedChildNodesToParent execution "apiData" does get linked to "apiData.data"
       expect(dependencyMap.rawDependencies.get("apiData")).toEqual(
         new Set(["apiData.data"]),
       );
@@ -2744,7 +2744,7 @@ describe("Tests for DependencyMapUtils", () => {
       // although "apiData.data" was attached as a dependency to "tableWidget.tableData", it's parent "apiData" also needs to be linked to "apiData.data"
       expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
       const emptyAffectedNodes = new Set([]);
-      DependencyMapUtils.linkChildToItsParentNodeForAffectedChildNodes(
+      DependencyMapUtils.linkAffectedChildNodesToParent(
         dependencyMap,
         emptyAffectedNodes,
       );
@@ -2759,11 +2759,11 @@ describe("Tests for DependencyMapUtils", () => {
       expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
       const affectedNodes = new Set(["apiData.allData.paginatedData"]);
 
-      DependencyMapUtils.linkChildToItsParentNodeForAffectedChildNodes(
+      DependencyMapUtils.linkAffectedChildNodesToParent(
         dependencyMap,
         affectedNodes,
       );
-      // after linkChildToItsParentNodeForAffectedChildNodes execution "apiData.allData.paginatedData" get linked to "apiData.data" and its parent "apiData.data" gets linked to "apiData"
+      // after linkAffectedChildNodesToParent execution "apiData.allData.paginatedData" get linked to "apiData.data" and its parent "apiData.data" gets linked to "apiData"
       expect(dependencyMap.getDirectDependencies("apiData")).toEqual([
         "apiData.allData",
       ]);
