@@ -6,7 +6,7 @@ set -o nounset
 set -o noglob
 
 # Define the log file path
-log_dir=/appsmith-stacks
+log_dir=$1
 log_file=$log_dir/loop.log
 
 # Ensure the log directory exists
