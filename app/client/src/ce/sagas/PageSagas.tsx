@@ -22,7 +22,6 @@ import {
   createPageAction,
   fetchPageAction,
   fetchPublishedPageAction,
-  setupPublishedPage,
 } from "actions/pageActions";
 import {
   clonePageSuccess,
@@ -390,14 +389,14 @@ export function* fetchPublishedPageResourcesSaga(
     const { pageId } = action.payload;
 
     const params = { defaultPageId: pageId };
-    const consolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
+    const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
 
     const isValidResponse: boolean = yield validateResponse(
-      consolidatedApiResponse,
+      initConsolidatedApiResponse,
     );
     const response: InitConsolidatedApi | undefined =
-      consolidatedApiResponse.data;
+      initConsolidatedApiResponse.data;
 
     if (isValidResponse) {
       // We need to recall consolidated view API in order to fetch actions when page is switched
@@ -407,6 +406,7 @@ export function* fetchPublishedPageResourcesSaga(
       // Sending applicationId as empty as we have publishedActions present,
       // it won't call the actions view api with applicationId
       const applicationId = pages.data.application.id;
+
       yield put(
         updateCurrentPage(
           pageId,
@@ -415,7 +415,7 @@ export function* fetchPublishedPageResourcesSaga(
         ),
       );
       yield put(fetchActionsForView({ applicationId, publishedActions }));
-      yield put(setupPublishedPage(pageId, true, false, pageWithMigratedDsl));
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
     }
   } catch (error) {
     yield put({
