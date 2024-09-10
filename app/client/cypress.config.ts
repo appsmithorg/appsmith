@@ -34,10 +34,18 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       require("@cypress/grep/src/plugin")(config);
       require("./cypress/plugins/index.js")(on, config);
+      require("cypress-mochawesome-reporter/plugin")(on);
       return config;
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
     testIsolation: false,
     excludeSpecPattern: "cypress/e2e/**/spec_utility.ts",
+    reporter: "cypress-mochawesome-reporter",
+    reporterOptions: {
+      reportDir: "cypress/results", 
+      overwrite: false,
+      html: true,
+      json: true,
+    },
   },
 });

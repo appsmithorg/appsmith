@@ -32,6 +32,7 @@ export default defineConfig({
     baseUrl: "https://regression.test.appsmith.com/",
     setupNodeEvents(on, config) {
       require("cypress-mochawesome-reporter/plugin")(on);
+      require("cypress-mochawesome-reporter/plugin")(on);
       on(
         "after:spec",
         (spec: Cypress.Spec, results: CypressCommandLine.RunResult) => {
@@ -58,5 +59,12 @@ export default defineConfig({
     ],
     testIsolation: false,
     excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
+    reporter: "cypress-mochawesome-reporter",
+    reporterOptions: {
+      reportDir: "cypress/results", 
+      overwrite: false,
+      html: true,
+      json: true,
+    },
   },
 });
