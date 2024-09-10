@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.migrations.MigrationHelperMethods;
 import com.appsmith.server.newactions.base.NewActionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class JsonSchemaMigrationHelper {
 
@@ -25,9 +27,13 @@ public class JsonSchemaMigrationHelper {
     public Mono<ApplicationJson> addDatasourceConfigurationToDefaultRestApiActions(
             String baseApplicationId, String branchName, ApplicationJson applicationJson) {
 
-        if (!StringUtils.hasText(baseApplicationId) || !StringUtils.hasText(branchName)) {
+        Mono<ApplicationJson> contingencyMigrationJson = Mono.defer(() -> Mono.fromCallable(() -> {
             MigrationHelperMethods.migrateApplicationJsonToVersionTen(applicationJson, Map.of());
-            return Mono.just(applicationJson);
+            return applicationJson;
+        }));
+
+        if (!StringUtils.hasText(baseApplicationId) || !StringUtils.hasText(branchName)) {
+            return contingencyMigrationJson;
         }
 
         Mono<Application> applicationMono = applicationService
@@ -60,9 +66,10 @@ public class JsonSchemaMigrationHelper {
                     MigrationHelperMethods.migrateApplicationJsonToVersionTen(applicationJson, newActionMap);
                     return applicationJson;
                 })
-                .switchIfEmpty(Mono.defer(() -> Mono.just(applicationJson).map(applicationJson1 -> {
-                    MigrationHelperMethods.migrateApplicationJsonToVersionTen(applicationJson, Map.of());
-                    return applicationJson;
-                })));
+                .switchIfEmpty(contingencyMigrationJson)
+                .onErrorResume(error -> {
+                    log.error("Error occurred while migrating actions of application json. {}", error.getMessage());
+                    return contingencyMigrationJson;
+                });
     }
 }

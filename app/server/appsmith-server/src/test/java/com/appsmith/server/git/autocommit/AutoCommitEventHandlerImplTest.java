@@ -442,7 +442,8 @@ public class AutoCommitEventHandlerImplTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(applicationJson, Mockito.anyString(), Mockito.anyString());
+                .migrateApplicationJsonToLatestSchema(
+                        Mockito.eq(applicationJson), Mockito.anyString(), Mockito.anyString());
 
         doReturn(Mono.just("success"))
                 .when(gitExecutor)
