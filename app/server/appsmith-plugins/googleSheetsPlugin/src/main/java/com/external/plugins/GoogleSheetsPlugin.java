@@ -84,7 +84,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             String printMessage =
                     Thread.currentThread().getName() + ": executeParameterized() called for GoogleSheets plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             boolean smartJsonSubstitution;
             final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
@@ -145,7 +145,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
             String printMessage =
                     Thread.currentThread().getName() + ": executeCommon() called for GoogleSheets plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             errorResult.setStatusCode(GSheetsPluginError.QUERY_EXECUTION_FAILED.getAppErrorCode());
@@ -255,7 +255,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 })
                                 .onErrorResume(e -> {
                                     errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                                    System.out.println("Received error on Google Sheets action execution");
+                                    log.debug("Received error on Google Sheets action execution");
                                     e.printStackTrace();
                                     if (!(e instanceof AppsmithPluginException)) {
                                         e = new AppsmithPluginException(
@@ -325,7 +325,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
         public Mono<TriggerResultDTO> trigger(
                 Void connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
             String printMessage = Thread.currentThread().getName() + ": trigger() called for GoogleSheets plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             final TriggerMethod triggerMethod = GoogleSheetsMethodStrategy.getTriggerMethod(request, objectMapper);
             MethodConfig methodConfig = new MethodConfig(request);
 
@@ -398,7 +398,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 Map<String, String> pluginSpecificTemplateParams) {
             String printMessage =
                     Thread.currentThread().getName() + ": updateCrudTemplateFormData() called for GoogleSheets plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             pluginSpecificTemplateParams.forEach((k, v) -> {
                 if (formData.containsKey(k)) {
                     setDataValueSafelyInFormData(formData, k, v);
@@ -414,7 +414,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
         public Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
             String printMessage =
                     Thread.currentThread().getName() + ": getDatasourceMetadata() called for GoogleSheets plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             return GetDatasourceMetadataMethod.getDatasourceMetadata(datasourceConfiguration);
         }
     }

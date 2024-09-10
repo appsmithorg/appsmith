@@ -92,7 +92,7 @@ public class DynamoPlugin extends BasePlugin {
 
         public Object extractValue(Object rawItem) {
             String printMessage = Thread.currentThread().getName() + ": extractValue() called for Dynamo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
 
             if (!(rawItem instanceof List) && !(rawItem instanceof Map)) {
                 return rawItem;
@@ -166,7 +166,7 @@ public class DynamoPlugin extends BasePlugin {
                 throws AppsmithPluginException {
             String printMessage =
                     Thread.currentThread().getName() + ": getTransformedResponse() called for Dynamo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             Map<String, Object> transformedResponse = new HashMap<>();
             for (Map.Entry<String, Object> responseEntry : rawResponse.entrySet()) {
                 Object rawItems = responseEntry.getValue();
@@ -189,13 +189,13 @@ public class DynamoPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": execute() called for Dynamo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             final Map<String, Object> requestData = new HashMap<>();
             final String body = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams = new ArrayList<>();
 
             return Mono.fromCallable(() -> {
-                        System.out.println(Thread.currentThread().getName()
+                        log.debug(Thread.currentThread().getName()
                                 + ": creating action execution result from DynamoDB plugin.");
                         ActionExecutionResult result = new ActionExecutionResult();
 
@@ -287,9 +287,9 @@ public class DynamoPlugin extends BasePlugin {
         @Override
         public Mono<DynamoDbClient> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Dynamo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             return Mono.fromCallable(() -> {
-                        System.out.println(
+                        log.debug(
                                 Thread.currentThread().getName() + ": creating dynamodbclient from DynamoDB plugin.");
                         final DynamoDbClientBuilder builder = DynamoDbClient.builder();
 
@@ -327,7 +327,7 @@ public class DynamoPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Dynamo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             Set<String> invalids = new HashSet<>();
 
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -353,7 +353,7 @@ public class DynamoPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DynamoDbClient connection) {
             String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Dynamo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             return Mono.fromCallable(() -> {
                 /*
                  * - Creating a connection with false credentials does not throw an error. Hence,
@@ -368,9 +368,9 @@ public class DynamoPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(
                 DynamoDbClient ddb, DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": getStructure() called for Dynamo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             return Mono.fromCallable(() -> {
-                        System.out.println(Thread.currentThread().getName()
+                        log.debug(Thread.currentThread().getName()
                                 + ": creating datasourceStructure from DynamoDB plugin.");
                         final ListTablesResponse listTablesResponse = ddb.listTables();
 

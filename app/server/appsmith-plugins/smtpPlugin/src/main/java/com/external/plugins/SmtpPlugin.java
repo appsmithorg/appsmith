@@ -72,7 +72,7 @@ public class SmtpPlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration) {
 
             String printMessage = Thread.currentThread().getName() + ": execute() called for SMTP plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             MimeMessage message = getMimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
@@ -166,7 +166,7 @@ public class SmtpPlugin extends BasePlugin {
                 }
 
                 // Send the email now
-                System.out.println("Going to send the email");
+                log.debug("Going to send the email");
                 Transport.send(message);
 
                 result.setIsExecutionSuccess(true);
@@ -174,7 +174,7 @@ public class SmtpPlugin extends BasePlugin {
                 responseBody.put("message", "Sent the email successfully");
                 result.setBody(objectMapper.valueToTree(responseBody));
 
-                System.out.println("Sent the email successfully");
+                log.debug("Sent the email successfully");
             } catch (MessagingException e) {
                 return Mono.error(new AppsmithPluginException(
                         SMTPPluginError.MAIL_SENDING_FAILED,
@@ -201,7 +201,7 @@ public class SmtpPlugin extends BasePlugin {
         @Override
         public Mono<Session> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for SMTP plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
@@ -229,7 +229,7 @@ public class SmtpPlugin extends BasePlugin {
         @Override
         public void datasourceDestroy(Session session) {
             String printMessage = Thread.currentThread().getName() + ": datasourceDestroy() called for SMTP plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             try {
                 if (session != null && session.getTransport() != null) {
                     session.getTransport().close();
@@ -242,7 +242,7 @@ public class SmtpPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for SMTP plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
@@ -266,7 +266,7 @@ public class SmtpPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(Session connection) {
             String printMessage = Thread.currentThread().getName() + ": testDatasource() called for SMTP plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             return Mono.fromCallable(() -> {
                         Set<String> invalids = new HashSet<>();
                         try {
@@ -280,7 +280,7 @@ public class SmtpPlugin extends BasePlugin {
                         } catch (AuthenticationFailedException e) {
                             invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
                         } catch (MessagingException e) {
-                            System.out.println(e.getMessage());
+                            log.debug(e.getMessage());
                             invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);
                         }
                         return invalids;
@@ -292,7 +292,7 @@ public class SmtpPlugin extends BasePlugin {
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
             String printMessage =
                     Thread.currentThread().getName() + ": getEndpointIdentifierForRateLimit() called for SMTP plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier

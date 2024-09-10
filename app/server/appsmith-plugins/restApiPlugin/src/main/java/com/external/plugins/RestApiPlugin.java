@@ -74,7 +74,7 @@ public class RestApiPlugin extends BasePlugin {
 
             String printMessage = Thread.currentThread().getName()
                     + ": executeParameterized() called for RestAPI plugin. Executing the API call.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -136,7 +136,7 @@ public class RestApiPlugin extends BasePlugin {
 
             String printMessage = Thread.currentThread().getName()
                     + ": executeCommon() called for RestAPI plugin. Executing the API call.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
@@ -215,7 +215,7 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
                                 actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
-                        System.out.println(String.format(
+                        log.debug(String.format(
                                 "An error has occurred while trying to run the API query for url: %s, path: %s",
                                 datasourceConfiguration.getUrl(), actionConfiguration.getPath()));
                         error.printStackTrace();

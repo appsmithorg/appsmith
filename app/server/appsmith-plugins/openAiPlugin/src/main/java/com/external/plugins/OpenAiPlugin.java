@@ -77,7 +77,7 @@ public class OpenAiPlugin extends BasePlugin {
 
             String printMessage =
                     Thread.currentThread().getName() + ": executeParameterized() called for OpenAI plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             // Get prompt from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -96,7 +96,7 @@ public class OpenAiPlugin extends BasePlugin {
                 List<Map.Entry<String, String>> insertedParams) {
 
             String printMessage = Thread.currentThread().getName() + ": executeCommon() called for OpenAI plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
@@ -206,7 +206,7 @@ public class OpenAiPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for OpenAI plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             return RequestUtils.validateBearerTokenDatasource(datasourceConfiguration);
         }
 
@@ -215,7 +215,7 @@ public class OpenAiPlugin extends BasePlugin {
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
 
             String printMessage = Thread.currentThread().getName() + ": trigger() called for OpenAI plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             // Authentication will already be valid at this point
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
             assert (bearerTokenAuth.getBearerToken() != null);
@@ -286,7 +286,7 @@ public class OpenAiPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": testDatasource() called for OpenAI plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             final BearerTokenAuth bearerTokenAuth = (BearerTokenAuth) datasourceConfiguration.getAuthentication();
 
             HttpMethod httpMethod = HttpMethod.GET;

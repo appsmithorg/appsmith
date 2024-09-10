@@ -246,7 +246,7 @@ public class MongoPlugin extends BasePlugin {
 
             String printMessage =
                     Thread.currentThread().getName() + ": executeParameterized() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -309,9 +309,9 @@ public class MongoPlugin extends BasePlugin {
                 List<Map.Entry<String, String>> parameters) {
 
             String printMessage = Thread.currentThread().getName() + ": executeCommon() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             if (mongoClient == null) {
-                System.out.println("Encountered null connection in MongoDB plugin. Reporting back.");
+                log.debug("Encountered null connection in MongoDB plugin. Reporting back.");
                 throw new StaleConnectionException(MONGO_CLIENT_NULL_ERROR_MSG);
             }
             Mono<Document> mongoOutputMono;
@@ -319,7 +319,7 @@ public class MongoPlugin extends BasePlugin {
             String query;
             List<RequestParamDTO> requestParams;
             try {
-                System.out.println(Thread.currentThread().getName() + ": mongoClient.getDatabase from Mongo plugin.");
+                log.debug(Thread.currentThread().getName() + ": mongoClient.getDatabase from Mongo plugin.");
                 MongoDatabase database = mongoClient.getDatabase(getDatabaseName(datasourceConfiguration));
 
                 final Map<String, Object> formData = actionConfiguration.getFormData();
@@ -386,7 +386,7 @@ public class MongoPlugin extends BasePlugin {
                                  `new` field in the command. Let's return that value to the user.
                                 */
                                 if (outputJson.has(VALUE)) {
-                                    System.out.println(Thread.currentThread().getName()
+                                    log.debug(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.VALUE from Mongo plugin.");
                                     Stopwatch processStopwatch =
                                             new Stopwatch("Mongo Plugin objectMapper readTree.VALUE");
@@ -401,7 +401,7 @@ public class MongoPlugin extends BasePlugin {
                                  results. In case there are no results for find, this key is not present in the result json.
                                 */
                                 if (outputJson.has("cursor")) {
-                                    System.out.println(Thread.currentThread().getName()
+                                    log.debug(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.CURSOR from Mongo plugin.");
                                     Stopwatch processStopwatch =
                                             new Stopwatch("Mongo Plugin objectMapper readTree.CURSOR");
@@ -417,7 +417,7 @@ public class MongoPlugin extends BasePlugin {
                                  number of documents inserted.
                                 */
                                 if (outputJson.has("n")) {
-                                    System.out.println(Thread.currentThread().getName()
+                                    log.debug(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.N from Mongo plugin.");
                                     Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree.N");
                                     JSONObject body = new JSONObject().put("n", outputJson.getBigInteger("n"));
@@ -431,7 +431,7 @@ public class MongoPlugin extends BasePlugin {
                                  documents updated.
                                 */
                                 if (outputJson.has(N_MODIFIED)) {
-                                    System.out.println(Thread.currentThread().getName()
+                                    log.debug(Thread.currentThread().getName()
                                             + ": objectMapper.readTree.N_MODIFIED from Mongo plugin.");
                                     Stopwatch processStopwatch =
                                             new Stopwatch("Mongo Plugin objectMapper readTree.N_MODIFIED");
@@ -448,7 +448,7 @@ public class MongoPlugin extends BasePlugin {
                                 if (outputJson.has(VALUES)) {
                                     JSONArray outputResult = (JSONArray) cleanUp(outputJson.getJSONArray(VALUES));
 
-                                    System.out.println(Thread.currentThread().getName()
+                                    log.debug(Thread.currentThread().getName()
                                             + ": objectMapper.createObjectNode from Mongo plugin.");
                                     Stopwatch processStopwatch =
                                             new Stopwatch("Mongo Plugin objectMapper createObjectNode");
@@ -477,7 +477,7 @@ public class MongoPlugin extends BasePlugin {
 
                             JSONObject statusJson = new JSONObject().put("ok", status);
                             headerArray.put(statusJson);
-                            System.out.println(
+                            log.debug(
                                     Thread.currentThread().getName() + ": objectMapper readTree for Mongo plugin.");
                             Stopwatch processStopwatch = new Stopwatch("Mongo Plugin objectMapper readTree");
                             result.setHeaders(objectMapper.readTree(headerArray.toString()));
@@ -493,7 +493,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
-                            System.out.println(
+                            log.debug(
                                     "The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
                         } else if (!(error instanceof AppsmithPluginException)) {
@@ -509,7 +509,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     // Now set the request in the result to be returned to the server
                     .map(actionExecutionResult -> {
-                        System.out.println(Thread.currentThread().getName()
+                        log.debug(Thread.currentThread().getName()
                                 + ": building actionExecutionResult from Mongo plugin.");
                         ActionExecutionRequest request = new ActionExecutionRequest();
                         request.setQuery(query);
@@ -539,7 +539,7 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public String sanitizeReplacement(String replacementValue, DataType dataType) {
             String printMessage = Thread.currentThread().getName() + ": sanitizeReplacement() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
 
             if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
@@ -570,7 +570,7 @@ public class MongoPlugin extends BasePlugin {
 
             String printMessage =
                     Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             // For mongo, currently this experiment will only exist for mock DB movies
             // Later on we can extend it for all mongo datasources
             if (isMock) {
@@ -631,7 +631,7 @@ public class MongoPlugin extends BasePlugin {
                         try {
                             argWithoutQuotes = matcher.group(4);
                             if (specialType.isQuotesRequiredAroundParameter()) {
-                                System.out.println(Thread.currentThread().getName()
+                                log.debug(Thread.currentThread().getName()
                                         + ": objectMapper writeValueAsString for Mongo plugin.");
                                 Stopwatch processStopwatch =
                                         new Stopwatch("Mongo Plugin objectMapper writeValueAsString");
@@ -759,10 +759,10 @@ public class MongoPlugin extends BasePlugin {
               Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
             */
             String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             return Mono.just(datasourceConfiguration)
                     .flatMap(dsConfig -> {
-                        System.out.println(
+                        log.debug(
                                 Thread.currentThread().getName() + ": buildClientURI called from Mongo plugin.");
                         try {
                             return Mono.just(buildClientURI(dsConfig));
@@ -804,7 +804,7 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
             String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             Set<String> invalids = new HashSet<>();
             List<Property> properties = datasourceConfiguration.getProperties();
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -894,7 +894,7 @@ public class MongoPlugin extends BasePlugin {
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
 
             String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             Function<TimeoutException, Throwable> timeoutExceptionThrowableFunction =
                     error -> new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
@@ -902,7 +902,7 @@ public class MongoPlugin extends BasePlugin {
 
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
-                        System.out.println(
+                        log.debug(
                                 Thread.currentThread().getName() + ":Finding list of databases for Mongo plugin.");
                         final Publisher<String> result = mongoClient.listDatabaseNames();
                         final Mono<List<String>> documentMono =
@@ -964,7 +964,7 @@ public class MongoPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(
                 MongoClient mongoClient, DatasourceConfiguration datasourceConfiguration, Boolean isMock) {
             String printMessage = Thread.currentThread().getName() + ": getStructure() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
@@ -1098,7 +1098,7 @@ public class MongoPlugin extends BasePlugin {
         public void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
             String printMessage = Thread.currentThread().getName()
                     + ": extractAndSetNativeQueryFromFormData() called for Mongo plugin.";
-            System.out.println(printMessage);
+            log.debug(printMessage);
             Map<String, Object> formData = actionConfiguration.getFormData();
             if (formData != null && !formData.isEmpty()) {
                 /* If it is not raw command, then it must be one of the mongo form commands */
