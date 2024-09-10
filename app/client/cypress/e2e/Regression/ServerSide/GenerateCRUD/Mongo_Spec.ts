@@ -12,7 +12,6 @@ import {
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
 describe(
@@ -113,7 +112,7 @@ describe(
 
       //Validating loaded table
       agHelper.AssertElementExist(dataSources._selectedRow);
-      // @ts-ignore
+
       findTheDataRow(col1Text).then((rowIndex: number) => {
         cy.log(`This is the rowIndex of ${col1Text} : ${rowIndex}`);
         table
@@ -159,7 +158,7 @@ describe(
             .parent()
             .children()
             .then(($children) => {
-              let index;
+              let index = 0;
               $children.each((i, el) => {
                 // Iterate through the children
                 if (Cypress.$(el).is($p1)) {
