@@ -43,6 +43,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -128,6 +129,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
     private final ObservationRegistry observationRegistry;
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -311,7 +313,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         ApplicationMode applicationMode = viewMode ? ApplicationMode.PUBLISHED : ApplicationMode.EDIT;
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
-                .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission())
+                .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission(), null)
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl)
                         .name(getQualifiedSpanName(MIGRATE_DSL, applicationMode))
                         .tap(Micrometer.observation(observationRegistry)));
@@ -1084,6 +1086,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     Mono<Boolean> archivePageMono;
 
+                    Mono<Boolean> evictDeletedDefaultPageIdsMono =
+                            cacheableRepositoryHelper.evictCachedBasePageIds(new ArrayList<>(publishedPageIds));
+
                     if (!publishedPageIds.isEmpty()) {
                         archivePageMono = newPageService.archiveByIds(publishedPageIds);
                     } else {
@@ -1102,8 +1107,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             newPageService.publishPages(editedPageIds, pagePermission.getEditPermission());
 
                     // Archive the deleted pages and save the application changes and then return the pages so that
-                    // the pages can also be published
-                    return Mono.when(archivePageMono, publishPagesMono, applicationService.save(application))
+                    // the pages can also be published; In addition invalidate the cache for the deleted page Ids
+                    return Mono.when(
+                                    archivePageMono,
+                                    publishPagesMono,
+                                    applicationService.save(application),
+                                    evictDeletedDefaultPageIdsMono)
                             .thenReturn(pages);
                 })
                 .cache(); // caching as we'll need this to send analytics attributes after publishing the app

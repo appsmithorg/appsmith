@@ -1,13 +1,12 @@
 {
   "identifier": "LIST",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select bucket to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
       "children": [
         {
           "label": "Bucket name",
@@ -16,62 +15,17 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "isRequired": true,
           "initialValue": ""
-        }
-      ]
-    },
-    {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
-      "children": [
+        },
         {
           "label": "Prefix",
           "configProperty": "actionConfiguration.formData.list.prefix.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
-        },
-        {
-          "label": "Where",
-          "configProperty": "actionConfiguration.formData.list.where.data",
-          "nestedLevels": 3,
-          "controlType": "WHERE_CLAUSE",
-          "-subtitle": "Array of Objects",
-          "-tooltipText": "Array of Objects",
-          "-alternateViewTypes": ["json"],
-          "logicalTypes": [
-            {
-              "label": "AND",
-              "value": "AND"
-            },
-            {
-              "label": "OR",
-              "value": "OR"
-            }
-          ],
-          "comparisonTypes": [
-            {
-              "label": "==",
-              "value": "EQ"
-            },
-            {
-              "label": "!=",
-              "value": "NOT_EQ"
-            },
-            {
-              "label": "in",
-              "value": "IN"
-            },
-            {
-              "label": "not in",
-              "value": "NOT_IN"
-            }
-          ]
         }
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Options",
+      "controlType": "DOUBLE_COLUMN_ZONE",
       "children": [
         {
           "label": "Generate signed URL",
@@ -122,9 +76,52 @@
               "value": "NO"
             }
           ]
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "description": "Optional",
+      "children": [
+        {
+          "label": "Filter data",
+          "configProperty": "actionConfiguration.formData.list.where.data",
+          "nestedLevels": 3,
+          "controlType": "WHERE_CLAUSE",
+          "-subtitle": "Array of Objects",
+          "-tooltipText": "Array of Objects",
+          "-alternateViewTypes": ["json"],
+          "logicalTypes": [
+            {
+              "label": "AND",
+              "value": "AND"
+            },
+            {
+              "label": "OR",
+              "value": "OR"
+            }
+          ],
+          "comparisonTypes": [
+            {
+              "label": "==",
+              "value": "EQ"
+            },
+            {
+              "label": "!=",
+              "value": "NOT_EQ"
+            },
+            {
+              "label": "in",
+              "value": "IN"
+            },
+            {
+              "label": "not in",
+              "value": "NOT_IN"
+            }
+          ]
         },
         {
-          "label": "Sort By",
+          "label": "Sort data",
           "configProperty": "actionConfiguration.formData.list.sortBy.data",
           "controlType": "SORTING",
           "-subtitle": "Array of Objects",
@@ -132,7 +129,7 @@
           "-alternateViewTypes": ["json"]
         },
         {
-          "label": "Paginate By",
+          "label": "Paginate data",
           "configProperty": "actionConfiguration.formData.list.pagination.data",
           "controlType": "PAGINATION",
           "-subtitle": "Object",

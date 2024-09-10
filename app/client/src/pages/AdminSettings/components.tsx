@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Link, Text } from "@appsmith/ads";
+import { IDE_HEADER_HEIGHT } from "IDE";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -37,7 +38,7 @@ export const BottomSpace = styled.div`
 export const ContentWrapper = styled.div``;
 
 export const LoaderContainer = styled.div`
-  height: ${(props) => `calc(100vh - ${props.theme.smallHeaderHeight})`};
+  height: calc(100vh - ${IDE_HEADER_HEIGHT}px);
   display: flex;
   justify-content: center;
   width: 100%;

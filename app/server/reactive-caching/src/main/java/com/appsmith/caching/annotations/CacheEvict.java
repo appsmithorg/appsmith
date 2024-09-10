@@ -24,6 +24,13 @@ public @interface CacheEvict {
     String key() default "";
 
     /**
+     * Array of keys for which cache entries should be evicted.
+     * Can be used to specify multiple keys for bulk eviction.
+     * If empty, a single key can be derived from the method arguments.
+     */
+    String[] keys() default {};
+
+    /**
      * Whether to evict all keys for a given cache name.
      */
     boolean all() default false;

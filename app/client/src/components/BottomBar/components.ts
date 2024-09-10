@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
+import { BOTTOM_BAR_HEIGHT } from "./constants";
 
 export const Container = styled.div`
   width: 100%;
-  height: ${(props) => props.theme.bottomBarHeight};
+  height: ${BOTTOM_BAR_HEIGHT}px;
   display: flex;
   position: fixed;
   justify-content: space-between;

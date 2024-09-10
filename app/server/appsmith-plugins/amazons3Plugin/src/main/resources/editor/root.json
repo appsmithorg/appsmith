@@ -1,39 +1,44 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose the method you would like to use",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "LIST",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "children": [
             {
-              "label": "List files in bucket",
-              "value": "LIST"
-            },
-            {
-              "label": "Create a new file",
-              "value": "UPLOAD_FILE_FROM_BODY"
-            },
-            {
-              "label": "Create multiple new files",
-              "value": "UPLOAD_MULTIPLE_FILES_FROM_BODY"
-            },
-            {
-              "label": "Read file",
-              "value": "READ_FILE"
-            },
-            {
-              "label": "Delete file",
-              "value": "DELETE_FILE"
-            },
-            {
-              "label": "Delete multiple files",
-              "value": "DELETE_MULTIPLE_FILES"
+              "label": "Command",
+              "description": "Choose the method you would like to use",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "LIST",
+              "options": [
+                {
+                  "label": "List files in bucket",
+                  "value": "LIST"
+                },
+                {
+                  "label": "Create a new file",
+                  "value": "UPLOAD_FILE_FROM_BODY"
+                },
+                {
+                  "label": "Create multiple new files",
+                  "value": "UPLOAD_MULTIPLE_FILES_FROM_BODY"
+                },
+                {
+                  "label": "Read file",
+                  "value": "READ_FILE"
+                },
+                {
+                  "label": "Delete file",
+                  "value": "DELETE_FILE"
+                },
+                {
+                  "label": "Delete multiple files",
+                  "value": "DELETE_MULTIPLE_FILES"
+                }
+              ]
             }
           ]
         }

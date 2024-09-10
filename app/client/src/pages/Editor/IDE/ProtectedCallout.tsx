@@ -19,8 +19,10 @@ import {
   createMessage,
 } from "ee/constants/messages";
 
+export const PROTECTED_CALLOUT_HEIGHT = 70;
+
 const StyledCallout = styled(Callout)`
-  height: 70px;
+  height: ${PROTECTED_CALLOUT_HEIGHT}px;
   overflow-y: hidden;
 `;
 

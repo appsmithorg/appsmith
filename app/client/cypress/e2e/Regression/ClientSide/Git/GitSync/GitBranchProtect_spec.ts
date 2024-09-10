@@ -36,10 +36,7 @@ describe("Git Branch Protection", { tags: ["@tag.Git"] }, function () {
         cy.wait("@gitProtectApi").then((res1) => {
           _.agHelper.GetNClick(_.gitSync._closeGitSettingsModal);
           expect(res1.response).to.have.property("statusCode", 200);
-          _.agHelper.AssertElementVisibility(
-            AppSidebar.locators.sidebar,
-            false,
-          );
+          _.agHelper.AssertElementAbsence(AppSidebar.locators.sidebar);
           _.agHelper.AssertElementVisibility(
             PageLeftPane.locators.selector,
             false,
