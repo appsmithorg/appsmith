@@ -10,9 +10,9 @@ const Toolbar = (props: ToolbarProps) => {
   return (
     <Flex
       alignItems="center"
-      borderBottom="1px solid var(--ads-v2-color-border);"
+      borderBottom="1px solid var(--ads-v2-color-border-muted);"
       flexDirection="row"
-      height="32px"
+      height="33px"
       justifyContent="space-between"
       padding="spaces-2"
     >
@@ -21,7 +21,7 @@ const Toolbar = (props: ToolbarProps) => {
       </Flex>
       <Flex alignItems="center" flexDirection="row" gap="spaces-2">
         {props.runOptionSelector}
-        <Tooltip content={"⌘ + ⏎"} placement="top">
+        <Tooltip content={"⌘ + ⏎"} placement="topRight" showArrow={false}>
           <Button kind="primary" size="sm">
             Run
           </Button>
