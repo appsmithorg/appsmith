@@ -184,7 +184,7 @@ describe(
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
     });
 
-    it.skip("5. Update onDataPointClick and Verify", function () {
+    it("5. Update onDataPointClick and Verify", function () {
       // Create the Alert Modal and verify Modal name
       propPane.SelectPropertiesDropDown("Map type", "Asia");
       propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
@@ -215,7 +215,7 @@ describe(
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
     });
 
-    it.skip("6. Verify the style changes", function () {
+    it("6. Verify the style changes", function () {
       // Change Color Range and verify
       const colorRange = [
         {

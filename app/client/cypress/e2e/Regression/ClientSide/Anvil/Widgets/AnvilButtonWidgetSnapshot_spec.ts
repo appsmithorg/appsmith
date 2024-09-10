@@ -13,7 +13,6 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      cy.viewport(1400, 1200);
       anvilSnapshot.matchSnapshotForCanvasMode("ButtonWidget");
       anvilSnapshot.setTheme("dark");
       anvilSnapshot.matchSnapshotForCanvasMode("ButtonWidget", "dark");
@@ -21,7 +20,6 @@ describe(
     });
 
     it("2. Preview Mode", () => {
-      cy.viewport(1400, 1200);
       anvilSnapshot.matchSnapshotForPreviewMode("ButtonWidget");
     });
 

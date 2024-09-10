@@ -48,7 +48,6 @@ const registerCypressGrep = require("@cypress/grep");
 registerCypressGrep();
 installLogsCollector();
 
-addMatchImageSnapshotCommand();
 addMatchImageSnapshotCommand({
   comparisonMethod: "ssim",
   failureThreshold: 0.01,

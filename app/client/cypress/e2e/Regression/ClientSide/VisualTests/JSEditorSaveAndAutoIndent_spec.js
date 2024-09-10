@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe.skip(
+describe(
   "JS Editor Save and Auto-indent: Visual tests",
   { tags: ["@tag.Visual"] },
   () => {
