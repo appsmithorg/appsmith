@@ -387,6 +387,14 @@ jobs:
             path: ${{ github.workspace }}/app/client/cypress/results
             overwrite: true      
 
+      - name: Upload repeat-pro results path update html test
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+                name: cypress-results-dir-newpath
+                path: ${{ github.workspace }}/app/client/results
+                overwrite: true            
+
       - name: Upload failed test cypress logs artifact
         if: failure()
         uses: actions/upload-artifact@v4
