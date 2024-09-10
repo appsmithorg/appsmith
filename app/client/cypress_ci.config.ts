@@ -26,7 +26,6 @@ export default defineConfig({
     baseUrl: "http://localhost/",
     setupNodeEvents(on, config) {
       require("@cypress/grep/src/plugin")(config);
-      require("cypress-mochawesome-reporter/plugin")(on);
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: "cypress/e2e/**/*.{js,ts}",
@@ -38,12 +37,5 @@ export default defineConfig({
       "cypress/e2e/Regression/ClientSide/CommunityTemplate/*",
       "cypress/e2e/Regression/ServerSide/Datasources/ElasticSearch_Basic_Spec.ts",
     ],
-    reporter: "cypress-mochawesome-reporter",
-    reporterOptions: {
-      reportDir: "cypress/results", 
-      overwrite: true,
-      html: true,
-      json: true,
-    },
   },
 });

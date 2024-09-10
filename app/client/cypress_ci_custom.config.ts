@@ -35,7 +35,6 @@ export default defineConfig({
     },
     setupNodeEvents(on, config) {
       require("cypress-mochawesome-reporter/plugin")(on);
-      require("cypress-mochawesome-reporter/plugin")(on);
       on(
         "after:spec",
         (spec: Cypress.Spec, results: CypressCommandLine.RunResult) => {
@@ -67,12 +66,5 @@ export default defineConfig({
       "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
       "cypress/e2e/Sanity/Datasources/MsSQL_Basic_Spec.ts",
     ],
-    reporter: "cypress-mochawesome-reporter",
-    reporterOptions: {
-      reportDir: "cypress/results", 
-      overwrite: true,
-      html: true,
-      json: true,
-    },
   },
 });
