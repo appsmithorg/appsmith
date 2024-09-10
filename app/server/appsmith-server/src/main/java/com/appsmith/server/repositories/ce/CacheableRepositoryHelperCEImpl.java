@@ -21,9 +21,11 @@ import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     private final ReactiveMongoOperations mongoOperations;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final ObservationRegistry observationRegistry;
+    private static final String CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID = "pageIdToAppId";
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
@@ -198,5 +201,17 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<Void> evictCachedTenant(String tenantId) {
         return Mono.empty().then();
+    }
+
+    @Cache(cacheName = CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID, key = "{#basePageId}")
+    @Override
+    public Mono<String> fetchBaseApplicationId(String basePageId, String baseApplicationId) {
+        return !StringUtils.hasText(baseApplicationId) ? Mono.empty() : Mono.just(baseApplicationId);
+    }
+
+    @CacheEvict(cacheName = CACHE_DEFAULT_PAGE_ID_TO_DEFAULT_APPLICATION_ID, keys = "#basePageIds")
+    @Override
+    public Mono<Boolean> evictCachedBasePageIds(List<String> basePageIds) {
+        return Mono.just(Boolean.TRUE);
     }
 }

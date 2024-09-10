@@ -1012,7 +1012,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<NewPage> branchedPageMono = !StringUtils.hasLength(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
                 : newPageService.findByBranchNameAndBasePageId(
-                        branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission());
+                        branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission(), null);
         Mono<Application> branchedApplicationMono = !StringUtils.hasLength(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
                 : applicationService.findByBranchNameAndBaseApplicationId(

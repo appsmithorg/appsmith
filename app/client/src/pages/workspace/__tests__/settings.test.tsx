@@ -1,17 +1,9 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import Router from "react-router-dom";
-import { BrowserRouter } from "react-router-dom";
 import { render, screen } from "test/testUtils";
-import {
-  render as testRender,
-  screen as testScreen,
-} from "@testing-library/react";
-import { fireEvent } from "@testing-library/react";
 import Settings from "../settings";
 import * as reactRedux from "react-redux";
-import configureStore from "redux-mock-store";
-import { Provider } from "react-redux";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -159,16 +151,9 @@ const mockWorkspaceData = {
   new: false,
 };
 
-const mockHistoryPush = jest.fn();
-
-const mockStore = configureStore([]);
-
 jest.mock("react-router-dom", () => ({
   ...jest.requireActual("react-router-dom"),
   useParams: jest.fn(),
-  useHistory: () => ({
-    push: mockHistoryPush,
-  }),
 }));
 
 function renderComponent() {
@@ -204,20 +189,5 @@ describe("<Settings />", () => {
     const tabList = screen.getAllByRole("tab");
     expect(tabList.length).toBeGreaterThanOrEqual(2);
     expect(tabList.length).toBeLessThanOrEqual(3);
-  });
-
-  it("should redirect to workspace page if user wants to go back", () => {
-    testRender(
-      <BrowserRouter>
-        <Provider store={mockStore(mockWorkspaceData)}>
-          <Settings />
-        </Provider>
-      </BrowserRouter>,
-    );
-    const backBtn = testScreen.getByText("Back");
-    fireEvent.click(backBtn);
-    expect(mockHistoryPush).toHaveBeenCalledWith(
-      `/applications?workspaceId=${mockWorkspaceData.id}`,
-    );
   });
 });

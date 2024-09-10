@@ -77,6 +77,22 @@ export function optionsCustomValidation(
       });
     }
 
+    const isValidKeys = options.every((option) => {
+      return (
+        _.isPlainObject(option) &&
+        _.has(option, "label") &&
+        _.has(option, "value")
+      );
+    });
+
+    if (!isValidKeys) {
+      return createErrorValidationResponse(options, {
+        name: "ValidationError",
+        message:
+          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
+      });
+    }
+
     for (let i = 0; i < options.length; i++) {
       const option = options[i];
 
