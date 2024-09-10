@@ -90,15 +90,19 @@ class AppComputationCache {
     cacheName: EComputationCacheName;
     computationResult: T;
     pageId: string;
-    timestamp: string;
+    timestamp?: string;
     appMode?: APP_MODE;
   }) {
+    if (!appMode || !timestamp) {
+      return;
+    }
+
     const shouldCache = this.isComputationCached({
       cacheName,
       appMode,
     });
 
-    if (!shouldCache || !appMode) {
+    if (!shouldCache) {
       return;
     }
 
@@ -136,7 +140,7 @@ class AppComputationCache {
     appId: string;
     cacheName: EComputationCacheName;
     pageId: string;
-    timestamp: string;
+    timestamp?: string;
     appMode?: APP_MODE;
   }): Promise<T | null> {
     if (!appMode) {
@@ -204,11 +208,20 @@ class AppComputationCache {
   }: {
     appId: string;
     appMode?: APP_MODE;
-    timestamp: string;
+    timestamp?: string;
     pageId: string;
     computeFn: () => Promise<T> | T;
     cacheName: EComputationCacheName;
   }) {
+    const shouldCache = this.isComputationCached({
+      cacheName,
+      appMode,
+    });
+
+    if (!shouldCache || !timestamp) {
+      return computeFn();
+    }
+
     try {
       const cachedResult = await this.getCachedComputationResult<T>({
         appId,
@@ -220,15 +233,6 @@ class AppComputationCache {
 
       if (cachedResult) {
         return cachedResult;
-      }
-
-      const shouldCache = this.isComputationCached({
-        cacheName,
-        appMode,
-      });
-
-      if (!shouldCache || !appMode) {
-        return computeFn();
       }
 
       const computationResult = await computeFn();
