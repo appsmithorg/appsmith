@@ -18,6 +18,7 @@ const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
   height: number;
   isNewRow: boolean;
+  isValid: boolean;
 }>`
   &&& {
     width: ${(props) =>
@@ -82,6 +83,7 @@ type SelectProps = BaseCellComponentProps & {
   value: string;
   width: number;
   isEditable: boolean;
+  isEditableCellValid: boolean;
   tableWidth: number;
   isCellEditable?: boolean;
   isCellEditMode?: boolean;
@@ -131,6 +133,7 @@ export const SelectCell = (props: SelectProps) => {
     isCellEditMode,
     isCellVisible,
     isEditable,
+    isEditableCellValid,
     isFilterable = false,
     isHidden,
     isNewRow,
@@ -240,7 +243,7 @@ export const SelectCell = (props: SelectProps) => {
           isLoading={false}
           isNewRow={isNewRow}
           isOpen={autoOpen}
-          isValid
+          isValid={isEditableCellValid}
           labelText=""
           onClose={onClose}
           onFilterChange={onFilter}

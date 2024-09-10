@@ -2131,6 +2131,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isCellEditable={isCellEditable}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isEditable={isColumnEditable}
+            isEditableCellValid={this.isColumnCellValid(alias)}
             isFilterable={cellProperties.isFilterable}
             isHidden={isHidden}
             isNewRow={isNewRow}
