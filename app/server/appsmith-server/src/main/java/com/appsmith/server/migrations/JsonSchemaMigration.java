@@ -12,8 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -62,79 +60,30 @@ public class JsonSchemaMigration {
                         return Mono.empty();
                     }
 
-                    // Taking a tech debt over here for import of file application.
-                    // All migration above version 9 is reactive
-                    // TODO: make import flow migration reactive
-                    return Mono.just(migrateServerSchema(appJson))
-                            .flatMap(migratedApplicationJson -> {
-                                if (migratedApplicationJson.getServerSchemaVersion() == 9
-                                        && Boolean.TRUE.equals(MigrationHelperMethods.doesRestApiRequireMigration(
-                                                migratedApplicationJson))) {
-                                    return jsonSchemaMigrationHelper
-                                            .addDatasourceConfigurationToDefaultRestApiActions(
-                                                    baseApplicationId, branchName, migratedApplicationJson)
-                                            .map(applicationJsonWithMigration10 -> {
-                                                applicationJsonWithMigration10.setServerSchemaVersion(10);
-                                                return applicationJsonWithMigration10;
-                                            });
-                                }
-
-                                migratedApplicationJson.setServerSchemaVersion(10);
-                                return Mono.just(migratedApplicationJson);
-                            })
-                            .map(migratedAppJson -> {
-                                if (applicationJson
-                                        .getServerSchemaVersion()
-                                        .equals(jsonSchemaVersions.getServerVersion())) {
-                                    return applicationJson;
-                                }
-
-                                applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
-                                return applicationJson;
-                            });
+                    return migrateServerSchema(applicationJson, baseApplicationId, branchName);
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON)));
     }
 
     /**
-     * migrate artifacts to latest schema by adding the right DTOs, or any migration.
-     * This method would be deprecated soon enough
-     * @param artifactExchangeJson : the json to be imported
-     * @return transformed artifact exchange json
+     * Migrates ApplicationJson to latest schema.
+     * @param applicationJson : Application json for which migration is to be performed
+     * @param baseApplicationId : base applicationId
+     * @param branchName : branch name in case it is a git connected application.
+     * @return : A publisher of migrated json
      */
-    @Deprecated(forRemoval = true, since = "Use migrateArtifactJsonToLatestSchema")
-    public ArtifactExchangeJson migrateArtifactToLatestSchema(ArtifactExchangeJson artifactExchangeJson) {
-
-        if (!ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
-            return artifactExchangeJson;
-        }
-
-        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
-        setSchemaVersions(applicationJson);
-        if (!isCompatible(applicationJson)) {
-            throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
-        }
-
-        applicationJson = migrateServerSchema(applicationJson);
-        return nonReactiveServerMigrationForImport(applicationJson);
-    }
-
-    /**
-     * This method may be moved to the publisher chain itself
-     * @param applicationJson : applicationJson which needs to be transformed
-     * @return : transformed applicationJson
-     */
-    private ApplicationJson migrateServerSchema(ApplicationJson applicationJson) {
+    private Mono<ApplicationJson> migrateServerSchema(ApplicationJson applicationJson, String baseApplicationId, String branchName) {
+        Mono<ApplicationJson> migrateApplicationJsonMono = Mono.just(applicationJson);
+        // No need to run server side migration
         if (jsonSchemaVersions.getServerVersion().equals(applicationJson.getServerSchemaVersion())) {
-            // No need to run server side migration
-            return applicationJson;
+            return migrateApplicationJsonMono;
         }
+
         // Run migration linearly
         // Updating the schema version after each migration is not required as we are not exiting by breaking the switch
         // cases, but this keeps the version number and the migration in sync
         switch (applicationJson.getServerSchemaVersion()) {
             case 0:
-
             case 1:
                 // Migration for deprecating archivedAt field in ActionDTO
                 if (!CollectionUtils.isNullOrEmpty(applicationJson.getActionList())) {
@@ -151,7 +100,7 @@ public class JsonSchemaMigration {
             case 4:
                 // Remove unwanted fields from DTO and allow serialization for JsonIgnore fields
                 if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageList())
-                        && applicationJson.getExportedApplication() != null) {
+                    && applicationJson.getExportedApplication() != null) {
                     MigrationHelperMethods.arrangeApplicationPagesAsPerImportedPageOrder(applicationJson);
                     MigrationHelperMethods.updateMongoEscapedWidget(applicationJson);
                 }
@@ -170,40 +119,19 @@ public class JsonSchemaMigration {
             case 8:
                 MigrationHelperMethods.migrateThemeSettingsForAnvil(applicationJson);
                 applicationJson.setServerSchemaVersion(9);
-
-                // This is not supposed to have anymore additions to the schema.
-            default:
-                // Unable to detect the serverSchema
-
-        }
-
-        return applicationJson;
-    }
-
-    /**
-     * This method is an alternative to reactive way of adding migrations to application json.
-     * this is getting used by flows which haven't implemented the reactive way yet.
-     * @param applicationJson : application json for which migration has to be done.
-     * @return return application json after migration
-     */
-    private ApplicationJson nonReactiveServerMigrationForImport(ApplicationJson applicationJson) {
-        if (jsonSchemaVersions.getServerVersion().equals(applicationJson.getServerSchemaVersion())) {
-            return applicationJson;
-        }
-
-        switch (applicationJson.getServerSchemaVersion()) {
             case 9:
-                // this if for cases where we have empty datasource configs
-                MigrationHelperMethods.migrateApplicationJsonToVersionTen(applicationJson, Map.of());
+                if (Boolean.TRUE.equals(MigrationHelperMethods.doesRestApiRequireMigration(applicationJson))) {
+                    migrateApplicationJsonMono = migrateApplicationJsonMono
+                        .flatMap(migratedJson -> jsonSchemaMigrationHelper
+                            .addDatasourceConfigurationToDefaultRestApiActions(baseApplicationId, branchName, migratedJson));
+                }
                 applicationJson.setServerSchemaVersion(10);
+                // Moving forward all case implementation should be wrapped in the Mono even if they are non reactive
+                // code in order to perform linear migrations.
             default:
-        }
-
-        if (applicationJson.getServerSchemaVersion().equals(jsonSchemaVersions.getServerVersion())) {
-            return applicationJson;
         }
 
         applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
-        return applicationJson;
+        return migrateApplicationJsonMono;
     }
 }
