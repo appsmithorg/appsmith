@@ -1,9 +1,8 @@
 import React from "react";
-import { Button, Flex, Tooltip } from "@appsmith/ads";
+import { Flex } from "@appsmith/ads";
 
 interface ToolbarProps {
-  children?: React.ReactNode[];
-  runOptionSelector?: React.ReactNode;
+  children?: React.ReactNode[] | React.ReactNode;
 }
 
 const Toolbar = (props: ToolbarProps) => {
@@ -12,35 +11,39 @@ const Toolbar = (props: ToolbarProps) => {
       alignItems="center"
       borderBottom="1px solid var(--ads-v2-color-border-muted);"
       flexDirection="row"
-      height="33px"
+      height="32px"
       justifyContent="space-between"
       padding="spaces-2"
     >
-      <Flex alignItems="center" flexDirection="row" gap="spaces-2">
-        {props.children}
-      </Flex>
-      <Flex alignItems="center" flexDirection="row" gap="spaces-2">
-        {props.runOptionSelector}
-        <Tooltip content={"⌘ + ⏎"} placement="topRight" showArrow={false}>
-          <Button kind="primary" size="sm">
-            Run
-          </Button>
-        </Tooltip>
-        <Button
-          isIconButton
-          kind="secondary"
-          size="sm"
-          startIcon="settings-2-line"
-        />
-        <Button
-          isIconButton
-          kind="tertiary"
-          size="sm"
-          startIcon="more-2-fill"
-        />
-      </Flex>
+      {props.children}
     </Flex>
   );
 };
 
-export default Toolbar;
+const ToolbarLeft = (props: ToolbarProps) => {
+  return (
+    <Flex
+      alignItems="center"
+      flexDirection="row"
+      gap="spaces-2"
+      justifySelf="flex-start"
+    >
+      {props.children}
+    </Flex>
+  );
+};
+
+const ToolbarRight = (props: ToolbarProps) => {
+  return (
+    <Flex
+      alignItems="center"
+      flexDirection="row"
+      gap="spaces-2"
+      justifySelf="flex-end"
+    >
+      {props.children}
+    </Flex>
+  );
+};
+
+export { Toolbar, ToolbarLeft, ToolbarRight };
