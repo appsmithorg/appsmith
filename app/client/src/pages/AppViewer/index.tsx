@@ -31,6 +31,7 @@ import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import {
   setupPublishedPage,
   fetchPublishedPageResourcesAction,
+  updateCurrentPage,
 } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
@@ -170,8 +171,10 @@ function AppViewer(props: Props) {
           (page) => page.basePageId === basePageId,
         )?.pageId;
         if (pageId) {
-          dispatch(setupPublishedPage(pageId, true));
-
+          dispatch(updateCurrentPage(pageId));
+          // TODO: Patch fix to avoid dispatch of FETCH_ALL_PAGE_ENTITY_COMPLETION twice
+          // Remove this once Sneha's PR is merged
+          dispatch(setupPublishedPage(pageId, true, true));
           // Used for fetching page resources
           dispatch(fetchPublishedPageResourcesAction(basePageId));
         }
