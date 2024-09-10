@@ -11,6 +11,7 @@ export const defaultsConfig = {
   fontSize: "body",
   textAlign: "left",
   textColor: "neutral",
+  fontStyle: undefined,
   widgetName: "Paragraph",
   shouldTruncate: false,
   version: 1,

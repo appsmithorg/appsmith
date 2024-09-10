@@ -202,7 +202,6 @@ describe(
       );
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");
-      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
     });
   },

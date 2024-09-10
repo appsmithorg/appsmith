@@ -1,8 +1,8 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
-import { MultilineInputIcon, MultilineInputThumbnail } from "appsmith-icons";
-import { INPUT_TYPES } from "widgets/wds/WDSInputWidget/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
+import { MultilineInputIcon, MultilineInputThumbnail } from "appsmith-icons";
 
 class WDSMultilineInputWidget extends WDSInputWidget {
   static type = "WDS_MULTILINE_INPUT_WIDGET";

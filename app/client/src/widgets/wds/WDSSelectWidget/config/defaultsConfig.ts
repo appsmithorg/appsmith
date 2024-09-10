@@ -15,6 +15,7 @@ export const defaultsConfig = {
   isVisible: true,
   isInline: false,
   widgetName: "Select",
+  widgetType: "SELECT",
   version: 1,
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;

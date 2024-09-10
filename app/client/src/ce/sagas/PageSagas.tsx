@@ -10,6 +10,7 @@ import type {
   DeletePageActionPayload,
   FetchPageActionPayload,
   FetchPublishedPageActionPayload,
+  FetchPublishedPageResourcesPayload,
   GenerateTemplatePageActionPayload,
   SetPageOrderActionPayload,
   SetupPageActionPayload,
@@ -87,6 +88,7 @@ import {
   fetchActionsForPage,
   fetchActionsForPageError,
   fetchActionsForPageSuccess,
+  fetchActionsForView,
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
 } from "actions/pluginActionActions";
@@ -113,6 +115,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import { builderURL } from "ee/RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import { type InitConsolidatedApi } from "sagas/InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
   checkAndLogErrorsIfCyclicDependency,
@@ -146,6 +149,7 @@ import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { Page } from "entities/Page";
+import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -371,6 +375,43 @@ export function* fetchPublishedPageSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchPublishedPageResourcesSaga(
+  action: ReduxAction<FetchPublishedPageResourcesPayload>,
+) {
+  try {
+    const { pageId } = action.payload;
+
+    const params = { defaultPageId: pageId };
+    const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
+      yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
+
+    const isValidResponse: boolean = yield validateResponse(
+      initConsolidatedApiResponse,
+    );
+    const response: InitConsolidatedApi | undefined =
+      initConsolidatedApiResponse.data;
+
+    if (isValidResponse) {
+      // We need to recall consolidated view API in order to fetch actions when page is switched
+      // As in the first call only actions of the current page are fetched
+      // In future, we can reuse this saga to fetch other resources of the page like actionCollections etc
+      const { publishedActions } = response;
+
+      // Sending applicationId as empty as we have publishedActions present,
+      // it won't call the actions view api with applicationId
+      yield put(fetchActionsForView({ applicationId: "", publishedActions }));
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_RESOURCES_ERROR,
       payload: {
         error,
       },

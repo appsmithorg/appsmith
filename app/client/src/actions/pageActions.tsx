@@ -72,6 +72,10 @@ export interface FetchPublishedPageActionPayload {
   pageWithMigratedDsl?: FetchPageResponse;
 }
 
+export interface FetchPublishedPageResourcesPayload {
+  pageId: string;
+}
+
 export const fetchPublishedPageAction = (
   pageId: string,
   bustCache = false,
@@ -289,6 +293,17 @@ export const clonePageSuccess = ({
     },
   };
 };
+
+// Fetches resources required for published page, currently only used for fetching actions
+// In future we can reuse this for fetching other page level resources in published mode
+export const fetchPublishedPageResourcesAction = (
+  pageId: string,
+): ReduxAction<FetchPublishedPageResourcesPayload> => ({
+  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
+  payload: {
+    pageId,
+  },
+});
 
 // update a page
 

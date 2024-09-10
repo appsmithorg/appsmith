@@ -69,7 +69,8 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
             policyMap1.put(entry.getKey(), policy);
         }
 
-        final Set<Policy> policies = new HashSet<>(obj.getPolicies());
+        Set<Policy> existingPolicies = obj.getPolicies();
+        final Set<Policy> policies = new HashSet<>(existingPolicies == null ? Set.of() : existingPolicies);
 
         // Append the user to the existing permission policy if it already exists.
         for (Policy policy : policies) {
@@ -102,7 +103,8 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
             policyMap1.put(entry.getKey(), entry.getValue());
         }
 
-        Set<Policy> policies = new HashSet<>(obj.getPolicies());
+        Set<Policy> existingPolicies = obj.getPolicies();
+        final Set<Policy> policies = new HashSet<>(existingPolicies == null ? Set.of() : existingPolicies);
         // Remove the user from the existing permission policy if it exists.
         for (Policy policy : policies) {
             String permission = policy.getPermission();
