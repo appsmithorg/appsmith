@@ -1,5 +1,5 @@
 import React from "react";
-import { Toolbar, ToolbarLeft, ToolbarRight } from "IDE/Components/Toolbar";
+import { IDEToolbar } from "IDE";
 import { Button, Tooltip } from "@appsmith/ads";
 
 interface PluginActionToolbarProps {
@@ -9,9 +9,9 @@ interface PluginActionToolbarProps {
 
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   return (
-    <Toolbar>
-      <ToolbarLeft>{props.children}</ToolbarLeft>
-      <ToolbarRight>
+    <IDEToolbar>
+      <IDEToolbar.Left>{props.children}</IDEToolbar.Left>
+      <IDEToolbar.Right>
         {props.runOptions}
         <Tooltip content={"⌘ + ⏎"} placement="topRight" showArrow={false}>
           <Button kind="primary" size="sm">
@@ -30,8 +30,8 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           size="sm"
           startIcon="more-2-fill"
         />
-      </ToolbarRight>
-    </Toolbar>
+      </IDEToolbar.Right>
+    </IDEToolbar>
   );
 };
 

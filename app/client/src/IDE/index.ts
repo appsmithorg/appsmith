@@ -12,6 +12,14 @@
 export { IDE_HEADER_HEIGHT } from "./Structure/constants";
 export { default as IDEHeader } from "./Structure/Header";
 
+/**
+ * The IDEToolbar gets exported with 2 layout subsections.
+ * IDEToolbar.Left and IDEToolbar.Right
+ * These are composable components that you can use to spread the content of the toolbar
+ * It is possible to use the Toolbar without using these subsections
+ */
+export { default as IDEToolbar } from "./Structure/Toolbar";
+
 /* ====================================================
     **** UI Components ****
     Components that are smaller UI abstractions for easy use and standardisation within the IDE

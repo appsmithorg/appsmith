@@ -20,7 +20,7 @@ const Toolbar = (props: ToolbarProps) => {
   );
 };
 
-const ToolbarLeft = (props: ToolbarProps) => {
+const Left = (props: ToolbarProps) => {
   return (
     <Flex
       alignItems="center"
@@ -33,7 +33,7 @@ const ToolbarLeft = (props: ToolbarProps) => {
   );
 };
 
-const ToolbarRight = (props: ToolbarProps) => {
+const Right = (props: ToolbarProps) => {
   return (
     <Flex
       alignItems="center"
@@ -46,4 +46,7 @@ const ToolbarRight = (props: ToolbarProps) => {
   );
 };
 
-export { Toolbar, ToolbarLeft, ToolbarRight };
+Toolbar.Left = Left;
+Toolbar.Right = Right;
+
+export default Toolbar;
