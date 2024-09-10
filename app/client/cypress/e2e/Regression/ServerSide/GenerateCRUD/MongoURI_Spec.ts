@@ -56,6 +56,8 @@ describe(
 
     it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
       //Update documents query to handle the int _id data
+      EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
+
       EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
       agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
         propFieldName: "",
@@ -142,7 +144,7 @@ describe(
       );
       agHelper.ClickButton("Confirm");
       cy.wait("@postExecute").then((interception: any) => {
-        const valueToTest = JSON.stringify(interception.response.body);
+        const valueToTest = JSON.stringify(interception);
         cy.log(valueToTest);
       });
       cy.wait("@postExecute").then((interception: any) => {
