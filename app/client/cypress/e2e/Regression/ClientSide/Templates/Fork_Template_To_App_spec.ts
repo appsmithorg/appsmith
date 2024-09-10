@@ -15,17 +15,14 @@ describe(
     it("1. Fork a template to the current app + Bug 17477", () => {
       PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
-      agHelper.GetNClick("//h1[text()='Applicant Tracker-test']");
+      agHelper.GetNClick(template.templateCard, 0, true);
       agHelper.FailIfErrorToast("INTERNAL_SERVER_ERROR");
       agHelper.GetNClick(template.templateViewForkButton);
       agHelper.WaitUntilToastDisappear("template added successfully");
       assertHelper.AssertNetworkStatus("updateLayout");
-      // [Bug]: Getting 'Resource not found' error on deploying template #17477
+      PageList.AddNewPage("Generate page with data");
       deployMode.DeployApp();
-      agHelper.GetNClickByContains(
-        ".t--page-switch-tab",
-        "1 Track Applications",
-      );
+      agHelper.GetNClick(locators._deployedPage, 0, true);
       deployMode.NavigateBacktoEditor();
       homePage.NavigateToHome();
       agHelper.WaitUntilAllToastsDisappear();
@@ -35,14 +32,13 @@ describe(
       homePage.CreateNewApplication();
       PageList.AddNewPage("Add page from template");
       agHelper.AssertElementVisibility(template.templateDialogBox);
-      agHelper.GetNClick("//h1[text()='Applicant Tracker-test']");
+      agHelper.GetNClick(template.templateCard, 0, true);
       agHelper.FailIfErrorToast(
         "Internal server error while processing request",
       );
       assertHelper.AssertNetworkStatus("getTemplatePages");
       agHelper.CheckUncheck(template.selectAllPages, false);
       agHelper.GetNClick(template.selectCheckbox, 1);
-      // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
       agHelper.GetNClick(template.templateViewForkButton);
       agHelper.AssertElementAbsence(
         locators._visibleTextSpan("Setting up the template"),
