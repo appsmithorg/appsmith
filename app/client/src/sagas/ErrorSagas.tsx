@@ -112,7 +112,16 @@ export function* validateResponse(
   }
 
   if (!response.responseMeta && response.status) {
-    throw Error(getErrorMessage(response.status, response.resourceType));
+    yield put({
+      type: ReduxActionErrorTypes.API_ERROR,
+      payload: {
+        error: new Error(
+          getErrorMessage(response.status, response.resourceType),
+        ),
+        logToSentry,
+        show,
+      },
+    });
   }
 
   if (response.responseMeta.success) {
