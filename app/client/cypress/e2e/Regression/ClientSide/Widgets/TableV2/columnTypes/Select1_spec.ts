@@ -42,7 +42,6 @@ describe(
       cy.updateCodeInput(
         ".t--property-control-options",
         `
-      {{
         [
         {
           "label": "#1",
@@ -57,7 +56,6 @@ describe(
           "value": "#3"
         }
       ]
-      }}
     `,
       );
       cy.editTableSelectCell(0, 0);
@@ -86,14 +84,12 @@ describe(
       cy.updateCodeInput(
         ".t--property-control-options",
         `
-      {{
       [
         {
           "label": "test",
           "value": "test"
         }
       ]  
-      }}
     `,
       );
       cy.wait(500);
@@ -124,7 +120,7 @@ describe(
       cy.updateCodeInput(
         ".t--property-control-options",
         `
-      {{[
+      [
         {
           label: "#1",
           value: "#1"
@@ -137,7 +133,7 @@ describe(
           label: "#3",
           value: "#3"
         }
-      ]}}
+      ]
     `,
       );
       cy.get(_.locators._propertyControlInput("filterable")).click({
@@ -180,7 +176,7 @@ describe(
       cy.updateCodeInput(
         ".t--property-control-options",
         `
-      {{
+      
       [
         {
           "label": "#1label",
@@ -195,7 +191,7 @@ describe(
           "value": "#3value"
         }
       ]  
-      }}
+      
     `,
       );
       cy.editTableSelectCell(0, 0);
