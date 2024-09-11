@@ -56,6 +56,7 @@ describe(
 
     it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
       //Update documents query to handle the int _id data
+      EditorNavigation.SelectEntityByName("FindQuery", EntityType.Query);
       EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
       agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
         propFieldName: "",
@@ -132,6 +133,10 @@ describe(
         false,
       );
       agHelper.ClickButton("Submit");
+      cy.wait("@postExecute").then((interception: any) => {
+        const valueToTest = JSON.stringify(interception);
+        cy.log(valueToTest);
+      });
       for (let i = 0; i <= 1; i++) {
         table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
           expect($cellData).contains("Coffee Mug");
