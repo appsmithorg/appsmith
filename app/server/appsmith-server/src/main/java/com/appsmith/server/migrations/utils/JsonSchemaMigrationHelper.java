@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.utils;
 
-import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -45,21 +44,7 @@ public class JsonSchemaMigrationHelper {
                     return newActionService
                             .findAllByApplicationIdAndViewMode(
                                     branchedApplication.getId(), Boolean.FALSE, Optional.empty(), Optional.empty())
-                            .filter(action -> {
-                                if (action.getUnpublishedAction() == null
-                                        || action.getUnpublishedAction().getDatasource() == null) {
-                                    return false;
-                                }
-
-                                boolean reverseFlag = StringUtils.hasText(action.getUnpublishedAction()
-                                                .getDatasource()
-                                                .getId())
-                                        || !PluginConstants.DEFAULT_REST_DATASOURCE.equals(action.getUnpublishedAction()
-                                                .getDatasource()
-                                                .getName());
-
-                                return !reverseFlag;
-                            })
+                            .filter(MigrationHelperMethods::conditionForDefaultRestDatasourceMigration)
                             .collectMap(NewAction::getGitSyncId);
                 })
                 .map(newActionMap -> {

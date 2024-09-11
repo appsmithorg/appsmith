@@ -67,28 +67,24 @@ public class JsonSchemaMigration {
                     // TODO: make import flow migration reactive
                     return Mono.just(migrateServerSchema(appJson))
                             .flatMap(migratedApplicationJson -> {
-                                if (migratedApplicationJson.getServerSchemaVersion() == 9
-                                        && Boolean.TRUE.equals(MigrationHelperMethods.doesRestApiRequireMigration(
-                                                migratedApplicationJson))) {
-                                    return jsonSchemaMigrationHelper
-                                            .addDatasourceConfigurationToDefaultRestApiActions(
-                                                    baseApplicationId, branchName, migratedApplicationJson)
-                                            .map(applicationJsonWithMigration10 -> {
-                                                applicationJsonWithMigration10.setServerSchemaVersion(10);
-                                                return applicationJsonWithMigration10;
-                                            });
+                                if (migratedApplicationJson.getServerSchemaVersion() == 9) {
+                                    migratedApplicationJson.setServerSchemaVersion(10);
                                 }
 
-                                migratedApplicationJson.setServerSchemaVersion(10);
+                                if (migratedApplicationJson.getServerSchemaVersion() == 10) {
+                                    if (Boolean.TRUE.equals(MigrationHelperMethods.doesRestApiRequireMigration(
+                                            migratedApplicationJson))) {
+                                        return jsonSchemaMigrationHelper
+                                                .addDatasourceConfigurationToDefaultRestApiActions(
+                                                        baseApplicationId, branchName, migratedApplicationJson);
+                                    }
+
+                                    migratedApplicationJson.setServerSchemaVersion(11);
+                                }
+
                                 return Mono.just(migratedApplicationJson);
                             })
                             .map(migratedAppJson -> {
-                                if (applicationJson
-                                        .getServerSchemaVersion()
-                                        .equals(jsonSchemaVersions.getServerVersion())) {
-                                    return applicationJson;
-                                }
-
                                 applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
                                 return applicationJson;
                             });
@@ -193,14 +189,12 @@ public class JsonSchemaMigration {
 
         switch (applicationJson.getServerSchemaVersion()) {
             case 9:
+                applicationJson.setServerSchemaVersion(10);
+            case 10:
                 // this if for cases where we have empty datasource configs
                 MigrationHelperMethods.migrateApplicationJsonToVersionTen(applicationJson, Map.of());
-                applicationJson.setServerSchemaVersion(10);
+                applicationJson.setServerSchemaVersion(11);
             default:
-        }
-
-        if (applicationJson.getServerSchemaVersion().equals(jsonSchemaVersions.getServerVersion())) {
-            return applicationJson;
         }
 
         applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
