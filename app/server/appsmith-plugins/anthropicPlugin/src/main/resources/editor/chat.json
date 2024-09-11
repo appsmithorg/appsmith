@@ -68,12 +68,7 @@
             "width": "590px",
             "minWidth": "400px"
           }
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "children": [
+        },
         {
           "label": "Messages",
           "tooltipText": "Ask a question",

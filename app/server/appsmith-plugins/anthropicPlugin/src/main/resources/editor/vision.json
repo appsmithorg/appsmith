@@ -64,12 +64,7 @@
           "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
           "initialValue": "",
           "isRequired": false
-        }
-      ]
-    },
-    {
-      "controlType": "SINGLE_COLUMN_ZONE",
-      "children": [
+        },
         {
           "label": "Messages",
           "tooltipText": "Ask a question",
