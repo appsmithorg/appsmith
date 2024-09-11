@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { AppState } from "ee/reducers";
@@ -21,15 +21,12 @@ import { integrationEditorURL } from "ee/RouteBuilder";
 import { MenuItem, Tag } from "@appsmith/ads";
 import type { Plugin } from "api/PluginApi";
 
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { setFeatureWalkthroughShown } from "utils/storage";
 import styled from "styled-components";
 import { change, getFormValues } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import { diff } from "deep-diff";
 import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SUGGESTED_TAG, createMessage } from "ee/constants/messages";
 import { transformTextToSentenceCase } from "pages/Editor/utils";
 
@@ -59,8 +56,6 @@ const TemplateMenuItem = styled(MenuItem)`
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
   const basePageId = useSelector(getCurrentBasePageId);
@@ -108,11 +103,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           ...queryactionConfiguration,
         }),
       );
-
-      if (isWalkthroughOpened) {
-        popFeature && popFeature("SCHEMA_QUERY_CREATE");
-        setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
-      }
 
       history.push(
         integrationEditorURL({
@@ -166,13 +156,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         datasourceId: props.datasourceId,
         pluginName: plugin?.name || "",
         templateCommand: template?.title,
-        isWalkthroughOpened,
       });
-
-      if (isWalkthroughOpened) {
-        popFeature && popFeature("SCHEMA_QUERY_UPDATE");
-        setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
-      }
 
       showUndoRedoToast(
         currentAction.name,

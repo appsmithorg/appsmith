@@ -22,9 +22,6 @@ import type {
   ModuleInstanceData,
   ModuleInstanceDataState,
 } from "ee/constants/ModuleInstanceConstants";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { AppState } from "ee/reducers";
 import type { Module } from "ee/constants/ModuleConstants";
 import { getAllModules } from "ee/selectors/modulesSelector";
 import { getModuleIcon } from "pages/Editor/utils";
@@ -162,13 +159,6 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   const queries = useSelector(getCurrentActions);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
-  const isJSEnabledByDefaultOnForOneClickBinding = useSelector(
-    (state: AppState) =>
-      selectFeatureFlagCheck(
-        state,
-        FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
-      ),
-  );
 
   const { pluginImages, widget } = props;
 
@@ -197,10 +187,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
       value: getBindingValue(widget, query),
       icon: getQueryIcon(query, pluginImages, modules),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
-        addBinding(
-          valueOption?.value,
-          !!isJSEnabledByDefaultOnForOneClickBinding,
-        );
+        addBinding(valueOption?.value, true);
 
         updateConfig({
           datasource: "",

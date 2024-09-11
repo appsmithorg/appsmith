@@ -19,6 +19,7 @@ import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelecto
 import equal from "fast-deep-equal/es6";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 export interface PropertyControlsGeneratorProps {
   id: string;
@@ -103,9 +104,13 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
 
-  const isCollapseAllExceptDataEnabled: boolean = useFeatureFlag(
+  const isCollapseAllExceptDataEnabledFlag: boolean = useFeatureFlag(
     FEATURE_FLAG.ab_learnability_discoverability_collapse_all_except_data_enabled,
   );
+
+  const isCollapseAllExceptDataEnabled = isAirgapped()
+    ? true
+    : isCollapseAllExceptDataEnabledFlag;
 
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProps?.widgetId,

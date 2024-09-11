@@ -139,8 +139,6 @@ before(function () {
   if (!Cypress.currentTest.titlePath[0].includes(WALKTHROUGH_TEST_PAGE)) {
     // Adding key FEATURE_WALKTHROUGH (which is used to check if the walkthrough is already shown to the user or not) for non walkthrough cypress tests (to not show walkthrough)
     addIndexedDBKey(FEATURE_WALKTHROUGH_INDEX_KEY, {
-      ab_ds_binding_enabled: true,
-      ab_ds_schema_enabled: true,
       binding_widget: true,
     });
   }

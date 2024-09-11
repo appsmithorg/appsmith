@@ -4,9 +4,6 @@ import type { WidgetEntity, ActionEntity } from "ee/entities/DataTree/types";
 import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import store from "store";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { SlashCommandMenuOnFocusWidgetProps } from "./constants";
 
 // TODO: Fix this the next time the file is edited
@@ -157,12 +154,7 @@ export function shouldShowSlashCommandMenu(
   widgetType: string = "",
   propertyPath: string = "",
 ) {
-  const isEaseOfUseFlagEnabled = selectFeatureFlagCheck(
-    store.getState(),
-    FEATURE_FLAG.ab_learnability_ease_of_initial_use_enabled,
-  );
   return (
-    !!isEaseOfUseFlagEnabled &&
     !!SlashCommandMenuOnFocusWidgetProps[widgetType] &&
     SlashCommandMenuOnFocusWidgetProps[widgetType].includes(propertyPath)
   );
