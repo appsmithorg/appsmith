@@ -1,13 +1,13 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "DELETE",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'DELETE'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select collection to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "DELETE-Z1",
       "children": [
         {
           "label": "Collection",
@@ -32,9 +32,8 @@
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "DELETE-Z2",
       "children": [
         {
           "label": "Query",
@@ -43,7 +42,13 @@
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{rating : {$gte : 9}}"
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "DELETE-Z3",
+      "children": [
         {
           "label": "Limit",
           "configProperty": "actionConfiguration.formData.delete.limit.data",
