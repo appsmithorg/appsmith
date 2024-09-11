@@ -1237,7 +1237,7 @@ public class MigrationHelperMethods {
         }
     }
 
-    public static boolean conditionForDefaultRestDatasourceMigration(NewAction action) {
+    public static boolean conditionForDefaultRestDatasource(NewAction action) {
         if (action.getUnpublishedAction() == null
                 || action.getUnpublishedAction().getDatasource() == null) {
             return false;
@@ -1259,8 +1259,12 @@ public class MigrationHelperMethods {
 
         // Two separate types of checks over here, it's either the obvious certain way to identify or
         // the likely chance that the datasource is present.
-        boolean isActionDefaultRestDatasource =
-                certainCheckForDefaultRestDatasource || probableCheckForDefaultRestDatasource;
+        return certainCheckForDefaultRestDatasource || probableCheckForDefaultRestDatasource;
+    }
+
+    private static boolean conditionForDefaultRestDatasourceMigration(NewAction action) {
+        boolean isActionDefaultRestDatasource = conditionForDefaultRestDatasource(action);
+        Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
 
         // condition to check if the action has missing url or has no config at all
         boolean isDatasourceConfigurationOrUrlMissing = actionDatasource.getDatasourceConfiguration() == null

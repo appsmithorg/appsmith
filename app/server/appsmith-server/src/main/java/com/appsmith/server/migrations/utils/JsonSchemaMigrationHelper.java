@@ -44,7 +44,7 @@ public class JsonSchemaMigrationHelper {
                     return newActionService
                             .findAllByApplicationIdAndViewMode(
                                     branchedApplication.getId(), Boolean.FALSE, Optional.empty(), Optional.empty())
-                            .filter(MigrationHelperMethods::conditionForDefaultRestDatasourceMigration)
+                            .filter(MigrationHelperMethods::conditionForDefaultRestDatasource)
                             .collectMap(NewAction::getGitSyncId);
                 })
                 .map(newActionMap -> {
