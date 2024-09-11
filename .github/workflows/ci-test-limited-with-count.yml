@@ -402,7 +402,6 @@ jobs:
       - name: Prepare reports
         if: always()
         run: |
-          cd frontend
           npm i -g mochawesome-merge
           npm i -g mochawesome-report-generator
           mochawesome-merge  ${{ github.workspace }}/app/client/results/*.json >  ${{ github.workspace }}/app/client/results/index.json
