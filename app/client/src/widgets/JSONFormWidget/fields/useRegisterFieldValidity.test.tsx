@@ -193,6 +193,56 @@ describe("useRegisterFieldInvalid - setMetaInternalFieldState", () => {
     expect(mockSetError).not.toBeCalled();
   });
 
+  it("calls setError when isValid is false and error is not present", () => {
+    const mocksetMetaInternalFieldState = jest.fn();
+    const mockClearErrors = jest.fn();
+    const mockSetError = jest.fn();
+
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      const methods = useForm();
+
+      return (
+        <FormContextProvider
+          executeAction={jest.fn}
+          renderMode="CANVAS"
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
+          updateWidgetMetaProperty={jest.fn}
+          updateWidgetProperty={jest.fn}
+        >
+          <FormProvider
+            {...methods}
+            clearErrors={mockClearErrors}
+            setError={mockSetError}
+          >
+            {children}
+          </FormProvider>
+        </FormContextProvider>
+      );
+    }
+
+    const fieldName = "testField";
+
+    act(() => {
+      renderHook(
+        () =>
+          useRegisterFieldValidity({
+            isValid: false,
+            fieldName,
+            fieldType: FieldType.TEXT_INPUT,
+          }),
+        {
+          wrapper: Wrapper,
+        },
+      );
+    });
+
+    jest.runAllTimers();
+
+    expect(mockSetError).toBeCalledTimes(1);
+    expect(mockClearErrors).not.toBeCalledWith(fieldName);
+  });
+
   it("updates fieldState and error state with the updated isValid value", () => {
     const mocksetMetaInternalFieldState = jest.fn();
     // TODO: Fix this the next time the file is edited

@@ -1,5 +1,8 @@
 import { get } from "lodash";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  type ReduxAction,
+  toastMessageErrorTypes,
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -30,6 +33,14 @@ import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
 import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
+import AppsmithConsole from "../utils/AppsmithConsole";
+import type { SourceEntity } from "../entities/AppsmithConsole";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import { APP_MODE } from "../entities/App";
+
+const shouldShowToast = (action: string) => {
+  return action in toastMessageErrorTypes;
+};
 
 /**
  * making with error message with action name
@@ -190,8 +201,9 @@ const getErrorMessageFromActionType = (
 enum ErrorEffectTypes {
   SHOW_ALERT = "SHOW_ALERT",
   SAFE_CRASH = "SAFE_CRASH",
-  LOG_ERROR = "LOG_ERROR",
+  LOG_TO_CONSOLE = "LOG_TO_CONSOLE",
   LOG_TO_SENTRY = "LOG_TO_SENTRY",
+  LOG_TO_DEBUGGER = "LOG_TO_DEBUGGER",
 }
 
 export interface ErrorActionPayload {
@@ -199,16 +211,33 @@ export interface ErrorActionPayload {
   show?: boolean;
   crash?: boolean;
   logToSentry?: boolean;
+  logToDebugger?: boolean;
+  sourceEntity?: SourceEntity;
 }
 
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
-  const effects = [ErrorEffectTypes.LOG_ERROR];
+  const effects = [ErrorEffectTypes.LOG_TO_CONSOLE];
   const { payload, type } = errorAction;
-  const { error, logToSentry, show = true } = payload || {};
-  const message = getErrorMessageFromActionType(type, error);
+  const {
+    error,
+    logToDebugger,
+    logToSentry,
+    show = true,
+    sourceEntity,
+  } = payload || {};
+  const appMode: APP_MODE = yield select(getAppMode);
 
+  // "show" means show a toast. We check if the error has been asked to not been shown
+  // By making the default behaviour "true" we are ensuring undefined actions still pass through this check
   if (show) {
-    effects.push(ErrorEffectTypes.SHOW_ALERT);
+    // We want to show toasts for certain actions only so we avoid issues or if it is outside edit mode
+    if (shouldShowToast(type) || appMode !== APP_MODE.EDIT) {
+      effects.push(ErrorEffectTypes.SHOW_ALERT);
+    }
+  }
+
+  if (logToDebugger) {
+    effects.push(ErrorEffectTypes.LOG_TO_DEBUGGER);
   }
 
   if (error && error.crash) {
@@ -220,19 +249,26 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     effects.push(ErrorEffectTypes.LOG_TO_SENTRY);
   }
 
+  const message = getErrorMessageFromActionType(type, error);
+
   for (const effect of effects) {
     switch (effect) {
-      case ErrorEffectTypes.LOG_ERROR: {
+      case ErrorEffectTypes.LOG_TO_CONSOLE: {
         logErrorSaga(errorAction);
+        break;
+      }
+      case ErrorEffectTypes.LOG_TO_DEBUGGER: {
+        AppsmithConsole.error({
+          text: message,
+          source: sourceEntity,
+        });
         break;
       }
       case ErrorEffectTypes.SHOW_ALERT: {
         // This is the toast that is rendered when any page load API fails.
         yield call(showToast, message, { kind: "error" });
 
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((window as any).Cypress) {
+        if ("Cypress" in window) {
           if (message === "" || message === null) {
             yield put(
               safeCrashApp({

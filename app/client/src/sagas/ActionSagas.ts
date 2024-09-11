@@ -106,7 +106,6 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 import type { Plugin } from "api/PluginApi";
-import * as log from "loglevel";
 import { shouldBeDefined } from "utils/helpers";
 import {
   apiEditorIdURL,
@@ -704,13 +703,14 @@ function* moveActionSaga(
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
-    toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
-      kind: "error",
-    });
     yield put(
       moveActionError({
         id: action.payload.id,
         originalPageId: action.payload.originalPageId,
+        show: true,
+        error: {
+          message: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
+        },
       }),
     );
   }
@@ -797,10 +797,13 @@ function* copyActionSaga(
     yield put(copyActionSuccess(payload));
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    toast.show(createMessage(ERROR_ACTION_COPY_FAIL, actionName), {
-      kind: "error",
-    });
-    yield put(copyActionError(action.payload));
+    yield put(
+      copyActionError({
+        ...action.payload,
+        show: true,
+        error: { message: createMessage(ERROR_ACTION_COPY_FAIL, actionName) },
+      }),
+    );
   }
 }
 
@@ -899,12 +902,9 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       payload: {
         actionId: action.payload.id,
         oldName: api.config.name,
+        message: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       },
     });
-    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name), {
-      kind: "error",
-    });
-    log.error(e);
   }
 }
 

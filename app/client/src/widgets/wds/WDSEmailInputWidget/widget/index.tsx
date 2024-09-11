@@ -1,7 +1,7 @@
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 import { EmailInputIcon, EmailInputThumbnail } from "appsmith-icons";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { INPUT_TYPES } from "widgets/wds/WDSInputWidget/constants";
+import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
 class WDSEmailInputWidget extends WDSInputWidget {

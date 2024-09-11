@@ -8,7 +8,6 @@ import {
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { toast } from "@appsmith/ads";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -76,13 +75,13 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
       });
     }
   } catch (e) {
-    toast.show(createMessage(ERROR_IN_EXPORTING_APP), {
-      kind: "error",
-    });
     yield put({
       type: ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR,
       payload: {
-        error: "Error exporting application",
+        show: true,
+        error: {
+          message: createMessage(ERROR_IN_EXPORTING_APP),
+        },
       },
     });
   }

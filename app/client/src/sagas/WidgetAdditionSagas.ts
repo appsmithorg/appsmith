@@ -434,6 +434,7 @@ export function* addChildSaga(
       payload: {
         action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -533,6 +534,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
         error,
+        logToDebugger: true,
       },
     });
   }

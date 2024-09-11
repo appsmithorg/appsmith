@@ -5,10 +5,10 @@ import type {
 } from "react-aria-components";
 import type { IconProps, SIZES } from "@appsmith/wds";
 
-export interface SelectProps<T extends object>
-  extends Omit<SpectrumSelectProps<T>, "slot"> {
+export interface SelectProps
+  extends Omit<SpectrumSelectProps<SelectItem>, "slot"> {
   /** Item objects in the collection. */
-  items: Iterable<SelectItem>;
+  items: SelectItem[];
   /** The content to display as the label. */
   label?: string;
   /** The content to display as the description. */

@@ -199,6 +199,7 @@ export function* addWidgetAndMoveWidgetsSaga(
       payload: {
         action: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -424,6 +425,7 @@ function* moveWidgetsSaga(
       payload: {
         action: ReduxActionTypes.WIDGETS_MOVE,
         error,
+        logToDebugger: true,
       },
     });
   }

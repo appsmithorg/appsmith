@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import TreeStructure from "components/utils/TreeStructure";
 import { Text, Icon, Button, Tooltip } from "@appsmith/ads";
-import { klona } from "klona/lite";
 import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
@@ -13,6 +12,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
 import classNames from "classnames";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 const CallbackBlockContainer = styled.div<{
   isSelected: boolean;
@@ -108,7 +108,12 @@ export default function ActionTree(props: {
       selectBlock(`${id}_success_${blocks.length - 1}`);
       return;
     }
-    const newActionBlock = klona(actionBlock);
+
+    const newActionBlock = klonaLiteWithTelemetry(
+      actionBlock,
+      "ActionTree.handleAddSuccessBlock",
+    );
+
     newActionBlock.success.blocks.push({
       ...EMPTY_ACTION_BLOCK,
       type: lastAction?.type || "then",
@@ -127,7 +132,11 @@ export default function ActionTree(props: {
       selectBlock(`${id}_failure_${blocks.length - 1}`);
       return;
     }
-    const newActionBlock = klona(actionBlock);
+    const newActionBlock = klonaLiteWithTelemetry(
+      actionBlock,
+      "ActionTree.handleAddErrorBlock",
+    );
+
     newActionBlock.error.blocks.push({
       ...EMPTY_ACTION_BLOCK,
       type: lastAction?.type || "catch",
@@ -272,7 +281,11 @@ export default function ActionTree(props: {
                           childActionBlock: TActionBlock,
                           del?: boolean,
                         ) => {
-                          const newActionBlock = klona(actionBlock);
+                          const newActionBlock = klonaLiteWithTelemetry(
+                            actionBlock,
+                            "ActionTree.onChange",
+                          );
+
                           const blocks =
                             blockType === "failure"
                               ? newActionBlock.error.blocks

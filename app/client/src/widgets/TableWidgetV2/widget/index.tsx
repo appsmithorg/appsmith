@@ -101,7 +101,6 @@ import { ImageCell } from "../component/cellComponents/ImageCell";
 import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
-import { klona as clone } from "klona";
 import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
@@ -140,6 +139,7 @@ import {
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -1834,7 +1834,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   removeRowFromTransientTableData = (index: number) => {
-    const newTransientTableData = clone(this.props.transientTableData);
+    const newTransientTableData = klonaRegularWithTelemetry(
+      this.props.transientTableData,
+      "TableWidgetV2.removeRowFromTransientTableData",
+    );
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     if (newTransientTableData) {

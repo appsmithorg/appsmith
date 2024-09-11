@@ -68,6 +68,7 @@ import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
 import { WDSToolbarButtonsWidget } from "./wds/WDSToolbarButtonsWidget";
 import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
+import { WDSComboBoxWidget } from "./wds/WDSComboBoxWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
 import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
@@ -85,6 +86,7 @@ import { WDSEmailInputWidget } from "./wds/WDSEmailInputWidget";
 import { WDSPasswordInputWidget } from "./wds/WDSPasswordInputWidget";
 import { WDSNumberInputWidget } from "./wds/WDSNumberInputWidget";
 import { WDSMultilineInputWidget } from "./wds/WDSMultilineInputWidget";
+import { WDSSelectWidget } from "./wds/WDSSelectWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -164,6 +166,7 @@ const WDSWidgets = [
   WDSToolbarButtonsWidget,
   WDSPhoneInputWidget,
   WDSCheckboxGroupWidget,
+  WDSComboBoxWidget,
   WDSSwitchWidget,
   WDSSwitchGroupWidget,
   WDSRadioGroupWidget,
@@ -181,6 +184,7 @@ const WDSWidgets = [
   WDSPasswordInputWidget,
   WDSNumberInputWidget,
   WDSMultilineInputWidget,
+  WDSSelectWidget,
 ];
 
 const Widgets = [

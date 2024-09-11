@@ -39,7 +39,6 @@ import {
   setWorkspaceIdForImport,
 } from "ee/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
-import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
@@ -76,6 +75,7 @@ import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelect
 import useReconnectModalData from "ee/pages/Editor/gitSync/useReconnectModalData";
 import { resetImportData } from "ee/actions/workspaceActions";
 import { getLoadingTokenForDatasourceId } from "selectors/datasourceSelectors";
+import ReconnectDatasourceForm from "Datasource/components/ReconnectDatasourceForm";
 
 const Section = styled.div`
   display: flex;
@@ -609,12 +609,9 @@ function ReconnectDatasourceModal() {
 
               <DBFormWrapper>
                 {shouldShowDBForm && (
-                  <DatasourceForm
+                  <ReconnectDatasourceForm
                     applicationId={editorId}
                     datasourceId={selectedDatasourceId}
-                    fromImporting
-                    // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
-                    isInsideReconnectModal
                     pageId={parentEntityId}
                   />
                 )}

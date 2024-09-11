@@ -1,13 +1,13 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "AGGREGATE",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'AGGREGATE'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select collection to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "AGGREGATE-Z1",
       "children": [
         {
           "label": "Collection",
@@ -32,9 +32,8 @@
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "AGGREGATE-Z2",
       "children": [
         {
           "label": "Array of pipelines",
@@ -47,11 +46,17 @@
       ]
     },
     {
-      "label": "Limit",
-      "configProperty": "actionConfiguration.formData.aggregate.limit.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "initialValue": "10"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "AGGREGATE-Z3",
+      "children": [
+        {
+          "label": "Limit",
+          "configProperty": "actionConfiguration.formData.aggregate.limit.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "initialValue": "10"
+        }
+      ]
     }
   ]
 }

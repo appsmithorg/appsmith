@@ -10631,6 +10631,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dom-view-transitions@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@types/dom-view-transitions@npm:1.0.5"
+  checksum: 4190915a3d4c63d4c590d5e64d14ca1d1140496a75adb5af64b0ef13e075cc7676bff926f5c5c60305c4f6d46965a196c119a7960cbe0ff40e95e17e82334c22
+  languageName: node
+  linkType: hard
+
 "@types/dom4@npm:^2.0.1":
   version: 2.0.2
   resolution: "@types/dom4@npm:2.0.2"
@@ -13214,6 +13221,7 @@ __metadata:
     "@types/d3-geo": ^3.1.0
     "@types/deep-diff": ^1.0.0
     "@types/dom-mediacapture-record": ^1.0.11
+    "@types/dom-view-transitions": ^1.0.5
     "@types/downloadjs": ^1.4.2
     "@types/google.maps": ^3.51.0
     "@types/jest": ^27.4.1
@@ -13301,7 +13309,7 @@ __metadata:
     cypress-network-idle: ^1.14.2
     cypress-plugin-tab: ^1.0.5
     cypress-real-events: ^1.8.1
-    cypress-repeat-updated: ^1.0.1
+    cypress-repeat-pro: ^1.0.1
     cypress-tags: ^1.1.2
     cypress-terminal-report: ^5.3.6
     cypress-wait-until: ^1.7.2
@@ -16928,9 +16936,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress-repeat-updated@npm:^1.0.1":
+"cypress-repeat-pro@npm:^1.0.1":
   version: 1.0.1
-  resolution: "cypress-repeat-updated@npm:1.0.1"
+  resolution: "cypress-repeat-pro@npm:1.0.1"
   dependencies:
     arg: 5.0.2
     bluebird: 3.7.2
@@ -16939,8 +16947,8 @@ __metadata:
   peerDependencies:
     cypress: ">=5.3.0"
   bin:
-    cypress-repeat: index.js
-  checksum: 842107e5e1c17b9b1e4d910bfe429b6c1ca8ae6765cd985fc5f08087da36b47e19c52fbc99f936a698cfa18f364c2f674f4af0e2ed9d41fd216f594e72b2506b
+    cypress-repeat-pro: index.js
+  checksum: e62a21479b62a5d5624ce21bdd8204afd754082d851d5fc712ad76e39ca2cfe6d446c2a1434025be77fa9d76fa257609285879e9841efecc26be4d25454fb732
   languageName: node
   linkType: hard
 

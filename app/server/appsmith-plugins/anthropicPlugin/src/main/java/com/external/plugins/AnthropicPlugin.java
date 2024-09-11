@@ -74,6 +74,8 @@ public class AnthropicPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Anthropic plugin.";
+            System.out.println(printMessage);
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             if (!StringUtils.hasText(apiKeyAuth.getValue())) {
                 return Mono.error(new AppsmithPluginException(
@@ -110,6 +112,10 @@ public class AnthropicPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+
+            String printMessage =
+                    Thread.currentThread().getName() + ": executeParameterized() called for Anthropic plugin.";
+            System.out.println(printMessage);
             // Get prompt from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -248,6 +254,8 @@ public class AnthropicPlugin extends BasePlugin {
         @Override
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            String printMessage = Thread.currentThread().getName() + ": trigger() called for Anthropic plugin.";
+            System.out.println(printMessage);
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             if (!StringUtils.hasText(apiKeyAuth.getValue())) {
                 return Mono.error(new AppsmithPluginException(
@@ -309,6 +317,9 @@ public class AnthropicPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for Anthropic plugin.";
+            System.out.println(printMessage);
             return RequestUtils.validateApiKeyAuthDatasource(datasourceConfiguration);
         }
 

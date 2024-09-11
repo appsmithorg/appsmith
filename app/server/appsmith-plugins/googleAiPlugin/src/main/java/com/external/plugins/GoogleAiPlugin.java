@@ -66,6 +66,8 @@ public class GoogleAiPlugin extends BasePlugin {
          */
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for GoogleAI plugin.";
+            System.out.println(printMessage);
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             if (!StringUtils.hasText(apiKeyAuth.getValue())) {
                 return Mono.error(new AppsmithPluginException(
@@ -96,6 +98,9 @@ public class GoogleAiPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": executeParameterized() called for GoogleAI plugin.";
+            System.out.println(printMessage);
             // Get prompt from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -194,11 +199,16 @@ public class GoogleAiPlugin extends BasePlugin {
         @Override
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            String printMessage = Thread.currentThread().getName() + ": trigger() called for GoogleAI plugin.";
+            System.out.println(printMessage);
             return Mono.just(new TriggerResultDTO(getDataToMap(GoogleAIConstants.GOOGLE_AI_MODELS)));
         }
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for GoogleAI plugin.";
+            System.out.println(printMessage);
             return RequestUtils.validateApiKeyAuthDatasource(datasourceConfiguration);
         }
 

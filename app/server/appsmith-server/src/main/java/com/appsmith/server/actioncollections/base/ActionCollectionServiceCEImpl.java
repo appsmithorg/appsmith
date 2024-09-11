@@ -20,6 +20,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -28,6 +29,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +43,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.external.constants.spans.ActionCollectionSpan.GET_ACTION_COLLECTION_BY_ID;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static java.lang.Boolean.TRUE;
 
@@ -53,6 +56,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
     private final ActionPermission actionPermission;
+    private final ObservationRegistry observationRegistry;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -63,7 +67,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             PolicyGenerator policyGenerator,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
-            ActionPermission actionPermission) {
+            ActionPermission actionPermission,
+            ObservationRegistry observationRegistry) {
 
         super(validator, repository, analyticsService);
         this.newActionService = newActionService;
@@ -71,6 +76,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.actionPermission = actionPermission;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -372,7 +378,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollection> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+        return repository
+                .findById(id, aclPermission)
+                .name(GET_ACTION_COLLECTION_BY_ID)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override

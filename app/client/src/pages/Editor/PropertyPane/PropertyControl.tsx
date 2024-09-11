@@ -975,7 +975,7 @@ const PropertyControl = memo((props: Props) => {
                 }
               >
                 <PropertyHelpLabel
-                  className="w-full"
+                  className="fit-content"
                   label={label}
                   theme={props.theme}
                   tooltip={helpText}

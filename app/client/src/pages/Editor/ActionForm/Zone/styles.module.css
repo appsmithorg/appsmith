@@ -5,7 +5,7 @@
   box-sizing: border-box;
 
   &[data-layout="double_column"] {
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }
 
   &[data-layout="single_column"] {
@@ -47,11 +47,20 @@
       }
     }
   }
-  /* Removable section ends here */
-}
-
-@container uqi-section (max-width: 531px) {
-  .zone[data-layout="double_column"] {
-    grid-template-columns: 1fr;
+  /* DynamicInputTextControl min height and width removed */
+  & :global(.uqi-dynamic-input-text) {
+    width: unset !important;
+    min-height: unset !important;
   }
+
+  /* Remove when code editor min width is resolved in DynamicTextFeildControl */
+  & :global(.dynamic-text-field-control) {
+    min-width: 260px;
+  }
+
+  /* reset ads select min width */
+  & :global(.ads-v2-select > .rc-select-selector) {
+    min-width: unset;
+  }
+  /* Removable section ends here */
 }
