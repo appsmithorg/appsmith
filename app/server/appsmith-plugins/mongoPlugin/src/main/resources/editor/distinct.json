@@ -1,13 +1,13 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "DISTINCT",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'DISTINCT'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select collection to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "DISTINCT-Z1",
       "children": [
         {
           "label": "Collection",
@@ -32,9 +32,8 @@
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "DISTINCT-Z2",
       "children": [
         {
           "label": "Query",
@@ -43,7 +42,13 @@
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{rating : {$gte : 9}}"
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "DISTINCT-Z3",
+      "children": [
         {
           "label": "Key",
           "configProperty": "actionConfiguration.formData.distinct.key.data",
