@@ -36,7 +36,6 @@ function StoreAsDatasource(props: storeDataSourceProps) {
   const dispatch = useDispatch();
   const basePageId = useSelector(getCurrentBasePageId);
 
-  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
   const saveOrEditDatasource = () => {
     if (props.shouldSave) {
       dispatch(storeAsDatasource());
