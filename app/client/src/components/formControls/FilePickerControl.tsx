@@ -82,6 +82,9 @@ function RenderFilePicker(props: RenderFilePickerProps) {
         });
       };
     }
+    else {
+      props.input?.onChange("");
+    }
   }, [appFileToBeUploaded]);
 
   return (
