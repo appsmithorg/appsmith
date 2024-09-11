@@ -38,9 +38,9 @@ describe(
     });
 
     it("3. should check that JSON options given in the property pane is appearing on the table", () => {
-      cy.get(".t--property-control-options").should("exist");
+      cy.get(_.locators._controlOption).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       [
         {
@@ -81,9 +81,9 @@ describe(
     });
 
     it("4. should check that javascript options given in the property pane is appearing on the table", () => {
-      cy.get(".t--property-control-options").should("exist");
+      cy.get(_.locators._controlOption).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       {{[
         {
@@ -125,7 +125,7 @@ describe(
 
     it("5. should check that placeholder property is working", () => {
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       [
         {
@@ -161,7 +161,7 @@ describe(
 
     it("6. should check that filterable property is working", () => {
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       {{[
         {
@@ -217,7 +217,7 @@ describe(
     `,
       );
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       [
         {
@@ -249,7 +249,7 @@ describe(
 
     it("8. should check that currentRow is accessible in the select options", () => {
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       {{[
         {
@@ -289,7 +289,7 @@ describe(
         cy.get(".t--property-control-newrowoptions").should("not.exist");
 
         cy.updateCodeInput(
-          ".t--property-control-options",
+          _.locators._controlOption,
           `
         {{[{
           "label": "male",
