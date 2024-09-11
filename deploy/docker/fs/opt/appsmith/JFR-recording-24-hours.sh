@@ -37,7 +37,7 @@ for i in {1..24}; do
     echo "Stopped previous JFR recording (if any)" >> $log_file
 
     # Start a new JFR recording
-    jcmd $pid JFR.start name=profile filename=$location.jfr 
+    jcmd $pid JFR.start name=profile filename=$location.jfr
     echo "Started new JFR recording: $location.jfr" >> $log_file
 
     # Wait for an hour before taking the next thread dump
@@ -47,5 +47,4 @@ for i in {1..24}; do
 done >> $log_file 2>&1 &
 
 # Detach the process from the terminal
-disown
 echo "Script disowned, running in background." >> $log_file

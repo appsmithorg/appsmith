@@ -538,7 +538,7 @@ mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,p
 
 setup_auto_heal
 capture_infra_details
-setup_monitoring
+setup_monitoring || echo true
 
 # Handle CMD command
 exec "$@"
