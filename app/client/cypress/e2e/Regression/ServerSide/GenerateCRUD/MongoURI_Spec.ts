@@ -56,13 +56,12 @@ describe(
 
     it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
       //Update documents query to handle the int _id data
-      EditorNavigation.SelectEntityByName("FindQuery", EntityType.Query);
       EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
-      // agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
-      //   propFieldName: "",
-      //   directInput: false,
-      //   inputFieldName: "Query",
-      // });
+      agHelper.EnterValue(`{ _id: {{data_table.triggeredRow._id}}}`, {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Query",
+      });
 
       EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
       agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
@@ -141,7 +140,6 @@ describe(
     });
 
     it("4. Verify Delete from Deploy page - on MongoMart", () => {
-      table.SelectTableRow(0, 0, true, "v2");
       agHelper.ClickButton("Delete", 0);
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
