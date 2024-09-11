@@ -197,6 +197,14 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                             } else if (value instanceof Collection<?> || value instanceof Map<?, ?>) {
                                 try {
                                     value = objectMapper.writeValueAsString(value);
+                                    if (((String) value).contains("u0000")) {
+                                        log.warn(
+                                                "Removing NUL characters from {}.{} for id {}",
+                                                tableName,
+                                                columnName,
+                                                data.get("id"));
+                                        value = ((String) value).replaceAll("\\\\u0000", "");
+                                    }
                                 } catch (JsonProcessingException e) {
                                     throw new RuntimeException(e);
                                 }
