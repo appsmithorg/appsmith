@@ -225,26 +225,22 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         branchedApplicationMonoCached = baseApplicationIdMono.flatMap(cachedBaseApplicationId -> {
             if (!StringUtils.hasText(cachedBaseApplicationId)) {
                 // Handle empty or null baseApplicationId
-                return newPageService
-                        .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
-                        .flatMap(branchedPage ->
-                                // Use the application ID to find the complete application details.
-                                applicationService
-                                        .findByBranchedApplicationIdAndApplicationMode(
-                                                branchedPage.getApplicationId(), mode)
-                                        .flatMap(application -> {
-                                            if (isViewMode) {
-                                                // Update the cache with the new application’s base ID for future
-                                                // queries.
-                                                return cacheableRepositoryHelper
-                                                        .fetchBaseApplicationId(basePageId, application.getBaseId())
-                                                        .thenReturn(application)
-                                                        .name(getQualifiedSpanName(
-                                                                APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
-                                                        .tap(Micrometer.observation(observationRegistry));
-                                            }
-                                            return Mono.just(application);
-                                        }));
+                return branchedPageMonoCached.flatMap(branchedPage ->
+                        // Use the application ID to find the complete application details.
+                        applicationService
+                                .findByBranchedApplicationIdAndApplicationMode(branchedPage.getApplicationId(), mode)
+                                .flatMap(application -> {
+                                    if (isViewMode) {
+                                        // Update the cache with the new application’s base ID for future
+                                        // queries.
+                                        return cacheableRepositoryHelper
+                                                .fetchBaseApplicationId(basePageId, application.getBaseId())
+                                                .thenReturn(application)
+                                                .name(getQualifiedSpanName(APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
+                                                .tap(Micrometer.observation(observationRegistry));
+                                    }
+                                    return Mono.just(application);
+                                }));
             } else {
                 // Handle non-empty baseApplicationId
                 return applicationService.findByBaseIdBranchNameAndApplicationMode(
