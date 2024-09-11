@@ -44,13 +44,21 @@ const errorReducer = createReducer(initialState, {
     if (
       state?.currentError?.sourceAction === "FETCH_CURRENT_TENANT_CONFIG_ERROR"
     ) {
-      return initialState;
+      return {
+        ...state,
+        ...initialState,
+      };
     }
+    return state;
   },
   [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (state: ErrorReduxState) => {
     if (state?.currentError?.sourceAction === "UPDATE_TENANT_CONFIG_ERROR") {
-      return initialState;
+      return {
+        ...state,
+        ...initialState,
+      };
     }
+    return state;
   },
 });
 
