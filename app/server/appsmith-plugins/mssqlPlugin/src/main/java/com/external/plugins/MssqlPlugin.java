@@ -309,7 +309,7 @@ public class MssqlPlugin extends BasePlugin {
                                 + ": objectMapper.valueToTree invoked from MSSQL plugin.");
                         Stopwatch processStopwatch = new Stopwatch("MSSQL Plugin objectMapper valueToTree");
                         result.setBody(objectMapper.valueToTree(rowsList));
-                        processStopwatch.stopAndLogTimeInMillisWithSysOut();
+                        processStopwatch.stopAndLogTimeInMillis();
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
                         return Mono.just(result);

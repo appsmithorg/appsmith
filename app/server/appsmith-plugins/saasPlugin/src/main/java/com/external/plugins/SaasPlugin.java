@@ -141,7 +141,7 @@ public class SaasPlugin extends BasePlugin {
                 Stopwatch processStopwatch =
                         new Stopwatch("SaaS Plugin objectMapper writing value as string for connection");
                 valueAsString = saasObjectMapper.writeValueAsString(connection);
-                processStopwatch.stopAndLogTimeInMillisWithSysOut();
+                processStopwatch.stopAndLogTimeInMillis();
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -160,7 +160,7 @@ public class SaasPlugin extends BasePlugin {
                                         new Stopwatch("SaaS Plugin objectMapper reading value as string for body");
                                 ActionExecutionResult result =
                                         saasObjectMapper.readValue(body, ActionExecutionResult.class);
-                                processStopwatch.stopAndLogTimeInMillisWithSysOut();
+                                processStopwatch.stopAndLogTimeInMillis();
                                 return result;
                             } catch (IOException e) {
                                 throw Exceptions.propagate(new AppsmithPluginException(

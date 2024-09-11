@@ -402,7 +402,7 @@ public class MySqlPlugin extends BasePlugin {
                                             Stopwatch processStopwatch =
                                                     new Stopwatch("MySQL Plugin objectMapper valueToTree");
                                             result.setBody(objectMapper.valueToTree(rowsList));
-                                            processStopwatch.stopAndLogTimeInMillisWithSysOut();
+                                            processStopwatch.stopAndLogTimeInMillis();
                                             result.setMessages(populateHintMessages(columnsList));
                                             result.setIsExecutionSuccess(true);
                                             log.debug("In the MySqlPlugin, got action execution result");
