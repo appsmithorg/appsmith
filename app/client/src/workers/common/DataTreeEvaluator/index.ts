@@ -304,7 +304,13 @@ export default class DataTreeEvaluator {
     const { dependencies, inverseDependencies } = await profileAsyncFn(
       "createDependencyMap",
       async () =>
-        createDependencyMap(this, localUnEvalTree, configTree, cacheProps),
+        createDependencyMap(
+          this,
+          localUnEvalTree,
+          configTree,
+          cacheProps,
+          webworkerTelemetry,
+        ),
       webworkerTelemetry,
     );
 

@@ -35,12 +35,18 @@ import {
   type ICacheProps,
 } from "../AppComputationCache/types";
 import type DependencyMap from "entities/DependencyMap";
+import {
+  profileFn,
+  type WebworkerSpanData,
+} from "UITelemetry/generateWebWorkerTraces";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
 
 export async function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
   cacheProps: ICacheProps,
+  webworkerSpans: Record<string, WebworkerSpanData | SpanAttributes> = {},
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
 
@@ -48,10 +54,13 @@ export async function createDependencyMap(
     AppsmithFunctionsWithFields,
   );
   const setterFunctions = getAllSetterFunctions(unEvalTree, configTree);
-  dependencyMap.addNodes(
-    { ...allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
-    false,
-  );
+
+  profileFn("createDependencyMap.addNodes", {}, webworkerSpans, async () => {
+    dependencyMap.addNodes(
+      { ...allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
+      false,
+    );
+  });
 
   const dependencyMapCache =
     await appComputationCache.getCachedComputationResult<
@@ -62,8 +71,10 @@ export async function createDependencyMap(
     });
 
   if (dependencyMapCache) {
-    Object.entries(dependencyMapCache).forEach(([path, references]) => {
-      dependencyMap.addDependency(path, references);
+    profileFn("createDependencyMap.addDependency", {}, webworkerSpans, () => {
+      Object.entries(dependencyMapCache).forEach(([path, references]) => {
+        dependencyMap.addDependency(path, references);
+      });
     });
   } else {
     let shouldCache = true;

@@ -3,6 +3,7 @@ import localforage from "localforage";
 import isNull from "lodash/isNull";
 import loglevel from "loglevel";
 import { EComputationCacheName, type ICacheProps } from "./types";
+import debounce from "lodash/debounce";
 
 interface ICachedData<T> {
   value: T;
@@ -43,6 +44,11 @@ class AppComputationCache {
     }
     return AppComputationCache.instance;
   }
+
+  debouncedDeleteInvalidCacheEntries = debounce(
+    this.deleteInvalidCacheEntries,
+    10000,
+  );
 
   /**
    * Check if the computation result should be cached based on the app mode configuration
@@ -129,10 +135,10 @@ class AppComputationCache {
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
       if (isNull(cached)) {
         // Cache miss
-        // Remove all invalid cache entries when the thread is idle
+        // Delete invalid cache entries when thread is idle
         setTimeout(async () => {
-          await this.deleteInvalidCacheEntries(cacheProps);
-        }, 0);
+          await this.debouncedDeleteInvalidCacheEntries(cacheProps);
+        }, 10000);
 
         return null;
       }

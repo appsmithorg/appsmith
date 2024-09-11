@@ -14,7 +14,7 @@ export interface WebworkerSpanData {
 //to regular otlp telemetry data and subsequently exported to our telemetry collector
 export const newWebWorkerSpanData = (
   spanName: string,
-  attributes: SpanAttributes,
+  attributes: SpanAttributes = {},
 ): WebworkerSpanData => {
   return {
     attributes,
