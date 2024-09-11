@@ -1,16 +1,16 @@
 import React from "react";
 import {
   PluginActionEditor,
-  PluginActionToolbar,
   PluginActionForm,
   PluginActionResponsePane,
 } from "PluginActionEditor";
 import ConvertToModuleCallout from "./components/ConvertToModuleCallout";
+import AppPluginActionToolbar from "./components/AppPluginActionToolbar";
 
 const AppPluginActionEditor = () => {
   return (
     <PluginActionEditor>
-      <PluginActionToolbar />
+      <AppPluginActionToolbar />
       <ConvertToModuleCallout />
       <PluginActionForm />
       <PluginActionResponsePane />

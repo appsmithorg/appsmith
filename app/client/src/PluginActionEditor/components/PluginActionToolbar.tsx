@@ -1,10 +1,11 @@
 import React from "react";
 import { IDEToolbar } from "IDE";
-import { Button, Tooltip } from "@appsmith/ads";
+import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
   children?: React.ReactNode[] | React.ReactNode;
+  menuContent?: React.ReactNode[] | React.ReactNode;
 }
 
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
@@ -24,12 +25,19 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           size="sm"
           startIcon="settings-2-line"
         />
-        <Button
-          isIconButton
-          kind="tertiary"
-          size="sm"
-          startIcon="more-2-fill"
-        />
+        <Menu>
+          <MenuTrigger>
+            <Button
+              isIconButton
+              kind="tertiary"
+              size="sm"
+              startIcon="more-2-fill"
+            />
+          </MenuTrigger>
+          <MenuContent loop style={{ zIndex: 100 }} width="200px">
+            {props.menuContent}
+          </MenuContent>
+        </Menu>
       </IDEToolbar.Right>
     </IDEToolbar>
   );
