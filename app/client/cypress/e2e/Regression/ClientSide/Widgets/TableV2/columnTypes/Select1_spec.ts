@@ -162,6 +162,7 @@ describe(
     });
 
     it("6. should check that on option select is working", () => {
+      _.agHelper.CheckForPageSaveError();
       featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
