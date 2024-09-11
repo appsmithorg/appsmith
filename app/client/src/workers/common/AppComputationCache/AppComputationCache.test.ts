@@ -50,7 +50,7 @@ describe("AppComputationCache", () => {
       });
 
       expect(cacheKey).toBe(
-        `${cacheProps.instanceId}>${cacheProps.workspaceId}>${cacheProps.appId}>${cacheProps.pageId}>${cacheProps.appMode}>1725993000000>${cacheName}`,
+        `${cacheProps.instanceId}>${cacheProps.workspaceId}>${cacheProps.appId}>${cacheProps.pageId}>${cacheProps.appMode}>${new Date(cacheProps.timestamp).getTime()}>${cacheName}`,
       );
     });
   });
