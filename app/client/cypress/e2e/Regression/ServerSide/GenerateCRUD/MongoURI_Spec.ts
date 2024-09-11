@@ -133,10 +133,6 @@ describe(
         false,
       );
       agHelper.ClickButton("Submit");
-      cy.wait("@postExecute").then((interception: any) => {
-        const valueToTest = JSON.stringify(interception);
-        cy.log(valueToTest);
-      });
       for (let i = 0; i <= 1; i++) {
         table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
           expect($cellData).contains("Coffee Mug");
@@ -145,6 +141,7 @@ describe(
     });
 
     it("4. Verify Delete from Deploy page - on MongoMart", () => {
+      table.SelectTableRow(0, 0, true, "v2");
       agHelper.ClickButton("Delete", 0);
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
@@ -155,13 +152,6 @@ describe(
       agHelper.ClickButton("Confirm");
       assertHelper.AssertNetworkExecutionSuccess("@postExecute");
       assertHelper.AssertNetworkStatus("@postExecute", 200);
-      // This is just verifying the table data
-      // table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
-      //   expect($cellData).to.eq("Coffee Mug");
-      // });
-      // table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
-      //   expect($cellData).to.eq("Track Jacket");
-      // });
     });
 
     it("5 Verify Filter & Search & Download from Deploy page - on MongoMart - existing record", () => {
