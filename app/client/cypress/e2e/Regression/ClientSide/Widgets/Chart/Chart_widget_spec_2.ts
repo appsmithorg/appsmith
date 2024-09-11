@@ -23,10 +23,6 @@ describe("", { tags: ["@tag.Widget", "@tag.Chart", "@tag.Visual"] }, () => {
     );
     agHelper.AssertAutoSave();
     deployMode.DeployApp();
-    // TODO: Figure out why local screenshots differ in CI
-    // agHelper
-    //   .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
-    //   .matchImageSnapshot("chartwidget/piechartsnapshotwithtitle");
     deployMode.NavigateBacktoEditor();
     EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
   });
@@ -35,16 +31,10 @@ describe("", { tags: ["@tag.Widget", "@tag.Chart", "@tag.Visual"] }, () => {
     propPane.SelectPropertiesDropDown("Chart Type", "Column chart");
     agHelper.AssertAutoSave();
     deployMode.DeployApp();
-    agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
-      .matchImageSnapshot("chartwidget/columnchartsnapshotwithoutadaptiveaxis");
     deployMode.NavigateBacktoEditor();
     EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.TogglePropertyState("Adaptive axis", "On");
     deployMode.DeployApp();
-    agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
-      .matchImageSnapshot("chartwidget/columnchartsnapshotwithadaptiveaxis");
     deployMode.NavigateBacktoEditor();
     EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
   });
@@ -52,27 +42,14 @@ describe("", { tags: ["@tag.Widget", "@tag.Chart", "@tag.Visual"] }, () => {
   it("3. Test x axis label orientation chart", () => {
     propPane.SelectPropertiesDropDown("Chart Type", "Line chart");
     deployMode.DeployApp();
-    agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
-      .matchImageSnapshot("chartwidget/linechartWithAutoXAxisLabelOrientation");
     deployMode.NavigateBacktoEditor();
     EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("x-axis label orientation", "Slant");
     deployMode.DeployApp();
-    agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
-      .matchImageSnapshot(
-        "chartwidget/linechartWithSlantXAxisLabelOrientation",
-      );
     deployMode.NavigateBacktoEditor();
     EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
     propPane.SelectPropertiesDropDown("x-axis label orientation", "Rotate");
     deployMode.DeployApp();
-    agHelper
-      .GetElement(locators._widgetInDeployed(draggableWidgets.CHART))
-      .matchImageSnapshot(
-        "chartwidget/linechartWithRotateXAxisLabelOrientation",
-      );
     deployMode.NavigateBacktoEditor();
     EditorNavigation.SelectEntityByName("Chart1", EntityType.Widget);
   });

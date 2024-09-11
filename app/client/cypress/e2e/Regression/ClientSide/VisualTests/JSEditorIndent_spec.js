@@ -61,21 +61,15 @@ myFun2: async () => {
 
       agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
       agHelper.Sleep(2000); //allowing time to prettify!
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
       // taking a snap after clicking inside the editor to make sure prettify has not reverted
       agHelper.Sleep(110);
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
       homePage.NavigateToHome();
       homePage.FilterApplication(workspaceName);
       homePage.ForkApplication(appName);
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
     });
 
     it("7. TC 1933 - JSEditor prettify verification on cloned page", () => {
@@ -122,20 +116,14 @@ myFun2: async () => {
 
       agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
       agHelper.Sleep(); //allowing time to prettify!
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
       // taking a snap after clicking inside the editor to make sure prettify has not reverted
       agHelper.Sleep(110);
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
       PageList.ClonePage("Page1");
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
       agHelper.Sleep(3000);
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
     });
 
     it("1. TC 1864 : JSEditor validation for Prettify code with lint errors, triggered by menu option", () => {
@@ -214,32 +202,21 @@ myFun2: async () => {
         },
       );
 
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
-
       agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
       agHelper.Sleep(2000); //allowing time to prettify!
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
       // taking a snap after clicking inside the editor to make sure prettify has not reverted
       agHelper.Sleep(110);
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
       // click run button and take a snap to make sure prettify did not revert
       agHelper.GetNClick(jsEditor._runButton);
       agHelper.Sleep(); // allow time to run
       //Close bottom bar after execution.
       debuggerHelper.CloseBottomBar();
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
       // click dropdown to change function and make sure prettify has not reverted
       jsEditor.SelectFunctionDropdown("myFun2");
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
       agHelper.AssertContains("ran successfully", "not.exist");
     });
 
@@ -334,21 +311,15 @@ myFun2: async () => {
       // taking a snap after clicking inside the editor to make sure prettify has not reverted
       agHelper.Sleep(110);
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
       // click run button and take a snap to make sure prettify did not revert
       agHelper.GetNClick(jsEditor._runButton);
       agHelper.Sleep(); // allow time to run
       //Close bottom bar after execution.
       debuggerHelper.CloseBottomBar();
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
       // click dropdown to change function and make sure prettify has not reverted
       jsEditor.SelectFunctionDropdown("myFun2");
-      // TODO: Figure out why local screenshots differ in CI
-      // cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
       agHelper.AssertContains("ran successfully", "not.exist");
     });
 
