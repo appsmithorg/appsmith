@@ -7,7 +7,9 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   matchBuilderPath,
   matchViewerPath,
-  BUILDER_VIEWER_PATH_PREFIX,
+  VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 
 import {
@@ -80,11 +82,7 @@ export const getActionIdFromURL = () => {
 };
 
 export function getAppViewerPageIdFromPath(path: string): string | null {
-  const regexes = [
-    `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\\-):basePageId`, // VIEWER_PATH
-    `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\\-):basePageId`, // VIEWER_CUSTOM_PATH
-    `/applications/:baseApplicationId/pages/:basePageId`, // VIEWER_PATH_DEPRECATED
-  ];
+  const regexes = [VIEWER_PATH, VIEWER_CUSTOM_PATH, VIEWER_PATH_DEPRECATED];
   for (const regex of regexes) {
     const match = matchPath<{ basePageId: string }>(path, { path: regex });
     if (match?.params.basePageId) {
