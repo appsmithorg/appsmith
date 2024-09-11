@@ -292,7 +292,7 @@ export default class DataTreeEvaluator {
     const allKeysGenerationStartTime = performance.now();
 
     this.allKeys = await appComputationCache.fetchOrCompute({
-      ...cacheProps,
+      cacheProps,
       cacheName: EComputationCacheName.ALL_KEYS,
       computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
     });

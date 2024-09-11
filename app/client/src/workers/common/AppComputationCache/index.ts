@@ -2,7 +2,7 @@ import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import isNull from "lodash/isNull";
 import loglevel from "loglevel";
-import { EComputationCacheName } from "./types";
+import { EComputationCacheName, type ICacheProps } from "./types";
 
 interface ICachedData<T> {
   value: T;
@@ -48,8 +48,6 @@ class AppComputationCache {
 
   /**
    * Check if the computation result should be cached based on the app mode configuration
-   * @param cacheName - The name of the cache
-   * @param appMode - The app mode for which the cache should be enabled
    * @returns - A boolean indicating whether the cache should be enabled for the given app mode
    */
   isComputationCached({
@@ -69,30 +67,19 @@ class AppComputationCache {
   /**
    * Checks if the value should be cached based on the app mode configuration and
    * caches the computation result if it should be cached. It also tracks the cache usage
-   * @param appId - The id of the app
-   * @param appMode - The app mode for which the cache should be enabled
-   * @param cacheName - The name of the cache
-   * @param computationResult - The result of the computation
-   * @param pageId - The id of the page
-   * @param timestamp - The timestamp of the computation
    * @returns - A promise that resolves when the computation result is cached
-   * @throws - Logs an error if the computation result cannot be cached
    */
   async cacheComputationResult<T>({
-    appId,
-    appMode,
     cacheName,
+    cacheProps,
     computationResult,
-    pageId,
-    timestamp,
   }: {
-    appId: string;
+    cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
     computationResult: T;
-    pageId: string;
-    timestamp?: string;
-    appMode?: APP_MODE;
   }) {
+    const { appMode, timestamp } = cacheProps;
+
     if (!appMode || !timestamp) {
       return;
     }
@@ -106,7 +93,7 @@ class AppComputationCache {
       return;
     }
 
-    const cacheKey = this.generateCacheKey([appId, pageId, appMode, cacheName]);
+    const cacheKey = this.generateCacheKey({ cacheProps, cacheName });
 
     try {
       await this.store.setItem<ICachedData<T>>(cacheKey, {
@@ -122,27 +109,17 @@ class AppComputationCache {
 
   /**
    * Gets the cached computation result if it exists and is valid
-   * @param appId - The id of the app
-   * @param appMode - The app mode for which the cache should be enabled
-   * @param cacheName - The name of the cache
-   * @param pageId - The id of the page
-   * @param timestamp - The timestamp of the computation
-   * @returns - A promise that resolves with the cached computation result if it exists and is valid
-   * @throws - Returns null if the cached computation result does not exist or is invalid
+   * @returns - A promise that resolves with the cached computation result or null if it does not exist
    */
   async getCachedComputationResult<T>({
-    appId,
-    appMode,
     cacheName,
-    pageId,
-    timestamp,
+    cacheProps,
   }: {
-    appId: string;
+    cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
-    pageId: string;
-    timestamp?: string;
-    appMode?: APP_MODE;
   }): Promise<T | null> {
+    const { appMode, timestamp } = cacheProps;
+
     if (!appMode) {
       return null;
     }
@@ -156,7 +133,10 @@ class AppComputationCache {
       return null;
     }
 
-    const cacheKey = this.generateCacheKey([appId, pageId, appMode, cacheName]);
+    const cacheKey = this.generateCacheKey({
+      cacheProps,
+      cacheName,
+    });
 
     try {
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
@@ -180,39 +160,36 @@ class AppComputationCache {
 
   /**
    * Generates a cache key from the index parts
-   * @param indexParts - The parts of the cache index
    * @returns - The generated cache key
    */
-  generateCacheKey(indexParts: string[]) {
-    return indexParts.join("_");
+  generateCacheKey({
+    cacheName,
+    cacheProps,
+  }: {
+    cacheProps: ICacheProps;
+    cacheName: EComputationCacheName;
+  }) {
+    const { appId, appMode, instanceId, pageId, workspaceId } = cacheProps;
+
+    return `${instanceId}_${workspaceId}_${appId}_${pageId}_${appMode}_${cacheName}`;
   }
 
   /**
    * Fetches the computation result from the cache or computes it if it does not exist
-   * @param appId - The id of the app
-   * @param appMode - The app mode for which the cache should be enabled
-   * @param cacheName - The name of the cache
-   * @param computeFn - The function to compute the result
-   * @param pageId - The id of the page
-   * @param timestamp - The timestamp of the computation
    * @returns - A promise that resolves with the computation result
    * @throws - Logs an error if the computation result cannot be fetched or computed and returns the computed fallback result
    */
   async fetchOrCompute<T>({
-    appId,
-    appMode,
     cacheName,
+    cacheProps,
     computeFn,
-    pageId,
-    timestamp,
   }: {
-    appId: string;
-    appMode?: APP_MODE;
-    timestamp?: string;
-    pageId: string;
+    cacheProps: ICacheProps;
     computeFn: () => Promise<T> | T;
     cacheName: EComputationCacheName;
   }) {
+    const { appMode, timestamp } = cacheProps;
+
     const shouldCache = this.isComputationCached({
       cacheName,
       appMode,
@@ -224,10 +201,7 @@ class AppComputationCache {
 
     try {
       const cachedResult = await this.getCachedComputationResult<T>({
-        appId,
-        timestamp,
-        pageId,
-        appMode,
+        cacheProps,
         cacheName,
       });
 
@@ -238,10 +212,7 @@ class AppComputationCache {
       const computationResult = await computeFn();
 
       await this.cacheComputationResult({
-        appId,
-        timestamp,
-        pageId,
-        appMode,
+        cacheProps,
         computationResult,
         cacheName,
       });

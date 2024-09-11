@@ -277,6 +277,8 @@ describe("DataTreeEvaluator", () => {
           pageId: "pageId",
           timestamp: "timestamp",
           appMode: APP_MODE.PUBLISHED,
+          instanceId: "instanceId",
+          workspaceId: "workspaceId",
         },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();
@@ -377,6 +379,8 @@ describe("DataTreeEvaluator", () => {
           pageId: "pageId",
           timestamp: "timestamp",
           appMode: APP_MODE.PUBLISHED,
+          instanceId: "instanceId",
+          workspaceId: "workspaceId",
         },
       );
       dataTreeEvaluator.evalAndValidateFirstTree();

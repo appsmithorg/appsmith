@@ -10,4 +10,6 @@ export interface ICacheProps {
   pageId: string;
   appMode?: APP_MODE;
   timestamp: string;
+  instanceId: string;
+  workspaceId: string;
 }

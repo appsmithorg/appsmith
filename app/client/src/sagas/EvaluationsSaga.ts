@@ -116,6 +116,8 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -258,6 +260,8 @@ export function* evaluateTreeSaga(
   const theme: ReturnType<typeof getSelectedAppTheme> =
     yield select(getSelectedAppTheme);
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
+  const instanceId: string = yield select(getInstanceId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
   const pageId: string = yield select(getCurrentPageId);
   const lastDeployedAt: string = yield select(getApplicationLastDeployedAt);
@@ -268,9 +272,13 @@ export function* evaluateTreeSaga(
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
   const evalTreeRequestData: EvalTreeRequestData = {
-    applicationId,
-    pageId,
-    lastDeployedAt,
+    cacheProps: {
+      appId: applicationId,
+      pageId,
+      timestamp: lastDeployedAt,
+      instanceId,
+      workspaceId,
+    },
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
     widgets,

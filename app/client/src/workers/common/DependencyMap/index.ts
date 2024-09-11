@@ -53,13 +53,11 @@ export async function createDependencyMap(
     false,
   );
 
-  const { appId, appMode, pageId, timestamp } = cacheProps;
-
   const dependencyMapCache =
     await appComputationCache.getCachedComputationResult<
       Record<string, string[]>
     >({
-      ...cacheProps,
+      cacheProps,
       cacheName: EComputationCacheName.DEPENDENCY_MAP,
     });
 
@@ -98,11 +96,8 @@ export async function createDependencyMap(
 
     if (shouldCache) {
       await appComputationCache.cacheComputationResult({
-        appId,
+        cacheProps,
         cacheName: EComputationCacheName.DEPENDENCY_MAP,
-        pageId,
-        timestamp,
-        appMode,
         computationResult: dependencyMap.dependencies,
       });
     }
