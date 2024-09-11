@@ -138,7 +138,7 @@ class AppComputationCache {
         // Delete invalid cache entries when thread is idle
         setTimeout(async () => {
           await this.debouncedDeleteInvalidCacheEntries(cacheProps);
-        }, 10000);
+        }, 0);
 
         return null;
       }
