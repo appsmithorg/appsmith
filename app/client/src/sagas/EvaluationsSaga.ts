@@ -273,6 +273,7 @@ export function* evaluateTreeSaga(
 
   const evalTreeRequestData: EvalTreeRequestData = {
     cacheProps: {
+      appMode,
       appId: applicationId,
       pageId,
       timestamp: lastDeployedAt,

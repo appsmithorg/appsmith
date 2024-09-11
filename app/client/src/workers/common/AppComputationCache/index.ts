@@ -6,7 +6,6 @@ import { EComputationCacheName, type ICacheProps } from "./types";
 
 interface ICachedData<T> {
   value: T;
-  timestamp: string;
 }
 
 interface ICacheLog {
@@ -17,8 +16,7 @@ interface ICacheLog {
 class AppComputationCache {
   // Singleton instance
   private static instance: AppComputationCache | null = null;
-  // The name of the item in the cache store that stores cache event logs
-  private static CACHE_EVENT_ITEM_NAME = "cacheEventLog";
+  private static CACHE_KEY_DELIMITER = ">";
 
   // The cache store for computation results
   private readonly store = localforage.createInstance({
@@ -51,13 +49,15 @@ class AppComputationCache {
    * @returns - A boolean indicating whether the cache should be enabled for the given app mode
    */
   isComputationCached({
-    appMode,
     cacheName,
+    cacheProps,
   }: {
     cacheName: EComputationCacheName;
-    appMode?: APP_MODE;
+    cacheProps: ICacheProps;
   }) {
-    if (!appMode) {
+    const { appMode, timestamp } = cacheProps;
+
+    if (!appMode || !timestamp) {
       return false;
     }
 
@@ -78,15 +78,9 @@ class AppComputationCache {
     cacheName: EComputationCacheName;
     computationResult: T;
   }) {
-    const { appMode, timestamp } = cacheProps;
-
-    if (!appMode || !timestamp) {
-      return;
-    }
-
     const shouldCache = this.isComputationCached({
       cacheName,
-      appMode,
+      cacheProps,
     });
 
     if (!shouldCache) {
@@ -98,10 +92,9 @@ class AppComputationCache {
     try {
       await this.store.setItem<ICachedData<T>>(cacheKey, {
         value: computationResult,
-        timestamp,
       });
 
-      await this.trackCacheUsage(cacheKey, true);
+      await this.trackCacheUsage(cacheKey);
     } catch (error) {
       loglevel.debug("Error caching computation result:", error);
     }
@@ -118,15 +111,9 @@ class AppComputationCache {
     cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
   }): Promise<T | null> {
-    const { appMode, timestamp } = cacheProps;
-
-    if (!appMode) {
-      return null;
-    }
-
     const shouldCache = this.isComputationCached({
       cacheName,
-      appMode,
+      cacheProps,
     });
 
     if (!shouldCache) {
@@ -141,11 +128,12 @@ class AppComputationCache {
     try {
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
       if (isNull(cached)) {
-        return null;
-      }
+        // Cache miss
+        // Remove all invalid cache entries when the thread is idle
+        setTimeout(async () => {
+          await this.deleteInvalidCacheEntries(cacheProps);
+        }, 0);
 
-      if (cached.timestamp !== timestamp) {
-        await this.store.removeItem(cacheKey);
         return null;
       }
 
@@ -169,9 +157,21 @@ class AppComputationCache {
     cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
   }) {
-    const { appId, appMode, instanceId, pageId, workspaceId } = cacheProps;
+    const { appId, appMode, instanceId, pageId, timestamp, workspaceId } =
+      cacheProps;
 
-    return `${instanceId}_${workspaceId}_${appId}_${pageId}_${appMode}_${cacheName}`;
+    const timeStampEpoch = new Date(timestamp).getTime();
+    const cacheKeyParts = [
+      instanceId,
+      workspaceId,
+      appId,
+      pageId,
+      appMode,
+      timeStampEpoch,
+      cacheName,
+    ];
+
+    return cacheKeyParts.join(AppComputationCache.CACHE_KEY_DELIMITER);
   }
 
   /**
@@ -188,14 +188,12 @@ class AppComputationCache {
     computeFn: () => Promise<T> | T;
     cacheName: EComputationCacheName;
   }) {
-    const { appMode, timestamp } = cacheProps;
-
     const shouldCache = this.isComputationCached({
       cacheName,
-      appMode,
+      cacheProps,
     });
 
-    if (!shouldCache || !timestamp) {
+    if (!shouldCache) {
       return computeFn();
     }
 
@@ -229,33 +227,60 @@ class AppComputationCache {
   /**
    * Tracks the cache usage by updating the last accessed timestamp of the cache
    * @param name - The name of the cache
-   * @param isNew - A boolean indicating whether the cache is new
    * @returns - A promise that resolves when the cache usage is tracked
    * @throws - Logs an error if the cache usage cannot be tracked
    */
-  async trackCacheUsage(name: string, isNew: boolean = false) {
+  async trackCacheUsage(name: string) {
     try {
-      const currentLogs = await this.cacheLogsStore.getItem<
-        Record<string, ICacheLog>
-      >(AppComputationCache.CACHE_EVENT_ITEM_NAME);
+      const currentLog = await this.cacheLogsStore.getItem<ICacheLog>(name);
 
-      const logEntry = currentLogs?.[name] || {
-        createdAt: isNew ? Date.now() : null,
-      };
-
-      await this.cacheLogsStore.setItem(
-        AppComputationCache.CACHE_EVENT_ITEM_NAME,
-        {
-          ...(currentLogs || {}),
-          [name]: {
-            ...logEntry,
-            lastAccessedAt: Date.now(),
-            createdAt: logEntry.createdAt || Date.now(),
-          },
-        },
-      );
+      await this.cacheLogsStore.setItem(name, {
+        lastAccessedAt: Date.now(),
+        createdAt: currentLog?.createdAt || Date.now(),
+      });
     } catch (error) {
       loglevel.error("Error tracking cache usage:", error);
+    }
+  }
+
+  /**
+   * Delete invalid cache entries
+   * @returns - A promise that resolves when the invalid cache entries are deleted
+   */
+
+  async deleteInvalidCacheEntries(cacheProps: ICacheProps) {
+    try {
+      // Get previous entry keys
+      const cacheKeys = await this.store.keys();
+
+      // Get invalid cache keys
+      const invalidCacheKeys = cacheKeys.filter((key) => {
+        const keyParts = key.split(AppComputationCache.CACHE_KEY_DELIMITER);
+        const cacheKeyTimestamp = parseInt(keyParts[5], 10);
+
+        return (
+          keyParts[0] === cacheProps.instanceId &&
+          keyParts[1] === cacheProps.workspaceId &&
+          keyParts[2] === cacheProps.appId &&
+          keyParts[3] === cacheProps.pageId &&
+          keyParts[4] === cacheProps.appMode &&
+          cacheKeyTimestamp !== new Date(cacheProps.timestamp).getTime()
+        );
+      });
+
+      // Delete invalid cache entries
+      await Promise.all(
+        invalidCacheKeys.map(async (key) => this.store.removeItem(key)),
+      );
+
+      // Delete invalid cache logs
+      await Promise.all(
+        invalidCacheKeys.map(async (key) =>
+          this.cacheLogsStore.removeItem(key),
+        ),
+      );
+    } catch (error) {
+      loglevel.error("Error deleting invalid cache entries:", error);
     }
   }
 }
