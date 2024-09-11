@@ -15,6 +15,10 @@ mkdir -p $log_dir
 # Start logging
 echo "Script started at $(date)" > $log_file
 
+until curl localhost:80/api/v1/health; do 
+   echo "waiting for backend to be ready";
+done
+
 # Run the loop for 24 hours (or 24 attempts)
 for i in {1..24}; do
     echo "Attempt $i at $(date)" >> $log_file
