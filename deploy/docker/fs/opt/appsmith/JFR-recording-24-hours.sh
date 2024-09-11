@@ -15,9 +15,8 @@ mkdir -p $log_dir
 # Start logging
 echo "Script started at $(date)" > $log_file
 
-until curl localhost:80/api/v1/health; do 
-   echo "waiting for backend to be ready";
-done
+echo "Sleep 180 seconds to wait for backend to be ready at $(date)" >> $log_file
+sleep 180
 
 # Run the loop for 24 hours (or 24 attempts)
 for i in {1..24}; do
@@ -29,6 +28,7 @@ for i in {1..24}; do
 
     # Get the PID of the Java process
     pid=$(pgrep -f -- "-jar\sserver.jar")
+    echo "Found java process at $pid...." >> $log_file
     if [ -z "$pid" ]; then
         echo "Java process not found, skipping this attempt." >> $log_file
         continue
