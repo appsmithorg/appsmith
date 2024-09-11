@@ -61,6 +61,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
   return (
     <Button
       className="t--store-as-datasource"
+      data-testid="t--store-as-datasource"
       isDisabled={!props.enable}
       kind="secondary"
       onClick={saveOrEditDatasource}
