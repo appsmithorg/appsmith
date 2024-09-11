@@ -4,6 +4,16 @@ export const metaConfig = {
   name: "Stats",
   needsMeta: false,
   isCanvas: false,
-  searchTags: ["statbox"],
+  searchTags: [
+    "statbox",
+    "stats",
+    "data",
+    "indicator",
+    "number",
+    "value",
+    "monitor",
+    "dashboard",
+    "signal",
+  ],
   tags: [WIDGET_TAGS.DISPLAY],
 };

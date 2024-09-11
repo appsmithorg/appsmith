@@ -167,6 +167,8 @@ export function getContainerLikeWidgetHeight(
   widgets: CanvasWidgetsReduxState,
   parent: FlattenedWidgetProps,
   isMobile: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): number {
   if (!parent.children || !parent.children.length)

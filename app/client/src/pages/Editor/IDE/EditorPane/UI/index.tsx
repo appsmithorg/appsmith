@@ -1,8 +1,8 @@
 import React from "react";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { Switch, useRouteMatch } from "react-router";
 
-import { SentryRoute } from "@appsmith/AppRouter";
+import { SentryRoute } from "ee/AppRouter";
 import {
   ADD_PATH,
   BUILDER_CUSTOM_PATH,
@@ -16,8 +16,9 @@ import AddWidgets from "./Add";
 import { useSelector } from "react-redux";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const UISegment = () => {
   const { path } = useRouteMatch();
@@ -41,6 +42,7 @@ const UISegment = () => {
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"
+      width={DEFAULT_EXPLORER_PANE_WIDTH - 1 + "px"}
     >
       <Switch>
         <SentryRoute

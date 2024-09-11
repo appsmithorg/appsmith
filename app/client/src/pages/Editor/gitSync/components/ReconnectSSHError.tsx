@@ -1,4 +1,4 @@
-import { Callout, Text, toast } from "design-system";
+import { Callout, Text, toast } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -12,7 +12,7 @@ import {
   ERROR_SSH_RECONNECT_OPTION2,
   NO_COPIED_SSH_KEY,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { fetchGitStatusInit } from "actions/gitSyncActions";
 
 const NumberedList = styled.ol`
@@ -25,6 +25,8 @@ const StyledCallout = styled(Callout)`
 `;
 
 function ReconnectSSHError() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [errorData, setErrorData] = useState<{ error: Error; response: any }>();
   const dispatch = useDispatch();
 
@@ -56,7 +58,7 @@ function ReconnectSSHError() {
 
   if (
     errorData &&
-    errorData.response.responseMeta.error.code === "AE-GIT-4044"
+    errorData?.response?.responseMeta?.error?.code === "AE-GIT-4044"
   ) {
     return (
       <StyledCallout

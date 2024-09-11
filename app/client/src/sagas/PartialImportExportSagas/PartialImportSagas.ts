@@ -1,17 +1,17 @@
 import {
   importPartialApplicationSuccess,
   initDatasourceConnectionDuringImportRequest,
-} from "@appsmith/actions/applicationActions";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
-import { areEnvironmentsFetched } from "@appsmith/selectors/environmentSelectors";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/actions/applicationActions";
+import ApplicationApi from "ee/api/ApplicationApi";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import { areEnvironmentsFetched } from "ee/selectors/environmentSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { pasteWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { call, fork, put, select } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {

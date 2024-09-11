@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import bootIntercom, { updateIntercomProperties } from "utils/bootIntercom";
@@ -11,7 +11,7 @@ import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,
   INTERCOM_CONSENT_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Button,
   Menu,
@@ -21,8 +21,8 @@ import {
   Tooltip,
   MenuSeparator,
   Text,
-} from "design-system";
-import { getAppsmithConfigs } from "@appsmith/configs";
+} from "@appsmith/ads";
+import { getAppsmithConfigs } from "ee/configs";
 import moment from "moment/moment";
 import styled from "styled-components";
 import {
@@ -35,7 +35,7 @@ import {
 import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
 import { showSignpostingModal } from "actions/onboardingActions";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();

@@ -38,13 +38,13 @@ public interface FileInterface {
      * This method will reconstruct the application from the repo
      *
      * @param organisationId To which organisation application needs to be rehydrated
-     * @param defaultApplicationId Default application needs to be rehydrated
+     * @param baseApplicationId Base application needs to be rehydrated
      * @param branchName for which branch the application needs to be rehydrated
      * @param repoName git repo name to access file system
      * @return application reference from which entire application can be rehydrated
      */
     Mono<ApplicationGitReference> reconstructApplicationReferenceFromGitRepo(
-            String organisationId, String defaultApplicationId, String repoName, String branchName);
+            String organisationId, String baseApplicationId, String repoName, String branchName);
 
     /**
      * This method just reconstructs the metdata of the json from git repo.

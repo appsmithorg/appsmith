@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { UpdateTenantConfigRequest } from "@appsmith/api/TenantApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { UpdateTenantConfigRequest } from "ee/api/TenantApi";
 import type { ApiResponse } from "api/ApiResponses";
 
 export const getCurrentTenant = (

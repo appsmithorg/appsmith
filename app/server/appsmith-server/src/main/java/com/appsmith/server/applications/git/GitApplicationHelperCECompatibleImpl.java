@@ -5,7 +5,6 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -28,7 +27,6 @@ public class GitApplicationHelperCECompatibleImpl extends GitApplicationHelperCE
             NewPageService newPageService,
             ActionCollectionService actionCollectionService,
             NewActionService newActionService,
-            ResponseUtils responseUtils,
             JsonSchemaVersions jsonSchemaVersions) {
         super(
                 commonGitFileUtils,
@@ -39,7 +37,6 @@ public class GitApplicationHelperCECompatibleImpl extends GitApplicationHelperCE
                 newPageService,
                 actionCollectionService,
                 newActionService,
-                responseUtils,
                 jsonSchemaVersions);
     }
 }

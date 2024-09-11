@@ -17,6 +17,8 @@ type DropdownOnSelectActionType =
 // TODO(abhinav): Figure out how to enforce payload type.
 export const getOnSelectAction = (
   type: DropdownOnSelectActionType,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any,
 ) => {
   switch (type) {

@@ -1,7 +1,7 @@
 import React from "react";
-import { Link, Tooltip } from "design-system";
+import { Link, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
-import { LOGO_TOOLTIP, createMessage } from "@appsmith/constants/messages";
+import { LOGO_TOOLTIP, createMessage } from "ee/constants/messages";
 import { APPLICATIONS_URL } from "constants/routes";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 

@@ -3,6 +3,7 @@ export * from "./components/Icon";
 export * from "./components/Button";
 export * from "./components/IconButton";
 export * from "./components/Checkbox";
+export * from "./components/ComboBox";
 export * from "./components/Text";
 export * from "./components/ToggleGroup";
 export * from "./components/Tooltip";

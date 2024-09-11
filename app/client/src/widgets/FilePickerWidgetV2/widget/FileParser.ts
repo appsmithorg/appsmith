@@ -6,6 +6,8 @@ interface ExcelSheetData {
   data: unknown[];
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CSVRowData = Record<any, any>; // key represents column name, value represents cell value
 
 async function parseFileData(
@@ -159,7 +161,11 @@ function parseCSVString(data: string, dynamicTyping = false): CSVRowData[] {
     header: 1, // to notify that the first row is the header row
     defval: "", // to get empty cells as empty strings
   });
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const headerRow: any[] = jsonData[0] as any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataRows: any[][] = jsonData.slice(1) as any;
 
   dataRows.forEach((row: string[]) => {

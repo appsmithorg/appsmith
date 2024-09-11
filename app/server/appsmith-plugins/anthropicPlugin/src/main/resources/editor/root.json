@@ -1,32 +1,342 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
-      "identifier": "SELECTOR",
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION-ONE",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose the method you would like to use",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "CHAT",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z1",
+          "children": [
             {
-              "label": "Chat",
-              "value": "CHAT"
+              "label": "Command",
+              "description": "Choose the method you would like to use",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "initialValue": "CHAT",
+              "options": [
+                {
+                  "label": "Chat",
+                  "value": "CHAT"
+                },
+                {
+                  "label": "Vision",
+                  "value": "VISION"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z2",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
+          },
+          "children": [
+            {
+              "label": "Models",
+              "tooltipText": "Select the model for response generation",
+              "subtitle": "ID of the model to use.",
+              "isRequired": true,
+              "propertyName": "chat_model_id",
+              "configProperty": "actionConfiguration.formData.chatModel.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "",
+              "options": [],
+              "placeholderText": "All models will be fetched.",
+              "fetchOptionsConditionally": true,
+              "setFirstOptionAsDefault": true,
+              "alternateViewTypes": ["json"],
+              "conditionals": {
+                "enable": "{{true}}",
+                "fetchDynamicValues": {
+                  "condition": "{{actionConfiguration.formData.command.data === 'CHAT'}}",
+                  "config": {
+                    "params": {
+                      "requestType": "CHAT_MODELS",
+                      "displayType": "DROP_DOWN"
+                    }
+                  }
+                }
+              }
             },
             {
-              "label": "Vision",
-              "value": "VISION"
+              "label": "Max Tokens",
+              "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+              "subtitle": "The maximum number of tokens to generate in the chat completion.",
+              "Description": "Put a positive integer value",
+              "configProperty": "actionConfiguration.formData.maxTokens",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "256",
+              "isRequired": true,
+              "dataType": "NUMBER",
+              "customStyles": {
+                "width": "270px",
+                "minWidth": "270px"
+              }
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z3",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
+          },
+          "children": [
+            {
+              "label": "System Prompt",
+              "Description": "Provide additional instructions for the AI model as system prompt",
+              "subtitle": "Provide additional instructions for the AI model as system prompt",
+              "configProperty": "actionConfiguration.formData.systemPrompt.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+              "initialValue": "",
+              "isRequired": false,
+              "customStyles": {
+                "width": "590px",
+                "minWidth": "400px"
+              }
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z4",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
+          },
+          "children": [
+            {
+              "label": "Models",
+              "tooltipText": "Select the model for response generation",
+              "subtitle": "ID of the model to use.",
+              "isRequired": true,
+              "propertyName": "vision_model_id",
+              "configProperty": "actionConfiguration.formData.visionModel.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "",
+              "options": [],
+              "placeholderText": "All models will be fetched.",
+              "fetchOptionsConditionally": true,
+              "setFirstOptionAsDefault": true,
+              "alternateViewTypes": ["json"],
+              "conditionals": {
+                "enable": "{{true}}",
+                "fetchDynamicValues": {
+                  "condition": "{{actionConfiguration.formData.command.data === 'VISION'}}",
+                  "config": {
+                    "params": {
+                      "requestType": "VISION_MODELS",
+                      "displayType": "DROP_DOWN"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "label": "Max Tokens",
+              "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+              "subtitle": "The maximum number of tokens to generate in the chat completion.",
+              "Description": "Put a positive integer value",
+              "configProperty": "actionConfiguration.formData.maxTokens",
+              "controlType": "INPUT_TEXT",
+              "initialValue": "256",
+              "isRequired": true,
+              "dataType": "NUMBER",
+              "customStyles": {
+                "width": "270px",
+                "minWidth": "270px"
+              }
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z5",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
+          },
+          "children": [
+            {
+              "label": "System Prompt",
+              "Description": "Provide additional instructions for the AI model as system prompt",
+              "subtitle": "Provide additional instructions for the AI model as system prompt",
+              "configProperty": "actionConfiguration.formData.systemPrompt.data",
+              "controlType": "QUERY_DYNAMIC_TEXT",
+              "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+              "initialValue": "",
+              "isRequired": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION-TWO",
+      "children": [
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "ST-Z1",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
+          },
+          "children": [
+            {
+              "label": "Messages",
+              "tooltipText": "Ask a question",
+              "subtitle": "A list of messages comprising the conversation so far.",
+              "propertyName": "messages",
+              "isRequired": true,
+              "configProperty": "actionConfiguration.formData.messages.data",
+              "controlType": "ARRAY_FIELD",
+              "addMoreButtonLabel": "Add message",
+              "alternateViewTypes": ["json"],
+              "schema": [
+                {
+                  "label": "Role",
+                  "key": "role",
+                  "controlType": "DROP_DOWN",
+                  "initialValue": "Human",
+                  "options": [
+                    {
+                      "label": "Human",
+                      "value": "Human"
+                    },
+                    {
+                      "label": "Assistant",
+                      "value": "Assistant"
+                    }
+                  ]
+                },
+                {
+                  "label": "Content",
+                  "key": "content",
+                  "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                  "placeholderText": "{{ UserInput.text }}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "ST-Z2",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
+          },
+          "children": [
+            {
+              "label": "Messages",
+              "tooltipText": "Ask a question",
+              "subtitle": "A list of messages comprising the conversation so far. You can pass base64 encoded image directly in the request.",
+              "propertyName": "messages",
+              "isRequired": true,
+              "configProperty": "actionConfiguration.formData.messages.data",
+              "controlType": "ARRAY_FIELD",
+              "addMoreButtonLabel": "Add message",
+              "alternateViewTypes": ["json"],
+              "schema": [
+                {
+                  "label": "Role",
+                  "key": "role",
+                  "controlType": "DROP_DOWN",
+                  "initialValue": "Human",
+                  "options": [
+                    {
+                      "label": "Human",
+                      "value": "Human"
+                    },
+                    {
+                      "label": "Assistant",
+                      "value": "Assistant"
+                    }
+                  ]
+                },
+                {
+                  "label": "Type",
+                  "key": "type",
+                  "controlType": "DROP_DOWN",
+                  "initialValue": "text",
+                  "options": [
+                    {
+                      "label": "Text",
+                      "value": "text"
+                    },
+                    {
+                      "label": "Image",
+                      "value": "image"
+                    }
+                  ]
+                },
+                {
+                  "label": "Content",
+                  "key": "content",
+                  "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                  "placeholderText": "{{Img1.image}} or {{Input1.text}}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION-THREE",
+      "children": [
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "STH-Z1",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'CHAT'}}"
+          },
+          "children": [
+            {
+              "label": "Temperature",
+              "tooltipText": "Put a value between 0 and 1",
+              "Description": "Put a value between 0 and 1",
+              "subtitle": "Defaults to 1. Ranges from 0 to 1. Use temp closer to 0 for analytical / multiple choice, and closer to 1 for creative and generative tasks.",
+              "configProperty": "actionConfiguration.formData.temperature",
+              "controlType": "INPUT_TEXT",
+              "dataType": "NUMBER",
+              "initialValue": "1",
+              "isRequired": false,
+              "customStyles": {
+                "width": "270px",
+                "minWidth": "270px"
+              }
+            }
+          ]
+        },
+        {
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "STH-Z2",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.command.data === 'VISION'}}"
+          },
+          "children": [
+            {
+              "label": "Temperature",
+              "tooltipText": "Put a value between 0 and 1",
+              "Description": "Put a value between 0 and 1",
+              "subtitle": "Defaults to 1. Ranges from 0 to 1. Use temp closer to 0 for analytical / multiple choice, and closer to 1 for creative and generative tasks.",
+              "configProperty": "actionConfiguration.formData.temperature",
+              "controlType": "INPUT_TEXT",
+              "dataType": "NUMBER",
+              "initialValue": "1",
+              "isRequired": false,
+              "customStyles": {
+                "width": "270px",
+                "minWidth": "270px"
+              }
             }
           ]
         }
       ]
     }
-  ],
-  "files": [
-    "chat.json",
-    "vision.json"
   ]
 }

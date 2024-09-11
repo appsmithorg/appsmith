@@ -1,7 +1,7 @@
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import React, { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { navigateToEntity } from "actions/editorActions";
 import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 

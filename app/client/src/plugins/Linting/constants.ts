@@ -75,6 +75,8 @@ export enum CustomLintErrorCode {
 
 export const CUSTOM_LINT_ERRORS: Record<
   CustomLintErrorCode,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => string
 > = {
   [CustomLintErrorCode.INVALID_ENTITY_PROPERTY]: (

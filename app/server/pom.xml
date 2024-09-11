@@ -158,6 +158,19 @@
                         <removeUnusedImports/>
                         <formatAnnotations/>
                     </java>
+                    <json>
+                        <excludes>
+                            <exclude>**/target/**/*.json</exclude>
+                        </excludes>
+                        <includes>
+                            <include>**/*.json</include>
+                        </includes>
+                        <prettier>
+                            <config>
+                                <tabWidth>2</tabWidth>
+                            </config>
+                        </prettier>
+                    </json>
                     <pom>
                         <includes>
                             <include>pom.xml</include>

@@ -35,6 +35,8 @@ import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any,
 ): ValidationResponse {
   let values: string[] = [];
@@ -604,6 +606,8 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValues: undefined,

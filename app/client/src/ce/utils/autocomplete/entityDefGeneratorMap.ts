@@ -6,13 +6,13 @@ import {
   type AppsmithEntity,
   type JSActionEntity,
   ENTITY_TYPE,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import type { Def } from "tern";
 import type { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 import WidgetFactory from "WidgetProvider/factory";

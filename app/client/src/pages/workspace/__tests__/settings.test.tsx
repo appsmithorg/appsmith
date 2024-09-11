@@ -5,6 +5,8 @@ import { render, screen } from "test/testUtils";
 import Settings from "../settings";
 import * as reactRedux from "react-redux";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 const mockWorkspaceData = {

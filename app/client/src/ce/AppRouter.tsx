@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
-import AppHeader from "@appsmith/pages/common/AppHeader";
+import AppHeader from "ee/pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
   ADMIN_SETTINGS_CATEGORY_PATH,
@@ -49,18 +49,18 @@ import UserProfile from "pages/UserProfile";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
-import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
-import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import { getAdminSettingsPath } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
 import { getIsConsolidatedPageLoading } from "selectors/ui";
 import { useFeatureFlagOverride } from "utils/hooks/useFeatureFlagOverride";

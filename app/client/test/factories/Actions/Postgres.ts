@@ -8,7 +8,9 @@ const pageId = "0123456789abcdef00000000";
 export const PostgresFactory = Factory.Sync.makeFactory<QueryAction>({
   cacheResponse: "",
   id: "query_id",
+  baseId: "query_base_id",
   workspaceId: "workspaceId",
+  applicationId: "applicationId",
   pluginType: PluginType.DB,
   pluginId: PluginIDs[PluginPackageName.POSTGRES],
   name: Factory.each((i) => `Query${i + 1}`),

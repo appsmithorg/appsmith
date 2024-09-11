@@ -3,7 +3,7 @@ import { Severity } from "entities/AppsmithConsole";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
@@ -14,7 +14,7 @@ import {
   addErrorToEntityProperty,
   getEntityNameAndPropertyPath,
   resetValidationErrorsForEntityProperty,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
 import type { EvalProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";

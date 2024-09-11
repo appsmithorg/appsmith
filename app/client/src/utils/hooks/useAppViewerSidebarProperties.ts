@@ -5,7 +5,7 @@ import {
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { useIsMobileDevice } from "./useDeviceDetect";
 

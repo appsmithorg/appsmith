@@ -2,7 +2,7 @@ import { InputTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import type { InputWidgetProps } from "../../widget/types";
-import { ICONS } from "@design-system/widgets";
+import { ICONS } from "@appsmith/wds";
 
 export const propertyPaneStyleConfig = [
   {

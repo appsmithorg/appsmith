@@ -5,13 +5,17 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface FormDialogComponentProps {
   isOpen?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspace?: any;
   title?: string;
   message?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Form: any;
   onClose?: () => void;
   applicationId?: string;

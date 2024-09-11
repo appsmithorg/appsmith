@@ -15,7 +15,9 @@ describe(
     before(() => {
       agHelper.AddDsl("richTextEditorDsl");
       EditorNavigation.SelectEntityByName("RichTextEditor1", EntityType.Widget);
-      //   entityExplorer.DragDropWidgetNVerify("richtexteditorwidget", 500, 200);
+      cy.waitUntil(() =>
+        cy.get(locators._richText_TitleBlock).should("be.visible"),
+      );
     });
 
     it("1. Verify deleting text in default text property, updates data in widget", function () {

@@ -5,10 +5,10 @@ import { hexToRgba } from "widgets/WidgetUtils";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import type { RenderMode } from "constants/WidgetConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 interface IframeContainerProps {

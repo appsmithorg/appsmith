@@ -682,6 +682,8 @@ describe("WidgetOperationSaga", () => {
         },
       },
     };
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = purgeOrphanedDynamicPaths(input as any as WidgetProps);
     expect(result).toStrictEqual(expected);
   });
@@ -701,6 +703,8 @@ describe("WidgetOperationSaga", () => {
         rightColumn: 60,
         bottomRow: 70,
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any as WidgetProps[];
     expect(getBoundariesFromSelectedWidgets(selectedWidgets)).toEqual({
       totalWidth: 40,
@@ -716,6 +720,8 @@ describe("WidgetOperationSaga", () => {
         widgetId: "1234",
         type: "CONTAINER_WIDGET",
         noPad: true,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any as WidgetProps;
       expect(getSnappedGrid(canvasWidget, 250)).toEqual({
         padding: 4,
@@ -730,6 +736,8 @@ describe("WidgetOperationSaga", () => {
         widgetId: "1234",
         type: "LIST_WIDGET",
         noPad: false,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any as WidgetProps;
       expect(getSnappedGrid(canvasWidget, 250)).toEqual({
         padding: 10,
@@ -814,6 +822,8 @@ describe("WidgetOperationSaga", () => {
         right: 60,
         bottom: 70,
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any as OccupiedSpace[];
     expect(
       getVerticallyAdjustedPositions(copiedWidgets, selectedWidgets, 30),
@@ -858,6 +868,8 @@ describe("WidgetOperationSaga", () => {
           },
         ],
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any as CopiedWidgetGroup[];
     expect(
       getNewPositionsForCopiedWidgets(copiedGroups, 10, 40, 20, 10),
@@ -902,6 +914,8 @@ describe("WidgetOperationSaga", () => {
           },
         ],
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any as CopiedWidgetGroup[];
     expect(
       getPastePositionMapFromMousePointer(copiedGroups, 10, 40, 20, 10),
@@ -1157,6 +1171,8 @@ describe("getValueFromTree - ", () => {
         },
         defaultValue: "will not be returned",
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ].forEach((testObj: any) => {
       expect(
         getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
@@ -1226,11 +1242,17 @@ describe("getValueFromTree - ", () => {
         },
         defaultValue: "will be returned",
       },
-    ].forEach((testObj: any) => {
-      expect(
-        getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
-      ).toEqual(testObj.defaultValue);
-    });
+    ] // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .forEach((testObj: any) => {
+        expect(
+          getValueFromTree(
+            testObj.inputObj,
+            testObj.path,
+            testObj.defaultValue,
+          ),
+        ).toEqual(testObj.defaultValue);
+      });
   });
 
   it("should test that value is correctly plucked from a valid path when object keys have dot", () => {
@@ -1496,11 +1518,17 @@ describe("getValueFromTree - ", () => {
         },
         defaultValue: "will not be returned",
       },
-    ].forEach((testObj: any) => {
-      expect(
-        getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
-      ).toEqual(testObj.output);
-    });
+    ] // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .forEach((testObj: any) => {
+        expect(
+          getValueFromTree(
+            testObj.inputObj,
+            testObj.path,
+            testObj.defaultValue,
+          ),
+        ).toEqual(testObj.output);
+      });
   });
 
   it("should test that default value is returned for an invalid path when object keys have dot", () => {
@@ -1746,11 +1774,17 @@ describe("getValueFromTree - ", () => {
         },
         defaultValue: "will be returned",
       },
-    ].forEach((testObj: any) => {
-      expect(
-        getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
-      ).toEqual(testObj.defaultValue);
-    });
+    ] // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .forEach((testObj: any) => {
+        expect(
+          getValueFromTree(
+            testObj.inputObj,
+            testObj.path,
+            testObj.defaultValue,
+          ),
+        ).toEqual(testObj.defaultValue);
+      });
   });
 
   it("should check that invalid path strucutre should return defaultValue", () => {
@@ -1785,11 +1819,17 @@ describe("getValueFromTree - ", () => {
         },
         defaultValue: "will be returned",
       },
-    ].forEach((testObj: any) => {
-      expect(
-        getValueFromTree(testObj.inputObj, testObj.path, testObj.defaultValue),
-      ).toEqual(testObj.defaultValue);
-    });
+    ] // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .forEach((testObj: any) => {
+        expect(
+          getValueFromTree(
+            testObj.inputObj,
+            testObj.path,
+            testObj.defaultValue,
+          ),
+        ).toEqual(testObj.defaultValue);
+      });
   });
 
   describe("test resizeCanvasToLowestWidget and resizePublishedMainCanvasToLowestWidget", () => {

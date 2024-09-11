@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
-import { Flex, ScrollArea, ToggleButton } from "design-system";
+import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+} from "ee/entities/IDE/constants";
 import FileTabs from "./FileTabs";
 import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";

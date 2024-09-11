@@ -8,7 +8,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import Menu from "../Menu";
 import Deploy from "../Tabs/Deploy";
 import Merge from "../Tabs/Merge";
@@ -21,15 +21,15 @@ import {
   DEPLOY,
   MERGE,
   IMPORT_APP,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { Modal, ModalContent, ModalHeader } from "design-system";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Modal, ModalContent, ModalHeader } from "@appsmith/ads";
 import GitConnectionV2 from "../Tabs/GitConnectionV2";
 import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";
 import styled from "styled-components";
 import ReconnectSSHError from "../components/ReconnectSSHError";
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const StyledModalContent = styled(ModalContent)`

@@ -10,12 +10,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call } from "redux-saga/effects";
 import { addWidgetsToChildTemplate } from "./additionUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import {
-  addNewWidgetToDsl,
-  getCreateWidgetPayload,
-} from "../../widgetAdditionUtils";
 import { isLargeWidget } from "../../widgetUtils";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import {
   moveWidgets,
   severTiesFromParents,
@@ -27,6 +23,7 @@ import {
   isEmptyWidget,
   widgetChildren,
 } from "../widgetUtils";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -38,10 +35,13 @@ export function* createZoneAndAddWidgets(
    * Create Zone widget.
    */
   const widgetId: string = generateReactKey();
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
-    addNewWidgetToDsl,
+  const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
-    getCreateWidgetPayload(widgetId, anvilWidgets.ZONE_WIDGET, parentId),
+    {
+      widgetId,
+      type: anvilWidgets.ZONE_WIDGET,
+      parentId,
+    },
   );
 
   /**
@@ -176,11 +176,11 @@ function* updateDraggedWidgets(
     /**
      * Create new widget with zone as the parent.
      */
-    updatedWidgets = yield call(
-      addNewWidgetToDsl,
-      allWidgets,
-      getCreateWidgetPayload(widgetId, widgetType, zoneWidgetId),
-    );
+    updatedWidgets = yield addNewAnvilWidgetToDSL(allWidgets, {
+      widgetId,
+      type: widgetType,
+      parentId: zoneWidgetId,
+    });
   }
   return updatedWidgets;
 }

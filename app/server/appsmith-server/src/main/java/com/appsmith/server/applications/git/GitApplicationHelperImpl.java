@@ -5,7 +5,6 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -21,7 +20,7 @@ public class GitApplicationHelperImpl extends GitApplicationHelperCECompatibleIm
         implements GitArtifactHelper<Application> {
 
     public GitApplicationHelperImpl(
-            CommonGitFileUtils gitFileUtils,
+            CommonGitFileUtils commonGitFileUtils,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             ApplicationService applicationService,
             ApplicationPageService applicationPageService,
@@ -29,10 +28,9 @@ public class GitApplicationHelperImpl extends GitApplicationHelperCECompatibleIm
             NewPageService newPageService,
             ActionCollectionService actionCollectionService,
             NewActionService newActionService,
-            ResponseUtils responseUtils,
             JsonSchemaVersions jsonSchemaVersions) {
         super(
-                gitFileUtils,
+                commonGitFileUtils,
                 gitPrivateRepoHelper,
                 applicationService,
                 applicationPageService,
@@ -40,7 +38,6 @@ public class GitApplicationHelperImpl extends GitApplicationHelperCECompatibleIm
                 newPageService,
                 actionCollectionService,
                 newActionService,
-                responseUtils,
                 jsonSchemaVersions);
     }
 }

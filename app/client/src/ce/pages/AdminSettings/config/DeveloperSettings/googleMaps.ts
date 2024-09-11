@@ -4,7 +4,7 @@ import {
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 
 export const googleMapsConfig: Setting[] = [
   {

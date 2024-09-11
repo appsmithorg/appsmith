@@ -1,6 +1,6 @@
 import type { Key } from "react";
-import React, { useState } from "react";
-import { ToolbarButtons } from "@design-system/widgets";
+import React, { useMemo, useState } from "react";
+import { ToolbarButtons } from "@appsmith/wds";
 import type {
   ToolbarButtonsComponentProps,
   ToolbarButtonsItemComponentProps,
@@ -23,21 +23,24 @@ export const ToolbarButtonsComponent = (
     variant,
   } = props;
 
-  const sortedButtons = sortBy(
-    Object.keys(buttonsList)
+  const { disabledKeys, sortedButtons } = useMemo(() => {
+    const sortedButtons = sortBy(
+      Object.keys(buttonsList)
+        .map((key) => buttonsList[key])
+        .filter((button) => {
+          return button.isVisible === true;
+        }),
+      ["index"],
+    );
+
+    const disabledKeys = Object.keys(buttonsList)
       .map((key) => buttonsList[key])
       .filter((button) => {
-        return button.isVisible === true;
-      }),
-    ["index"],
-  );
-
-  const disabledKeys = Object.keys(buttonsList)
-    .map((key) => buttonsList[key])
-    .filter((button) => {
-      return button.isDisabled;
-    })
-    .map((button) => button.id);
+        return button.isDisabled;
+      })
+      .map((button) => button.id);
+    return { sortedButtons, disabledKeys };
+  }, [buttonsList]);
 
   const onActionComplete = (button: ToolbarButtonsItemComponentProps) => {
     const newLoadingButtonIds = [...loadingButtonIds];

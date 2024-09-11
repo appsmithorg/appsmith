@@ -6,7 +6,7 @@ import type { Datasource } from "entities/Datasource";
 import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
+import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import {
@@ -14,9 +14,9 @@ import {
   DEBUGGER_RESPONSE,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useParams } from "react-router";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
 import type { ActionResponse } from "api/ActionAPI";
@@ -27,20 +27,20 @@ import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationR
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
 import QueryResponseTab from "./QueryResponseTab";
 import DatasourceSelector from "./DatasourceSelector";
-import RunHistory from "@appsmith/components/RunHistory";
+import RunHistory from "ee/components/RunHistory";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -155,10 +155,16 @@ interface QueryFormProps {
   actionResponse?: ActionResponse;
   runErrorMessage: string | undefined;
   location: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any;
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfig?: any;
   formName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingConfig: any;
   formData: SaaSAction | QueryAction;
   responseDisplayFormat: { title: string; value: string };
@@ -204,13 +210,15 @@ export function EditorJSONtoForm(props: Props) {
     notification,
   } = useContext(QueryEditorContext);
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
   // fetch the error count from the store.
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) =>
+      action.baseId === params.baseApiId ||
+      action.baseId === params.baseQueryId,
   );
 
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);

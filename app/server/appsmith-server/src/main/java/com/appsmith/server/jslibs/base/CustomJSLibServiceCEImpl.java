@@ -44,10 +44,9 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Mono<Boolean> addJSLibsToContext(
-            @NotNull String contextId,
+            @NotNull String branchedContextId,
             CreatorContextType contextType,
             @NotNull Set<CustomJSLib> jsLibs,
-            String branchName,
             Boolean isForceInstall) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
 
@@ -55,7 +54,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .flatMap(jsLib -> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
                 .collect(Collectors.toSet());
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, false)
                 .zipWith(persistedJsLibsMono)
                 .map(tuple -> {
                     /*
@@ -69,7 +68,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return jsLibDTOsInContext;
                 })
                 .flatMap(updatedJSLibDTOSet ->
-                        contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOSet))
+                        contextBasedService.updateJsLibsInContext(branchedContextId, updatedJSLibDTOSet))
                 .map(count -> count > 0);
     }
 
@@ -119,14 +118,13 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Mono<Boolean> removeJSLibFromContext(
-            @NotNull String contextId,
+            @NotNull String branchedContextId,
             CreatorContextType contextType,
             @NotNull CustomJSLib jsLib,
-            String branchName,
             Boolean isForceRemove) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, false)
                 .map(jsLibDTOSet -> {
                     /*
                      TODO: try to convert it into a single update op where reading of list is not required
@@ -138,16 +136,16 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return jsLibDTOSet;
                 })
                 .flatMap(updatedJSLibDTOList ->
-                        contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOList))
+                        contextBasedService.updateJsLibsInContext(branchedContextId, updatedJSLibDTOList))
                 .map(count -> count > 0);
     }
 
     @Override
     public Mono<List<CustomJSLib>> getAllJSLibsInContext(
-            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+            @NotNull String branchedContextId, CreatorContextType contextType, Boolean isViewMode) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
@@ -158,10 +156,10 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Flux<CustomJSLib> getAllVisibleJSLibsInContext(
-            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+            @NotNull String branchedContextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext);
     }
 

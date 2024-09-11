@@ -13,31 +13,31 @@ import {
   jsCollectionListURL,
   queryAddURL,
   queryListURL,
-} from "@appsmith/RouteBuilder";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
-import { getJSEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+} from "ee/RouteBuilder";
+import type { EntityItem } from "ee/entities/IDE/constants";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
 import log from "loglevel";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { EditorViewMode } from "ee/entities/IDE/constants";
 import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
 import {
   selectJSSegmentEditorTabs,
   selectQuerySegmentEditorTabs,
-} from "@appsmith/selectors/appIDESelectors";
+} from "ee/selectors/appIDESelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id, params } = entityInfo;
-  if (!params.pageId) return;
+  if (!params.basePageId) return;
   if (
     entity === FocusEntity.JS_OBJECT ||
     entity === FocusEntity.JS_MODULE_INSTANCE
   ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
-    yield put(setJSTabs(newTabs, params.pageId));
+    yield put(setJSTabs(newTabs, params.basePageId));
   }
   if (
     entity === FocusEntity.QUERY ||
@@ -45,7 +45,7 @@ export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
-    yield put(setQueryTabs(newTabs, params.pageId));
+    yield put(setQueryTabs(newTabs, params.basePageId));
   }
 }
 
@@ -56,41 +56,41 @@ function* getUpdatedTabs(newId: string, currentTabs: string[]) {
 }
 
 export function* handleJSEntityRedirect(deletedId: string) {
-  const pageId: string = yield select(getCurrentPageId);
+  const basePageId: string = yield select(getCurrentBasePageId);
   const jsTabs: EntityItem[] = yield select(selectJSSegmentEditorTabs);
   const redirectAction = getNextEntityAfterRemove(deletedId, jsTabs);
   switch (redirectAction.action) {
     case RedirectAction.LIST:
-      history.push(jsCollectionListURL({ pageId }));
+      history.push(jsCollectionListURL({ basePageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
         log.error("Redirect item does not have a payload");
-        history.push(jsCollectionAddURL({ pageId }));
+        history.push(jsCollectionAddURL({ basePageId }));
         break;
       }
       const { payload } = redirectAction;
-      history.push(getJSEntityItemUrl(payload, pageId));
+      history.push(getJSEntityItemUrl(payload, basePageId));
       break;
   }
 }
 
 export function* handleQueryEntityRedirect(deletedId: string) {
-  const pageId: string = yield select(getCurrentPageId);
+  const basePageId: string = yield select(getCurrentBasePageId);
   const queryTabs: EntityItem[] = yield select(selectQuerySegmentEditorTabs);
   const redirectAction = getNextEntityAfterRemove(deletedId, queryTabs);
   switch (redirectAction.action) {
     case RedirectAction.LIST:
-      history.push(queryListURL({ pageId }));
+      history.push(queryListURL({ basePageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
-        history.push(queryAddURL({ pageId }));
+        history.push(queryAddURL({ basePageId }));
         log.error("Redirect item does not have a payload");
         break;
       }
       const { payload } = redirectAction;
-      history.push(getQueryEntityItemUrl(payload, pageId));
+      history.push(getQueryEntityItemUrl(payload, basePageId));
       break;
   }
 }

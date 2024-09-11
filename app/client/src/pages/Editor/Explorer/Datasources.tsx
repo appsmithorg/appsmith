@@ -7,27 +7,27 @@ import {
   CREATE_DATASOURCE_TOOLTIP,
   EMPTY_DATASOURCE_BUTTON_TEXT,
   EMPTY_DATASOURCE_MAIN_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled from "styled-components";
-import { Icon, Button } from "design-system";
+import { Icon, Button } from "@appsmith/ads";
 import { AddEntity, EmptyComponent } from "./common";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   getHasCreateDatasourcePermission,
   getHasManageDatasourcePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
   useAppWideAndOtherDatasource,
   useDatasourceSuggestions,
-} from "@appsmith/pages/Editor/Explorer/hooks";
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+} from "ee/pages/Editor/Explorer/hooks";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import { keyBy } from "lodash";
-import { useDatasourceIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
+import { useDatasourceIdFromURL } from "ee/pages/Editor/Explorer/helpers";
 import type { Datasource } from "entities/Datasource";
 import ExplorerDatasourceEntity from "../DatasourceInfo/DatasourceEntity";
 

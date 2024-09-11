@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -28,7 +28,7 @@ import {
   isMultiSelectedWidget,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   getWidgetHeight,
@@ -59,7 +59,7 @@ import {
   TopRightHandleStyles,
   VisibilityContainer,
 } from "layoutSystems/common/resizer/ResizeStyledComponents";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { UIElementSize } from "layoutSystems/common/resizer/ResizableUtils";
 import {
   computeFinalRowCols,
@@ -201,7 +201,9 @@ export const ResizableComponent = memo(function ResizableComponent(
       [leftColumnMap]: leftColumn,
       [rightColumnMap]: rightColumn,
       [topRowMap]: topRow,
-    } = props as any;
+    } = // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      props as any;
 
     // Get the updated Widget rows and columns props
     // False, if there is collision

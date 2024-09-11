@@ -63,6 +63,8 @@ export function updateFlexLayersOnDelete(
   parentId: string,
   isMobile: boolean,
   mainCanvasWidth: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
@@ -132,6 +134,8 @@ export function alterLayoutForMobile(
   canvasWidth: number,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
@@ -184,6 +188,8 @@ export function alterLayoutForDesktop(
   parentId: string,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
@@ -224,10 +230,14 @@ export function alterLayoutForDesktop(
 export function pasteWidgetInFlexLayers(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widget: any,
   originalWidgetId: string,
   isMobile: boolean,
   mainCanvasWidth: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
@@ -312,10 +322,14 @@ export function pasteWidgetInFlexLayers(
  */
 export function addChildToPastedFlexLayers(
   allWidgets: CanvasWidgetsReduxState,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widget: any,
   widgetIdMap: Record<string, string>,
   isMobile: boolean,
   mainCanvasWidth: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
@@ -359,10 +373,9 @@ export function addChildToPastedFlexLayers(
   );
 }
 
-export function isStack(
-  allWidgets: CanvasWidgetsReduxState,
-  widget: any,
-): boolean {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isStack(allWidgets: CanvasWidgetsReduxState, widget: any): boolean {
   let parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
   if (parent && parent.type === "CANVAS_WIDGET" && parent.parentId)
     parent = allWidgets[parent.parentId];
@@ -402,7 +415,11 @@ export function getViewportClassName(viewportWidth: number) {
 }
 
 export function getFillWidgetLengthForLayer(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layer: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   allWidgets: any,
   dimensionMap = DefaultDimensionMap,
 ): number | undefined {

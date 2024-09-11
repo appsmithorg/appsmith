@@ -1,9 +1,9 @@
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { keyBy } from "lodash";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { jsCollectionIdURL } from "ee/RouteBuilder";
 import type {
   EntityNavigationData,
   NavigationData,
@@ -12,7 +12,7 @@ import { createNavData } from "./common";
 
 export const getJsChildrenNavData = (
   jsAction: JSCollectionData,
-  pageId: string,
+  basePageId: string,
   dataTree: DataTree,
 ) => {
   let childNavData: EntityNavigationData = {};
@@ -27,8 +27,8 @@ export const getJsChildrenNavData = (
         type: ENTITY_TYPE.JSACTION,
         isfunction: true, // use this to identify function
         url: jsCollectionIdURL({
-          pageId,
-          collectionId: jsAction.config.id,
+          basePageId,
+          baseCollectionId: jsAction.config.baseId,
           functionName: jsChild.name,
         }),
         children: {},
@@ -44,8 +44,8 @@ export const getJsChildrenNavData = (
           type: ENTITY_TYPE.JSACTION,
           isfunction: false,
           url: jsCollectionIdURL({
-            pageId,
-            collectionId: jsAction.config.id,
+            basePageId,
+            baseCollectionId: jsAction.config.baseId,
             functionName: jsChild.name,
           }),
           children: {},

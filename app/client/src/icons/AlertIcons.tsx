@@ -2,7 +2,7 @@ import type { JSXElementConstructor } from "react";
 import React from "react";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const InfoIcon = importSvg(async () => import("assets/icons/alert/info.svg"));
 const SuccessIcon = importSvg(

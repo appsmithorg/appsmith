@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import type { TabProp } from "design-system-old";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import type { Theme } from "constants/DefaultTheme";
 
 interface WrapperProps {
@@ -40,7 +39,9 @@ const Wrapper = styled.div<WrapperProps>`
 `;
 
 export default function TabItemBackgroundFill(props: {
-  tab: TabProp;
+  tab: {
+    title: string;
+  };
   selected: boolean;
   vertical: boolean;
 }) {

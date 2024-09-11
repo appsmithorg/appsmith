@@ -4,7 +4,7 @@ import ConnectionSuccess from "../ConnectionSuccess";
 
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import { BrowserRouter } from "react-router-dom";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";

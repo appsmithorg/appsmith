@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { AppsmithFunction, FieldType } from "../../constants";
 import type { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
@@ -7,7 +7,7 @@ import { getFunctionName, getFunctionArguments } from "@shared/ast";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { getCodeFromMoustache, getEvaluationVersion } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getCurrentActions } from "@appsmith/selectors/entitiesSelector";
+import { getCurrentActions } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 

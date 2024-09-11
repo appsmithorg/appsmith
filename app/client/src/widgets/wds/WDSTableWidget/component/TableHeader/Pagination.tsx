@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, Text } from "@design-system/widgets";
+import { IconButton, Text } from "@appsmith/wds";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import type { ReactTableColumnProps } from "../Constants";

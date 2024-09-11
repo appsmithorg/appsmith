@@ -7,6 +7,8 @@ import {
 } from "actions/appCollabActions";
 import * as Sentry from "@sentry/react";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function* handlePageLevelSocketEvents(event: any, socket: any) {
   try {
     switch (event.type) {

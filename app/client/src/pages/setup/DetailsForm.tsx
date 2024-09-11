@@ -14,13 +14,13 @@ import {
   PRODUCT_UPDATES_CONFIRMATION_LABEL,
   WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_NON_SUPER_USER_PROFICIENCY_LEVEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { FormErrors, InjectedFormProps } from "redux-form";
-import { FormGroup } from "design-system-old";
-import { Button, Checkbox } from "design-system";
+import { FormGroup } from "@appsmith/ads-old";
+import { Button, Checkbox } from "@appsmith/ads";
 import { proficiencyOptions, useCaseOptions } from "./constants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
 import RadioButtonGroup from "components/editorComponents/RadioButtonGroup";
 import { Space } from "./NonSuperUserProfilingQuestions";

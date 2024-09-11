@@ -6,7 +6,7 @@ import {
   isValidGitRemoteUrl,
   removeSpecialChars,
 } from "./utils";
-import { ApplicationVersion } from "@appsmith/actions/applicationActions";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 
 const validUrls = [
   "git@github.com:user/project.git",
@@ -223,8 +223,10 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         slug: "",
         id: "",
+        baseId: "",
         isAutoUpdate: false,
         isManualUpdate: false,
         name: "",
@@ -244,7 +246,9 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         id: "",
+        baseId: "",
         slug: "",
         isAutoUpdate: true,
         isManualUpdate: false,
@@ -265,7 +269,9 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         id: "",
+        baseId: "",
         slug: "",
         isAutoUpdate: true,
         isManualUpdate: true,
@@ -286,7 +292,9 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         id: "",
+        baseId: "",
         slug: "",
         isAutoUpdate: false,
         isManualUpdate: true,

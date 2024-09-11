@@ -1,7 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { debounce, difference, isEmpty, merge, noop } from "lodash";
-import { klona } from "klona";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -61,14 +60,15 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
   ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -126,6 +126,8 @@ class JSONFormWidget extends BaseWidget<
   JSONFormWidgetProps,
   WidgetState & JSONFormWidgetState
 > {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   debouncedParseAndSaveFieldState: any;
   isWidgetMounting: boolean;
   actionQueue: Action[];
@@ -350,6 +352,8 @@ class JSONFormWidget extends BaseWidget<
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       formData: {},
@@ -613,6 +617,8 @@ class JSONFormWidget extends BaseWidget<
     return computedSchema;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
     const { sourceData, useSourceData } = this.props;
@@ -654,7 +660,10 @@ class JSONFormWidget extends BaseWidget<
   ) => {
     const span = startRootSpan("JSONFormWidget.parseAndSaveFieldState");
     const fieldState = generateFieldState(schema, metaInternalFieldState);
-    const action = klona(afterUpdateAction);
+    const action = klonaRegularWithTelemetry(
+      afterUpdateAction,
+      "JSONFormWidget.parseAndSaveFieldState",
+    );
 
     const actionPayload =
       action && this.applyGlobalContextToAction(action, { fieldState });
@@ -717,7 +726,11 @@ class JSONFormWidget extends BaseWidget<
     actionPayload: ExecuteTriggerPayload,
     context: Record<string, unknown> = {},
   ) => {
-    const payload = klona(actionPayload);
+    const payload = klonaRegularWithTelemetry(
+      actionPayload,
+      "JSONFormWidget.applyGlobalContextToAction",
+    );
+
     const { globalContext } = payload;
 
     /**
@@ -750,10 +763,14 @@ class JSONFormWidget extends BaseWidget<
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
     this.updateWidgetProperty(propertyName, propertyValue);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateWidgetMetaProperty = (propertyName: string, propertyValue: any) => {
     this.props.updateWidgetMetaProperty(propertyName, propertyValue);
   };

@@ -21,7 +21,7 @@ import {
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
@@ -58,6 +58,8 @@ export type BaseInputComponentProps = FieldComponentBaseProps &
   };
 
 export interface OnValueChangeOptions {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fieldOnChangeHandler: (...event: any[]) => void;
   isValueValid: boolean;
 }
@@ -251,6 +253,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       e:
         | React.KeyboardEvent<HTMLTextAreaElement>
         | React.KeyboardEvent<HTMLInputElement>,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fieldOnChangeHandler: (...event: any[]) => void,
       isValueValid: boolean,
     ) => {
@@ -275,6 +279,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   const onTextChangeHandler = useCallback(
     (
       inputValue: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fieldOnChangeHandler: (...event: any[]) => void,
       triggerPropertyName = "onTextChange",
     ) => {

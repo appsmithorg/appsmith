@@ -2,10 +2,10 @@ import clsx from "clsx";
 import type {
   TextInputRef as HeadlessTextInputRef,
   TextInputProps as HeadlessTextInputProps,
-} from "@design-system/headless";
+} from "@appsmith/wds-headless";
 import React, { forwardRef, useState } from "react";
-import { getTypographyClassName } from "@design-system/theming";
-import { TextInput as HeadlessTextInput } from "@design-system/headless";
+import { getTypographyClassName } from "@appsmith/wds-theming";
+import { TextInput as HeadlessTextInput } from "@appsmith/wds-headless";
 
 import { Spinner } from "../../Spinner";
 import type { IconProps } from "../../Icon";

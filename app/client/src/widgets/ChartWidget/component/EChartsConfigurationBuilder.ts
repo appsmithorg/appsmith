@@ -194,6 +194,8 @@ export class EChartsConfigurationBuilder {
   #defaultEChartConfig = (
     layoutConfig: Record<string, Record<string, unknown>>,
   ): Record<string, unknown> => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const config: Record<string, any> = {
       legend: {
         show: layoutConfig.legend.show,

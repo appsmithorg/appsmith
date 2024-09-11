@@ -1,0 +1,189 @@
+import { Meta } from "@storybook/blocks";
+import { Checkbox } from "../Checkbox";
+
+<Meta title="ADS/Docs/Contribution Checklist" />
+
+# Contribution checklist
+
+<br />
+<br />
+<br />
+## Creating a new component
+
+<Checkbox>
+  Check if the use case that is being designed for is not already solved by an
+  existing component or ui pattern.
+</Checkbox>
+<br />
+<Checkbox>
+  {" "}
+  Identify the number of places the component will be used. The proposed component
+  is more likely to be picked up if it is used across multiple contexts in the platform,
+  or more than three discrete times in the same context.
+</Checkbox>
+<br />
+<Checkbox>
+  Collaborate with design-system pod to get sign off on the design.
+</Checkbox>
+<br />
+<Checkbox>
+  During design, consider all use cases for the component across all contexts.
+</Checkbox>
+<br />
+<Checkbox>
+  The usage guidelines for the component are a part of the design hand off.
+</Checkbox>
+<br />
+<Checkbox>
+  Before dev picks up the components, the places the component will be used
+  within the main repository, and the owner and timeline for this process must
+  be identified (usages and deduplication).
+</Checkbox>
+<br />
+<Checkbox>The component is created</Checkbox>
+<div
+  style={{
+    paddingLeft: "12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginTop: "12px",
+  }}
+>
+  <Checkbox>Use the correct category tokens to style the component.</Checkbox>
+  <Checkbox>
+    Write stories for all kinds and sizes of the component exist.
+  </Checkbox>
+  <Checkbox>
+    Create a test plan for the component and write jest unit tests for them.
+  </Checkbox>
+  <Checkbox>Make sure there are no test violations in the a11y addon.</Checkbox>
+  <Checkbox>
+    Move the component documentation from notion to storybook. Delete the notion
+    page when done.
+  </Checkbox>
+</div>
+<br />
+<Checkbox>
+  The component is used or deduplicated in at least one place in the main repo
+  as a sample.
+</Checkbox>
+<br />
+<br />
+## Changing an existing component
+
+<Checkbox>
+  Check if the use case that is being designed for is not already solved by an
+  existing component or ui pattern.
+</Checkbox>
+<br />
+<Checkbox>
+  Identify the number of places the changed component will be used.
+</Checkbox>
+<div
+  style={{
+    paddingLeft: "12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginTop: "12px",
+  }}
+>
+  <Checkbox>
+    If adding a variant, it is likely to be picked up if there is a discrete
+    usecase for it that occurs at least three times on the platform.
+  </Checkbox>
+  <Checkbox>
+    If it is a change to the base component, the impact of the change needs to
+    be assessed via omlet.
+  </Checkbox>
+  <Checkbox>
+    If it is a change to the component API, it will only be picked up if quite
+    necessary.
+  </Checkbox>
+</div>
+<br />
+<Checkbox>
+  Collaborate with design-system pod to get sign off on the design.
+</Checkbox>
+<br />
+<Checkbox>
+  During design, consider all use cases for the change across all contexts.
+</Checkbox>
+<br />
+<Checkbox>
+  The usage guidelines for the component are a part of the design hand off.
+</Checkbox>
+<div
+  style={{
+    paddingLeft: "12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginTop: "12px",
+  }}
+>
+  <Checkbox>
+    If you’re adding a variant, make sure to propose the usage guidelines for
+    that variant.
+  </Checkbox>
+  <Checkbox>
+    If you’re making a change, go through the existing documentation and
+    identify if any changes need to be made to the documentation as a result of
+    the change.
+  </Checkbox>
+</div>
+<br />
+<Checkbox>
+  Before dev picks up the components, the scope of applying these changes should
+  be identified, and a timeline and owner established.
+</Checkbox>
+<div
+  style={{
+    paddingLeft: "12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginTop: "12px",
+  }}
+>
+  <Checkbox>
+    If a variant is added, consider if there are any other existing ui patterns
+    on the platform that can be replaced with this variant instead.
+  </Checkbox>
+  <Checkbox>
+    If there is a change to the component, main-repo intervention isn’t needed
+    but QA needs to go through all the usages of the component to ensure nothing
+    breaks.
+  </Checkbox>
+  <Checkbox>
+    If there is an API change, it is a breaking/blocking change because a dev
+    needs to update all the usages, before a QA validates all of them. The
+    timelines and effort need to reflect this as well.
+  </Checkbox>
+</div>
+<Checkbox>The new kind of component is created</Checkbox>
+<div
+  style={{
+    paddingLeft: "12px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginTop: "12px",
+  }}
+>
+  <Checkbox>
+    Make any changes required in types to support the new variant.
+  </Checkbox>
+  <Checkbox>Use the correct category tokens to style the new variant.</Checkbox>
+  <Checkbox>Write a story for the new kind of component.</Checkbox>
+  <Checkbox>
+    Add usage guidelines for the new kind in the documentation.
+  </Checkbox>
+  <Checkbox>
+    Update the test plan and the jest tests to test the new variant.
+  </Checkbox>
+  <Checkbox>
+    Make sure there are no test violations in the a11y add on.
+  </Checkbox>
+</div>

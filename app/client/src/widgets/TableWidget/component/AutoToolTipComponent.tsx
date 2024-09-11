@@ -6,7 +6,7 @@ import type { CellLayoutProperties } from "./Constants";
 import { ColumnTypes } from "./Constants";
 import styled from "styled-components";
 import equal from "fast-deep-equal/es6";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),

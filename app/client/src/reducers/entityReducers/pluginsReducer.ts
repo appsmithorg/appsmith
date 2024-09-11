@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { DefaultPlugin, Plugin } from "api/PluginApi";
 import type {
   PluginFormPayloadWithId,
@@ -21,6 +21,8 @@ export interface PluginDataState {
   list: Plugin[];
   defaultPluginList: DefaultPlugin[];
   loading: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfigs: Record<string, any[]>;
   editorConfigs: FormEditorConfigs;
   settingConfigs: FormSettingsConfigs;

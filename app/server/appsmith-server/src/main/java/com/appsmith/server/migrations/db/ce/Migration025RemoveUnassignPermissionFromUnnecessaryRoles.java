@@ -15,6 +15,8 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
 
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 import static com.appsmith.server.migrations.utils.CompatibilityUtils.optimizeQueryForNoCursorTimeout;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -40,7 +42,7 @@ public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
 
         Query queryInterestingPermissionGroups = new Query(workspaceDeveloperAndAppViewerRolesCriteria);
         queryInterestingPermissionGroups.fields().include("id");
-        queryInterestingPermissionGroups.fields().include("policies");
+        queryInterestingPermissionGroups.fields().include(POLICIES, POLICY_MAP);
 
         Query optimizedQueryForInterestingPermissionGroups =
                 optimizeQueryForNoCursorTimeout(mongoTemplate, queryInterestingPermissionGroups, PermissionGroup.class);
@@ -60,7 +62,7 @@ public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
 
                     mongoTemplate.updateFirst(
                             query(where(PermissionGroup.Fields.id).is(permissionGroup.getId())),
-                            new Update().set("policies", permissionGroup.getPolicies()),
+                            new Update().set(POLICIES, permissionGroup.getPolicies()),
                             PermissionGroup.class);
                 });
     }

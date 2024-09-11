@@ -80,10 +80,7 @@
   ],
   "pageList": [
     {
-      "userPermissions": [
-        "read:pages",
-        "manage:pages"
-      ],
+      "userPermissions": ["read:pages", "manage:pages"],
       "gitSyncId": "page1_git",
       "applicationId": "valid_application",
       "unpublishedPage": {
@@ -115,11 +112,7 @@
               "children": [
                 {
                   "widgetName": "Table1",
-                  "columnOrder": [
-                    "_id",
-                    "username",
-                    "active"
-                  ],
+                  "columnOrder": ["_id", "username", "active"],
                   "dynamicPropertyPathList": [],
                   "topRow": 4,
                   "bottomRow": 15,
@@ -376,10 +369,7 @@
       "new": true
     },
     {
-      "userPermissions": [
-        "read:pages",
-        "manage:pages"
-      ],
+      "userPermissions": ["read:pages", "manage:pages"],
       "gitSyncId": "page2_git",
       "applicationId": "valid_application",
       "unpublishedPage": {
@@ -410,9 +400,7 @@
               "leftColumn": 0,
               "children": []
             },
-            "layoutOnLoadActions": [
-              []
-            ],
+            "layoutOnLoadActions": [[]],
             "new": false
           }
         ],
@@ -421,10 +409,7 @@
       "new": true
     }
   ],
-  "pageOrder": [
-    "Page1",
-    "Page2"
-  ],
+  "pageOrder": ["Page1", "Page2"],
   "actionList": [
     {
       "id": "60aca092136c4b7178f6790a",
@@ -531,11 +516,7 @@
     },
     {
       "id": "61518b8548b30155375f5275",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "pluginType": "JS",
       "pluginId": "js-plugin",
       "unpublishedAction": {
@@ -583,11 +564,7 @@
   "actionCollectionList": [
     {
       "id": "61518b8548b30155375f5276",
-      "userPermissions": [
-        "read:actions",
-        "execute:actions",
-        "manage:actions"
-      ],
+      "userPermissions": ["read:actions", "execute:actions", "manage:actions"],
       "unpublishedCollection": {
         "name": "JSObject1",
         "pageId": "Page1",
@@ -621,13 +598,9 @@
   "publishedDefaultPageName": "Page1",
   "unpublishedDefaultPageName": "Page1",
   "publishedLayoutmongoEscapedWidgets": {
-    "Page1": [
-      "Table1"
-    ]
+    "Page1": ["Table1"]
   },
   "unpublishedLayoutmongoEscapedWidgets": {
-    "Page1": [
-      "Table1"
-    ]
+    "Page1": ["Table1"]
   }
 }

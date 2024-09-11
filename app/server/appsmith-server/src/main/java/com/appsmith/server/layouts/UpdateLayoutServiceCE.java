@@ -14,11 +14,8 @@ import java.util.Set;
 public interface UpdateLayoutServiceCE {
     Mono<LayoutDTO> updateLayout(String pageId, String applicationId, String layoutId, Layout layout);
 
-    Mono<LayoutDTO> updateLayout(
-            String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName);
-
     Mono<Integer> updateMultipleLayouts(
-            String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
+            String defaultApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO);
 
     JSONObject unescapeMongoSpecialCharacters(Layout layout);
 

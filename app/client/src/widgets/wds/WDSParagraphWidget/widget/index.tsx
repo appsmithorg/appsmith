@@ -4,7 +4,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
-import { Flex, Text } from "@design-system/widgets";
+import { Flex, Text } from "@appsmith/wds";
 import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
@@ -54,6 +54,8 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }

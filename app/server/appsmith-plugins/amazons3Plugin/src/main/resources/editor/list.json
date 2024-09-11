@@ -1,13 +1,12 @@
 {
   "identifier": "LIST",
-  "controlType": "SECTION",
+  "controlType": "SECTION_V2",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'LIST'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select bucket to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
       "children": [
         {
           "label": "Bucket name",
@@ -16,22 +15,76 @@
           "evaluationSubstitutionType": "TEMPLATE",
           "isRequired": true,
           "initialValue": ""
-        }
-      ]
-    },
-    {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
-      "children": [
+        },
         {
           "label": "Prefix",
           "configProperty": "actionConfiguration.formData.list.prefix.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "initialValue": ""
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "children": [
+        {
+          "label": "Generate signed URL",
+          "configProperty": "actionConfiguration.formData.list.signedUrl.data",
+          "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: YES, NO",
+          "-tooltipText": "Allowed values: YES, NO",
+          "-alternateViewTypes": ["json"],
+          "initialValue": "NO",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ],
+          "staticDependencyPathList": [
+            "actionConfiguration.formData.list.expiry.data"
+          ]
         },
         {
-          "label": "Where",
+          "label": "Expiry duration of signed URL (minutes)",
+          "configProperty": "actionConfiguration.formData.list.expiry.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "initialValue": "5",
+          "conditionals": {
+            "show": "{{actionConfiguration.formData.list.signedUrl.data === 'YES'}}"
+          }
+        },
+        {
+          "label": "Generate unsigned URL",
+          "configProperty": "actionConfiguration.formData.list.unSignedUrl.data",
+          "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: YES, NO",
+          "-tooltipText": "Allowed values: YES, NO",
+          "-alternateViewTypes": ["json"],
+          "initialValue": "YES",
+          "options": [
+            {
+              "label": "Yes",
+              "value": "YES"
+            },
+            {
+              "label": "No",
+              "value": "NO"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "description": "Optional",
+      "children": [
+        {
+          "label": "Filter data",
           "configProperty": "actionConfiguration.formData.list.where.data",
           "nestedLevels": 3,
           "controlType": "WHERE_CLAUSE",
@@ -66,63 +119,9 @@
               "value": "NOT_IN"
             }
           ]
-        }
-      ]
-    },
-    {
-      "controlType": "SECTION",
-      "label": "Options",
-      "children": [
-        {
-          "label": "Generate signed URL",
-          "configProperty": "actionConfiguration.formData.list.signedUrl.data",
-          "controlType": "DROP_DOWN",
-          "-subtitle": "Allowed values: YES, NO",
-          "-tooltipText": "Allowed values: YES, NO",
-          "-alternateViewTypes": ["json"],
-          "initialValue": "NO",
-          "options": [
-            {
-              "label": "Yes",
-              "value": "YES"
-            },
-            {
-              "label": "No",
-              "value": "NO"
-            }
-          ],
-          "staticDependencyPathList": ["actionConfiguration.formData.list.expiry.data"]
         },
         {
-          "label": "Expiry duration of signed URL (minutes)",
-          "configProperty": "actionConfiguration.formData.list.expiry.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-          "initialValue": "5",
-          "conditionals": {
-            "show": "{{actionConfiguration.formData.list.signedUrl.data === 'YES'}}"
-          }
-        },
-        {
-          "label": "Generate unsigned URL",
-          "configProperty": "actionConfiguration.formData.list.unSignedUrl.data",
-          "controlType": "DROP_DOWN",
-          "-subtitle": "Allowed values: YES, NO",
-          "-tooltipText": "Allowed values: YES, NO",
-          "-alternateViewTypes": ["json"],
-          "initialValue": "YES",
-          "options": [
-            {
-              "label": "Yes",
-              "value": "YES"
-            },
-            {
-              "label": "No",
-              "value": "NO"
-            }
-          ]
-        },
-        {
-          "label": "Sort By",
+          "label": "Sort data",
           "configProperty": "actionConfiguration.formData.list.sortBy.data",
           "controlType": "SORTING",
           "-subtitle": "Array of Objects",
@@ -130,7 +129,7 @@
           "-alternateViewTypes": ["json"]
         },
         {
-          "label": "Paginate By",
+          "label": "Paginate data",
           "configProperty": "actionConfiguration.formData.list.pagination.data",
           "controlType": "PAGINATION",
           "-subtitle": "Object",

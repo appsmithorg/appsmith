@@ -1,5 +1,5 @@
 import React from "react";
-import { Tab, Tabs, TabsList } from "design-system";
+import { Tab, Tabs, TabsList } from "@appsmith/ads";
 import styled from "styled-components";
 
 interface Props {

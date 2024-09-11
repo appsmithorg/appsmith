@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { CreateApiActionDefaultsParams } from "entities/Action";
 import type { Saga } from "redux-saga";
 import { runSaga, stdChannel } from "redux-saga";
@@ -67,38 +67,44 @@ describe("handleDatasourceCreatedSaga", () => {
   });
 
   it("should pass parentEntityId to apiEditorIdURL and redirect to correct url when in app", async () => {
-    const applicationId = "app-id";
-    const pageId = "669e868199b66f0d2176fc1d";
+    const baseApplicationId = "app-id";
+    const basePageId = "669e868199b66f0d2176fc1d";
     const store = testStore({
       entities: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({} as any),
         plugins: MockPluginsState,
       },
       ui: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({} as any),
         datasourcePane: {
           actionRouteInfo: {
-            apiId: "api-id",
-            applicationId,
+            baseApiId: "api-id",
+            baseApplicationId,
             datasourceId: "ds-id",
-            parentEntityId: pageId,
+            baseParentEntityId: basePageId,
           },
         },
       },
     });
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dispatched: any[] = [];
     const spy = jest.spyOn(history, "push").mockImplementation(jest.fn());
     const channel = stdChannel();
     const appParams = {
-      applicationId,
+      baseApplicationId,
       applicationSlug: "app-slug",
       ApplicationVersion: "1",
     };
 
     const pageParams = [
       {
-        pageId,
+        basePageId,
         pageSlug: "page-slug",
       },
     ];
@@ -107,6 +113,8 @@ describe("handleDatasourceCreatedSaga", () => {
 
     runSaga(
       {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dispatch: (action: any) => {
           dispatched.push(action);
           channel.put(action);
@@ -132,7 +140,7 @@ describe("handleDatasourceCreatedSaga", () => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     expect(history.push).toHaveBeenCalledWith(
-      `/app/app-slug/page-slug-${pageId}/edit/api/api-id`,
+      `/app/app-slug/page-slug-${basePageId}/edit/api/api-id`,
     );
 
     spy.mockReset();

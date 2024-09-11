@@ -1,10 +1,10 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { LayoutDirection } from "layoutSystems/common/utils/constants";
 import {
@@ -49,6 +49,8 @@ function* addWidgetAndReorderSaga(
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   try {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newParams: { [key: string]: any } = yield call(
       executeWidgetBlueprintBeforeOperations,
       BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
@@ -197,6 +199,8 @@ function* reorderAutolayoutChildren(params: {
   if (!movedWidgets) return widgets;
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const selectedWidgets = [...movedWidgets];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(

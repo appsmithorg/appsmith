@@ -151,6 +151,8 @@ interface InlineEditorPropsType {
   onChange: (value: EditableCell["value"], inputValue: string) => void;
   onDiscard: () => void;
   onSave: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;

@@ -1,8 +1,8 @@
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import type { AppState } from "@appsmith/reducers";
-import { getDefaultPlugins } from "@appsmith/selectors/entitiesSelector";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import type { Workspace } from "ee/constants/workspaceConstants";
+import type { AppState } from "ee/reducers";
+import { getDefaultPlugins } from "ee/selectors/entitiesSelector";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import type { FilterKeys, Template } from "api/TemplatesApi";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,

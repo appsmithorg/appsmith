@@ -13,7 +13,7 @@ import CascadeFields from "./CascadeFields";
 import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Icon, IconSize } from "@design-system/widgets-old";
 import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
@@ -24,7 +24,7 @@ import {
   FilterableColumnTypes,
 } from "widgets/TableWidgetV2/constants";
 import { generateReactKey } from "utils/generators";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const AddIcon = importRemixIcon(
   async () => import("remixicon-react/AddLineIcon"),

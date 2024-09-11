@@ -1,20 +1,20 @@
 import { dataTreeEvaluator } from "./handlers/evalTree";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import { makeEntityConfigsAsObjProperties } from "ee/workers/Evaluation/dataTreeUtils";
 import type {
   EvalTreeResponseData,
   EvalWorkerSyncRequest,
   UpdateTreeResponse,
 } from "./types";
 import { MessageType, sendMessage } from "utils/MessageUtil";
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import {
   generateOptimisedUpdatesAndSetPrevState,
   getNewDataTreeUpdates,
   uniqueOrderUpdatePaths,
 } from "./helpers";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({

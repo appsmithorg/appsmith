@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 import type { CurlImportFormValues } from "../pages/Editor/CurlImport/helpers";
 

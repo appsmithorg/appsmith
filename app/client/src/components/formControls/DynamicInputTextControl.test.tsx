@@ -6,6 +6,8 @@ import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import userEvent from "@testing-library/user-event";
 import { waitFor } from "@testing-library/react";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TestForm(props: any) {
   return <div>{props.children}</div>;
 }

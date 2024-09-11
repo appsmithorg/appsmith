@@ -1,5 +1,5 @@
 import React from "react";
-import type { CommonComponentProps } from "design-system-old";
+import type { CommonComponentProps } from "@appsmith/ads-old";
 import { getInitials } from "utils/AppsmithUtils";
 import {
   Menu,
@@ -9,7 +9,7 @@ import {
   MenuTrigger,
   Text,
   Avatar,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 import type { PopperModifiers } from "@blueprintjs/core";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
@@ -17,9 +17,9 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { PROFILE } from "constants/routes";
-import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
+import { ACCOUNT_TOOLTIP, createMessage } from "ee/constants/messages";
 import type { NavigationSetting } from "constants/AppConstants";
 
 type TagProps = CommonComponentProps & {

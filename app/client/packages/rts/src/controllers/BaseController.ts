@@ -21,7 +21,7 @@ interface ResponseData {
 }
 
 export default class BaseController {
-  serverErrorMessaage = "Something went wrong";
+  serverErrorMessage = "Something went wrong";
   sendResponse(
     response: Response,
     result?: unknown,

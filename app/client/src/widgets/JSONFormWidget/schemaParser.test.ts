@@ -1862,6 +1862,8 @@ describe(".normalizeArrayValue", () => {
 
 describe(".fieldTypeFor", () => {
   it("return default field type of data passed", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputAndExpectedOutputs: [any, FieldType][] = [
       ["string", FieldType.TEXT_INPUT],
       ["2021-12-30T10:36:12.1212+05:30", FieldType.DATEPICKER],
@@ -2091,6 +2093,8 @@ describe(".checkIfArrayAndSubDataTypeChanged", () => {
 
 describe(".hasNullOrUndefined", () => {
   it("returns false when one of the parameter is null or undefined", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputAndExpectedOutputs: [[any, any], boolean][] = [
       [["1", "2"], false],
       [[0, ""], false],

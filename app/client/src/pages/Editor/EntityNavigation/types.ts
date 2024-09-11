@@ -1,5 +1,5 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 
 export interface EntityInfo {

@@ -12,14 +12,16 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import com.mongodb.ReadConcern;
 import com.mongodb.WriteConcern;
+import com.mongodb.reactivestreams.client.MongoClient;
 import io.mongock.api.annotations.ChangeUnit;
-import io.mongock.driver.mongodb.springdata.v4.SpringDataMongoV4Driver;
+import io.mongock.driver.mongodb.reactive.driver.MongoReactiveDriver;
 import io.mongock.runner.springboot.MongockSpringboot;
 import io.mongock.runner.springboot.RunnerSpringbootBuilder;
 import io.mongock.runner.springboot.base.MongockInitializingBeanRunner;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
+import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,7 +67,7 @@ import java.util.Set;
 public class MongoConfig {
 
     private static final Set<String> FORBIDDEN_IDS = Set.of(
-            // List generated during PR developmeng with the following command:
+            // List generated during PR development with the following command:
             // git diff release HEAD | awk -F\" '/^-[[:space:]]+@ChangeSet/ {print "\"" $4 "\","}'
             // Any deleted migration in the future, should go into this list.
             "remove-org-name-index",
@@ -168,13 +170,14 @@ public class MongoConfig {
     */
     @Bean
     public MongockInitializingBeanRunner mongockInitializingBeanRunner(
-            ApplicationContext springContext, MongoTemplate mongoTemplate) {
-        SpringDataMongoV4Driver mongoDriver = SpringDataMongoV4Driver.withDefaultLock(mongoTemplate);
-        mongoDriver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
-        mongoDriver.setReadConcern(ReadConcern.LOCAL);
+            ApplicationContext springContext, MongoClient mongoClient, MongoProperties mongoProperties) {
+        MongoReactiveDriver driver =
+                MongoReactiveDriver.withDefaultLock(mongoClient, mongoProperties.getMongoClientDatabase());
+        driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
+        driver.setReadConcern(ReadConcern.LOCAL);
 
         final RunnerSpringbootBuilder runnerBuilder = MongockSpringboot.builder()
-                .setDriver(mongoDriver)
+                .setDriver(driver)
                 .addChangeLogsScanPackages(List.of("com.appsmith.server.migrations"))
                 .addMigrationScanPackage("com.appsmith.server.migrations.db")
                 .setSpringContext(springContext);

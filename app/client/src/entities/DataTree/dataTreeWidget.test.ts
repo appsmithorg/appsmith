@@ -335,6 +335,8 @@ describe("generateDataTreeWidget", () => {
       },
     };
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputSetterConfig: Record<string, any> = {
       __setters: {
         setVisibility: {
@@ -404,6 +406,8 @@ describe("generateDataTreeWidget", () => {
       },
     };
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const jsonFormSetterConfig: Record<string, any> = {
       __setters: {
         setVisibility: {
@@ -532,6 +536,8 @@ describe("generateDataTreeWidget", () => {
       },
     };
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tableSetterConfig: Record<string, any> = {
       __setters: {
         setVisibility: {

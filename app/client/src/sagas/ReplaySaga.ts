@@ -17,11 +17,8 @@ import {
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type {
-  ReduxAction,
-  ReplayReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
   expandAccordion,
@@ -30,7 +27,7 @@ import {
   scrollWidgetIntoView,
   switchTab,
 } from "utils/replayHelpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
   snipingModeSelector,
@@ -50,7 +47,7 @@ import {
   getPluginForm,
   getPlugins,
   getSettingConfig,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import {
   isAIAction,
@@ -62,7 +59,7 @@ import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import type { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Datasource } from "entities/Datasource";
 import { initialize } from "redux-form";
 import {
@@ -70,7 +67,7 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
-} from "@appsmith/constants/forms";
+} from "ee/constants/forms";
 import type { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
 import {
   setAppThemingModeStackAction,
@@ -83,11 +80,12 @@ import { startFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 
 export interface UndoRedoPayload {
-  operation: ReplayReduxActionTypes;
+  operation: ReplayOperation;
 }
 
 export default function* undoRedoListenerSaga() {
@@ -102,6 +100,8 @@ export default function* undoRedoListenerSaga() {
  * @param replay
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* openPropertyPaneSaga(replay: any) {
   try {
     const replayWidgetId = Object.keys(replay.widgets)[0];
@@ -141,6 +141,8 @@ export function* openPropertyPaneSaga(replay: any) {
  * @param replay
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* postUndoRedoSaga(replay: any) {
   try {
     const isPropertyPaneVisible: boolean = yield select(
@@ -204,6 +206,8 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       startTime,
     } = workerResponse;
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
 
     if (replay.theme) {
@@ -258,6 +262,8 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
  * @param replayEntity
  * @param replay
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* replayThemeSaga(replayEntity: Canvas, replay: any) {
   const applicationId: string = yield select(getCurrentApplicationId);
 
@@ -414,6 +420,8 @@ function* getDatasourceFieldConfig(
   replayEntity: Datasource,
   modifiedProperty: string,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formConfig: [Record<any, any>] = yield select(
     getPluginForm,
     replayEntity.pluginId,
@@ -444,6 +452,8 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
     )
       currentTab = API_EDITOR_TABS.PAGINATION;
     if (!currentTab) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const settingsConfig: [Record<any, any>] = yield select(
         getSettingConfig,
         replayEntity.pluginId,
@@ -452,6 +462,8 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
       if (!isEmpty(fieldInfo)) currentTab = API_EDITOR_TABS.SETTINGS;
     }
   } else {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const editorConfig: [Record<any, any>] = yield select(
       getEditorConfig,
       replayEntity.pluginId,
@@ -460,6 +472,8 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
     if (!isEmpty(fieldInfo)) {
       currentTab = EDITOR_TABS.QUERY;
     } else {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const settingsConfig: [Record<any, any>] = yield select(
         getSettingConfig,
         replayEntity.pluginId,

@@ -6,7 +6,7 @@ import type {
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import log from "loglevel";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
@@ -14,12 +14,12 @@ import {
   shouldShowSlashCommandMenu,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
-import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
+import { getAIContext } from "ee/components/editorComponents/GPT/trigger";
 import type { Plugin } from "api/PluginApi";
 
 export const getShowHintOptions = (
@@ -84,12 +84,16 @@ export const getShowHintOptions = (
       return hints;
     },
     extraKeys: {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Up: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(-1);
         if (currentSelection.isHeader === true) {
           handle.moveFocus(-1);
         }
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Down: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(1);
         if (currentSelection.isHeader === true) {

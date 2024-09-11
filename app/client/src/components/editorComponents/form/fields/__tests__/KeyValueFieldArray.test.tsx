@@ -16,12 +16,18 @@ const initialProps = {
   hasType: false,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let rendererTimer: any;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getComponent(props: any) {
   function keyValueComponent() {
     return <KeyValueFieldArray {...props} />;
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};

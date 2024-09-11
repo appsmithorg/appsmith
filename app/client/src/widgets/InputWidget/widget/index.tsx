@@ -2,7 +2,7 @@ import {
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type {
@@ -49,8 +49,12 @@ import { InputTypes } from "../constants";
 import IconSVG from "../icon.svg";
 
 export function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: InputWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ): ValidationResponse {
   const { inputType } = props;
@@ -823,6 +827,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,

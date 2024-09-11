@@ -56,6 +56,8 @@ export default class PropertyPaneNavigation extends PaneNavigation {
     this.widget = widget;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *getConfig(): any {
     const config: PropertyPaneNavigationConfig = {
       tabIndex: 0,
@@ -80,6 +82,8 @@ export default class PropertyPaneNavigation extends PaneNavigation {
       getWidgetEnhancementSelector,
       widgetProps?.widgetId,
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const enhancements = yield select(enhancementSelector as any);
     const finalProps = yield call(
       evaluateHiddenProperty,

@@ -1,0 +1,307 @@
+.ads-v2-select {
+  --select-color-border: var(--ads-v2-colors-control-field-default-border);
+  --select-padding-x: var(--ads-v2-spaces-2); /* padding left and right */
+  --select-padding-y: var(--ads-v2-spaces-2); /* padding top and bottom */
+  --select-font-size: var(--ads-v2-font-size-2);
+  --select-height: 24px;
+  --select-search-input-padding-right: 0;
+
+  font-family: var(--ads-v2-font-family);
+  font-size: var(--select-font-size);
+  border-radius: var(--ads-v2-border-radius);
+  width: 100%;
+}
+
+.ads-v2-select * {
+  cursor: pointer;
+}
+
+.ads-v2-select.rc-select-show-search * {
+  cursor: text;
+}
+
+/* size sm */
+.ads-v2-select[data-size="sm"] {
+  --select-padding-x: var(--ads-v2-spaces-2);
+  --select-padding-y: var(--ads-v2-spaces-2);
+  --select-font-size: var(--ads-v2-font-size-2);
+  --select-height: 24px;
+}
+
+/* size md */
+.ads-v2-select[data-size="md"] {
+  --select-padding-x: var(--ads-v2-spaces-3);
+  --select-padding-y: var(--ads-v2-spaces-3);
+  --select-font-size: var(--ads-v2-font-size-4);
+  --select-height: 36px;
+}
+
+/* Disabled */
+.ads-v2-select.rc-select-disabled > * {
+  opacity: var(--ads-v2-opacity-disabled);
+  cursor: not-allowed;
+}
+
+/* Hover */
+.ads-v2-select:hover:not(.rc-select-disabled) {
+  --select-color-border: var(--ads-v2-colors-control-field-hover-border);
+}
+
+/* Focused */
+.ads-v2-select.rc-select-focused {
+  outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+  outline-offset: var(--ads-v2-offset-outline);
+  --select-color-border: var(--ads-v2-colors-control-field-active-border);
+}
+
+/* Error */
+.ads-v2-select[data-is-valid="false"] {
+  --select-color-border: var(--ads-v2-colors-control-field-error-border);
+}
+
+/* Arrow & clear icon */
+.ads-v2-select > .rc-select-arrow,
+.ads-v2-select > .rc-select-clear {
+  color: var(--ads-v2-colors-control-icon-default-fg);
+  top: 0;
+  right: var(--select-padding-x);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  cursor: pointer;
+}
+
+/* Clear Icon */
+.ads-v2-select > .rc-select-clear {
+  right: calc(var(--select-padding-x) + 20px);
+}
+
+/* Calculate padding right of input */
+.ads-v2-select.rc-select-allow-clear .rc-select-selection-search-input,
+.ads-v2-select.rc-select-show-arrow .rc-select-selection-search-input,
+.ads-v2-select.rc-select-allow-clear .rc-select-selection-overflow,
+.ads-v2-select.rc-select-show-arrow .rc-select-selection-overflow {
+  /* padding x + icon size + gap */
+  --select-search-input-padding-right: calc(var(--select-padding-x) + 16px);
+}
+.ads-v2-select.rc-select-allow-clear.rc-select-show-arrow.rc-select-selection-search-input,
+.ads-v2-select.rc-select-allow-clear.rc-select-show-arrow
+  .rc-select-selection-overflow {
+  /* padding x + icon size + gap + icon size */
+  --select-search-input-padding-right: calc(
+    var(--select-padding-x) + 20px + 16px
+  );
+}
+
+/* Selector */
+.ads-v2-select > .rc-select-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--select-height);
+  height: var(--select-height);
+  width: 100%;
+  min-width: 180px;
+  color: var(--ads-v2-colors-control-value-default-fg);
+  border: 1px solid var(--select-color-border);
+  padding: var(--select-padding-y) var(--select-padding-x);
+  border-radius: var(--ads-v2-border-radius);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Placeholder */
+.ads-v2-select > .rc-select-selector > .rc-select-selection-placeholder,
+.ads-v2-select > .rc-select-selector > .rc-select-selection-item {
+  position: absolute;
+  padding: var(--select-padding-y) var(--select-padding-x);
+  padding-right: calc(var(--select-padding-x) + 20px);
+  color: var(--ads-v2-colors-control-placeholder-default-fg);
+  left: 0;
+  opacity: 1;
+  /* top: ${({ size }) => (size === "sm" ? "" : "0")}; */
+  height: 100%;
+  width: 100%;
+  display: inline-block;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 18px;
+}
+
+.ads-v2-select[data-size="sm"]
+  > .rc-select-selector
+  > .rc-select-selection-placeholder,
+.ads-v2-select[data-size="sm"]
+  > .rc-select-selector
+  > .rc-select-selection-item {
+  top: -1px;
+}
+
+.ads-v2-select[data-size="md"]
+  > .rc-select-selector
+  > .rc-select-selection-placeholder,
+.ads-v2-select[data-size="md"]
+  > .rc-select-selector
+  > .rc-select-selection-item {
+  top: 0;
+}
+
+/* Selected Item */
+.ads-v2-select > .rc-select-selector > .rc-select-selection-item {
+  color: var(--ads-v2-colors-control-value-default-fg);
+}
+
+/* Search Input */
+.ads-v2-select > .rc-select-selector .rc-select-selection-search-input {
+  background: var(--ads-v2-color-bg);
+  color: var(--ads-v2-colors-control-value-default-fg);
+  font-family: var(--ads-v2-font-family);
+  font-size: var(--select-font-size);
+  padding-right: var(--select-search-input-padding-right);
+}
+
+/* Multiple */
+.ads-v2-select > .rc-select-selector > .rc-select-selection-overflow {
+  gap: var(--ads-v2-spaces-2);
+  width: calc(100% - var(--select-search-input-padding-right));
+}
+
+/* +9 item */
+.ads-v2-select
+  > .rc-select-selector
+  > .rc-select-selection-overflow
+  > .rc-select-selection-overflow-item.rc-select-selection-overflow-item-rest
+  > .rc-select-selection-item {
+  height: 100%;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  background: var(--ads-v2-colors-control-pill-default-bg);
+}
+
+/* typing space */
+.ads-v2-select
+  > .rc-select-selector
+  > .rc-select-selection-overflow
+  > .rc-select-selection-overflow-item
+  > .rc-select-selection-search
+  > input {
+  padding: 0;
+}
+
+/* Dropdown styles */
+/* Dropdown follows content styles */
+.ads-v2-select__dropdown.rc-select-dropdown {
+  min-height: unset;
+  background-color: var(--ads-v2-colors-content-surface-default-bg);
+  border-radius: var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-colors-content-container-default-border);
+  box-shadow: var(--ads-v2-shadow-popovers);
+  padding: var(--ads-v2-spaces-2);
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  overflow: auto;
+  z-index: 1001;
+  pointer-events: auto;
+}
+
+/* Option */
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option {
+  --select-option-padding: var(--ads-v2-spaces-3);
+  --select-option-gap: var(--ads-v2-spaces-3);
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-default-bg);
+  --select-option-font-size: var(--ads-v2-font-size-4);
+  --select-option-height: 36px;
+
+  padding: var(--select-option-padding);
+  margin-bottom: var(--ads-v2-spaces-1);
+  border-radius: var(--ads-v2-border-radius);
+  cursor: pointer;
+  /* TODO: remove !important after WDS fix their issue in tree select */
+  background-color: var(--select-option-color-bg) !important;
+  position: relative;
+  color: var(--ads-v2-colors-content-label-default-fg);
+  min-height: var(--select-option-height);
+  box-sizing: border-box;
+}
+
+/* size sm */
+.ads-v2-select__dropdown.ads-v2-select__dropdown--sm .rc-select-item {
+  --select-option-padding: var(--ads-v2-spaces-2);
+  --select-option-gap: var(--ads-v2-spaces-2);
+  --select-option-font-size: var(--ads-v2-font-size-2);
+  --select-option-height: 22px;
+}
+
+/* size md */
+.ads-v2-select__dropdown.ads-v2-select__dropdown--md .rc-select-item {
+  --select-option-padding: var(--ads-v2-spaces-3);
+  --select-option-gap: var(--ads-v2-spaces-3);
+  --select-option-font-size: var(--ads-v2-font-size-4);
+  --select-option-height: 36px;
+}
+
+/* Item content */
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option
+  .rc-select-item-option-content {
+  display: flex;
+  align-items: center;
+  gap: var(--select-option-gap);
+  font-family: var(--ads-v2-font-family);
+  font-size: var(--select-option-font-size);
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+/* Option hover */
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:hover,
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-active {
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
+  outline: none;
+}
+
+/* Option focus */
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:focus {
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
+  outline: none;
+}
+
+/* Option focus visible */
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:focus-visible {
+  outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+  outline-offset: var(--ads-v2-offset-outline);
+}
+
+/* Option active */
+.ads-v2-select__dropdown .rc-select-item.rc-select-item-option:active {
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
+}
+
+/* Option disabled */
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-disabled {
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-default-bg);
+  opacity: var(--ads-v2-opacity-disabled);
+  cursor: not-allowed;
+}
+
+.ads-v2-select__dropdown .rc-select-item-empty {
+  padding: var(--ads-v2-spaces-3);
+  font-size: var(--ads-v2-font-size-4);
+  font-family: var(--ads-v2-font-family);
+  color: var(--ads-v2-colors-content-helper-default-fg);
+}
+
+/* Selected option */
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-selected {
+  --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
+}

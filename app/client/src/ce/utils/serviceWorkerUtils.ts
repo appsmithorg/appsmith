@@ -9,17 +9,17 @@ import {
   VIEWER_CUSTOM_PATH,
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 
 interface TMatchResult {
-  pageId?: string;
-  applicationId?: string;
+  basePageId?: string;
+  baseApplicationId?: string;
 }
 
 export interface TApplicationParams {
   origin: string;
-  pageId?: string;
-  applicationId?: string;
+  basePageId?: string;
+  baseApplicationId?: string;
   branchName: string;
   appMode: APP_MODE;
 }
@@ -69,8 +69,8 @@ export const getApplicationParamsFromUrl = (
   if (matchedBuilder) {
     return {
       origin: url.origin,
-      pageId: matchedBuilder.params.pageId,
-      applicationId: matchedBuilder.params.applicationId,
+      basePageId: matchedBuilder.params.basePageId,
+      baseApplicationId: matchedBuilder.params.baseApplicationId,
       branchName,
       appMode: APP_MODE.EDIT,
     };
@@ -79,8 +79,8 @@ export const getApplicationParamsFromUrl = (
   if (matchedViewer) {
     return {
       origin: url.origin,
-      pageId: matchedViewer.params.pageId,
-      applicationId: matchedViewer.params.applicationId,
+      basePageId: matchedViewer.params.basePageId,
+      baseApplicationId: matchedViewer.params.baseApplicationId,
       branchName,
       appMode: APP_MODE.PUBLISHED,
     };
@@ -95,20 +95,20 @@ export const getApplicationParamsFromUrl = (
 export const getConsolidatedApiPrefetchRequest = (
   applicationProps: TApplicationParams,
 ) => {
-  const { applicationId, appMode, branchName, origin, pageId } =
+  const { appMode, baseApplicationId, basePageId, branchName, origin } =
     applicationProps;
 
   const headers = new Headers();
   const searchParams = new URLSearchParams();
 
-  if (!pageId) {
+  if (!basePageId) {
     return null;
   }
 
-  searchParams.append("defaultPageId", pageId);
+  searchParams.append("defaultPageId", basePageId);
 
-  if (applicationId) {
-    searchParams.append("applicationId", applicationId);
+  if (baseApplicationId) {
+    searchParams.append("applicationId", baseApplicationId);
   }
 
   // Add the branch name to the headers

@@ -1,17 +1,17 @@
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   ConnectToGitPayload,
   GitAutocommitProgressResponse,
 } from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
+import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import {
   type GitStatusData,
   GitSettingsTab,
@@ -20,7 +20,11 @@ import type { ResponseMeta } from "api/ApiResponses";
 
 export interface GitStatusParams {
   compareRemote?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccessCallback?: (data: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onErrorCallback?: (error: Error, response?: any) => void;
 }
 
@@ -73,12 +77,16 @@ export interface ConnectToGitResponse {
 interface ConnectToGitRequestParams {
   payload: ConnectToGitPayload;
   onSuccessCallback?: (payload: ConnectToGitResponse) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onErrorCallback?: (error: any, response?: any) => void;
 }
 
 export interface ConnectToGitReduxAction
   extends ReduxAction<ConnectToGitPayload> {
   onSuccessCallback?: (response: ConnectToGitResponse) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onErrorCallback?: (error: Error, response?: any) => void;
 }
 
@@ -151,6 +159,8 @@ export const fetchBranchesInit = (payload?: { pruneBranches: boolean }) => ({
   payload,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchBranchesSuccess = (payload: any) => ({
   type: ReduxActionTypes.FETCH_BRANCHES_SUCCESS,
   payload,
@@ -193,11 +203,15 @@ export const discardChanges = (
   payload,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const discardChangesSuccess = (payload: any) => ({
   type: ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS,
   payload,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const discardChangesFailure = (payload: any) => ({
   type: ReduxActionErrorTypes.GIT_DISCARD_CHANGES_ERROR,
   payload: { error: payload.error, show: false },
@@ -420,6 +434,8 @@ export const importAppViaGitStatusReset = () => ({
 });
 
 // todo define type
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const importAppViaGitError = (error: any) => ({
   type: ReduxActionTypes.IMPORT_APPLICATION_FROM_GIT_ERROR,
   payload: error,
@@ -429,26 +445,36 @@ export const resetSSHKeys = () => ({
   type: ReduxActionTypes.RESET_SSH_KEY_PAIR,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deleteBranchInit = (payload: any) => ({
   type: ReduxActionTypes.DELETE_BRANCH_INIT,
   payload,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deleteBranchSuccess = (payload: any) => ({
   type: ReduxActionTypes.DELETE_BRANCH_SUCCESS,
   payload,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deleteBranchError = (payload: any) => ({
   type: ReduxActionErrorTypes.DELETE_BRANCH_ERROR,
   payload,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deleteBranchWarning = (payload: any) => ({
   type: ReduxActionErrorTypes.DELETE_BRANCH_WARNING,
   payload,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deletingBranch = (payload: any) => ({
   type: ReduxActionTypes.DELETING_BRANCH,
   payload,
@@ -502,6 +528,8 @@ export const triggerAutocommitSuccessAction = () => ({
 });
 
 export interface TriggerAutocommitErrorActionPayload {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any;
   show: boolean;
 }
@@ -535,6 +563,8 @@ export const resetAutocommitProgressAction = () => ({
 });
 
 export interface AutocommitProgressErrorActionPayload {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any;
   show: boolean;
 }

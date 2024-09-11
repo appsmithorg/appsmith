@@ -1,5 +1,5 @@
 import React from "react";
-import type { TooltipOptions } from "@design-system/headless";
+import type { TooltipOptions } from "@appsmith/wds-headless";
 
 import { TooltipRoot, TooltipContent, TooltipTrigger } from "./";
 

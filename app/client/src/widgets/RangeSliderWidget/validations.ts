@@ -3,6 +3,8 @@ import type { RangeSliderWidgetProps } from "./widget";
 export function minValueValidation(
   min: unknown,
   props: RangeSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(min) || min === "") {
@@ -62,6 +64,8 @@ export function minValueValidation(
 export function maxValueValidation(
   max: unknown,
   props: RangeSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(max) || max === "") {
@@ -121,6 +125,8 @@ export function maxValueValidation(
 export function stepSizeValidation(
   step: unknown,
   props: RangeSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(step) || step === "") {
@@ -212,6 +218,8 @@ export function stepSizeValidation(
 export function startValueValidation(
   startValue: unknown,
   props: RangeSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(startValue) || startValue === "") {
@@ -285,6 +293,8 @@ export function startValueValidation(
 export function endValueValidation(
   endValue: unknown,
   props: RangeSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(endValue) || endValue === "") {
@@ -358,6 +368,8 @@ export function endValueValidation(
 export function minRangeValidation(
   minRange: unknown,
   props: RangeSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(minRange) || minRange === "") {

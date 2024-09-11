@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -403,7 +404,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     })
                     .cache();
 
-            templateCache.put(pluginId, mono);
+            /*
+             * The method loadTemplatesFromPlugin is reads a file from the system, and this is a blocking process.
+             * Since, we need to keep the nioEventLoop thread pool free, we are shifting the subscription to elastic
+             * thread pool and then publishing the result on the parallel thread pool.
+             */
+            templateCache.put(
+                    pluginId, LoadShifter.subscribeOnElasticPublishOnParallel(mono, "loadTemplatesFromPlugin"));
         }
 
         return templateCache.get(pluginId);
@@ -600,24 +607,32 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Override
     public Mono<Map<?, ?>> loadPluginResource(String pluginId, String resourcePath) {
-        return findById(pluginId).map(plugin -> {
+        return findById(pluginId).flatMap(plugin -> {
             if ("editor.json".equals(resourcePath)) {
                 // UI config will be available if this plugin is sourced from the cloud
                 if (plugin.getActionUiConfig() != null) {
-                    return plugin.getActionUiConfig();
+                    return Mono.just(plugin.getActionUiConfig());
                 }
                 // For UQI, use another format of loading the config
                 if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
-                    return loadEditorPluginResourceUqi(plugin);
+                    return Mono.just(loadEditorPluginResourceUqi(plugin));
                 }
             }
             if ("form.json".equals(resourcePath)) {
                 // UI config will be available if this plugin is sourced from the cloud
                 if (plugin.getDatasourceUiConfig() != null) {
-                    return plugin.getDatasourceUiConfig();
+                    return Mono.just(plugin.getDatasourceUiConfig());
                 }
             }
-            return loadPluginResourceGivenPluginAsMap(plugin, resourcePath);
+            /*
+             * The method loadPluginResourceGivenPluginAsMap is reads a file from the system, and this is a blocking
+             * process. Since, we need to keep the nioEventLoop thread pool free, we are shifting the subscription to
+             * elastic thread pool and then publishing the result on the parallel thread pool.
+             */
+            Mono<? extends Map<?, ?>> pluginResourceMono =
+                    Mono.fromCallable(() -> loadPluginResourceGivenPluginAsMap(plugin, resourcePath));
+
+            return LoadShifter.subscribeOnElasticPublishOnParallel(pluginResourceMono, "pluginResourceMono");
         });
     }
 

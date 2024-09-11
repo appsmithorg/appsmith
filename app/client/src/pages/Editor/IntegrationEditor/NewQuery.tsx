@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import DataSourceHome from "./DatasourceHome";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 const QueryHomePage = styled.div`
   display: flex;
@@ -24,6 +24,8 @@ interface QueryHomeScreenProps {
     search: string;
   };
   showMostPopularPlugins?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
   isAirgappedInstance?: boolean;
 }

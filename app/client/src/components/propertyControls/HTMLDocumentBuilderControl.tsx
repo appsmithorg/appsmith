@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 
@@ -16,6 +16,8 @@ export type HTMLDocumentBuidlerControlProps = ControlProps & {
 class HTMLDocumentBuilderControl extends BaseControl<
   HTMLDocumentBuidlerControlProps,
   {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     widgetBuilder: any;
   }
 > {
@@ -33,6 +35,8 @@ class HTMLDocumentBuilderControl extends BaseControl<
 
     const props = this.props;
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     widgetBuilder?.addEventListener("message", (event: any) => {
       if (event.data.type === "BUILDER_READY") {
         widgetBuilder.postMessage({

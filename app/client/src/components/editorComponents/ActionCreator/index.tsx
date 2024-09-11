@@ -9,10 +9,10 @@ import {
 import { diff } from "deep-diff";
 import Action from "./viewComponents/Action";
 import { useSelector } from "react-redux";
-import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import { generateReactKey } from "../../../utils/generators";
 import { useApisQueriesAndJsActionOptions } from "./helpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getActionTypeLabel } from "./viewComponents/ActionBlockTree/utils";
 import { AppsmithFunction } from "./constants";
 
@@ -29,6 +29,8 @@ export const ActionCreatorContext = React.createContext<{
 });
 
 const ActionCreator = React.forwardRef(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: ActionCreatorProps, ref: any) => {
     const [actions, setActions] = useState<Record<string, string>>(() => {
       const blocks = getActionBlocks(

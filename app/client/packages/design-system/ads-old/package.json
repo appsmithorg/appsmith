@@ -1,0 +1,34 @@
+{
+  "name": "@appsmith/ads-old",
+  "version": "1.1.17",
+  "description": "This is the package for the Appsmith design system components",
+  "main": "src/index.ts",
+  "sideEffects": false,
+  "scripts": {
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier"
+  },
+  "contributors": [
+    "Albin <albin@appsmith.com>",
+    "Rohit Agarwal <rohit.agarwal@appsmith.com>"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/loadable__component": "^5.13.4",
+    "@types/react-form": "^4.0.2",
+    "@types/wait-on": "^5.2.0",
+    "concurrently": "^7.3.0",
+    "identity-obj-proxy": "3.0.0",
+    "react-toastify": "^5.5.0",
+    "wait-on": "^5.3.0"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "dependencies": {
+    "emoji-mart": "3.0.1"
+  }
+}

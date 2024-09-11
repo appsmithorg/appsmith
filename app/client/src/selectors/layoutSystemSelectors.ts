@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { LayoutSystemTypes } from "layoutSystems/types";
 

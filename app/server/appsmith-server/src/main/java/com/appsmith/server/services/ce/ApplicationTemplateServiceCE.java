@@ -22,7 +22,7 @@ public interface ApplicationTemplateServiceCE {
     Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId);
 
     Mono<ApplicationImportDTO> mergeTemplateWithApplication(
-            String templateId, String applicationId, String workspaceId, String branchName, List<String> pagesToImport);
+            String templateId, String branchedApplicationId, String workspaceId, List<String> pagesToImport);
 
     Mono<ApplicationTemplate> getFilters();
 

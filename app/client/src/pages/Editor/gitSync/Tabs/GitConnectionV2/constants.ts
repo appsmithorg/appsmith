@@ -1,4 +1,4 @@
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export const GIT_CONNECT_STEPS = {

@@ -37,6 +37,7 @@ class WDSBaseInputWidget<
       isRequired: false,
       isReadOnly: false,
       isDisabled: false,
+      isVisible: true,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
     } as unknown as WidgetDefaultProps;
@@ -50,6 +51,8 @@ class WDSBaseInputWidget<
     return [];
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       rawText: undefined,

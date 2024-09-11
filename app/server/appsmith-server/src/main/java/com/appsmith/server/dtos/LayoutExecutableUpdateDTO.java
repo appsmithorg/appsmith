@@ -23,7 +23,4 @@ public class LayoutExecutableUpdateDTO {
 
     @JsonView(Views.Public.class)
     Boolean executeOnLoad;
-
-    @JsonView(Views.Internal.class)
-    String defaultActionId;
 }

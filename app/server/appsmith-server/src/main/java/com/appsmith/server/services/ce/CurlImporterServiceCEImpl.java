@@ -11,7 +11,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.BaseApiImporter;
@@ -54,7 +53,6 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
-    private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
     private final ObjectMapper objectMapper;
     private final PagePermission pagePermission;
@@ -63,25 +61,18 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
             PluginService pluginService,
             LayoutActionService layoutActionService,
             NewPageService newPageService,
-            ResponseUtils responseUtils,
             ObjectMapper objectMapper,
             PagePermission pagePermission) {
         this.pluginService = pluginService;
         this.layoutActionService = layoutActionService;
         this.newPageService = newPageService;
-        this.responseUtils = responseUtils;
         this.objectMapper = objectMapper;
         this.pagePermission = pagePermission;
     }
 
     @Override
     public Mono<ActionDTO> importAction(
-            Object input,
-            CreatorContextType contextType,
-            String contextId,
-            String name,
-            String workspaceId,
-            String branchName) {
+            Object input, CreatorContextType contextType, String branchedContextId, String name, String workspaceId) {
         ActionDTO action;
 
         try {
@@ -109,28 +100,22 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                     datasource.setName(datasourceConfiguration.getUrl());
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(workspaceId);
-                    return getBranchedContextId(contextType, contextId, branchName)
-                            .flatMap(branchedContextId ->
-                                    associateContextIdToActionDTO(action1, contextType, branchedContextId));
+                    return associateContextIdToActionDTO(action1, contextType, branchedContextId);
                 })
-                .flatMap(action2 -> layoutActionService.createSingleAction(action2, Boolean.FALSE))
-                .map(responseUtils::updateActionDTOWithDefaultResources);
+                .flatMap(action2 -> layoutActionService.createSingleAction(action2));
     }
 
     protected Mono<String> getBranchedContextId(CreatorContextType contextType, String contextId, String branchName) {
         return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, contextId, pagePermission.getActionCreatePermission())
+                .findByBranchNameAndBasePageId(
+                        branchName, contextId, pagePermission.getActionCreatePermission(), List.of(NewPage.Fields.id))
                 .map(NewPage::getId);
     }
 
     protected Mono<ActionDTO> associateContextIdToActionDTO(
             ActionDTO actionDTO, CreatorContextType contextType, String contextId) {
         actionDTO.setPageId(contextId);
-        return newPageService.findById(contextId, null).map(newPage -> {
-            // Set git related resource IDs
-            actionDTO.setDefaultResources(newPage.getDefaultResources());
-            return actionDTO;
-        });
+        return Mono.just(actionDTO);
     }
 
     public ActionDTO curlToAction(String command, String name) throws AppsmithException {

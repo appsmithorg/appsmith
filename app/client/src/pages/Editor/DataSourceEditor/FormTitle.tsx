@@ -3,11 +3,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import type { AppState } from "@appsmith/reducers";
-import {
-  getDatasource,
-  getDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
+import { getDatasource, getDatasources } from "ee/selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import type { Datasource } from "entities/Datasource";
 import { isNameValid } from "utils/helpers";
@@ -54,6 +51,8 @@ function FormTitle(props: FormTitleProps) {
 
   const hasNameConflict = React.useCallback(
     (name: string) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const datasourcesNames: Record<string, any> = {};
       datasources
         // in case of REST API and Authenticated GraphQL API, when user clicks on save as datasource
@@ -67,6 +66,8 @@ function FormTitle(props: FormTitleProps) {
             !(
               datasource.name === currentDatasource?.name &&
               ["REST API", "Authenticated GraphQL API"].includes(
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (datasource as any).pluginName,
               ) &&
               datasource.pluginId === currentDatasource?.pluginId

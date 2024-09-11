@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export interface PublishCommunityTemplatePayload {
   title: string;

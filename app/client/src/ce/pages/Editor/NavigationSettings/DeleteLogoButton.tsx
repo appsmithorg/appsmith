@@ -1,4 +1,4 @@
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import React from "react";
 
 export const DeleteLogoButton = ({

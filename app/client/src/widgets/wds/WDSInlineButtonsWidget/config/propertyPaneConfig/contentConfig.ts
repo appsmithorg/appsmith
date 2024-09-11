@@ -1,10 +1,11 @@
-import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@appsmith/wds";
 import {
   BUTTON_WIDGET_DEFAULT_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
+import { objectKeys } from "@appsmith/utils";
 
 export const propertyPaneContentConfig = [
   {
@@ -24,6 +25,8 @@ export const propertyPaneContentConfig = [
           titlePropertyName: "label",
           panelIdPropertyName: "id",
           updateHook: (
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             props: any,
             propertyPath: string,
             propertyValue: string,

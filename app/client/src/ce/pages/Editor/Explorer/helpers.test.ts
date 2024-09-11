@@ -1,7 +1,7 @@
 import {
   getActionIdFromURL,
   getJSCollectionIdFromURL,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+} from "ee/pages/Editor/Explorer/helpers";
 
 const applicationId = "a0123456789abcdef0000000";
 const pageId = "b0123456789abcdef0000000";

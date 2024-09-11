@@ -3,9 +3,9 @@ import {
   updateSnapshotDetails,
 } from "actions/autoLayoutActions";
 import type { ApiResponse } from "api/ApiResponses";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
-import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import ApplicationApi from "ee/api/ApplicationApi";
+import type { PageDefaultMeta } from "ee/api/ApplicationApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import type { SnapshotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
@@ -15,7 +15,7 @@ import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 //Saga to create application snapshot
@@ -69,6 +69,8 @@ export function* fetchSnapshotSaga() {
 
 //Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let response: ApiResponse<any> | undefined;
   let appId = "";
   try {
@@ -98,9 +100,11 @@ function* restoreApplicationFromSnapshotSaga() {
         payload: {
           pages: response.data.pages.map((page: PageDefaultMeta) => ({
             pageId: page.id,
+            basePageId: page.baseId,
             isDefault: page.isDefault,
           })),
           applicationId,
+          baseApplicationId: response.data.baseId,
         },
       });
     }
@@ -119,6 +123,8 @@ function* restoreApplicationFromSnapshotSaga() {
         setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
       );
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
     if (error) {

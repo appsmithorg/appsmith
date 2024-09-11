@@ -12,6 +12,7 @@ export const defaultsConfig = {
   defaultOptionValue: "L",
   isRequired: false,
   isDisabled: false,
+  isVisible: true,
   isInline: true,
   widgetName: "RadioGroup",
   orientation: "vertical",

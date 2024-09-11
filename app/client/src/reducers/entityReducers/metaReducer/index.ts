@@ -6,19 +6,19 @@ import type {
   BatchUpdateWidgetMetaPropertyPayload,
 } from "actions/metaActions";
 
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import produce from "immer";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import {
   getMetaWidgetResetObj,
   getNextMetaStateWithUpdates,
   setMetaValuesOnResetFromEval,
 } from "./metaReducerUtils";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 
 export type WidgetMetaState = Record<string, unknown>;
 export type MetaState = Record<string, WidgetMetaState>;
@@ -83,6 +83,8 @@ export const metaReducer = createReducer(initialState, {
     action: ReduxAction<TableFilterPanePositionConfig>,
   ) => {
     const next = { ...state };
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
     if (widgetMetaProps === undefined) {
       widgetMetaProps = {

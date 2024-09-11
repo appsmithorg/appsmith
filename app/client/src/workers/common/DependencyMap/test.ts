@@ -1,7 +1,7 @@
 import type {
   WidgetEntity,
   DataTreeEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
 
 describe("DependencyMap utils", function () {

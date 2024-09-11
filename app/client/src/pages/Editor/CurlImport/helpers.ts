@@ -1,6 +1,6 @@
 import { submitCurlImportForm } from "../../../actions/importActions";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export interface CurlImportFormValues {
   curl: string;
@@ -11,6 +11,8 @@ export interface CurlImportFormValues {
 
 export const curlImportSubmitHandler = (
   values: CurlImportFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
 ) => {
   dispatch(submitCurlImportForm(values));

@@ -1,0 +1,65 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as ToastStories from "./Toast.stories";
+
+<Meta of={ToastStories} />
+
+# Toast
+
+The toast component provides quick feedback to users, without disrupting their workflow.The toast appears at the top of the interface, making it easy to see and understand. Use toasts to communicate the system’s response for actions that take a while to execute, or communicating the response of an action that has happened elsewhere or in the background. Be mindful of using toasts to communicate as these demand user’s attention and can be annoying when not used judiciously.
+
+<Canvas of={ToastStories.Default} />
+
+## Anatomy
+
+Toasts typically have a simple design, consisting of a container with text and an icon. The text is short and to the point, providing users with quick information on what just happened. The icon is often used to convey the type of message being displayed, such as success, error, warning, or info.
+
+![Toast anatomy](./docs/toast-anatomy.png)
+
+## Spacing
+
+![Toast spacing](./docs/toast-spacing.png)
+
+## Kind
+
+There are 4 different kinds of toast notifications: info, success, warning, and error.
+
+### Info
+
+<Canvas of={ToastStories.InformationToast} />
+
+### Success
+
+Success toasts are used to inform users that an action has been completed successfully, and the desired outcome has been achieved.
+
+<Canvas of={ToastStories.SuccessToast} />
+
+### Warning
+
+Warning toasts are used to inform users about potential issues that may arise in the future. Finally, Info toasts are used to provide users with additional information about a particular action or event.
+
+<Canvas of={ToastStories.WarningToast} />
+
+### Error
+
+Error toasts are used to inform users that something went wrong, and they need to take action to fix it.
+
+<Canvas of={ToastStories.ErrorToast} />
+
+## Usage
+
+Toast should:
+
+- Be used for short messages to confirm an action
+- Rarely be used for error messages. This is currenly a problem within Appsmith. All new features built should move away from using toast as an error delivery mechanism.
+
+When to use:
+
+- For success messages
+- Only for non-critical errors that are relevant at the moment and can be explained in a few words.
+
+---
+
+## Resources
+
+1. Internally, toast uses [react-toastify](https://fkhadra.github.io/react-toastify/introduction/)

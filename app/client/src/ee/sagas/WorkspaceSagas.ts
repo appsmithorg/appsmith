@@ -14,7 +14,7 @@ import {
   searchWorkspaceEntitiesSaga,
   fetchEntitiesOfWorkspaceSaga,
 } from "ce/sagas/WorkspaceSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
 
 export default function* workspaceSagas() {

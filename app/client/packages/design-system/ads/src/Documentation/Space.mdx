@@ -1,0 +1,205 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="ADS/Docs/Space" />
+
+# Space
+
+Space is a key part of UI design. Mastering the use of space helps one become a better visual designer.
+
+Usage of space is depends on the content on the screen and the emphasis that this content needs. It is cumbersome to create higher order tokens for spacing rules and hence ADS 2.0 defines primitive tokens for space.
+
+## Fundamentals
+
+A pixel baseline grid is a visual guide that is used to align elements within a digital design. It consists of horizontal lines spaced at regular intervals, typically in increments of 4 or 8 pixels. The purpose of the grid is to provide a consistent structure for aligning and organising design elements, such as text, images, and layout elements.
+
+There are a few key concepts to understand when working with a pixel baseline grid:
+
+1. Baseline: A baseline is the horizontal line on which text is aligned. When using a pixel baseline grid, the baseline will typically be spaced at 4 or 8 pixel intervals.
+2. Leading: Leading refers to the vertical space between baselines in a block of text. When using a pixel baseline grid, the leading should be an even multiple of the baseline grid increment.
+3. Alignment: Alignment refers to the positioning of design elements relative to each other and to the overall layout. The pixel baseline grid can be used to ensure that elements are aligned consistently and accurately within the design.
+
+> To use a pixel baseline grid in your design, you can set up a grid system in your design software of choice. This will allow you to snap elements to the grid as you work, ensuring that they are aligned to the baseline and spaced consistently. You can also use the grid as a reference when adjusting the spacing and alignment of elements manually.
+
+In summary, a pixel baseline grid is a useful tool for creating consistent, well-organized digital designs. By aligning elements to the grid and using it as a reference for spacing and alignment, you can create designs that are visually appealing and easy to read.
+
+### 4-point grid
+
+This simply means to use ‘increments of 4’ to size and space out the elements on a page. any defined height or width should be divisible by 4, including padding, margins and line heights.
+
+## General Guidelines
+
+### Containers
+
+For most containers, we use an external spacing of **24px** between them, and a **padding of 16px** or **12px** if the content is simpler and more compact. Elements within the container usually have **16px** gutters, with **24px** gutters between major sections.
+
+Smaller container like _datepicker, property pane, menu_ can have 12px.
+
+![External spacing - 12px](./docs/external-spacing-12.png)
+
+Larger container like Modal **_can_** have 16px.
+
+![External spacing - 16px](./docs/external-spacing-16.png)
+
+> 💡 **Example:** If you are using a 4px baseline grid, your spacing values should be 4, 8, 12, 16, 20, 24, 32 and so on.
+
+### Component Level Spacing
+
+4px Examples
+
+![Internal spacing - 4px](./docs/internal-spacing-4.png)
+
+Two Related Components will have spacing of 8px.
+
+![Internal spacing - 8px](./docs/internal-spacing-8.png)
+
+### Layout Spacing
+
+![Layout spacing](./docs/layout-spacing.png)
+
+## Spacing Token Names
+
+Skip spacing multiples that might be too close to one another.
+
+| Token Name | Value |
+| ---------- | ----- |
+| Sp-1       | 4px   |
+| Sp-2       | 8px   |
+| Sp-3       | 12px  |
+| Sp-4       | 16px  |
+| Sp-5       | 24px  |
+| Sp-6       | 32px  |
+| Sp-7       | 40px  |
+| Sp-8       | 48px  |
+| Sp-9       | 56px  |
+
+# How to use space in design
+
+Space helps in creating hierarchy among the elements in a layout.
+
+In a UI, space is expressed as margins, paddings and gap between items. While we have a spacing scale defined at a primitive level (space-s, space-M etc.), when to use these tokens during a UI is not clear.
+
+Space is subjective to the content on the screen and it is in the deft hands of a designer to compose a harmonious UI.
+
+However, operating at the level of patterns, we can reason about how much space to use in most scenarios.
+
+## Everything is a container
+
+Since space comes into play when laying out elements on the page, we start with a layout construct to help us define higher-order spacing rules:
+
+<aside>
+  👉 Every thing placed on the UI belongs in a container. There are different container types that comprise Appsmith’s UI: Page, Modal, Overlay, Sidebar, Menu and Toolbars (even the Canvas is a container but is a snowflake because it is only used once.)
+
+</aside>
+
+**1️⃣ When you are designing a UI, first, think about the container the information belongs to.**
+
+Large container blocks typically need headings. Use the appropriate heading type to indicate hierarchy (Eg: Page container block will use Page Heading, Modal container block will use Modal heading etc.). Each of these container types have their defined padding guidelines (see the spec below)
+
+**2️⃣ Place the information in the body of the container. Group them into sections.**
+
+Sections are logical units that group information together. A section comprises of controls, content, actions or response blocks. (Refer to the Getting started page for information on these categories).
+
+- TBD
+
+A section could also comprise of information blocks or catalog blocks
+
+While the container acts like a parent block holding the information, the actual information itself is organised in terms of sections.
+
+Note: A section does not need to have a heading. It is a logical unit to indicate grouping of information.
+
+A section could have sub-sections within it.
+
+The spacing rules to remember are:
+
+<aside>
+  ☝️ The gap between items in a section *depends* on the size of the parent.
+
+If the parent container is of large type (Page, Modal, Overlay) — the gap is 16px.
+If the parent container is a small one (Property pane, Sidebar, menu) — the gap between items is 12px.
+
+</aside>
+
+<aside>
+  📏 The gap between two sections *depends* on the size of the parent.
+
+If the parent container if of large type (Page, Modal, Overlay) — the gap is at least 24px.
+For smaller containers (Menu, small overlay) — the gap is at least 12px.
+
+</aside>
+
+**3️⃣ Within a section, adjust space where necessary to associate related items in a section.**
+
+There could be scenarios where a certain element belongs more “closely” than the rest of the elements in a section.
+
+Eg: The ‘Add more’ button in the following UI is related to the input field above. Hence, these two items have to be grouped together and the gap between them needs to be adjusted accordingly.
+
+![Use space to create associations](./docs/space-grouping.png)
+
+### Specs for layout spacing
+
+| Container type / space | padding (vertical, horizontal) | semantic token | gap between sections in a container | gap within sections - controls            | Examples in Appsmith | TBD:::gap within sections - Info. blocks |
+| ---------------------- | ------------------------------ | -------------- | ----------------------------------- | ----------------------------------------- | -------------------- | ---------------------------------------- |
+| Page                   | spacing-XL                     |
+| 20, 20                 | UI/container/Page/padding      | 24             | 16 (datasource config)              | Admin settings, Datasources, Queries etc. | ListItem:            |
+
+GridItem:
+Card: |
+| Large overlay | 20, 20 | UI/container/Page/padding | 24 | | Templates | |
+| Modal | 16, 20 | UI/container/Modal/padding | 24 | 16 | Share modal | |
+| Pane | 12, 12 | UI/container/Pane/padding | 24 | 12 | Property pane | |
+| Sidebar | 12, 12 | UI/container/Sidebar/padding | 24 | 12 (eg: filters in Templates) | Filters sidebar in Templates | |
+| Small overlay | 12, 12 | UI/container/Modal/padding | 20 | 12 (action selector) | Action selector overlay | |
+| Menu | 4, 4 | UI/container/Menu/padding | 12 | 12 | | |
+| Toolbar | 4, 4 | UI/container/Toolbar/padding | TBD | NA | Header, Footer | NA |
+
+### Visual reference
+
+Let us illustrate how these spacing guidelines apply using a few examples:
+
+Here is a UI with a few containers.
+
+![Containers in UI](./docs/containers-in-ui.png)
+
+Every container has a defined padding.
+
+![Padding in container](./docs/padding-in-container.png)
+
+The heading of a container has a padding.
+
+![Padding in container 2](./docs/padding-in-container-2.png)
+
+Sections and gap between sections in a container
+
+![Padding in container 3](./docs/padding-in-container-3.png)
+
+## For Designers
+
+To make it easy for designers, we have the Container component which has variants related to container types.
+
+- Drag the component block to your canvas. Select the kind for your need.
+- **Detach this component** and start using it to place elements in the body of the container. (The body is outlined by a dotted stroke)
+- Use auto-layout, always. This helps one to think about space in terms of it’s 3 ingredients (margin, padding and gap).
+
+<aside>
+  🚫 Do not change the auto-layout values defined for the container. These values are the spacing rules that have been encoded for a container type.
+
+</aside>
+
+A section is nothing but an auto-layout box.
+
+### For Developers
+
+When breaking a screen into a set of components, see the UI as a series of containers and sections that comprise the containers. This will help you apply the right container style and spacing token accordingly.
+
+Default to using flexbox and the `gap` property. Avoid using position, especially in new code you are writing. If you see containers using position, try and refactor them away. If you do need to use something other than flex for some reason, in a list, the margin and padding should always be on the bottom and left of the elements you are styling.
+
+### In summary,
+
+Use container blocks to use space with intent.
+Tweak where necessary.
+
+### FAQ
+
+**Will these containers work in all cases?**
+
+Like all patterns, they should work for a majority (upwards of 80%) of the cases we have in Appsmith. There would be cases which will require you to adjust the spacing based on the content on the screen. Having said this, the notion of container → sections is standard in layout design and should be followed in all contexts.

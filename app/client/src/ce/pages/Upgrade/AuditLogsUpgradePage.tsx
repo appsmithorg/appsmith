@@ -16,7 +16,7 @@ import {
   SECURITY_AND_COMPLIANCE,
   SECURITY_AND_COMPLIANCE_DETAIL1,
   SECURITY_AND_COMPLIANCE_DETAIL2,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 

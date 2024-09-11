@@ -2,11 +2,11 @@ import type {
   ActionEntityConfig,
   EntityConfig,
   JSActionEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   type WidgetEntityConfig,
   ENTITY_TYPE,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { PluginType } from "entities/Action";
 
 export const getEntityPayloadInfo: Record<

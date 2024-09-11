@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { PluginPackageName } from "entities/Action";
 import { isArray } from "lodash";
 import { useContext, useMemo } from "react";
@@ -11,7 +11,7 @@ import {
   getDatasourceTableColumns,
   getDatasourceTablePrimaryColumn,
   getPluginPackageFromDatasourceId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 import { getWidget } from "sagas/selectors";
@@ -93,6 +93,8 @@ export function useColumns(alias: string, isSearcheable: boolean) {
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
       isArray(sheetColumns?.value)
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return sheetColumns.value.map((column: any) => {
         return {
           name: column.value,
@@ -105,6 +107,8 @@ export function useColumns(alias: string, isSearcheable: boolean) {
         };
       });
     } else if (isArray(columns)) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return columns.map((column: any) => {
         return {
           name: column.name,

@@ -1,13 +1,13 @@
 import type {
   ReduxAction,
   ReduxActionType,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   BatchUpdateDynamicPropertyUpdates,
@@ -52,7 +52,7 @@ import {
 } from "redux-saga/effects";
 import {
   getCanvasWidth,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -72,7 +72,7 @@ import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import {
   ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT,
   ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT,
@@ -83,13 +83,13 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   createMessage,
-} from "@appsmith/constants/messages";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/constants/messages";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getAllPathsFromPropertyConfig,
@@ -253,6 +253,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     // If it is an auto-layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
     if (layoutSystemType === LayoutSystemTypes.AUTO) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
@@ -279,6 +281,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_RESIZE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -388,6 +391,8 @@ const DYNAMIC_BINDING_IGNORED_LIST = [
 function getDynamicBindingPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ): DynamicPathUpdate {
   let stringProp = propertyValue;
@@ -1359,6 +1364,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
               try {
                 const tabs = Object.values(widget.tabsObj);
                 if (Array.isArray(tabs)) {
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
                     tab.widgetId = widgetIdMap[tab.widgetId];
                     obj[tab.id] = tab;
@@ -1517,6 +1524,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const metaProps: Record<string, any> =
                   yield select(getWidgetsMeta);
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
@@ -1581,6 +1590,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
           ...newFlexLayers,
         ],
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       reflowedWidgets = updateWidgetPositions(
         reflowedWidgets,
@@ -1605,10 +1616,10 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
     );
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     yield put({
@@ -1634,6 +1645,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -1897,6 +1909,8 @@ function* verifyPasteFeasibilitySaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (!isAnvilLayout) {

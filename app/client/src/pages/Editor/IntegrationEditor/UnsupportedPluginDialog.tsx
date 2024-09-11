@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import {
   Button,
   Modal,
@@ -7,13 +7,13 @@ import {
   ModalContent,
   ModalHeader,
   ModalFooter,
-} from "design-system";
-import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "@appsmith/ads";
+import { UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   UNSUPPORTED_PLUGIN_DIALOG_TITLE,
   UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface Props {
   isModalOpen: boolean;

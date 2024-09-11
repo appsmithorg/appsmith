@@ -11,7 +11,7 @@ import browser from "constants/defs/browser.json";
 import {
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
-} from "@appsmith/utils/autocomplete/EntityDefinitions";
+} from "ee/utils/autocomplete/EntityDefinitions";
 
 let server: Server;
 

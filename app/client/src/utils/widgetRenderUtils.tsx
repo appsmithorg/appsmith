@@ -5,7 +5,7 @@ import type {
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { pick } from "lodash";
@@ -47,6 +47,8 @@ export const createCanvasWidget = (
     ...evaluatedStaticProps,
     ...evaluatedWidgetConfig,
     ...widgetStaticProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 
   return widgetProps;

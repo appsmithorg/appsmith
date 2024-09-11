@@ -1,20 +1,20 @@
 import type { ReactNode } from "react";
 import React from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
 import CardList from "pages/Applications/CardList";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
-import { NoAppsFound } from "@appsmith/pages/Applications";
+import { NoAppsFound } from "ee/pages/Applications";
 import ApplicationCard from "pages/Applications/ApplicationCard";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
+import type { ApplicationPayload } from "entities/Application";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
 import {
   APPLICATION_CARD_LIST_ZERO_STATE,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+} from "ee/constants/messages";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 interface ApplicationCardListProps {
@@ -59,7 +59,7 @@ function ApplicationCardList({
       title={title}
       titleTag={titleTag}
     >
-      {applications.map((application: any) => {
+      {applications.map((application) => {
         return (
           <PaddingWrapper isMobile={isMobile} key={application.id}>
             <ApplicationCard

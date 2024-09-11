@@ -1,16 +1,13 @@
 import ApplicationApi, {
   type exportApplicationRequest,
-} from "@appsmith/api/ApplicationApi";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/api/ApplicationApi";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { toast } from "design-system";
+} from "ee/constants/ReduxActionConstants";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -22,10 +19,7 @@ import {
 import { validateResponse } from "../ErrorSagas";
 import { createWidgetCopy } from "../WidgetOperationUtils";
 import { getWidgets } from "../selectors";
-import {
-  createMessage,
-  ERROR_IN_EXPORTING_APP,
-} from "@appsmith/constants/messages";
+import { createMessage, ERROR_IN_EXPORTING_APP } from "ee/constants/messages";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
@@ -81,13 +75,13 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
       });
     }
   } catch (e) {
-    toast.show(createMessage(ERROR_IN_EXPORTING_APP), {
-      kind: "error",
-    });
     yield put({
       type: ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR,
       payload: {
-        error: "Error exporting application",
+        show: true,
+        error: {
+          message: createMessage(ERROR_IN_EXPORTING_APP),
+        },
       },
     });
   }

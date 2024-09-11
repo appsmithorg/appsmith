@@ -60,6 +60,8 @@ export class DroppableComponent extends React.Component<
     }
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDragEnd = (result: any) => {
     const { destination, source } = result;
     const items: Array<Record<string, unknown>> = [...this.state.items];
@@ -100,6 +102,8 @@ export class DroppableComponent extends React.Component<
               {...droppableProps}
             >
               {this.state.items.map(
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (item: { id: string } & any, index: number) => {
                   return (
                     <Draggable

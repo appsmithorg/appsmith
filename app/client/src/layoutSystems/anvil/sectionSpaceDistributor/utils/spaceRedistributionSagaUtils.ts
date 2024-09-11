@@ -447,8 +447,14 @@ function getZoneChangeAndRelativeSize(
   zoneChangeFactor: number,
   maxColumnLimit = SectionColumns,
 ): {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   zoneChange: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isSmallestZoneLargeRelatively: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   largestZoneSpace: any;
 } {
   // Constants for determining zone sizes and thresholds

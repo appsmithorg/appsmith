@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import {
   ADMIN_SETTINGS,
   LEARN_MORE,
   ONBOARDING_TELEMETRY_POPUP,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
   ANONYMOUS_DATA_POPOP_TIMEOUT,
@@ -22,11 +22,11 @@ import {
   getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
   setFirstTimeUserOnboardingTelemetryCalloutVisibility,
 } from "utils/storage";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { deleteCanvasCardsState } from "actions/editorActions";
 import styled from "styled-components";
 import { showAnonymousDataPopup } from "actions/onboardingActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   margin: ${(props) =>

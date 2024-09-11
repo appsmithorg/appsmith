@@ -1,12 +1,12 @@
-import { isWidgetEntity } from "@appsmith/plugins/Linting/lib/entity";
+import { isWidgetEntity } from "ee/plugins/Linting/lib/entity";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
   isTrueObject,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { toPath, union } from "lodash";
-import { isDynamicEntity } from "@appsmith/plugins/Linting/lib/entity/isDynamicEntity";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import { isDynamicEntity } from "ee/plugins/Linting/lib/entity/isDynamicEntity";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 
 export class PathUtils {
   static getReactivePaths(entity: IEntity) {
@@ -84,6 +84,8 @@ export class PathUtils {
   }
 
   static getAllPaths = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     records: any,
     curKey = "",
     result: Record<string, true> = {},

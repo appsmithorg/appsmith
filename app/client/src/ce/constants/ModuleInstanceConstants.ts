@@ -1,4 +1,4 @@
-import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import type { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import type { ActionResponse } from "api/ActionAPI";
 
 export type ModuleId = string;

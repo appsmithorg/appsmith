@@ -1,9 +1,9 @@
-import { fetchAllApplicationsOfWorkspace } from "@appsmith/actions/applicationActions";
-import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { fetchAllApplicationsOfWorkspace } from "ee/actions/applicationActions";
+import { fetchUsersForWorkspace } from "ee/actions/workspaceActions";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 
 export const getWorkspaceEntitiesActions = (workspaceId: string = "") => {
   const initActions = [

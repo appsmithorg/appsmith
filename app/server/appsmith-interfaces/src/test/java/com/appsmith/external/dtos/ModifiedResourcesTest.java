@@ -15,24 +15,30 @@ public class ModifiedResourcesTest {
 
         // should be true when no the flag is not set
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
+        assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
         modifiedResources.setAllModified(false);
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
+        assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
         modifiedResources.setAllModified(true);
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isTrue();
+        assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
         modifiedResources.setAllModified(false);
         modifiedResources.setModifiedResourceMap(Map.of());
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
+        assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
         modifiedResources.setAllModified(false);
         modifiedResources.setModifiedResourceMap(Map.of("any", Set.of()));
         assertThat(modifiedResources.isResourceUpdated("any", "any")).isFalse();
+        assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
 
         modifiedResources.setAllModified(false);
         modifiedResources.setModifiedResourceMap(Map.of("PAGE", Set.of("home")));
         assertThat(modifiedResources.isResourceUpdated("PAGE", "home")).isTrue();
+        assertThat(modifiedResources.isResourceUpdated(null, "any")).isFalse();
     }
 
     @Test

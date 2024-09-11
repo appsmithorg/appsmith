@@ -1,5 +1,5 @@
 import React from "react";
-import { Select, Option } from "design-system";
+import { Select, Option } from "@appsmith/ads";
 import type { AppTheme } from "entities/AppTheming";
 import styled from "styled-components";
 

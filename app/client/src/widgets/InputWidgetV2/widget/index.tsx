@@ -12,7 +12,7 @@ import {
   INPUT_DEFAULT_TEXT_MAX_NUM_ERROR,
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { ICON_NAMES } from "WidgetProvider/constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -50,11 +50,15 @@ import type {
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: InputWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
@@ -148,6 +152,8 @@ export function defaultValueValidation(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   const max = props.maxNum;
   const value = min;
@@ -200,6 +206,8 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   const min = props.minNum;
   const value = max;
@@ -255,6 +263,8 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
 function InputTypeUpdateHook(
   props: WidgetProps,
   propertyName: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ) {
   const updates = [
@@ -621,6 +631,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     });
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       inputText: "",

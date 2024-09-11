@@ -91,6 +91,8 @@ export interface TextInputProps extends IInputGroupProps {
   /** Additional classname */
   className?: string;
   type?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refHandler?: any;
   noValidate?: boolean;
   readonly?: boolean;

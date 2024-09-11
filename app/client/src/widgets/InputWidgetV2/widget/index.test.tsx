@@ -7,6 +7,8 @@ import {
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let result: any;
 
   it("should validate defaulttext of text type", () => {
@@ -121,6 +123,8 @@ describe("defaultValueValidation", () => {
   it("should validate defaulttext with type missing", () => {
     result = defaultValueValidation(
       "admin123",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { inputType: "" } as any as InputWidgetProps,
       _,
     );
@@ -141,6 +145,8 @@ describe("defaultValueValidation", () => {
     const value = {};
     result = defaultValueValidation(
       value,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { inputType: "" } as any as InputWidgetProps,
       _,
     );
@@ -161,11 +167,15 @@ describe("defaultValueValidation", () => {
 describe("minValueValidation - ", () => {
   it("should return true if minNum is empty", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       minValueValidation("", { maxNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeTruthy();
 
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       minValueValidation(null, { maxNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeTruthy();
@@ -173,6 +183,8 @@ describe("minValueValidation - ", () => {
 
   it("should return false if minNum is not a valid number", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       minValueValidation("test", { maxNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeFalsy();
@@ -180,6 +192,8 @@ describe("minValueValidation - ", () => {
 
   it("should return false if minNum is not lesser than maxNum", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       minValueValidation("11", { maxNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeFalsy();
@@ -187,6 +201,8 @@ describe("minValueValidation - ", () => {
 
   it("should return true if minNum is a finite number and lesser than maxNum", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       minValueValidation("1", { maxNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeTruthy();
@@ -196,11 +212,15 @@ describe("minValueValidation - ", () => {
 describe("maxValueValidation - ", () => {
   it("should return true if maxNum is empty", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       maxValueValidation("", { minNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeTruthy();
 
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       maxValueValidation(null, { minNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeTruthy();
@@ -208,6 +228,8 @@ describe("maxValueValidation - ", () => {
 
   it("should return false if maxNum is not a valid number", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       maxValueValidation("test", { minNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeFalsy();
@@ -215,6 +237,8 @@ describe("maxValueValidation - ", () => {
 
   it("should return false if maxNum is not greater than minNum", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       maxValueValidation("9", { minNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeFalsy();
@@ -222,6 +246,8 @@ describe("maxValueValidation - ", () => {
 
   it("should return true if maxNum is a finite number and lesser than minNum", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       maxValueValidation("18", { minNum: 10 } as InputWidgetProps, _ as any)
         .isValid,
     ).toBeTruthy();

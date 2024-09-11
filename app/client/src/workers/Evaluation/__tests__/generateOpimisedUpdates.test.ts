@@ -1,4 +1,4 @@
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import { applyChange } from "deep-diff";
 import produce from "immer";
 import { klona } from "klona/full";
@@ -310,6 +310,8 @@ describe("generateOptimisedUpdates", () => {
         expect(parsedUpdates).toEqual([]);
 
         const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           parsedUpdates.forEach((v: any) => {
             applyChange(draft, undefined, v);
           });
@@ -349,6 +351,8 @@ describe("generateOptimisedUpdates", () => {
         ]);
 
         const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           parsedUpdates.forEach((v: any) => {
             applyChange(draft, undefined, v);
           });
@@ -402,6 +406,8 @@ describe("generateOptimisedUpdates", () => {
         ]);
 
         const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           parsedUpdates.forEach((v: any) => {
             applyChange(draft, undefined, v);
           });
@@ -455,6 +461,8 @@ describe("generateOptimisedUpdates", () => {
       ]);
 
       const parseAndApplyUpdatesToOldState = produce(oldState, (draft) => {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         parsedUpdates.forEach((v: any) => {
           applyChange(draft, undefined, v);
         });
@@ -507,6 +515,8 @@ describe("generateOptimisedUpdates", () => {
         const parsedUpdates =
           parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
         return produce(prevState, (draft) => {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           parsedUpdates.forEach((v: any) => {
             applyChange(draft, undefined, v);
           });
@@ -516,6 +526,8 @@ describe("generateOptimisedUpdates", () => {
       let mainThreadStateWithCollection: dataTreeWithWidget;
       const someDate = "2023-12-07T19:05:11.830Z";
       test("large moment collection updates should be serialised, we should always see ISO string and no moment object properties", () => {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const largeCollection = [] as any;
         for (let i = 0; i < 110; i++) {
           largeCollection.push({ i, c: moment(someDate) });
@@ -555,6 +567,8 @@ describe("generateOptimisedUpdates", () => {
           (draft) => {
             draft.Table1.pageSize[0].c = moment(someNewDate);
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ) as any;
 
         //generate serialised diff updates
@@ -569,6 +583,8 @@ describe("generateOptimisedUpdates", () => {
           generateMainThreadStateFromSerialisedUpdates(
             serialisedUpdates,
             mainThreadStateWithCollection,
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ) as any;
         // check if the main thread state has the updated value
         expect(updatedMainThreadState.Table1.pageSize[0].c).toEqual(
@@ -593,8 +609,12 @@ describe("generateOptimisedUpdates", () => {
         const updatedWorkerStateWithASingleValue = produce(
           klona(workerStateWithCollection),
           (draft) => {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             draft.Table1.pageSize[0].c = moment(someNewDate) as any;
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ) as any;
 
         //generate serialised diff updates
@@ -609,6 +629,8 @@ describe("generateOptimisedUpdates", () => {
           generateMainThreadStateFromSerialisedUpdates(
             serialisedUpdates,
             mainThreadStateWithCollection,
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ) as any;
         // check if the main thread state has the updated invalid value which should be null
         expect(updatedMainThreadState.Table1.pageSize[0].c).toEqual(null);

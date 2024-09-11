@@ -12,11 +12,13 @@ import includes from "lodash/includes";
 import map from "lodash/map";
 import * as Sentry from "@sentry/react";
 import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button, Tag } from "design-system";
+import { Button, Tag } from "@appsmith/ads";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
   const addOption = () => {
@@ -153,7 +155,11 @@ class TabControl extends BaseControl<ControlProps, State> {
     return menuItems;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateItems = (items: Array<Record<string, any>>) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tabsObj = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
         ...each,

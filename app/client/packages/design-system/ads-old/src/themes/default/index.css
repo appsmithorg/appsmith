@@ -1,0 +1,454 @@
+@import "colors.css";
+@import "variables.css";
+/* @import "design-system/src/__theme__/default/index.css";*/
+
+:root {
+  /* new variables */
+  --ads-color-brand: var(--ads-v2-color-bg-brand);
+  --ads-color-brand-light: var(--ads-orange-accent);
+  --ads-color-brand-hover: var(--ads-old-color-rock-spray);
+  --ads-color-brand-active: var(--ads-old-color-rock-spray);
+  --ads-color-brand-focus: var(--ads-old-color-rock-spray);
+  --ads-color-brand-disabled: var(--ads-old-color-bridesmaid);
+  --ads-color-brand-text: var(--ads-color-black-0);
+  --ads-color-text: var(--ads-color-black-750);
+  --ads-color-background: var(--ads-color-black-0);
+  --ads-color-background-secondary: var(--ads-color-black-0);
+  --ads-color-border: var(--ads-color-gray-200);
+  --ads-color-background-hover: var(--ads-color-gray-100);
+  --ads-color-border-selected: var(--ads-color-gray-700);
+  --ads-color-background-focus: var(--ads-color-gray-700);
+  /* --ads-color-background-active: var(--ads-color-gray-200); */
+  --ads-color-background-disabled: var(--ads-color-gray-200);
+  --ads-border-radius: 0px;
+  /* new variables end here */
+
+  --ads-border-color: var(--ads-color-black-250);
+  --ads-border-color-focus: var(--ads-color-black-900);
+
+  /** Naming convention for tokens
+  *
+  * --ads-<component>-<componentType>-<state>-<property>-<subProperty>
+  *
+  * component: button, checkbox, dropdown, input, link, list, menu, radio, select, textarea...
+  * subComponent: label, divider...
+  * componentType: primary, secondary...
+  * state: hover, focus, active, disabled, default...
+  * property: color, background, border...
+  * subProperty: color, width, radius...
+  *
+  */
+
+  /** API Pane */
+  --ads-api-pane-settings-text-color: var(--ads-old-color-gray-10);
+
+  /** AppIcon  */
+  --ads-app-icon-normal-color: var(--ads-v2-color-fg);
+  --ads-app-icon-background-color: var(--ads-color-black-25);
+
+  /* Breadcrumbs */
+  --ads-breadcrumbs-list-text-color: var(--ads-old-color-dove-gray);
+  --ads-breadcrumbs-separator-text-color: var(--ads-old-color-dove-gray);
+  --ads-breadcrumbs-active-text-color: var(--ads-color-black-900);
+
+  /** Button Group */
+  --ads-button-group-selected-border-color: var(--ads-old-color-gray-10);
+  --ads-button-group-border-color: var(--ads-color-black-250);
+  --ads-button-group-focus-background-color: var(--ads-old-color-gallery-2);
+  --ads-button-group-hover-background-color: var(--ads-old-color-gallery-2);
+  --ads-button-group-svg-path-fill-color: var(--ads-old-color-gray-7);
+
+  /** Callout */
+  --ads-callout-info-text-color: #d44100;
+  --ads-callout-info-background-color: #f8f3f0;
+  --ads-callout-success-text-color: var(--ads-old-color-jade);
+  --ads-callout-success-background-color: #e4f4ed;
+  --ads-callout-danger-text-color: var(--ads-old-color-pomegranate);
+  --ads-callout-danger-background-color: #f9e9e9;
+  --ads-callout-warning-text-color: var(--ads-old-color-sun);
+  --ads-callout-warning-background-color: #faf3e3;
+
+  /** Checkbox */
+  --ads-checkbox-disabled-checked-background-color: #e8e8e8;
+  --ads-checkbox-disabled-checked-border-color: #e8e8e8;
+  --ads-checkbox-default-unchecked-border-color: #404040;
+  --ads-checkbox-after-disabled-checked-border-color: #939090;
+  --ads-checkbox-after-default-checked-border-color: var(
+    --ads-color-brand-text
+  );
+  --ads-checkbox-label-text-color: var(--ads-old-color-alto);
+
+  /** ColorSelector */
+  --ads-color-selector-shadow-color: #e8e8e8;
+  --ads-color-selector-checkmark-color: #000000;
+
+  /** Dialog Component */
+  --ads-dialog-component-default-background-color: var(--ads-color-black-0);
+  --ads-dialog-component-header-text-text-color: var(--ads-color-black-900);
+  --ads-dialog-component-dialog-header-underline-color: #c5c5c5;
+  --ads-dialog-component-icon-background-color: #ffdede;
+
+  /** Display Image Upload */
+  --ads-display-image-upload-background-color: var(--ads-v2-color-bg-emphasis);
+  --ads-display-image-upload-label-text-color: var(--ads-v2-color-fg);
+
+  /** Dropdown */
+  --ads-dropdown-hover-background-color: var(--ads-old-color-gallery-2);
+  --ads-dropdown-selected-text-color: var(--ads-old-color-gray-10);
+  --ads-dropdown-disabled-header-text-color: #9f9f9f;
+  --ads-dropdown-disabled-header-background-color: var(--ads-color-black-75);
+  --ads-dropdown-default-header-text-color: var(--ads-color-black-750);
+  --ads-dropdown-selected-header-text-color: var(--ads-old-color-gray-10);
+  --ads-dropdown-default-menu-border-color: var(--ads-color-black-100);
+  --ads-dropdown-default-menu-subtext-text-color: var(--ads-old-color-gray-7);
+  --ads-dropdown-selected-menu-subtext-text-color: var(--ads-color-black-550);
+  --ads-dropdown-default-menu-text-color: var(--ads-color-black-750);
+  --ads-dropdown-default-menu-hover-text-color: var(--ads-old-color-gray-10);
+  --ads-dropdown-default-menu-hover-background-color: var(
+    --ads-color-black-200
+  );
+  --ads-dropdown-default-icon-fill-color: var(--ads-color-black-550);
+  --ads-dropdown-default-icon-background-color: var(--ads-color-black-250);
+  --ads-dropdown-default-icon-selected-fill-color: var(--ads-old-color-gray-7);
+  --ads-dropdown-default-icon-hover: var(--ads-color-black-0);
+  --ads-dropdown-default-dropdown-trigger-border-color: var(
+    --ads-color-black-900
+  );
+  --ads-dropdown-default-close-hover-background-color: var(
+    --ads-old-color-gallery-2
+  );
+
+  /** EditableTextSubComponent */
+  --ads-editable-text-subcomponent-error-background-color: var(
+    --ads-v2-color-bg-subtle
+  );
+  --ads-editable-text-subcomponent-default-background-color: var(
+    --ads-v2-color-bg-subtle
+  );
+  --ads-editable-text-subcomponent-error-text-color: var(
+    --ads-v2-color-fg-error
+  );
+  --ads-editable-text-subcomponent-default-text-color: var(--ads-v2-color-fg);
+
+  /** EditableTextWrapper */
+  --ads-editable-text-wrapper-default-text-color: var(--ads-v2-color-fg);
+
+  /** Emoji Reactions */
+  --ads-emoji-reactions-bubble-background-color: var(--ads-color-black-75);
+  --ads-emoji-reactions-bubble-active-background-color: var(
+    --ads-old-color-bridesmaid
+  );
+  --ads-emoji-reactions-bubble-active-border-color: var(
+    --ads-old-color-rock-spray
+  );
+  --ads-emoji-reactions-bubble-hover-background-color: var(
+    --ads-old-color-gallery-2
+  );
+  --ads-emoji-reactions-count-text-color: var(--ads-old-color-dove-gray);
+  --ads-emoji-reactions-count-active-text-color: var(
+    --ads-old-color-rock-spray
+  );
+  --ads-emoji-reactions-count-hover-text-color: var(--ads-color-black-750);
+
+  /** FilePickerV2 */
+  --ads-file-picker-v2-default-background-color: var(--ads-v2-color-bg);
+  --ads-file-picker-v2-default-text-color: var(--ads-v2-color-fg);
+  --ads-file-picker-v2-success-text-color: var(--ads-v2-color-fg-success);
+  --ads-file-picker-v2-upload-progress-background-color: var(
+    --ads-v2-color-bg-muted
+  );
+  --ads-file-picker-v2-upload-success-background-color: var(
+    --ads-v2-color-bg-success
+  );
+  --ads-file-picker-v2-upload-icon-fill-color: var(--ads-v2-color-fg);
+  --ads-file-picker-v2-remove-button-background-color-gradient-start: rgba(
+    253,
+    253,
+    253,
+    0.0001
+  );
+  --ads-file-picker-v2-remove-button-background-color-gradient-end: rgba(
+    250,
+    250,
+    250,
+    0.898847
+  );
+
+  /** Form Group */
+  --ads-form-group-label-text-color: var(--ads-old-color-gray-10);
+
+  /** FormMessage */
+  --ads-form-message-danger-text-color: var(--ads-old-color-danger-red);
+  --ads-form-message-primary-text-color: var(--ads-color-black-0);
+  --ads-form-message-success-text-color: var(--ads-old-color-jade);
+  --ads-form-message-warning-text-color: var(--ads-old-color-warning);
+  --ads-form-message-light-success-text-color: var(--ads-old-color-fun-green-2);
+
+  --ads-form-message-danger-background-color: var(
+    --ads-old-color-danger-red-opacity-80
+  );
+  --ads-form-message-primary-background-color: var(--ads-old-color-jade);
+  --ads-form-message-success-background-color: #172320;
+  --ads-form-message-warning-background-color: var(
+    --ads-old-color-warning-opacity-80
+  );
+  --ads-form-message-light-success-background-color: #effff4;
+
+  /** Gif Player */
+  --ads-gif-player-icon-path-fill-color: var(--ads-v2-color-bg-subtle);
+  --ads-gif-player-icon-circle-fill-color: var(--ads-old-color-gray-10);
+  --ads-gif-player-text-color: var(--ads-v2-color-fg);
+  --ads-gif-player-overlay-background-color: var(--ads-v2-color-bg);
+
+  /** HighlightText */
+  --ads-highlight-text-default-text-color: var(--ads-color-orange-800);
+  --ads-highlight-text-default-background-color: var(--ads-color-orange-100);
+
+  /** Icon Selector */
+  --ads-icon-selector-scrollbar-thumb-background-color: var(
+    --ads-color-black-450
+  );
+  --ads-icon-selector-app-icon-background-color: var(--ads-v2-color-bg-subtle);
+  --ads-icon-selector-selected-icon-fill-color: var(--ads-color-black-0);
+
+  /** Info */
+  --ads-info-main-text-color: var(--ads-color-brand);
+
+  /** Input */
+  --ads-input-focus-border-color: var(--ads-color-black-900);
+
+  /** Intent Colors */
+  --ads-intent-color-primary: var(--ads-old-color-jade);
+  --ads-intent-color-secondary: var(--ads-old-color-black-pearl);
+  --ads-intent-color-success: var(--ads-old-color-cornflower-blue);
+  --ads-intent-color-danger: var(--ads-old-color-danger-red);
+  --ads-intent-color-none: var(--ads-color-black-200);
+  --ads-intent-color-warning: var(--ads-old-color-jaffa);
+  --ads-intent-color-success-light: var(--ads-old-color-jade);
+
+  /* JSToggleButton */
+  --ads-js-toggle-button-default-border-color: var(--ads-color-black-700);
+  --ads-js-toggle-button-default-background-color: var(--ads-color-black-0);
+  --ads-js-toggle-button-disabled-border-color: var(--ads-color-black-400);
+  --ads-js-toggle-button-disabled-background-color: var(--ads-color-black-200);
+  --ads-js-toggle-button-active-disabled-background-color: var(
+    --ads-color-black-400
+  );
+  --ads-js-toggle-button-active-background-color: var(--ads-color-black-800);
+  --ads-js-toggle-button-hover-active-background-color: var(
+    --ads-color-black-900
+  );
+  --ads-js-toggle-button-hover-background-color: var(--ads-color-black-200);
+  --ads-js-toggle-button-hover-disabled-active-background-color: var(
+    --ads-color-black-400
+  );
+  --ads-js-toggle-button-hover-disabled-background-color: var(
+    --ads-color-black-200
+  );
+  --ads-js-toggle-button-svg-path-active-fill-color: var(--ads-color-black-0);
+  --ads-js-toggle-button-svg-path-fill-color: var(--ads-color-black-700);
+
+  /** Label with Tooltip */
+  --ads-label-with-tooltip-default-text-color: var(--ads-color-black-550);
+  --ads-label-with-tooltip-default-icon-fill-color: var(--ads-color-black-450);
+  --ads-label-with-tooltip-hover-icon-fill-color: var(--ads-color-black-550);
+
+  /** Menu */
+  --ads-menu-default-border-color: #404040;
+
+  /** Menu Divider */
+  --ads-menu-divider-border-color: var(--ads-old-color-mercury);
+
+  /** Multiswitch */
+  --ads-multiswitch-tab-list-background-color: var(--ads-old-color-mercury);
+  --ads-multiswitch-border-color: var(--ads-color-black-250);
+  --ads-multiswitch-selected-background-color: var(--ads-color-black-0);
+  --ads-multiswitch-tab-header-background-color: var(--ads-color-black-0);
+
+  /** Notification Banner */
+  --ads-notification-banner-error-text-color: #c91818;
+  --ads-notification-banner-error-background-color: var(
+    --ads-old-color-fair-pink
+  );
+  --ads-notification-banner-light-enterprise-text-color: #e8f5fa;
+  --ads-notification-banner-dark-enterprise-text-color: #00407d;
+
+  /** Numbered Step */
+  --ads-numbered-step-text-color: var(--ads-color-black-250);
+  --ads-numbered-step-line-background-color: var(--ads-old-color-black);
+
+  /** Property Pane */
+  --ads-property-pane-default-zoom-button-background-color: #2b2b2b;
+  --ads-property-pane-default-radio-group-button-text-color: #d4d4d4;
+  --ads-property-pane-default-button-text-color: #090707;
+
+  /** Radio */
+  --ads-radio-default-text-color: var(--ads-old-color-gray-10);
+  --ads-radio-default-border-color: var(--ads-old-color-mercury);
+  --ads-radio-disabled-background-color: #c5c5c5;
+
+  /** Rectangular Switch */
+  --ads-rectangular-switch-background-color: var(--ads-color-black-0);
+  --ads-rectangular-switch-hover-background-color: var(--ads-color-black-0);
+  --ads-rectangular-switch-slider-border-color: var(--ads-color-black-450);
+  --ads-rectangular-switch-slider-background-color: var(--ads-color-brand);
+  --ads-rectangular-switch-light-text-color: var(--ads-color-black-0);
+  --ads-rectangular-switch-dark-text-color: var(--ads-color-black-470);
+
+  /** Scroll Indicator */
+  --ads-scroll-indicator-light-thumb-background-color: var(
+    --ads-old-color-black-750-opacity-50
+  );
+  --ads-scroll-indicator-light-track-background-color: var(
+    --ads-old-color-white-opacity-50
+  );
+  --ads-scroll-indicator-dark-thumb-background-color: var(
+    --ads-old-color-alto-opacity-50
+  );
+  --ads-scroll-indicator-dark-track-background-color: var(
+    --ads-old-color-gray-10-opacity-50
+  );
+
+  /** Search Input */
+  --ads-search-input-border-color: var(--ads-color-black-400);
+  --ads-search-input-active-border-color: var(--ads-color-black-900);
+
+  /** Showcase Carousel */
+  --ads-showcase-carousel-dot-background-color: var(--ads-v2-color-bg-subtle);
+  --ads-showcase-carousel-dot-active-background-color: var(--ads-color-brand);
+
+  /** Statusbar */
+  --ads-statusbar-active-background-color: var(--ads-color-brand);
+  --ads-statusbar-height: 92px;
+  --ads-statusbar-active-p-text-color: var(--ads-color-brand-text);
+  --ads-statusbar-active-svg-fill-color: var(--ads-color-brand-text);
+  --ads-statusbar-status-text-color: var(--ads-old-color-black);
+  --ads-statusbar-progress-bar-active-background-color: var(--ads-color-brand);
+  --ads-statusbar-progress-bar-background-color: var(--ads-color-brand-text);
+
+  /** StepComponent */
+  --ads-step-component-wrapper-background-color: var(--ads-color-black-250);
+  --ads-step-component-wrapper-svg-fill-color: var(--ads-color-black-750);
+  --ads-step-component-input-wrapper-text-color: var(--ads-color-black-750);
+  --ads-step-component-input-wrapper-background-color: var(--ads-color-black-0);
+
+  /** Table */
+  --ads-table-table-row-background-color: var(--ads-color-black-25);
+  --ads-table-table-header-default-text-color: var(--ads-color-black-470);
+  --ads-table-table-header-hover-text-color: var(--ads-color-black-850);
+  --ads-table-table-header-hover-icon-path-color: var(--ads-color-black-850);
+  --ads-table-table-row-first-table-data-default-text-color: var(
+    --ads-color-black-850
+  );
+  --ads-table-table-row-table-data-default-text-color: var(
+    --ads-color-black-550
+  );
+  --ads-table-table-row-table-data-border-bottom-color: var(
+    --ads-old-color-mercury
+  );
+  --ads-table-table-row-hover-background-color: var(--ads-color-black-75);
+  --ads-table-table-row-hover-icon-path-color: var(--ads-old-color-gray-10);
+  --ads-table-table-row-first-table-data-hover-text-color: var(
+    --ads-old-color-gray-10
+  );
+  --ads-table-table-row-table-data-hover-text-color: var(--ads-color-black-850);
+
+  /** TableDropdown  */
+  --ads-table-dropdown-background-color: var(--ads-color-black-0);
+  --ads-table-dropdown-selected-background-color: var(--ads-color-black-75);
+  --ads-table-dropdown-selected-hover-text-color: var(--ads-color-black-850);
+
+  /** Tabs */
+  --ads-tabs-default-tab-list-text-color: var(--ads-old-color-gray-7);
+  --ads-tabs-default-tab-list-svg-fill-color: var(--ads-color-black-0);
+  --ads-tabs-default-tab-list-response-viewer-background-color: var(
+    --ads-old-color-mercury
+  );
+  --ads-tabs-default-tab-focus-response-viewer-border-color: var(
+    --ads-color-black-250
+  );
+  --ads-tabs-tab-selected-svg-fill-color: var(--ads-color-black-750);
+  --ads-tabs-tab-selected-response-viewer-background-color: var(
+    --ads-color-black-0
+  );
+  --ads-tabs-tab-selected-response-viewer-border-color: var(
+    --ads-color-black-250
+  );
+  --ads-tabs-tab-title-response-viewer-text-color: var(--ads-color-text);
+  --ads-tabs-count-background-color: var(--ads-old-color-mercury);
+  --ads-tabs-title-wrapper-text-color: var(--ads-old-color-gray-7);
+  --ads-tabs-title-wrapper-hover-text-color: var(--ads-color-black-750);
+  --ads-tabs-title-wrapper-icon-fill-color: var(--ads-old-color-gray-7);
+
+  /** Tab Item Background fill */
+  --ads-tab-item-text-color: var(--ads-color-text);
+  --ads-tab-item-focus-background-color: var(--ads-color-black-75);
+  --ads-tab-item-focus-text-color: var(--ads-color-black-900);
+
+  /** Tag Input */
+  --ads-tag-input-background-color: var(--ads-color-black-0);
+  --ads-tag-input-border-color: var(--ads-color-black-250);
+  --ads-tag-input-text-color: var(--ads-color-black-850);
+  --ads-tag-input-placeholder-color: var(--ads-old-color-alto);
+  --ads-tag-input-active-border-color: var(--ads-color-brand);
+  --ads-tag-input-active-box-shadow: "none";
+  --ads-tag-input-tag-text-color: var(--ads-color-black-0);
+  --ads-tag-input-tag-background-color: var(--ads-color-brand);
+
+  /** Text */
+  --ads-text-color: var(--ads-color-text);
+  --ads-text-heading-color: var(--ads-color-black-850);
+  --ads-text-highlight-color: var(--ads-color-black-0);
+
+  /** TextInput */
+  --ads-text-input-text-box-default-background-color: #ffffff;
+  --ads-text-input-text-box-default-text-color: #090707;
+  --ads-text-input-text-box-default-border-color: #e0dede;
+  --ads-text-input-text-box-disabled-background-color: #f0f0f0;
+  --ads-text-input-text-box-disabled-text-color: #6d6d6d;
+  --ads-text-input-text-box-disabled-border-color: #f0f0f0;
+  --ads-text-input-text-box-read-only-background-color: #f0f0f0;
+  --ads-text-input-text-box-read-only-text-color: #716e6e;
+  --ads-text-input-text-box-read-only-border-color: #f0f0f0;
+  --ads-text-input-text-box-hover-background-color: #fafafa;
+  --ads-text-input-icon-path-color: #716e6e;
+  --ads-text-input-placeholder-text-color: #a9a7a7;
+  --ads-text-input-helper-text-text-color: #858282;
+
+  /* Toast */
+  --ads-toast-background-color: var(--ads-old-color-gray-10);
+  --ads-toast-icon-fill-color: #dcad00;
+  --ads-toast-icon-outline-color: var(--ads-old-color-pomegranate);
+  --ads-toast-text-color: var(--ads-color-black-25);
+  --ads-toast-undo-text-color: var(--ads-color-brand);
+  --ads-toast-redo-text-color: var(--ads-color-brand);
+
+  /* Toggle */
+  --ads-toggle-slider-background-color: var(--ads-color-black-250);
+  --ads-toggle-slider-loading-background-color: var(--ads-old-color-mercury);
+  --ads-toggle-slider-disabled-on-background-color: var(--ads-color-black-0);
+  --ads-toggle-slider-disabled-off-background-color: var(--ads-color-black-0);
+  --ads-toggle-on-background-color: var(--ads-color-brand);
+  --ads-toggle-hover-on-background-color: var(--ads-color-brand-hover);
+  --ads-toggle-hover-off-background-color: var(--ads-color-black-450);
+  --ads-toggle-disabled-on-background-color: var(--ads-old-color-bridesmaid);
+  --ads-toggle-disabled-off-background-color: var(--ads-color-black-250);
+  --ads-toggle-spinner-stroke-color: var(--ads-color-black-450);
+
+  /** Tree Dropdown */
+  --ads-tree-dropdown-menu-default-background-color: var(--ads-v2-color-bg);
+  --ads-tree-dropdown-menu-default-text-color: var(--ads-color-black-750);
+  --ads-tree-dropdown-menu-selected-text-color: var(--ads-color-black-750);
+  --ads-tree-dropdown-target-background-color: var(--ads-color-black-0);
+
+  /** Uncategorized/common */
+  --ads-danger-main: #e22c2c;
+  --appsmith-input-focus-border-color: var(--ads-color-black-900);
+  --ads-text-color-on-dark-background: var(--ads-color-black-0);
+  --ads-property-pane-default-label-fill-color: var(--ads-color-black-750);
+  --ads-small-header-height: 32px;
+  --ads-bottom-bar-height: 34px;
+
+  /** Uneditable Text Field */
+  --ads-uneditable-text-field-label-text-color: var(--ads-color-black-750);
+}

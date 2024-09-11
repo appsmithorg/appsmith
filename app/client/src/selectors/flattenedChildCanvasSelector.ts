@@ -1,4 +1,4 @@
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { GridDefaults, type RenderModes } from "constants/WidgetConstants";
 import { getLayoutSystem } from "layoutSystems/withLayoutSystemWidgetHOC";
 import type {
@@ -8,7 +8,7 @@ import type {
 import { createSelector } from "reselect";
 import { getRenderMode } from "./editorSelectors";
 import { getIsMobileBreakPoint } from "sagas/selectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 

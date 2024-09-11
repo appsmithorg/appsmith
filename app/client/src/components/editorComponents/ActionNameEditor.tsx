@@ -6,11 +6,11 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars } from "utils/helpers";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 import { saveActionName } from "actions/pluginActionActions";
-import { Flex } from "design-system";
-import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { Flex } from "@appsmith/ads";
+import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,
   IconWrapper,
@@ -20,10 +20,10 @@ import {
   ACTION_ID_NOT_FOUND_IN_URL,
   ACTION_NAME_PLACEHOLDER,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+} from "ee/constants/messages";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 interface SaveActionNameParams {
   id: string;
@@ -44,10 +44,10 @@ interface ActionNameEditorProps {
 }
 
 function ActionNameEditor(props: ActionNameEditorProps) {
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
 
   const currentActionConfig = useSelector((state: AppState) =>
-    getAction(state, params.apiId || params.queryId || ""),
+    getActionByBaseId(state, params.baseApiId || params.baseQueryId || ""),
   );
 
   const currentPlugin = useSelector((state: AppState) =>

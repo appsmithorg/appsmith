@@ -31,6 +31,8 @@ class LocationSearchControl extends BaseControl<ControlProps> {
     });
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onLocationSelection = (ref: any) => {
     try {
       // For some places, the length is zero
@@ -50,6 +52,8 @@ class LocationSearchControl extends BaseControl<ControlProps> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSearchBoxMounted = (ref: any) => {
     if (window) {
       const searchBox = new window.google.maps.places.SearchBox(ref);
@@ -79,14 +83,20 @@ class LocationSearchControl extends BaseControl<ControlProps> {
     return "LOCATION_SEARCH";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return !isDynamicValue(value);
   }
 }
 
 interface MapScriptWrapperProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSearchBoxMounted: (ref: any) => void;
   clearLocation: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any;
 }
 

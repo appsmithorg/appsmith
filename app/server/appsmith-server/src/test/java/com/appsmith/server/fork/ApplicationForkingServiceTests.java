@@ -70,7 +70,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -316,7 +315,7 @@ public class ApplicationForkingServiceTests {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
+        layoutCollectionService.createCollection(actionCollectionDTO).block();
 
         ObjectMapper objectMapper = new ObjectMapper();
         JSONObject parentDsl = new JSONObject(
@@ -394,57 +393,17 @@ public class ApplicationForkingServiceTests {
 
                     assertThat(pageList).isNotEmpty();
                     pageList.forEach(newPage -> {
-                        assertThat(newPage.getDefaultResources()).isNotNull();
-                        assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
-                        assertThat(newPage.getDefaultResources().getApplicationId())
-                                .isEqualTo(application.getId());
-
-                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                            assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
-                            layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                assertThat(dslActionDTOS).hasSize(1);
-                                dslActionDTOS.forEach(actionDTO -> {
-                                    assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
-                                    if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
-                                        assertThat(actionDTO.getCollectionId())
-                                                .isEqualTo(actionDTO.getDefaultCollectionId());
-                                    }
-                                });
-                            });
-                        });
+                        assertThat(newPage.getBaseId()).isEqualTo(newPage.getId());
                     });
 
                     assertThat(actionList).hasSize(2);
                     actionList.forEach(newAction -> {
-                        assertThat(newAction.getDefaultResources()).isNotNull();
-                        assertThat(newAction.getDefaultResources().getActionId())
-                                .isEqualTo(newAction.getId());
-                        assertThat(newAction.getDefaultResources().getApplicationId())
-                                .isEqualTo(application.getId());
-
-                        ActionDTO action = newAction.getUnpublishedAction();
-                        assertThat(action.getDefaultResources()).isNotNull();
-                        assertThat(action.getDefaultResources().getPageId())
-                                .isEqualTo(application.getPages().get(0).getId());
-                        if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
-                            assertThat(action.getDefaultResources().getCollectionId())
-                                    .isEqualTo(action.getCollectionId());
-                        }
+                        assertThat(newAction.getBaseId()).isEqualTo(newAction.getId());
                     });
 
                     assertThat(actionCollectionList).hasSize(1);
                     actionCollectionList.forEach(actionCollection -> {
-                        assertThat(actionCollection.getDefaultResources()).isNotNull();
-                        assertThat(actionCollection.getDefaultResources().getCollectionId())
-                                .isEqualTo(actionCollection.getId());
-                        assertThat(actionCollection.getDefaultResources().getApplicationId())
-                                .isEqualTo(application.getId());
-
-                        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-
-                        assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
-                        assertThat(unpublishedCollection.getDefaultResources().getPageId())
-                                .isEqualTo(application.getPages().get(0).getId());
+                        assertThat(actionCollection.getBaseId()).isEqualTo(actionCollection.getId());
                     });
                 })
                 .verifyComplete();
@@ -573,50 +532,17 @@ public class ApplicationForkingServiceTests {
 
                     assertThat(pageList).isNotEmpty();
                     pageList.forEach(newPage -> {
-                        assertThat(newPage.getDefaultResources()).isNotNull();
-                        assertThat(newPage.getDefaultResources().getPageId()).isEqualTo(newPage.getId());
-                        assertThat(newPage.getDefaultResources().getApplicationId())
-                                .isEqualTo(application.getId());
-
-                        newPage.getUnpublishedPage().getLayouts().forEach(layout -> layout.getLayoutOnLoadActions()
-                                .forEach(dslActionDTOS -> {
-                                    dslActionDTOS.forEach(actionDTO -> {
-                                        assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
-                                    });
-                                }));
+                        assertThat(newPage.getBaseId()).isEqualTo(newPage.getId());
                     });
 
                     assertThat(actionList).hasSize(2);
                     actionList.forEach(newAction -> {
-                        assertThat(newAction.getDefaultResources()).isNotNull();
-                        assertThat(newAction.getDefaultResources().getActionId())
-                                .isEqualTo(newAction.getId());
-                        assertThat(newAction.getDefaultResources().getApplicationId())
-                                .isEqualTo(application.getId());
-
-                        ActionDTO action = newAction.getUnpublishedAction();
-                        assertThat(action.getDefaultResources()).isNotNull();
-                        assertThat(action.getDefaultResources().getPageId())
-                                .isEqualTo(application.getPages().get(0).getId());
-                        if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
-                            assertThat(action.getDefaultResources().getCollectionId())
-                                    .isEqualTo(action.getCollectionId());
-                        }
+                        assertThat(newAction.getBaseId()).isEqualTo(newAction.getId());
                     });
 
                     assertThat(actionCollectionList).hasSize(1);
                     actionCollectionList.forEach(actionCollection -> {
-                        assertThat(actionCollection.getDefaultResources()).isNotNull();
-                        assertThat(actionCollection.getDefaultResources().getCollectionId())
-                                .isEqualTo(actionCollection.getId());
-                        assertThat(actionCollection.getDefaultResources().getApplicationId())
-                                .isEqualTo(application.getId());
-
-                        ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-
-                        assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
-                        assertThat(unpublishedCollection.getDefaultResources().getPageId())
-                                .isEqualTo(application.getPages().get(0).getId());
+                        assertThat(actionCollection.getBaseId()).isEqualTo(actionCollection.getId());
                     });
                 })
                 .verifyComplete();
@@ -645,7 +571,7 @@ public class ApplicationForkingServiceTests {
         NewPage updatedGitAppPage = newPageRepository.save(appPage).block();
 
         final Mono<ApplicationImportDTO> resultMono =
-                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId());
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -691,7 +617,7 @@ public class ApplicationForkingServiceTests {
                 workspaceRepository.save(targetWorkspace).block();
 
         final Mono<ApplicationImportDTO> resultMono =
-                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId(), null);
+                applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId());
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -743,7 +669,7 @@ public class ApplicationForkingServiceTests {
         Theme theme = new Theme();
         theme.setDisplayName("theme_" + uniqueString);
 
-        themeService.updateTheme(createdSrcApplication.getId(), null, theme).block();
+        themeService.updateTheme(createdSrcApplication.getId(), theme).block();
         createdSrcApplication =
                 applicationService.findById(srcApplication.getId()).block();
 
@@ -898,7 +824,7 @@ public class ApplicationForkingServiceTests {
 
         Theme theme = new Theme();
         theme.setDisplayName("theme_" + uniqueString);
-        themeService.updateTheme(createdSrcApplication.getId(), null, theme).block();
+        themeService.updateTheme(createdSrcApplication.getId(), theme).block();
         themeService
                 .persistCurrentTheme(createdSrcApplication.getId(), null, theme)
                 .block();
@@ -1085,7 +1011,7 @@ public class ApplicationForkingServiceTests {
         gitArtifactMetadata.setGitAuth(gitAuth);
         createdSrcApplication.setGitApplicationMetadata(gitArtifactMetadata);
 
-        themeService.updateTheme(createdSrcApplication.getId(), null, theme).block();
+        themeService.updateTheme(createdSrcApplication.getId(), theme).block();
         createdSrcApplication = applicationService.save(createdSrcApplication).block();
 
         // Create a branch application
@@ -1874,9 +1800,9 @@ public class ApplicationForkingServiceTests {
         return applicationService
                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                 // fetch the unpublished pages
-                .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
-                .flatMap(page -> actionCollectionService.getPopulatedActionCollectionsByViewMode(
-                        new LinkedMultiValueMap<>(Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))),
+                .flatMap(application -> actionCollectionService.getPopulatedActionCollectionsByViewMode(
+                        new LinkedMultiValueMap<>(
+                                Map.of(FieldName.APPLICATION_ID, Collections.singletonList(application.getId()))),
                         false));
     }
 

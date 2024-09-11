@@ -1,8 +1,5 @@
-import {
-  WORKSPACE_ACTION_BUTTON,
-  createMessage,
-} from "@appsmith/constants/messages";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { WORKSPACE_ACTION_BUTTON, createMessage } from "ee/constants/messages";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import "@testing-library/jest-dom";
 import { fireEvent, render } from "@testing-library/react";
 import "jest-styled-components";
@@ -137,13 +134,13 @@ describe("WorkspaceAction", () => {
   });
 });
 
-jest.mock("@appsmith/utils/airgapHelpers", () => ({
+jest.mock("ee/utils/airgapHelpers", () => ({
   isAirgapped: jest.fn(),
 }));
 
 const mockIsAirGapped = (val: boolean) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
-  const { isAirgapped } = require("@appsmith/utils/airgapHelpers");
+  const { isAirgapped } = require("ee/utils/airgapHelpers");
   isAirgapped.mockImplementation(() => val);
 };
 

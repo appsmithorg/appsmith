@@ -1,4 +1,4 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import FormControlRegistry from "./formControl/FormControlRegistry";
 import type { LogLevelDesc } from "loglevel";
 import localStorage from "utils/localStorage";

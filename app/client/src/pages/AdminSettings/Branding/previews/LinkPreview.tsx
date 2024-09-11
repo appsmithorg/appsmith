@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
 import { ContentBox } from "pages/AdminSettings/components";

@@ -17,19 +17,20 @@ export const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
 
 export const BUILDER_BASE_PATH_DEPRECATED = "/applications";
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
-export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}/edit`;
-export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId${ID_EXTRACTION_REGEX}/edit`;
-export const VIEWER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}`;
-export const VIEWER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId${ID_EXTRACTION_REGEX}`;
+export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):basePageId${ID_EXTRACTION_REGEX}/edit`;
+export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):basePageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):basePageId${ID_EXTRACTION_REGEX}`;
+export const VIEWER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):basePageId${ID_EXTRACTION_REGEX}`;
 export const getViewerPath = (
   applicationSlug: string,
   pageSlug: string,
-  pageId: string,
-) => `${BUILDER_VIEWER_PATH_PREFIX}${applicationSlug}/${pageSlug}-${pageId}`;
-export const getViewerCustomPath = (customSlug: string, pageId: string) =>
-  `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
-export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}/edit`;
-export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}`;
+  basePageId: string,
+) =>
+  `${BUILDER_VIEWER_PATH_PREFIX}${applicationSlug}/${pageSlug}-${basePageId}`;
+export const getViewerCustomPath = (customSlug: string, basePageId: string) =>
+  `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${basePageId}`;
+export const BUILDER_PATH_DEPRECATED = `/applications/:baseApplicationId${ID_EXTRACTION_REGEX}/pages/:basePageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATH_DEPRECATED = `/applications/:baseApplicationId${ID_EXTRACTION_REGEX}/pages/:basePageId${ID_EXTRACTION_REGEX}`;
 export const VIEWER_PATH_DEPRECATED_REGEX =
   /\/applications\/[^/]+\/pages\/[^/]+/;
 
@@ -48,20 +49,20 @@ export const CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH = `${BUILDER_PATH_DEPRECAT
 /* */
 
 export const API_EDITOR_BASE_PATH = `/api`;
-export const API_EDITOR_ID_PATH = `${API_EDITOR_BASE_PATH}/:apiId`;
-export const API_EDITOR_ID_ADD_PATH = `${API_EDITOR_BASE_PATH}/:apiId/add`;
+export const API_EDITOR_ID_PATH = `${API_EDITOR_BASE_PATH}/:baseApiId`;
+export const API_EDITOR_ID_ADD_PATH = `${API_EDITOR_BASE_PATH}/:baseApiId/add`;
 export const API_EDITOR_PATH_WITH_SELECTED_PAGE_ID = `${API_EDITOR_BASE_PATH}?importTo=:importTo`;
 export const QUERIES_EDITOR_BASE_PATH = `/queries`;
 export const ADD_PATH = `/add`;
 export const LIST_PATH = "/list";
 
 export const ENTITY_PATH = "/:entity";
-export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId`;
+export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:baseQueryId`;
 export const QUERIES_EDITOR_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`;
-export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId/add`;
+export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:baseQueryId/add`;
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
-export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
-export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId/add`;
+export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:baseCollectionId`;
+export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:baseCollectionId/add`;
 export const DATA_SOURCES_EDITOR_LIST_PATH = `/datasource`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;
@@ -77,8 +78,8 @@ export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
 export const ADMIN_SETTINGS_CATEGORY_ACL_PATH = "/settings/groups";
 export const ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH = "/settings/audit-logs";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
-export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}/edit`;
-export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}`;
+export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):basePageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):basePageId${ID_EXTRACTION_REGEX}`;
 
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);
@@ -133,29 +134,29 @@ export const addBranchParam = (branch: string) => {
 };
 
 export interface BuilderRouteParams {
-  pageId: string;
-  applicationId: string;
+  basePageId: string;
+  baseApplicationId: string;
 }
 
 export interface AppViewerRouteParams {
-  pageId: string;
-  applicationId?: string;
+  basePageId: string;
+  baseApplicationId?: string;
 }
 
 export interface APIEditorRouteParams {
-  pageId: string;
-  apiId?: string;
+  basePageId: string;
+  baseApiId?: string;
 }
 
 export interface QueryEditorRouteParams {
-  pageId: string;
-  queryId?: string;
-  apiId?: string;
+  basePageId: string;
+  baseQueryId?: string;
+  baseApiId?: string;
 }
 
 export interface JSEditorRouteParams {
-  pageId: string;
-  collectionId?: string;
+  basePageId: string;
+  baseCollectionId?: string;
 }
 
 export const GIT_BRANCH_QUERY_KEY = "branch";
@@ -171,7 +172,7 @@ export const INTEGRATION_EDITOR_MODES = {
 };
 
 export const PLACEHOLDER_APP_SLUG = "application";
-export const PLACEHOLDER_PAGE_ID = "pageId";
+export const PLACEHOLDER_PAGE_ID = "basePageId";
 export const PLACEHOLDER_PAGE_SLUG = "page";
 
 export const SHOW_FILE_PICKER_KEY = "showPicker";

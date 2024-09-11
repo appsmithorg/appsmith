@@ -46,13 +46,14 @@ const config: StorybookConfig = {
     },
   },
 
+  // in order ADS images to load correctly
+  staticDirs: ["../../design-system/ads/src/__assets__"],
+
   core: {
     disableTelemetry: true,
   },
 
-  docs: {
-    autodocs: true,
-  },
+  docs: {},
 };
 
 export default config;

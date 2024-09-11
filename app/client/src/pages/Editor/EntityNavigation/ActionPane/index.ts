@@ -1,6 +1,6 @@
 import { PluginType, type Action } from "entities/Action";
 import type { EntityInfo } from "../types";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { getAction } from "ee/selectors/entitiesSelector";
 import { select } from "redux-saga/effects";
 import {
   ActionPaneNavigation,

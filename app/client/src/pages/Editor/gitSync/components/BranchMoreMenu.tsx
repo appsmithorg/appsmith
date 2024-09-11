@@ -1,5 +1,5 @@
 import React from "react";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -7,10 +7,10 @@ import {
   DELETE,
   DELETE_BRANCH_WARNING_CHECKED_OUT,
   DELETE_BRANCH_WARNING_DEFAULT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Dispatch } from "redux";
-import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import {
   Button,
   Menu,
@@ -18,7 +18,7 @@ import {
   MenuItem,
   MenuTrigger,
   toast,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface Props {
   branchName: string;
@@ -29,6 +29,8 @@ interface Props {
 function DeleteButton(
   branchToDelete: string,
   gitMetaData: GitApplicationMetadata,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: Dispatch<any>,
 ) {
   const currentBranch = gitMetaData?.branchName || "";

@@ -4,7 +4,7 @@ import {
   isATriggerPath,
   isDynamicLeaf,
   isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 
 export default function sortLintingPathsByType(
   pathsToLint: string[],

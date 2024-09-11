@@ -1,10 +1,10 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { cloneDeep, isString } from "lodash";
 import log from "loglevel";
@@ -15,6 +15,7 @@ import type {
 import { all, call, put, select, take } from "redux-saga/effects";
 import {
   getCanvasWidth,
+  getCurrentBasePageId,
   getCurrentPageId,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -22,7 +23,7 @@ import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import { getWidgets, getWidgetsMeta } from "../selectors";
 
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
@@ -65,8 +66,8 @@ import {
 import ApplicationApi, {
   type ImportBuildingBlockToApplicationRequest,
   type ImportBuildingBlockToApplicationResponse,
-} from "@appsmith/api/ApplicationApi";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/api/ApplicationApi";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -80,10 +81,7 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
-import {
-  getCurrentApplicationId,
-  getJSCollectionById,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import {
@@ -97,6 +95,7 @@ import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
+import { getJSCollection } from "ee/selectors/entitiesSelector";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -146,13 +145,10 @@ function* runNewlyCreatedJSActions(
   // Run each action sequentially. We have a max of 2-3 actions per building block.
   // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
   for (const jsAction of jsActions) {
-    const actionCollection: JSCollection = yield select(getJSCollectionById, {
-      match: {
-        params: {
-          collectionId: jsAction.collectionId,
-        },
-      },
-    });
+    const actionCollection: JSCollection = yield select(
+      getJSCollection,
+      jsAction.collectionId,
+    );
 
     for (const action of actionCollection.actions) {
       yield put({
@@ -459,6 +455,8 @@ export function* pasteBuildingBlockWidgetsSaga(
       canvasId: string | undefined;
       gridProps: GridProps | undefined;
       newPastingPositionMap: SpaceMap | undefined;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       reflowedMovementMap: any;
     } = yield call(
       getNewPositions,
@@ -664,6 +662,8 @@ export function* pasteBuildingBlockWidgetsSaga(
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const metaProps: Record<string, any> =
                   yield select(getWidgetsMeta);
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
@@ -728,6 +728,8 @@ export function* pasteBuildingBlockWidgetsSaga(
           ...newFlexLayers,
         ],
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       reflowedWidgets = updateWidgetPositions(
         reflowedWidgets,
@@ -752,10 +754,10 @@ export function* pasteBuildingBlockWidgetsSaga(
     );
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     yield put({
@@ -786,6 +788,8 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
         if (widget.tabsObj) {
           const tabs = Object.values(widget.tabsObj);
           if (Array.isArray(tabs)) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
               tab.widgetId = widgetIdMap[tab.widgetId];
               obj[tab.id] = tab;

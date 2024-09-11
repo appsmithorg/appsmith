@@ -1,8 +1,8 @@
-import type { ToastProps } from "design-system";
-import { toast } from "design-system";
+import type { ToastProps } from "@appsmith/ads";
+import { toast } from "@appsmith/ads";
 import { APP_MODE } from "entities/App";
 import { select } from "redux-saga/effects";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import log from "loglevel";
 
 interface ExtraOptions {

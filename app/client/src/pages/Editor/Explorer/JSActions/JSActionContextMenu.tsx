@@ -7,7 +7,7 @@ import {
 } from "actions/jsActionActions";
 import noop from "lodash/noop";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   CONTEXT_COPY,
@@ -18,8 +18,8 @@ import {
   CONTEXT_NO_PAGE,
   CONTEXT_SHOW_BINDING,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/messages";
+import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";

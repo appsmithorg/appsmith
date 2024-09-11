@@ -13,6 +13,8 @@ export function useSelectWidgetListener() {
   const dispatch = useDispatch();
 
   const handleClick = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function (e: any) {
       dispatch(selectAnvilWidget(e.detail.widgetId, e));
     },

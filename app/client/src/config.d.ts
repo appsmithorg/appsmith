@@ -1,5 +1,5 @@
 import "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 declare module "react-redux" {
   // We want the DefaultRootState interface to be the AppState interface

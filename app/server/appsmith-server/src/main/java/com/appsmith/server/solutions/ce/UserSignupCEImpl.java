@@ -2,7 +2,6 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Tenant;
@@ -14,6 +13,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
@@ -79,7 +79,6 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final ConfigService configService;
     private final AnalyticsService analyticsService;
     private final EnvManager envManager;
-    private final CommonConfig commonConfig;
     private final UserUtils userUtils;
     private final NetworkUtils networkUtils;
     private final EmailService emailService;
@@ -97,7 +96,6 @@ public class UserSignupCEImpl implements UserSignupCE {
             ConfigService configService,
             AnalyticsService analyticsService,
             EnvManager envManager,
-            CommonConfig commonConfig,
             UserUtils userUtils,
             NetworkUtils networkUtils,
             EmailService emailService,
@@ -110,7 +108,6 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.configService = configService;
         this.analyticsService = analyticsService;
         this.envManager = envManager;
-        this.commonConfig = commonConfig;
         this.userUtils = userUtils;
         this.networkUtils = networkUtils;
         this.emailService = emailService;
@@ -350,7 +347,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     // because
                     // of any other secondary function mono throwing an exception
                     sendInstallationSetupAnalytics(userFromRequest, user, userData)
-                            .subscribeOn(commonConfig.scheduler())
+                            .subscribeOn(LoadShifter.elasticScheduler)
                             .subscribe();
 
                     Mono<Long> allSecondaryFunctions = Mono.when(
@@ -443,8 +440,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     final String instanceId = tuple.getT1();
                     final String ip = tuple.getT2();
                     log.debug("Installation setup complete.");
-                    String newsletterSignedUpUserEmail = userFromRequest.isSignupForNewsletter() ? user.getEmail() : "";
-                    String newsletterSignedUpUserName = userFromRequest.isSignupForNewsletter() ? user.getName() : "";
+                    String newsletterSignedUpUserEmail = user.getEmail();
+                    String newsletterSignedUpUserName = user.getName();
                     Map<String, Object> analyticsProps = new HashMap<>();
                     analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
                     analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());

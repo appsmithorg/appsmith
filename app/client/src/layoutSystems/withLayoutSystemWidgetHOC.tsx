@@ -55,6 +55,8 @@ const LayoutSystemWrapper = ({
   );
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const withLayoutSystemWidgetHOC = (Widget: any) => {
   return function LayoutWrappedWidget(props: WidgetProps) {
     return <LayoutSystemWrapper Widget={Widget} widgetProps={props} />;

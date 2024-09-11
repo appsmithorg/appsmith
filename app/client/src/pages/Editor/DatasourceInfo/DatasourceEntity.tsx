@@ -3,19 +3,19 @@ import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
 import DataSourceContextMenu from "../Explorer/Datasources/DataSourceContextMenu";
 import { getPluginIcon } from "../Explorer/ExplorerIcons";
-import { getQueryIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
+import { getQueryIdFromURL } from "ee/pages/Editor/Explorer/helpers";
 import Entity, { EntityClassNames } from "../Explorer/Entity";
 import history, { NavigationMethod } from "utils/history";
 import { updateDatasourceName } from "actions/datasourceActions";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { getAction } from "ee/selectors/entitiesSelector";
 import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
-} from "@appsmith/RouteBuilder";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/RouteBuilder";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";
@@ -39,7 +39,7 @@ const ExplorerDatasourceEntity = React.memo(
       let url;
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
         url = saasEditorDatasourceIdURL({
-          pageId: entityId,
+          basePageId: entityId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
           params: {
@@ -48,7 +48,7 @@ const ExplorerDatasourceEntity = React.memo(
         });
       } else {
         url = datasourcesEditorIdURL({
-          pageId: entityId,
+          basePageId: entityId,
           datasourceId: props.datasource.id,
           params: omit(getQueryParams(), "viewMode"),
         });

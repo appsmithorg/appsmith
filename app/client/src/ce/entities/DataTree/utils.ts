@@ -4,15 +4,15 @@ import type {
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
+import { OverridingPropertyType } from "ee/entities/DataTree/types";
 import {
   isAction,
   isJSAction,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { Module } from "ee/constants/ModuleConstants";
 interface SetOverridingPropertyParams {
   key: string;
   value: string;

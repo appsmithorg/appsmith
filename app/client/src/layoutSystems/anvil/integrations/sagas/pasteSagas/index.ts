@@ -4,13 +4,13 @@ import { all, call, put, select, takeLeading } from "redux-saga/effects";
 import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
 import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
-import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { builderURL } from "ee/RouteBuilder";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import history from "utils/history";
@@ -134,10 +134,10 @@ export function* pasteWidgetSagas() {
      */
     yield call(updateAndSaveAnvilLayout, allWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (originalWidgets?.length) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     const widgetsToSelect = copiedWidgets.map(
@@ -158,11 +158,14 @@ export function* pasteWidgetSagas() {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (isAnvilLayout) {

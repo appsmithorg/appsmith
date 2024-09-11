@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Text } from "design-system";
-import type { AppState } from "@appsmith/reducers";
+import { Text } from "@appsmith/ads";
+import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 
 const StyledWrapper = styled.div`

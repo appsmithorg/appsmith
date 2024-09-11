@@ -11,7 +11,11 @@ jest.mock("queue-microtask", () => ({
 
 declare global {
   interface Window {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     appsmith: any;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     triggerEvent: any;
   }
 }
@@ -20,10 +24,14 @@ describe("createChannelToParent", () => {
   beforeEach(() => {
     const events = new Map();
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     window.addEventListener = (type: string, handler: any) => {
       events.set(type, handler);
     };
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     window.triggerEvent = (type: string, event: any) => {
       events.get(type)(event);
     };
@@ -119,10 +127,14 @@ describe("CustomWidgetScript", () => {
   beforeAll(() => {
     const events = new Map();
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     window.addEventListener = (type: string, handler: any) => {
       events.set(type, handler);
     };
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     window.triggerEvent = (type: string, event: any) => {
       events.get(type)(event);
     };
@@ -369,6 +381,8 @@ describe("CustomWidgetScript", () => {
   });
 
   it("should check API functions - triggerEvent", async () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window.parent.postMessage as any).mockClear();
 
     window.appsmith.triggerEvent("test", {

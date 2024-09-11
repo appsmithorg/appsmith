@@ -11,21 +11,21 @@ import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import _ from "lodash";
 import { getType, Types } from "utils/TypeHelpers";
-import {
-  FIELD_REQUIRED_ERROR,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
 // already has url set. If user presses back button, we need to show the confirmation dialog
 export const getIsFormDirty = (
   isFormDirty: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formData: any,
   isNewDatasource: boolean,
   isRestPlugin: boolean,
@@ -45,6 +45,8 @@ export const getIsFormDirty = (
   return isFormDirty;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getTrimmedData = (formData: any) => {
   const dataType = getType(formData);
   const isArrayorObject = (type: ReturnType<typeof getType>) =>
@@ -64,9 +66,13 @@ export const getTrimmedData = (formData: any) => {
 };
 
 export const normalizeValues = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formData: any,
   configDetails: Record<string, string>,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checked: Record<string, any> = {};
   const configProperties = Object.keys(configDetails);
 
@@ -105,9 +111,13 @@ export const normalizeValues = (
 
 export const validate = (
   requiredFields: Record<string, FormConfigType>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   currentEnvId?: string,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors = {} as any;
 
   Object.keys(requiredFields).forEach((fieldConfigProperty) => {
@@ -127,6 +137,8 @@ export const validate = (
       const arrayValues = _.get(values, configProperty[0], []);
       const keyValueArrayErrors: Record<string, string>[] = [];
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       arrayValues.forEach((value: any, index: number) => {
         const objectKeys = Object.keys(value);
         const keyValueErrors: Record<string, string> = {};
@@ -171,10 +183,14 @@ export const evaluateCondtionWithType = (
     //this is where each conditions gets evaluated
     if (conditions.length > 1) {
       if (type === "AND") {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         flag = conditions.reduce((acc: any, item: boolean) => {
           return acc && item;
         }, conditions[0]);
       } else if (type === "OR") {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         flag = conditions.reduce((acc: any, item: boolean) => {
           return acc || item;
         }, undefined);
@@ -187,8 +203,12 @@ export const evaluateCondtionWithType = (
 };
 
 export const isHiddenConditionsEvaluation = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   hidden?: HiddenType,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   if (!!hidden && !isBoolean(hidden)) {
     //if nested condtions are there recursively from bottom to top call this function on each condtion
@@ -200,6 +220,8 @@ export const isHiddenConditionsEvaluation = (
       conditions = hidden.conditions;
     }
     if (Array.isArray(conditions)) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       conditions = conditions.map((rule: any) => {
         return isHiddenConditionsEvaluation(values, rule);
       });
@@ -211,6 +233,8 @@ export const isHiddenConditionsEvaluation = (
 };
 
 export const caculateIsHidden = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   hiddenConfig?: HiddenType,
   featureFlags?: FeatureFlags,
@@ -264,6 +288,8 @@ export const caculateIsHidden = (
 };
 
 export const isHidden = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   hiddenConfig?: HiddenType,
   featureFlags?: FeatureFlags,
@@ -296,6 +322,8 @@ export const alternateViewTypeInputConfig = () => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getViewType = (values: any, configProperty: string) => {
   if (
     configProperty.startsWith("actionConfiguration.formData") &&
@@ -309,10 +337,14 @@ export const getViewType = (values: any, configProperty: string) => {
 };
 
 export const switchViewType = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   configProperty: string,
   viewType: string,
   formName: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeFormValue: (formName: string, path: string, value: any) => void,
 ) => {
   const newViewType =
@@ -353,6 +385,8 @@ export const switchViewType = (
 
 // Function that extracts the initial value from the JSON configs
 export const getConfigInitialValues = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: Record<string, any>[],
   multipleViewTypesSupported = false,
   // Used in case when we want to not have encrypted fields in the response since we need to compare
@@ -360,12 +394,16 @@ export const getConfigInitialValues = (
   // With this param we can remove false negatives during comparison.
   includeEncryptedFields = true,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const configInitialValues: Record<string, any> = {};
 
   // We expect the JSON configs to be an array of objects
   if (!Array.isArray(config)) return configInitialValues;
 
   // Function to loop through the configs and extract the initial values
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parseConfig = (section: any): any => {
     if ("initialValue" in section) {
       if (section.controlType === "KEYVALUE_ARRAY") {
@@ -423,10 +461,14 @@ export const getConfigInitialValues = (
       }
     }
     if ("children" in section) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       section.children.forEach((childSection: any) => {
         parseConfig(childSection);
       });
     } else if ("schema" in section) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       section.schema.forEach((childSection: any) => {
         parseConfig(childSection);
       });
@@ -450,6 +492,8 @@ export const getConfigInitialValues = (
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config.forEach((section: any) => {
     parseConfig(section);
   });
@@ -491,6 +535,8 @@ export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
 const extractExpressionObject = (
   config: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path: any,
   parentPath: string,
 ): FormConfigEvalObject => {
@@ -540,6 +586,8 @@ export const extractEvalConfigFromFormConfig = (
 
 // Extract the output of conditionals attached to the form from the state
 export const extractConditionalOutput = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   section: any,
   formEvaluationState: FormEvalOutput,
 ): ConditionalOutput => {
@@ -609,6 +657,8 @@ export const checkIfSectionIsEnabled = (
 };
 
 // Function to modify the section config based on the output of evaluations
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const modifySectionConfig = (section: any, enabled: boolean): any => {
   if (!enabled) {
     section.disabled = true;
@@ -620,6 +670,8 @@ export const modifySectionConfig = (section: any, enabled: boolean): any => {
 };
 
 export const updateEvaluatedSectionConfig = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   section: any,
   conditionalOutput: ConditionalOutput,
   enabled = true,
@@ -631,7 +683,15 @@ export const updateEvaluatedSectionConfig = (
 
   // leaving the commented code as a reminder of the above observation.
   // const updatedSection = { ...section };
-  const updatedSection = klona(section);
+
+  const updatedSection = startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment: "utils.updateEvaluatedSectionConfig",
+    },
+    () => klona(section),
+  );
+
   let evaluatedConfig: FormConfigEvalObject = {};
   if (
     conditionalOutput.hasOwnProperty("evaluateFormConfig") &&

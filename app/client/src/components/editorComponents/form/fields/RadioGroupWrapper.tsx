@@ -1,4 +1,4 @@
-import { Radio, RadioGroup } from "design-system";
+import { Radio, RadioGroup } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import type { WrappedFieldInputProps } from "redux-form";
 import styled from "styled-components";

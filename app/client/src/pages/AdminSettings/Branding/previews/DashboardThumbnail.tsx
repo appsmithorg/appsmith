@@ -1,9 +1,9 @@
 import React from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import PreviewBox from "./PreviewBox";
 import type { PreviewsProps } from ".";
 import { ContentBox } from "pages/AdminSettings/components";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 
 const DashboardThumbnail = (props: PreviewsProps) => {
   const { shades } = props;

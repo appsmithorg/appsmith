@@ -623,6 +623,8 @@ export function getCondensedGroupedWidgets(
   let count = 0;
   let gapIndex = gapsArray[count].index;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let tempWidgetIds: any[] = [],
     groupLeftColumn = groupedWidgets[0].leftColumn,
     groupRightColumn = groupedWidgets[0].rightColumn;
@@ -788,6 +790,8 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
  * @param object
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function removeNullValuesFromObject<T extends { [key: string]: any }>(
   object: T,
 ): T {

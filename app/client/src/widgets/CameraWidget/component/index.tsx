@@ -44,8 +44,8 @@ import {
   MediaCaptureStatusTypes,
 } from "../constants";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { importSvg } from "design-system-old";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { importSvg } from "@appsmith/ads-old";
 import { getVideoConstraints } from "../../utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 

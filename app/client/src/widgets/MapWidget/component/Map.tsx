@@ -166,6 +166,8 @@ const Map = (props: MapProps) => {
       )}
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return React.cloneElement(child as React.ReactElement<any>, {
             map,
           });

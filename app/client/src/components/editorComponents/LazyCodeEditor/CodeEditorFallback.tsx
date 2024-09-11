@@ -11,7 +11,7 @@ import type {
   EditorProps,
   EditorStyleProps,
 } from "components/editorComponents/CodeEditor";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import { JS_OBJECT_START_STATEMENT } from "plugins/Linting/constants";
 
 export default function CodeEditorFallback({

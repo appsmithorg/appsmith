@@ -5,7 +5,7 @@ import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import type { Action, ActionViewMode } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
@@ -15,6 +15,7 @@ import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import type { ApiResponse } from "api/ApiResponses";
 import type { JSCollection } from "entities/JSCollection";
+import type { ErrorActionPayload } from "sagas/ErrorSagas";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -205,10 +206,12 @@ export const moveActionSuccess = (payload: Action) => {
   };
 };
 
-export const moveActionError = (payload: {
-  id: string;
-  originalPageId: string;
-}) => {
+export const moveActionError = (
+  payload: {
+    id: string;
+    originalPageId: string;
+  } & ErrorActionPayload,
+) => {
   return {
     type: ReduxActionErrorTypes.MOVE_ACTION_ERROR,
     payload,
@@ -233,10 +236,12 @@ export const copyActionSuccess = (payload: Action) => {
   };
 };
 
-export const copyActionError = (payload: {
-  id: string;
-  destinationPageId: string;
-}) => {
+export const copyActionError = (
+  payload: {
+    id: string;
+    destinationPageId: string;
+  } & ErrorActionPayload,
+) => {
   return {
     type: ReduxActionErrorTypes.COPY_ACTION_ERROR,
     payload,
@@ -250,6 +255,7 @@ export const executePluginActionRequest = (payload: { id: string }) => ({
 
 export interface ExecutePluginActionSuccessPayload {
   id: string;
+  baseId: string;
   response: ActionResponse;
   isPageLoad?: boolean;
   isActionCreatedInApp: boolean;
@@ -286,6 +292,8 @@ export const saveActionName = (payload: { id: string; name: string }) => ({
 export interface SetActionPropertyPayload {
   actionId: string;
   propertyName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   skipSave?: boolean;
 }
@@ -302,6 +310,8 @@ export const setActionProperty = (
 export interface UpdateActionPropertyActionPayload {
   id: string;
   field: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 
@@ -364,7 +374,7 @@ export const setJSActionsToExecuteOnPageLoad = (
 export const bindDataOnCanvas = (payload: {
   queryId: string;
   applicationId: string;
-  pageId: string;
+  basePageId: string;
 }) => {
   return {
     type: ReduxActionTypes.BIND_DATA_ON_CANVAS,

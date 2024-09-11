@@ -3,7 +3,7 @@ import type {
   DataTreeEntityConfig,
   JSActionEntity,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   type EntityTypeValue,
   ENTITY_TYPE,

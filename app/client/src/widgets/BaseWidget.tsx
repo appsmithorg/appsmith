@@ -16,7 +16,7 @@ import type {
   WidgetType,
 } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { Context, ReactNode, RefObject } from "react";
 import { Component } from "react";
@@ -41,16 +41,16 @@ import type {
   WidgetDefaultProps,
   WidgetMethods,
 } from "../WidgetProvider/constants";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
 import type {
   FlexVerticalAlignment,
   LayoutDirection,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlag } from "ee/entities/FeatureFlag";
 import store from "store";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -133,6 +133,8 @@ abstract class BaseWidget<
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getDefaultPropertiesMap(): Record<string, any> {
     return {};
   }
@@ -142,6 +144,8 @@ abstract class BaseWidget<
   }
 
   // TODO Find a way to enforce this, (dont let it be set)
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
@@ -171,6 +175,8 @@ abstract class BaseWidget<
     destinationInfo: PasteDestinationInfo, // Destination info of copied widgets
     widgetIdMap: Record<string, string>, // Map of oldWidgetId -> newWidgetId
     reverseWidgetIdMap: Record<string, string>, // Map of newWidgetId -> oldWidgetId
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Generator<CallEffect<PastePayload>, PastePayload, any> {
     const res: PastePayload = yield call(function* () {
       return { widgets: allWidgets, widgetIdMap, reverseWidgetIdMap };
@@ -226,6 +232,8 @@ abstract class BaseWidget<
   updateWidget(
     operationName: string,
     widgetId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     widgetProperties: any,
   ): void {
     const { updateWidget } = this.context;
@@ -251,6 +259,8 @@ abstract class BaseWidget<
     }
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWidgetProperty(propertyName: string, propertyValue: any): void {
     this.batchUpdateWidgetProperty({
       modify: { [propertyName]: propertyValue },
@@ -550,6 +560,8 @@ export interface WidgetProps
   key?: string;
   isDefaultClickDisabled?: boolean;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -559,6 +571,7 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   displayName: string;
+  displayOrder?: number;
   icon: string;
   thumbnail?: string;
   isBeta?: boolean;

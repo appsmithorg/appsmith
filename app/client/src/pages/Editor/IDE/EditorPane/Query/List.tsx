@@ -1,34 +1,34 @@
 import React, { useState } from "react";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
+import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
-import { QueryListItem } from "@appsmith/pages/Editor/IDE/EditorPane/Query/ListItem";
-import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
+import { useQueryAdd } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
+import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
 import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectQuerySegmentEditorList);
-  const activeActionId = useActiveAction();
+  const activeActionBaseId = useActiveActionBaseId();
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -84,7 +84,7 @@ const ListQuery = () => {
                 {items.map((file) => {
                   return (
                     <QueryListItem
-                      isActive={file.key === activeActionId}
+                      isActive={file.key === activeActionBaseId}
                       item={file}
                       key={file.key}
                       parentEntityId={pageId}

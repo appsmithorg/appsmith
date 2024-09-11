@@ -238,7 +238,7 @@ describe("storeValue Action test", { tags: ["@tag.JS"] }, () => {
     });
     agHelper.ClickButton("Test store logs");
 
-    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.OpenDebugger();
     debuggerHelper.ClickLogsTab();
     debuggerHelper.changeLogsGroup("System logs");
     debuggerHelper.DoesConsoleLogExist("storeValue('xyz', '123', true)");

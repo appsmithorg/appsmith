@@ -11,13 +11,23 @@ interface extraWorkerProperties {
 type WorkerClass = Worker & extraWorkerProperties;
 class MockWorkerClass implements WorkerClass {
   // Implement interface
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onmessage: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onmessageerror: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatchEvent: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onerror: any;
 
   callback: CallableFunction;
   noop: CallableFunction;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   messages: Array<any>;
   delayMilliSeconds: number;
   instance: WorkerClass | undefined;
@@ -39,17 +49,23 @@ class MockWorkerClass implements WorkerClass {
     this.running = true;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   addEventListener(msgType: string, callback: any) {
     expect(msgType).toEqual(MessageType);
     this.callback = callback;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   removeEventListener(msgType: string, callback: any) {
     expect(msgType).toEqual(MessageType);
     expect(callback).toEqual(this.callback);
     this.callback = this.noop;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   postMessage(message: any) {
     expect(this.running).toEqual(true);
     expect(this.callback).not.toEqual(this.noop);
@@ -66,6 +82,8 @@ class MockWorkerClass implements WorkerClass {
     this.responses.add(counter);
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sendEvent(ev: any) {
     expect(this.running).toEqual(true);
     expect(this.callback).not.toEqual(this.noop);

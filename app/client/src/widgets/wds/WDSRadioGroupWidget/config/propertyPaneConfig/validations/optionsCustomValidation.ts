@@ -8,11 +8,17 @@ import type { ValidationResponse } from "constants/WidgetValidation";
  */
 export function optionsCustomValidation(
   options: unknown,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   const validationUtil = (
     options: { label: string; value: string | number }[],
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _: any,
   ) => {
     let _isValid = true;

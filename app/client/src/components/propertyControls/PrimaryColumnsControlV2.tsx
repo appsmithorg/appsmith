@@ -1,11 +1,11 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import * as Sentry from "@sentry/react";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import type { Indices } from "constants/Layers";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import _, { toString as lodashToString } from "lodash";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
@@ -43,6 +43,8 @@ const EmptyStateLabel = styled.div`
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasources: any;
   errors: EvaluationError[];
 }
@@ -52,6 +54,8 @@ interface EvaluatedValueProps {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
   dataTreePath?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   hideEvaluatedValue?: boolean;
@@ -208,6 +212,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               keyAccessor="id"
               onEdit={this.onEdit}
               propertyPath={this.props.dataTreePath}
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
@@ -304,6 +310,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   }[] => {
     const updates: {
       propertyName: string;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any;
     }[] = [];
     updates.push({

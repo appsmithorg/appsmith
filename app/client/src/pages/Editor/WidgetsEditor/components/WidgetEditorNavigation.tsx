@@ -1,16 +1,14 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import NavigationPreview from "./NavigationPreview";
-import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorState } from "ee/entities/IDE/constants";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import {
   getAppSettingsPaneContext,
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { useSelector } from "react-redux";
-import {
-  combinedPreviewModeSelector,
-  getCurrentApplication,
-} from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 /**
  * useNavigationPreviewHeight

@@ -1,0 +1,16 @@
+.ads--dropdown-popover {
+  box-shadow: none !important;
+}
+
+.ads--dropdown-popover .bp3-popover {
+  box-shadow: none !important;
+  padding: var(--ads-v2-spaces-2);
+  border-radius: var(--ads-v2-border-radius);
+  background-color: var(--ads-v2-color-bg);
+  border: 1px solid var(--ads-v2-color-border-muted);
+  box-shadow: var(--ads-v2-shadow-popovers);
+}
+
+.ads--dropdown-popover .bp3-popover .bp3-popover-content {
+  background-color: var(--ads-v2-color-bg);
+}

@@ -60,6 +60,7 @@ export const unitTestMockTemplate = {
   pages: [
     {
       id: "6204a671552a5f63958772aa",
+      baseId: "6204a671552a5f63958772aa",
       name: "Investors",
       slug: "investors",
       isDefault: true,

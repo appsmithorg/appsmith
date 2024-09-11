@@ -1,11 +1,13 @@
 // Init function export mongodb
 const shell = require('shelljs');
 const Constants = require('./constants');
+const utils = require('./utils');
 
 function export_database() {
   console.log('export_database  ....');
+  dbUrl = utils.getDburl();
   shell.mkdir('-p', [Constants.BACKUP_PATH]);
-  const cmd = `mongodump --uri='${process.env.APPSMITH_DB_URL}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
+  const cmd = `mongodump --uri='${dbUrl}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
   shell.exec(cmd);
   console.log('export_database done');
 }

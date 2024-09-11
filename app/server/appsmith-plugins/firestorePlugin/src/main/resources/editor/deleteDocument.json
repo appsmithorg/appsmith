@@ -1,10 +1,10 @@
 {
   "identifier": "DELETE_DOCUMENT",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'DELETE_DOCUMENT'}}"
   },
-  "children" : [
+  "children": [
     {
       "label": "Collection/Document path",
       "configProperty": "actionConfiguration.formData.path.data",

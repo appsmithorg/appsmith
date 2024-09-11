@@ -1,10 +1,10 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import LeftSideContent from "./LeftSideContent";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import styled from "styled-components";
 

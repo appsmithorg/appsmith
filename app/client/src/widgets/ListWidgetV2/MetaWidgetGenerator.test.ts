@@ -132,6 +132,8 @@ const levelData: LevelData = {
 };
 
 class Cache {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any> = {};
   refData = {};
 
@@ -139,10 +141,14 @@ class Cache {
     return this.data[widgetId];
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setWidgetCache = (widgetId: string, data: any) => {
     this.data[widgetId] = klona(data);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setWidgetReferenceCache = (data: any) => {
     this.refData = data;
   };

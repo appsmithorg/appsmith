@@ -1,5 +1,5 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import { get } from "lodash";
@@ -7,7 +7,7 @@ import { isJSObjectVariable } from "./utils";
 import isDeepEqualES6 from "fast-deep-equal/es6";
 import type { Patch } from "./Collection";
 import { PatchType } from "./Collection";
-import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 
 export type UpdatedPathsMap = Record<string, Patch>;
 

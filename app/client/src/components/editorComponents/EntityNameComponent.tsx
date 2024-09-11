@@ -8,7 +8,7 @@ import {
   VALID_FUNCTION_NAME_ERROR,
   UNIQUE_NAME_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
   align-items: center;
@@ -76,6 +76,8 @@ export function validateEntityName(name: string, allNames?: string[]) {
 }
 
 interface EntityNameProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onBlur: (event?: any) => void;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
@@ -105,6 +107,8 @@ class EntityNameComponent extends React.Component<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleFocus = (event: { target: { select: () => any } }) => {
     event.target.select();
   };
@@ -118,6 +122,8 @@ class EntityNameComponent extends React.Component<
     this.props.onBlur();
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClickEnter = (event: any) => {
     event.preventDefault();
     event.target.blur();

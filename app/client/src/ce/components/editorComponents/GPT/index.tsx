@@ -24,6 +24,8 @@ export interface TAIWrapperProps {
   children?: React.ReactNode;
   isOpen: boolean;
   currentValue: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   update?: (...args: any) => void;
   triggerContext?: CodeEditorExpected;
   enableAIAssistance: boolean;

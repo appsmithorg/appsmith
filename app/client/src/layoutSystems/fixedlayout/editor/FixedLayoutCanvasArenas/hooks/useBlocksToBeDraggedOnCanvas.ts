@@ -2,7 +2,7 @@ import {
   CONTAINER_GRID_PADDING,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
@@ -16,10 +16,10 @@ import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetCom
 import equal from "fast-deep-equal/es6";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";

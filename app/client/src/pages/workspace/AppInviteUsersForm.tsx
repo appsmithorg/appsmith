@@ -1,30 +1,27 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { viewerURL } from "@appsmith/RouteBuilder";
-import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import { viewerURL } from "ee/RouteBuilder";
+import { fetchWorkspace } from "ee/actions/workspaceActions";
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC,
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
-} from "@appsmith/constants/messages";
-import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Button, Icon, Switch, Tooltip } from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import { hasInviteUserToApplicationPermission } from "ee/utils/permissionHelpers";
+import { Button, Icon, Switch, Tooltip } from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const SwitchContainer = styled.div`
   flex-basis: 220px;
@@ -44,13 +41,15 @@ const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AppInviteUsersForm(props: any) {
   const {
     applicationId,
     changeAppViewAccess,
     currentApplicationDetails,
     currentUser,
-    defaultPageId,
+    defaultBasePageId,
     fetchCurrentWorkspace,
     isChangingViewAccess,
     isFetchingApplication,
@@ -96,10 +95,10 @@ function AppInviteUsersForm(props: any) {
 
   const appViewEndPoint = React.useMemo(() => {
     const url = viewerURL({
-      pageId: defaultPageId,
+      basePageId: defaultBasePageId,
     });
     return window.location.origin.toString() + url;
-  }, [defaultPageId]);
+  }, [defaultBasePageId]);
 
   useEffect(() => {
     if (currentUser?.name !== ANONYMOUS_USERNAME) {
@@ -152,6 +151,8 @@ function AppInviteUsersForm(props: any) {
                 }}
               >
                 {createMessage(MAKE_APPLICATION_PUBLIC)}
+                {/* TODO: Fix this the next time the file is edited */}
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 <div onClick={(e: any) => e.preventDefault()}>
                   <Tooltip
                     content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
@@ -178,11 +179,13 @@ export default connect(
     return {
       currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,
-      defaultPageId: state.entities.pageList.defaultPageId,
+      defaultPageId: state.entities.pageList.defaultBasePageId,
       isFetchingApplication: state.ui.applications.isFetchingApplication,
       isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (dispatch: any) => ({
     changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
       dispatch({

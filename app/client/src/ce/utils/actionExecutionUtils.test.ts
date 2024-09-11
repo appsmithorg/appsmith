@@ -1,5 +1,5 @@
 import { getTestPayloadFromCollectionData } from "./actionExecutionUtils";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { PluginType } from "entities/Action";
 import configureStore from "redux-mock-store";
 
@@ -18,6 +18,7 @@ describe("getTestPayloadFromCollectionData", () => {
       isLoading: false,
       config: {
         id: "",
+        baseId: "",
         applicationId: "",
         workspaceId: "",
         name: "",
@@ -37,6 +38,7 @@ describe("getTestPayloadFromCollectionData", () => {
       isLoading: false,
       config: {
         id: "",
+        baseId: "",
         applicationId: "",
         workspaceId: "",
         name: "",

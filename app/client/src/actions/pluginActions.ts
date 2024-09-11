@@ -1,11 +1,11 @@
 import type {
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { ApiResponse } from "api/ApiResponses";
 import type { PluginFormPayload } from "api/PluginApi";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
@@ -29,8 +29,14 @@ export const fetchPluginFormConfigs = (
 });
 
 export interface PluginFormsPayload {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfigs: Record<string, any[]>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfigs: Record<string, any[]>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingConfigs: Record<string, any[]>;
   dependencies: Record<string, DependencyMap>;
   datasourceFormButtonConfigs: Record<string, string[]>;

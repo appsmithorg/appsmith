@@ -6,10 +6,10 @@ import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -18,12 +18,12 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes } from "design-system-old";
+import { Classes } from "@appsmith/ads-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
-import { Select, Option } from "design-system";
+import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
+import { Select, Option } from "@appsmith/ads";
 
 const PostBodyContainer = styled.div`
   display: flex;
@@ -195,6 +195,8 @@ function PostBodyData(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   updateBodyContentType: (contentType: string, apiId: string) =>
     dispatch(updateBodyContentType(contentType, apiId)),

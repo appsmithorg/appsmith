@@ -38,10 +38,10 @@ import {
 } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
 import WidgetFactory from "WidgetProvider/factory";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import {
   getDimensionMap,
@@ -57,12 +57,12 @@ import {
   In most cases, when we run the getMinHeightBasedOnChildren, we add the CANVAS_EXTENSION_OFFSET and the offset
   from the widget configuration. This means that we can DRY this by moving them into the getMinHeightBasedOnChildren function
 
-  The computations we do when a widget changes for its parent, is pretty much the same as the ones we do in container 
+  The computations we do when a widget changes for its parent, is pretty much the same as the ones we do in container
   computations saga, so we can potentially re-use that code.
 
   Adding to widgetsToUpdate can be done using one function and shrink this saga by a large amount
 
-  
+
 
 /**
  * Saga to update a widget's auto height
@@ -604,6 +604,8 @@ export function* updateWidgetAutoHeightSaga(
           const widget = widgetsToUpdate[updatingWidget];
           const enhancedUpdates = widget.map((eachUpdate) => {
             if (dimensions.includes(eachUpdate.propertyPath)) {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               eachUpdate.propertyPath = (dimensionMap as any)[
                 eachUpdate.propertyPath
               ];

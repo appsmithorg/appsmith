@@ -121,6 +121,8 @@ function validateValidationStructure(
   return true;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isNotFloat = (n: any) => {
   return Number(n) === n && n % 1 === 0;
 };

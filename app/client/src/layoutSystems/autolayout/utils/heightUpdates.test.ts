@@ -10,8 +10,9 @@ describe("auto-layout: heightUpdates", () => {
   beforeEach(() => {
     jest
       .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .mockImplementation((widget: any, width: number) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation((widget: any) => {
         if (widget?.type === "CONTAINER_WIDGET")
           return {
             minWidth: 280,
@@ -28,6 +29,8 @@ describe("auto-layout: heightUpdates", () => {
       });
   });
   it("Canvas and container should increase in height on adding new widgets in a new row", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = { ...MAIN_CONTAINER_WIDGET_WITH_BUTTON };
     let updatedWidgets = updateWidgetPositions(data, "3", false, 4896);
     expect(updatedWidgets["2"].bottomRow).toBe(6);
@@ -72,6 +75,8 @@ describe("auto-layout: heightUpdates", () => {
   });
 
   it("canvas and container should decrease in height on removing widgets", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = { ...MAIN_CONTAINER_WIDGET_WITH_BUTTON };
     // Add a button in a new row
     const newButton = buttonData("5", "3");
@@ -135,6 +140,8 @@ describe("auto-layout: heightUpdates", () => {
   });
 
   it("should update canvas height on deleting all children", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = { ...MAIN_CONTAINER_WIDGET_WITH_BUTTON };
     // Add a button in a new row
     const newButton = buttonData("5", "3");
@@ -193,8 +200,9 @@ describe("auto-layout dynamic height: tabs widget", () => {
   beforeEach(() => {
     jest
       .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .mockImplementation((widget: any, width: number) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .mockImplementation((widget: any) => {
         if (widget?.type === "TABS_WIDGET")
           return {
             minWidth: 280,
@@ -212,6 +220,8 @@ describe("auto-layout dynamic height: tabs widget", () => {
   });
 
   it("should assign a height of 30 rows (minHeight) to an empty tabs widget", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = EMPTY_TABS_DATA;
     const updatedWidgets = updateWidgetPositions(
       data,
@@ -231,6 +241,8 @@ describe("auto-layout dynamic height: tabs widget", () => {
   });
 
   it("should update height of Tabs widget based on selected tab height", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = TABS_DATA;
     let selectedTabWidgetId = "2";
     const updatedWidgets = updateWidgetPositions(
@@ -268,6 +280,8 @@ describe("auto-layout dynamic height: tabs widget", () => {
   });
 
   it("should account for the height of the tabs header", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = TABS_DATA;
     const selectedTabWidgetId = "2";
     const updatedWidgets = updateWidgetPositions(
@@ -291,6 +305,8 @@ describe("auto-layout dynamic height: tabs widget", () => {
     expect(updatedWidgets["2"].bottomRow).toBe(402);
 
     // set shouldShowTabs to false
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data2: { [k: string]: any } = {
       ...TABS_DATA,
       "1": {
@@ -316,6 +332,8 @@ describe("auto-layout dynamic height: tabs widget", () => {
   });
 
   it("should not add buffer for header if showShouldTabs is false", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = {
       ...TABS_DATA,
       "1": {
@@ -340,6 +358,8 @@ describe("auto-layout dynamic height: tabs widget", () => {
   });
 
   it("should use the first child canvas for height calculation if selectedTabWidgetId is undefined", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = {
       ...TABS_DATA,
       "1": {
@@ -361,6 +381,8 @@ describe("auto-layout dynamic height: tabs widget", () => {
 
   it("should stretch on mobile viewport to accommodate widget wrapping", () => {
     // Place the two child fill widgets in the same row so that they wrap on mobile viewport.
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = {
       ...TABS_DATA,
       "2": {

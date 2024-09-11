@@ -1,17 +1,69 @@
 name: PR Automation test suite
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches:
       - release
+      - master
       - pg
-    types:
-      - labeled
+    types: [ labeled, synchronize ]
 
 jobs:
-  parse-tags:
+  checkTestLabel:
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'ok-to-test'
+    outputs:
+      ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}
+    steps:
+
+      - name: Check PR Label
+        id: checkLabel
+        uses: actions/github-script@v7
+        with:
+          # This script will check if the PR has ok-to-test label.
+          # To avoid being dependent on the event which triggered this workflow,
+          # we will always get the pull request labels directly from the context
+          # It will later set the output to be "true" or "false".
+          script: |
+            const labels = context.payload.pull_request.labels.map(label => label.name);
+            if (labels.includes("ok-to-test")) {
+              console.log("Label 'ok-to-test' is present");
+              core.setOutput("ok_to_test", "true");
+            } else {
+              console.log("Label 'ok-to-test' is not present");
+              core.setOutput("ok_to_test", "false");
+            }
+
+  mark-stale:
+    needs: [ checkTestLabel ]
+    if: needs.checkTestLabel.outputs.ok_to_test == 'false'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      # In case of a no label present, mark the Cypress status to be stale
+      - name: Mark the Cypress response to be stale
+        uses: actions/github-script@v7
+        env:
+          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
+          BODY: |
+            Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
+        with:
+          script: |
+            require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
+
+  parse-tags:
+    needs: [ checkTestLabel ]
+    if: needs.checkTestLabel.outputs.ok_to_test == 'true'
+    runs-on: ubuntu-latest
     permissions:
       pull-requests: write
     defaults:
@@ -27,7 +79,7 @@ jobs:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
         with:
-            repository: appsmithorg/appsmith
+          repository: appsmithorg/appsmith
 
       # Reads the PR description to retrieve the /ok-to-test or, if that's absent, the /test command
       - name: Read tags from PR description
@@ -72,7 +124,7 @@ jobs:
 
   # Call the workflow to run Cypress tests
   perform-test:
-    needs: [parse-tags]
+    needs: [ parse-tags ]
     if: success()
     uses: ./.github/workflows/pr-cypress.yml
     secrets: inherit

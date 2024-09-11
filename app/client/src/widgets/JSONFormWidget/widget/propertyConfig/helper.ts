@@ -1,4 +1,3 @@
-import { klona } from "klona";
 import { get, set } from "lodash";
 
 import SchemaParser from "widgets/JSONFormWidget/schemaParser";
@@ -18,6 +17,7 @@ import type {
   Stylesheet,
 } from "entities/AppTheming";
 import { processSchemaItemAutocomplete } from "components/propertyControls/JSONFormComputeControl";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export type HiddenFnParams = [JSONFormWidgetProps, string];
 
@@ -54,7 +54,10 @@ export const fieldTypeUpdateHook = (
    * the new added paths gets into the dynamicBindingPathList until
    * the updateProperty function is fixed.
    */
-  const updatedSchema = { schema: klona(schema) };
+
+  const updatedSchema = {
+    schema: klonaRegularWithTelemetry(schema, "helper.fieldTypeUpdateHook"),
+  };
   set(updatedSchema, schemaItemPath, schemaItemWithAutoFillState);
 
   return [{ propertyPath: "schema", propertyValue: updatedSchema.schema }];
@@ -154,6 +157,8 @@ export const getAutocompleteProperties = (props: JSONFormWidgetProps) => {
 const getUpdatedSchemaFor = (
   schema: Schema,
   propertyName: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ) => {
   const keys = Object.keys(schema);

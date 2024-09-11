@@ -3,9 +3,6 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
-const locators = {
-  errorPageTitle: ".t--error-page-title",
-};
 
 describe("Pages", { tags: ["@tag.IDE"] }, function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
@@ -36,7 +33,7 @@ describe("Pages", { tags: ["@tag.IDE"] }, function () {
     EditorNavigation.SelectEntityByName("Page1 Copy", EntityType.Page);
     //Checks if 404 is showing correct route
     cy.visit("/route-that-does-not-exist");
-    cy.get(locators.errorPageTitle).should(($x) => {
+    cy.get(_.locators.errorPageTitle).should(($x) => {
       expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());
     });
   });

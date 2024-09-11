@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { put } from "redux-saga/effects";
 
 interface BuildingBlockDropInitiateEvent {

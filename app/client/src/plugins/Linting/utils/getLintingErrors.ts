@@ -31,11 +31,11 @@ import { JSLibraries } from "workers/common/JSLibrary";
 import getLintSeverity from "./getLintSeverity";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { last } from "lodash";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
-import getInvalidModuleInputsError from "@appsmith/plugins/Linting/utils/getInvalidModuleInputsError";
+import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 

@@ -10,8 +10,8 @@ import React, {
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Icon, Tag } from "design-system";
-import type { AppState } from "@appsmith/reducers";
+import { Icon, Tag } from "@appsmith/ads";
+import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
@@ -80,6 +80,8 @@ interface PropertySectionProps {
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -219,6 +221,8 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
 PropertySection.displayName = "PropertySection";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (PropertySection as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };

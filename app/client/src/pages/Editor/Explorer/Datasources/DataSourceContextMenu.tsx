@@ -7,18 +7,18 @@ import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
-} from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
+import { getDatasource } from "ee/selectors/entitiesSelector";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;

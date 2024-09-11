@@ -13,21 +13,19 @@ import {
   takeLeading,
 } from "redux-saga/effects";
 import type {
-  ApplicationPayload,
-  Page,
   ReduxAction,
   ReduxActionWithoutPayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
-import { resetCurrentApplication } from "@appsmith/actions/applicationActions";
+import { resetCurrentApplication } from "ee/actions/applicationActions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
 
 import {
-  initAppViewer,
-  initEditor,
+  initAppViewerAction,
+  initEditorAction,
   resetEditorSuccess,
 } from "actions/initActions";
 import {
@@ -46,7 +44,7 @@ import AppEngineFactory from "entities/Engine/factory";
 import type {
   ApplicationPagePayload,
   FetchApplicationResponse,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import { getSearchQuery, updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
@@ -59,16 +57,16 @@ import {
   isEditorPath,
   isViewerPath,
   matchEditorPath,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+} from "ee/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
 import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
 import { getCurrentUser } from "actions/authActions";
 
-import { getCurrentTenant } from "@appsmith/actions/tenantActions";
+import { getCurrentTenant } from "ee/actions/tenantActions";
 import {
   fetchFeatureFlagsInit,
   fetchProductAlertInit,
@@ -76,7 +74,7 @@ import {
 import { embedRedirectURL, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ProductAlert } from "reducers/uiReducers/usersReducer";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
@@ -84,12 +82,14 @@ import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
 import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
-import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
+import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
 import {
   endSpan,
   startNestedSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -165,6 +165,8 @@ export function* reportSWStatus() {
   const mode: APP_MODE = yield select(getAppMode);
   const startTime = Date.now();
   if ("serviceWorker" in navigator) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: { success: any; failed: any } = yield race({
       success: navigator.serviceWorker.ready.then((reg) => ({
         reg,
@@ -204,20 +206,22 @@ function* executeActionDuringUserDetailsInitialisation(
 
 export function* getInitResponses({
   applicationId,
+  basePageId,
   mode,
-  pageId,
   shouldInitialiseUserDetails,
 }: {
   applicationId?: string;
-  pageId?: string;
+  basePageId?: string;
   branch?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): any {
   const params = pickBy(
     {
       applicationId,
-      defaultPageId: pageId,
+      defaultPageId: basePageId,
     },
     identity,
   );
@@ -243,6 +247,8 @@ export function* getInitResponses({
       // its only invalid when there is a axios related error
       throw new Error("Error occured " + axiosConnectionAbortedCode);
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     // when the user is an anonymous user we embed the url with the attempted route
     // this is taken care in ce code repo but not on ee
@@ -255,13 +261,12 @@ export function* getInitResponses({
       ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
       shouldInitialiseUserDetails,
     );
-
     Sentry.captureMessage(
       `consolidated api failure for ${JSON.stringify(
         params,
       )} errored message response ${e}`,
     );
-    throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
+    throw new PageNotFoundError(`Cannot find page with base id: ${basePageId}`);
   }
 
   const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
@@ -291,7 +296,7 @@ export function* getInitResponses({
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   const rootSpan = startRootSpan("startAppEngine", {
     mode: action.payload.mode,
-    pageId: action.payload.pageId,
+    pageId: action.payload.basePageId,
     applicationId: action.payload.applicationId,
     branch: action.payload.branch,
   });
@@ -301,7 +306,6 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload.mode,
       action.payload.mode,
     );
-    engine.startPerformanceTracking();
     yield call(engine.setupEngine, action.payload, rootSpan);
 
     const getInitResponsesSpan = startNestedSpan(
@@ -316,8 +320,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     endSpan(getInitResponsesSpan);
 
     yield put({ type: ReduxActionTypes.LINT_SETUP });
-
-    const { applicationId, toLoadPageId } = yield call(
+    const { applicationId, toLoadBasePageId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
       allResponses,
@@ -325,8 +328,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
 
     yield call(engine.loadAppURL, {
-      pageId: toLoadPageId,
-      pageIdInUrl: action.payload.pageId,
+      basePageId: toLoadBasePageId,
+      basePageIdInUrl: action.payload.basePageId,
       rootSpan,
     });
 
@@ -340,7 +343,6 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield call(engine.loadGit, applicationId, rootSpan);
     yield call(engine.completeChore, rootSpan);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
-    engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
     if (e instanceof AppEngineApiError) return;
@@ -433,14 +435,14 @@ function* eagerPageInitSaga() {
     const matchedEditorParams = matchEditorPath(url);
     if (matchedEditorParams) {
       const {
-        params: { applicationId, pageId },
+        params: { baseApplicationId, basePageId },
       } = matchedEditorParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-      if (pageId) {
+      if (basePageId) {
         yield put(
-          initEditor({
-            pageId,
-            applicationId,
+          initEditorAction({
+            basePageId,
+            baseApplicationId,
             branch,
             mode: APP_MODE.EDIT,
             shouldInitialiseUserDetails: true,
@@ -453,15 +455,15 @@ function* eagerPageInitSaga() {
     const matchedViewerParams = matchViewerPath(url);
     if (matchedViewerParams) {
       const {
-        params: { applicationId, pageId },
+        params: { baseApplicationId, basePageId },
       } = matchedViewerParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-      if (applicationId || pageId) {
+      if (baseApplicationId || basePageId) {
         yield put(
-          initAppViewer({
-            applicationId,
+          initAppViewerAction({
+            baseApplicationId,
             branch,
-            pageId,
+            basePageId,
             mode: APP_MODE.PUBLISHED,
             shouldInitialiseUserDetails: true,
           }),

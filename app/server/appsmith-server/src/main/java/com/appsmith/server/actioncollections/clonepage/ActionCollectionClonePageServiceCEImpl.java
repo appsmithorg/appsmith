@@ -1,6 +1,5 @@
 package com.appsmith.server.actioncollections.clonepage;
 
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.clonepage.ClonePageServiceCE;
 import com.appsmith.server.domains.ActionCollection;
@@ -25,8 +24,6 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
     public Mono<Void> cloneEntities(ClonePageMetaDTO clonePageMetaDTO) {
         return getCloneableActionCollections(clonePageMetaDTO.getBranchedSourcePageId())
                 .flatMap(sourceActionCollection -> {
-                    final DefaultResources clonedPageDefaultResources =
-                            clonePageMetaDTO.getClonedPageDTO().getDefaultResources();
                     ActionCollection toBeClonedActionCollection = new ActionCollection();
                     copyNestedNonNullProperties(sourceActionCollection, toBeClonedActionCollection);
 
@@ -37,21 +34,13 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                     toBeClonedActionCollection.setApplicationId(
                             clonePageMetaDTO.getClonedPageDTO().getApplicationId());
 
-                    DefaultResources defaultResources = new DefaultResources();
-                    copyNestedNonNullProperties(clonedPageDefaultResources, defaultResources);
-                    toBeClonedActionCollection.setDefaultResources(defaultResources);
-
-                    DefaultResources defaultResourcesForDTO = new DefaultResources();
-                    defaultResourcesForDTO.setPageId(clonedPageDefaultResources.getPageId());
-                    toBeClonedActionCollection.getUnpublishedCollection().setDefaultResources(defaultResourcesForDTO);
-
                     // Set id as null, otherwise create (which is using under the hood save)
                     // will try to overwrite same resource instead of creating a new resource
                     toBeClonedActionCollection.setId(null);
+                    toBeClonedActionCollection.setBaseId(null);
                     // Set published version to null as the published version of the page does
                     // not exist when we clone the page.
                     toBeClonedActionCollection.setPublishedCollection(null);
-                    toBeClonedActionCollection.getDefaultResources().setPageId(null);
                     // Assign new gitSyncId for cloned actionCollection
                     toBeClonedActionCollection.setGitSyncId(
                             toBeClonedActionCollection.getApplicationId() + "_" + UUID.randomUUID());
@@ -61,12 +50,8 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                                 clonePageMetaDTO
                                         .getOldToNewCollectionIds()
                                         .put(sourceActionCollection.getId(), clonedActionCollection.getId());
-                                if (!StringUtils.hasLength(clonedActionCollection
-                                        .getDefaultResources()
-                                        .getCollectionId())) {
-                                    clonedActionCollection
-                                            .getDefaultResources()
-                                            .setCollectionId(clonedActionCollection.getId());
+                                if (!StringUtils.hasLength(clonedActionCollection.getBaseId())) {
+                                    clonedActionCollection.setBaseId(clonedActionCollection.getId());
                                     return actionCollectionService.update(
                                             clonedActionCollection.getId(), clonedActionCollection);
                                 }

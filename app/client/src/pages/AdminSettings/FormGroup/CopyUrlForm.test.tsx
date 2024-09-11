@@ -3,6 +3,8 @@ import React from "react";
 import CopyUrlForm from "./CopyUrlForm";
 import copy from "copy-to-clipboard";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 jest.mock("copy-to-clipboard");

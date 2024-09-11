@@ -3,7 +3,6 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.RestApiImporterType;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -39,9 +37,7 @@ public class RestApiImportControllerCE {
             @RequestParam String contextId,
             @RequestParam String name,
             @RequestParam String workspaceId,
-            @RequestParam(required = false) CreatorContextType contextType,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = "Origin", required = false) String originHeader) {
+            @RequestParam(required = false) CreatorContextType contextType) {
         log.debug("Going to import API");
         ApiImporter service;
 
@@ -53,7 +49,7 @@ public class RestApiImportControllerCE {
                 throw new IllegalStateException("Unexpected value: " + type);
         }
 
-        return service.importAction(input, contextType, contextId, name, workspaceId, branchName)
+        return service.importAction(input, contextType, contextId, name, workspaceId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 }

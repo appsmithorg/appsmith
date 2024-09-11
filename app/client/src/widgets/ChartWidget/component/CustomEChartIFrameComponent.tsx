@@ -97,7 +97,11 @@ export function CustomEChartIFrameComponent(
   function onMessageCallback(
     e: MessageEvent,
     echartsInstance: echarts.ECharts,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _: any,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     echarts: any,
   ) {
     const config: CustomEChartIFrameMessageData = e.data;
@@ -157,6 +161,8 @@ export function CustomEChartIFrameComponent(
 
   function parseConfigurationForCallbackFns(
     chartConfig: Record<string, unknown>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _: any,
   ) {
     const config: Record<string, unknown> = _.cloneDeep(chartConfig);
@@ -172,6 +178,8 @@ export function CustomEChartIFrameComponent(
     return config;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function stringifyFns(fns: ((...args: any[]) => any)[]) {
     let output: string = "";
     for (const fn of fns) {
@@ -181,6 +189,8 @@ export function CustomEChartIFrameComponent(
     return output;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function initializeECharts(echarts: any) {
     const echartsElement = document.getElementById("chartdiv");
     return echarts.init(echartsElement, undefined);

@@ -6,9 +6,11 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   assertHelper,
+  debuggerHelper,
   entityExplorer,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
@@ -72,7 +74,12 @@ describe(
         .type(`{${modifierKey}}{v}`);
 
       cy.wait(500);
-      cy.validateToastMessage("Cannot have more than 3 levels of nesting");
+      _.debuggerHelper.OpenDebugger();
+      _.debuggerHelper.ClickLogsTab();
+      _.debuggerHelper.DoesConsoleLogExist(
+        "Cannot have more than 3 levels of nesting",
+        true,
+      );
       cy.get(`${widgetSelector("List2Copy1")}`).should("not.exist");
     });
 

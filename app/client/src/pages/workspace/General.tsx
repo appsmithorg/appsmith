@@ -4,25 +4,25 @@ import {
   deleteWorkspaceLogo,
   saveWorkspace,
   uploadWorkspaceLogo,
-} from "@appsmith/actions/workspaceActions";
-import type { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
+} from "ee/actions/workspaceActions";
+import type { SaveWorkspaceRequest } from "ee/api/WorkspaceApi";
 import { debounce } from "lodash";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
   getFetchedWorkspaces,
-} from "@appsmith/selectors/workspaceSelectors";
+} from "ee/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import type { SetProgress, UploadCallback } from "design-system-old";
-import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
+import type { SetProgress, UploadCallback } from "@appsmith/ads-old";
+import { FilePickerV2, FileType, Text, TextType } from "@appsmith/ads-old";
 import { Classes } from "@blueprintjs/core";
 import { useMediaQuery } from "react-responsive";
 import {
   getIsFetchingApplications,
   selectedWorkspaceLoadingStates,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/selectors/selectedWorkspaceSelectors";
 import type { AxiosProgressEvent } from "axios";
 
 // This wrapper ensures that the scroll behaviour is consistent with the other tabs

@@ -1,4 +1,4 @@
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import {
   createNewApiAction,
   createNewQueryAction,
@@ -7,7 +7,7 @@ import { createNewJSCollection } from "actions/jsPaneActions";
 import {
   ActionParentEntityType,
   type ActionParentEntityTypeInterface,
-} from "@appsmith/entities/Engine/actionHelpers";
+} from "ee/entities/Engine/actionHelpers";
 import { saveActionName } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
 
@@ -71,6 +71,8 @@ export const createNewApiActionBasedOnEditorType = (
   parentEntityId: string,
   parentEntityType: ActionParentEntityTypeInterface,
   apiType: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   if (parentEntityId) {
     return createNewAPIBasedOnParentEntity(

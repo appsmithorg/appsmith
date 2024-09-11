@@ -129,10 +129,14 @@ export const useCanvasDragging = (
       let canvasIsDragging = false;
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const scrollObj: any = {};
 
       const resetCanvasState = () => {
         if (stickyCanvasRef.current && slidingArenaRef.current) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
           canvasCtx.clearRect(
             0,
@@ -210,6 +214,8 @@ export const useCanvasDragging = (
           }
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onMouseMove = (e: any) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
             const delta = {
@@ -290,6 +296,8 @@ export const useCanvasDragging = (
               });
             }
           }, 0);
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onMouseOver = (e: any) => {
           onFirstMoveOnCanvas(e);
         };

@@ -1,10 +1,10 @@
 import React from "react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { Provider } from "react-redux";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 import { createMemoryHistory, type MemoryHistory } from "history";
 import { Router } from "react-router";

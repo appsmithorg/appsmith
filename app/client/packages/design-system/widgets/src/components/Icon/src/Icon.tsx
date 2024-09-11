@@ -1,6 +1,6 @@
 import type { Component, Ref } from "react";
 import React, { Suspense, forwardRef, lazy, useMemo } from "react";
-import { useThemeContext } from "@design-system/theming";
+import { useThemeContext } from "@appsmith/wds-theming";
 
 import { ICONS } from "./icons";
 import styles from "./styles.module.css";

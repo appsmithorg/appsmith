@@ -1,7 +1,6 @@
 package com.appsmith.server.searchentities;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -14,8 +13,7 @@ public class SearchEntitySolutionImpl extends SearchEntitySolutionCEImpl impleme
             WorkspaceService workspaceService,
             ApplicationService applicationService,
             WorkspacePermission workspacePermission,
-            ApplicationPermission applicationPermission,
-            ResponseUtils responseUtils) {
-        super(workspaceService, applicationService, workspacePermission, applicationPermission, responseUtils);
+            ApplicationPermission applicationPermission) {
+        super(workspaceService, applicationService, workspacePermission, applicationPermission);
     }
 }

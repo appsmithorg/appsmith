@@ -10,9 +10,9 @@ import {
   getGsheetsSheets,
   getisFetchingGsheetsSheets,
 } from "selectors/datasourceSelectors";
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getDatasource } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 
 export function useSheets() {

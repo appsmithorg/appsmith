@@ -24,6 +24,8 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
    */
   static canDisplayValueInUI(
     config: OneClickBindingControlProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     // {{query1.data}} || sample data

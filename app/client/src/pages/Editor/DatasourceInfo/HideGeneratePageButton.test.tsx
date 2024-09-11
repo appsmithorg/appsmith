@@ -4,8 +4,8 @@ import {
   NEW_API_BUTTON_TEXT,
   NEW_QUERY_BUTTON_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getNumberOfEntitiesInCurrentPage } from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/messages";
+import { getNumberOfEntitiesInCurrentPage } from "ee/selectors/entitiesSelector";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { PluginType } from "entities/Action";
@@ -212,6 +212,8 @@ const mockDatasource: Datasource = {
           ssl: {
             authType: SSLType.DEFAULT,
             authTypeControl: false,
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             certificateFile: {} as any,
           },
         },

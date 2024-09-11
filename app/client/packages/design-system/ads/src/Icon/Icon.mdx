@@ -1,0 +1,19 @@
+import { Meta, IconGallery, IconItem } from "@storybook/blocks";
+
+import { Icon } from "./Icon";
+import { IconCollection } from "./Icon.provider";
+import IconStories from "./Icon.stories";
+
+<Meta of={IconStories} />
+
+# Iconography
+
+Icons that are part of a subset of remix icon library are available for use. Only use stroke based icons. No fills. Ensure that icons for common use-cases are the same. Eg: The edit icon should be the same across the product.
+
+<IconGallery>
+  {IconCollection.sort().map((icon, index) => (
+    <IconItem key={index} name={icon}>
+      <Icon color="var(--ads-v2-color-fg)" name={icon} size="lg" />
+    </IconItem>
+  ))}
+</IconGallery>

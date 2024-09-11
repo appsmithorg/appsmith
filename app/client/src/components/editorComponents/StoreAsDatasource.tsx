@@ -5,15 +5,15 @@ import {
 } from "actions/datasourceActions";
 import { connect, useDispatch, useSelector } from "react-redux";
 import history from "utils/history";
-import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   createMessage,
   EDIT_DATASOURCE,
   SAVE_DATASOURCE,
-} from "@appsmith/constants/messages";
-import { Button } from "design-system";
+} from "ee/constants/messages";
+import { Button } from "@appsmith/ads";
 
 interface storeDataSourceProps {
   datasourceId?: string;
@@ -34,7 +34,7 @@ interface ReduxDispatchProps {
 
 function StoreAsDatasource(props: storeDataSourceProps) {
   const dispatch = useDispatch();
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   const saveOrEditDatasource = () => {
     if (props.shouldSave) {
@@ -47,7 +47,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
         });
         history.push(
           datasourcesEditorIdURL({
-            pageId,
+            basePageId,
             datasourceId: props.datasourceId,
             params: getQueryParams(),
             generateEditorPath: true,
@@ -73,6 +73,8 @@ function StoreAsDatasource(props: storeDataSourceProps) {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   setDatasourceViewMode: (payload: {
     datasourceId: string;

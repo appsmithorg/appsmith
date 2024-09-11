@@ -11,7 +11,7 @@ import {
   WIDGETS,
 } from "../replayUtils";
 import type { AppTheme } from "entities/AppTheming";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 export interface Canvas {
   widgets: CanvasWidgetsReduxState;
@@ -59,6 +59,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
    * @param isUndo
    * @returns
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public processDiff(diff: CanvasDiff, replay: any, isUndo: boolean) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
@@ -79,6 +81,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
    * @param replay
    * @param isUndo
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public processDiffForTheme(diff: CanvasDiff, replay: any) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
@@ -98,6 +102,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
    * @param isUndo
    * @returns
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public processDiffForWidgets(diff: CanvasDiff, replay: any, isUndo: boolean) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
@@ -149,6 +155,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
   }
 
   private createToast(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     diffWidget: any,
     dslWidget: CanvasWidgetsReduxState | undefined,
     widgetId: string,

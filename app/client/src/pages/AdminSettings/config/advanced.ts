@@ -1,10 +1,10 @@
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
 import {
   CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 
 export const config: AdminConfigType = {
   icon: "settings-line",
@@ -19,9 +19,9 @@ export const config: AdminConfigType = {
       category: SettingCategories.ADVANCED,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "MongoDB URI",
+      label: "Appsmith DB URL",
       subText:
-        "* Appsmith internally uses MongoDB. Change to an external MongoDB for clustering",
+        "* Persistence database URL for Appsmith instance. Change this to an external database for clustering",
     },
     {
       id: "APPSMITH_REDIS_URL",

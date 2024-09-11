@@ -1,0 +1,132 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="ADS/Docs/Typography" />
+
+# Typography
+
+We use system font stack for typography in the product. This will default to SF Pro, Segoe UI and Ubuntu on mac, windows and linux systems, respectively. This also applies to monospace fonts that come into play when writing code or displaying output in the form of a JSON object.
+
+[//]: # "TODO: image of sans-serif font stack >> image of monospace font stack"
+
+## How to use?
+
+Text is ubiquitous in a user interface. You find it as part of buttons, labels of input fields, as headings on a page and as information in a notification banner.
+
+To make it simpler to deal with how to style text in your UI, we have the **Text component** in ADS 2.0. Use this whenever you have to deal with text on your UI.
+
+For majority of the cases of dealing with text, this is the component you need. In cases where you need to style your text differently, ADS2.0 provides robust typographic tokens for your consumption.
+
+### Guidelines
+
+| Text element                    | When to use?                                                                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page heading (XL)               | These headings are prominent anchors that convey what the page is about. There should only be one page heading on a page.                   |
+| Modal heading (L)               | Used on Modals and big overlays (eg: New JS libraries)                                                                                      |
+| Section heading (M)             | To be used to demarcate a section within a page or a pane. Can also be used as a heading for an overlay pane. (eg: action selector overlay) |
+| Sub-section / small heading (S) | Used within a section. Or can be used as a heading for highlighting information subtly, along with body text.                               |
+| body (M)                        | The default content type on ADS2.0. Use this to convey primary information.                                                                 |
+| supplementary (S)               | Used to supplement primary information. Can be used for helpers, tags, metadata etc.                                                        |
+
+Text that is part of components belonging to input controls (eg: input fields, checkbox labels etc.), actions (buttons, links), system responses (eg: callouts) are all embedded within the components of those respective categories. To make it simpler we do not expose this to the users of the system, as of now.
+
+> 👉 In case you have to create a new component or if the text component does not meet your need, you can look at the diverse typographic tokens on offer to style your UI.
+> [Read this page on how to style your design using tokens.](https://design-system.appsmith.com/?path=/docs/design-tokens--documentation#how-to-style-using-design-tokens) A list of all available typography tokens is [available in storybook](TODO: Add link to category tokens for typography here).
+
+### Text casing in ADS 2.0
+
+[//]: # "TODO: Column layout"
+
+All text in the product should be sentence cased. This typically means that only the first letter of the word should be capitalised in a sentence.
+
+![Incorrect title case 1](./docs/incorrect-title-case-1.png)
+
+❌ Title case.
+
+![Incorrect title case 2](./docs/incorrect-title-case-2.png)
+
+❌ Title case
+
+![Correct title case 1](./docs/correct-title-case-1.png)
+
+✅ Sentence case
+
+![Correct title case 2](./docs/correct-title-case-2.png)
+
+✅ Sentence case
+
+There should not be all capital letters for text as this makes it difficult for readers of poor vision to process.
+
+![Incorrect action name](./docs/incorrect-action-names.png)
+
+❌ Action names are in all caps.
+
+![Correct action name](./docs/correct-action-names.png)
+
+✅ Actions are in sentence case.
+
+**Here are simple heuristics to remember regarding text casing:**
+
+The first letter of a word should be capitalised, if
+
+- it is the first word in a sentence or,
+- it is part of an acronym (eg: URL, JS objects) or,
+- it refers to nouns/terminology specific to Appsmith (Upgrade to Appsmith’s Business edition) or,
+- If it is a proper noun, including especially if the word is “Appsmith” in which case the first letter (’A’) is always capitalised.
+
+### For designers
+
+Drag the desired kind of the Text component from Figma’s library to your canvas. The content kind group is far more used than the rest of the categories in a UI. And, the text within the rest of the categories (controls, actions and responses) have specific components within which text is embedded. (eg: A textual label of an input field comes by default with the input field component).
+
+Converting your existing designs using ADS 2.0 requires you to substitute the old components with components from ADS 2.0. This is the case with **text** too.
+
+> ☝ Do not merely change the text style token in Figma. Replace the text on the UI with the **Text component**, instead.
+
+[//]: # " TODO: Column layout "
+
+### Why a Text component in Figma?
+
+While this might seem like a roundabout way of using text, this done with an intention of **simplifying decision making** w.r.t selecting typographic tokens for your designs.
+
+Using type styles requires you to hunt through the specific token you need to use within Figma’s style library and most importantly, you need to ensure that you use the corresponding color token that is designated for this textual token.
+
+Figma decouples text styles with colors. Every time you use text, you have to diligently style it with the right color token.
+
+This increases the chance for human error and hence we recommend you to use the Text component.
+
+If you need to a lot more flexibility in terms of styling your design, you can use tokens. Be mindful of using the right color token to go with the text token. Note that there is a similar Text component in the code as well, which by default contains all the style couplings present in our Figma component. If you use a token instead of a component, the engineer implementing this will also have to implement a custom component, so make sure your use case is truly a snowflake.
+
+![Text component Figma](./docs/text-component-figma.png)
+
+> ⚠️ **Note:** Every text element has a designated color and should not be overridden. Eg: A page heading has a color represented by the token `colors/ui/heading/PageHeading` and this needs to be the case in all of it’s instances.
+
+> 🔎 Inspect the Text component (or any component) and you will see that it is composed of tokens applied to the text styles and color styles in Figma. This will help you understand how the components have been constructed and make you better at using a design system.
+
+If you find the text component not meeting your needs, please reach out with your query on [#design-system](https://theappsmith.slack.com/archives/C0293DVQACW) tagging the design system pod (@design-system-pod)
+
+### For engineers
+
+The `Text` component should be the base component for all text rendered on the app.
+
+In case you are unable to use the `Text` component (such as in the Code Editor), you may use the typographic tokens defined in the storybook.
+
+In case you are unable to find the relevant token, please reach out to us to create the token within ads instead of simply hard-coding the value you need. Your efforts will ensure that our platform entirely can be themed, and we will have to put in much lesser work if we want to eventually support internationalization.
+
+### For QA
+
+Every textual element should be tied to it’s corresponding color token on Zeplin.
+
+Zeplin **will not highlight** any error with respect to a color mismatch for a Text token or a component. QA should pay attention to the colors being applied to text on the uploaded screens. For eg: A text token of Page heading should use the corresponding color token of ‘Page Heading’.
+
+## FAQs
+
+**The text component does not fit my use-case. What do I do?**
+
+Please reach out with your query on [#design-system](https://theappsmith.slack.com/archives/C0293DVQACW) tagging the design system pod (@design-system-pod)
+
+**Can I detach the text component?**
+
+No. Please reach out to the design system pod explaining your need to detach.
+
+**I want a part of my text to be styled different (eg: bold, italics). How do I do that with the text component?**
+
+Engineers may pass the prop `bold` or `italics` to `Text` and it will handle this for you. When passing these props, `Text` can be nested.

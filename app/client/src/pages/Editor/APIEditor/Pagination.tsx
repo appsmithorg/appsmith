@@ -5,11 +5,11 @@ import DynamicTextField from "components/editorComponents/form/fields/DynamicTex
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import { Classes, Text, TextType } from "design-system-old";
-import { Button } from "design-system";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
+import { Button } from "@appsmith/ads";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import { GifPlayer } from "design-system-old";
+import { GifPlayer } from "@appsmith/ads-old";
 import thumbnail from "assets/icons/gifs/thumbnail.png";
 import configPagination from "assets/icons/gifs/config_pagination.gif";
 

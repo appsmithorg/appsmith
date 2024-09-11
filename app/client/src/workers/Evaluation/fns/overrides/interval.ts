@@ -17,8 +17,12 @@ export function clearInterval(intervalId: number | string) {
 }
 
 export function setInterval(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callback: (...args: any[]) => void,
   delay = 300,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
 ) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
@@ -28,6 +32,8 @@ export function setInterval(
     intervalIdMap.delete(args[0]);
   }
   const _internalIntervalId = _internalSetInterval(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (...args: any[]) => {
       self["$isDataField"] = false;
       ExecutionMetaData.setExecutionMetaData(metaData);

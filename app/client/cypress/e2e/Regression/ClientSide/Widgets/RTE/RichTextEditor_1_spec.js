@@ -1,36 +1,10 @@
+import { locators } from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-
-/**
- * A function to set the content inside an RTE widget
- * @param textValue
- */
-const setRTEContent = (textValue) => {
-  // Set the content inside RTE widget
-  cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
-    const $body = $iframe.contents().find("body");
-    cy.wrap($body).type(textValue, { force: true });
-  });
-};
-
-/**
- * A function to test if the cursor position is at the end of the string.
- * @param textValueLen
- */
-const testCursorPoistion = (textValueLen, tinyMceId) => {
-  cy.window().then((win) => {
-    const editor = win.tinymce.EditorManager.get(tinyMceId);
-
-    // Get the current cursor location
-    const getCurrentCursorLocation = editor.selection.getSel().anchorOffset;
-
-    // Check if the cursor is at the end.
-    expect(getCurrentCursorLocation).to.be.equal(textValueLen);
-  });
-};
 
 describe(
   "RichTextEditor Widget Functionality",
@@ -38,6 +12,9 @@ describe(
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");
+      cy.waitUntil(() =>
+        cy.get(locators._richText_TitleBlock).should("be.visible"),
+      );
     });
 
     beforeEach(() => {
@@ -150,9 +127,10 @@ describe(
 
     it("5. Reset RichTextEditor", function () {
       // Enable the widget
+
       cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
 
-      cy.setTinyMceContent("rte-6h8j08u7ea", "<h1>content</h1>");
+      cy.setTinyMceContent("rte-component-vw4zehojqt", "<h1>content</h1>");
 
       cy.validateHTMLText(
         formWidgetsPage.richTextEditorWidget,

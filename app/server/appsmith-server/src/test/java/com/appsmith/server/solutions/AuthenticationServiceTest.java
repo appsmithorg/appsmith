@@ -6,10 +6,12 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
@@ -19,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ApplicationPageService;
@@ -31,6 +34,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -82,6 +86,9 @@ public class AuthenticationServiceTest {
     @Autowired
     ApplicationService applicationService;
 
+    @SpyBean
+    NewPageService newPageService;
+
     Workspace workspace;
 
     @BeforeEach
@@ -106,7 +113,7 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null, null);
+                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -124,6 +131,16 @@ public class AuthenticationServiceTest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        String pageId = "irrelevantPageId";
+        String branchName = "irrelevantBranchName";
+        NewPage newPage = new NewPage();
+        newPage.setId(pageId);
+        newPage.setBranchName(branchName);
+
+        Mockito.doReturn(Mono.just(newPage))
+                .when(newPageService)
+                .findById(Mockito.any(), Mockito.any(AclPermission.class));
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
@@ -147,7 +164,7 @@ public class AuthenticationServiceTest {
         Mono<String> authorizationCodeUrlMono = datasourceMono
                 .map(BaseDomain::getId)
                 .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null, null));
+                        datasourceId, defaultEnvironmentId, pageId, null));
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -225,7 +242,7 @@ public class AuthenticationServiceTest {
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId1, defaultEnvironmentId, pageDto.getId(), null, httpRequest);
+                datasourceId1, defaultEnvironmentId, pageDto.getId(), httpRequest);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .assertNext(url -> {
@@ -267,8 +284,11 @@ public class AuthenticationServiceTest {
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
 
+        String branchName = "testBranch";
+
         PageDTO testPage = new PageDTO();
         testPage.setName("Test-Page-oauth2-git-redirection");
+        testPage.setBranchName(branchName);
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
@@ -319,7 +339,7 @@ public class AuthenticationServiceTest {
         final String datasourceId = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId, null, pageDTO.getId(), "testBranch", httpRequest);
+                datasourceId, null, pageDTO.getId(), httpRequest);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .assertNext(url -> {
@@ -335,7 +355,7 @@ public class AuthenticationServiceTest {
                                             defaultEnvironmentId,
                                             "https://mock.origin.com",
                                             workspaceId,
-                                            "testBranch")
+                                            branchName)
                                     + "&scope=Scope\\d%20Scope\\d"
                                     + "&key=value"));
                 })

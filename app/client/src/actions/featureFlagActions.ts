@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
 
 export const setFeatureFlagOverridesAction = (

@@ -13,7 +13,7 @@ import {
   QUERIES_EDITOR_ID_ADD_PATH,
   QUERIES_EDITOR_ID_PATH,
   WIDGETS_EDITOR_ID_PATH,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
@@ -126,6 +126,8 @@ export interface EntityItem {
 
 export type UseRoutes = Array<{
   key: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: ComponentType<any>;
   path: string[];
   exact: boolean;

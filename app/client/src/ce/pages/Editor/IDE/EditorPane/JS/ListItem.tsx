@@ -1,8 +1,8 @@
 import React from "react";
 import ExplorerJSCollectionEntity from "pages/Editor/Explorer/JSActions/JSActionEntity";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { Flex } from "design-system";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
+import { Flex } from "@appsmith/ads";
+import type { EntityItem } from "ee/entities/IDE/constants";
 
 export interface JSListItemProps {
   item: EntityItem;
@@ -16,7 +16,7 @@ export const JSListItem = (props: JSListItemProps) => {
   return (
     <Flex data-testid="t--ide-list-item" flexDirection={"column"}>
       <ExplorerJSCollectionEntity
-        id={item.key}
+        baseCollectionId={item.key}
         isActive={isActive}
         key={item.key}
         parentEntityId={parentEntityId}

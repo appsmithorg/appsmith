@@ -138,6 +138,8 @@ interface HeaderProps {
   columnOrder?: string[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: any;
   editMode?: boolean;
   isSortable?: boolean;

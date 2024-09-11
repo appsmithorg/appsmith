@@ -1,10 +1,8 @@
 import {
-  entityExplorer,
   agHelper,
+  entityExplorer,
   locators,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Entity explorer tests related to widgets and validation",

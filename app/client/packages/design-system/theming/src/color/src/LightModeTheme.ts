@@ -303,12 +303,12 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgAccent.clone();
 
     // For bright accents it helps to make neutral a bit darker to differentiate with bgAccent
-    if (this.bgAccent.oklch.l >= 0.85) {
-      color.oklch.l -= 0.2;
+    if (this.bgAccent.oklch.l >= 0.7) {
+      color.oklch.l -= 0.55;
     }
 
-    if (this.bgAccent.oklch.l > 0.25 && this.bgAccent.oklch.l < 0.85) {
-      color.oklch.l -= 0.1;
+    if (this.bgAccent.oklch.l > 0.2 && this.bgAccent.oklch.l < 0.85) {
+      color.oklch.l -= 0.35;
     }
 
     if (this.seedIsAchromatic) {
@@ -345,23 +345,23 @@ export class LightModeTheme implements ColorModeTheme {
     // Simplified and adjusted version of bgAccentHover algorithm (bgNeutral has very low or no chroma)
 
     if (this.bgNeutral.oklch.l < 0.06) {
-      color.oklch.l += 0.21;
+      color.oklch.l += 0.3;
     }
 
     if (this.bgNeutral.oklch.l > 0.06 && this.bgNeutral.oklch.l < 0.14) {
-      color.oklch.l += 0.12;
+      color.oklch.l += 0.19;
     }
 
     if (this.bgNeutral.oklch.l >= 0.14 && this.bgNeutral.oklch.l < 0.21) {
-      color.oklch.l += 0.06;
+      color.oklch.l += 0.11;
     }
 
     if (this.bgNeutral.oklch.l >= 0.21 && this.bgNeutral.oklch.l < 0.7) {
-      color.oklch.l += 0.04;
+      color.oklch.l += 0.07;
     }
 
     if (this.bgNeutral.oklch.l >= 0.7 && this.bgNeutral.oklch.l < 0.955) {
-      color.oklch.l += 0.02;
+      color.oklch.l += 0.04;
     }
 
     if (this.bgNeutral.oklch.l >= 0.955) {
@@ -391,23 +391,19 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgNeutralSubtle() {
-    const color = this.seedColor.clone();
+    const color = this.bgAccentSubtle.clone();
 
-    // Adjusted version of bgAccentSubtle (less or no chroma)
+    // Adjusted version of bgAccentSubtle (less or no chroma), slightly higher lightness since neutrals are perceived heavier than saturated colors
     if (this.seedIsVeryLight) {
-      color.oklch.l = 0.985;
+      color.oklch.l = 0.955;
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.935;
+      color.oklch.l = 0.97;
     }
 
-    if (this.seedChroma > 0.001) {
-      color.oklch.c = 0.001;
-    }
-
-    if (this.seedIsAchromatic) {
-      color.oklch.c = 0;
+    if (this.seedChroma > 0.002) {
+      color.oklch.c = 0.002;
     }
 
     return color;
@@ -416,7 +412,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgNeutralSubtleHover() {
     const color = this.bgNeutralSubtle.clone();
 
-    color.oklch.l += 0.02;
+    color.oklch.l += 0.012;
 
     return color;
   }
@@ -734,7 +730,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Neutral foreground. Slightly less prominent than main fg
     const color = this.fg.clone();
 
-    color.oklch.l += 0.1;
+    color.oklch.l += 0.125;
 
     return color;
   }
@@ -742,7 +738,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l += 0.1;
+    color.oklch.l += 0.35;
 
     return color;
   }
@@ -1164,7 +1160,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Low contrast indicator of interactivity in TextInput and similar
     const color = this.bgNeutralSubtle.clone();
 
-    color.oklch.l -= 0.06;
+    color.oklch.l -= 0.03;
 
     return color;
   }
@@ -1172,7 +1168,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bdOnNeutralSubtleHover() {
     const color = this.bdOnNeutralSubtle.clone();
 
-    color.oklch.l += 0.03;
+    color.oklch.l -= 0.015;
 
     return color;
   }

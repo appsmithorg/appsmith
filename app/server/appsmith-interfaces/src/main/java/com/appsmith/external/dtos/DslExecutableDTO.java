@@ -20,12 +20,6 @@ public class DslExecutableDTO {
     @JsonView(Views.Public.class)
     String id;
 
-    @JsonView(Views.Internal.class)
-    String defaultActionId;
-
-    @JsonView(Views.Internal.class)
-    String defaultCollectionId;
-
     @JsonView(Views.Public.class)
     String name;
 
@@ -46,9 +40,4 @@ public class DslExecutableDTO {
 
     @JsonView(Views.Public.class)
     Integer timeoutInMillisecond = DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
-
-    public void sanitiseForExport() {
-        this.setDefaultActionId(null);
-        this.setDefaultCollectionId(null);
-    }
 }

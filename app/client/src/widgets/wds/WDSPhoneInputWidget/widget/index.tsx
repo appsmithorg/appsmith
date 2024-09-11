@@ -1,9 +1,8 @@
 import React from "react";
 import log from "loglevel";
 import merge from "lodash/merge";
-import { klona as clone } from "klona";
 import * as Sentry from "@sentry/react";
-import { mergeWidgetConfig } from "utils/helpers";
+import { klonaRegularWithTelemetry, mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -50,7 +49,10 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const parentConfig = klonaRegularWithTelemetry(
+      super.getPropertyPaneContentConfig(),
+      "WDSPhoneInputWidget.getPropertyPaneContentConfig",
+    );
 
     const labelSectionIndex = parentConfig.findIndex(
       (section) => section.sectionName === "Label",
@@ -62,6 +64,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
       ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
       placeholderText: "Phone Number",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const generalSectionIndex = parentConfig.findIndex(
@@ -74,6 +78,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[tooltipPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
       placeholderText: "You may skip local prefixes",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const placeholderPropertyIndex = parentConfig[
@@ -85,6 +91,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
       placeholderText: "(123) 456-7890",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
@@ -104,6 +112,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       rawText: "",

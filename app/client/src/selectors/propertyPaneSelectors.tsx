@@ -1,7 +1,7 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
@@ -16,9 +16,9 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { getRenderMode } from "./editorSelectors";
@@ -83,6 +83,8 @@ export const getWidgetPropsForPropertyPane = createSelector(
   (
     widget: WidgetProps | undefined,
     layoutSystemType,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
@@ -129,6 +131,8 @@ const populateWidgetProperties = (
     dependencies = [...dependencies, ...dynamicDependencies(widget)];
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetProperties: any = {};
 
   if (!widget) return widgetProperties;
@@ -156,6 +160,8 @@ const populateWidgetProperties = (
   return widgetProperties;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAndSetPath = (from: any, to: any, path: string) => {
   if (!from || !to) return;
 

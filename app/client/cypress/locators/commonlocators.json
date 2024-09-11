@@ -106,6 +106,7 @@
   "editColTitle": ".t--property-pane-title",
   "editColText": ".t--property-pane-title span",
   "changeColType": ".t--property-control-columntype input",
+  "changeSortBy": ".t--property-control-sortby input",
   "selectedColType": ".t--property-control-columntype button span",
   "collapsesection": ".t--property-pane-section-collapse-general .bp3-icon",
   "selectTab": ".t--tab-Tab",

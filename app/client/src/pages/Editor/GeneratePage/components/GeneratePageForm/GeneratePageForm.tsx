@@ -8,13 +8,12 @@ import {
   getIsFetchingSinglePluginForm,
   getDatasourcesStructure,
   getNumberOfEntitiesInCurrentPage,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 
 import type { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import { useParams, useLocation } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import { useLocation } from "react-router";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -23,15 +22,15 @@ import DataSourceOption, {
   CONNECT_NEW_DATASOURCE_OPTION_ID,
   DatasourceImage,
 } from "../DataSourceOption";
-import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
-import type { DropdownOption } from "design-system-old";
-import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
+import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { Button, Icon, Text, Select, Option, Tooltip } from "@appsmith/ads";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
   createMessage,
   GEN_CRUD_DATASOURCE_DROPDOWN_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import {
   useDatasourceOptions,
@@ -40,8 +39,8 @@ import {
   useSheetColumnHeaders,
   useS3BucketList,
 } from "./hooks";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import type { AppState } from "@appsmith/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { AppState } from "ee/reducers";
 import type {
   DropdownOptions,
   DatasourceTableDropdownOption,
@@ -54,22 +53,23 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-
 import {
-  datasourcesEditorIdURL,
-  integrationEditorURL,
-} from "@appsmith/RouteBuilder";
+  getCurrentApplicationId,
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+
+import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { getPluginImages } from "ee/selectors/entitiesSelector";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import equal from "fast-deep-equal";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 //  ---------- Styles ----------
 
@@ -184,6 +184,8 @@ enum GeneratePageSelectedViewIconEnum {
   ADS_ICON = "ads-icon",
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DatasourceOptionSelectedView = (props: any) => {
   const { iconType, option, pluginImages } = props;
   return (
@@ -217,7 +219,8 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+  const basePageId = useSelector(getCurrentBasePageId);
+  const pageId = useSelector(getCurrentPageId);
 
   const pluginImages = useSelector(getPluginImages);
 
@@ -444,7 +447,7 @@ function GeneratePageForm() {
         iconSize: "md",
         iconColor: "var(--ads-v2-color-fg)",
       }));
-      setSelectedDatasourceTableOptions(tables);
+      setSelectedDatasourceTableOptions(tables as DropdownOptions);
     }
   }, [bucketList, isS3Plugin, setSelectedDatasourceTableOptions]);
 
@@ -477,7 +480,7 @@ function GeneratePageForm() {
               columns,
             },
           }));
-          setSelectedDatasourceTableOptions(newTables);
+          setSelectedDatasourceTableOptions(newTables as DropdownOptions);
         }
       }
     }
@@ -549,7 +552,7 @@ function GeneratePageForm() {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
       integrationEditorURL({
-        pageId: currentPageId,
+        basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
         params: { isGeneratePageMode: "generate-page" },
       }),
@@ -572,9 +575,7 @@ function GeneratePageForm() {
     const payload = {
       applicationId: applicationId || "",
       pageId:
-        currentMode.current === GENERATE_PAGE_MODE.NEW
-          ? ""
-          : currentPageId || "",
+        currentMode.current === GENERATE_PAGE_MODE.NEW ? "" : pageId || "",
       columns: data.columns || [],
       searchColumn: data.searchColumn,
       tableName: data.tableName,
@@ -601,7 +602,7 @@ function GeneratePageForm() {
       datasourceId: selectedDatasource.id,
     });
     const redirectURL = datasourcesEditorIdURL({
-      pageId: currentPageId,
+      basePageId,
       datasourceId: selectedDatasource.id as string,
       params: { isGeneratePageMode: "generate-page" },
     });
@@ -770,7 +771,7 @@ function GeneratePageForm() {
                       <StyledIconWrapper>
                         <Icon
                           color={table?.iconColor}
-                          name={table.icon}
+                          name={table.icon as string}
                           size={table.iconSize}
                         />
                       </StyledIconWrapper>
@@ -843,7 +844,7 @@ function GeneratePageForm() {
                           <StyledIconWrapper>
                             <Icon
                               color={column?.iconColor}
-                              name={column.icon}
+                              name={column.icon as string}
                               size={column.iconSize}
                             />
                           </StyledIconWrapper>

@@ -18,7 +18,6 @@ import com.appsmith.server.refactors.utils.RefactoringUtils;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import static com.appsmith.external.constants.AnalyticsEvents.REFACTOR_JSACTION;
@@ -50,33 +49,27 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
     }
 
     @Override
-    public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
-        ActionCollectionDTO defaultActionCollection = refactorEntityNameDTO.getActionCollection();
+    public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO) {
+        ActionCollectionDTO baseActionCollection = refactorEntityNameDTO.getActionCollection();
 
         // Fetch branched action as client only knows about the default action IDs
         Mono<RefactorEntityNameDTO> branchedActionMono = newActionService
-                .findByBranchNameAndDefaultActionId(
-                        branchName, refactorEntityNameDTO.getActionId(), false, actionPermission.getEditPermission())
+                .findById(refactorEntityNameDTO.getActionId(), actionPermission.getEditPermission())
                 .map(branchedAction -> {
                     refactorEntityNameDTO.setActionId(branchedAction.getId());
-                    defaultActionCollection.setPageId(
+                    baseActionCollection.setPageId(
                             branchedAction.getUnpublishedAction().getPageId());
-                    defaultActionCollection.setApplicationId(branchedAction.getApplicationId());
+                    baseActionCollection.setApplicationId(branchedAction.getApplicationId());
                     return refactorEntityNameDTO;
                 });
 
         Mono<ActionCollection> branchedCollectionMono;
-        if (!StringUtils.hasLength(branchName)) {
-            branchedCollectionMono = actionCollectionService
-                    .findById(defaultActionCollection.getId(), actionPermission.getEditPermission())
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.ACL_NO_RESOURCE_FOUND,
-                            FieldName.ACTION_COLLECTION,
-                            defaultActionCollection.getId())));
-        } else {
-            branchedCollectionMono = actionCollectionService.findByBranchNameAndDefaultCollectionId(
-                    branchName, defaultActionCollection.getId(), actionPermission.getEditPermission());
-        }
+        branchedCollectionMono = actionCollectionService
+                .findById(baseActionCollection.getId(), actionPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND,
+                        FieldName.ACTION_COLLECTION,
+                        baseActionCollection.getId())));
 
         return Mono.zip(branchedActionMono, branchedCollectionMono).flatMap(tuple -> {
             ActionCollection dbActionCollection = tuple.getT2();
@@ -88,7 +81,7 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
 
             // First perform refactor of the action itself
             final Mono<Void> updatedActionMono =
-                    newActionEntityRefactoringService.updateRefactoredEntity(refactorEntityNameDTO, branchName);
+                    newActionEntityRefactoringService.updateRefactoredEntity(refactorEntityNameDTO);
 
             Mono<ActionCollection> updatedActionCollectionMono =
                     actionCollectionService.update(actionCollectionDTO.getId(), dbActionCollection);

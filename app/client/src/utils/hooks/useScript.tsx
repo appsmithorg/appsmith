@@ -44,6 +44,8 @@ export function useScript(src: string, where = AddScriptTo.BODY): ScriptStatus {
 
       // Fetch existing script element by src
       // It may have been added by another intance of this hook
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let script = document.querySelector(`script[src="${src}"]`) as any;
 
       if (!script) {
@@ -62,6 +64,8 @@ export function useScript(src: string, where = AddScriptTo.BODY): ScriptStatus {
 
         // Store status in attribute on script
         // This can be read by other instances of this hook
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const setAttributeFromEvent = (event: any) => {
           script.setAttribute(
             "data-status",
@@ -79,6 +83,8 @@ export function useScript(src: string, where = AddScriptTo.BODY): ScriptStatus {
       // Script event handler to update status in state
       // Note: Even if the script already exists we still need to add
       // event handlers to update the state for *this* hook instance.
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const setStateFromEvent = (event: any) => {
         setStatus(
           event.type === "load" ? ScriptStatus.READY : ScriptStatus.ERROR,

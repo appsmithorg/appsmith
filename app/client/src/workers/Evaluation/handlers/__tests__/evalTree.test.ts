@@ -23,6 +23,8 @@ jest.mock("utils/MessageUtil", () => {
   return {
     __esModule: true,
     ...actualExports,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sendMessage: (...args: any[]) => {
       mockSendMessage(args[0].body.data);
       const {

@@ -6,7 +6,7 @@ import {
   Text,
   ErrorMessage,
   useGroupOrientation,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 import styles from "./styles.module.css";
 import type { ForwardedRef } from "react";
 import type { RadioGroupProps } from "./types";

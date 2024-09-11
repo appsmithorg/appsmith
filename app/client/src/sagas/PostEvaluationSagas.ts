@@ -1,52 +1,46 @@
-import {
-  ENTITY_TYPE,
-  PLATFORM_ERROR,
-} from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
   getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
   isAction,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { call, put, select } from "redux-saga/effects";
-import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { AnyReduxAction } from "ee/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import {
-  createMessage,
-  JS_EXECUTION_FAILURE,
-} from "@appsmith/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { createMessage, JS_EXECUTION_FAILURE } from "ee/constants/messages";
 import log from "loglevel";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
-import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { ActionEntityConfig } from "ee/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
-import { logActionExecutionError } from "./ActionExecution/errorUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { getCollectionNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
+import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
+import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -63,12 +57,24 @@ export function* logJSVarCreatedEvent(
   });
 }
 
-export function* dynamicTriggerErrorHandler(errors: any[]) {
-  if (errors.length > 0) {
-    for (const error of errors) {
-      const errorMessage =
-        error.errorMessage.message.message || error.errorMessage.message;
-      yield call(logActionExecutionError, errorMessage, true);
+export function* showExecutionErrors(errors: EvaluationError[]) {
+  const appMode: APP_MODE = yield select(getAppMode);
+  for (const error of errors) {
+    const errorMessage = get(
+      error,
+      "errorMessage.message.message",
+      error.errorMessage.message,
+    );
+    yield call(
+      showToastOnExecutionError,
+      errorMessage,
+      appMode === APP_MODE.EDIT,
+    );
+    // Add it to the logs tab when in edit mode
+    if (appMode === APP_MODE.EDIT) {
+      AppsmithConsole.error({
+        text: errorMessage,
+      });
     }
   }
 }
@@ -233,6 +239,8 @@ export function* updateTernDefinitions(
 export function* handleJSFunctionExecutionErrorLog(
   action: JSAction,
   collection: JSCollection,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[],
 ) {
   const { id: collectionId, name: collectionName } = collection;

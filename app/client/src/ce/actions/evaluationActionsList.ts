@@ -1,11 +1,11 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { union } from "lodash";
 import store from "store";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { shouldTriggerLinting } from "actions/evaluationActions";
 

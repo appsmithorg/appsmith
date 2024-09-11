@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -24,9 +26,9 @@ import reactor.core.scheduler.Schedulers;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.constants.spans.ce.PageSpanCE.FETCH_PAGE_FROM_DB;
 import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -36,12 +38,32 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         implements CustomNewPageRepositoryCE {
 
     private final MongoTemplate mongoTemplate;
+    private final ObservationRegistry observationRegistry;
+
+    @Override
+    public Mono<NewPage> findById(String id, AclPermission permission, List<String> projectedFields) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewPage.Fields.id, id))
+                .permission(permission)
+                .fields(projectedFields)
+                .one();
+    }
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
                 .permission(aclPermission)
+                .all();
+    }
+
+    @Override
+    public Flux<NewPage> findByApplicationId(
+            String applicationId, AclPermission aclPermission, List<String> includeFields) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
+                .permission(aclPermission)
+                .fields(includeFields)
                 .all();
     }
 
@@ -106,9 +128,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
         List<String> includedFields = List.of(
-                FieldName.APPLICATION_ID,
-                FieldName.DEFAULT_RESOURCES,
-                NewPage.Fields.policies,
+                NewPage.Fields.applicationId,
+                NewPage.Fields.baseId,
+                NewPage.Fields.branchName,
+                NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
                 NewPage.Fields.unpublishedPage_isHidden,
@@ -146,28 +169,34 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
-            String branchName, String defaultPageId, AclPermission permission) {
+    public Mono<NewPage> findPageByBranchNameAndBasePageId(
+            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
-                Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
+                Bridge.equal(NewPage.Fields.baseId, basePageId);
 
         if (branchName != null) {
             // branchCriteria
-            q.equal(NewPage.Fields.defaultResources_branchName, branchName);
+            q.equal(NewPage.Fields.branchName, branchName);
         } else {
-            q.isNull(NewPage.Fields.defaultResources_branchName);
+            q.isNull(NewPage.Fields.branchName);
         }
 
-        return queryBuilder().criteria(q).permission(permission).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .fields(projectedFieldNames)
+                .one()
+                .name(FETCH_PAGE_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
-                Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
-        q.equal(NewPage.Fields.defaultResources_branchName, branchName);
+                Bridge.equal(NewPage.Fields.baseId, defaultPageId);
+        q.equal(NewPage.Fields.branchName, branchName);
 
         return queryBuilder()
                 .criteria(q)
@@ -177,27 +206,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
-    }
-
-    @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-
-        // defaultAppIdCriteria
-        final BridgeQuery<NewPage> q =
-                Bridge.equal(NewPage.Fields.defaultResources_applicationId, defaultApplicationId);
-
-        if (gitSyncId != null) {
-            // gitSyncIdCriteria
-            q.equal(NewPage.Fields.gitSyncId, gitSyncId);
-        } else {
-            q.isNull(NewPage.Fields.gitSyncId);
-        }
-
-        return queryBuilder().criteria(q).permission(permission.orElse(null)).first();
+    public Flux<NewPage> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
+        return queryBuilder()
+                .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
+                .fields(includedFields)
+                .all();
     }
 
     @Override

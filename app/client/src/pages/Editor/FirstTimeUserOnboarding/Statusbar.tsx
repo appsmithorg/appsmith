@@ -8,13 +8,13 @@ import {
   getCanvasWidgets,
   getPageActions,
   getSavedDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { SIGNPOSTING_STEP } from "./Utils";
 import {
   getFirstTimeUserOnboardingComplete,
   isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
 
 const useStatusListener = () => {

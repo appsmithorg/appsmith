@@ -1,10 +1,10 @@
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
@@ -21,7 +21,7 @@ import type {
   DataTreeEntityConfig,
   DataTreeEntityObject,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { isObject } from "lodash";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 

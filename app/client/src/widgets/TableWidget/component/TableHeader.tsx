@@ -104,6 +104,8 @@ function PageNumberInput(props: {
       max={props.pageCount || 1}
       min={1}
       onBlur={handleUpdatePageNo}
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onKeyDown={(e: any) => {
         if (e.keyCode === Keys.ENTER) {
           handleUpdatePageNo(e);
@@ -133,6 +135,8 @@ interface TableHeaderProps {
   widgetName: string;
   widgetId: string;
   searchKey: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];

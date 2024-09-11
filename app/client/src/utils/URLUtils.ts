@@ -12,6 +12,8 @@ export function getQueryParams() {
   return queryParams;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertObjectToQueryParams(object: any): string {
   if (!_.isNil(object)) {
     const paramArray: string[] = _.map(_.keys(object), (key) => {

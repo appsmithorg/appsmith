@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ThemeMode } from "selectors/themeSelectors";
 
 export const setThemeMode = (mode: ThemeMode) => ({

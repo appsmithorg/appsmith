@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 
 import { Button } from "../";
 
-describe("@design-system/widgets/Button", () => {
+describe("@appsmith/wds/Button", () => {
   it("renders children when passed", () => {
     render(<Button>Click me</Button>);
     expect(screen.getByRole("button")).toHaveTextContent("Click me");

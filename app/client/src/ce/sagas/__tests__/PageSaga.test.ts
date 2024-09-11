@@ -1,14 +1,19 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { testSaga } from "redux-saga-test-plan";
 import { setupPageSaga, setupPublishedPageSaga } from "../PageSagas";
 import mockResponse from "./mockConsolidatedApiResponse.json";
-import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
-import { fetchPage, fetchPublishedPage } from "actions/pageActions";
+import type { FetchPageResponse } from "api/PageApi";
+import {
+  fetchPageAction,
+  fetchPublishedPageAction,
+  type SetupPageActionPayload,
+  type SetupPublishedPageActionPayload,
+} from "actions/pageActions";
 
 describe("ce/PageSaga", () => {
   it("should put setupPageSaga with pageWithMigratedDsl", () => {
-    const action: ReduxAction<FetchPageRequest> = {
+    const action: ReduxAction<SetupPageActionPayload> = {
       type: ReduxActionTypes.SETUP_PAGE_INIT,
       payload: {
         id: "pageId",
@@ -20,7 +25,7 @@ describe("ce/PageSaga", () => {
     testSaga(setupPageSaga, action)
       .next()
       .put(
-        fetchPage(
+        fetchPageAction(
           action.payload.id,
           action.payload.isFirstLoad,
           action.payload.pageWithMigratedDsl,
@@ -35,12 +40,7 @@ describe("ce/PageSaga", () => {
   });
 
   it("should put setupPublishedPageSaga with pageWithMigratedDsl", () => {
-    const action: ReduxAction<{
-      pageId: string;
-      bustCache: boolean;
-      firstLoad: boolean;
-      pageWithMigratedDsl?: FetchPageResponse;
-    }> = {
+    const action: ReduxAction<SetupPublishedPageActionPayload> = {
       type: ReduxActionTypes.SETUP_PAGE_INIT,
       payload: {
         pageId: "pageId",
@@ -54,7 +54,7 @@ describe("ce/PageSaga", () => {
     testSaga(setupPublishedPageSaga, action)
       .next()
       .put(
-        fetchPublishedPage(
+        fetchPublishedPageAction(
           action.payload.pageId,
           action.payload.bustCache,
           action.payload.firstLoad,

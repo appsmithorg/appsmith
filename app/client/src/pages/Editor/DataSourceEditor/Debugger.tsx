@@ -6,7 +6,7 @@ import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   setDebuggerSelectedTab,
   setResponsePaneHeight,
