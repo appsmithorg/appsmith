@@ -795,13 +795,19 @@ function* copyActionSaga(
 
     // @ts-expect-error: type mismatch Action vs ActionCreateUpdateResponse
     yield put(copyActionSuccess(payload));
-  } catch (e) {
+  } catch (e: unknown) {
     const actionName = actionObject ? actionObject.name : "";
+    const errorMessage =
+      e instanceof Error
+        ? e.message
+        : createMessage(ERROR_ACTION_COPY_FAIL, actionName);
     yield put(
       copyActionError({
         ...action.payload,
         show: true,
-        error: { message: createMessage(ERROR_ACTION_COPY_FAIL, actionName) },
+        error: {
+          message: errorMessage,
+        },
       }),
     );
   }
