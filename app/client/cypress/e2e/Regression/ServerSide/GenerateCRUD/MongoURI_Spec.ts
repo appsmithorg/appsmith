@@ -57,7 +57,7 @@ describe(
     it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
       //Update documents query to handle the int _id data
       EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
-      agHelper.EnterValue(`{ _id: {{data_table.triggeredRow._id}}}`, {
+      agHelper.EnterValue(`{ _id: {{data_table.p._id}}}`, {
         propFieldName: "",
         directInput: false,
         inputFieldName: "Query",
