@@ -38,7 +38,6 @@ const FilePickerContainer = styled.div`
     border-radius: 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0 !important;
   }
 `;
-
 type RenderFilePickerProps = FilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
@@ -54,8 +53,8 @@ export function RenderFilePicker(props: RenderFilePickerProps) {
     file: File;
     setProgress: SetProgress;
   } | null>(null);
-  const [fileData, setFileData] = useState<string | null>(null);
 
+  // const changeOpenState = (state: boolean) => setIsOpen(state);
   const FileUploader = useCallback(
     async (file: File, setProgress: SetProgress) => {
       if (!!file) {
@@ -63,24 +62,14 @@ export function RenderFilePicker(props: RenderFilePickerProps) {
           file,
           setProgress,
         });
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-          const base64data = reader.result as string;
-          setFileData(base64data);
-        };
       } else {
         setAppFileToBeUploaded(null);
-        setFileData(null);
       }
     },
     [],
   );
 
-  const onRemoveFile = useCallback(() => {
-    setAppFileToBeUploaded(null);
-    setFileData(null);
-  }, []);
+  const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
 
   useEffect(() => {
     if (appFileToBeUploaded?.file) {
@@ -94,7 +83,7 @@ export function RenderFilePicker(props: RenderFilePickerProps) {
         });
       };
     }
-    else {
+    else{
       props.input?.onChange("");
     }
   }, [appFileToBeUploaded]);
@@ -141,7 +130,6 @@ export function RenderFilePicker(props: RenderFilePickerProps) {
     </>
   );
 }
-
 class FilePickerControl extends BaseControl<FilePickerControlProps> {
   constructor(props: FilePickerControlProps) {
     super(props);
