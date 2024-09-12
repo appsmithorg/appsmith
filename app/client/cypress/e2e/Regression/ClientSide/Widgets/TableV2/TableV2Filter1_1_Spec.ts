@@ -1,3 +1,5 @@
+import { demoTableDataForSelect } from "../../../../../fixtures/Table/DemoTableData";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   propPane,
@@ -8,6 +10,9 @@ import {
   draggableWidgets,
   agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Verify various Table_Filter combinations",
@@ -135,6 +140,47 @@ describe(
       table.OpenNFilterTable("productName", "is exactly", "Beef STEAK");
       table.WaitForTableEmpty("v2");
       table.RemoveFilterNVerify("2381224", true, true, 0, "v2");
+    });
+
+    it("11. Verify table search includes label and value for table with select column type", () => {
+      // This flag is turned on to allow the label show in the table select cell content
+      // when this feature is turned on fully, this flag will be removed
+      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.EnterJSContext("Table data", demoTableDataForSelect);
+
+      // Edit role column to select type
+      table.ChangeColumnType("role", "Select", "v2");
+      table.EditColumn("role", "v2");
+      agHelper.UpdateCodeInput(
+        locators._controlOption,
+        `
+         {{
+           [
+             {"label": "Software Engineer",
+             "value": 10,},
+             {"label": "Product Manager",
+             "value": 20,},
+             {"label": "UX Designer",
+             "value": 30,}
+           ]
+         }}
+       `,
+      );
+      // Search for a label in the table
+      table.SearchTable("Software Engineer");
+      table.ReadTableRowColumnData(0, 2, "v2").then((afterSearch) => {
+        expect(afterSearch).to.eq("Software Engineer");
+      });
+      table.RemoveSearchTextNVerify("1", "v2");
+
+      // Search for a value in the table
+      table.SearchTable("20");
+      table.ReadTableRowColumnData(0, 2, "v2").then((afterSearch) => {
+        expect(afterSearch).to.eq("Product Manager");
+      });
+      table.RemoveSearchTextNVerify("1", "v2");
     });
   },
 );
