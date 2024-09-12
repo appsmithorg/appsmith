@@ -1,6 +1,7 @@
 import React from "react";
 import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
+import { modText } from "utils/helpers";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -14,7 +15,11 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
       <IDEToolbar.Left>{props.children}</IDEToolbar.Left>
       <IDEToolbar.Right>
         {props.runOptions}
-        <Tooltip content={"⌘ + ⏎"} placement="topRight" showArrow={false}>
+        <Tooltip
+          content={modText() + " ⏎"}
+          placement="topRight"
+          showArrow={false}
+        >
           <Button kind="primary" size="sm">
             Run
           </Button>
