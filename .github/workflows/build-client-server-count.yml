@@ -465,7 +465,7 @@ jobs:
             ```
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
-        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
