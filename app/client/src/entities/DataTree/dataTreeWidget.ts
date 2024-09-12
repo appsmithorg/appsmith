@@ -263,7 +263,7 @@ const generateDataTreeWidgetWithoutMeta = (
   const { bindingPaths, reactivePaths, triggerPaths, validationPaths } =
     getAllPathsFromPropertyConfig(widget, propertyPaneConfigs, {
       ...derivedPropertyMap,
-      // ...defaultMetaProps,
+      ...defaultMetaProps,
       ...unInitializedDefaultProps,
       ..._.keyBy(dynamicBindingPathList, "key"),
       ...overridingPropertyPaths,

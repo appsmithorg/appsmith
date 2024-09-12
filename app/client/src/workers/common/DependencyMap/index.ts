@@ -3,7 +3,7 @@ import {
   getAllPaths,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
-  isDynamicLeaf,
+  isDynamicLeafWithoutMetaReactivePaths,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type {
   WidgetEntity,
@@ -191,7 +191,13 @@ export const updateDependencyMap = ({
                 );
               }
             } else {
-              if (isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
+              if (
+                isDynamicLeafWithoutMetaReactivePaths(
+                  unEvalDataTree,
+                  fullPropertyPath,
+                  configTree,
+                )
+              ) {
                 //binding
                 const entityPathDependencies = getEntityPathDependencies(
                   entity,
