@@ -1,9 +1,9 @@
 import React from "react";
-import { usePluginActionContext } from "../../../../../../PluginActionEditor";
-import { useFeatureFlag } from "../../../../../../utils/hooks/useFeatureFlag";
+import { usePluginActionContext } from "PluginActionEditor";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useSelector } from "react-redux";
-import { getPagePermissions } from "../../../../../../selectors/editorSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
