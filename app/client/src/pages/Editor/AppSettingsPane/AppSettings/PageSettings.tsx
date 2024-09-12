@@ -126,6 +126,10 @@ function PageSettings(props: { page: Page }) {
     }
   }, [isUpdatingEntity]);
 
+  useEffect(() => {
+    setIsPageNameValid("");
+  }, [page]);
+
   const savePageName = useCallback(() => {
     if (!canManagePages || !!isPageNameValid || page.pageName === pageName)
       return;
