@@ -328,7 +328,13 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           // close property pane after delete
           yield put(closePropertyPane());
           yield put(
-            selectWidgetInitAction(SelectionRequestType.Unselect, [widgetId]),
+            selectWidgetInitAction(
+              SelectionRequestType.Unselect,
+              [widgetId],
+              undefined,
+              undefined,
+              parentId,
+            ),
           );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
