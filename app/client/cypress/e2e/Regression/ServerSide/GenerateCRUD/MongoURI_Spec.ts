@@ -140,6 +140,11 @@ describe(
     });
 
     it("4. Verify Delete from Deploy page - on MongoMart", () => {
+      cy.get(`.t--widget-tablewidgetv2 .thead [role="columnheader"]`).each(($el, index) => {
+        // Iterate over each element and index
+        const headerText = ($el.attr("data-header") || "").trim(); // Get the text of the header and trim whitespace
+        cy.log(`Column header: ${headerText}, Index: ${index}`); // Log the header text and its index
+      });
       agHelper.ClickButton("Delete", 0);
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
