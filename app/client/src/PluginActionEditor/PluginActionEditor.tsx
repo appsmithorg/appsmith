@@ -49,7 +49,6 @@ const PluginActionEditor = (props: ChildrenProps) => {
     );
   }
 
-
   if (!action) {
     return <EntityNotFoundPane />;
   }
