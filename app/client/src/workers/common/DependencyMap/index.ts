@@ -148,8 +148,9 @@ export const updateDependencyMap = ({
           const allAddedPaths = getAllPaths({
             [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
           });
+          const isAddingNewEntity = entityName === fullPropertyPath;
           // If a new entity is added, add setter functions to all nodes
-          if (entityName === fullPropertyPath) {
+          if (isAddingNewEntity) {
             const addedNodes = getEntitySetterFunctions(
               entityConfig,
               entityName,
@@ -164,7 +165,9 @@ export const updateDependencyMap = ({
             didUpdateDependencyMap;
 
           if (isWidgetActionOrJsObject(entity)) {
-            if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
+            if (isAddingNewEntity) {
+              // is it a new ent
+              // non binding
               const entityDependencyMap = getEntityDependencies(
                 entity,
                 configTree[entityName],
@@ -188,21 +191,24 @@ export const updateDependencyMap = ({
                 );
               }
             } else {
-              const entityPathDependencies = getEntityPathDependencies(
-                entity,
-                entityConfig,
-                fullPropertyPath,
-                allKeys,
-              );
-              const { errors: extractDependencyErrors, references } =
-                extractInfoFromBindings(entityPathDependencies, allKeys);
+              if (isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
+                //binding
+                const entityPathDependencies = getEntityPathDependencies(
+                  entity,
+                  entityConfig,
+                  fullPropertyPath,
+                  allKeys,
+                );
+                const { errors: extractDependencyErrors, references } =
+                  extractInfoFromBindings(entityPathDependencies, allKeys);
 
-              setDependenciesToDepedencyMapFn(fullPropertyPath, references);
+                setDependenciesToDepedencyMapFn(fullPropertyPath, references);
 
-              didUpdateDependencyMap = true;
-              dataTreeEvalErrors = dataTreeEvalErrors.concat(
-                extractDependencyErrors,
-              );
+                didUpdateDependencyMap = true;
+                dataTreeEvalErrors = dataTreeEvalErrors.concat(
+                  extractDependencyErrors,
+                );
+              }
             }
           }
           break;
@@ -278,10 +284,7 @@ export const updateDependencyMap = ({
   const updateChangedDependenciesStart = performance.now();
 
   if (didUpdateDependencyMap) {
-    DependencyMapUtils.linkAffectedChildNodesToParent(
-      dependencyMap,
-      affectedNodes,
-    );
+    DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
     dataTreeEvalRef.sortedDependencies = dataTreeEvalRef.sortDependencies(
       dependencyMap,
       translatedDiffs,

@@ -253,10 +253,7 @@ describe("generateDataTreeWidget", () => {
       bindingPaths,
       reactivePaths: {
         ...bindingPaths,
-        isDirty: EvaluationSubstitutionType.TEMPLATE,
-        isFocused: EvaluationSubstitutionType.TEMPLATE,
         isValid: EvaluationSubstitutionType.TEMPLATE,
-        text: EvaluationSubstitutionType.TEMPLATE,
         value: EvaluationSubstitutionType.TEMPLATE,
         "meta.text": EvaluationSubstitutionType.TEMPLATE,
       },

@@ -699,6 +699,29 @@ export const isDynamicLeaf = (
   );
 };
 
+export const isBindingAndTriggerLeaf = (
+  unEvalTree: DataTree,
+  propertyPath: string,
+  configTree: ConfigTree,
+) => {
+  const [entityName, ...propPathEls] = _.toPath(propertyPath);
+  // Framework feature: Top level items are never leaves
+  if (entityName === propertyPath) return false;
+  // Ignore if this was a delete op
+  if (!unEvalTree.hasOwnProperty(entityName)) return false;
+
+  const entityConfig = configTree[entityName];
+  const entity = unEvalTree[entityName];
+  if (!isWidgetActionOrJsObject(entity)) return false;
+  const relativePropertyPath = convertPathToString(propPathEls);
+  return (
+    (!isEmpty(entityConfig.bindingPaths) &&
+      relativePropertyPath in entityConfig?.bindingPaths) ||
+    (isWidget(entityConfig) &&
+      relativePropertyPath in entityConfig?.triggerPaths)
+  );
+};
+
 export const addWidgetPropertyDependencies = ({
   widgetConfig,
   widgetName,
