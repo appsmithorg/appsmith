@@ -15,6 +15,7 @@ import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { getIsEditorInitialized } from "selectors/editorSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import { Text } from "@appsmith/ads";
 
 interface ChildrenProps {
   children: React.ReactNode[];
@@ -48,12 +49,29 @@ const PluginActionEditor = (props: ChildrenProps) => {
     );
   }
 
-  if (!action || !plugin) {
-    // Handle not found
+
+  if (!action) {
     return <EntityNotFoundPane />;
   }
+
+  if (!plugin) {
+    return (
+      <CenteredWrapper>
+        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
+          Plugin not installed!
+        </Text>
+      </CenteredWrapper>
+    );
+  }
+
   if (!settingsConfig || !editorConfig) {
-    throw Error("Plugin config for action not found");
+    return (
+      <CenteredWrapper>
+        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
+          Editor config not found!
+        </Text>
+      </CenteredWrapper>
+    );
   }
 
   return (

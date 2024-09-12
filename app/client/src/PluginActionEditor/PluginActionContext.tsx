@@ -8,7 +8,7 @@ import type { Action } from "entities/Action";
 import type { Plugin } from "api/PluginApi";
 import type { Datasource } from "entities/Datasource";
 
-interface PluginActionContext {
+interface PluginActionContextType {
   action: Action;
   editorConfig: unknown[];
   settingsConfig: unknown[];
@@ -17,14 +17,14 @@ interface PluginActionContext {
 }
 
 // No need to export this context to use it. Use the hook defined below instead
-const PluginActionContext = createContext<PluginActionContext | null>(null);
+const PluginActionContext = createContext<PluginActionContextType | null>(null);
 
 interface ChildrenProps {
   children: ReactNode[];
 }
 
 export const PluginActionContextProvider = (
-  props: ChildrenProps & PluginActionContext,
+  props: ChildrenProps & PluginActionContextType,
 ) => {
   const { action, children, datasource, editorConfig, plugin, settingsConfig } =
     props;
