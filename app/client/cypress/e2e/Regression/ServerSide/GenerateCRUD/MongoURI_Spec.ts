@@ -225,7 +225,11 @@ function GenerateCRUDNValidateDeployPage(
   appSettings.OpenPaneAndChangeTheme("Pacific");
   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
-  //Validating loaded table
+  cy.get(`${table._tableV2Head} [role="columnheader"]`).each(($el, index) => {
+    // Iterate over each element and index
+    const headerText = ($el.attr("data-header") || "").trim(); // Get the text of the header and trim whitespace
+    cy.log(`Column header: ${headerText}, Index: ${index}`); // Log the header text and its index
+  });
   agHelper.AssertElementExist(dataSources._selectedRow);
   table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
     expect($cellData).to.eq(col1Text);
