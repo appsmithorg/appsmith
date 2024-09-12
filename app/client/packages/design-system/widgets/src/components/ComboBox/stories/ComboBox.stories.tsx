@@ -56,7 +56,7 @@ export const Validation: Story = {
         alert("Form submitted");
       }}
     >
-      <Flex direction="column" gap="spacing-2" width="sizing-60">
+      <Flex direction="column" gap="spacing-5" width="sizing-60">
         <ComboBox
           description="description"
           isRequired

@@ -19,6 +19,8 @@ import {
   ModalBody,
   ModalFooter,
   ModalContent,
+  TextInput,
+  ComboBox,
 } from "@appsmith/wds";
 // This component is used only for testing purpose and is not used in the prod
 
@@ -135,6 +137,29 @@ export const ComplexForm = () => {
             </Flex>
           </Flex>
           <TextArea label="Your comment" />
+        </Flex>
+        <Flex gap="spacing-2">
+          <TextInput />
+          <ComboBox
+            items={[
+              {
+                id: "s",
+                label: "S",
+              },
+              {
+                id: "m",
+                label: "M",
+              },
+              {
+                id: "l",
+                label: "L",
+              },
+              {
+                id: "xl",
+                label: "XL",
+              },
+            ]}
+          />
         </Flex>
       </Flex>
 
