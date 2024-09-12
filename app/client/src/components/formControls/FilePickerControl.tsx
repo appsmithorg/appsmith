@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -8,7 +8,6 @@ import type { SetProgress } from "design-system-old";
 import { FilePickerV2, FileType } from "design-system-old";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
 import { Button, Modal, ModalBody, ModalContent } from "design-system";
 
@@ -39,6 +38,7 @@ const FilePickerContainer = styled.div`
     border-radius: 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0 !important;
   }
 `;
+
 type RenderFilePickerProps = FilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
@@ -52,8 +52,8 @@ export function RenderFilePicker(props: RenderFilePickerProps) {
     file: File;
     setProgress: SetProgress;
   } | null>(null);
+  const [fileData, setFileData] = useState<string | null>(null);
 
-  // const changeOpenState = (state: boolean) => setIsOpen(state);
   const FileUploader = useCallback(
     async (file: File, setProgress: SetProgress) => {
       if (!!file) {
@@ -61,14 +61,24 @@ export function RenderFilePicker(props: RenderFilePickerProps) {
           file,
           setProgress,
         });
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          const base64data = reader.result as string;
+          setFileData(base64data);
+        };
       } else {
         setAppFileToBeUploaded(null);
+        setFileData(null);
       }
     },
     [],
   );
 
-  const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
+  const onRemoveFile = useCallback(() => {
+    setAppFileToBeUploaded(null);
+    setFileData(null);
+  }, []);
 
   useEffect(() => {
     if (appFileToBeUploaded?.file) {
@@ -129,6 +139,7 @@ export function RenderFilePicker(props: RenderFilePickerProps) {
     </>
   );
 }
+
 class FilePickerControl extends BaseControl<FilePickerControlProps> {
   constructor(props: FilePickerControlProps) {
     super(props);
