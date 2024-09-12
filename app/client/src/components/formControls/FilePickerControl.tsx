@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -8,7 +8,6 @@ import type { SetProgress } from "@appsmith/ads-old";
 import { FilePickerV2, FileType } from "@appsmith/ads-old";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
 import { Button, Modal, ModalBody, ModalContent } from "@appsmith/ads";
 
@@ -48,7 +47,7 @@ type RenderFilePickerProps = FilePickerControlProps & {
   onChange: (event: any) => void;
 };
 
-function RenderFilePicker(props: RenderFilePickerProps) {
+export function RenderFilePicker(props: RenderFilePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
@@ -83,6 +82,9 @@ function RenderFilePicker(props: RenderFilePickerProps) {
           base64Content: base64data,
         });
       };
+    }
+    else{
+      props.input?.onChange("");
     }
   }, [appFileToBeUploaded]);
 
