@@ -225,7 +225,7 @@ function GenerateCRUDNValidateDeployPage(
   appSettings.OpenPaneAndChangeTheme("Pacific");
   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
-  cy.get(`${table._tableV2Head} [role="columnheader"]`).each(($el, index) => {
+  cy.get(`.t--widget-tablewidgetv2 .thead [role="columnheader"]`).each(($el, index) => {
     // Iterate over each element and index
     const headerText = ($el.attr("data-header") || "").trim(); // Get the text of the header and trim whitespace
     cy.log(`Column header: ${headerText}, Index: ${index}`); // Log the header text and its index
