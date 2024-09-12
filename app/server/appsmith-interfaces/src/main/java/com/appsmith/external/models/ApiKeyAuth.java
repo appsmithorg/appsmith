@@ -39,6 +39,6 @@ public class ApiKeyAuth extends AuthenticationDTO {
     @JsonView({Views.Public.class, FromRequest.class})
     String headerPrefix;
 
-    @JsonView(FromRequest.class)
+    @JsonView({Views.Internal.class, FromRequest.class})
     @Encrypted String value;
 }
