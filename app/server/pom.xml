@@ -48,7 +48,7 @@
         <snakeyaml.version>2.0</snakeyaml.version>
         <source.disabled>true</source.disabled>
         <spotless.version>2.36.0</spotless.version>
-        <testcontainers.version>1.19.3</testcontainers.version>
+        <testcontainers.version>1.20.1</testcontainers.version>
     </properties>
 
     <build>
