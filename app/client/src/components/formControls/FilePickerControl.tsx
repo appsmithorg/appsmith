@@ -46,7 +46,7 @@ type RenderFilePickerProps = FilePickerControlProps & {
   onChange: (event: any) => void;
 };
 
-function RenderFilePicker(props: RenderFilePickerProps) {
+export function RenderFilePicker(props: RenderFilePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
