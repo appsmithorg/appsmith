@@ -78,7 +78,7 @@
     margin-block-end: var(--body-margin-end);
     inline-size: var(--body-line-height);
     margin-inline-start: var(--body-margin-start);
-    margin-inline-end: var(--body-margin-end);
+    margin-inline-end: var(--body-margin-start);
   }
 
   /**
