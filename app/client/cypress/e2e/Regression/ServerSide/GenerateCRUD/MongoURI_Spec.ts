@@ -22,6 +22,10 @@ describe(
   () => {
     let dsName: any;
 
+    beforeEach(() => {
+      agHelper.CypressReload();
+    });
+
     it("1. Create DS & Generate CRUD template", () => {
       dataSources.NavigateToDSCreateNew();
       agHelper.GenerateUUID();
@@ -140,11 +144,6 @@ describe(
     });
 
     it("4. Verify Delete from Deploy page - on MongoMart", () => {
-      cy.get(`.t--widget-tablewidgetv2 .thead [role="columnheader"]`).each(($el, index) => {
-        // Iterate over each element and index
-        const headerText = ($el.attr("data-header") || "").trim(); // Get the text of the header and trim whitespace
-        cy.log(`Column header: ${headerText}, Index: ${index}`); // Log the header text and its index
-      });
       agHelper.ClickButton("Delete", 0);
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
@@ -230,11 +229,6 @@ function GenerateCRUDNValidateDeployPage(
   appSettings.OpenPaneAndChangeTheme("Pacific");
   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
-  cy.get(`.t--widget-tablewidgetv2 .thead [role="columnheader"]`).each(($el, index) => {
-    // Iterate over each element and index
-    const headerText = ($el.attr("data-header") || "").trim(); // Get the text of the header and trim whitespace
-    cy.log(`Column header: ${headerText}, Index: ${index}`); // Log the header text and its index
-  });
   agHelper.AssertElementExist(dataSources._selectedRow);
   table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
     expect($cellData).to.eq(col1Text);
