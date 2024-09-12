@@ -40,7 +40,7 @@
               "value": "https://www.googleapis.com/auth/drive.file"
             }
           ],
-          "initialValue": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive",
+          "initialValue": "https://www.googleapis.com/auth/drive.file",
           "customStyles": {
             "width": "340px"
           }
