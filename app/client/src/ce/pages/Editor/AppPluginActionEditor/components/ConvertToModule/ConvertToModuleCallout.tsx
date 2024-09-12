@@ -35,7 +35,7 @@ const ConvertToModuleCallout = () => {
   );
   if (!isConverting) return null;
   return (
-    <Flex p="spaces-7">
+    <Flex p="spaces-7" w="100%">
       {/* eslint-disable-next-line react-perf/jsx-no-jsx-as-prop */}
       <ConvertEntityNotification icon={<PluginIcon />} name={action.name} />
     </Flex>

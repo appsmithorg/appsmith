@@ -4,16 +4,21 @@ import {
   PluginActionForm,
   PluginActionResponsePane,
 } from "PluginActionEditor";
-import ConvertToModuleCallout from "./components/ConvertToModuleCallout";
+import {
+  ConvertToModuleDisabler,
+  ConvertToModuleCallout,
+} from "./components/ConvertToModule";
 import AppPluginActionToolbar from "./components/AppPluginActionToolbar";
 
 const AppPluginActionEditor = () => {
   return (
     <PluginActionEditor>
-      <AppPluginActionToolbar />
-      <ConvertToModuleCallout />
-      <PluginActionForm />
-      <PluginActionResponsePane />
+      <ConvertToModuleDisabler>
+        <AppPluginActionToolbar />
+        <ConvertToModuleCallout />
+        <PluginActionForm />
+        <PluginActionResponsePane />
+      </ConvertToModuleDisabler>
     </PluginActionEditor>
   );
 };

@@ -18,7 +18,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { Text } from "@appsmith/ads";
 
 interface ChildrenProps {
-  children: React.ReactNode[];
+  children: React.ReactNode | React.ReactNode[];
 }
 
 const PluginActionEditor = (props: ChildrenProps) => {
