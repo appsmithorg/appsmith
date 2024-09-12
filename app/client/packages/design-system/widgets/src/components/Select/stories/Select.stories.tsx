@@ -32,7 +32,7 @@ export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="sizing-60">
       {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
+        .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
           <Select
             items={selectItems}

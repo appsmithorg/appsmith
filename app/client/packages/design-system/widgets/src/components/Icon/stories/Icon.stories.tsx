@@ -22,9 +22,10 @@ export const Main: Story = {
 /**
  * The Icon component comes with three sizes
  *
- * - small — 1rem = 16px
- * - medium — 1.5rem = 24px
- * - large — 2rem = 32px
+ * - xSmall = 14px
+ * - small = 16px
+ * - medium = 24px
+ * - large = 32px
  */
 export const Sizes: Story = {
   render: () => (

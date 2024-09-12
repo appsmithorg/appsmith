@@ -161,6 +161,30 @@ export const ComplexForm = () => {
             ]}
           />
         </Flex>
+        <Flex gap="spacing-2">
+          <TextInput size="small" />
+          <ComboBox
+            items={[
+              {
+                id: "s",
+                label: "S",
+              },
+              {
+                id: "m",
+                label: "M",
+              },
+              {
+                id: "l",
+                label: "L",
+              },
+              {
+                id: "xl",
+                label: "XL",
+              },
+            ]}
+            size="small"
+          />
+        </Flex>
       </Flex>
 
       <Flex gap="spacing-2">

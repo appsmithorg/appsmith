@@ -5,6 +5,8 @@ import {
   FieldListPopover,
   Button,
 } from "@appsmith/wds";
+import { getTypographyClassName } from "@appsmith/wds-theming";
+import clsx from "clsx";
 import React from "react";
 import { ComboBox as HeadlessCombobox, Input } from "react-aria-components";
 import styles from "./styles.module.css";
@@ -40,12 +42,17 @@ export const ComboBox = (props: ComboBoxProps) => {
             text={label}
           />
           <div className={styles.inputWrapper}>
-            <Input className={styles.input} placeholder={placeholder} />
+            <Input
+              className={clsx(styles.input, getTypographyClassName("body"))}
+              placeholder={placeholder}
+            />
             <Button
+              color={Boolean(isLoading) ? "neutral" : "accent"}
               icon="chevron-down"
               isLoading={isLoading}
-              size={size}
+              size={size === "medium" ? "small" : "xSmall"}
               slot={Boolean(isLoading) ? null : ""}
+              variant={Boolean(isLoading) ? "ghost" : "filled"}
             />
           </div>
           <FieldError errorMessage={errorMessage} />
