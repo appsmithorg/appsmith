@@ -1,5 +1,8 @@
 package com.appsmith.server.migrations.utils;
 
+import com.appsmith.external.constants.PluginConstants;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
@@ -44,7 +47,34 @@ public class JsonSchemaMigrationHelper {
                     return newActionService
                             .findAllByApplicationIdAndViewMode(
                                     branchedApplication.getId(), Boolean.FALSE, Optional.empty(), Optional.empty())
-                            .filter(MigrationHelperMethods::conditionForDefaultRestDatasource)
+                            .filter(action -> {
+                                if (action.getUnpublishedAction() == null
+                                        || action.getUnpublishedAction().getDatasource() == null) {
+                                    return false;
+                                }
+
+                                Datasource actionDatasource =
+                                        action.getUnpublishedAction().getDatasource();
+
+                                // lenient probable check for the  default rest datasource action is.
+                                // As we don't have any harm in the allowing API actions present in db.
+                                // it has no datasource id and action's plugin type is API
+                                boolean probableCheckForDefaultRestDatasource =
+                                        !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
+                                                && PluginType.API.equals(action.getPluginType());
+
+                                // condition to check if the action is default rest datasource.
+                                // it has no datasource id and name is equal to DEFAULT_REST_DATASOURCE
+                                boolean certainCheckForDefaultRestDatasource =
+                                        !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
+                                                && PluginConstants.DEFAULT_REST_DATASOURCE.equals(
+                                                        actionDatasource.getName());
+
+                                // Two separate types of checks over here, it's either the obvious certain way to
+                                // identify or
+                                // the likely chance that the datasource is present.
+                                return certainCheckForDefaultRestDatasource || probableCheckForDefaultRestDatasource;
+                            })
                             .collectMap(NewAction::getGitSyncId);
                 })
                 .map(newActionMap -> {
