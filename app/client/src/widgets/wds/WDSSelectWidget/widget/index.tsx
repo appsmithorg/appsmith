@@ -20,7 +20,7 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSSelectWidgetProps } from "./types";
-import type { SelectItem } from "@appsmith/wds/src/components/Select/src/types";
+import type { FieldListPopoverItem } from "@appsmith/wds";
 
 const isTrueObject = (item: unknown): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
@@ -135,7 +135,7 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
 
   optionsToSelectItems = (
     options: WDSSelectWidgetProps["options"],
-  ): SelectItem[] => {
+  ): FieldListPopoverItem[] => {
     if (Array.isArray(options)) {
       const items = options.map((option) => ({
         label: option[this.props.optionLabel || "label"] as string,
