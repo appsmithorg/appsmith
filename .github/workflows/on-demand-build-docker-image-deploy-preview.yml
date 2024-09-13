@@ -118,6 +118,10 @@ jobs:
   push-image:
     needs: [client-build, rts-build, server-build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
     if: success()
     steps:
       # Check out merge commit
