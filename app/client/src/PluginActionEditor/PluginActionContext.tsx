@@ -20,7 +20,7 @@ interface PluginActionContextType {
 const PluginActionContext = createContext<PluginActionContextType | null>(null);
 
 interface ChildrenProps {
-  children: ReactNode[];
+  children: ReactNode | ReactNode[];
 }
 
 export const PluginActionContextProvider = (
