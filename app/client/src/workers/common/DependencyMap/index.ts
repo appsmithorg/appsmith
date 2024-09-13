@@ -98,6 +98,15 @@ const setDependenciesToDependencyMap =
     addingAffectedNodesToList(affectedNodes, [node, ...dependencies]);
   };
 
+const excludeNodes = [
+  "version",
+  "parentId",
+  "renderMode",
+  "isMobile",
+  "creatorId",
+  "labelComponentWidth",
+];
+
 export const updateDependencyMap = ({
   configTree,
   dataTreeEvalRef,
@@ -164,9 +173,11 @@ export const updateDependencyMap = ({
             addNodesToDepedencyMapFn(allAddedPaths, false) ||
             didUpdateDependencyMap;
 
-          const isAddingNewWidget = entityName === fullPropertyPath;
           if (isWidgetActionOrJsObject(entity)) {
-            if (isAddingNewWidget) {
+            if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
+              if (excludeNodes.some((v) => fullPropertyPath.endsWith(v))) {
+                break;
+              }
               const entityDependencyMap = getEntityDependencies(
                 entity,
                 configTree[entityName],
@@ -190,23 +201,21 @@ export const updateDependencyMap = ({
                 );
               }
             } else {
-              if (isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
-                const entityPathDependencies = getEntityPathDependencies(
-                  entity,
-                  entityConfig,
-                  fullPropertyPath,
-                  allKeys,
-                );
-                const { errors: extractDependencyErrors, references } =
-                  extractInfoFromBindings(entityPathDependencies, allKeys);
+              const entityPathDependencies = getEntityPathDependencies(
+                entity,
+                entityConfig,
+                fullPropertyPath,
+                allKeys,
+              );
+              const { errors: extractDependencyErrors, references } =
+                extractInfoFromBindings(entityPathDependencies, allKeys);
 
-                setDependenciesToDepedencyMapFn(fullPropertyPath, references);
+              setDependenciesToDepedencyMapFn(fullPropertyPath, references);
 
-                didUpdateDependencyMap = true;
-                dataTreeEvalErrors = dataTreeEvalErrors.concat(
-                  extractDependencyErrors,
-                );
-              }
+              didUpdateDependencyMap = true;
+              dataTreeEvalErrors = dataTreeEvalErrors.concat(
+                extractDependencyErrors,
+              );
             }
           }
           break;
