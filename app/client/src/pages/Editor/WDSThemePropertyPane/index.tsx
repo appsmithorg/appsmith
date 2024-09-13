@@ -1,7 +1,6 @@
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { isValidColor } from "utils/helpers";
-import { FONT_METRICS } from "@appsmith/wds-theming";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
 import type { ThemeSetting } from "constants/AppConstants";
@@ -13,7 +12,7 @@ import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "@appsmith/ads";
+import { SegmentedControl, Tooltip, Icon } from "@appsmith/ads";
 
 import styles from "./styles.module.css";
 
@@ -33,14 +32,6 @@ const SubText = styled.p`
   line-height: 1rem;
   font-weight: var(--ads-v2-font-weight-normal);
   color: var(--ads-v2-color-fg);
-`;
-
-const FontText = styled.div`
-  border-radius: var(--ads-v2-border-radius);
-  border: 1px solid var(--ads-v2-color-border);
-  font-size: 11px;
-  height: 18px;
-  width: 18px;
 `;
 
 const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS.map(
@@ -182,49 +173,6 @@ function WDSThemePropertyPane() {
               />
             </label>
           </div>
-        </section>
-      </SettingSection>
-
-      <SettingSection
-        className="px-4 py-3 border-t "
-        data-testid="t--anvil-theme-settings-typography"
-        isDefaultOpen
-        title="Typography"
-      >
-        <section className="space-y-2">
-          <Select
-            data-testid="t--anvil-theme-settings-font-family"
-            dropdownClassName="t--theme-font-dropdown"
-            onSelect={(value: string) => {
-              updateTheme({
-                ...theme,
-                fontFamily: value,
-              });
-            }}
-            value={theme.fontFamily}
-          >
-            {Object.keys({
-              "System Default": "System Default",
-              ...FONT_METRICS,
-            })
-              .filter((item) => {
-                return (
-                  ["-apple-system", "BlinkMacSystemFont", "Segoe UI"].includes(
-                    item,
-                  ) === false
-                );
-              })
-              .map((option, index) => (
-                <Option key={index} value={option}>
-                  <div className="flex items-center w-full space-x-2 cursor-pointer">
-                    <FontText className="flex items-center justify-center">
-                      Aa
-                    </FontText>
-                    <div className="leading-normal">{option}</div>
-                  </div>
-                </Option>
-              ))}
-          </Select>
         </section>
       </SettingSection>
 
