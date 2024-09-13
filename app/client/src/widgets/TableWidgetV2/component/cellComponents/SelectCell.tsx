@@ -237,6 +237,7 @@ export const SelectCell = (props: SelectProps) => {
           compactMode
           dropDownWidth={width}
           filterText={filterText}
+          hasError={!isEditableCellValid}
           height={TABLE_SIZES[compactMode].ROW_HEIGHT}
           hideCancelIcon
           isFilterable={isFilterable}

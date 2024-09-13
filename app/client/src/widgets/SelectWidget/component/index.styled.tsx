@@ -109,34 +109,22 @@ export const StyledSingleDropDown = styled(
     box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
     border-color: ${(props) =>
-      !props.isValid
+      props.hasError
         ? "var(--wds-color-border-danger)"
-        : props.hasError
-          ? "var(--wds-color-border-danger)"
-          : "var(--wds-color-border)"};
+        : "var(--wds-color-border)"};
     &:hover {
       border-color: ${(props) =>
-        !props.isValid
+        props.hasError
           ? "var(--wds-color-border-danger-hover)"
-          : props.hasError
-            ? "var(--wds-color-border-danger-hover)"
-            : "var(--wds-color-border-hover)"};
+          : "var(--wds-color-border-hover)"};
     }
     &:focus {
       outline: 0;
       border-color: ${(props) =>
-        !props.isValid
-          ? "var(--wds-color-border-danger)"
-          : props.hasError
-            ? "var(--wds-color-border-danger)"
-            : props.accentColor};
+        props.hasError ? "var(--wds-color-border-danger)" : props.accentColor};
       box-shadow: ${(props) =>
         `0px 0px 0px 2px ${lightenColor(
-          !props.isValid
-            ? Colors.DANGER_SOLID
-            : props.hasError
-              ? Colors.DANGER_SOLID
-              : props.accentColor,
+          props.hasError ? Colors.DANGER_SOLID : props.accentColor,
         )} !important;`};
     }
   }
@@ -144,18 +132,18 @@ export const StyledSingleDropDown = styled(
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
     outline: 0;
     ${(props) =>
-      !props.isValid
-        ? `border: 1px solid var(--wds-color-border-danger);`
-        : !props.hasError
-          ? `
-        border-color: ${
-          props.hasError ? "var(--wds-color-border-danger)" : props.accentColor
-        };
-        box-shadow: ${`0px 0px 0px 2px ${lightenColor(
-          props.hasError ? Colors.DANGER_SOLID : props.accentColor,
-        )} !important;`};
-      `
-          : `border: 1px solid var(--wds-color-border-danger);`}
+      !props.hasError
+        ? `
+border-color: ${
+            props.hasError
+              ? "var(--wds-color-border-danger)"
+              : props.accentColor
+          };
+box-shadow: ${`0px 0px 0px 2px ${lightenColor(
+            props.hasError ? Colors.DANGER_SOLID : props.accentColor,
+          )} !important;`};
+`
+        : `border: 1px solid var(--wds-color-border-danger);`}
   }
   &&&&& .${Classes.DISABLED} {
     background-color: var(--wds-color-bg-disabled);
