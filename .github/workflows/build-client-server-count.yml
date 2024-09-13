@@ -136,14 +136,39 @@ jobs:
           name: cypress-repeat-logs
           path: app/client
 
+      - name: Download the ci_test_status
+        uses: actions/download-artifact@v4
+        with:
+            name: ci_test_status
+            path: app/client
+
       - name: Read and Set File Content as ENV Variable
         id: set-summary-content
         run: |
             summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
-            echo "summary_content=$summary_content" >> $GITHUB_ENV   
+            echo "summary_content=$summary_content" >> $GITHUB_ENV 
+            - name: Check CI Test Result
+            id: check-ci-test
+            run: |
+                # Check if the ci_test_failed flag is set
+                if [ -f app/client/ci_test_status.txt ]; then
+                  if grep -q "ci_test_failed=true" app/client/ci_test_status.txt; then
+                      echo "Tests failed. Please review the test results."
+                      echo "ci_test_failed=true" >> $GITHUB_ENV
+                  elif grep -q "ci_test_failed=false" app/client/ci_test_status.txt; then
+                      echo "Tests passed."
+                      echo "ci_test_failed=false" >> $GITHUB_ENV
+                  else
+                      echo "Test status unknown. Please check ci_test_status.txt."
+                      echo "ci_test_failed=unknown" >> $GITHUB_ENV
+                  fi
+              else
+                  echo "ci_test_status.txt file not found."
+                  echo "ci_test_failed=unknown" >> $GITHUB_ENV
+              fi
 
       - name: Add a comment on the PR with new CI failures
-        if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -158,7 +183,7 @@ jobs:
             ```
 
       - name: Add a comment on the PR when ci-test-limited is success
-        if: needs.ci-test-limited.result == 'success' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -183,19 +208,6 @@ jobs:
       run:
         shell: bash
     steps:
-
-      - name: Download the client build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: cypress-repeat-logs
-          path: app/client
-
-      - name: Read and Set File Content as ENV Variable
-        id: set-summary-content
-        run: |
-            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
-            echo "summary_content=$summary_content" >> $GITHUB_ENV 
-
       - name: Setup node
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         uses: actions/setup-node@v4
@@ -279,14 +291,47 @@ jobs:
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+       
+      - name: Download the client build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cypress-repeat-logs
+          path: app/client
 
-      - name: Decode Summary Content
-        run: |
-          decoded_summary_content=$(echo "${{ needs.ci-test-limited-existing-docker-image.outputs.summary_content }}")
-          echo "decoded_summary_content=$decoded_summary_content" >> $GITHUB_ENV
+      - name: Download the ci_test_status
+        uses: actions/download-artifact@v4
+        with:
+          name: ci_test_status
+          path: app/client    
   
+      - name: Read and Set File Content as ENV Variable
+        id: set-summary-content
+        run: |
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            echo "summary_content=$summary_content" >> $GITHUB_ENV     
+    
+      - name: Check CI Test Result
+        id: check-ci-test
+        run: |
+            # Check if the ci_test_failed flag is set
+            if [ -f app/client/ci_test_status.txt ]; then
+              if grep -q "ci_test_failed=true" app/client/ci_test_status.txt; then
+                  echo "Tests failed. Please review the test results."
+                  echo "ci_test_failed=true" >> $GITHUB_ENV
+              elif grep -q "ci_test_failed=false" app/client/ci_test_status.txt; then
+                  echo "Tests passed."
+                  echo "ci_test_failed=false" >> $GITHUB_ENV
+              else
+                  echo "Test status unknown. Please check ci_test_status.txt."
+                  echo "ci_test_failed=unknown" >> $GITHUB_ENV
+              fi
+            else
+                echo "ci_test_status.txt file not found."
+                echo "ci_test_failed=unknown" >> $GITHUB_ENV
+            fi 
+
       - name: Add a comment on the PR with new CI failures
-        if: needs.ci-test-limited-existing-docker-image.result != 'success' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -300,7 +345,7 @@ jobs:
             ```
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
-        if: needs.ci-test-limited-existing-docker-image.result == 'success' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -311,7 +356,7 @@ jobs:
             ```
             ${{ env.summary_content }}
             ```
-
+            
       - name: Check ci-test-limited-existing-docker-image set status
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         run: exit 1
