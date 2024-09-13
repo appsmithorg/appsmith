@@ -380,7 +380,14 @@ jobs:
             path: ${{ github.workspace }}/app/client/cy-repeat-summary.txt
             overwrite: true
 
-    
+      - name: Upload ci_test_status.txt artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+            name: ci_test_status
+            path: ${{ github.workspace }}/app/client/ci_test_status.txt
+            overwrite: true    
+
       - name: Upload failed test cypress logs artifact
         if: failure()
         uses: actions/upload-artifact@v4
