@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
@@ -20,25 +20,31 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "ee/reducers";
 import {
   copyActionRequest,
   deleteAction,
   moveActionRequest,
 } from "actions/pluginActionActions";
-import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import type { Page } from "entities/Page";
+import { getPageList } from "ee/selectors/entitiesSelector";
+import { ConvertToModuleCTA } from "./ConvertToModule";
+
+const PageMenuItem = (props: {
+  page: Page;
+  onSelect: (id: string) => void;
+}) => {
+  const handleOnSelect = useCallback(() => {
+    props.onSelect(props.page.pageId);
+  }, [props]);
+  return <MenuItem onSelect={handleOnSelect}>{props.page.pageName}</MenuItem>;
+};
 
 const Copy = () => {
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map((page) => ({
-      label: page.pageName,
-      id: page.pageId,
-      baseId: page.basePageId,
-      value: page.pageName,
-    }));
-  });
+  const menuPages = useSelector(getPageList);
   const { action } = usePluginActionContext();
   const dispatch = useDispatch();
+
   const copyActionToPage = useCallback(
     (pageId: string) =>
       dispatch(
@@ -50,6 +56,7 @@ const Copy = () => {
       ),
     [action.id, action.name, dispatch],
   );
+
   return (
     <MenuSub>
       <MenuSubTrigger startIcon="duplicate">
@@ -58,12 +65,11 @@ const Copy = () => {
       <MenuSubContent>
         {menuPages.map((page) => {
           return (
-            <MenuItem
-              key={page.baseId}
-              onSelect={() => copyActionToPage(page.id)}
-            >
-              {page.label}
-            </MenuItem>
+            <PageMenuItem
+              key={page.basePageId}
+              onSelect={copyActionToPage}
+              page={page}
+            />
           );
         })}
       </MenuSubContent>
@@ -74,17 +80,13 @@ const Copy = () => {
 const Move = () => {
   const dispatch = useDispatch();
   const { action } = usePluginActionContext();
-  const currentPageId = useSelector(getCurrentBasePageId);
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages
-      .filter((page) => page.pageId !== currentPageId)
-      .map((page) => ({
-        label: page.pageName,
-        id: page.pageId,
-        baseId: page.basePageId,
-        value: page.pageName,
-      }));
-  });
+
+  const currentPageId = useSelector(getCurrentPageId);
+  const allPages = useSelector(getPageList);
+  const menuPages = useMemo(() => {
+    return allPages.filter((page) => page.pageId !== currentPageId);
+  }, [allPages, currentPageId]);
+
   const moveActionToPage = useCallback(
     (destinationPageId: string) =>
       dispatch(
@@ -97,6 +99,7 @@ const Move = () => {
       ),
     [dispatch, action.id, action.name, currentPageId],
   );
+
   return (
     <MenuSub>
       <MenuSubTrigger startIcon="swap-horizontal">
@@ -106,14 +109,11 @@ const Move = () => {
         {menuPages.length > 1 ? (
           menuPages.map((page) => {
             return (
-              <MenuItem
-                key={page.baseId}
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                //@ts-ignore
-                onSelect={() => moveActionToPage(page.id)}
-              >
-                {page.label}
-              </MenuItem>
+              <PageMenuItem
+                key={page.basePageId}
+                onSelect={moveActionToPage}
+                page={page}
+              />
             );
           })
         ) : (
@@ -125,35 +125,37 @@ const Move = () => {
 };
 
 const Delete = () => {
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
   const { action } = usePluginActionContext();
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const deleteActionFromPage = useCallback(() => {
     dispatch(deleteAction({ id: action.id, name: action.name }));
-    // Reset the delete confirmation state because it can navigate to another action
-    // which will not remount this component
-    setConfirmDelete(false);
-  }, [dispatch]);
+  }, [action.id, action.name, dispatch]);
+
+  const handleSelect = useCallback(() => {
+    confirmDelete ? deleteActionFromPage() : setConfirmDelete(true);
+  }, [confirmDelete, deleteActionFromPage]);
+
+  const menuLabel = confirmDelete
+    ? createMessage(CONFIRM_CONTEXT_DELETE)
+    : createMessage(CONTEXT_DELETE);
+
   return (
     <MenuItem
       className="t--apiFormDeleteBtn error-menuitem"
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //@ts-ignore
-      onSelect={(e: Event) => {
-        e.preventDefault();
-        confirmDelete ? deleteActionFromPage() : setConfirmDelete(true);
-      }}
+      onSelect={handleSelect}
       startIcon="trash"
     >
-      {confirmDelete
-        ? createMessage(CONFIRM_CONTEXT_DELETE)
-        : createMessage(CONTEXT_DELETE)}
+      {menuLabel}
     </MenuItem>
   );
 };
 
 const AppPluginActionMenu = () => {
   const { action } = usePluginActionContext();
+
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
@@ -163,17 +165,17 @@ const AppPluginActionMenu = () => {
     isFeatureEnabled,
     action?.userPermissions,
   );
+
   return (
     <>
-      {isChangePermitted
-        ? [
-            <>
-              <Copy />
-              <Move />
-            </>,
-          ]
-        : null}
-      {isDeletePermitted ? <Delete /> : null}
+      <ConvertToModuleCTA />
+      {isChangePermitted && (
+        <>
+          <Copy />
+          <Move />
+        </>
+      )}
+      {isDeletePermitted && <Delete />}
     </>
   );
 };
