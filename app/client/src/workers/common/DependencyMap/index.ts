@@ -3,7 +3,6 @@ import {
   getAllPaths,
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
-  isDynamicLeaf,
 } from "ee/workers/Evaluation/evaluationUtils";
 import type {
   WidgetEntity,
@@ -98,15 +97,6 @@ const setDependenciesToDependencyMap =
     addingAffectedNodesToList(affectedNodes, [node, ...dependencies]);
   };
 
-const excludeNodes = [
-  "version",
-  "parentId",
-  "renderMode",
-  "isMobile",
-  "creatorId",
-  "labelComponentWidth",
-];
-
 export const updateDependencyMap = ({
   configTree,
   dataTreeEvalRef,
@@ -174,10 +164,7 @@ export const updateDependencyMap = ({
             didUpdateDependencyMap;
 
           if (isWidgetActionOrJsObject(entity)) {
-            if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
-              if (excludeNodes.some((v) => fullPropertyPath.endsWith(v))) {
-                break;
-              }
+            if (entityName === fullPropertyPath) {
               const entityDependencyMap = getEntityDependencies(
                 entity,
                 configTree[entityName],
