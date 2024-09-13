@@ -49,8 +49,6 @@ import { widgetInitialisationSuccess } from "../../actions/widgetActions";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
-  type ColorMode,
-  type IconStyle,
 } from "@appsmith/wds-theming";
 import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
@@ -114,11 +112,10 @@ function AppViewer(props: Props) {
   const wdsThemeProps = {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
-    colorMode: themeSetting.colorMode.toLowerCase() as ColorMode,
+    colorMode: themeSetting.colorMode.toLowerCase(),
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
-    iconStyle: themeSetting.iconStyle.toLowerCase() as IconStyle,
-  };
+  } as Parameters<typeof useTheme>[0];
   const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
   const focusRef = useWidgetFocus();

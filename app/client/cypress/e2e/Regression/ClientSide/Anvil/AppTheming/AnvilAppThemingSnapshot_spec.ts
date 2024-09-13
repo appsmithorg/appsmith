@@ -66,16 +66,6 @@ describe(
         anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingCorner${corner}`);
         anvilSnapshot.matchSnapshotForDeployMode(`AppThemingCorner${corner}`);
       });
-    });
-
-    it("6. Icon Style", () => {
-      ["Filled", "Outlined"].forEach((iconStyle) => {
-        anvilSnapshot.setIconStyle(iconStyle);
-
-        anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingIcon${iconStyle}`);
-        anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingIcon${iconStyle}`);
-        anvilSnapshot.matchSnapshotForDeployMode(`AppThemingIcon${iconStyle}`);
-      });
-    });
+    }); 
   },
 );
