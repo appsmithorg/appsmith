@@ -38,7 +38,6 @@ const StyledSelectComponent = styled(SelectComponent)<{
       }
 
       & button.bp3-button {
-        border-color: #fff;
         padding: 0 9px;
         min-height: ${(props) => {
           return props.isNewRow
