@@ -4,7 +4,6 @@ import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.views.Views;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,9 +49,6 @@ public final class JsonForDatabase {
         // If at all we decide to change this to `false`, it _has_ to be treated as debt, and paid off by changing it
         // back to `true`.
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        // This was added to support saving the null values inside the page dsl object
-        om.setSerializationInclusion(JsonInclude.Include.ALWAYS);
 
         om.setVisibility(om.getSerializationConfig()
                 .getDefaultVisibilityChecker()
