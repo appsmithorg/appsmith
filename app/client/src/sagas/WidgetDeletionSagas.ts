@@ -327,15 +327,23 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
-          yield put(
-            selectWidgetInitAction(
-              SelectionRequestType.Unselect,
-              [widgetId],
-              undefined,
-              undefined,
-              parentId,
-            ),
-          );
+
+          if (isAnvilLayout) {
+            yield put(
+              selectWidgetInitAction(
+                SelectionRequestType.Unselect,
+                [widgetId],
+                undefined,
+                undefined,
+                parentId,
+              ),
+            );
+          } else {
+            yield put(
+              selectWidgetInitAction(SelectionRequestType.Unselect, [widgetId]),
+            );
+          }
+
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
       }
