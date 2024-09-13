@@ -2,10 +2,13 @@ import React, { useCallback } from "react";
 import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
+<<<<<<< HEAD
 import { usePluginActionContext } from "../PluginActionContext";
 import { useDispatch } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { runAction } from "../../actions/pluginActionActions";
+=======
+>>>>>>> release
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -53,7 +56,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           size="sm"
           startIcon="settings-2-line"
         />
-        <Menu>
+        <Menu key={action.id}>
           <MenuTrigger>
             <Button
               isIconButton
@@ -62,7 +65,12 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
               startIcon="more-2-fill"
             />
           </MenuTrigger>
-          <MenuContent loop style={{ zIndex: 100 }} width="200px">
+          <MenuContent
+            key={action.id}
+            loop
+            style={{ zIndex: 100 }}
+            width="200px"
+          >
             {props.menuContent}
           </MenuContent>
         </Menu>

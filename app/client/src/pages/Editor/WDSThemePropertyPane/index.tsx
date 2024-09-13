@@ -19,7 +19,6 @@ import styles from "./styles.module.css";
 import {
   THEME_SETTINGS_BORDER_RADIUS_OPTIONS,
   THEME_SETTINGS_DENSITY_OPTIONS,
-  THEME_SETTINGS_ICON_STYLE_OPTIONS,
   THEME_SETTINGS_SIZING_OPTIONS,
   THEME_SETTINGS_COLOR_MODE_OPTIONS,
   THEME_SETTING_COLOR_PRESETS,
@@ -232,29 +231,6 @@ function WDSThemePropertyPane() {
             }}
             options={buttonGroupOptions}
             value={theme.borderRadius}
-          />
-        </section>
-      </SettingSection>
-
-      {/* Icon Style */}
-      <SettingSection
-        className="px-4 py-3 border-t"
-        isDefaultOpen
-        title="Icons"
-      >
-        <section className="space-y-2">
-          <SubText>Icon Style</SubText>
-          <SegmentedControl
-            data-testid="t--anvil-theme-settings-icon-style"
-            isFullWidth={false}
-            onChange={(value: string) => {
-              updateTheme({
-                ...theme,
-                iconStyle: value as ThemeSetting["iconStyle"],
-              });
-            }}
-            options={THEME_SETTINGS_ICON_STYLE_OPTIONS}
-            value={theme.iconStyle}
           />
         </section>
       </SettingSection>
