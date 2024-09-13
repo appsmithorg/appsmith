@@ -193,11 +193,12 @@ jobs:
           echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
 
       - name: Push to Docker Hub
-        uses: docker/build-push-action@v4
+        uses: depot/build-push-action@v1
         with:
           context: .
           pull: true
           push: true
+          platforms: linux/arm64,linux/amd64
           cache-from: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
