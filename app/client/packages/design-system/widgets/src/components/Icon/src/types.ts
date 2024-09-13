@@ -17,8 +17,6 @@ export interface IconProps extends DOMProps, AriaLabelingProps {
   name: keyof typeof ICONS;
   /** Storke width */
   stroke?: number;
-  /** Filled variant */
-  filled?: boolean;
   /** Defines a string value that labels the current element. */
   "aria-label"?: string;
   /** Defines the role of an element.  */

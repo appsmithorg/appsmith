@@ -72,6 +72,7 @@ export interface PropertyPaneControlConfig {
   controlType: ControlType;
   validationMessage?: string;
   dataTreePath?: string;
+  // used to define children property configs when the current property is a section
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
   updateRelatedWidgetProperties?: (

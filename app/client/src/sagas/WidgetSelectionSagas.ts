@@ -66,6 +66,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     const {
       basePageId,
       invokedBy,
+      parentId,
       payload = [],
       selectionRequestType,
     } = action.payload;
@@ -93,8 +94,9 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     // It is possible that the payload is empty.
     // These properties can be used for a finding sibling widgets for certain types of selections
     const widgetId = payload[0];
-    const parentId: string | undefined =
-      widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined;
+    const finalParentId: string | undefined =
+      parentId ||
+      (widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined);
 
     if (
       widgetId &&
@@ -115,7 +117,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       }
       case SelectionRequestType.One:
       case SelectionRequestType.Create: {
-        assertParentId(parentId);
+        assertParentId(finalParentId);
         newSelection = selectOneWidget(payload);
         break;
       }
@@ -124,10 +126,10 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       case SelectionRequestType.ShiftSelect: {
-        assertParentId(parentId);
+        assertParentId(finalParentId);
         const siblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
-          parentId,
+          finalParentId,
         );
         newSelection = shiftSelectWidgets(
           payload,
@@ -138,10 +140,10 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       case SelectionRequestType.PushPop: {
-        assertParentId(parentId);
+        assertParentId(finalParentId);
         const siblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
-          parentId,
+          finalParentId,
         );
         newSelection = pushPopWidgetSelection(
           payload,
@@ -151,7 +153,16 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       case SelectionRequestType.Unselect: {
-        newSelection = unselectWidget(payload, selectedWidgets);
+        const isParentExists = finalParentId
+          ? finalParentId in allWidgets
+          : false;
+
+        if (isParentExists) {
+          assertParentId(finalParentId);
+          newSelection = [finalParentId];
+        } else {
+          newSelection = unselectWidget(payload, selectedWidgets);
+        }
         break;
       }
       case SelectionRequestType.All: {
