@@ -66,6 +66,6 @@ describe(
         anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingCorner${corner}`);
         anvilSnapshot.matchSnapshotForDeployMode(`AppThemingCorner${corner}`);
       });
-    }); 
+    });
   },
 );
