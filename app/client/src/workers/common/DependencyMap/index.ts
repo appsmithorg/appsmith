@@ -148,6 +148,7 @@ export const updateDependencyMap = ({
           const allAddedPaths = getAllPaths({
             [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
           });
+
           // If a new entity is added, add setter functions to all nodes
           if (entityName === fullPropertyPath) {
             const addedNodes = getEntitySetterFunctions(
@@ -163,8 +164,9 @@ export const updateDependencyMap = ({
             addNodesToDepedencyMapFn(allAddedPaths, false) ||
             didUpdateDependencyMap;
 
+          const isAddingNewWidget = entityName === fullPropertyPath;
           if (isWidgetActionOrJsObject(entity)) {
-            if (!isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
+            if (isAddingNewWidget) {
               const entityDependencyMap = getEntityDependencies(
                 entity,
                 configTree[entityName],
@@ -188,21 +190,23 @@ export const updateDependencyMap = ({
                 );
               }
             } else {
-              const entityPathDependencies = getEntityPathDependencies(
-                entity,
-                entityConfig,
-                fullPropertyPath,
-                allKeys,
-              );
-              const { errors: extractDependencyErrors, references } =
-                extractInfoFromBindings(entityPathDependencies, allKeys);
+              if (isDynamicLeaf(unEvalDataTree, fullPropertyPath, configTree)) {
+                const entityPathDependencies = getEntityPathDependencies(
+                  entity,
+                  entityConfig,
+                  fullPropertyPath,
+                  allKeys,
+                );
+                const { errors: extractDependencyErrors, references } =
+                  extractInfoFromBindings(entityPathDependencies, allKeys);
 
-              setDependenciesToDepedencyMapFn(fullPropertyPath, references);
+                setDependenciesToDepedencyMapFn(fullPropertyPath, references);
 
-              didUpdateDependencyMap = true;
-              dataTreeEvalErrors = dataTreeEvalErrors.concat(
-                extractDependencyErrors,
-              );
+                didUpdateDependencyMap = true;
+                dataTreeEvalErrors = dataTreeEvalErrors.concat(
+                  extractDependencyErrors,
+                );
+              }
             }
           }
           break;
