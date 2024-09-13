@@ -88,12 +88,14 @@ public class PageDTO {
      */
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public Set<Policy> getPolicies() {
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public void setPolicies(Set<Policy> policies) {
         if (policies == null) {
             policyMap = null;

@@ -181,12 +181,14 @@ public class ActionCE_DTO implements Identifiable, Executable {
      */
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public Set<Policy> getPolicies() {
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public void setPolicies(Set<Policy> policies) {
         if (policies == null) {
             this.policyMap = null;
@@ -200,6 +202,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public String getValidName() {
         if (this.fullyQualifiedName == null) {
             return this.name;
@@ -210,6 +213,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public Set<String> getExecutableNames() {
         String validName = this.getValidName();
         HashSet<String> validNames = new HashSet<>();
@@ -225,6 +229,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    @Transient
     public EntityReferenceType getEntityReferenceType() {
         if (this.getPluginType() == null) {
             return null;
@@ -254,6 +259,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public Set<String> getSelfReferencingDataPaths() {
         if (this.getActionConfiguration() == null) {
             return new HashSet<>();
@@ -263,6 +269,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public ActionConfiguration getExecutableConfiguration() {
         return this.getActionConfiguration();
     }
@@ -275,18 +282,21 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public String getCompleteDynamicBindingPath(String fieldPath) {
         return this.getConfigurationPath() + "." + fieldPath;
     }
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public boolean hasExtractableBinding() {
         return PluginType.JS.equals(this.getPluginType());
     }
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public DslExecutableDTO getDslExecutable() {
         DslExecutableDTO dslExecutableDTO = new DslExecutableDTO();
 
@@ -307,6 +317,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    @Transient
     public LayoutExecutableUpdateDTO createLayoutExecutableUpdateDTO() {
         LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = Executable.super.createLayoutExecutableUpdateDTO();
         layoutExecutableUpdateDTO.setCollectionId(this.getCollectionId());
