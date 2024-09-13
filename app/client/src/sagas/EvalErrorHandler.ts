@@ -280,13 +280,13 @@ export function* evalErrorHandler(
       case EvalErrorTypes.PARSE_JS_ERROR: {
         let errorMessage = error.message;
         if (!!error.context) {
-          errorMessage = `${error.message} at: ${error.context?.propertyPath}`;
+          errorMessage = `${error.message}`;
         }
         toast.show(errorMessage, {
           kind: "error",
         });
         AppsmithConsole.error({
-          text: `${error.message} at: ${error.context?.propertyPath}`,
+          text: `${error.message}`,
         });
         break;
       }
