@@ -219,15 +219,28 @@ export function saveResolvedFunctionsAndJSUpdates(
   }
 
   if (!correctFormat && !isUndefined(entity.body)) {
-    const errors = {
-      type: EvalErrorTypes.PARSE_JS_ERROR,
-      context: {
-        entity: entity,
-        propertyPath: entityName + ".body",
-      },
-      message: "Start object with export default",
-    };
-    dataTreeEvalRef.errors.push(errors);
+    if (entity.body.trim() !== "") {
+      const errors = {
+        type: EvalErrorTypes.PARSE_JS_ERROR,
+        context: {
+          entity: entity,
+          propertyPath: entityName + ".body",
+        },
+        message: "Start object with export default",
+      };
+      dataTreeEvalRef.errors.push(errors);
+    } else {
+      const errors = {
+        type: EvalErrorTypes.PARSE_JS_ERROR,
+        context: {
+          entity: entity,
+          propertyPath: entityName,
+        },
+        message: "JS object must contain 'export default'.",
+        show: false,
+      };
+      dataTreeEvalRef.errors.push(errors);
+    }
   }
 
   return jsUpdates;
