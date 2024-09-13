@@ -58,7 +58,6 @@ const Canvas = (props: CanvasProps) => {
     colorMode: themeSetting.colorMode.toLowerCase(),
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
-    iconStyle: themeSetting.iconStyle.toLowerCase(),
   } as Parameters<typeof useTheme>[0];
   // in case of non-WDS theme, we will pass an empty object to useTheme hook
   // so that fixedLayout theme does not break because of calculations done in useTheme
