@@ -350,14 +350,19 @@ jobs:
                 --spec ${{ env.specs_to_run }} \
                 --config-file "cypress_ci_custom.config.ts"
             cat cy-repeat-summary.txt  
-            # Check if "Total Failed: 0" is present
+            # Define the path for the failure flag file
+            FAILURE_FLAG_FILE="ci_test_status.txt"
+            
+            # Check for test results and store the status in the file
             if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
-              echo "Tests failed, failing the GitHub Action."
-              exit 1  # Fails the step if tests failed
-            fi     
-
+                echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
+            else
+                echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
+            fi
+            cat "$FAILURE_FLAG_FILE"
+            
       - name: Trim number of cypress log files
-        if: failure()
+        if: always()
         run: |
           find ${{ github.workspace }}/app/client/cypress/cypress-logs -name '*.json' -type f | tail -n +11 | xargs -I {} rm -- {}
 
@@ -368,9 +373,17 @@ jobs:
           name: cypress-repeat-logs
           path: ${{ github.workspace }}/app/client/cy-repeat-summary.txt
           overwrite: true
+      
+      - name: Upload ci_test_status.txt artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+            name: ci_test_status
+            path: ${{ github.workspace }}/app/client/ci_test_status.txt
+            overwrite: true
 
       - name: Upload failed test cypress logs artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-console-logs
@@ -386,7 +399,7 @@ jobs:
           overwrite: true
 
       - name: Collect CI container logs
-        if: failure()
+        if: always()
         working-directory: "."
         run: |
           mkdir -p  ~/dockerlogs
@@ -394,7 +407,7 @@ jobs:
 
       # Upload docker logs
       - name: Upload failed test list artifact
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: dockerlogs
@@ -402,13 +415,13 @@ jobs:
           overwrite: true
 
       - name: Rename reports
-        if: failure()
+        if: always()
         run: |
           mkdir -p ~/results
           mv ${{ github.workspace }}/app/client/results ~/results
 
       - name: Upload cypress report
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: results-${{github.run_attempt}}
@@ -417,13 +430,13 @@ jobs:
 
       # Set status = failedtest
       - name: Set fail if there are test failures
-        if: failure()
+        if: always()
         run: |
           echo "failedtest" > ~/run_result
 
       # Force store previous run result to cache
       - name: Store the previous run result
-        if: failure()
+        if: always()
         uses: actions/cache/save@v4
         with:
           path: |
@@ -433,7 +446,7 @@ jobs:
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: server-logs
           path: app/server/server-logs.log
