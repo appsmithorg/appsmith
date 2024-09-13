@@ -473,6 +473,14 @@ function setup_auto_heal(){
    fi
 }
 
+function setup_monitoring(){
+   if [[ ${APPSMITH_MONITORING-} = 1 ]]; then
+     # By default APPSMITH_MONITORING=0
+     # To enable auto heal set APPSMITH_MONITORING=1
+     bash /opt/appsmith/JFR-recording-24-hours.sh $APPSMITH_LOG_DIR 2>&1 &
+   fi
+}
+
 print_appsmith_info(){
   tr '\n' ' ' < /opt/appsmith/info.json
 }
@@ -523,6 +531,7 @@ mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,p
 
 setup_auto_heal
 capture_infra_details
+setup_monitoring || echo true
 
 # Handle CMD command
 exec "$@"
