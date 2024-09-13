@@ -232,12 +232,12 @@ function GenerateCRUDNValidateDeployPage(
   agHelper.AssertElementExist(dataSources._selectedRow);
   table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
     expect($cellData).to.eq(col1Text);
-  });
-  table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
-    expect($cellData).to.eq(col6Text);
-  });
-  table.ReadTableRowColumnData(0, 7, "v2", 200).then(($cellData) => {
-    expect($cellData).to.eq(col7Text);
+    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
+      expect($cellData).to.eq(col6Text);
+      table.ReadTableRowColumnData(0, 7, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq(col7Text);
+      });
+    });
   });
 
   //Validating loaded JSON form
