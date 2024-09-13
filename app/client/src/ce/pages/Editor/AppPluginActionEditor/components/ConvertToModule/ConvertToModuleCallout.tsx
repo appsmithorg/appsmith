@@ -29,7 +29,7 @@ const ConvertToModuleCallout = () => {
     </EntityIcon>
   );
 
-  if (isConverting) return null;
+  if (!isConverting) return null;
   return (
     <Flex p="spaces-7" w="100%">
       <ConvertEntityNotification icon={PluginIcon} name={action.name} />
