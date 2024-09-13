@@ -401,28 +401,28 @@ jobs:
         if: always()
         run: ls -la ${{ github.workspace }}/app/client/results
 
-      - name: Prepare reports
-        if: always()
-        run: |
-          npm i -g mochawesome-merge
-          npm i -g mochawesome-report-generator
-          mochawesome-merge  ${{ github.workspace }}/app/client/results/*.json >  ${{ github.workspace }}/app/client/results/index.json
-          marge --charts=true --showPassed=false -o  ${{ github.workspace }}/app/client/results/  ${{ github.workspace }}/app/client/results/index.json
+      # - name: Prepare reports
+      #   if: always()
+      #   run: |
+      #     npm i -g mochawesome-merge
+      #     npm i -g mochawesome-report-generator
+      #     mochawesome-merge  ${{ github.workspace }}/app/client/results/*.json >  ${{ github.workspace }}/app/client/results/index.json
+      #     marge --charts=true --showPassed=false -o  ${{ github.workspace }}/app/client/results/  ${{ github.workspace }}/app/client/results/index.json
      
-      - name: Cypress report
-        uses: dmitry/cypress-report-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pathname:  ${{ github.workspace }}/app/client/results/index.json
-        if: always()
+      # - name: Cypress report
+      #   uses: dmitry/cypress-report-action@v1
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     pathname:  ${{ github.workspace }}/app/client/results/index.json
+      #   if: always()
 
-      - name: Upload cypress html
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-            name: snapshotsreport
-            path: ${{ github.workspace }}/app/client/results/.jsons
-            overwrite: true
+      # - name: Upload cypress html
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #       name: snapshotsreport
+      #       path: ${{ github.workspace }}/app/client/results/.jsons
+      #       overwrite: true
   
 
       - name: Collect CI container logs
