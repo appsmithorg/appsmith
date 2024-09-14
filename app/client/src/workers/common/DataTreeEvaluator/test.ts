@@ -369,8 +369,8 @@ describe("DataTreeEvaluator", () => {
 
   describe("array accessor dependency handling", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
-    beforeEach(() => {
-      dataTreeEvaluator.setupFirstTree(
+    beforeEach(async () => {
+      await dataTreeEvaluator.setupFirstTree(
         nestedArrayAccessorCyclicDependency.initUnEvalTree,
         nestedArrayAccessorCyclicDependencyConfig.initConfigTree,
         {},
