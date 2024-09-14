@@ -377,7 +377,7 @@ describe("DataTreeEvaluator", () => {
         {
           appId: "appId",
           pageId: "pageId",
-          timestamp: "timestamp",
+          timestamp: new Date().toISOString(),
           appMode: APP_MODE.PUBLISHED,
           instanceId: "instanceId",
           workspaceId: "workspaceId",
