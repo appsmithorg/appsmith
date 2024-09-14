@@ -101,7 +101,7 @@ function PageSettings(props: { page: Page }) {
     (name: string) => !isNameValid(name, conflictingNames),
     [conflictingNames],
   );
-
+  
   useEffect(() => {
     setPageName(page.pageName);
     setCustomSlug(page.customSlug || "");
@@ -126,6 +126,10 @@ function PageSettings(props: { page: Page }) {
     }
   }, [isUpdatingEntity]);
 
+  useEffect(() => {
+    setIsPageNameValid(undefined);
+  }, [page]);
+  
   const savePageName = useCallback(() => {
     if (!canManagePages || !!isPageNameValid || page.pageName === pageName)
       return;
