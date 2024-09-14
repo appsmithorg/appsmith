@@ -84,12 +84,8 @@ describe(
       table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.be.empty;
       });
-      table.ReadTableRowColumnData(2, 6, "v2", 2000).then(($cellData) => {
-        expect($cellData).to.eq("WiredTiger T-shirt");
-      });
-      table.ReadTableRowColumnData(2, 7, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("Apparel");
-      });
+      table.VerifyTableRowColumnData(2, 6, "v2", "WiredTiger T-shirt", 2000);
+      table.VerifyTableRowColumnData(2, 7, "v2", "Apparel", 200);
 
       table.SelectTableRow(8, 0, true, "v2");
       deployMode.ClearJSONFieldValue("Slogan");
@@ -230,15 +226,9 @@ function GenerateCRUDNValidateDeployPage(
   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
   agHelper.AssertElementExist(dataSources._selectedRow);
-  table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
-    expect($cellData).to.eq(col1Text);
-    table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
-      expect($cellData).to.eq(col6Text);
-      table.ReadTableRowColumnData(0, 7, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq(col7Text);
-      });
-    });
-  });
+  table.VerifyTableRowColumnData(0, 1, "v2", col1Text, 2000);
+  table.VerifyTableRowColumnData(0, 6, "v2", col6Text, 200);
+  table.VerifyTableRowColumnData(0, 7, "v2", col7Text, 200);
 
   //Validating loaded JSON form
   cy.xpath(locators._buttonByText("Update")).then((selector) => {

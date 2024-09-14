@@ -299,6 +299,20 @@ export class Table {
       .invoke("text");
   }
 
+  public VerifyTableRowColumnData(
+    rowNum: number,
+    colNum: number,
+    tableVersion: "v1" | "v2" = "v1",
+    text: string,
+    timeout = 1000,
+  ) {
+    //timeout can be sent higher values incase of larger tables
+    this.agHelper.Sleep(timeout); //Settling time for table!
+    return this.agHelper.AssertElementExist(
+      `${this._tableRowColumnData(rowNum, colNum, tableVersion)} div:contains("${text}")`,
+    );
+  }
+
   public AssertTableRowImageColumnIsLoaded(
     rowNum: number,
     colNum: number,
