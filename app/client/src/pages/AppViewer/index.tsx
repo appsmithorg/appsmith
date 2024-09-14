@@ -47,7 +47,6 @@ import {
 } from "ee/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import type { FontFamily } from "@appsmith/wds-theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -111,21 +110,15 @@ function AppViewer(props: Props) {
   );
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const themeSetting = useSelector(getAppThemeSettings);
-  const themeProps = {
-    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
-    seedColor: selectedTheme.properties.colors.primaryColor,
-    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  };
   const wdsThemeProps = {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
     colorMode: themeSetting.colorMode.toLowerCase(),
-    fontFamily: themeSetting.fontFamily as FontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
-    iconStyle: themeSetting.iconStyle.toLowerCase(),
-  };
-  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : themeProps);
+  } as Parameters<typeof useTheme>[0];
+  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
+
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
 

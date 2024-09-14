@@ -201,6 +201,9 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         boolean isViewMode = ApplicationMode.PUBLISHED.equals(mode);
 
         /* Fetch default application id if not provided */
+        if (isBlank(basePageId)) {
+            return Mono.when(fetches).thenReturn(consolidatedAPIResponseDTO);
+        }
         Mono<Application> branchedApplicationMonoCached;
         Mono<String> baseApplicationIdMono = Mono.just("");
         if (isViewMode) {
@@ -215,36 +218,29 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
-        Mono<NewPage> branchedPageMonoCached = Mono.empty();
-        if (!isBlank(basePageId)) {
-            branchedPageMonoCached = newPageService
-                    .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
-                    .cache();
-        }
+        Mono<NewPage> branchedPageMonoCached = newPageService
+                .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                .cache();
 
         branchedApplicationMonoCached = baseApplicationIdMono.flatMap(cachedBaseApplicationId -> {
             if (!StringUtils.hasText(cachedBaseApplicationId)) {
                 // Handle empty or null baseApplicationId
-                return newPageService
-                        .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
-                        .flatMap(branchedPage ->
-                                // Use the application ID to find the complete application details.
-                                applicationService
-                                        .findByBranchedApplicationIdAndApplicationMode(
-                                                branchedPage.getApplicationId(), mode)
-                                        .flatMap(application -> {
-                                            if (isViewMode) {
-                                                // Update the cache with the new application’s base ID for future
-                                                // queries.
-                                                return cacheableRepositoryHelper
-                                                        .fetchBaseApplicationId(basePageId, application.getBaseId())
-                                                        .thenReturn(application)
-                                                        .name(getQualifiedSpanName(
-                                                                APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
-                                                        .tap(Micrometer.observation(observationRegistry));
-                                            }
-                                            return Mono.just(application);
-                                        }));
+                return branchedPageMonoCached.flatMap(branchedPage ->
+                        // Use the application ID to find the complete application details.
+                        applicationService
+                                .findByBranchedApplicationIdAndApplicationMode(branchedPage.getApplicationId(), mode)
+                                .flatMap(application -> {
+                                    if (isViewMode) {
+                                        // Update the cache with the new application’s base ID for future
+                                        // queries.
+                                        return cacheableRepositoryHelper
+                                                .fetchBaseApplicationId(basePageId, application.getBaseId())
+                                                .thenReturn(application)
+                                                .name(getQualifiedSpanName(APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
+                                                .tap(Micrometer.observation(observationRegistry));
+                                    }
+                                    return Mono.just(application);
+                                }));
             } else {
                 // Handle non-empty baseApplicationId
                 return applicationService.findByBaseIdBranchNameAndApplicationMode(

@@ -1,13 +1,13 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "COUNT",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'COUNT'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select collection to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "COUNT-Z1",
       "children": [
         {
           "label": "Collection",
@@ -32,9 +32,8 @@
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "COUNT-Z2",
       "children": [
         {
           "label": "Query",

@@ -89,7 +89,6 @@ export interface ThemeSetting {
   density: number;
   sizing: number;
   fontFamily: string;
-  iconStyle: "FILLED" | "OUTLINED";
   appMaxWidth: AppMaxWidth;
 }
 
@@ -129,7 +128,6 @@ export const defaultThemeSetting: ThemeSetting = {
   borderRadius: "6px",
   density: 1,
   sizing: 1,
-  iconStyle: "OUTLINED",
   appMaxWidth: APP_MAX_WIDTH.Large,
 };
 

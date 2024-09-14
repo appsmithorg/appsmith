@@ -38,7 +38,7 @@ function getDburl() {
     let env_array = fs.readFileSync(Constants.ENV_PATH, 'utf8').toString().split("\n");
     for (let i in env_array) {
       if (env_array[i].startsWith("APPSMITH_MONGODB_URI") || env_array[i].startsWith("APPSMITH_DB_URL")) {
-        dbUrl = env_array[i].toString().split("=")[1];
+        dbUrl = env_array[i].toString().split("=")[1].trim();
         break; // Break early when the desired line is found
       }
     }
@@ -48,7 +48,7 @@ function getDburl() {
   let dbEnvUrl = process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGO_DB_URI;
   // Make sure dbEnvUrl takes precedence over dbUrl
   if (dbEnvUrl && dbEnvUrl !== "undefined") {
-    dbUrl = dbEnvUrl;
+    dbUrl = dbEnvUrl.trim();
   }
   return dbUrl;
 }
