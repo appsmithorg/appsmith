@@ -227,6 +227,27 @@ function GenerateCRUDNValidateDeployPage(
 
   agHelper.AssertElementExist(dataSources._selectedRow);
   table.VerifyTableRowColumnData(0, 1, "v2", col1Text, 2000);
+  agHelper
+    .GetElement(`.tbody .td[data-colindex=6] .cell-wrapper`)
+    .then(($elements: any) => {
+      const arr: string[] = [];
+      $elements.each((index: any, element: any) => {
+        const eleText = Cypress.$(element).text().trim();
+        arr.push(eleText);
+      });
+      cy.log(JSON.stringify(arr));
+    });
+
+  agHelper
+    .GetElement(`.tbody .td[data-colindex=7] .cell-wrapper`)
+    .then(($elements: any) => {
+      const arr: string[] = [];
+      $elements.each((index: any, element: any) => {
+        const eleText = Cypress.$(element).text().trim();
+        arr.push(eleText);
+      });
+      cy.log(JSON.stringify(arr));
+    });
   table.VerifyTableRowColumnData(0, 6, "v2", col6Text, 200);
   table.VerifyTableRowColumnData(0, 7, "v2", col7Text, 200);
 
