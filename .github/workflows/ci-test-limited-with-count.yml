@@ -362,7 +362,7 @@ jobs:
             cat "$FAILURE_FLAG_FILE"
             
       - name: Trim number of cypress log files
-        if: always()
+        if: failure()
         run: |
           find ${{ github.workspace }}/app/client/cypress/cypress-logs -name '*.json' -type f | tail -n +11 | xargs -I {} rm -- {}
 
