@@ -6,7 +6,6 @@ import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Git;
-import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,7 +21,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
-import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -52,7 +50,6 @@ import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricCon
 @Slf4j
 @Getter
 @Component
-@Import({GitServiceConfig.class})
 public class FileOperationsCEv2Impl implements FileOperationsCE {
 
     protected final ObjectMapper objectMapper;

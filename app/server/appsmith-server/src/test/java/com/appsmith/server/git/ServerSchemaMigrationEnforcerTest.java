@@ -1,18 +1,26 @@
 package com.appsmith.server.git;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
+import com.appsmith.server.git.autocommit.AutoCommitEventHandlerImpl;
 import com.appsmith.server.helpers.CommonGitFileUtils;
+import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import com.google.gson.Gson;
@@ -32,6 +40,7 @@ import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataM
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -50,8 +59,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
+import static com.appsmith.server.git.autocommit.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -108,6 +122,26 @@ public class ServerSchemaMigrationEnforcerTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    AutoCommitEventHandler autoCommitEventHandler;
+
+    @Autowired
+    ProjectProperties projectProperties;
+
+    @SpyBean
+    RedisUtils redisUtils;
+
+    @SpyBean
+    GitRedisUtils gitRedisUtils;
+
+    @Autowired
+    AnalyticsService analyticsService;
+
+    @MockBean
+    DSLMigrationUtils dslMigrationUtils;
+
+    @MockBean
+    ApplicationEventPublisher applicationEventPublisher;
 
     private final Gson gson = new GsonBuilder()
             .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
@@ -361,5 +395,74 @@ public class ServerSchemaMigrationEnforcerTest {
                 assertThat(diffEntry.getOldPath()).isEqualTo(diffEntry.getNewPath());
             }
         }
+    }
+
+    @Test
+    public void autocommitMigration_WhenServerVersionIsBehindDiffOccursAnd_CommitSuccess()
+            throws URISyntaxException, IOException, GitAPIException {
+
+        autoCommitEventHandler = new AutoCommitEventHandlerImpl(
+                applicationEventPublisher,
+                gitRedisUtils,
+                redisUtils,
+                dslMigrationUtils,
+                commonGitFileUtils,
+                gitExecutor,
+                projectProperties,
+                analyticsService);
+
+        AutoCommitEvent autoCommitEvent = createEvent();
+        autoCommitEvent.setIsServerSideEvent(TRUE);
+        ApplicationJson applicationJson =
+                gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
+
+        Path baseRepoSuffix = Paths.get(
+                autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
+
+        Mockito.doReturn(Mono.just("success"))
+                .when(gitExecutor)
+                .pushApplication(
+                        baseRepoSuffix,
+                        autoCommitEvent.getRepoUrl(),
+                        autoCommitEvent.getPublicKey(),
+                        autoCommitEvent.getPrivateKey(),
+                        autoCommitEvent.getBranchName());
+
+        gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
+
+        StepVerifier.create(autoCommitEventHandler
+                        .autoCommitServerMigration(autoCommitEvent)
+                        .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
+                .assertNext(tuple2 -> {
+                    assertThat(tuple2.getT1()).isTrue();
+                    assertThat(tuple2.getT2()).isEqualTo(100);
+                })
+                .verifyComplete();
+
+        StepVerifier.create(gitExecutor.getCommitHistory(baseRepoSuffix))
+                .assertNext(gitLogDTOs -> {
+                    assertThat(gitLogDTOs).isNotEmpty();
+                    assertThat(gitLogDTOs.size()).isEqualTo(3);
+                    Set<String> commitMessages =
+                            gitLogDTOs.stream().map(GitLogDTO::getCommitMessage).collect(Collectors.toSet());
+                    assertThat(commitMessages)
+                            .contains(String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()));
+                })
+                .verifyComplete();
+    }
+
+    private AutoCommitEvent createEvent() {
+        String defaultApplicationId = "default-app-id", branchName = "develop", workspaceId = "test-workspace-id";
+        AutoCommitEvent autoCommitEvent = new AutoCommitEvent();
+        autoCommitEvent.setApplicationId(defaultApplicationId + UUID.randomUUID());
+        autoCommitEvent.setBranchName(branchName);
+        autoCommitEvent.setRepoName("test-repo");
+        autoCommitEvent.setAuthorName("test author");
+        autoCommitEvent.setAuthorEmail("testauthor@example.com");
+        autoCommitEvent.setWorkspaceId(workspaceId);
+        autoCommitEvent.setRepoUrl("git@example.com:exampleorg/example-repo.git");
+        autoCommitEvent.setPrivateKey("private-key");
+        autoCommitEvent.setPublicKey("public-key");
+        return autoCommitEvent;
     }
 }
