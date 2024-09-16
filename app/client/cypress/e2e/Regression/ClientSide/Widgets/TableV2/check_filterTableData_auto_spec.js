@@ -53,25 +53,29 @@ const tableData = `[
       }
   ]`;
 describe(
-    "filteredTableData property in autocomplete suggestions of table widget",
-    { tags: ["@tag.Widget", "@tag.Table"] },
-    () => {
-    it("check 'filteredTableData' property in autocomplete suggestions",()=>{
-        _.agHelper.AddDsl("tableV2NewDsl");
-        cy.openPropertyPane("tablewidgetv2");
-        _.propPane.EnterJSContext("Table data", tableData);
-        _.propPane.TogglePropertyState("Allow filtering", "On");
+  "filteredTableData property in autocomplete suggestions of table widget",
+  { tags: ["@tag.Widget", "@tag.Table"] },
+  () => {
+    it("check 'filteredTableData' property in autocomplete suggestions", () => {
+      _.agHelper.AddDsl("tableV2NewDsl");
+      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.EnterJSContext("Table data", tableData);
+      _.propPane.TogglePropertyState("Allow filtering", "On");
 
-        _.table.OpenNFilterTable("department", "contains", "Marketing");
-        _.table.CloseFilter();
+      _.table.OpenNFilterTable("department", "contains", "Marketing");
+      _.table.CloseFilter();
 
-        cy.openPropertyPane("textwidget");
-        cy.testCodeMirror("/")
-        cy.get(`${dynamicInputLocators.hints} li`)
-          .eq(0)
-          .should("have.text", "Add a binding").click();
-        _.propPane.TypeTextIntoField("Text", "Table1.",false);
-        cy.get(`${dynamicInputLocators.hints} li`).contains("filteredTableData").should('be.visible').click();
-       
-    })
-});
+      cy.openPropertyPane("textwidget");
+      cy.testCodeMirror("/");
+      cy.get(`${dynamicInputLocators.hints} li`)
+        .eq(0)
+        .should("have.text", "Add a binding")
+        .click();
+      _.propPane.TypeTextIntoField("Text", "Table1.", false);
+      cy.get(`${dynamicInputLocators.hints} li`)
+        .contains("filteredTableData")
+        .should("be.visible")
+        .click();
+    });
+  },
+);
