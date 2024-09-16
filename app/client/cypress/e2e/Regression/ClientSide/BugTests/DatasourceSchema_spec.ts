@@ -47,8 +47,8 @@ describe(
       });
     });
 
-    //This test is failing because of this bug #18448
-    it.skip("2. Verify if schema was fetched once #18448", () => {
+    //This test is failing because of this bug #18403
+    it.skip("2. Verify if schema was fetched once #18403", () => {
       agHelper.RefreshPage();
       EditorNavigation.SelectEntityByName(
         dataSourceName,
