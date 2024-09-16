@@ -177,6 +177,12 @@ describe(
       agHelper.ClickButton("Confirm");
       assertHelper.AssertNetworkExecutionSuccess("@postExecute");
       assertHelper.AssertNetworkStatus("@postExecute", 200);
+      table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq("Coffee Mug");
+      });
+      table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq("Track Jacket");
+      });
     });
 
     it("5 Verify Filter & Search & Download from Deploy page - on mongo mart data - existing record", () => {
@@ -255,9 +261,8 @@ function GenerateCRUDNValidateDeployPage(
   assertHelper.AssertNetworkStatus("@updateLayout", 200);
   appSettings.OpenPaneAndChangeTheme("Pacific");
   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-
+  //Validating loaded table
   agHelper.AssertElementExist(dataSources._selectedRow);
-
   table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
     expect($cellData).to.eq(col1Text);
   });
