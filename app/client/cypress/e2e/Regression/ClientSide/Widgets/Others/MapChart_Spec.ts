@@ -202,11 +202,11 @@ describe(
         "onDataPointClick",
         "{{showAlert('Converted to Js and clicked '+ MapChart1.selectedDataPoint.label)}}",
       );
-      agHelper.GetNClick(_mapChartPlot("IN: 2"), 0);
-      agHelper.ValidateToastMessage("Converted to Js and clicked India");
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
+      agHelper.GetNClick(_mapChartPlot("IN: 2"), 0);
+      agHelper.ValidateToastMessage("Converted to Js and clicked India");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
     });
