@@ -52,12 +52,15 @@ const orderFieldConfig: any = {
   ],
 };
 
-const SortingContainer = styled.div<{ isBreakpointSmall: boolean }>`
-  display: grid;
-  grid-template-columns: ${({ isBreakpointSmall }) =>
-    isBreakpointSmall ? "1fr 50px" : "1fr 50px"};
+const SortingContainer = styled.div`
+  display: flex;
   gap: 5px;
-  align-items: center;
+  flex-direction: column;
+`;
+
+const SortingDropdownContainer = styled.div`
+  display: flex;
+  gap: 5px;
 `;
 
 const SortingFields = styled.div<{ isBreakpointSmall: boolean }>`
@@ -133,11 +136,7 @@ function SortingComponent(props: SortingComponentProps) {
   }, [fields.length]);
 
   return (
-    <SortingContainer
-      className={`t--${props?.configProperty}`}
-      isBreakpointSmall={isBreakpointSmall}
-      ref={targetRef}
-    >
+    <SortingContainer className={`t--${props?.configProperty}`} ref={targetRef}>
       {fields &&
         fields.length > 0 &&
         fields.map((field, index: number) => {
@@ -152,7 +151,10 @@ function SortingComponent(props: SortingComponentProps) {
           );
 
           return (
-            <React.Fragment key={index}>
+            <SortingDropdownContainer
+              className="sorting-dropdown-container"
+              key={index}
+            >
               <SortingFields isBreakpointSmall={isBreakpointSmall}>
                 <FormControl
                   config={{
@@ -188,7 +190,7 @@ function SortingComponent(props: SortingComponentProps) {
                 startIcon="close-line"
                 value={index}
               />
-            </React.Fragment>
+            </SortingDropdownContainer>
           );
         })}
       <ButtonWrapper>

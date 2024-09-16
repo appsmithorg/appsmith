@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Modals`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
     before(() => {
       // Cleanup the canvas before each test

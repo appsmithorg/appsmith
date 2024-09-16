@@ -11,7 +11,7 @@ let repoName: string = "TED-testrepo1";
 
 describe(
   "Git Autocommit",
-  { tags: ["@tag.Git", "@tag.GitAutocommit"] },
+  { tags: ["@tag.Git", "@tag.GitAutocommit", "@tag.excludeForAirgap"] },
   function () {
     it("Check if autocommit progress bar is visible and network requests are properly called", function () {
       featureFlagIntercept({

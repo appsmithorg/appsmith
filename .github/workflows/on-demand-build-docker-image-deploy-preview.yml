@@ -118,6 +118,10 @@ jobs:
   push-image:
     needs: [client-build, rts-build, server-build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
     if: success()
     steps:
       # Check out merge commit
@@ -176,6 +180,9 @@ jobs:
             scripts/prepare_server_artifacts.sh
           fi
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
@@ -193,11 +200,12 @@ jobs:
           echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
 
       - name: Push to Docker Hub
-        uses: docker/build-push-action@v4
+        uses: depot/build-push-action@v1
         with:
           context: .
           pull: true
           push: true
+          platforms: linux/arm64,linux/amd64
           cache-from: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
