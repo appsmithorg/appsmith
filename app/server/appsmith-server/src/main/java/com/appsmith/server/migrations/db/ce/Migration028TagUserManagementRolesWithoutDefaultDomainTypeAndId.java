@@ -51,7 +51,7 @@ public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
          */
         Set<String> userManagementRoleIds = new HashSet<>();
         existingUsers.forEach(existingUser -> {
-            Set<Policy> policies = existingUser.getPolicies() == null ? new HashSet<>() : existingUser.getPolicies();
+            Set<Policy> policies = existingUser.getPolicies() == null ? Set.of() : existingUser.getPolicies();
             Optional<Policy> resetPasswordPolicyOptional = policies.stream()
                     .filter(policy1 -> RESET_PASSWORD_USERS.getValue().equals(policy1.getPermission()))
                     .findFirst();
