@@ -314,6 +314,9 @@ export class Table {
           const eleText = Cypress.$(element).text().trim();
           rowColumnTexts.push(eleText);
         });
+        cy.log(
+          `Array to look into : ${JSON.stringify(rowColumnTexts)} -- ${typeof text === "string" ? text : JSON.stringify(text)}`,
+        );
         if (typeof text === "string") {
           expect(rowColumnTexts).to.include(text);
         } else {
