@@ -67,6 +67,20 @@ public class JsonSchemaMigration {
                     // TODO: make import flow migration reactive
                     return Mono.just(migrateServerSchema(appJson))
                             .flatMap(migratedApplicationJson -> {
+                                // In Server version 9, there was a bug where the Embedded REST API datasource URL
+                                // was not being persisted correctly. Once the bug was fixed,
+                                // any previously uncommitted changes started appearing as uncommitted modifications
+                                // in the apps. To automatically commit these changes
+                                // (which were now appearing as uncommitted), a migration process was needed.
+                                // This migration fetches the datasource URL from the database
+                                // and serializes it in Git if the URL exists.
+                                // If the URL is missing, it copies the empty datasource configuration
+                                // if the configuration is present in the database.
+                                // Otherwise, it leaves the configuration unchanged.
+                                // Due to an update in the migration logic after version 10 was shipped,
+                                // the entire migration process was moved to version 11.
+                                // This adjustment ensures that the same operation can be
+                                // performed again for the changes introduced in version 10.
                                 if (migratedApplicationJson.getServerSchemaVersion() == 9) {
                                     migratedApplicationJson.setServerSchemaVersion(10);
                                 }
