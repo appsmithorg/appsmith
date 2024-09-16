@@ -20,7 +20,7 @@ describe(
   "Map Chart Widget Functionality",
   { tags: ["@tag.Widget", "@tag.Maps", "@tag.Visual"] },
   function () {
-    it.only("1. Drag and drop a Map Chart widget and verify", function () {
+    it("1. Drag and drop a Map Chart widget and verify", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAPCHART, 200, 200);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
