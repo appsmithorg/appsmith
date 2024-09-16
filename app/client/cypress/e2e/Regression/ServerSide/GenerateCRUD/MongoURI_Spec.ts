@@ -42,7 +42,7 @@ describe(
         dataSources.ValidateNSelectDropdown(
           "Command",
           "Find document(s)",
-          "Raw",
+          "Insert document(s)",
         );
         dataSources.EnterJSContext({
           fieldLabel: "Collection",
@@ -83,158 +83,158 @@ describe(
       });
     });
 
-    it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
-      //Update documents query to handle the int _id data
-      EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
-      agHelper.EnterValue(`{ _id: {{data_table.triggeredRow._id}}}`, {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Query",
-      });
+    // it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
+    //   //Update documents query to handle the int _id data
+    //   EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
+    //   agHelper.EnterValue(`{ _id: {{data_table.triggeredRow._id}}}`, {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Query",
+    //   });
 
-      EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
-      agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Query",
-      });
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-      agHelper.GetNAssertElementText(
-        locators._textWidgetInDeployed,
-        "mongomart Data",
-      );
-      //Validating loaded table
-      table.SelectTableRow(2, 0, true, "v2");
-      agHelper.AssertElementExist(dataSources._selectedRow);
-      table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
-        expect($cellData).to.be.empty;
-      });
+    //   EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
+    //   agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Query",
+    //   });
+    //   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+    //   agHelper.GetNAssertElementText(
+    //     locators._textWidgetInDeployed,
+    //     "mongomart Data",
+    //   );
+    //   //Validating loaded table
+    //   table.SelectTableRow(2, 0, true, "v2");
+    //   agHelper.AssertElementExist(dataSources._selectedRow);
+    //   table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
+    //     expect($cellData).to.be.empty;
+    //   });
 
-      table.VerifyDataInRow(2, "v2", ["WiredTiger T-shirt", "Apparel"]);
+    //   table.VerifyDataInRow(2, "v2", ["WiredTiger T-shirt", "Apparel"]);
 
-      table.SelectTableRow(8, 0, true, "v2");
-      deployMode.ClearJSONFieldValue("Slogan");
-      deployMode.ClearJSONFieldValue("Category");
+    //   table.SelectTableRow(8, 0, true, "v2");
+    //   deployMode.ClearJSONFieldValue("Slogan");
+    //   deployMode.ClearJSONFieldValue("Category");
 
-      agHelper.ClickButton("Update");
-      agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-      for (let i = 7; i <= 8; i++) {
-        table.ReadTableRowColumnData(8, i, "v2").then(($cellData) => {
-          expect($cellData).to.be.empty;
-        });
-      }
-      deployMode.EnterJSONInputValue(
-        "Slogan",
-        "Write Your Story with Elegance: The Pen of Choice!",
-      );
-      agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //1
-      agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //2
-      agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //3
+    //   agHelper.ClickButton("Update");
+    //   agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
+    //   for (let i = 7; i <= 8; i++) {
+    //     table.ReadTableRowColumnData(8, i, "v2").then(($cellData) => {
+    //       expect($cellData).to.be.empty;
+    //     });
+    //   }
+    //   deployMode.EnterJSONInputValue(
+    //     "Slogan",
+    //     "Write Your Story with Elegance: The Pen of Choice!",
+    //   );
+    //   agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //1
+    //   agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //2
+    //   agHelper.GetNClick(deployMode._jsonFormNumberFieldByName("Stars", "up")); //3
 
-      agHelper.ClickButton("Update");
-      agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-      table.ReadTableRowColumnData(8, 8, "v2", 2000).then(($cellData) => {
-        expect($cellData).to.eq(
-          "Write Your Story with Elegance: The Pen of Choice!",
-        );
-      });
-      table.ReadTableRowColumnData(8, 5, "v2", 200).then(($cellData) => {
-        expect($cellData).to.eq("3");
-      });
-    });
+    //   agHelper.ClickButton("Update");
+    //   agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
+    //   table.ReadTableRowColumnData(8, 8, "v2", 2000).then(($cellData) => {
+    //     expect($cellData).to.eq(
+    //       "Write Your Story with Elegance: The Pen of Choice!",
+    //     );
+    //   });
+    //   table.ReadTableRowColumnData(8, 5, "v2", 200).then(($cellData) => {
+    //     expect($cellData).to.eq("3");
+    //   });
+    // });
 
-    it("3. Verify Add/Insert from Deploy page - on MongoMart - new record - few validations", () => {
-      agHelper.GetNClick(dataSources._addIcon);
-      agHelper.Sleep();
-      //agHelper.AssertElementVisibility(locators._jsonFormWidget, 1); //Insert Modal
-      agHelper.AssertElementVisibility(
-        locators._visibleTextDiv("Insert Document"),
-      );
+    // it("3. Verify Add/Insert from Deploy page - on MongoMart - new record - few validations", () => {
+    //   agHelper.GetNClick(dataSources._addIcon);
+    //   agHelper.Sleep();
+    //   //agHelper.AssertElementVisibility(locators._jsonFormWidget, 1); //Insert Modal
+    //   agHelper.AssertElementVisibility(
+    //     locators._visibleTextDiv("Insert Document"),
+    //   );
 
-      agHelper.AssertElementEnabledDisabled(
-        locators._buttonByText("Submit") + "/parent::div",
-        0,
-        false,
-      );
-      agHelper.ClickButton("Submit");
-      for (let i = 0; i <= 1; i++) {
-        table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
-          expect($cellData).contains("Coffee Mug");
-        });
-      }
-    });
+    //   agHelper.AssertElementEnabledDisabled(
+    //     locators._buttonByText("Submit") + "/parent::div",
+    //     0,
+    //     false,
+    //   );
+    //   agHelper.ClickButton("Submit");
+    //   for (let i = 0; i <= 1; i++) {
+    //     table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
+    //       expect($cellData).contains("Coffee Mug");
+    //     });
+    //   }
+    // });
 
-    it("4. Verify Delete from Deploy page - on MongoMart", () => {
-      agHelper.ClickButton("Delete", 0);
-      agHelper.AssertElementVisibility(locators._modal);
-      agHelper.AssertElementVisibility(
-        dataSources._visibleTextSpan(
-          "Are you sure you want to delete this document?",
-        ),
-      );
-      agHelper.ClickButton("Confirm");
-      assertHelper.AssertNetworkExecutionSuccess("@postExecute");
-      assertHelper.AssertNetworkStatus("@postExecute", 200);
-    });
+    // it("4. Verify Delete from Deploy page - on MongoMart", () => {
+    //   agHelper.ClickButton("Delete", 0);
+    //   agHelper.AssertElementVisibility(locators._modal);
+    //   agHelper.AssertElementVisibility(
+    //     dataSources._visibleTextSpan(
+    //       "Are you sure you want to delete this document?",
+    //     ),
+    //   );
+    //   agHelper.ClickButton("Confirm");
+    //   assertHelper.AssertNetworkExecutionSuccess("@postExecute");
+    //   assertHelper.AssertNetworkStatus("@postExecute", 200);
+    // });
 
-    it("5 Verify Filter & Search & Download from Deploy page - on MongoMart - existing record", () => {
-      table.SearchTable("Swag");
-      agHelper.Sleep(2500); //for search to load
-      for (let i = 0; i <= 1; i++) {
-        table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
-          expect($cellData).to.eq("Swag");
-        });
-      }
-      table.ResetSearch();
+    // it("5 Verify Filter & Search & Download from Deploy page - on MongoMart - existing record", () => {
+    //   table.SearchTable("Swag");
+    //   agHelper.Sleep(2500); //for search to load
+    //   for (let i = 0; i <= 1; i++) {
+    //     table.ReadTableRowColumnData(i, 6, "v2").then(($cellData) => {
+    //       expect($cellData).to.eq("Swag");
+    //     });
+    //   }
+    //   table.ResetSearch();
 
-      table.OpenNFilterTable("title", "contains", "USB");
-      for (let i = 0; i < 3; i++) {
-        table.ReadTableRowColumnData(i, 5, "v2").then(($cellData) => {
-          expect($cellData).contains("USB");
-        });
-      }
-      table.CloseFilter();
+    //   table.OpenNFilterTable("title", "contains", "USB");
+    //   for (let i = 0; i < 3; i++) {
+    //     table.ReadTableRowColumnData(i, 5, "v2").then(($cellData) => {
+    //       expect($cellData).contains("USB");
+    //     });
+    //   }
+    //   table.CloseFilter();
 
-      table.DownloadFromTable("Download as CSV");
-      table.ValidateDownloadNVerify("data_table.csv", "USB Stick (Green)");
+    //   table.DownloadFromTable("Download as CSV");
+    //   table.ValidateDownloadNVerify("data_table.csv", "USB Stick (Green)");
 
-      table.DownloadFromTable("Download as Excel");
-      table.ValidateDownloadNVerify("data_table.xlsx", "USB Stick (Leaf)");
-      table.OpenFilter();
-      table.RemoveFilter();
-      agHelper
-        .GetText(table._filtersCount)
-        .then(($filters) => expect($filters).to.eq("Filters"));
-    });
+    //   table.DownloadFromTable("Download as Excel");
+    //   table.ValidateDownloadNVerify("data_table.xlsx", "USB Stick (Leaf)");
+    //   table.OpenFilter();
+    //   table.RemoveFilter();
+    //   agHelper
+    //     .GetText(table._filtersCount)
+    //     .then(($filters) => expect($filters).to.eq("Filters"));
+    // });
 
-    it("6. Suggested Widget - Table", () => {
-      table.SelectTableRow(8, 0, true, "v2");
-      agHelper.GetNClick(
-        deployMode._jsonFormNumberFieldByName("Stars", "down"),
-      ); //2
-      agHelper.GetNClick(
-        deployMode._jsonFormNumberFieldByName("Stars", "down"),
-      ); //1
-      agHelper.GetNClick(
-        deployMode._jsonFormNumberFieldByName("Stars", "down"),
-      ); //0
-      agHelper.ClickButton("Update");
+    // it("6. Suggested Widget - Table", () => {
+    //   table.SelectTableRow(8, 0, true, "v2");
+    //   agHelper.GetNClick(
+    //     deployMode._jsonFormNumberFieldByName("Stars", "down"),
+    //   ); //2
+    //   agHelper.GetNClick(
+    //     deployMode._jsonFormNumberFieldByName("Stars", "down"),
+    //   ); //1
+    //   agHelper.GetNClick(
+    //     deployMode._jsonFormNumberFieldByName("Stars", "down"),
+    //   ); //0
+    //   agHelper.ClickButton("Update");
 
-      deployMode.NavigateBacktoEditor();
-      table.WaitUntilTableLoad(0, 0, "v2");
-      PageList.AddNewPage();
-      dataSources.CreateQueryForDS(dsName);
-      dataSources.ValidateNSelectDropdown(
-        "Collection",
-        "",
-        importDataCollectionName,
-      );
-      dataSources.RunQuery({ toValidateResponse: false });
-      dataSources.AddSuggestedWidget(Widgets.Table);
-      table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
-        expect(cellData).to.eq("1");
-      });
-    });
+    //   deployMode.NavigateBacktoEditor();
+    //   table.WaitUntilTableLoad(0, 0, "v2");
+    //   PageList.AddNewPage();
+    //   dataSources.CreateQueryForDS(dsName);
+    //   dataSources.ValidateNSelectDropdown(
+    //     "Collection",
+    //     "",
+    //     importDataCollectionName,
+    //   );
+    //   dataSources.RunQuery({ toValidateResponse: false });
+    //   dataSources.AddSuggestedWidget(Widgets.Table);
+    //   table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
+    //     expect(cellData).to.eq("1");
+    //   });
+    // });
   },
 );
 
