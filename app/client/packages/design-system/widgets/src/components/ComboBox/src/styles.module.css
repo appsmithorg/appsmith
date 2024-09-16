@@ -70,3 +70,15 @@
 .formField[data-size="small"] .inputWrapper {
   padding-inline-end: var(--inner-spacing-1);
 }
+
+.formField .inputWrapper [data-button] {
+  border-radius: calc(
+    var(--border-radius-elevation-3) - var(--inner-spacing-1)
+  );
+}
+
+.formField[data-size="small"] .inputWrapper {
+  border-radius: calc(
+    var(--border-radius-elevation-3) - var(--inner-spacing-2)
+  );
+}

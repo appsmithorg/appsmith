@@ -160,6 +160,7 @@ export const ComplexForm = () => {
               },
             ]}
           />
+          <Button>Ok</Button>
         </Flex>
         <Flex gap="spacing-2">
           <TextInput size="small" />
@@ -184,6 +185,7 @@ export const ComplexForm = () => {
             ]}
             size="small"
           />
+          <Button size="small">Ok</Button>
         </Flex>
       </Flex>
 
