@@ -7,6 +7,7 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.ProductAlertService;
@@ -36,7 +37,8 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
             PluginService pluginService,
             DatasourceService datasourceService,
             MockDataService mockDataService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(
                 sessionUserService,
                 userService,
@@ -53,6 +55,7 @@ public class ConsolidatedAPIServiceCECompatibleImpl extends ConsolidatedAPIServi
                 pluginService,
                 datasourceService,
                 mockDataService,
-                observationRegistry);
+                observationRegistry,
+                cacheableRepositoryHelper);
     }
 }

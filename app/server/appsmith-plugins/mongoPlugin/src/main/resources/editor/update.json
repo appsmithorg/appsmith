@@ -1,13 +1,13 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "UPDATE",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'UPDATE'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select collection to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "UPDATE-Z1",
       "children": [
         {
           "label": "Collection",
@@ -32,9 +32,8 @@
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "UPDATE-Z2",
       "children": [
         {
           "label": "Query",
@@ -43,7 +42,13 @@
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{rating : {$gte : 9}}"
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "UPDATE-Z3",
+      "children": [
         {
           "label": "Update",
           "configProperty": "actionConfiguration.formData.updateMany.update.data",
@@ -51,7 +56,13 @@
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{ $inc: { score: 1 } }"
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "UPDATE-Z4",
+      "children": [
         {
           "label": "Limit",
           "configProperty": "actionConfiguration.formData.updateMany.limit.data",

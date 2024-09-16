@@ -730,19 +730,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findAllByApplicationIdAndPluginType(
-            String applicationId,
-            Boolean viewMode,
-            AclPermission permission,
-            Sort sort,
-            List<String> excludedPluginTypes) {
-        return repository
-                .findPublishedActionsByApplicationIdAndPluginType(applicationId, excludedPluginTypes, permission, sort)
-                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
-                .tap(Micrometer.observation(observationRegistry));
-    }
-
-    @Override
     public Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
@@ -776,19 +763,40 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
-    @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
 
         if (applicationId == null || applicationId.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
         List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
 
-        // fetch the published actions by applicationId
+        // fetch the published actions by appId
         // No need to sort the results
-        return findAllByApplicationIdAndPluginType(
-                        applicationId, true, actionPermission.getExecutePermission(), null, excludedPluginTypes)
+        return repository
+                .findPublishedActionsByAppIdAndExcludedPluginType(
+                        applicationId, excludedPluginTypes, actionPermission.getExecutePermission(), null)
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry))
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
+    }
+
+    @Override
+    public Flux<ActionViewDTO> getActionsForViewModeByPageId(String pageId) {
+
+        if (pageId == null || pageId.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+
+        List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
+
+        // fetch the published actions by pageId
+        // No need to sort the results
+        return repository
+                .findPublishedActionsByPageIdAndExcludedPluginType(
+                        pageId, excludedPluginTypes, actionPermission.getExecutePermission(), null)
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry))
                 .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
     }
 
@@ -1004,7 +1012,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<NewPage> branchedPageMono = !StringUtils.hasLength(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
                 : newPageService.findByBranchNameAndBasePageId(
-                        branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission());
+                        branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission(), null);
         Mono<Application> branchedApplicationMono = !StringUtils.hasLength(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
                 : applicationService.findByBranchNameAndBaseApplicationId(

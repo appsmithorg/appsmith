@@ -76,7 +76,10 @@ function ThemeSelector() {
           ))}
         </section>
       )}
-      <section className="relative p-4 space-y-3">
+      <section
+        className="relative p-4 space-y-3"
+        data-testid="t--featured-themes"
+      >
         <Title className="text-sm font-medium">Featured themes</Title>
         {systemThemes.map((theme) => (
           <ThemeCard
