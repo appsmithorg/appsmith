@@ -51,7 +51,7 @@ describe(
         agHelper.EnterValue(JSON.stringify(data), {
           propFieldName: "",
           directInput: false,
-          inputFieldName: "Query",
+          inputFieldName: "Documents",
         });
 
         dataSources.RunQuery();
