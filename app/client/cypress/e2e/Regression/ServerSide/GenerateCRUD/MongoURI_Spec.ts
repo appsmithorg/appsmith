@@ -55,8 +55,6 @@ describe(
         });
 
         dataSources.RunQuery();
-        EditorNavigation.NavigateToDatasource(dsName);
-        dataSources.RefreshDatasourceSchema();
 
         PageList.AddNewPage("Generate page with data");
         agHelper.GetNClick(dataSources._selectDatasourceDropdown);
