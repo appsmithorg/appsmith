@@ -54,19 +54,6 @@ export const CustomIcon: Story = {
   ),
 };
 
-/**
- * For some icons, you can also pass a `filled` prop to the Icon component to get a filled variant. If there is no filled variant, it will just display the normal icon.
- */
-
-export const Filled: Story = {
-  render: () => (
-    <Flex gap="spacing-2">
-      <Icon name="stars" />
-      <Icon filled name="stars" />
-    </Flex>
-  ),
-};
-
 export const AllIcons: Story = {
   render: () => (
     <div

@@ -1,32 +1,50 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "ADD_TO_COLLECTION",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'ADD_TO_COLLECTION'}}"
   },
   "children": [
     {
-      "label": "Collection/Document path",
-      "configProperty": "actionConfiguration.formData.path.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "isRequired": true,
-      "initialValue": ""
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "ADD-TO-COLLECTION-Z1",
+      "children": [
+        {
+          "label": "Collection/Document path",
+          "configProperty": "actionConfiguration.formData.path.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
     },
     {
-      "label": "Body",
-      "configProperty": "actionConfiguration.formData.body.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "initialValue": "",
-      "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "ADD-TO-COLLECTION-Z2",
+      "children": [
+        {
+          "label": "Body",
+          "configProperty": "actionConfiguration.formData.body.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "initialValue": "",
+          "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
+        }
+      ]
     },
     {
-      "label": "Timestamp Path",
-      "configProperty": "actionConfiguration.formData.timestampValuePath.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "evaluationSubstitutionType": "TEMPLATE",
-      "initialValue": "",
-      "placeholderText": "[ \"checkinLog.timestampKey\" ]"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "ADD-TO-COLLECTION-Z3",
+      "children": [
+        {
+          "label": "Timestamp Path",
+          "configProperty": "actionConfiguration.formData.timestampValuePath.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "initialValue": "",
+          "placeholderText": "[ \"checkinLog.timestampKey\" ]"
+        }
+      ]
     }
   ]
 }

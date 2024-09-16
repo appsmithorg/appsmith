@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
@@ -49,7 +50,9 @@ public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
 
         mongoTemplate.stream(optimizedQueryForInterestingPermissionGroups, PermissionGroup.class)
                 .forEach(permissionGroup -> {
-                    Optional<Policy> optionalUnassignPolicy = permissionGroup.getPolicies().stream()
+                    Set<Policy> policies =
+                            permissionGroup.getPolicies() == null ? Set.of() : permissionGroup.getPolicies();
+                    Optional<Policy> optionalUnassignPolicy = policies.stream()
                             .filter(policy -> policy.getPermission().equals("unassign:permissionGroups"))
                             .findFirst();
 

@@ -8,6 +8,7 @@ export interface WidgetSelectionRequestPayload {
   payload?: string[];
   invokedBy?: NavigationMethod;
   basePageId?: string;
+  parentId?: string;
 }
 
 export type WidgetSelectionRequest = (
@@ -15,6 +16,7 @@ export type WidgetSelectionRequest = (
   payload?: string[],
   invokedBy?: NavigationMethod,
   basePageId?: string,
+  parentId?: string,
 ) => ReduxAction<WidgetSelectionRequestPayload>;
 
 // Use to select a widget programmatically via platform action
@@ -23,9 +25,10 @@ export const selectWidgetInitAction: WidgetSelectionRequest = (
   payload,
   invokedBy?: NavigationMethod,
   basePageId?: string,
+  parentId?: string,
 ) => ({
   type: ReduxActionTypes.SELECT_WIDGET_INIT,
-  payload: { selectionRequestType, payload, basePageId, invokedBy },
+  payload: { selectionRequestType, payload, basePageId, invokedBy, parentId },
 });
 
 export interface SetSelectedWidgetsPayload {
