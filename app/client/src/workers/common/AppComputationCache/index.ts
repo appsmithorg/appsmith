@@ -14,22 +14,16 @@ interface ICacheLog {
   createdAt: number | null;
 }
 
-class AppComputationCache {
+export class AppComputationCache {
   // Singleton instance
   private static instance: AppComputationCache | null = null;
   private static CACHE_KEY_DELIMITER = ">";
 
   // The cache store for computation results
-  private readonly store = localforage.createInstance({
-    name: "AppComputationCache",
-    storeName: "cachedResults",
-  });
+  private readonly store: LocalForage;
 
   // The cache store for cache event logs
-  private readonly cacheLogsStore = localforage.createInstance({
-    name: "AppComputationCache",
-    storeName: "cacheMetadataStore",
-  });
+  private readonly cacheLogsStore: LocalForage;
 
   // The app mode configuration for each cache type. This determines which app modes
   // the cache should be enabled for
@@ -37,6 +31,18 @@ class AppComputationCache {
     [EComputationCacheName.DEPENDENCY_MAP]: [APP_MODE.PUBLISHED],
     [EComputationCacheName.ALL_KEYS]: [APP_MODE.PUBLISHED],
   };
+
+  constructor() {
+    this.store = localforage.createInstance({
+      name: "AppComputationCache",
+      storeName: "cachedResults",
+    });
+
+    this.cacheLogsStore = localforage.createInstance({
+      name: "AppComputationCache",
+      storeName: "cacheMetadataStore",
+    });
+  }
 
   static getInstance(): AppComputationCache {
     if (!AppComputationCache.instance) {
@@ -288,6 +294,10 @@ class AppComputationCache {
     } catch (error) {
       loglevel.error("Error deleting invalid cache entries:", error);
     }
+  }
+
+  static resetInstance() {
+    AppComputationCache.instance = null;
   }
 }
 
