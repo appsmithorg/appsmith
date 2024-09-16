@@ -3,7 +3,6 @@ package com.appsmith.git.files.operations;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitSpan;
-import com.appsmith.external.git.operations.FileOperationsCE;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
@@ -23,7 +22,6 @@ import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.context.annotation.Import;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -54,9 +52,9 @@ import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricCon
 
 @Slf4j
 @Getter
-@Component
+@Deprecated(forRemoval = true, since = "v1.42")
 @Import({GitServiceConfig.class})
-public class FileOperationsCEImpl implements FileOperationsCE {
+public class FileOperationsCEImpl {
 
     private final GitServiceConfig gitServiceConfig;
     private final GitExecutor gitExecutor;
@@ -101,7 +99,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
         this.observationHelper = observationHelper;
     }
 
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public void saveMetadataResource(ApplicationGitReference applicationGitReference, Path baseRepo) {
         JsonObject metadata = gson.fromJson(gson.toJson(applicationGitReference.getMetadata()), JsonObject.class);
         metadata.addProperty(CommonConstants.FILE_FORMAT_VERSION, CommonConstants.fileFormatVersion);
@@ -115,7 +113,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      * @param path         file path where the resource to be stored
      * @return if the file operation is successful
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public boolean saveResource(Object sourceEntity, Path path) {
         try {
             Files.createDirectories(path.getParent());
@@ -127,7 +125,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
         return false;
     }
 
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public void saveWidgets(JSONObject sourceEntity, String resourceName, Path path) {
         Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         try {
@@ -144,14 +142,14 @@ public class FileOperationsCEImpl implements FileOperationsCE {
         }
     }
 
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public void writeStringToFile(String sourceEntity, Path path) throws IOException {
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             fileWriter.write(sourceEntity);
         }
     }
 
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public boolean writeToFile(Object sourceEntity, Path path) throws IOException {
         Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         String resourceType = sourceEntity.getClass().getSimpleName();
@@ -176,7 +174,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      * @param validResources    resources those are still available in DB
      * @param resourceDirectory directory which needs to be scanned for possible file deletion operations
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory) {
         // Scan resource directory and delete any unwanted file if present
         // unwanted file : corresponding resource from DB has been deleted
@@ -199,7 +197,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      * @param validResources    resources those are still available in DB
      * @param resourceDirectory directory which needs to be scanned for possible file deletion operations
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public void scanAndDeleteDirectoryForDeletedResources(Set<String> validResources, Path resourceDirectory) {
         // Scan resource directory and delete any unwanted directory if present
         // unwanted directory : corresponding resource from DB has been deleted
@@ -220,7 +218,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      *
      * @param directory
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public void deleteDirectory(Path directory) {
         if (directory.toFile().exists()) {
             try {
@@ -236,7 +234,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      *
      * @param filePath file that needs to be deleted
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public void deleteFile(Path filePath) {
         try {
             Files.deleteIfExists(filePath);
@@ -253,7 +251,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      * @param filePath file on which the read operation will be performed
      * @return resource stored in the JSON file
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public Object readFile(Path filePath) {
         Span span = observationHelper.createSpan(GitSpan.FILE_READ);
         observationHelper.startSpan(span, true);
@@ -276,7 +274,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      * @param directoryPath directory path for files on which read operation will be performed
      * @return resources stored in the directory
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public Map<String, Object> readFiles(Path directoryPath, String keySuffix) {
         Map<String, Object> resource = new HashMap<>();
         File directory = directoryPath.toFile();
@@ -302,7 +300,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
      * @param filePath file path for files on which read operation will be performed
      * @return content of the file in the path
      */
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public String readFileAsString(Path filePath) {
         Span span = observationHelper.createSpan(GitSpan.FILE_READ);
         observationHelper.startSpan(span, true);
@@ -317,7 +315,7 @@ public class FileOperationsCEImpl implements FileOperationsCE {
         return data;
     }
 
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public Integer getFileFormatVersion(Object metadata) {
         if (metadata == null) {
             return 1;
@@ -327,14 +325,14 @@ public class FileOperationsCEImpl implements FileOperationsCE {
         return fileFormatVersion.getAsInt();
     }
 
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public JSONObject getMainContainer(Object pageJson) {
         JSONObject pageJSON = new JSONObject(gson.toJson(pageJson));
         JSONArray layouts = pageJSON.getJSONObject("unpublishedPage").getJSONArray("layouts");
         return layouts.getJSONObject(0).getJSONObject("dsl");
     }
 
-    @Override
+    @Deprecated(forRemoval = true, since = "v1.42")
     public Mono<Long> deleteIndexLockFile(Path path, int validTimeInSeconds) {
         // Check the time created of the index.lock file
         // If the File is stale for more than validTime, then delete the file
