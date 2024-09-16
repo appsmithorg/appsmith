@@ -68,8 +68,6 @@ export class Table {
     ` .tbody .td[data-colindex=${colNum}]` +
     this._tableRowColumnDataVersion(version) +
     ` div:contains("${columnText}")`;
-  _tableRowColumns = (rowNum: number, version: "v1" | "v2") =>
-    this._tableWidgetVersion(version) + ` .tbody .td[data-rowindex=${rowNum}]`;
   _editCellIconDiv = ".t--editable-cell-icon";
   _editCellEditor = ".t--inlined-cell-editor";
   _editCellEditorInput = this._editCellEditor + " input";
