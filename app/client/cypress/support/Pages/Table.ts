@@ -301,32 +301,6 @@ export class Table {
       .invoke("text");
   }
 
-  public VerifyDataInRow(
-    rowNum: number,
-    tableVersion: "v1" | "v2" = "v1",
-    text: string[] | string,
-  ) {
-    this.agHelper
-      .GetElement(this._tableRowColumns(rowNum, tableVersion))
-      .then(($elements: any) => {
-        const rowColumnTexts: string[] = [];
-        $elements.each((_: number, element: any) => {
-          const eleText = Cypress.$(element).text().trim();
-          rowColumnTexts.push(eleText);
-        });
-        cy.log(
-          `Array to look into : ${JSON.stringify(rowColumnTexts)} -- ${typeof text === "string" ? text : JSON.stringify(text)}`,
-        );
-        if (typeof text === "string") {
-          expect(rowColumnTexts).to.include(text);
-        } else {
-          cy.wrap(text).each((textItem: string) => {
-            expect(rowColumnTexts).to.include(textItem);
-          });
-        }
-      });
-  }
-
   public AssertTableRowImageColumnIsLoaded(
     rowNum: number,
     colNum: number,
