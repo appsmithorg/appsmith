@@ -2,7 +2,6 @@ package com.appsmith.server.git;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.dtos.ModifiedResources;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
@@ -10,12 +9,10 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exports.internal.ExportService;
-import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import com.google.gson.Gson;
@@ -30,7 +27,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,12 +50,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -113,9 +105,6 @@ public class ServerSchemaMigrationEnforcerTest {
 
     @SpyBean
     GitExecutor gitExecutor;
-
-    @SpyBean
-    FeatureFlagService featureFlagService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -291,51 +280,6 @@ public class ServerSchemaMigrationEnforcerTest {
     }
 
     @Test
-    public void savedFile_reSavedWithDifferentSerialisationLogic_diffOccurs()
-            throws URISyntaxException, IOException, GitAPIException {
-
-        ApplicationJson applicationJson =
-                gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("ce-automation-test.json"));
-
-        ModifiedResources modifiedResources = new ModifiedResources();
-        modifiedResources.setAllModified(true);
-        applicationJson.setModifiedResources(modifiedResources);
-
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
-
-        gitFileSystemTestHelper.setupGitRepository(
-                WORKSPACE_ID, DEFAULT_APPLICATION_ID, BRANCH_NAME, REPO_NAME, applicationJson);
-
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-        Path suffixPath = Paths.get(WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME);
-        Path gitCompletePath = gitExecutor.createRepoPath(suffixPath);
-
-        commonGitFileUtils
-                .saveArtifactToLocalRepo(suffixPath, applicationJson, BRANCH_NAME)
-                .block();
-
-        try (Git gitRepo = Git.open(gitCompletePath.toFile())) {
-            List<DiffEntry> diffEntries = gitRepo.diff().call();
-            Set<String> fileChanges = Set.of(
-                    "application.json",
-                    "metadata.json",
-                    "theme.json",
-                    "datasources/JSON typicode API (1).json",
-                    "datasources/TED postgres (1).json",
-                    "datasources/mainGoogleSheetDS.json");
-            for (DiffEntry diff : diffEntries) {
-                assertThat(fileChanges).contains(diff.getOldPath());
-                assertThat(fileChanges).contains(diff.getNewPath());
-                assertThat(diff.getChangeType()).isEqualTo(DiffEntry.ChangeType.MODIFY);
-            }
-            assertThat(diffEntries.size()).isNotZero();
-        }
-    }
-
-    @Test
     public void savedFile_reSavedWithSameSerialisationLogic_noDiffOccurs()
             throws URISyntaxException, IOException, GitAPIException {
 
@@ -371,11 +315,6 @@ public class ServerSchemaMigrationEnforcerTest {
         ModifiedResources modifiedResources = new ModifiedResources();
         modifiedResources.setAllModified(true);
         applicationJson.setModifiedResources(modifiedResources);
-
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APPLICATION_ID, BRANCH_NAME, REPO_NAME, applicationJson);
