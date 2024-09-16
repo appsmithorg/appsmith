@@ -99,7 +99,7 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       agHelper.GetNAssertElementText(
         locators._textWidgetInDeployed,
-        "mongomart Data",
+        `${importDataCollectionName} Data`,
       );
       //Validating loaded table
       table.SelectTableRow(2, 0, true, "v2");
@@ -166,7 +166,7 @@ describe(
       }
     });
 
-    it("4. Verify Delete from Deploy page - on MongoMart", () => {
+    it("4. Verify Delete from Deploy page - on mongo mart data - newly added record", () => {
       agHelper.ClickButton("Delete", 0);
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
@@ -179,7 +179,7 @@ describe(
       assertHelper.AssertNetworkStatus("@postExecute", 200);
     });
 
-    it("5 Verify Filter & Search & Download from Deploy page - on MongoMart - existing record", () => {
+    it("5 Verify Filter & Search & Download from Deploy page - on mongo mart data - existing record", () => {
       table.SearchTable("Swag");
       agHelper.Sleep(2500); //for search to load
       for (let i = 0; i <= 1; i++) {
