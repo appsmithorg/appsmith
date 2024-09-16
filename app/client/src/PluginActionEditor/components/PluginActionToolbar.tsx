@@ -2,13 +2,10 @@ import React, { useCallback } from "react";
 import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
-<<<<<<< HEAD
 import { usePluginActionContext } from "../PluginActionContext";
 import { useDispatch } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { runAction } from "../../actions/pluginActionActions";
-=======
->>>>>>> release
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
