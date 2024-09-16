@@ -87,8 +87,7 @@ public class SaasPlugin extends BasePlugin {
                 ExecutePluginDTO connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": execute() called for Saas plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": execute() called for Saas plugin.");
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
 

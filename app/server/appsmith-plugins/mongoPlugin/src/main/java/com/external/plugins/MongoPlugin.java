@@ -244,9 +244,7 @@ public class MongoPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": executeParameterized() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for Mongo plugin.");
             final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -308,8 +306,7 @@ public class MongoPlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration,
                 List<Map.Entry<String, String>> parameters) {
 
-            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for Mongo plugin.");
             if (mongoClient == null) {
                 log.debug("Encountered null connection in MongoDB plugin. Reporting back.");
                 throw new StaleConnectionException(MONGO_CLIENT_NULL_ERROR_MSG);
@@ -492,7 +489,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         if (error instanceof StaleConnectionException) {
-                            log.debug("The mongo connection seems to have been invalidated or doesn't exist anymore");
+                            log.error("The mongo connection seems to have been invalidated or doesn't exist anymore");
                             return Mono.error(error);
                         } else if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(
@@ -536,8 +533,7 @@ public class MongoPlugin extends BasePlugin {
          */
         @Override
         public String sanitizeReplacement(String replacementValue, DataType dataType) {
-            String printMessage = Thread.currentThread().getName() + ": sanitizeReplacement() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": sanitizeReplacement() called for Mongo plugin.");
             replacementValue = removeOrAddQuotesAroundMongoDBSpecialTypes(replacementValue);
 
             if (DataType.BSON_SPECIAL_DATA_TYPES.equals(dataType)) {
@@ -566,9 +562,7 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for Mongo plugin.");
             // For mongo, currently this experiment will only exist for mock DB movies
             // Later on we can extend it for all mongo datasources
             if (isMock) {
@@ -756,8 +750,7 @@ public class MongoPlugin extends BasePlugin {
               a user that doesn't have write permissions on the database.
               Ref: https://api.mongodb.com/java/2.13/com/mongodb/DB.html#setReadOnly-java.lang.Boolean-
             */
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Mongo plugin.");
             return Mono.just(datasourceConfiguration)
                     .flatMap(dsConfig -> {
                         log.debug(Thread.currentThread().getName() + ": buildClientURI called from Mongo plugin.");
@@ -800,8 +793,7 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for Mongo plugin.");
             Set<String> invalids = new HashSet<>();
             List<Property> properties = datasourceConfiguration.getProperties();
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -890,8 +882,7 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for Mongo plugin.");
             Function<TimeoutException, Throwable> timeoutExceptionThrowableFunction =
                     error -> new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_TIMEOUT_ERROR,
@@ -959,8 +950,7 @@ public class MongoPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 MongoClient mongoClient, DatasourceConfiguration datasourceConfiguration, Boolean isMock) {
-            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getStructure() called for Mongo plugin.");
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
@@ -1092,9 +1082,8 @@ public class MongoPlugin extends BasePlugin {
          */
         @Override
         public void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
-            String printMessage = Thread.currentThread().getName()
-                    + ": extractAndSetNativeQueryFromFormData() called for Mongo plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName()
+                    + ": extractAndSetNativeQueryFromFormData() called for Mongo plugin.");
             Map<String, Object> formData = actionConfiguration.getFormData();
             if (formData != null && !formData.isEmpty()) {
                 /* If it is not raw command, then it must be one of the mongo form commands */

@@ -71,8 +71,7 @@ public class SmtpPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": execute() called for SMTP plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": execute() called for SMTP plugin.");
             MimeMessage message = getMimeMessage(connection);
             ActionExecutionResult result = new ActionExecutionResult();
             try {
@@ -200,8 +199,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<Session> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for SMTP plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for SMTP plugin.");
             Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
 
@@ -228,8 +226,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Session session) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceDestroy() called for SMTP plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for SMTP plugin.");
             try {
                 if (session != null && session.getTransport() != null) {
                     session.getTransport().close();
@@ -241,8 +238,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for SMTP plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for SMTP plugin.");
             Set<String> invalids = new HashSet<>();
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
                 invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
@@ -265,8 +261,7 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(Session connection) {
-            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for SMTP plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for SMTP plugin.");
             return Mono.fromCallable(() -> {
                         Set<String> invalids = new HashSet<>();
                         try {
@@ -280,7 +275,7 @@ public class SmtpPlugin extends BasePlugin {
                         } catch (AuthenticationFailedException e) {
                             invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
                         } catch (MessagingException e) {
-                            log.debug(e.getMessage());
+                            log.error(e.getMessage());
                             invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);
                         }
                         return invalids;
@@ -290,9 +285,8 @@ public class SmtpPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": getEndpointIdentifierForRateLimit() called for SMTP plugin.";
-            log.debug(printMessage);
+            log.debug(
+                    Thread.currentThread().getName() + ": getEndpointIdentifierForRateLimit() called for SMTP plugin.");
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier

@@ -242,9 +242,7 @@ public class PostgresPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": executeParameterized() called for Postgres plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for Postgres plugin.");
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch
             // connection from the pool op.
@@ -299,9 +297,8 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for Postgres plugin.";
-            log.debug(printMessage);
+            log.debug(
+                    Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for Postgres plugin.");
             ActionConfiguration actionConfig = new ActionConfiguration();
             // Sets query body
             actionConfig.setBody(queryTemplate.getBody());
@@ -317,9 +314,8 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName()
-                    + ": getEndpointIdentifierForRateLimit() called for Postgres plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for Postgres plugin.");
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             SSHConnection sshProxy = datasourceConfiguration.getSshProxy();
             String identifier = "";
@@ -546,7 +542,7 @@ public class PostgresPlugin extends BasePlugin {
                             // Since postgres json type field can only hold valid json data, this exception
                             // is not expected
                             // to occur.
-                            log.debug("In the PostgresPlugin, got action execution error");
+                            log.error("In the PostgresPlugin, got action execution error");
                             return Mono.error(new AppsmithPluginException(
                                     PostgresPluginError.QUERY_EXECUTION_FAILED,
                                     PostgresErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -563,7 +559,7 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     resultSet.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres ResultSet");
+                                    log.error("Execute Error closing Postgres ResultSet");
                                     e.printStackTrace();
                                 }
                             }
@@ -572,7 +568,7 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     statement.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres Statement");
+                                    log.error("Execute Error closing Postgres Statement");
                                     e.printStackTrace();
                                 }
                             }
@@ -581,7 +577,7 @@ public class PostgresPlugin extends BasePlugin {
                                 try {
                                     preparedQuery.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error closing Postgres Statement");
+                                    log.error("Execute Error closing Postgres Statement");
                                     e.printStackTrace();
                                 }
                             }
@@ -591,7 +587,7 @@ public class PostgresPlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error returning Postgres connection to pool");
+                                    log.error("Execute Error returning Postgres connection to pool");
                                     e.printStackTrace();
                                 }
                             }
@@ -668,8 +664,7 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Postgres plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Postgres plugin.");
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -695,9 +690,7 @@ public class PostgresPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": validateDatasource() called for Postgres plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for Postgres plugin.");
             Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -780,8 +773,7 @@ public class PostgresPlugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Postgres plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getStructure() called for Postgres plugin.");
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -1003,7 +995,7 @@ public class PostgresPlugin extends BasePlugin {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Error returning Postgres connection to pool during get structure");
+                                    log.error("Error returning Postgres connection to pool during get structure");
                                     e.printStackTrace();
                                 }
                             }

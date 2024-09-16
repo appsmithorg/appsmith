@@ -68,8 +68,7 @@ public class RedisPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": execute() called for Redis plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": execute() called for Redis plugin.");
             String query = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
@@ -256,8 +255,7 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.");
             return Mono.fromCallable(() -> {
                         final JedisPoolConfig poolConfig = buildPoolConfig();
                         int timeout =
@@ -272,8 +270,7 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(JedisPool jedisPool) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceDestroy() called for Redis plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for Redis plugin.");
             // Schedule on elastic thread pool and subscribe immediately.
             Mono.fromSupplier(() -> {
                         try {
@@ -281,7 +278,7 @@ public class RedisPlugin extends BasePlugin {
                                 jedisPool.destroy();
                             }
                         } catch (JedisException e) {
-                            log.debug("Error destroying Jedis pool.");
+                            log.error("Error destroying Jedis pool.");
                         }
 
                         return Mono.empty();
@@ -292,8 +289,7 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Redis plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for Redis plugin.");
             Set<String> invalids = new HashSet<>();
 
             if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
@@ -310,9 +306,8 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": getEndpointIdentifierForRateLimit() called for Redis plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for Redis plugin.");
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier
@@ -378,8 +373,7 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(JedisPool connectionPool) {
-            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Redis plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for Redis plugin.");
 
             return Mono.just(connectionPool)
                     .flatMap(c -> verifyPing(connectionPool))

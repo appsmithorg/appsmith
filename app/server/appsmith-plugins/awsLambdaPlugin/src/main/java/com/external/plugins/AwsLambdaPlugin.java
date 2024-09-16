@@ -60,8 +60,7 @@ public class AwsLambdaPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": execute() called for AWS Lambda plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": execute() called for AWS Lambda plugin.");
             Map<String, Object> formData = actionConfiguration.getFormData();
             String command = getDataValueSafelyFromFormData(formData, "command", STRING_TYPE);
 
@@ -94,8 +93,7 @@ public class AwsLambdaPlugin extends BasePlugin {
         @Override
         public Mono<TriggerResultDTO> trigger(
                 AWSLambda connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
-            String printMessage = Thread.currentThread().getName() + ": trigger() called for AWS Lambda plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": trigger() called for AWS Lambda plugin.");
             if (!StringUtils.hasText(request.getRequestType())) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "request type is missing");
@@ -149,9 +147,7 @@ public class AwsLambdaPlugin extends BasePlugin {
 
         @Override
         public Mono<AWSLambda> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": datasourceCreate() called for AWS Lambda plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for AWS Lambda plugin.");
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             String accessKey = authentication.getUsername();
             String secretKey = authentication.getPassword();
@@ -187,8 +183,7 @@ public class AwsLambdaPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(AWSLambda connection) {
-            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for AWS Lambda plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for AWS Lambda plugin.");
             return Mono.fromCallable(() -> {
                         /*
                          * - Please note that as of 28 Jan 2021, the way Amazon client SDK works, creating a connection
@@ -218,9 +213,7 @@ public class AwsLambdaPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": validateDatasource() called for AWS Lambda plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for AWS Lambda plugin.");
             Set<String> invalids = new HashSet<>();
             if (datasourceConfiguration == null
                     || datasourceConfiguration.getAuthentication() == null

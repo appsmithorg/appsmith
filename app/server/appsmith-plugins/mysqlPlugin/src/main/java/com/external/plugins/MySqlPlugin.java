@@ -183,9 +183,7 @@ public class MySqlPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": executeParameterized() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for MySQL plugin.");
             final Map<String, Object> requestData = new HashMap<>();
 
             Boolean isPreparedStatement;
@@ -244,9 +242,7 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public ActionConfiguration getSchemaPreviewActionConfig(Template queryTemplate, Boolean isMock) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getSchemaPreviewActionConfig() called for MySQL plugin.");
             ActionConfiguration actionConfig = new ActionConfiguration();
             // Sets query body
             actionConfig.setBody(queryTemplate.getBody());
@@ -262,9 +258,8 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": getEndpointIdentifierForRateLimit() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for MySQL plugin.");
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             SSHConnection sshProxy = datasourceConfiguration.getSshProxy();
             String identifier = "";
@@ -295,8 +290,7 @@ public class MySqlPlugin extends BasePlugin {
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO,
                 Map<String, Object> requestData) {
-            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for MySQL plugin.");
             ConnectionPool connectionPool = connectionContext.getConnection();
             SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             String query = actionConfiguration.getBody();
@@ -515,8 +509,7 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(ConnectionContext<ConnectionPool> connectionContext) {
-            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for MySQL plugin.");
             ConnectionPool pool = connectionContext.getConnection();
             return Mono.just(pool)
                     .flatMap(p -> p.create())
@@ -669,8 +662,7 @@ public class MySqlPlugin extends BasePlugin {
         @Override
         public Mono<ConnectionContext<ConnectionPool>> datasourceCreate(
                 DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for MySQL plugin.");
             return Mono.just(datasourceConfiguration).flatMap(ignore -> {
                 ConnectionContext<ConnectionPool> connectionContext;
                 try {
@@ -687,8 +679,7 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(ConnectionContext<ConnectionPool> connectionContext) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceDestroy() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for MySQL plugin.");
             Mono.just(connectionContext)
                     .flatMap(ignore -> {
                         SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
@@ -703,7 +694,7 @@ public class MySqlPlugin extends BasePlugin {
                                 sshTunnelContext.getSshClient().disconnect();
                                 sshTunnelContext.getThread().stop();
                             } catch (IOException e) {
-                                log.debug("Failed to destroy SSH tunnel context: " + e.getMessage());
+                                log.error("Failed to destroy SSH tunnel context: " + e.getMessage());
                             }
                         }
 
@@ -731,16 +722,14 @@ public class MySqlPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for MySQL plugin.");
             return MySqlDatasourceUtils.validateDatasource(datasourceConfiguration);
         }
 
         @Override
         public Mono<DatasourceStructure> getStructure(
                 ConnectionContext<ConnectionPool> connectionContext, DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": getStructure() called for MySQL plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getStructure() called for MySQL plugin.");
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();

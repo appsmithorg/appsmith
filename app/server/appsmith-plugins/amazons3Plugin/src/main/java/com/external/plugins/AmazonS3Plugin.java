@@ -416,9 +416,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": executeParameterized() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for AmazonS3 plugin.");
             final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -467,8 +465,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for AmazonS3 plugin.");
             final String[] query = new String[1];
             Map<String, Object> requestProperties = new HashMap<>();
             List<RequestParamDTO> requestParams = new ArrayList<>();
@@ -892,8 +889,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public Mono<AmazonS3> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for AmazonS3 plugin.");
             try {
                 Class.forName(S3_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -921,16 +917,14 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(AmazonS3 connection) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": datasourceDestroy() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for AmazonS3 plugin.");
             if (connection != null) {
                 Mono.fromCallable(() -> {
                             connection.shutdown();
                             return connection;
                         })
                         .onErrorResume(exception -> {
-                            log.debug("Error closing S3 connection.", exception);
+                            log.error("Error closing S3 connection.", exception.getMessage());
                             return Mono.empty();
                         })
                         .subscribeOn(scheduler)
@@ -940,9 +934,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": validateDatasource() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for AmazonS3 plugin.");
             Set<String> invalids = new HashSet<>();
 
             if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
@@ -1004,8 +996,7 @@ public class AmazonS3Plugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for AmazonS3 plugin.");
             if (datasourceConfiguration == null) {
                 return Mono.just(new DatasourceTestResult(
                         S3ErrorMessages.DS_AT_LEAST_ONE_MANDATORY_PARAMETER_MISSING_ERROR_MSG));
@@ -1094,8 +1085,7 @@ public class AmazonS3Plugin extends BasePlugin {
         public Mono<DatasourceStructure> getStructure(
                 AmazonS3 connection, DatasourceConfiguration datasourceConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": getStructure() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getStructure() called for AmazonS3 plugin.");
             return Mono.fromSupplier(() -> {
                         List<DatasourceStructure.Table> tableList;
                         try {
@@ -1149,9 +1139,7 @@ public class AmazonS3Plugin extends BasePlugin {
                 Object... args) {
             String jsonBody = (String) input;
             Param param = (Param) args[0];
-            String printMessage =
-                    Thread.currentThread().getName() + ": substituteValueInInput() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName() + ": substituteValueInInput() called for AmazonS3 plugin.");
             return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(
                     jsonBody, value, null, insertedParams, null, param);
         }
@@ -1197,9 +1185,8 @@ public class AmazonS3Plugin extends BasePlugin {
         @Override
         public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
                 List<ActionConfiguration> actionConfigurationList, Object... args) {
-            String printMessage = Thread.currentThread().getName()
-                    + ": sanitizeGenerateCRUDPageTemplateInfo() called for AmazonS3 plugin.";
-            log.debug(printMessage);
+            log.debug(Thread.currentThread().getName()
+                    + ": sanitizeGenerateCRUDPageTemplateInfo() called for AmazonS3 plugin.");
             if (isEmpty(actionConfigurationList)) {
                 return Mono.empty();
             }
