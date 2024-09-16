@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -33,6 +33,14 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ConsolidatedAPIService;
+import com.appsmith.server.services.MockDataService;
+import com.appsmith.server.services.ProductAlertService;
+import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
+import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
