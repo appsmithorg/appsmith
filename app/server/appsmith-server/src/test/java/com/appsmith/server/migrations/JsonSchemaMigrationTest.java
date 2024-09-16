@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -68,11 +67,6 @@ public class JsonSchemaMigrationTest {
     @Test
     public void migrateArtifactToLatestSchema_whenFeatureFlagIsOn_returnsIncrementedValue()
             throws URISyntaxException, IOException {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
@@ -87,11 +81,6 @@ public class JsonSchemaMigrationTest {
     @Test
     public void migrateApplicationJsonToLatestSchema_whenFeatureFlagIsOn_returnsIncrementedValue()
             throws URISyntaxException, IOException {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
@@ -104,32 +93,6 @@ public class JsonSchemaMigrationTest {
                     assertThat(appJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
                     assertThat(appJson.getClientSchemaVersion())
                             .isEqualTo(jsonSchemaVersionsFallback.getClientVersion());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void migrateApplicationJsonToLatestSchema_whenFeatureFlagIsOff_returnsFallbackValue()
-            throws URISyntaxException, IOException {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
-
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
-
-        ApplicationJson applicationJson =
-                gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
-
-        Mono<ApplicationJson> applicationJsonMono =
-                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
-        StepVerifier.create(applicationJsonMono)
-                .assertNext(appJson -> {
-                    assertThat(appJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
-                    assertThat(appJson.getClientSchemaVersion())
-                            .isEqualTo(jsonSchemaVersionsFallback.getClientVersion());
-                    assertThat(appJson.getServerSchemaVersion())
-                            .isEqualTo(jsonSchemaVersionsFallback.getServerVersion());
-                    assertThat(appJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
                 })
                 .verifyComplete();
     }
