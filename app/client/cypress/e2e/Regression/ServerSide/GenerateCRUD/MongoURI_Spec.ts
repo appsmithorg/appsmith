@@ -15,12 +15,14 @@ import EditorNavigation, {
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+import data from "../../../../fixtures/mongouri_data_spec.json";
 
 describe(
   "Validate Mongo URI CRUD with JSON Form",
   { tags: ["@tag.Datasource"] },
   () => {
     let dsName: any;
+    let importDataCollectionName: string;
 
     it("1. Create DS & Generate CRUD template", () => {
       dataSources.NavigateToDSCreateNew();
@@ -32,13 +34,40 @@ describe(
         dataSources.FillMongoDatasourceFormWithURI();
         dataSources.TestSaveDatasource();
         AppSidebar.navigate(AppSidebarButton.Editor);
+
+        importDataCollectionName = dsName + "_Import_data";
+
+        // Create data dump in new collection
+        dataSources.CreateQueryForDS(dsName, "", importDataCollectionName);
+        dataSources.ValidateNSelectDropdown(
+          "Command",
+          "Find document(s)",
+          "Raw",
+        );
+        dataSources.EnterJSContext({
+          fieldLabel: "Collection",
+          fieldValue: importDataCollectionName,
+        });
+        agHelper.EnterValue(JSON.stringify(data), {
+          propFieldName: "",
+          directInput: false,
+          inputFieldName: "Query",
+        });
+
+        dataSources.RunQuery();
+        EditorNavigation.NavigateToDatasource(dsName);
+        dataSources.RefreshDatasourceSchema();
+
         PageList.AddNewPage("Generate page with data");
         agHelper.GetNClick(dataSources._selectDatasourceDropdown);
         agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
         assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
         agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-        agHelper.GetNClickByContains(dataSources._dropdownOption, "mongomart");
+        agHelper.GetNClickByContains(
+          dataSources._dropdownOption,
+          importDataCollectionName,
+        );
         GenerateCRUDNValidateDeployPage(
           "/img/products/mug.jpg",
           "Coffee Mug",
@@ -195,7 +224,11 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
       PageList.AddNewPage();
       dataSources.CreateQueryForDS(dsName);
-      dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
+      dataSources.ValidateNSelectDropdown(
+        "Collection",
+        "",
+        importDataCollectionName,
+      );
       dataSources.RunQuery({ toValidateResponse: false });
       dataSources.AddSuggestedWidget(Widgets.Table);
       table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
