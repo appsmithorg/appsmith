@@ -1,5 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
+import dynamicInputLocators from "../../../../../locators/DynamicInput.json";
 
 const tableData = `[
     {
