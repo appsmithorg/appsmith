@@ -7,11 +7,11 @@ import { componentWillAppendToBody } from "react-append-to-body";
 import _, { debounce } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
-import { Divider } from "design-system";
+import { Divider } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
-import { getJSCollections } from "@appsmith/selectors/entitiesSelector";
+import { getJSCollections } from "ee/selectors/entitiesSelector";
 
 export interface PeekOverlayStateProps {
   objectName: string;
@@ -158,9 +158,17 @@ export function PeekOverlayPopUpContent(
             <ReactJson src={jsData} {...reactJsonProps} />
           </JsonWrapper>
         )}
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {dataType === "function" && <div>{(jsData as any).toString()}</div>}
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {dataType === "boolean" && <div>{(jsData as any).toString()}</div>}
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {dataType === "string" && <div>{(jsData as any).toString()}</div>}
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {dataType === "number" && <div>{(jsData as any).toString()}</div>}
         {((dataType !== "object" &&
           dataType !== "function" &&
@@ -170,6 +178,8 @@ export function PeekOverlayPopUpContent(
           dataType !== "number") ||
           jsData === null) && (
           <div>
+            {/* TODO: Fix this the next time the file is edited */}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(jsData as any)?.toString() ?? jsData ?? jsData === undefined
               ? "undefined"
               : "null"}

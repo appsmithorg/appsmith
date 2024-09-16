@@ -75,6 +75,8 @@ const defaultStoreState = {
 };
 const mockStore = configureStore([]);
 describe("CreateNewAppsOption", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
   it("Should not render skip button if no application is present", () => {
     store = mockStore(defaultStoreState);

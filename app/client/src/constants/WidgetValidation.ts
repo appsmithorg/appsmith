@@ -22,8 +22,12 @@ export enum ValidationTypes {
 
 export interface ValidationResponse {
   isValid: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parsed: any;
   messages?: Array<Error>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transformed?: any;
   isParsedValueTheSame?: boolean;
 }

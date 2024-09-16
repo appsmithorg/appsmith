@@ -2859,6 +2859,8 @@ describe("getDependencies", () => {
       ],
     ];
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inputs.map((input: any, index) => {
       expect(getDependencyChain(input, inverseDependencies[index])).toEqual(
         output[index],

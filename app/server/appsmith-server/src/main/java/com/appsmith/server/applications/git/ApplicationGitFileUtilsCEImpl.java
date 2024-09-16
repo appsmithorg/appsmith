@@ -346,24 +346,24 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
      * this method checkouts to the given branch name, and creates the ApplicationJson
      * from the contents of repository
      * @param workspaceId : workspaceId of the concerned application
-     * @param defaultArtifactId : main branch id of the application
+     * @param baseArtifactId : main branch id of the application
      * @param repoName : repository name, it's mostly the app/package name/repository name of the git project
      * @param branchName : git branch from which the json has to be reconstructed
      * @return : ApplicationJson
      */
     @Override
     public Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromFilesInRepository(
-            String workspaceId, String defaultArtifactId, String repoName, String branchName) {
-
-        Mono<ApplicationGitReference> appReferenceMono = fileUtils.reconstructApplicationReferenceFromGitRepo(
-                workspaceId, defaultArtifactId, repoName, branchName);
+            String workspaceId, String baseArtifactId, String repoName, String branchName) {
+        Mono<ApplicationGitReference> appReferenceMono =
+                fileUtils.reconstructApplicationReferenceFromGitRepo(workspaceId, baseArtifactId, repoName, branchName);
         return appReferenceMono.flatMap(applicationReference -> {
             // Extract application metadata from the json
             ApplicationJson metadata =
                     getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
-            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson);
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(
+                    applicationJson, baseArtifactId, branchName);
         });
     }
 

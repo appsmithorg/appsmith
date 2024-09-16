@@ -4,8 +4,8 @@ import {
   NEW_API_BUTTON_TEXT,
   NEW_QUERY_BUTTON_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getNumberOfEntitiesInCurrentPage } from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/messages";
+import { getNumberOfEntitiesInCurrentPage } from "ee/selectors/entitiesSelector";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { PluginType } from "entities/Action";
@@ -160,6 +160,36 @@ describe("GoogleSheetSchema Component", () => {
   });
 });
 
+describe("DSFormHeader Component", () => {
+  it("1. should not render the 'generate page' button when release_drag_drop_building_blocks_enabled is enabled", () => {
+    (useFeatureFlag as jest.Mock).mockReturnValue(true);
+    const mockHistoryPush = jest.fn();
+    const mockHistoryReplace = jest.fn();
+    const mockHistoryLocation = {
+      pathname: "/",
+      search: "",
+      hash: "",
+      state: {},
+    };
+
+    jest.spyOn(reactRouter, "useHistory").mockReturnValue({
+      push: mockHistoryPush,
+      replace: mockHistoryReplace,
+      location: mockHistoryLocation,
+    });
+
+    jest.spyOn(reactRouter, "useLocation").mockReturnValue(mockHistoryLocation);
+
+    renderDSFormHeader();
+
+    // Check that the "generate page" button is not rendered
+    const generatePageButton = screen.queryByText(
+      createMessage(DATASOURCE_GENERATE_PAGE_BUTTON),
+    );
+    expect(generatePageButton).not.toBeInTheDocument();
+  });
+});
+
 const mockDatasource: Datasource = {
   id: "667941878b418b52eb273895",
   userPermissions: [
@@ -182,6 +212,8 @@ const mockDatasource: Datasource = {
           ssl: {
             authType: SSLType.DEFAULT,
             authTypeControl: false,
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             certificateFile: {} as any,
           },
         },

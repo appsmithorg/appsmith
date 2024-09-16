@@ -1,13 +1,13 @@
 import React, { useCallback } from "react";
-import { Button, Flex, Text } from "design-system";
+import { Button, Flex, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 import history from "utils/history";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
-import { widgetListURL } from "@appsmith/RouteBuilder";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { widgetListURL } from "ee/RouteBuilder";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 const Container = styled(Flex)`
   padding-right: var(--ads-v2-spaces-2);
@@ -15,11 +15,11 @@ const Container = styled(Flex)`
 `;
 
 const AddWidgets = (props: { focusSearchInput?: boolean }) => {
-  const pageId = useSelector(getCurrentPageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId) as string;
 
   const closeButtonClickHandler = useCallback(() => {
-    history.push(widgetListURL({ pageId }));
-  }, [pageId]);
+    history.push(widgetListURL({ basePageId }));
+  }, [basePageId]);
 
   return (
     <>

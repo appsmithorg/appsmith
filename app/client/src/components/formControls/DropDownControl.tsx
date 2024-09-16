@@ -7,7 +7,7 @@ import { get, isEmpty, isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import {
@@ -16,8 +16,8 @@ import {
   MATCH_ACTION_CONFIG_PROPERTY,
 } from "workers/Evaluation/formEval";
 import type { Action } from "entities/Action";
-import type { SelectOptionProps } from "design-system";
-import { Icon, Option, Select } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Icon, Option, Select } from "@appsmith/ads";
 
 const DropdownSelect = styled.div<{
   width: string;
@@ -91,7 +91,7 @@ class DropDownControl extends BaseControl<Props> {
 
     return (
       <DropdownSelect
-        className={`t--${this?.props?.configProperty}`}
+        className={`t--${this?.props?.configProperty} uqi-dropdown-select`}
         data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}
@@ -185,6 +185,20 @@ function renderDropdown(
     }
   };
 
+  const clearAllOptions = () => {
+    if (!isNil(selectedValue)) {
+      if (props.isMultiSelect) {
+        if (Array.isArray(selectedValue)) {
+          selectedValue = [];
+          props.input?.onChange([]);
+        }
+      } else {
+        selectedValue = "";
+        props.input?.onChange("");
+      }
+    }
+  };
+
   if (props.options.length > 0) {
     if (props.isMultiSelect) {
       const tempSelectedValues: string[] = [];
@@ -233,11 +247,13 @@ function renderDropdown(
 
   return (
     <Select
+      allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
       data-testid={`t--dropdown-${props?.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
+      onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onSelect={(value) => onSelectOptions(value)}
       placeholder={props?.placeholderText}
@@ -280,6 +296,8 @@ interface ReduxDispatchProps {
   updateConfigPropertyValue: (
     formName: string,
     field: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => void;
 }
@@ -306,12 +324,19 @@ const mapStateToProps = (
       options = dynamicFetchedValues.data;
     }
   } catch (e) {
+    // Printing error to console
+    // eslint-disable-next-line no-console
+    console.error(e);
   } finally {
     return { isLoading, options, formValues };
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateConfigPropertyValue: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
   },

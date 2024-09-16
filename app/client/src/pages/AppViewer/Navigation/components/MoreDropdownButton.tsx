@@ -4,18 +4,17 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import MenuText from "./MenuText";
-import classNames from "classnames";
 import {
   StyledMenuDropdownContainer,
   StyledMenuItemInDropdown,
   StyleMoreDropdownButton,
 } from "./MoreDropdownButton.styled";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import type { Page } from "entities/Page";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { NavigationMethod } from "utils/history";
 
@@ -57,32 +56,14 @@ const MoreDropdownButton = ({
         }}
         primaryColor={primaryColor}
       >
-        {navigationSetting?.itemStyle !==
-          NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
-          <Icon
-            className={classNames({
-              "page-icon": true,
-              "mr-2":
-                navigationSetting?.itemStyle ===
-                NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON,
-            })}
-            name="context-menu"
-            size="md"
+        <>
+          <MenuText
+            name="More"
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
           />
-        )}
-
-        {navigationSetting?.itemStyle !==
-          NAVIGATION_SETTINGS.ITEM_STYLE.ICON && (
-          <>
-            <MenuText
-              name="More"
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-            />
-
-            <Icon className="page-icon ml-2" name="expand-more" size="large" />
-          </>
-        )}
+          <Icon className="page-icon ml-2" name="expand-more" size="md" />
+        </>
       </StyleMoreDropdownButton>
     </div>
   );
@@ -105,10 +86,10 @@ const MoreDropdownButton = ({
         const pageURL =
           appMode === APP_MODE.PUBLISHED
             ? viewerURL({
-                pageId: page.pageId,
+                basePageId: page.basePageId,
               })
             : builderURL({
-                pageId: page.pageId,
+                basePageId: page.basePageId,
               });
 
         return (
@@ -124,24 +105,11 @@ const MoreDropdownButton = ({
               state: { invokedBy: NavigationMethod.AppNavigation },
             }}
           >
-            {navigationSetting?.itemStyle !==
-              NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
-              <Icon
-                className={classNames({
-                  "page-icon mr-2": true,
-                })}
-                name="file-line"
-                size="large"
-              />
-            )}
-            {navigationSetting?.itemStyle !==
-              NAVIGATION_SETTINGS.ITEM_STYLE.ICON && (
-              <MenuText
-                name={page.pageName}
-                navColorStyle={navColorStyle}
-                primaryColor={primaryColor}
-              />
-            )}
+            <MenuText
+              name={page.pageName}
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+            />
           </StyledMenuItemInDropdown>
         );
       })}

@@ -4,7 +4,7 @@ import {
   ViewTypes,
   DEFAULT_SELECTOR_VIEW_TEXT,
 } from "../constants";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { getFunctionName } from "@shared/ast";
 import type {
   FieldProps,
@@ -161,8 +161,8 @@ export function Field(props: FieldProps) {
       });
       break;
     case FieldType.PARAMS_FIELD:
-      viewElement = (view as (props: SelectorViewProps) => JSX.Element)({
-        options: options as TreeDropdownOption[],
+      viewElement = (view as (props: TextViewProps) => JSX.Element)({
+        exampleText: exampleText,
         label: label,
         get: (value: string) => getterFunction(value, props.field.position),
         set: (value: string | DropdownOption) => {
@@ -174,7 +174,9 @@ export function Field(props: FieldProps) {
           props.onValueChange(finalValueToSet, false);
         },
         value: value,
-        defaultText: defaultText,
+        isValueChanged: (value: string) => {
+          return value !== getterFunction("");
+        },
       });
       break;
     case FieldType.KEY_VALUE_FIELD:
@@ -190,12 +192,31 @@ export function Field(props: FieldProps) {
         defaultText: defaultText,
       });
       break;
+    case FieldType.QUERY_PARAMS_FIELD:
+      viewElement = (view as (props: TextViewProps) => JSX.Element)({
+        label: label,
+        toolTip: toolTip,
+        exampleText: exampleText,
+        get: getterFunction,
+        set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
+          const finalValueToSet = fieldConfig.setter(value, props.value);
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard, true);
+        },
+        value: value,
+        additionalAutoComplete: props.additionalAutoComplete,
+        dataTreePath: props.dataTreePath,
+        isValueChanged: (value: string) => {
+          // This function checks whether the param value is changed from the default value.
+          // getterFunction("") -> passing empty string will return the default value
+          return value !== getterFunction("");
+        },
+      });
+      break;
     case FieldType.ALERT_TEXT_FIELD:
     case FieldType.URL_FIELD:
     case FieldType.KEY_TEXT_FIELD_STORE_VALUE:
     case FieldType.KEY_TEXT_FIELD_REMOVE_VALUE:
     case FieldType.VALUE_TEXT_FIELD:
-    case FieldType.QUERY_PARAMS_FIELD:
     case FieldType.DOWNLOAD_DATA_FIELD:
     case FieldType.DOWNLOAD_FILE_NAME_FIELD:
     case FieldType.COPY_TEXT_FIELD:

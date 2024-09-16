@@ -79,6 +79,8 @@ describe("Setter class test", () => {
       evalTree["Table1"],
     );
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const globalContext = self as any;
 
     Object.assign(globalContext, evalContext);

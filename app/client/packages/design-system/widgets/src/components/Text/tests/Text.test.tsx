@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 
 import { Text } from "../";
 
-describe("@design-system/widgets/Text", () => {
+describe("@appsmith/wds/Text", () => {
   it("should render the text", () => {
     render(<Text>My Text</Text>);
 

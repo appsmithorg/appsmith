@@ -6,6 +6,7 @@ import {
   PagePaneSegment,
 } from "./EditorNavigation";
 import * as _ from "../Objects/ObjectsCore";
+import ApiEditor from "../../locators/ApiEditor";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -92,6 +93,9 @@ export class ApiPage {
   public _addMoreHeaderFieldButton = ".t--addApiHeader";
   public jsonBody = `.t--apiFormPostBody`;
   private _entityName = ".t--entity-name";
+  private curlImport = ".t--datasoucre-create-option-new_curl_import";
+  private _curlTextArea =
+    "//label[text()='Paste CURL Code Here']/parent::form/div";
 
   CreateApi(
     apiName = "",
@@ -299,7 +303,7 @@ export class ApiPage {
       | "RAW",
   ) {
     this.agHelper.GetNClick(this._bodyTypeSelect);
-    cy.xpath(this._bodyTypeToSelect(subTabName)).should("be.visible").click();
+    this.agHelper.GetNClick(this._bodyTypeToSelect(subTabName));
   }
 
   AssertRightPaneSelectedTab(tabName: RightPaneTabs) {
@@ -436,6 +440,7 @@ export class ApiPage {
     this.agHelper.AssertElementVisibility(this._responseStatus);
     this.agHelper.GetNAssertContains(this._responseStatus, statusCode);
   }
+
   public SelectPaginationTypeViaIndex(index: number) {
     cy.get(this._paginationTypeLabels).eq(index).click({ force: true });
   }
@@ -467,5 +472,25 @@ export class ApiPage {
   DebugError() {
     this.agHelper.GetNClick(this._responseTabHeader);
     cy.get(this._headersTabContent).contains("Debug").click();
+  }
+
+  public FillCurlNImport(value: string) {
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
+    this.agHelper.GetNClick(this.curlImport);
+    this.ImportCurlNRun(value);
+  }
+
+  public ImportCurlNRun(value: string) {
+    this.agHelper.UpdateTextArea(this._curlTextArea, value);
+    this.agHelper.Sleep(500); //Clicking import after value settled
+    cy.get(ApiEditor.curlImportBtn).click({ force: true });
+    cy.wait("@curlImport").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+    this.RunAPI();
   }
 }

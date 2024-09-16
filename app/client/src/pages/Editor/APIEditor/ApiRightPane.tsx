@@ -1,20 +1,20 @@
 import React, { useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Classes, FontWeight, Text, TextType } from "design-system-old";
+import { Classes, FontWeight, Text, TextType } from "@appsmith/ads-old";
 import history from "utils/history";
 import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
 import { getQueryParams } from "utils/URLUtils";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
 import { sortedDatasourcesHandler } from "./helpers";
-import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
+import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";
 
 interface ApiRightPaneProps {
@@ -23,8 +23,10 @@ interface ApiRightPaneProps {
   actionRightPaneBackLink: React.ReactNode;
   applicationId?: string;
   currentActionDatasourceId: string;
-  currentPageId?: string;
+  currentBasePageId?: string;
   datasourceId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasources: any;
   hasResponse: boolean;
   onClick: (datasource: Datasource) => void;
@@ -95,7 +97,7 @@ const DatasourceCard = styled.div`
     opacity: 0;
     visibility: hidden;
   }
-  .cs-icon {
+  .ads-v2-icon {
     opacity: 0;
     transition: 0.3s all ease;
   }
@@ -105,7 +107,7 @@ const DatasourceCard = styled.div`
   }
   &:hover {
     background-color: var(--ads-v2-color-bg-subtle);
-    .cs-icon {
+    .ads-v2-icon {
       opacity: 1;
     }
   }
@@ -169,6 +171,8 @@ const TablistWithPadding = styled.div`
   flex-shrink: 0;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
@@ -290,7 +294,7 @@ function ApiRightPane(props: ApiRightPaneProps) {
                                 e.stopPropagation();
                                 history.push(
                                   datasourcesEditorIdURL({
-                                    pageId: props.currentPageId,
+                                    basePageId: props.currentBasePageId,
                                     datasourceId: d.id,
                                     params: getQueryParams(),
                                   }),

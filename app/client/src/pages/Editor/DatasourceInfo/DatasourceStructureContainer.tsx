@@ -3,19 +3,19 @@ import {
   DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
   SCHEMA_NOT_AVAILABLE,
   TABLE_NOT_FOUND,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import DatasourceStructure from "./DatasourceStructure";
-import { Button, Flex, SearchInput, Text } from "design-system";
-import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
+import { Button, Flex, SearchInput, Text } from "@appsmith/ads";
+import { getIsFetchingDatasourceStructure } from "ee/selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
@@ -158,13 +158,14 @@ const Container = (props: Props) => {
         <SearchInput
           className="datasourceStructure-search"
           endIcon="close"
-          onChange={(value) => handleOnChange(value)}
+          onChange={(value: string) => handleOnChange(value)}
           placeholder={createMessage(
             DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
             props.datasourceName,
           )}
           size={"sm"}
           startIcon="search"
+          //@ts-expect-error Fix this the next time the file is edited
           type="text"
         />
       </DatasourceStructureSearchContainer>

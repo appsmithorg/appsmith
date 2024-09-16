@@ -4,13 +4,13 @@ import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
-import type { SetProgress } from "design-system-old";
-import { FilePickerV2, FileType } from "design-system-old";
+import type { SetProgress } from "@appsmith/ads-old";
+import { FilePickerV2, FileType } from "@appsmith/ads-old";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
-import { Button, Modal, ModalBody, ModalContent } from "design-system";
+import { Button, Modal, ModalBody, ModalContent } from "@appsmith/ads";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -43,6 +43,8 @@ type RenderFilePickerProps = FilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
   disabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (event: any) => void;
 };
 

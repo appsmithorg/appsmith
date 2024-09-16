@@ -15,6 +15,8 @@ export const registerWidgets = (widgets: (typeof BaseWidget)[]) => {
   const widgetAndBuilders = widgets.map((widget) => {
     const { eagerRender = false, needsMeta = false } = widget.getConfig();
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ProfiledWidget: any = withBaseWidgetHOC(
       widget,
       needsMeta,

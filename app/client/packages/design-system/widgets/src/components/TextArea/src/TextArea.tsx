@@ -3,13 +3,13 @@ import React, { forwardRef } from "react";
 import type {
   TextAreaRef as HeadlessTextAreaRef,
   TextAreaProps as HeadlessTextAreaProps,
-} from "@design-system/headless";
-import { TextArea as HeadlessTextArea } from "@design-system/headless";
+} from "@appsmith/wds-headless";
+import { TextArea as HeadlessTextArea } from "@appsmith/wds-headless";
 
 import textAreaStyles from "./styles.module.css";
 import { textInputStyles, fieldStyles } from "../../../styles";
 import { ContextualHelp } from "../../ContextualHelp";
-import { getTypographyClassName } from "@design-system/theming";
+import { getTypographyClassName } from "@appsmith/wds-theming";
 
 export interface TextAreaProps extends HeadlessTextAreaProps {
   /** loading state for the input */

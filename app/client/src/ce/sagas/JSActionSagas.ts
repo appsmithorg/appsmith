@@ -1,11 +1,11 @@
 import type {
   EvaluationReduxAction,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { put, select, call } from "redux-saga/effects";
 import {
   updateActionData,
@@ -29,11 +29,14 @@ import {
   getJSCollection,
   getNewEntityName,
   getPageNameByPageId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
-import JSActionAPI from "@appsmith/api/JSActionAPI";
+import {
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import type { JSCollectionCreateUpdateResponse } from "ee/api/JSActionAPI";
+import JSActionAPI from "ee/api/JSActionAPI";
 import {
   createMessage,
   ERROR_JS_ACTION_COPY_FAIL,
@@ -42,7 +45,7 @@ import {
   JS_ACTION_COPY_SUCCESS,
   JS_ACTION_DELETE_SUCCESS,
   JS_ACTION_MOVE_SUCCESS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { validateResponse } from "sagas/ErrorSagas";
 import type {
   FetchPageRequest,
@@ -50,31 +53,32 @@ import type {
   PageLayout,
 } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
+import type { CreateJSCollectionRequest } from "ee/api/JSActionAPI";
 import * as log from "loglevel";
-import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { builderURL, jsCollectionIdURL } from "ee/RouteBuilder";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
 } from "sagas/helper";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
-import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
-import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
+import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import { getAllActionTestPayloads } from "utils/storage";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -188,21 +192,27 @@ export function* copyJSCollectionSaga(
     }
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    toast.show(createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName), {
-      kind: "error",
-    });
-    yield put(copyJSCollectionError(action.payload));
+    yield put(
+      copyJSCollectionError({
+        ...action.payload,
+        show: true,
+        error: {
+          message: createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName),
+        },
+      }),
+    );
   }
 }
 
 export function* handleMoveOrCopySaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id, pageId } = actionPayload.payload;
+  const { baseId: baseCollectionId, pageId } = actionPayload.payload;
+  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
   history.push(
     jsCollectionIdURL({
-      pageId: pageId,
-      collectionId: id,
+      basePageId,
+      baseCollectionId: baseCollectionId,
     }),
   );
 }
@@ -260,13 +270,14 @@ export function* moveJSCollectionSaga(
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
-    toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
-      kind: "error",
-    });
     yield put(
       moveJSCollectionError({
         id: action.payload.id,
         originalPageId: actionObject.pageId,
+        show: true,
+        error: {
+          message: createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name),
+        },
       }),
     );
   }
@@ -299,7 +310,7 @@ export function* deleteJSCollectionSaga(
   try {
     const id = actionPayload.payload.id;
     const currentUrl = window.location.pathname;
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
     const ideType = getIDETypeByUrl(currentUrl);
@@ -313,7 +324,7 @@ export function* deleteJSCollectionSaga(
       if (ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
       } else {
-        history.push(builderURL({ pageId }));
+        history.push(builderURL({ basePageId }));
       }
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
@@ -327,11 +338,11 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
-      yield put(closeJsActionTabSuccess({ id, parentId: pageId }));
+      yield put(closeJsActionTabSuccess({ id, parentId: basePageId }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-      if (pageId) {
+      if (basePageId) {
         yield put(
           updateAndSaveLayout(widgets, {
             shouldReplay: false,
@@ -370,15 +381,15 @@ export function* saveJSObjectName(
       payload: {
         actionId: action.payload.id,
         oldName: collection.config.name,
+        show: true,
+        error: {
+          message: createMessage(
+            ERROR_JS_COLLECTION_RENAME_FAIL,
+            action.payload.name,
+          ),
+        },
       },
     });
-    toast.show(
-      createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
-      {
-        kind: "error",
-      },
-    );
-    log.error(e);
   }
 }
 
@@ -388,7 +399,7 @@ export function* refactorJSObjectName(
   oldName: string,
   newName: string,
 ) {
-  const params: FetchPageRequest = { id: pageId, migrateDSL: true };
+  const params: FetchPageRequest = { pageId, migrateDSL: true };
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
@@ -511,6 +522,8 @@ export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {
       yield getAllActionTestPayloads();
     if (!!storedPayloads && collections.length > 0) {
       for (const collection of collections) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const testPayloadForCollection: Record<string, any> = {};
         let hasStoredPayload = false;
         for (const action of collection.actions) {

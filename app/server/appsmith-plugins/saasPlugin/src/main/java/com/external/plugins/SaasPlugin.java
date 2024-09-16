@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -84,6 +85,8 @@ public class SaasPlugin extends BasePlugin {
                 ExecutePluginDTO connection,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": execute() called for Saas plugin.";
+            System.out.println(printMessage);
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
 
@@ -132,7 +135,12 @@ public class SaasPlugin extends BasePlugin {
 
             String valueAsString = "";
             try {
+                System.out.println(
+                        Thread.currentThread().getName() + ": objectMapper writing value as string for Saas plugin.");
+                Stopwatch processStopwatch =
+                        new Stopwatch("SaaS Plugin objectMapper writing value as string for connection");
                 valueAsString = saasObjectMapper.writeValueAsString(connection);
+                processStopwatch.stopAndLogTimeInMillisWithSysOut();
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -145,7 +153,14 @@ public class SaasPlugin extends BasePlugin {
                         byte[] body = stringResponseEntity.getBody();
                         if (statusCode.is2xxSuccessful()) {
                             try {
-                                return saasObjectMapper.readValue(body, ActionExecutionResult.class);
+                                System.out.println(Thread.currentThread().getName()
+                                        + ": objectMapper reading value as string for Saas plugin.");
+                                Stopwatch processStopwatch =
+                                        new Stopwatch("SaaS Plugin objectMapper reading value as string for body");
+                                ActionExecutionResult result =
+                                        saasObjectMapper.readValue(body, ActionExecutionResult.class);
+                                processStopwatch.stopAndLogTimeInMillisWithSysOut();
+                                return result;
                             } catch (IOException e) {
                                 throw Exceptions.propagate(new AppsmithPluginException(
                                         AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, body, e.getMessage()));

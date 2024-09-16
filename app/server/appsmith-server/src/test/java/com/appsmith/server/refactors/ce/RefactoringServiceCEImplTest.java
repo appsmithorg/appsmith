@@ -1,7 +1,6 @@
 package com.appsmith.server.refactors.ce;
 
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -16,7 +15,6 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -32,14 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -51,7 +46,6 @@ import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@ExtendWith(SpringExtension.class)
 @Slf4j
 @SpringBootTest
 class RefactoringServiceCEImplTest {
@@ -68,9 +62,6 @@ class RefactoringServiceCEImplTest {
 
     @SpyBean
     private NewActionService newActionService;
-
-    @MockBean
-    private ResponseUtils responseUtils;
 
     @MockBean
     private UpdateLayoutService updateLayoutService;
@@ -100,9 +91,6 @@ class RefactoringServiceCEImplTest {
     private EntityRefactoringService<Layout> widgetEntityRefactoringService;
 
     @Autowired
-    private TransactionalOperator transactionalOperator;
-
-    @Autowired
     private EntityValidationService entityValidationService;
 
     @BeforeEach
@@ -112,13 +100,11 @@ class RefactoringServiceCEImplTest {
 
         refactoringServiceCE = new RefactoringServiceCEImpl(
                 newPageService,
-                responseUtils,
                 updateLayoutService,
                 applicationService,
                 pagePermission,
                 analyticsService,
                 sessionUserService,
-                transactionalOperator,
                 entityValidationService,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,
@@ -142,20 +128,16 @@ class RefactoringServiceCEImplTest {
         oldUnpublishedCollection.setPageId("testPageId");
         oldUnpublishedCollection.setName("oldName");
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
-        oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
-        oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
+        oldActionCollection.setBaseId("testCollectionId");
 
         LayoutDTO layout = new LayoutDTO();
         final JSONObject jsonObject = new JSONObject();
         jsonObject.put("key", "value");
         layout.setDsl(jsonObject);
 
-        Mockito.when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
-                .thenReturn(layout);
-
         Mockito.doReturn(Mono.empty())
                 .when(actionCollectionEntityRefactoringService)
-                .updateRefactoredEntity(Mockito.any(), Mockito.isNull());
+                .updateRefactoredEntity(Mockito.any());
 
         NewPage newPage = new NewPage();
         newPage.setId("testPageId");
@@ -192,8 +174,7 @@ class RefactoringServiceCEImplTest {
                 .when(actionCollectionEntityRefactoringService)
                 .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.eq(false));
 
-        final Mono<LayoutDTO> layoutDTOMono =
-                refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
+        final Mono<LayoutDTO> layoutDTOMono = refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO);
 
         StepVerifier.create(layoutDTOMono)
                 .assertNext(layoutDTO -> {
@@ -246,8 +227,7 @@ class RefactoringServiceCEImplTest {
         Mockito.when(newPageService.getByIdWithoutPermissionCheck(Mockito.anyString()))
                 .thenReturn(Mono.just(newPage));
 
-        final Mono<LayoutDTO> layoutDTOMono =
-                refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
+        final Mono<LayoutDTO> layoutDTOMono = refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO);
 
         StepVerifier.create(layoutDTOMono)
                 .expectErrorMatches(e -> AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR
@@ -272,8 +252,7 @@ class RefactoringServiceCEImplTest {
         oldUnpublishedCollection.setPageId("testPageId");
         oldUnpublishedCollection.setName("oldName");
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
-        oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
-        oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
+        oldActionCollection.setBaseId("testCollectionId");
 
         Mockito.when(newActionService.findActionDTObyIdAndViewMode(
                         Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
@@ -284,7 +263,7 @@ class RefactoringServiceCEImplTest {
 
         Mockito.doReturn(Mono.empty())
                 .when(actionCollectionEntityRefactoringService)
-                .updateRefactoredEntity(Mockito.any(), Mockito.isNull());
+                .updateRefactoredEntity(Mockito.any());
 
         NewPage newPage = new NewPage();
         newPage.setId("testPageId");
@@ -325,9 +304,6 @@ class RefactoringServiceCEImplTest {
         layout.setActionUpdates(new ArrayList<>());
         layout.setLayoutOnLoadActions(new ArrayList<>());
 
-        Mockito.when(responseUtils.updateLayoutDTOWithDefaultResources(Mockito.any()))
-                .thenReturn(layout);
-
         Mockito.when(updateLayoutService.updateLayout(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.any()))
                 .thenReturn(Mono.just(layout));
@@ -336,8 +312,7 @@ class RefactoringServiceCEImplTest {
                 .when(actionCollectionEntityRefactoringService)
                 .getExistingEntityNames(Mockito.anyString(), Mockito.any(), Mockito.anyString(), Mockito.eq(false));
 
-        final Mono<LayoutDTO> layoutDTOMono =
-                refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
+        final Mono<LayoutDTO> layoutDTOMono = refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO);
 
         StepVerifier.create(layoutDTOMono)
                 .assertNext(layoutDTO -> {
@@ -345,16 +320,5 @@ class RefactoringServiceCEImplTest {
                     assertEquals("value", layoutDTO.getDsl().get("key"));
                 })
                 .verifyComplete();
-    }
-
-    <T> DefaultResources setDefaultResources(T collection) {
-        DefaultResources defaultResources = new DefaultResources();
-        if (collection instanceof ActionCollection) {
-            defaultResources.setApplicationId("testApplicationId");
-            defaultResources.setCollectionId("testCollectionId");
-        } else if (collection instanceof ActionCollectionDTO) {
-            defaultResources.setPageId("testPageId");
-        }
-        return defaultResources;
     }
 }

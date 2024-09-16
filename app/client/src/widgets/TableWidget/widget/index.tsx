@@ -404,6 +404,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -499,6 +501,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           inputFormat: columnProperties?.inputFormat || "",
         },
         columnProperties: columnProperties,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (props: any) => {
           const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
@@ -705,8 +709,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     // For each row in the tableData (filteredTableData)
     for (let row = 0; row < tableData.length; row++) {
       // Get the row object
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: { [key: string]: any } = tableData[row];
       if (data) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const tableRow: { [key: string]: any } = {};
         // For each column in the expected columns of the table
         for (let colIndex = 0; colIndex < columns.length; colIndex++) {
@@ -1270,6 +1278,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
     this.resetSelectedRowIndex();

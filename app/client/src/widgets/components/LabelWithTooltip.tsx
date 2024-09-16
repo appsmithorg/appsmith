@@ -8,7 +8,7 @@ import { TooltipComponent as Tooltip } from "@design-system/widgets-old";
 import { isEllipsisActive } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 

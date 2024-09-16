@@ -8,13 +8,11 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -28,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class JsonSchemaMigrationTest {
 
     @MockBean
@@ -81,9 +78,6 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         ArtifactExchangeJson artifactExchangeJson = jsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson);
-
-        assertThat(artifactExchangeJson.getServerSchemaVersion())
-                .isNotEqualTo(jsonSchemaVersionsFallback.getServerVersion());
         assertThat(artifactExchangeJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
         assertThat(artifactExchangeJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
         assertThat(artifactExchangeJson.getClientSchemaVersion())
@@ -103,11 +97,9 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         Mono<ApplicationJson> applicationJsonMono =
-                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson);
+                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
         StepVerifier.create(applicationJsonMono)
                 .assertNext(appJson -> {
-                    assertThat(appJson.getServerSchemaVersion())
-                            .isNotEqualTo(jsonSchemaVersionsFallback.getServerVersion());
                     assertThat(appJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
                     assertThat(appJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
                     assertThat(appJson.getClientSchemaVersion())
@@ -129,7 +121,7 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         Mono<ApplicationJson> applicationJsonMono =
-                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson);
+                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
         StepVerifier.create(applicationJsonMono)
                 .assertNext(appJson -> {
                     assertThat(appJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());

@@ -21,9 +21,9 @@ on:
         type: string
         default: latest
 
-  # trigger for pushes to master
+  # trigger for pushes to master and pg
   push:
-    branches: [master]
+    branches: [master, pg]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -100,7 +100,7 @@ jobs:
   ci-test:
     needs: [setup, build-docker-image]
     # Only run if the build step is successful
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
     name: ci-test
     uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
@@ -113,7 +113,7 @@ jobs:
   server-unit-tests:
     name: server-unit-tests
     needs: [build-docker-image]
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
@@ -123,7 +123,7 @@ jobs:
   client-unit-tests:
     name: client-unit-tests
     needs: [build-docker-image]
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
     uses: ./.github/workflows/client-unit-tests.yml
     secrets: inherit
     with:
@@ -227,20 +227,22 @@ jobs:
 
       # This step triggers an external workflow for automated analysis of Cypress test runs.
       - name: Invoke Automated analysis workflow
+        if: ( always() && github.ref == 'refs/heads/release' && github.run_attempt <= 2)
         run: |
           curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
           --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
           --header 'Content-Type: application/json' \
-          --data-raw '{ "workflow_id" : ${{ github.run_id }} , 
-                        "commit_id" : "${{ github.sha }}" , 
-                        "repo" : "${{  github.event.repository.full_name }}" , 
-                        "task" : "${{  github.job }}" ,   
-                        "workflow_type" : "${{ github.event_name }}",  
-                        "workflow_name" : "${{ github.workflow }}", 
-                        "job_id" : "",     
-                        "job_data": { 
-                            "ci_test_result_sample_data" : "sample_data" 
-                         }  
+          --data-raw '{ "workflow_id" : ${{ github.run_id }} ,
+                        "commit_id" : "${{ github.sha }}" ,
+                        "repo" : "${{  github.event.repository.full_name }}" ,
+                        "task" : "${{  github.job }}" ,
+                        "workflow_type" : "${{ github.event_name }}",
+                        "workflow_name" : "TBD",
+                        "job_id" : "",
+                        "attempt" : "${{ github.run_attempt }}",
+                        "job_data": {
+                            "ci_test_result_sample_data" : "sample_data"
+                         }
            }'
 
       # Force save the CI failed spec list into a cache
@@ -339,6 +341,12 @@ jobs:
             scripts/generate_info_json.sh
           fi
 
+      - name: Place server artifacts-es
+        run: |
+          if [[ -f scripts/prepare_server_artifacts.sh ]]; then
+            scripts/prepare_server_artifacts.sh
+          fi
+
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
@@ -360,7 +368,7 @@ jobs:
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
           tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.ref_name }}
 
   package-master:
     needs: [ci-test, client-unit-tests, server-unit-tests]

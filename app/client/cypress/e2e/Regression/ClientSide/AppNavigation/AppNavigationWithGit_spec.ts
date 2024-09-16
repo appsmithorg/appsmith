@@ -28,6 +28,7 @@ describe(
           appSettings.locators._navigationSettings._navStyle,
           "Inline",
         );
+        AppSidebar.navigate(AppSidebarButton.Editor);
         agHelper.GetNClick(locators._previewModeToggle("edit"));
         agHelper.GetNClick(appSettings.locators._topInlineMoreButton);
         agHelper.GetNClickByContains(

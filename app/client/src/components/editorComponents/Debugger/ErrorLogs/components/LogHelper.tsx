@@ -1,10 +1,10 @@
 import type { PluginErrorDetails } from "api/ActionAPI";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import React from "react";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import ContextualMenu from "../../ContextualMenu";
 
 const ContextWrapper = styled.div`

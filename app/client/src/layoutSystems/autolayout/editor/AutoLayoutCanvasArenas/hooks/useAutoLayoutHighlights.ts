@@ -96,6 +96,8 @@ export const useAutoLayoutHighlights = ({
    */
   const getDropPosition = (
     snapColumnSpace: number,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     e?: any,
     val?: Point,
     mouseUp = false,

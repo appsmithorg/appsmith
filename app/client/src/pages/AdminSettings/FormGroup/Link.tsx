@@ -1,6 +1,6 @@
 import { Icon } from "@blueprintjs/core";
-import { Text } from "design-system";
-import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
+import { Text } from "@appsmith/ads";
+import { createMessage, LEARN_MORE } from "ee/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -39,6 +39,8 @@ const StyledIcon = styled(Icon)`
 
 export default function Link({ setting }: SettingComponentProps) {
   const dispatch = useDispatch();
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const linkProps: Record<string, string | (() => any)> = {};
   if (setting.url) {
     linkProps.href = setting.url;

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Profile } from "pages/common/ProfileImage";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
+import { IDE_HEADER_HEIGHT } from "IDE";
 
 export const HeaderWrapper = styled.div`
   width: 100%;
@@ -10,7 +11,7 @@ export const HeaderWrapper = styled.div`
   flex-direction: row;
   box-shadow: none;
   border-bottom: 1px solid var(--ads-v2-color-border);
-  height: ${(props) => props.theme.smallHeaderHeight};
+  height: ${IDE_HEADER_HEIGHT}px;
   & .editable-application-name {
     ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};

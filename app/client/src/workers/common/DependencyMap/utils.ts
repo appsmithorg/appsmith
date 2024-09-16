@@ -7,9 +7,9 @@ import {
   getEntityNameAndPropertyPath,
   isJSActionConfig,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,

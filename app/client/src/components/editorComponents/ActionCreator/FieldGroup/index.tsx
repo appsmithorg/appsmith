@@ -72,6 +72,8 @@ function FieldGroup(props: FieldGroupProps) {
       })}
 
       <ul className="flex flex-col mt-2 gap-2">
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {remainingFields.map((field: any, index: number) => {
           if (Array.isArray(field)) {
             const selectorField = field[0];
@@ -85,6 +87,8 @@ function FieldGroup(props: FieldGroupProps) {
                   label={selectorField.label}
                   modalDropdownList={props.modalDropdownList}
                   onValueChange={(
+                    // TODO: Fix this the next time the file is edited
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     value: any,
                     isUpdatedViaKeyboard: boolean,
                   ) => {

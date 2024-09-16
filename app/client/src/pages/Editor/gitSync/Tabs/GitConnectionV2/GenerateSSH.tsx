@@ -16,7 +16,7 @@ import {
   Icon,
   Input,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { isValidGitRemoteUrl } from "../../utils";
 import {
   COPY_SSH_URL_MESSAGE,
@@ -28,7 +28,7 @@ import {
   READ_DOCS,
   REMOTE_URL_INPUT_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
 import noop from "lodash/noop";
@@ -40,6 +40,8 @@ interface GenerateSSHState {
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
   value: Partial<GenerateSSHState>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errorData?: any;
 }
 

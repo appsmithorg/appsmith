@@ -1,6 +1,6 @@
-import type {
-  DeleteErrorLogPayload,
-  LogDebuggerErrorAnalyticsPayload,
+import {
+  type DeleteErrorLogPayload,
+  type LogDebuggerErrorAnalyticsPayload,
 } from "actions/debuggerActions";
 import {
   addErrorLogs,
@@ -8,15 +8,15 @@ import {
   debuggerLogInit,
   deleteErrorLog,
 } from "actions/debuggerActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   Log,
   LogActionPayload,
   LogObject,
 } from "entities/AppsmithConsole";
 import { LOG_CATEGORY } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import {
   all,
   call,
@@ -33,7 +33,7 @@ import {
   getPlugin,
   getJSCollection,
   getAppMode,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
@@ -43,21 +43,19 @@ import { getConfigTree } from "selectors/dataTreeSelectors";
 import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
-import AnalyticsUtil, {
-  AnalyticsEventType,
-} from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil, { AnalyticsEventType } from "ee/utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";
 import {
   transformAddErrorLogsSaga,
   transformDeleteErrorLogsSaga,
-} from "@appsmith/sagas/helpers";
+} from "ee/sagas/helpers";
 
 let blockedSource: string | null = null;
 
@@ -68,6 +66,8 @@ function generateErrorId(error: Log) {
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
   payload: LogActionPayload,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestPath?: any,
 ) {
   // If there are no headers or body we don't format anything.

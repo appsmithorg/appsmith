@@ -1,14 +1,14 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 import Page from "./Page";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import {
   PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES,
   PAGE_SERVER_UNAVAILABLE_ERROR_CODE,
   PAGE_SERVER_UNAVAILABLE_TITLE,
-} from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
+} from "ee/constants/messages";
+import { getAppsmithConfigs } from "ee/configs";
 
 const { cloudHosting } = getAppsmithConfigs();
 

@@ -3,10 +3,10 @@ import {
   convertPathToString,
   getAllPaths,
   getEntityNameAndPropertyPath,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { AppsmithFunctionsWithFields } from "components/editorComponents/ActionCreator/constants";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
-import { extractReferencesFromPath } from "@appsmith/plugins/Linting/utils/getEntityDependencies";
+import { extractReferencesFromPath } from "ee/plugins/Linting/utils/getEntityDependencies";
 import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
 import type {
   LintTreeRequestPayload,
@@ -17,13 +17,13 @@ import type {
   TJSPropertiesState,
   TJSpropertyState,
 } from "workers/Evaluation/JSObject/jsPropertiesState";
-import { isJSEntity } from "@appsmith/plugins/Linting/lib/entity";
+import { isJSEntity } from "ee/plugins/Linting/lib/entity";
 import DependencyMap from "entities/DependencyMap";
 import {
   LintEntityTree,
   type EntityTree,
 } from "plugins/Linting/lib/entity/EntityTree";
-import { getEntityFunctions } from "@appsmith/workers/Evaluation/fns";
+import { getEntityFunctions } from "ee/workers/Evaluation/fns";
 
 class LintService {
   cachedEntityTree: EntityTree | null;

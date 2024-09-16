@@ -1,18 +1,13 @@
 package com.appsmith.server.actioncollections.base;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,13 +22,9 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             NewActionService newActionService,
             PolicyGenerator policyGenerator,
             ApplicationService applicationService,
-            ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
-            DefaultResourcesService<ActionCollection> defaultResourcesService,
-            DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
-            DefaultResourcesService<NewAction> newActionDefaultResourcesService,
-            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService) {
+            ObservationRegistry observationRegistry) {
         super(
                 validator,
                 repository,
@@ -41,12 +32,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 newActionService,
                 policyGenerator,
                 applicationService,
-                responseUtils,
                 applicationPermission,
                 actionPermission,
-                defaultResourcesService,
-                dtoDefaultResourcesService,
-                newActionDefaultResourcesService,
-                actionDTODefaultResourcesService);
+                observationRegistry);
     }
 }

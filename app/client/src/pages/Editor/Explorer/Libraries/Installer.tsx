@@ -18,11 +18,8 @@ import {
   Avatar,
   Callout,
   Tooltip,
-} from "design-system";
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
+} from "@appsmith/ads";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -30,14 +27,14 @@ import {
   selectIsLibraryInstalled,
   selectQueuedLibraries,
   selectStatusForURL,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { JSLibrary } from "workers/common/JSLibrary";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const Wrapper = styled.div`
@@ -55,7 +52,7 @@ const Wrapper = styled.div`
       margin-bottom: 16px;
       .left-icon {
         margin-left: 14px;
-        .cs-icon {
+        .ads-v2-icon {
           margin-right: 0;
         }
       }
@@ -171,6 +168,8 @@ function isValidJSFileURL(url: string) {
 function StatusIcon(props: {
   status: InstallState;
   isInstalled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action?: any;
 }) {
   const { action, isInstalled = false, status } = props;

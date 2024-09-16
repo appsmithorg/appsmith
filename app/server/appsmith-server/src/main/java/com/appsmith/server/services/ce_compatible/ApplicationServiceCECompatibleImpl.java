@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.applications.base.ApplicationServiceCEImpl;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -14,6 +13,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +25,6 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
-            ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
             NewActionRepository newActionRepository,
             AssetService assetService,
@@ -34,13 +33,13 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             SessionUserService sessionUserService,
             UserDataService userDataService,
             WorkspaceService workspaceService,
-            WorkspacePermission workspacePermission) {
+            WorkspacePermission workspacePermission,
+            ObservationRegistry observationRegistry) {
         super(
                 validator,
                 repository,
                 analyticsService,
                 policySolution,
-                responseUtils,
                 permissionGroupService,
                 newActionRepository,
                 assetService,
@@ -49,6 +48,7 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 sessionUserService,
                 userDataService,
                 workspaceService,
-                workspacePermission);
+                workspacePermission,
+                observationRegistry);
     }
 }

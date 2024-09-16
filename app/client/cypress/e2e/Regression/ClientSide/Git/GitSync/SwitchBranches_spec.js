@@ -40,22 +40,20 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.branchSearchInput).type(
       `{selectall}${hypenBranchName}`,
     );
-    cy.get(gitSyncLocators.branchSearchInput).should(
-      "have.value",
+    agHelper.AssertAttribute(
+      gitSyncLocators.branchSearchInput,
+      "value",
       "hypen-branch-name",
     );
-
     const specialBranchName = "special&branch-name~@#$%^&*()_+={}[]><,.";
     cy.get(gitSyncLocators.branchSearchInput).type(
       `{selectall}${specialBranchName}`,
     );
-
-    cy.get(gitSyncLocators.branchSearchInput).should(
-      "have.value",
+    agHelper.AssertAttribute(
+      gitSyncLocators.branchSearchInput,
+      "value",
       "special_branch-name_____________________",
     );
-
-    cy.wait(200);
     cy.get(gitSyncLocators.closeBranchList).click();
   });
 
@@ -207,7 +205,6 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.branchListItem)
       .contains(remoteTempBranchRenamedRegex)
       .should("exist");
-
     cy.get(gitSyncLocators.closeBranchList).click();
     cy.switchGitBranch(`origin/${tempBranchRenamed}`);
     cy.switchGitBranch(`origin/${tempBranchRenamed}`, true);

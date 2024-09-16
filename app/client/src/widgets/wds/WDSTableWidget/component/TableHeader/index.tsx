@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Flex } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
 
 import { Search } from "./Search";
 import styles from "./styles.module.css";

@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ThemeProvider } from "styled-components";
 import { Router } from "react-router";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { templateIdUrl } from "ee/RouteBuilder";
 
 import BuildingBlock from ".";
 import history from "utils/history";

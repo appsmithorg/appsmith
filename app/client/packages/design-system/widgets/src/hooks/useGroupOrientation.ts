@@ -4,7 +4,7 @@ import {
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
-import type { POSITION } from "@design-system/widgets";
+import type { POSITION } from "@appsmith/wds";
 import type { Orientation } from "@react-types/shared";
 
 export interface GroupAria {

@@ -393,6 +393,8 @@ describe("valueKeyValidation", () => {
     expect(
       valueKeyValidation(
         "test",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -414,6 +416,8 @@ describe("valueKeyValidation", () => {
           d,
           {
             sourceData: [{ test: 1 }, { test: 2 }],
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as SelectWidgetProps,
           _ as LoDashStatic,
         ),
@@ -438,6 +442,8 @@ describe("valueKeyValidation", () => {
           d,
           {
             sourceData: [{ test: 1 }, { test: 2 }],
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as SelectWidgetProps,
           _ as LoDashStatic,
         ),
@@ -459,6 +465,8 @@ describe("valueKeyValidation", () => {
         ["blue", "blue", "yellow"],
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as SelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -478,6 +486,8 @@ describe("valueKeyValidation", () => {
         "yellow",
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as SelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -496,6 +506,8 @@ describe("valueKeyValidation", () => {
     expect(
       valueKeyValidation(
         true,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -515,6 +527,8 @@ describe("valueKeyValidation", () => {
     expect(
       valueKeyValidation(
         1,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -534,6 +548,8 @@ describe("valueKeyValidation", () => {
     expect(
       valueKeyValidation(
         {},
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         { sourceData: [{ test: 1 }, { test: 2 }] } as any as SelectWidgetProps,
         _ as LoDashStatic,
       ),

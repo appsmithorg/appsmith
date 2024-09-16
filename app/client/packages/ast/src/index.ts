@@ -26,7 +26,12 @@ import { generate } from "astring";
  *
  */
 
-type Pattern = IdentifierNode | AssignmentPatternNode;
+type Pattern =
+  | IdentifierNode
+  | AssignmentPatternNode
+  | ArrayPatternNode
+  | ObjectPatternNode
+  | RestElementNode;
 type Expression = Node;
 export type ArgumentTypes =
   | LiteralNode
@@ -57,6 +62,31 @@ export interface BinaryExpressionNode extends Node {
 export interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
   name: string;
+}
+
+export interface ArrayPatternNode extends Node {
+  type: NodeTypes.ArrayPattern;
+  elements: Array<Pattern | null>;
+}
+
+export interface AssignmentProperty extends Node {
+  type: NodeTypes.Property;
+  key: Expression;
+  value: Pattern;
+  kind: "init";
+  method: false;
+  shorthand: boolean;
+  computed: boolean;
+}
+
+export interface RestElementNode extends Node {
+  type: NodeTypes.RestElement;
+  argument: Pattern;
+}
+
+export interface ObjectPatternNode extends Node {
+  type: NodeTypes.ObjectPattern;
+  properties: Array<AssignmentProperty | RestElementNode>;
 }
 
 //Using this to handle the Variable property refactor
@@ -104,6 +134,7 @@ export interface ObjectExpression extends Expression {
 interface AssignmentPatternNode extends Node {
   type: NodeTypes.AssignmentPattern;
   left: Pattern;
+  right: ArgumentTypes;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#literal
@@ -256,6 +287,18 @@ const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
   return node.type === NodeTypes.AssignmentPattern;
 };
 
+export const isArrayPatternNode = (node: Node): node is ArrayPatternNode => {
+  return node.type === NodeTypes.ArrayPattern;
+};
+
+export const isObjectPatternNode = (node: Node): node is ObjectPatternNode => {
+  return node.type === NodeTypes.ObjectPattern;
+};
+
+export const isRestElementNode = (node: Node): node is RestElementNode => {
+  return node.type === NodeTypes.RestElement;
+};
+
 export const isLiteralNode = (node: Node): node is LiteralNode => {
   return node.type === NodeTypes.Literal;
 };
@@ -356,6 +399,7 @@ export interface IdentifierInfo {
   references: string[];
   functionalParams: string[];
   variables: string[];
+  isError: boolean;
 }
 export const extractIdentifierInfoFromCode = (
   code: string,
@@ -392,6 +436,7 @@ export const extractIdentifierInfoFromCode = (
       references: referencesArr,
       functionalParams: Array.from(functionalParams),
       variables: Array.from(variableDeclarations),
+      isError: false,
     };
   } catch (e) {
     if (e instanceof SyntaxError) {
@@ -400,6 +445,7 @@ export const extractIdentifierInfoFromCode = (
         references: [],
         functionalParams: [],
         variables: [],
+        isError: true,
       };
     }
     throw e;
@@ -519,6 +565,7 @@ export const getFunctionalParamsFromNode = (
     | FunctionExpressionNode
     | ArrowFunctionExpressionNode,
   needValue = false,
+  code = "",
 ): Set<functionParam> => {
   const functionalParams = new Set<functionParam>();
   node.params.forEach((paramNode) => {
@@ -530,15 +577,50 @@ export const getFunctionalParamsFromNode = (
     } else if (isAssignmentPatternNode(paramNode)) {
       if (isIdentifierNode(paramNode.left)) {
         const paramName = paramNode.left.name;
-        if (!needValue) {
+        if (!needValue || !code) {
           functionalParams.add({ paramName, defaultValue: undefined });
         } else {
-          // figure out how to get value of paramNode.right for each node type
-          // currently we don't use params value, hence skipping it
-          // functionalParams.add({
-          //   defaultValue: paramNode.right.value,
-          // });
+          const defaultValueInString = code.slice(
+            paramNode.right.start,
+            paramNode.right.end,
+          );
+          const defaultValue =
+            paramNode.right.type === "Literal" &&
+            typeof paramNode.right.value === "string"
+              ? paramNode.right.value
+              : `{{${defaultValueInString}}}`;
+          functionalParams.add({
+            paramName,
+            defaultValue,
+          });
         }
+      } else if (
+        isObjectPatternNode(paramNode.left) ||
+        isArrayPatternNode(paramNode.left)
+      ) {
+        functionalParams.add({
+          paramName: "",
+          defaultValue: undefined,
+        });
+      }
+      // The below computations are very basic and can be evolved into nested
+      // parsing logic to find param and it's default value.
+    } else if (isObjectPatternNode(paramNode)) {
+      functionalParams.add({
+        paramName: "",
+        defaultValue: `{{{}}}`,
+      });
+    } else if (isArrayPatternNode(paramNode)) {
+      functionalParams.add({
+        paramName: "",
+        defaultValue: "{{[]}}",
+      });
+    } else if (isRestElementNode(paramNode)) {
+      if ("name" in paramNode.argument) {
+        functionalParams.add({
+          paramName: paramNode.argument.name,
+          defaultValue: undefined,
+        });
       }
     }
   });

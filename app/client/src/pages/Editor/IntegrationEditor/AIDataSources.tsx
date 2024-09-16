@@ -2,11 +2,11 @@ import React from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { createTempDatasourceFromForm } from "actions/datasourceActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Plugin } from "api/PluginApi";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginType } from "entities/Action";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 export const StyledContainer = styled.div`
   flex: 1;
@@ -105,17 +105,17 @@ export const CardContentWrapper = styled.div`
 `;
 
 interface Props {
-  history: {
-    replace: (data: string) => void;
-    push: (data: string) => void;
-  };
   location: {
     search: string;
   };
   pageId: string;
   plugins: Plugin[];
   isCreating: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
 }

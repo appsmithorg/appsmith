@@ -5,7 +5,7 @@ import {
   Label,
   SelectWrapper,
 } from "../../../../styles";
-import { Select } from "design-system";
+import { Select } from "@appsmith/ads";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import type { OtherField } from "../../../../types";
 import { useDropdown } from "./useDropdown";

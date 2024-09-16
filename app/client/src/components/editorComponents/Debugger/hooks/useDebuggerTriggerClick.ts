@@ -1,7 +1,7 @@
 import { useLocation } from "react-router";
 import { DEBUGGER_TAB_KEYS } from "../helpers";
 import { setCanvasDebuggerState } from "actions/debuggerActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
@@ -13,10 +13,10 @@ import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 interface Config {
   set: (
@@ -38,7 +38,7 @@ const queryDebuggerConfig: Config = {
 const getConfig = (focusInfo: FocusEntityInfo): Config => {
   switch (focusInfo.entity) {
     case FocusEntity.QUERY:
-      if (focusInfo.params.apiId) {
+      if (focusInfo.params.baseApiId) {
         if (focusInfo.params.pluginPackageName) {
           return queryDebuggerConfig;
         }

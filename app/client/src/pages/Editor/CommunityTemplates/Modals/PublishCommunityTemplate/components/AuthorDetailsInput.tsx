@@ -2,9 +2,9 @@ import {
   COMMUNITY_TEMPLATES,
   FORM_VALIDATION_INVALID_EMAIL,
   createMessage,
-} from "@appsmith/constants/messages";
-import { Input, Text } from "design-system";
-import { emailValidator } from "design-system-old";
+} from "ee/constants/messages";
+import { Input, Text } from "@appsmith/ads";
+import { emailValidator } from "@appsmith/ads-old";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 

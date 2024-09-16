@@ -1,0 +1,307 @@
+@import "colors.css";
+@import "variables.css";
+@import "typography.css";
+@import "semantic.css";
+
+:root {
+  /**
+    * ===========================================*
+    * =========== Category Tokens ===============*
+    * ===========================================*
+  */
+
+  /* https://design-system.appsmith.com/?path=/docs/docs-category-tokens-introduction--introduction */
+
+  /* ========================= Actions ========================= */
+  /* Primary */
+  --ads-v2-colors-action-primary-surface-default-bg: var(
+    --ads-v2-color-bg-brand
+  );
+  --ads-v2-colors-action-primary-surface-hover-bg: var(
+    --ads-v2-color-bg-brand-emphasis
+  );
+  --ads-v2-colors-action-primary-surface-active-bg: var(
+    --ads-v2-color-bg-brand-emphasis-plus
+  );
+  --ads-v2-colors-action-primary-surface-default-border: var(
+    --ads-v2-color-border-brand
+  );
+  --ads-v2-colors-action-primary-surface-hover-border: var(
+    --ads-v2-color-border-brand-emphasis
+  );
+  --ads-v2-colors-action-primary-surface-active-border: var(
+    --ads-v2-color-border-brand-emphasis-plus
+  );
+  --ads-v2-colors-action-primary-label-default-fg: var(
+    --ads-v2-color-fg-on-brand
+  );
+  --ads-v2-colors-action-primary-icon-default-fg: var(
+    --ads-v2-color-fg-on-brand
+  );
+
+  /* Secondary */
+  --ads-v2-colors-action-secondary-surface-default-bg: var(--ads-v2-color-bg);
+  --ads-v2-colors-action-secondary-surface-hover-bg: var(
+    --ads-v2-color-bg-subtle
+  );
+  --ads-v2-colors-action-secondary-surface-active-bg: var(
+    --ads-v2-color-bg-muted
+  );
+  --ads-v2-colors-action-secondary-surface-default-border: var(
+    --ads-v2-color-border
+  );
+  --ads-v2-colors-action-secondary-surface-hover-border: var(
+    --ads-v2-color-border
+  );
+  --ads-v2-colors-action-secondary-surface-active-border: var(
+    --ads-v2-color-border-emphasis
+  );
+  --ads-v2-colors-action-secondary-label-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-action-secondary-label-hover-fg: var(
+    --ads-v2-color-fg-emphasis
+  );
+  --ads-v2-colors-action-secondary-label-active-fg: var(
+    --ads-v2-color-fg-emphasis-plus
+  );
+  --ads-v2-colors-action-secondary-icon-default-fg: var(--ads-v2-color-fg);
+
+  /* Tertiary */
+  --ads-v2-colors-action-tertiary-surface-default-bg: transparent;
+  --ads-v2-colors-action-tertiary-surface-hover-bg: var(
+    --ads-v2-color-bg-subtle
+  );
+  --ads-v2-colors-action-tertiary-surface-active-bg: var(
+    --ads-v2-color-bg-muted
+  );
+  --ads-v2-colors-action-tertiary-surface-default-border: transparent;
+  --ads-v2-colors-action-tertiary-label-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-action-tertiary-icon-default-fg: var(--ads-v2-color-fg);
+
+  /* Error */
+  --ads-v2-colors-action-error-surface-default-bg: var(--ads-v2-color-bg-error);
+  --ads-v2-colors-action-error-surface-hover-bg: var(
+    --ads-v2-color-bg-error-emphasis
+  );
+  --ads-v2-colors-action-error-surface-active-bg: var(
+    --ads-v2-color-bg-error-emphasis-plus
+  );
+  --ads-v2-colors-action-error-surface-default-border: transparent;
+  --ads-v2-colors-action-error-label-default-fg: var(
+    --ads-v2-color-fg-on-error
+  );
+  --ads-v2-colors-action-error-icon-default-fg: var(--ads-v2-color-fg-on-error);
+
+  /* ========================= Control ========================= */
+  --ads-v2-colors-control-field-default-bg: var(--ads-v2-color-bg);
+  --ads-v2-colors-control-field-checked-bg: var(
+    --ads-v2-color-bg-brand-secondary
+  );
+  --ads-v2-colors-control-field-hover-bg: var(--ads-v2-color-bg-subtle);
+  --ads-v2-colors-control-field-checked-hover-bg: var(
+    --ads-v2-color-bg-brand-secondary-emphasis
+  );
+  --ads-v2-colors-control-knob-default-bg: var(--ads-v2-color-bg);
+  --ads-v2-colors-control-track-default-bg: var(--ads-v2-color-bg-subtle);
+  --ads-v2-colors-control-pill-default-bg: var(--ads-v2-color-bg-subtle);
+  --ads-v2-colors-control-field-default-border: var(--ads-v2-color-border);
+  --ads-v2-colors-control-field-hover-border: var(
+    --ads-v2-color-border-emphasis
+  );
+  --ads-v2-colors-control-field-active-border: var(
+    --ads-v2-color-border-brand-secondary
+  );
+  --ads-v2-colors-control-field-checked-border: var(
+    --ads-v2-color-border-brand-secondary
+  );
+  --ads-v2-colors-control-field-checked-hover-border: var(
+    --ads-v2-color-border-brand-secondary-emphasis
+  );
+  --ads-v2-colors-control-field-error-border: var(--ads-v2-color-border-error);
+  --ads-v2-colors-control-helper-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-control-helper-error-fg: var(--ads-v2-color-fg-error);
+  --ads-v2-colors-control-icon-checked-fg: var(
+    --ads-v2-color-fg-on-brand-secondary
+  );
+  --ads-v2-colors-control-icon-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-control-icon-error-fg: var(--ads-v2-color-fg-error);
+  --ads-v2-colors-control-label-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-control-placeholder-default-fg: var(--ads-v2-color-fg-subtle);
+  --ads-v2-colors-control-value-checked-fg: var(
+    --ads-v2-color-fg-on-brand-secondary
+  );
+  --ads-v2-colors-control-value-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-control-value-inactive-fg: var(--ads-v2-color-fg-muted);
+
+  /* ========================= Response ========================= */
+  --ads-v2-colors-response-surface-default-bg: var(--ads-v2-color-bg);
+  --ads-v2-colors-response-error-surface-default-bg: var(
+    --ads-v2-color-bg-error
+  );
+  --ads-v2-colors-response-info-surface-default-bg: var(
+    --ads-v2-color-bg-information
+  );
+  --ads-v2-colors-response-success-surface-default-bg: var(
+    --ads-v2-color-bg-success
+  );
+  --ads-v2-colors-response-warning-surface-default-bg: var(
+    --ads-v2-color-bg-warning
+  );
+  --ads-v2-colors-response-label-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-response-error-icon-default-fg: var(--ads-v2-color-fg-error);
+  --ads-v2-colors-response-info-icon-default-fg: var(
+    --ads-v2-color-fg-information
+  );
+  --ads-v2-colors-response-success-icon-default-fg: var(
+    --ads-v2-color-fg-success
+  );
+  --ads-v2-colors-response-warning-icon-default-fg: var(
+    --ads-v2-color-fg-warning
+  );
+  --ads-v2-colors-response-surface-default-border: var(--ads-v2-color-border);
+
+  /* ========================= Content ========================= */
+  --ads-v2-colors-content-helper-default-fg: var(--ads-v2-color-fg-muted);
+  --ads-v2-colors-content-icon-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-content-header-default-fg: var(--ads-v2-color-fg-emphasis);
+  --ads-v2-colors-content-label-default-fg: var(--ads-v2-color-fg);
+  --ads-v2-colors-content-label-inactive-fg: var(--ads-v2-color-fg-muted);
+  --ads-v2-colors-content-label-error-fg: var(--ads-v2-color-fg-error);
+  --ads-v2-colors-content-label-warning-fg: var(--ads-v2-color-fg-warning);
+  --ads-v2-colors-content-label-success-fg: var(--ads-v2-color-fg-success);
+  --ads-v2-colors-content-label-info-fg: var(--ads-v2-color-fg-information);
+  --ads-v2-colors-content-label-special-fg: var(--ads-v2-color-fg-special);
+  --ads-v2-colors-content-label-premium-fg: var(--ads-v2-color-fg-premium);
+  --ads-v2-colors-content-surface-default-bg: var(--ads-v2-color-bg);
+  --ads-v2-colors-content-surface-hover-bg: var(--ads-v2-color-bg-subtle);
+  --ads-v2-colors-content-surface-active-bg: var(--ads-v2-color-bg-muted);
+  --ads-v2-colors-content-surface-error-bg: var(--ads-v2-color-bg-error);
+  --ads-v2-colors-content-surface-success-bg: var(--ads-v2-color-bg-success);
+  --ads-v2-colors-content-surface-info-bg: var(--ads-v2-color-bg-information);
+  --ads-v2-colors-content-surface-neutral-bg: var(--ads-v2-color-bg-subtle);
+  --ads-v2-colors-content-surface-warning-bg: var(--ads-v2-color-bg-warning);
+  --ads-v2-colors-content-surface-special-bg: var(--ads-v2-color-bg-special);
+  --ads-v2-colors-content-surface-premium-bg: var(--ads-v2-color-bg-premium);
+  --ads-v2-colors-content-surface-default-border: var(--ads-v2-color-border);
+  --ads-v2-colors-content-surface-info-border: var(--ads-v2-color-border-info);
+  --ads-v2-colors-content-surface-success-border: var(
+    --ads-v2-color-border-success
+  );
+  --ads-v2-colors-content-surface-error-border: var(
+    --ads-v2-color-border-error
+  );
+  --ads-v2-colors-content-surface-warning-border: var(
+    --ads-v2-color-border-warning
+  );
+  --ads-v2-colors-content-surface-special-border: var(
+    --ads-v2-color-border-special
+  );
+  --ads-v2-colors-content-surface-premium-border: var(
+    --ads-v2-color-border-premium
+  );
+
+  --ads-v2-colors-content-container-default-border: var(
+    --ads-v2-color-border-muted
+  );
+
+  /**
+    * ===========================================*
+    * ================== Shadow =================*
+    * ===========================================*
+  */
+  --ads-v2-shadow-color: rgba(76, 86, 100, 0.11);
+  /* This is the shadow that applies only on popovers like select and menu and not in modal or anything that sort.*/
+  --ads-v2-shadow-popovers: 0 1px 20px 0 rgba(76, 86, 100, 0.11);
+
+  /**
+    * ===========================================*
+    * =========== Border Radius =================*
+    * ===========================================*
+  */
+  --ads-v2-border-radius: 4px;
+  --ads-v2-border-radius-circle: 50%;
+
+  /**
+    * ===========================================*
+    * =========== Font Family ===================*
+    * ===========================================*
+  */
+  --ads-v2-font-family: "PTRootUI", -apple-system, "BlinkMacSystemFont",
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Open Sans",
+    "Helvetica Neue", "Icons16", sans-serif;
+  --ads-v2-font-family-code: source-code-pro, "Menlo", "Monaco", "Consolas",
+    "Courier New", monospace;
+
+  /**
+    * ===========================================*
+    * =============== Outline ===================*
+    * ===========================================*
+  */
+  /* --ads-v2-color-outline: var(--ads-v2-color-blue-300);
+  --ads-v2-border-width-outline: 2px; */
+  /* TODO: fix focus issue across the platform */
+  --ads-v2-color-outline: transparent;
+  --ads-v2-border-width-outline: 0;
+  --ads-v2-offset-outline: 0;
+
+  /**
+    * ===========================================*
+    * =============== Opacity ===================*
+    * ===========================================*
+  */
+  --ads-v2-opacity-disabled: 0.6;
+}
+
+/* react-aria useFocusRing helper class*/
+.ads-v2-focus-ring {
+  outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+  outline-offset: var(--ads-v2-offset-outline);
+}
+
+/* Placeholder color */
+::placeholder {
+  /* This needs to be important to override the placeholder color on main repo */
+  color: var(--ads-v2-colors-control-placeholder-default-fg) !important;
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: var(--ads-v2-colors-control-placeholder-default-fg);
+}
+
+::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: var(--ads-v2-colors-control-placeholder-default-fg);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ads-v2-color-bg-emphasis) transparent;
+}
+
+::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  background-color: var(--ads-v2-color-bg-emphasis);
+  border-radius: 36px;
+  opacity: 0.5;
+}
+
+body {
+  font-family: var(--ads-v2-font-family);
+  -webkit-font-smoothing: auto;
+  letter-spacing: -0.1px;
+  font-feature-settings: "ss03";
+  text-wrap: pretty;
+}

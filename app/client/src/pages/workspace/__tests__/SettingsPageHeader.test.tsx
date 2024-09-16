@@ -4,6 +4,8 @@ import { render, screen } from "test/testUtils";
 import { SettingsPageHeader } from "../SettingsPageHeader";
 import userEvent from "@testing-library/user-event";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const handleChange = jest.fn();
 const mockOnSelect = jest.fn();
@@ -20,6 +22,8 @@ function renderComponent() {
   render(
     <SettingsPageHeader
       buttonText="Add"
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onSearch={handleChange as any}
       pageMenuItems={pageMenuItems}
       searchPlaceholder="Search users"
@@ -55,6 +59,8 @@ describe("<PageHeader />", () => {
     const { queryAllByTestId, queryAllByText } = render(
       <SettingsPageHeader
         buttonText="Add"
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSearch={handleChange as any}
         pageMenuItems={pageMenuItems}
         searchPlaceholder="Search users"

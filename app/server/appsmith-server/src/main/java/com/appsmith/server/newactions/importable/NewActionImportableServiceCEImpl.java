@@ -89,9 +89,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         Set<String> invalidActionIds = new HashSet<>();
                         if (Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                             for (NewAction action : importActionResultDTO.getExistingActions()) {
-                                if (!importActionResultDTO
-                                        .getImportedActionIds()
-                                        .contains(action.getId())) {
+                                if (isExistingActionInvalid(importActionResultDTO, action)) {
                                     invalidActionIds.add(action.getId());
                                 }
                             }
@@ -116,6 +114,30 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     return Mono.error(throwable);
                 })
                 .then();
+    }
+
+    /**
+     * Checks if the given action is invalid based on the import results.
+     *
+     * @param importActionResultDTO The import result containing information about imported action IDs.
+     * @param action The action to check for validity.
+     * @return {@code true} if the action is invalid (i.e., its ID is not present in the imported action IDs),
+     *         {@code false} otherwise.
+     */
+    protected boolean isExistingActionInvalid(ImportActionResultDTO importActionResultDTO, NewAction action) {
+        return !importActionResultDTO.getImportedActionIds().contains(action.getId());
+    }
+
+    /**
+     * Checks if the given actionCollection is invalid based on the import results.
+     *
+     * @param savedCollectionIds The list of already saved Ids of the actionCollections.
+     * @param collection The actionCollection to check for validity.
+     * @return {@code true} if the actionCollection is invalid (i.e., its ID is not present in the savedCollectionIds),
+     *         {@code false} otherwise.
+     */
+    protected boolean isExistingActionCollectionInvalid(List<String> savedCollectionIds, ActionCollection collection) {
+        return !savedCollectionIds.contains(collection.getId());
     }
 
     protected Mono<List<NewAction>> getImportableEntities(ArtifactExchangeJson artifactExchangeJson) {
@@ -157,7 +179,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
                                 importActionCollectionResultDTO.getExistingActionCollections()) {
-                            if (!savedCollectionIds.contains(collection.getId())) {
+                            if (isExistingActionCollectionInvalid(savedCollectionIds, collection)) {
                                 invalidCollectionIds.add(collection.getId());
                             }
                         }
@@ -261,16 +283,15 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
             Mono<Map<String, NewAction>> actionsInCurrentArtifactMono = artifactBasedImportableService
                     .getExistingResourcesInCurrentArtifactFlux(artifact)
-                    .filter(collection -> collection.getGitSyncId() != null)
+                    .filter(newAction -> newAction.getGitSyncId() != null)
                     .collectMap(NewAction::getGitSyncId);
 
             // find existing actions in all the branches of this artifact and put them in a map
             Mono<Map<String, NewAction>> actionsInOtherBranchesMono;
             if (artifact.getGitArtifactMetadata() != null) {
-                final String defaultArtifactId =
-                        artifact.getGitArtifactMetadata().getDefaultArtifactId();
                 actionsInOtherBranchesMono = artifactBasedImportableService
-                        .getExistingResourcesInOtherBranchesFlux(defaultArtifactId, artifact.getId())
+                        .getExistingResourcesInOtherBranchesFlux(
+                                importingMetaDTO.getBranchedArtifactIds(), artifact.getId())
                         .filter(newAction -> newAction.getGitSyncId() != null)
                         .collectMap(NewAction::getGitSyncId);
             } else {
@@ -311,7 +332,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                                 mappedImportableResourcesDTO, actionsInBranches, newAction);
                             }
 
-                            Context defaultContext = populateIdReferencesAndReturnDefaultContext(
+                            Context baseContext = populateIdReferencesAndReturnBaseContext(
                                     importingMetaDTO,
                                     mappedImportableResourcesDTO,
                                     artifact,
@@ -321,7 +342,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             // Check if the action has datasource is present and contains pluginId
                             Datasource datasource =
                                     newAction.getUnpublishedAction().getDatasource();
-                            if (datasource != null && datasource.getPluginId() == null) {
+                            if (datasource != null) {
                                 // Since the datasource are not yet saved to db, if we don't update the action with
                                 // correct datasource,
                                 // the action ave will fail due to validation
@@ -352,7 +373,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             } else {
 
                                 artifactBasedImportableService.createNewResource(
-                                        importingMetaDTO, newAction, defaultContext);
+                                        importingMetaDTO, newAction, baseContext);
 
                                 populateDomainMappedReferences(mappedImportableResourcesDTO, newAction);
 
@@ -378,7 +399,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         });
     }
 
-    private Context populateIdReferencesAndReturnDefaultContext(
+    private Context populateIdReferencesAndReturnBaseContext(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Artifact importableArtifact,
@@ -393,12 +414,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         Context parentContext = null;
 
         // If contextId is missing in the actionDTO create a fallback contextId
-        final String fallbackDefaultContextId = unpublishedAction.calculateContextId();
+        final String fallbackBaseContextId = unpublishedAction.calculateContextId();
 
         if (unpublishedAction.getValidName() != null) {
             unpublishedAction.setId(newAction.getId());
+            unpublishedAction.setBaseId(newAction.getBaseIdOrFallback());
             parentContext = artifactBasedImportableService.updateContextInResource(
-                    unpublishedAction, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
+                    unpublishedAction, mappedImportableResourcesDTO.getContextMap(), fallbackBaseContextId);
 
             mappedImportableResourcesDTO
                     .getActionResultDTO()
@@ -414,8 +436,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         if (publishedAction != null && publishedAction.getValidName() != null) {
             publishedAction.setId(newAction.getId());
+            publishedAction.setBaseId(newAction.getBaseIdOrFallback());
             Context publishedActionContext = artifactBasedImportableService.updateContextInResource(
-                    publishedAction, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
+                    publishedAction, mappedImportableResourcesDTO.getContextMap(), fallbackBaseContextId);
 
             if (publishedActionContext != null) {
                 mappedImportableResourcesDTO
@@ -435,11 +458,12 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         newAction.makePristine();
         newAction.setWorkspaceId(workspaceId);
+        artifactBasedImportableService.updateArtifactId(newAction, importableArtifact);
 
         newAction.setPluginId(mappedImportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
 
-        artifactBasedImportableService.populateDefaultResources(
-                importingMetaDTO, mappedImportableResourcesDTO, importableArtifact, branchedNewAction, newAction);
+        artifactBasedImportableService.populateBaseId(
+                importingMetaDTO, importableArtifact, branchedNewAction, newAction);
 
         return parentContext;
     }
@@ -494,7 +518,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         copyNestedNonNullProperties(actionToImport, existingAction);
         // Update branchName
-        existingAction.getDefaultResources().setBranchName(branchName);
+        existingAction.setBranchName(branchName);
         // Recover the deleted state present in DB from imported action
         existingAction
                 .getUnpublishedAction()
@@ -509,11 +533,11 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
     private void putActionIdInMap(NewAction newAction, ImportActionResultDTO importActionResultDTO) {
         // Populate actionIdsMap to associate the appropriate actions to run on context load
-        String defaultResourcesActionId = newAction.getDefaultResources().getActionId();
+        String baseActionId = newAction.getBaseId();
 
-        if (defaultResourcesActionId == null) {
-            defaultResourcesActionId = newAction.getId();
-            newAction.getDefaultResources().setActionId(newAction.getId());
+        if (baseActionId == null) {
+            baseActionId = newAction.getId();
+            newAction.setBaseId(newAction.getId());
         }
 
         if (newAction.getUnpublishedAction() != null) {
@@ -534,7 +558,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         .getUnpublishedCollectionIdToActionIdsMap()
                         .get(unpublishedAction.getCollectionId());
 
-                actionIds.put(defaultResourcesActionId, newAction.getId());
+                actionIds.put(baseActionId, newAction.getId());
             }
         }
         if (newAction.getPublishedAction() != null) {
@@ -554,7 +578,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 final Map<String, String> actionIds = importActionResultDTO
                         .getPublishedCollectionIdToActionIdsMap()
                         .get(publishedAction.getCollectionId());
-                actionIds.put(defaultResourcesActionId, newAction.getId());
+                actionIds.put(baseActionId, newAction.getId());
             }
         }
     }
@@ -571,6 +595,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     .findFirst()
                     .orElse(datasource);
             datasource.setIsAutoGenerated(false);
+            newAction.setWorkspaceId(datasource.getWorkspaceId());
         }
 
         newAction.getUnpublishedAction().setDatasource(datasource);

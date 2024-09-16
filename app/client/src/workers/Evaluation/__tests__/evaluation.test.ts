@@ -3,7 +3,7 @@ import type {
   WidgetEntityConfig,
   ActionEntityConfig,
   ActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { UnEvalTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import {
   ENTITY_TYPE,
@@ -21,6 +21,8 @@ import klona from "klona";
 
 const klonaFullSpy = jest.fn();
 jest.mock("klona/full", () => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   klona: (arg: any) => {
     klonaFullSpy(arg);
     return klona.klona(arg);

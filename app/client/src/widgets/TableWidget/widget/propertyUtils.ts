@@ -24,6 +24,8 @@ export enum ColumnTypes {
 export function defaultSelectedRowValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (props) {
@@ -108,6 +110,8 @@ export function defaultSelectedRowValidation(
 export function totalRecordsCountValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) {
   if (_.isNil(value) || value === "") {
@@ -141,6 +145,8 @@ export function totalRecordsCountValidation(
 export function uniqueColumnNameValidation(
   value: unknown,
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ) {
   const tableColumns = _.map(value, "label");
@@ -166,11 +172,17 @@ export function uniqueColumnNameValidation(
 export const updateColumnStyles = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   const { derivedColumns = {}, primaryColumns } = props;
   const propertiesToUpdate: Array<{
     propertyPath: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any;
   }> = [];
   const tokens = propertyPath.split("."); // horizontalAlignment/textStyle
@@ -289,7 +301,11 @@ const updateColumnRegex = /^primaryColumns\.(\w+)\.(.*)$/; // primaryColumns.cus
 export const updateDerivedColumnsHook = (
   props: TableWidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Array<{ propertyPath: string; propertyValue: any }> | undefined => {
   if (propertyValue && addColumnRegex.test(propertyPath)) {
     if (propertyValue.id) {
@@ -345,9 +361,13 @@ export const updateDerivedColumnsHook = (
  */
 function updateThemeStylesheetsInColumns(
   props: TableWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
   columnId: string,
   columnProperty: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertiesToUpdate: Array<{ propertyPath: string; propertyValue: any }>,
 ) {
   if (columnProperty === "columnType") {

@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetLintErrorsAction } from "actions/lintingActions";

@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 export const getGsheetSpreadsheets =
   (id = "") =>
@@ -34,3 +34,6 @@ export const getFirstDatasourceId = (state: AppState) => {
     return list[0].id;
   }
 };
+
+export const getLoadingTokenForDatasourceId = (state: AppState) =>
+  state.entities.datasources.loadingTokenForDatasourceId;

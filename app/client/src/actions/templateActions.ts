@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const getAllTemplates = () => ({
   type: ReduxActionTypes.GET_ALL_TEMPLATES_INIT,

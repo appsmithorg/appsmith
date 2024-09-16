@@ -18,6 +18,8 @@ import { Provider } from "react-redux";
 import configureMockStore from "redux-mock-store";
 import { APP_MODE } from "entities/App";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any;
 
 describe("Chart Widget", () => {

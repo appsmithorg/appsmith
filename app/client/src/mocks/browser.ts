@@ -1,4 +1,4 @@
 import { setupWorker } from "msw";
-import { handlers } from "@appsmith/mocks/handlers";
+import { handlers } from "ee/mocks/handlers";
 
 export const worker = setupWorker(...handlers);

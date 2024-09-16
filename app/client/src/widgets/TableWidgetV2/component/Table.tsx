@@ -40,10 +40,7 @@ import VirtualTable from "./VirtualTable";
 import fastdom from "fastdom";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
-import {
-  createMessage,
-  CONNECT_BUTTON_TEXT,
-} from "@appsmith/constants/messages";
+import { createMessage, CONNECT_BUTTON_TEXT } from "ee/constants/messages";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -101,6 +98,8 @@ export interface TableProps {
     pageData: ReactTableRowType<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -149,6 +148,8 @@ export interface HeaderComponentProps {
   columnOrder?: string[];
   accentColor: string;
   borderRadius: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   headerGroups: any;
   canFreezeColumn?: boolean;
   editMode: boolean;
@@ -159,12 +160,16 @@ export interface HeaderComponentProps {
   columns: ReactTableColumnProps[];
   width: number;
   subPage: ReactTableRowType<Record<string, unknown>>[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareRow: any;
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
   widgetId: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 
 export function Table(props: TableProps) {

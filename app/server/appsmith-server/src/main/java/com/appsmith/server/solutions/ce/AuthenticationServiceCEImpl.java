@@ -12,7 +12,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.OAuth2ResponseDTO;
 import com.appsmith.external.models.PluginType;
@@ -81,6 +80,7 @@ import static com.appsmith.external.constants.Authentication.RESPONSE_TYPE;
 import static com.appsmith.external.constants.Authentication.SCOPE;
 import static com.appsmith.external.constants.Authentication.STATE;
 import static com.appsmith.external.constants.Authentication.SUCCESS;
+import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -105,27 +105,30 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      * when hitting the authorization url and redirect to it from the controller.
      *
      * @param datasourceId  required to validate the details in the request and populate redirect url
-     * @param environmentId
-     * @param pageId        Required to populate redirect url
-     * @param httpRequest   Used to find the redirect domain
+     * @param environmentId environment from which the datasource authentication has started.
+     * @param branchedPageId required to populate redirect url
+     * @param httpRequest   used to find the redirect domain
      * @return a url String to continue the authorization flow
      */
     public Mono<String> getAuthorizationCodeURLForGenericOAuth2(
-            String datasourceId,
-            String environmentId,
-            String pageId,
-            String branchName,
-            ServerHttpRequest httpRequest) {
+            String datasourceId, String environmentId, String branchedPageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
 
         Mono<Datasource> datasourceMonoCached = datasourceService
                 .findById(datasourceId, datasourcePermission.getEditPermission())
                 .cache();
+
         Mono<String> trueEnvironmentIdCached = datasourceMonoCached
                 .flatMap(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null))
                 .cache();
+
+        Mono<NewPage> newPageMono = newPageService
+                .findById(branchedPageId, pagePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, branchedPageId)));
+
         Mono<String> workspaceIdMono = datasourceMonoCached.map(Datasource::getWorkspaceId);
 
         return datasourceMonoCached
@@ -137,19 +140,33 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 })
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
-                .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .zipWith(Mono.zip(workspaceIdMono, trueEnvironmentIdCached))
+                .flatMap(ds -> this.validateRequiredFieldsForGenericOAuth2(ds)
+                        .zipWith(Mono.zip(workspaceIdMono, trueEnvironmentIdCached, newPageMono)))
                 .flatMap(tuple2 -> {
                     DatasourceStorage datasourceStorage = tuple2.getT1();
                     String workspaceId = tuple2.getT2().getT1();
                     String trueEnvironmentId = tuple2.getT2().getT2();
+                    NewPage branchedPage = tuple2.getT2().getT3();
+                    String branchName = null;
+
+                    if (hasText(branchedPage.getBranchName())) {
+                        branchName = branchedPage.getBranchName();
+                    }
+                    String basePageId = branchedPage.getBaseIdOrFallback();
+
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     final String state = StringUtils.hasText(branchName)
                             ? String.join(
-                                    ",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId, branchName)
-                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
+                                    ",",
+                                    basePageId,
+                                    datasourceId,
+                                    trueEnvironmentId,
+                                    redirectUri,
+                                    workspaceId,
+                                    branchName)
+                            : String.join(",", basePageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
@@ -332,7 +349,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private Mono<String> getPageRedirectUrl(String state, String error) {
         final String[] splitState = state.split(",");
 
-        final String pageId = splitState[0];
+        final String basePageId = splitState[0];
         final String datasourceId = splitState[1];
         final String environmentId = splitState[2];
         final String redirectOrigin = splitState[3];
@@ -344,19 +361,21 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         }
         final String responseStatus = response;
         return newPageService
-                .findByIdAndBranchName(pageId, branchName)
-                .map(newPage -> redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
-                        + Entity.SLASH + newPage.getApplicationId()
-                        + Entity.SLASH + Entity.PAGES
-                        + Entity.SLASH + newPage.getId()
-                        + Entity.SLASH + "edit"
-                        + Entity.SLASH + Entity.DATASOURCE
-                        + Entity.SLASH + datasourceId
-                        + "?response_status="
-                        + responseStatus
-                        + "&view_mode=true"
-                        + (StringUtils.hasText(workspaceId) ? "&workspaceId=" + workspaceId : "")
-                        + (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
+                .findById(basePageId, pagePermission.getReadPermission())
+                .map(basePage -> {
+                    return redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
+                            + Entity.SLASH + basePage.getApplicationId()
+                            + Entity.SLASH + Entity.PAGES
+                            + Entity.SLASH + basePage.getId()
+                            + Entity.SLASH + "edit"
+                            + Entity.SLASH + Entity.DATASOURCE
+                            + Entity.SLASH + datasourceId
+                            + "?response_status="
+                            + responseStatus
+                            + "&view_mode=true"
+                            + (StringUtils.hasText(workspaceId) ? "&workspaceId=" + workspaceId : "")
+                            + (StringUtils.hasText(branchName) ? "&branch=" + branchName : "");
+                })
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
                         + responseStatus + "&view_mode=true"));
@@ -367,7 +386,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
             String datasourceId,
             String environmentId,
             RequestAppsmithTokenDTO requestAppsmithTokenDTO,
-            String branchName,
             HttpHeaders headers,
             String importForGit) {
         // Check whether user has access to manage the datasource
@@ -406,8 +424,6 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             Plugin plugin = tuple.getT2();
                             IntegrationDTO integrationDTO = new IntegrationDTO();
                             integrationDTO.setInstallationKey(instanceId);
-
-                            integrationDTO.setBranch(branchName);
                             integrationDTO.setImportForGit(importForGit);
                             integrationDTO.setWorkspaceId(datasource.getWorkspaceId());
                             integrationDTO.setPluginName(plugin.getPluginName());
@@ -510,23 +526,45 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         }));
     }
 
-    protected Mono<? extends BaseDomain> getContext(String contextId, CreatorContextType contextType) {
-        return newPageService.findById(contextId, pagePermission.getReadPermission());
+    /**
+     * Finds the new page from which the appsmith token request has been made
+     * @param branchedContextId : id of the branched Context, only applicable for git, else base id is used.
+     * @param contextType : context type of the request, in this case it's NewPage
+     * @return : An newPage for which the id is provided
+     */
+    protected Mono<? extends BaseDomain> getContext(String branchedContextId, CreatorContextType contextType) {
+        return newPageService
+                .findById(branchedContextId, pagePermission.getReadPermission())
+                .flatMap(branchedPage -> {
+                    // this would be the case for non git connected apps or base branch of a
+                    // git connected app
+                    if (branchedPage.getId().equals(branchedPage.getBaseIdOrFallback())) {
+                        return Mono.just(branchedPage);
+                    }
+
+                    return newPageService
+                            .findById(branchedPage.getBaseIdOrFallback(), pagePermission.getReadPermission())
+                            .map(basePage -> {
+                                NewPage pageRedirectionDTO = new NewPage();
+                                pageRedirectionDTO.setId(basePage.getId());
+                                pageRedirectionDTO.setBaseId(basePage.getBaseId());
+                                pageRedirectionDTO.setApplicationId(basePage.getApplicationId());
+                                // the branch name should come from the branched page as it is required for redirecting
+                                pageRedirectionDTO.setBranchName(branchedPage.getBranchName());
+                                return pageRedirectionDTO;
+                            });
+                });
     }
 
     protected IntegrationDTO associateIntegrationDTOWithContext(
             IntegrationDTO integrationDTO, BaseDomain baseDomain, CreatorContextType contextType) {
-        NewPage newPage = (NewPage) baseDomain;
-        DefaultResources defaultResources = newPage.getDefaultResources();
-        String defaultPageId =
-                StringUtils.hasLength(defaultResources.getPageId()) ? defaultResources.getPageId() : newPage.getId();
+        NewPage pageRedirectionDTO = (NewPage) baseDomain;
+        integrationDTO.setPageId(pageRedirectionDTO.getBaseIdOrFallback());
+        integrationDTO.setApplicationId(pageRedirectionDTO.getApplicationId());
 
-        String defaultApplicationId = StringUtils.hasLength(defaultResources.getApplicationId())
-                ? defaultResources.getApplicationId()
-                : newPage.getApplicationId();
-
-        integrationDTO.setPageId(defaultPageId);
-        integrationDTO.setApplicationId(defaultApplicationId);
+        if (hasText(pageRedirectionDTO.getBranchName())) {
+            integrationDTO.setBranch(pageRedirectionDTO.getBranchName());
+        }
         return integrationDTO;
     }
 

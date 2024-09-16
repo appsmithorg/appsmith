@@ -108,6 +108,8 @@ export interface ActionsPropsType {
   widgetName: string;
   widgetId: string;
   searchKey: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];

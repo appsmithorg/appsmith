@@ -4,25 +4,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import type { noop } from "lodash";
 
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 
 import type { MenuItemData } from "./NavigationMenuItem";
 import { MenuTypes } from "./types";
-import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
+import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
 
 import {
   hasDeleteApplicationPermission,
   isPermitted,
   PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+} from "ee/utils/permissionHelpers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();

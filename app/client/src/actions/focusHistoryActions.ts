@@ -1,6 +1,6 @@
 import type { FocusState } from "reducers/uiReducers/focusHistoryReducer";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Location } from "history";
 import type { AppsmithLocationState } from "utils/history";
 

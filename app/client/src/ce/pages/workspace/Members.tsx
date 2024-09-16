@@ -4,46 +4,43 @@ import {
   getAllRoles,
   getWorkspaceLoadingStates,
   getFetchedWorkspaces,
-} from "@appsmith/selectors/workspaceSelectors";
+} from "ee/selectors/workspaceSelectors";
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { HighlightText, Table } from "design-system-old";
+import { HighlightText, Table } from "@appsmith/ads-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
   fetchWorkspace,
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
-} from "@appsmith/actions/workspaceActions";
-import type { SelectOptionProps } from "design-system";
-import { Avatar, Button, Option, Select, Text } from "design-system";
+} from "ee/actions/workspaceActions";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Avatar, Button, Option, Select, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUser } from "ee/constants/workspaceConstants";
 import {
   createMessage,
   MEMBERS_TAB_TITLE,
   NO_SEARCH_DATA_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { APPLICATIONS_URL } from "constants/routes";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import { getInitials } from "utils/AppsmithUtils";
-import { CustomRolesRamp } from "@appsmith/pages/workspace/InviteUsersForm";
-import { showProductRamps } from "@appsmith/selectors/rampSelectors";
+import { CustomRolesRamp } from "ee/pages/workspace/InviteUsersForm";
+import { showProductRamps } from "ee/selectors/rampSelectors";
 import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getAllUsersOfWorkspace,
   selectedWorkspaceLoadingStates,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/selectors/selectedWorkspaceSelectors";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
@@ -236,6 +233,8 @@ export default function MemberSettings(props: PageProps) {
     onOpenConfirmationModal();
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDeleteMember = (data?: any) => {
     if (!userToBeDeleted && !data) return null;
     dispatch(
@@ -327,6 +326,8 @@ export default function MemberSettings(props: PageProps) {
         MEMBERS_TAB_TITLE(filteredData?.length, !isGACEnabled),
       ),
       accessor: "users",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;
         return (
@@ -352,6 +353,8 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "Resource",
       accessor: "resource",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function ResourceCell(cellProps: any) {
         return (
           <RowWrapper>
@@ -366,11 +369,15 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "Role",
       accessor: "permissionGroupName",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function DropdownCell(cellProps: any) {
         const data = cellProps.cell.row.original;
         const allRoles = useSelector(getAllRoles);
         const roles = allRoles
-          ? allRoles.map((role: any) => {
+          ? // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            allRoles.map((role: any) => {
               return {
                 key: role.id,
                 value: role.name?.split(" - ")[0],
@@ -400,6 +407,8 @@ export default function MemberSettings(props: PageProps) {
               roleChangingUserInfo.username === data.username
             }
             listHeight={400}
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onSelect={(_value: string, option: any) => {
               dispatch(
                 changeWorkspaceUserRole(workspaceId, option.key, data.username),
@@ -435,6 +444,8 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "Actions",
       accessor: "actions",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function DeleteCell(cellProps: any) {
         return (
           <Button
@@ -462,7 +473,9 @@ export default function MemberSettings(props: PageProps) {
   ];
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   const roles = allRoles
-    ? allRoles.map((role: any) => {
+    ? // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      allRoles.map((role: any) => {
         return {
           key: role.id,
           value: role.name?.split(" - ")[0],
@@ -471,6 +484,8 @@ export default function MemberSettings(props: PageProps) {
       })
     : [];
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const selectRole = (option: any, username: any) => {
     dispatch(changeWorkspaceUserRole(workspaceId, option, username));
   };
@@ -500,6 +515,8 @@ export default function MemberSettings(props: PageProps) {
             {filteredData.map((member, index) => {
               const role =
                 roles.find(
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   (role: any) =>
                     role.value === member.permissionGroupName.split(" - ")[0],
                 ) || roles[0];
@@ -547,6 +564,8 @@ export default function MemberSettings(props: PageProps) {
                         roleChangingUserInfo &&
                         roleChangingUserInfo.username === member.username
                       }
+                      // TODO: Fix this the next time the file is edited
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       onSelect={(_value: string, option: any) => {
                         selectRole(option.key, member.username);
                       }}

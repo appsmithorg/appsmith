@@ -1,17 +1,17 @@
 import { get, isEmpty, isUndefined, set } from "lodash";
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
 import { parseJSObject, isJSFunctionProperty } from "@shared/ast";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import evaluateSync from "workers/Evaluation/evaluate";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
@@ -111,7 +111,11 @@ export function saveResolvedFunctionsAndJSUpdates(
         JSObjectName: entityName,
         JSObjectASTParseTime,
       });
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const actions: any = [];
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const variables: any = [];
       if (success) {
         if (!!parsedObject) {

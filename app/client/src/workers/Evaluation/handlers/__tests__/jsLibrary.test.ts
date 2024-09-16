@@ -2,7 +2,7 @@ import { flattenModule, installLibrary, uninstallLibrary } from "../jsLibrary";
 import {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
-} from "@appsmith/workers/Evaluation/evalWorkerActions";
+} from "ee/workers/Evaluation/evalWorkerActions";
 import * as mod from "../../../common/JSLibrary/ternDefinitionGenerator";
 
 jest.mock("../../../common/JSLibrary/ternDefinitionGenerator");

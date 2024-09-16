@@ -6,10 +6,8 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.repositories.NewPageRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -19,7 +17,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 class CustomNewPageRepositoryTest {
 
@@ -103,8 +100,8 @@ class CustomNewPageRepositoryTest {
 
     @Test
     void findPageWithoutBranchName() {
-        StepVerifier.create(newPageRepository.findPageByBranchNameAndDefaultPageId(
-                        null, "pageId", AclPermission.PAGE_CREATE_PAGE_ACTIONS))
+        StepVerifier.create(newPageRepository.findPageByBranchNameAndBasePageId(
+                        null, "pageId", AclPermission.PAGE_CREATE_PAGE_ACTIONS, null))
                 .verifyComplete();
     }
 }

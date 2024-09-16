@@ -43,6 +43,8 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
@@ -55,8 +57,13 @@ class WidgetFactory {
     Partial<WidgetProps> & WidgetConfigProps & { type: string }
   > = new Map();
 
+  static widgetDefaultPropertiesMap: Map<string, Record<string, unknown>> =
+    new Map();
+
   static widgetsMap: Map<WidgetType, typeof BaseWidget> = new Map();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static widgetBuilderMap: Map<WidgetType, any> = new Map();
 
   static initialize(
@@ -122,6 +129,7 @@ class WidgetFactory {
       isDeprecated: !!config.isDeprecated,
       replacement: config.replacement,
       displayName: config.name,
+      displayOrder: config.displayOrder,
       key: generateReactKey(),
       iconSVG: config.iconSVG,
       thumbnailSVG: config.thumbnailSVG,
@@ -132,6 +140,18 @@ class WidgetFactory {
       onCanvasUI,
     };
 
+    // When adding widgets to canvas in Anvil, we don't need all of configured properties
+    // (See _config object)
+    // and that should ideally be the case for Fixed mode widgets as well
+    // So, creating this map to use in WidgetAdditionSagas for both Fixed
+    // and Anvil.
+    // Before this we were using "ALL" configured properties when creating
+    // the newly added widget. This lead to many extra properties being added
+    // to the DSL
+    WidgetFactory.widgetDefaultPropertiesMap.set(
+      widget.type,
+      Object.freeze({ ...defaultConfig }),
+    );
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));
   }
 
@@ -640,6 +660,8 @@ export type WidgetTypeConfigMap = Record<
   string,
   {
     defaultProperties: Record<string, string>;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metaProperties: Record<string, any>;
     derivedProperties: WidgetDerivedPropertyType;
   }

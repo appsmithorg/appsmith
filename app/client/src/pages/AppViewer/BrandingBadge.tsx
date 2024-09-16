@@ -1,7 +1,7 @@
 import React from "react";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import styled from "styled-components";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 const AppsmithLogo = importSvg(
   async () => import("assets/svg/appsmith-logo-no-pad.svg"),
 );

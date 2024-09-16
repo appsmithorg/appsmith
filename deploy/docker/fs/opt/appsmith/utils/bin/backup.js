@@ -125,7 +125,7 @@ function getEncryptionPasswordFromUser(){
 
 async function exportDatabase(destFolder) {
   console.log('Exporting database');
-  await executeMongoDumpCMD(destFolder, process.env.APPSMITH_DB_URL)
+  await executeMongoDumpCMD(destFolder, utils.getDburl())
   console.log('Exporting database done.');
 }
 
@@ -141,7 +141,7 @@ async function createGitStorageArchive(destFolder) {
 
 async function createManifestFile(path) {
   const version = await utils.getCurrentAppsmithVersion()
-  const manifest_data = { "appsmithVersion": version, "dbName": utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_DB_URL) }
+  const manifest_data = { "appsmithVersion": version, "dbName": utils.getDatabaseNameFromMongoURI(utils.getDburl()) }
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 

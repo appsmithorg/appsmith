@@ -8,6 +8,7 @@
   display: flex;
   position: relative;
   padding: 0;
+  height: var(--sizing-9);
   border: none;
   align-items: center;
   border-radius: var(--border-radius-elevation-3);
@@ -43,7 +44,7 @@
 
 .textField [data-icon] {
   position: absolute;
-  right: var(--inner-spacing-2);
+  right: var(--inner-spacing-1);
 }
 
 .necessityIndicator {
@@ -64,6 +65,10 @@
 .fieldValue {
   text-align: left;
   flex: 1;
+}
+
+.fieldValue[data-placeholder] {
+  color: var(--color-fg-neutral-subtle);
 }
 
 .fieldValue [data-icon] {

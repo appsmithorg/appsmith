@@ -14,6 +14,8 @@ export default function ObjectView(props: {
       fontSize: "10px",
     },
     collapsed: 0,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     shouldCollapse: (field: any) => {
       const index = field.name * 1;
       return index >= 2;

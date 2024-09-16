@@ -1,10 +1,10 @@
-import { getPlugins } from "@appsmith/selectors/entitiesSelector";
+import { getPlugins } from "ee/selectors/entitiesSelector";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { keyBy } from "lodash";
 import { getPluginIcon } from "pages/Editor/Explorer/ExplorerIcons";
@@ -36,7 +36,11 @@ const JSObjectsNQueriesExport = ({
 }: Props) => {
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dsIDToPluginIDMap: { [key: string]: any } = useMemo(() => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const map: { [key: string]: any } = {};
     Object.keys(data).forEach((key) => {
       const ds = appDS.find((ds) => ds.name === key);

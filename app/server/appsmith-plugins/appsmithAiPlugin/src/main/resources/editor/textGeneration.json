@@ -1,73 +1,91 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "TEXT_GENERATE",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_GENERATE'}}"
   },
   "children": [
     {
-      "label": "Try out these examples",
-      "Description": "Try out these examples",
-      "subtitle": "",
-      "configProperty": "",
-      "controlType": "FORM_TEMPLATE",
-      "isRequired": false,
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "TEXT-GENERATE-Z1",
+      "children": [
         {
-          "label": "Email Response",
-          "value": {
-            "actionConfiguration.formData.textGeneration.input.data": "Write an 100 word apologetic email response to a delay in order shipment due to operational reasons and assure them that the order will be delivered today"
-          }
-        },
-        {
-          "label": "Product description",
-          "value": {
-            "actionConfiguration.formData.textGeneration.input.data": "Write a creative product description for an electric car named RevaX, with the keywords- fast charging, 200 miles per single charge, compact, eco-friendly, economical. This is targeted towards a climate concious tech/EV enthusiast who enjoys driving. Also describe the benefits of this product in less than 80 words"
-          }
-        },
-        {
-          "label": "Candidate response",
-          "value": {
-            "actionConfiguration.formData.textGeneration.input.data": "Write a personalised email rejecting Bob’s application for the Software Engineering position at Acme corp due to gaps in technical skills. Make sure the email has a polite tone but contains less than 150 words."
-          }
+          "label": "Try out these examples",
+          "Description": "Try out these examples",
+          "subtitle": "",
+          "configProperty": "",
+          "controlType": "FORM_TEMPLATE",
+          "isRequired": false,
+          "options": [
+            {
+              "label": "Email Response",
+              "value": {
+                "actionConfiguration.formData.textGeneration.input.data": "Write an 100 word apologetic email response to a delay in order shipment due to operational reasons and assure them that the order will be delivered today"
+              }
+            },
+            {
+              "label": "Product description",
+              "value": {
+                "actionConfiguration.formData.textGeneration.input.data": "Write a creative product description for an electric car named RevaX, with the keywords- fast charging, 200 miles per single charge, compact, eco-friendly, economical. This is targeted towards a climate concious tech/EV enthusiast who enjoys driving. Also describe the benefits of this product in less than 80 words"
+              }
+            },
+            {
+              "label": "Candidate response",
+              "value": {
+                "actionConfiguration.formData.textGeneration.input.data": "Write a personalised email rejecting Bob’s application for the Software Engineering position at Acme corp due to gaps in technical skills. Make sure the email has a polite tone but contains less than 150 words."
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Prompt",
-      "Description": "Provide an prompt for AI to generate text",
-      "subtitle": "Provide an prompt for AI to generate text",
-      "configProperty": "actionConfiguration.formData.textGeneration.input.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "initialValue": "",
-      "isRequired": true
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "TEXT-GENERATE-Z2",
+      "children": [
+        {
+          "label": "Prompt",
+          "Description": "Provide a prompt for AI to generate text",
+          "subtitle": "Provide a prompt for AI to generate text",
+          "configProperty": "actionConfiguration.formData.textGeneration.input.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "initialValue": "",
+          "isRequired": true
+        }
+      ]
     },
     {
-      "label": "Use context from files",
-      "tooltipText": "Enhance the AI response by providing custom context. Using this option will generate accurate responses that are grounded in file contents.",
-      "subtitle": "Select files for enhanced AI responses based on file contents. Upload files on the datasource (Data > your Appsmith AI Datasource > Edit > Upload files)",
-      "isRequired": false,
-      "propertyName": "fileIds",
-      "configProperty": "actionConfiguration.formData.fileIds.data",
-      "controlType": "DROP_DOWN",
-      "initialValue": [],
-      "options": [],
-      "isMultiSelect": true,
-      "placeholderText": "Select files",
-      "fetchOptionsConditionally": true,
-      "conditionals": {
-        "enable": "{{true}}",
-        "fetchDynamicValues": {
-          "condition": "{{actionConfiguration.formData.usecase.data === 'TEXT_GENERATE'}}",
-          "config": {
-            "params": {
-              "requestType": "LIST_FILES",
-              "displayType": "DROP_DOWN"
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "TEXT-GENERATE-Z3",
+      "children": [
+        {
+          "label": "Use context from files",
+          "tooltipText": "Enhance the AI response by providing custom context. Using this option will generate accurate responses that are grounded in file contents.",
+          "subtitle": "Select files for enhanced AI responses based on file contents. Upload files on the datasource (Data > your Appsmith AI Datasource > Edit > Upload files)",
+          "isRequired": false,
+          "propertyName": "fileIds",
+          "configProperty": "actionConfiguration.formData.fileIds.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": [],
+          "options": [],
+          "isMultiSelect": true,
+          "placeholderText": "Select files",
+          "fetchOptionsConditionally": true,
+          "conditionals": {
+            "enable": "{{true}}",
+            "fetchDynamicValues": {
+              "condition": "{{actionConfiguration.formData.usecase.data === 'TEXT_GENERATE'}}",
+              "config": {
+                "params": {
+                  "requestType": "LIST_FILES",
+                  "displayType": "DROP_DOWN"
+                }
+              }
             }
           }
         }
-      }
+      ]
     }
   ]
 }

@@ -1,0 +1,28 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as TooltipStories from "./Tooltip.stories";
+
+<Meta of={TooltipStories} />
+
+# Tooltip
+
+Tooltips are floating labels that briefly explain the function of a user interface element. They can be triggered when users hover over or click on the element.
+
+Use only when necessary to provide an explanation for an interface element.
+Use tooltips to communicate more information to the user. This should be information supplementing the information that is shown. Typically information in a tooltip falls under ‘know once and the user gets it’ category. If the information in the tooltip is more important and the user needs to know about this to take an action, place this information up front.
+
+<Canvas of={TooltipStories.TooltipStory} />
+
+## Anatomy
+
+## Spacing
+
+## Usage
+
+To add a small amount of information to an element, use tooltips. Typically, tooltips are used to:
+
+- Help users understand the meaning or purpose of icons.
+- Show the full version of truncated text.
+- Display alternative text for an image.
+
+Tooltips should **not** be used to communicate critical information, including errors in forms or other interaction feedback. They should also not contain links or buttons.

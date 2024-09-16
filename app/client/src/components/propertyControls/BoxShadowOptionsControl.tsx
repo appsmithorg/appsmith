@@ -2,7 +2,7 @@ import * as React from "react";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Icon, SegmentedControl } from "design-system";
+import { Icon, SegmentedControl } from "@appsmith/ads";
 import { boxShadowOptions, sizeMappings } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -76,6 +76,8 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return optionsValues.has(value);
   }

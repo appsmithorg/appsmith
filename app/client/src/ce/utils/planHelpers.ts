@@ -1,4 +1,4 @@
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
 //if feature flag is true then return feature is enabled
 export const isBrandingEnabled = (featureFlags: FeatureFlags) => {

@@ -2,16 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import classNames from "classnames";
-import { Button, Spinner } from "design-system";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Button, Spinner } from "@appsmith/ads";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { ContentBox } from "pages/AdminSettings/components";
 
 interface ImageInputProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange?(value?: any): void;
   validate?(
     e: React.ChangeEvent<HTMLInputElement>,

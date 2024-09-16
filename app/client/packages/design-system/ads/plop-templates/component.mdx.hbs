@@ -1,0 +1,65 @@
+import { Canvas, Meta } from '@storybook/blocks';
+
+import * as {{capitalize name}}Stories from './{{capitalize name}}.stories';
+
+<Meta of={ {{capitalize name}}Stories} />
+
+# {{capitalize name}}
+
+<!--Add a short sentence here describing the general use of this component.-->
+
+<Canvas of={ {{capitalize name}}Stories.{{capitalize name}}Story} />
+
+## Anatomy
+
+![{{capitalize name}} anatomy](./docs/{{capitalize name}}-anatomy.png)
+
+<!-- Describe the various parts of the component here. Number them correctly as per the diagram.-->
+
+1. **Header:** Text title accompanied by an optional close button
+2. **Content** Container for the main content of the modal; the content can be text, forms, lists, cards, or other elements.
+4. **Footer:** Container for buttons related to the content of the modal
+
+## Spacing
+![{{capitalize name}} spacing](./docs/{{capitalize name}}-spacing.png)
+
+## Kind
+
+### Kind 1
+<!-- A line indicating what are the specific usages of kind 1 alone-->
+<Canvas of={ {{capitalize name}}Stories.Kind1{{capitalize name}} } />
+
+### Kind 2
+<!-- A line indicating what are the specific usages of kind 2 alone-->
+<Canvas of={ {{capitalize name}}Stories.Kind2{{capitalize name}} } />
+
+
+## Size
+
+### Size 1
+<!-- A line indicating what are the specific usages of size 1 alone-->
+<Canvas of={ {{capitalize name}}Stories.Size1{{capitalize name}} } />
+
+
+### Size 2
+<!-- A line indicating what are the specific usages of size 2 alone-->
+<Canvas of={ {{capitalize name}}Stories.Size2{{capitalize name}} } />
+
+
+## Usage
+
+### When to use
+
+### When not to use
+
+### Example: confirmation
+
+### Programmatically control
+
+
+---
+## Resources
+<!-- Add links to external documentation to the underlying library, the HTMl tag, the typescript construct used - anything that will give developers more context.-->
+
+## References
+<!-- Add design and documentation references here. -->

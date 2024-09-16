@@ -4,7 +4,7 @@ import type {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { debounce } from "lodash";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 interface SearchResultType {
   section: {

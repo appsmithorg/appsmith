@@ -11,11 +11,11 @@ import {
   MERGE_CHANGES,
   MERGED_SUCCESSFULLY,
   SELECT_BRANCH_TO_MERGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
@@ -51,8 +51,8 @@ import {
   Icon,
   ModalFooter,
   ModalBody,
-} from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
@@ -84,6 +84,8 @@ export default function Merge() {
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gitStatus: any = useSelector(getGitStatus);
   const mergeError = useSelector(getMergeError);
   const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;

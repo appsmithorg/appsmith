@@ -9,14 +9,18 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
 export type DependencyMap = Record<string, Array<string>>;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormEditorConfigs = Record<string, any[]>;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
 export type FormDatasourceButtonConfigs = Record<string, string[]>;
@@ -149,6 +153,8 @@ export enum EvalErrorTypes {
 export interface EvalError {
   type: EvalErrorTypes;
   message: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>;
 }
 
@@ -216,6 +222,8 @@ export const getWidgetDynamicTriggerPathList = (
   return [];
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
   if (
     widget &&
@@ -432,6 +440,8 @@ export const PropertyEvalErrorTypeDebugMessage: Record<
 let temporaryDynamicPathStore: DynamicPath[] = [];
 
 // recursive function to get full key path of any object that has dynamic bindings.
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getDynamicValuePaths = (val: any, parentPath: string) => {
   if (isString(val) && isDynamicValue(val)) {
     return temporaryDynamicPathStore.push({ key: `${parentPath}` });
@@ -454,6 +464,8 @@ export function getDynamicBindingsChangesSaga(
   action: Action,
   value: unknown,
   field: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formData?: any,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");

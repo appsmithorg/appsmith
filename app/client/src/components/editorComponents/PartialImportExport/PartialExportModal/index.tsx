@@ -1,14 +1,11 @@
-import {
-  PARTIAL_IMPORT_EXPORT,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { getPartialImportExportLoadingState } from "@appsmith/selectors/applicationSelectors";
+import { PARTIAL_IMPORT_EXPORT, createMessage } from "ee/constants/messages";
+import { getPartialImportExportLoadingState } from "ee/selectors/applicationSelectors";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { selectFilesForExplorer } from "ce/selectors/entitiesSelector";
 import {
   selectLibrariesForExplorer,
   selectWidgetsForCurrentPage,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   openPartialExportModal,
   partialExportWidgets,
@@ -24,10 +21,10 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { ControlIcons } from "icons/ControlIcons";
 import { MenuIcons } from "icons/MenuIcons";
-import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useAppWideAndOtherDatasource } from "ee/pages/Editor/Explorer/hooks";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
@@ -76,6 +73,8 @@ export const PartialExportModal = () => {
   }, [selectedParams]);
 
   const entities = useMemo(() => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const groupedData: Record<string, any> = {};
 
     let currentGroup: unknown = null;
@@ -90,6 +89,8 @@ export const PartialExportModal = () => {
     }
     const jsObjects =
       groupedData["JS Objects"] &&
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       groupedData["JS Objects"].map((item: any) => item.entity);
     delete groupedData["JS Objects"];
 

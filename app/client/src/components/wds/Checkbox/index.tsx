@@ -14,6 +14,8 @@ interface StyledCheckboxProps {
   indeterminate?: boolean;
   hasError?: boolean;
   accentColor?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputRef?: (el: HTMLInputElement | null) => any;
 }
 

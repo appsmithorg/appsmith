@@ -306,6 +306,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._newButtonCreateApplication, 0, true);
     this.AssertApplicationCreated();
     if (skipSignposting) {
+      this.agHelper.WaitUntilEleDisappear(this.locator._btnSpinner);
       AppSidebar.assertVisible();
       this.agHelper.AssertElementVisibility(PageLeftPane.locators.selector);
       this.onboarding.skipSignposting();
@@ -523,7 +524,7 @@ export class HomePage {
       "not.include",
       "edit",
     );
-    if (element) this.agHelper.WaitUntilEleAppear(this.locator._backToEditor);
+    this.agHelper.WaitUntilEleAppear(element ?? this.locator._backToEditor);
     this.agHelper.AssertElementExist(this.deployHelper._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this.deployHelper._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this.deployHelper._appViewPageName);
@@ -754,6 +755,7 @@ export class HomePage {
     }
     this.agHelper.ClickButton("Fork");
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    this.agHelper.WaitUntilEleDisappear(this._forkModal);
   }
 
   public DeleteApplication(appliName: string) {

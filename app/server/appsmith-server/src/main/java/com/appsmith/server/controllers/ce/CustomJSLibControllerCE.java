@@ -33,73 +33,67 @@ public class CustomJSLibControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PatchMapping("/{applicationId}/add")
+    @PatchMapping("/{branchedApplicationId}/add")
     public Mono<ResponseDTO<Boolean>> addJSLibToApplication(
             @RequestBody @Valid CustomJSLib customJSLib,
-            @PathVariable String applicationId,
+            @PathVariable String branchedApplicationId,
             @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.IS_FORCE_INSTALL, defaultValue = "false") Boolean isForceInstall) {
         log.debug(
-                "Going to add JS lib: {}_{} to {}: {}, on branch:{}",
+                "Going to add JS lib: {}_{} to {}: {}",
                 customJSLib.getName(),
                 customJSLib.getVersion(),
                 contextType.name().toLowerCase(),
-                applicationId,
-                branchName);
+                branchedApplicationId);
         return customJSLibService
-                .addJSLibsToContext(applicationId, contextType, Set.of(customJSLib), branchName, isForceInstall)
+                .addJSLibsToContext(branchedApplicationId, contextType, Set.of(customJSLib), isForceInstall)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
     @JsonView(Views.Public.class)
-    @PatchMapping("/{applicationId}/remove")
+    @PatchMapping("/{branchedApplicationId}/remove")
     public Mono<ResponseDTO<Boolean>> removeJSLibFromApplication(
             @RequestBody @Valid CustomJSLib customJSLib,
-            @PathVariable String applicationId,
+            @PathVariable String branchedApplicationId,
             @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.IS_FORCE_REMOVE, defaultValue = "false") Boolean isForceRemove) {
         log.debug(
-                "Going to remove JS lib: {} from {}: {}, on branch:{}",
+                "Going to remove JS lib: {} from {}: {}",
                 customJSLib.getUidString(),
                 contextType.name().toLowerCase(),
-                applicationId,
-                branchName);
+                branchedApplicationId);
         return customJSLibService
-                .removeJSLibFromContext(applicationId, contextType, customJSLib, branchName, isForceRemove)
+                .removeJSLibFromContext(branchedApplicationId, contextType, customJSLib, isForceRemove)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{contextId}")
+    @GetMapping("/{branchedContextId}")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplication(
-            @PathVariable String contextId,
-            @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedContextId,
+            @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType) {
         log.debug(
                 "Going to get all unpublished JS libs in {}: {}, on branch: {}",
                 contextType.name().toLowerCase(),
-                contextId,
-                branchName);
+                branchedContextId);
         return customJSLibService
-                .getAllJSLibsInContext(contextId, contextType, branchName, false)
+                .getAllJSLibsInContext(branchedContextId, contextType, false)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{contextId}/view")
+    @GetMapping("/{branchedContextId}/view")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplicationForViewMode(
-            @PathVariable String contextId,
+            @PathVariable String branchedContextId,
             @RequestParam(defaultValue = "APPLICATION") CreatorContextType contextType,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug(
                 "Going to get all published JS libs in {}: {}, on branch: {}",
                 contextType.name().toLowerCase(),
-                contextId,
+                branchedContextId,
                 branchName);
         return customJSLibService
-                .getAllJSLibsInContext(contextId, contextType, branchName, true)
+                .getAllJSLibsInContext(branchedContextId, contextType, true)
                 .map(actionCollection -> new ResponseDTO<>(HttpStatus.OK.value(), actionCollection, null));
     }
 }

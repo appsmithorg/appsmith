@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
@@ -14,7 +14,7 @@ import { throttle } from "lodash";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getIsAutoLayout,
@@ -178,7 +178,11 @@ export function CanvasSelectionArena({
       const scrollParent: Element | null = getNearestParentCanvas(
         slidingArenaRef.current,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const scrollObj: any = {};
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
       const initRectangle = (): SelectedArenaDimensions => ({
         top: 0,
@@ -259,6 +263,8 @@ export function CanvasSelectionArena({
         document.body.addEventListener("click", onClick, false);
       };
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const onMouseEnter = (e: any) => {
         if (
           slidingArenaRef.current &&
@@ -273,6 +279,8 @@ export function CanvasSelectionArena({
         }
       };
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const onClick = (e: any) => {
         if (
           Math.abs(selectionRectangle.height) +
@@ -321,6 +329,8 @@ export function CanvasSelectionArena({
         return startPositions;
       };
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const firstRender = (e: any, fromOuterCanvas = false) => {
         if (
           slidingArenaRef.current &&
@@ -349,6 +359,8 @@ export function CanvasSelectionArena({
         }
       };
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const onMouseDown = (e: any) => {
         const isNotRightClick = !(e.which === 3 || e.button === 2);
         if (
@@ -378,6 +390,8 @@ export function CanvasSelectionArena({
           }, 0);
         }
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const onMouseMove = (e: any) => {
         if (isMouseDown && slidingArenaRef.current && stickyCanvasRef.current) {
           // This is to make sure we start selection only after dragging start

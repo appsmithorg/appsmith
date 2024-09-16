@@ -20,9 +20,11 @@ const BASE_ACTION: ApiAction = {
   invalids: [],
   isValid: false,
   workspaceId: "",
+  applicationId: "",
   pageId: "",
   pluginId: "",
   id: "testId",
+  baseId: "testBaseId",
   datasource: {
     id: "testDataSource",
   },

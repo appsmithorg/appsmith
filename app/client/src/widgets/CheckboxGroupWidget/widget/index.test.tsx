@@ -61,4 +61,21 @@ describe("<CheckboxGroup />", () => {
 
     expect(result).toStrictEqual({ isValid: true, parsed: ["blue"] });
   });
+
+  test("should return empty array when default value is not in options", async () => {
+    const result = defaultSelectedValuesValidation(`["blue"]`, {
+      options: [
+        {
+          label: "Apple",
+          value: "1",
+        },
+        {
+          label: "Orange",
+          value: "2",
+        },
+      ],
+    });
+
+    expect(result).toStrictEqual({ isValid: true, parsed: [] });
+  });
 });

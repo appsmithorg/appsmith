@@ -4,9 +4,9 @@ import {
   createMessage,
   WELCOME_BODY,
   WELCOME_HEADER,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import NonSuperUserProfilingQuestions from "./NonSuperUserProfilingQuestions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import WelcomeBackground from "./WelcomeBackground";
 import SetupForm from "./SetupForm";
 

@@ -7,7 +7,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 

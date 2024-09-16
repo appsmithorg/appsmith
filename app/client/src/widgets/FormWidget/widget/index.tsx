@@ -342,6 +342,8 @@ class FormWidget extends ContainerWidget {
     }
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   componentDidUpdate(prevProps: ContainerWidgetProps<any>) {
     super.componentDidUpdate(prevProps);
     this.updateFormData();
@@ -386,6 +388,8 @@ class FormWidget extends ContainerWidget {
   }
 
   getFormData(formWidget: ContainerWidgetProps<WidgetProps>) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formData: any = {};
     if (formWidget.children)
       formWidget.children.forEach((widgetData) => {
@@ -425,6 +429,8 @@ class FormWidget extends ContainerWidget {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       hasChanges: false,

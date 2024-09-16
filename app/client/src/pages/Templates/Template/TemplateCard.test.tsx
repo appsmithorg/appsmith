@@ -6,7 +6,7 @@ import { lightTheme } from "selectors/themeSelectors";
 import { TemplateLayout } from ".";
 import { Router } from "react-router";
 import history from "utils/history";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { templateIdUrl } from "ee/RouteBuilder";
 import FixedHeightTemplate from "./FixedHeightTemplate";
 import { unitTestMockTemplate } from "../test_config";
 

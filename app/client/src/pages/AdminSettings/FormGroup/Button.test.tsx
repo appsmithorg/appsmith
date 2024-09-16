@@ -1,9 +1,11 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import ButtonComponent from "./Button";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const buttonClickHandler = jest.fn();
 const buttonIsDisabled = jest.fn();
@@ -54,6 +56,8 @@ describe("Button", () => {
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
     expect(buttonIsDisabled).toHaveBeenCalledWith(settings);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((button[0] as any).disabled).toBeTruthy();
   });
 
@@ -62,6 +66,8 @@ describe("Button", () => {
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
     expect(buttonIsDisabled).toHaveBeenCalledWith(settings);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((button[0] as any).disabled).toBeFalsy();
   });
 

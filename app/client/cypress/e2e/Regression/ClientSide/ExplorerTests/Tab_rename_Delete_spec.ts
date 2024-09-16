@@ -26,7 +26,7 @@ describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
     PageLeftPane.expandCollapseItem("Tabs1");
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Tab2",
-      action: "Edit name",
+      action: "Rename",
     });
     agHelper.TypeText(locators._entityNameEditing("Tab2"), tabname);
     agHelper.Sleep(2000);

@@ -5,11 +5,11 @@ import {
   getCurrentPageWidgets,
   getPluginIdPackageNamesMap,
   getQueryModuleInstances,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import WidgetFactory from "WidgetProvider/factory";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
 import { getDatatype } from "utils/AppsmithUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
@@ -17,16 +17,16 @@ import { PluginPackageName } from "entities/Action";
 import type {
   ActionData,
   ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
+} from "ee/reducers/entityReducers/actionsReducer";
 import type {
   ModuleInstanceData,
   ModuleInstanceDataState,
-} from "@appsmith/constants/ModuleInstanceConstants";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { AppState } from "@appsmith/reducers";
-import type { Module } from "@appsmith/constants/ModuleConstants";
-import { getAllModules } from "@appsmith/selectors/modulesSelector";
+} from "ee/constants/ModuleInstanceConstants";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import type { Module } from "ee/constants/ModuleConstants";
+import { getAllModules } from "ee/selectors/modulesSelector";
 import { getModuleIcon } from "pages/Editor/utils";
 
 enum SortingWeights {

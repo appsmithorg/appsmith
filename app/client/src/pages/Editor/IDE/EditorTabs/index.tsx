@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
-import { Flex, ScrollArea, ToggleButton } from "design-system";
+import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+} from "ee/entities/IDE/constants";
 import FileTabs from "./FileTabs";
 import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
@@ -86,14 +86,15 @@ const EditorTabs = () => {
   return (
     <>
       <Container>
-        {ideViewMode === EditorViewMode.SplitScreen && (
+        {ideViewMode === EditorViewMode.SplitScreen && files.length > 0 ? (
           <ToggleButton
+            data-testid="t--list-toggle"
             icon="hamburger"
             isSelected={showListView}
             onClick={handleHamburgerClick}
             size="md"
           />
-        )}
+        ) : null}
         <ScrollArea
           className="h-[32px] top-[0.5px]"
           data-testid="t--editor-tabs"
@@ -105,7 +106,12 @@ const EditorTabs = () => {
           }}
           size={"sm"}
         >
-          <Flex className="items-center" gap="spaces-2" height="100%">
+          <Flex
+            className="items-center"
+            data-testid="t--tabs-container"
+            gap="spaces-2"
+            height="100%"
+          >
             <FileTabs
               currentEntity={currentEntity}
               isListActive={showListView}

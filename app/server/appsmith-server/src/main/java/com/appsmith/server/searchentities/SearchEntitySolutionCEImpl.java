@@ -5,7 +5,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.SearchEntityDTO;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -32,8 +31,6 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
     private final WorkspacePermission workspacePermission;
 
     private final ApplicationPermission applicationPermission;
-
-    private final ResponseUtils responseUtils;
 
     /**
      * This method searches for workspaces and applications based on the searchString provided.
@@ -95,7 +92,6 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
                         return !GitUtils.isApplicationConnectedToGit(application)
                                 || GitUtils.isDefaultBranchedApplication(application);
                     })
-                    .map(responseUtils::updateApplicationWithDefaultResources)
                     .collectList();
         }
 

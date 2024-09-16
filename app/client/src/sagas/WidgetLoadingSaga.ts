@@ -5,16 +5,16 @@ import {
   getDataTree,
 } from "selectors/dataTreeSelectors";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { getActions } from "@appsmith/selectors/entitiesSelector";
+import { getActions } from "ee/selectors/entitiesSelector";
 import type {
   ActionData,
   ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/reducers/entityReducers/actionsReducer";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { findLoadingEntities } from "utils/WidgetLoadingStateUtils";

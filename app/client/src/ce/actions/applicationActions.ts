@@ -4,10 +4,10 @@ import type {
   FetchApplicationPayload,
   ImportApplicationRequest,
   UpdateApplicationPayload,
-} from "@appsmith/api/ApplicationApi";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/api/ApplicationApi";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 
 export enum ApplicationVersion {

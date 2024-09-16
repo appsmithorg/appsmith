@@ -4,7 +4,6 @@ import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
 import { floor, isEmpty, isNil, isString } from "lodash";
-import { klona } from "klona";
 import hash from "object-hash";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -54,6 +53,7 @@ import defaultProps from "./defaultProps";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -294,6 +294,8 @@ class ListWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -641,7 +643,11 @@ class ListWidget extends BaseWidget<
     }
 
     if (!isEqual(this.prevMetaMainCanvasWidget, mainCanvasWidget)) {
-      this.prevMetaMainCanvasWidget = klona(mainCanvasWidget);
+      this.prevMetaMainCanvasWidget = klonaRegularWithTelemetry(
+        mainCanvasWidget,
+        "ListWidgetV2.generateMainMetaCanvasWidget",
+      );
+
       return mainCanvasWidget;
     }
   };
@@ -885,7 +891,12 @@ class ListWidget extends BaseWidget<
     const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
     const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
     const { componentHeight, componentWidth } = this.props;
-    const metaMainCanvas = klona(mainCanvasWidget) ?? {};
+
+    const metaMainCanvas =
+      klonaRegularWithTelemetry(
+        mainCanvasWidget,
+        "ListWidget.mainMetaCanvasWidget",
+      ) ?? {};
 
     const { metaWidgetId, metaWidgetName } =
       this.metaWidgetGenerator.getContainerParentCache() || {};
@@ -1284,6 +1295,8 @@ class ListWidget extends BaseWidget<
   overrideUpdateWidget = (
     operation: WidgetOperation,
     metaWidgetId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
   ) => {
     const templateWidgetId =
@@ -1296,6 +1309,8 @@ class ListWidget extends BaseWidget<
   overrideUpdateWidgetProperty = (
     metaWidgetId: string,
     propertyName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => {
     const templateWidgetId =

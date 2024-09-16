@@ -1,7 +1,7 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { diff } from "deep-diff";
 import { merge } from "lodash";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { getAction } from "ee/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { getPathAndValueFromActionDiffObject } from "utils/getPathAndValueFromActionDiffObject";
 import configureStore from "redux-mock-store";

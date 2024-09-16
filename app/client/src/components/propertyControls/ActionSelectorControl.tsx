@@ -20,18 +20,18 @@ import {
   getJSModuleInstancesData,
   getModuleInstances,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import store from "store";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
-import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import type {
   ModuleInstance,
   ModuleInstanceDataState,
-} from "@appsmith/constants/ModuleInstanceConstants";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+} from "ee/constants/ModuleInstanceConstants";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import type { JSAction } from "entities/JSCollection";
-import { getAllModules } from "@appsmith/selectors/modulesSelector";
+import { getAllModules } from "ee/selectors/modulesSelector";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -82,6 +82,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
         action={label}
         additionalAutoComplete={this.props.additionalAutoComplete}
         additionalControlData={
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           this.props.additionalControlData as Record<string, any>
         }
         dataTreePath={dataTreePath}
@@ -99,6 +101,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     return "ACTION_SELECTOR";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(_: ControlData, value: any): boolean {
     const state = store.getState();
     const actions = getActions(state);

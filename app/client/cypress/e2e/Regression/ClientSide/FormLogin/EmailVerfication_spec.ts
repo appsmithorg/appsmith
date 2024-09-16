@@ -1,7 +1,7 @@
 import adminsSettings from "../../../../locators/AdminsSettings";
 import { adminSettings as adminSettingsHelper } from "../../../../support/Objects/ObjectsCore";
 
-describe("Email verification", () => {
+describe("Email verification", { tags: ["@tag.Visual"] }, () => {
   it("1. Shows the email verification pending page correctly", () => {
     cy.LogOut();
     cy.visit("/user/verificationPending?email=test@appsmith.com");
@@ -58,7 +58,6 @@ describe("Email verification", () => {
     cy.wait("@getEnvVariables");
     cy.get(adminsSettings.authenticationTab).click();
     cy.get(adminsSettings.formloginButton).click();
-    //cy.pause();
     // Assert verification is disabled
     cy.get(adminsSettings.enableEmailVerificationInput).should("be.disabled");
     // Assert callout

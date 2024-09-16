@@ -6,6 +6,8 @@ export interface IconProps {
   height?: number;
   color?: Color;
   background?: Color;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick?: (e?: any) => void;
   className?: string;
   keepColors?: boolean;

@@ -308,6 +308,8 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedFiles: [],
@@ -431,6 +433,8 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uppy.on("file-removed", (file: any) => {
       const updatedFiles = this.props.selectedFiles
         ? this.props.selectedFiles.filter((dslFile) => {
@@ -440,6 +444,8 @@ class FilePickerWidget extends BaseWidget<
       this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uppy.on("files-added", (files: any[]) => {
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
@@ -611,6 +617,8 @@ export interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;

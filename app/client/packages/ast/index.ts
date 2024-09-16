@@ -35,7 +35,11 @@ import type {
   JSVarProperty,
   JSFunctionProperty,
 } from "./src/jsObject";
-import { parseJSObject, isJSFunctionProperty } from "./src/jsObject";
+import {
+  parseJSObject,
+  isJSFunctionProperty,
+  addPropertiesToJSObjectCode,
+} from "./src/jsObject";
 
 // action creator
 import {
@@ -139,4 +143,5 @@ export {
   isFunctionPresent,
   PeekOverlayExpressionIdentifier,
   getMemberExpressionObjectFromProperty,
+  addPropertiesToJSObjectCode,
 };

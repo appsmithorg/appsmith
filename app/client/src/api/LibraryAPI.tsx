@@ -21,7 +21,7 @@ export default class LibraryApi extends Api {
     library: Partial<JSLibrary>,
   ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/remove";
-    return Api.patch(url, { accessor: library.accessor, url: library.url });
+    return Api.patch(url, library);
   }
 
   static async getLibraries(applicationId: string, mode: APP_MODE) {

@@ -1,13 +1,9 @@
 package com.appsmith.server.newactions.base;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.defaultresources.DefaultResourcesService;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -42,7 +38,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ApplicationService applicationService,
             PolicySolution policySolution,
             ConfigService configService,
-            ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
             NewActionHelper newActionHelper,
             DatasourcePermission datasourcePermission,
@@ -50,9 +45,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             PagePermission pagePermission,
             ActionPermission actionPermission,
             EntityValidationService entityValidationService,
-            ObservationRegistry observationRegistry,
-            DefaultResourcesService<NewAction> defaultResourcesService,
-            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
+            ObservationRegistry observationRegistry) {
         super(
                 validator,
                 repository,
@@ -65,7 +58,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 applicationService,
                 policySolution,
                 configService,
-                responseUtils,
                 permissionGroupService,
                 newActionHelper,
                 datasourcePermission,
@@ -73,8 +65,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry,
-                defaultResourcesService,
-                dtoDefaultResourcesService);
+                observationRegistry);
     }
 }

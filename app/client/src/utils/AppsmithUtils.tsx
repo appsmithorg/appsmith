@@ -1,18 +1,18 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
+import { getAppsmithConfigs } from "ee/configs";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
+import { createMessage, ERROR_500 } from "ee/constants/messages";
 import * as Sentry from "@sentry/react";
 import type { Property } from "api/ActionAPI";
-import type { AppIconName } from "design-system-old";
-import { AppIconCollection } from "design-system-old";
+import type { AppIconName } from "@appsmith/ads-old";
+import { AppIconCollection } from "@appsmith/ads-old";
 import _, { isPlainObject } from "lodash";
 import * as log from "loglevel";
 import { osName } from "react-device-detect";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
-import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
+import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 
 export const initializeAnalyticsAndTrackers = async () => {
   const appsmithConfigs = getAppsmithConfigs();
@@ -32,6 +32,8 @@ export const initializeAnalyticsAndTrackers = async () => {
           }
           // Handle Non-Error rejections
           if (exception?.value?.startsWith("Non-Error")) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const serializedData: any = event.extra?.__serialized__;
             if (!serializedData) return null; // if no data is attached, ignore error
             const actualErrorMessage = serializedData.error
@@ -71,11 +73,15 @@ export const initializeAnalyticsAndTrackers = async () => {
   }
 
   try {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
       const { id } = appsmithConfigs.smartLook;
       AnalyticsUtil.initializeSmartLook(id);
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
@@ -201,7 +207,8 @@ export const createNewApiName = (
   entityId: string,
   key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
-  const pageApiNames = actions
+  const pageApiNames = actions // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
   return getNextEntityName("Api", pageApiNames);
@@ -212,7 +219,8 @@ export const createNewJSFunctionName = (
   entityId: string,
   key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
-  const pageJsFunctionNames = jsActions
+  const pageJsFunctionNames = jsActions // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
   return getNextEntityName("JSObject", pageJsFunctionNames);
@@ -222,6 +230,8 @@ export const noop = () => {
   log.debug("noop");
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const stopEventPropagation = (e: any) => {
   e.stopPropagation();
 };
@@ -232,13 +242,16 @@ export const createNewQueryName = (
   prefix = "Query",
   key: CreateNewActionKeyInterface = CreateNewActionKey.PAGE,
 ) => {
-  const pageApiNames = queries
+  const pageApiNames = queries // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((a: any) => a.config[key] === entityId)
     .map((a) => a.config.name);
 
   return getNextEntityName(prefix, pageApiNames);
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const convertToString = (value: any): string => {
   if (_.isUndefined(value)) {
     return "";
@@ -284,8 +297,10 @@ export const getInitialsAndColorCode = (
   return [initials, colorCode];
 };
 export const getInitials = (
-  fullName: any,
   // colorPalette: string[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fullName: any,
 ): string => {
   let inits = "";
   // if name contains space. eg: "Full Name"
@@ -354,11 +369,15 @@ export function hexToRgb(hex: string): {
  *
  */
 export const retryPromise = async (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fn: () => Promise<any>,
   retriesLeft = 5,
   interval = 1000,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   shouldRetry = (e: Error) => true, // default to retry on all errors
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     fn()

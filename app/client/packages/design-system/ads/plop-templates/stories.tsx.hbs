@@ -1,0 +1,21 @@
+import React from "react";
+import { Meta, StoryObj } from "@storybook/react";
+
+import { {{capitalize name}} } from "./{{capitalize name}}";
+
+export default {
+  title: "ADS/{{capitalize name}}",
+  component: {{capitalize name}},
+} as Meta<typeof {{capitalize name}}>;
+
+type Story = StoryObj<typeof {{capitalize name}}>;
+
+export const {{capitalize name}}Story: Story = {
+  name: "{{capitalize name}}",
+  args: {},
+  render: (args) => (
+    <{{capitalize name}} {...args}>
+      content
+    </{{capitalize name}}>
+  ),
+};

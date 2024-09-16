@@ -6,22 +6,25 @@ import {
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Button Widget`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
     before(() => {
       agHelper.AddDsl("anvilButtonWidget");
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.verifyCanvasMode("ButtonWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("ButtonWidget");
+      anvilSnapshot.setTheme("dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("ButtonWidget", "dark");
+      anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("ButtonWidget");
+      anvilSnapshot.matchSnapshotForPreviewMode("ButtonWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("ButtonWidget");
+      anvilSnapshot.matchSnapshotForDeployMode("ButtonWidget");
     });
   },
 );

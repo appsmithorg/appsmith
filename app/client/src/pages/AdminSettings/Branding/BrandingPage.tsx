@@ -4,12 +4,12 @@ import { useForm } from "react-hook-form";
 
 import Previews from "./previews";
 import SettingsForm from "./SettingsForm";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
 import { Wrapper } from "pages/AdminSettings/Authentication/AuthPage";
 
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
-import { getUpgradeBanner } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
+import { getUpgradeBanner } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 
 export type brandColorsKeys =
   | "primary"

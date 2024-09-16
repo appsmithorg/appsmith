@@ -4,7 +4,6 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CacheableTemplateHelper;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -26,7 +25,6 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
             AnalyticsService analyticsService,
             UserDataService userDataService,
             ApplicationService applicationService,
-            ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ObjectMapper objectMapper,
             SessionUserService sessionUserService,
@@ -37,9 +35,7 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                 importService,
                 exportService,
                 analyticsService,
-                userDataService,
                 applicationService,
-                responseUtils,
                 applicationPermission,
                 objectMapper,
                 sessionUserService,

@@ -1,5 +1,5 @@
-import type { Workflow } from "@appsmith/constants/WorkflowConstants";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Workflow } from "ee/constants/WorkflowConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 
 export interface WorkflowCardListProps {
   isMobile: boolean;

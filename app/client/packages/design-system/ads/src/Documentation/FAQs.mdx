@@ -1,0 +1,49 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="ADS/Docs/FAQs" />
+
+# FAQs
+
+### What is the source of truth for ADS 2.0?
+
+Components part of ADS2.0 are present at https://design-system.appsmith.com. This space will also list the available tokens and have documentation around usage guidelines. Components published here will be available for use via [Figma’s asset library](https://www.figma.com/file/sz08OJt2VrEgxQ8eToFIqG/ADS2.0---Components?node-id=3301%3A71053&t=jy9gnwPgIxtaTtY5-1), for designers.
+
+### I have a feature that needs a new component. What should I do?
+
+All designs should be composed of components from ADS. In cases, where this is not possible, the designer/engineer building the component should reach out to the ADS team to make a case for why their feature needs a new component.
+
+The DS team would evaluate if the UI could be refactored with an existing component. If not, the DS team would assess if there are other areas in the product that would benefit from a component that is being proposed.
+
+Generally, if the number of usages of a component is more than 3 distinct pages with in the UI, it is considered to be eligible to be added to ADS. If not, this component will not be worked by the DS team.
+
+### Who will own the design & development of a component that is not part of ADS?
+
+The pod designer and the engineer should develop this component. It’s code will reside in the main repo. This component should strictly follow the tokens defined in ADS 2.0, in order to ensure consistency of styles with ADS.
+
+### I have a feature that matches a component in ADS. However, it needs customisations. How should I proceed?
+
+Customisations are not encouraged to DS components. You should not override the CSS of the DS components. If there is a use-case for a customisation, reach out to the DS pod explaining your use-case. If the customisation can be implemented as a kind, the DS pod will own the design and development of this kind and make it available for consumption.
+
+### What if the slight customisation that is required to a component is only used in one place? How should I proceed?
+
+If the kind of component is not usable in more than three distinct parts of the product, this will not be implemented. You also cannot detach the component and make a custom component. We recommend if there is a possibility to refactor your design to use existing kinds of the component. Cases like this can lead to a product slowly going out of sync with the design system. Please reach out to the DS team to see how we can accommodate use-cases like this.
+
+### When will a component that is developed as a unique use-case (aka snowflake) become part of ADS?
+
+The DS team will keep track of requests for changes to the components or addition of new components. If the team sees a strong signal for a change from multiple parties over time justifying the need for a component that can be re-used in at least 3 different places within the product, they will add this to ADS. Based on the evolving needs of the product, the components in ADS will evolve.
+
+### Our pod has a component that is not part of the design system. How can I contribute to ADS?
+
+If there is a use-case for a component that is used in more than three distinct pages of the product, and you wish to help in contributing to code, please reach out to the design system pod in terms of how to proceed.
+
+[//]: # "TODO: Link contributing guide, and my slack message to Dhruvik here."
+
+### What is the source for icons? How will we handle new icons?
+
+Icons in ADS 2.0 have to be sourced from Remix. However, sufficient care needs to be taken to ensure that different icons are not being used for the same use-case (Eg: Having different icons for edit across the product.)
+
+In cases, where Remix does not support the icon that is required, custom SVGs are allowed.
+
+### Will all the design component props be strictly typed?
+
+Appsmith Design System provide strictly typed component props to ensure type safety and reduce errors in development. The types for the components should be available on autocomplete in your editor, and during development can be seen by Cmd + Clicking the component in question. The types for individual props are always available in the “Description” section of every component reference table in it’s story. For a detailed reference, all types are defined in the `ComponentName.types.ts` file for the respective component.

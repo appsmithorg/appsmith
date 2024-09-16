@@ -1,10 +1,7 @@
-import { importApplication } from "@appsmith/actions/applicationActions";
-import {
-  UPLOADING_APPLICATION,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
-import type { SetProgress } from "design-system-old";
+import { importApplication } from "ee/actions/applicationActions";
+import { UPLOADING_APPLICATION, createMessage } from "ee/constants/messages";
+import { getIsImportingApplication } from "ee/selectors/applicationSelectors";
+import type { SetProgress } from "@appsmith/ads-old";
 import { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

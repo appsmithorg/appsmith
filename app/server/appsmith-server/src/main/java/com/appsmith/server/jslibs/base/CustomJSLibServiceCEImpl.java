@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -14,8 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -41,10 +44,9 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Mono<Boolean> addJSLibsToContext(
-            @NotNull String contextId,
+            @NotNull String branchedContextId,
             CreatorContextType contextType,
             @NotNull Set<CustomJSLib> jsLibs,
-            String branchName,
             Boolean isForceInstall) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
 
@@ -52,7 +54,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .flatMap(jsLib -> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall))
                 .collect(Collectors.toSet());
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, false)
                 .zipWith(persistedJsLibsMono)
                 .map(tuple -> {
                     /*
@@ -66,18 +68,34 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return jsLibDTOsInContext;
                 })
                 .flatMap(updatedJSLibDTOSet ->
-                        contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOSet))
+                        contextBasedService.updateJsLibsInContext(branchedContextId, updatedJSLibDTOSet))
                 .map(count -> count > 0);
     }
 
     @Override
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
+        return persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall, null, false);
+    }
+
+    @Override
+    public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
+            CustomJSLib jsLib,
+            Boolean isForceInstall,
+            Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps,
+            boolean isDryOps) {
         return repository
                 .findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.
                 // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
-                .switchIfEmpty(Mono.defer(() -> repository.save(jsLib)))
+                .switchIfEmpty(Mono.defer(() -> {
+                    if (isDryOps) {
+                        jsLib.updateForBulkWriteOperation();
+                        addDryOpsForEntity(DBOpsType.SAVE, customJSLibsDryOps, jsLib);
+                        return Mono.just(jsLib);
+                    }
+                    return repository.save(jsLib);
+                }))
                 .flatMap(foundJSLib -> {
                     /*
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
@@ -86,6 +104,10 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     */
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
+                        if (isDryOps) {
+                            addDryOpsForEntity(DBOpsType.SAVE, customJSLibsDryOps, jsLib);
+                            return Mono.just(jsLib);
+                        }
                         return repository.save(jsLib);
                     }
 
@@ -96,14 +118,13 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Mono<Boolean> removeJSLibFromContext(
-            @NotNull String contextId,
+            @NotNull String branchedContextId,
             CreatorContextType contextType,
             @NotNull CustomJSLib jsLib,
-            String branchName,
             Boolean isForceRemove) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, false)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, false)
                 .map(jsLibDTOSet -> {
                     /*
                      TODO: try to convert it into a single update op where reading of list is not required
@@ -115,16 +136,16 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     return jsLibDTOSet;
                 })
                 .flatMap(updatedJSLibDTOList ->
-                        contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOList))
+                        contextBasedService.updateJsLibsInContext(branchedContextId, updatedJSLibDTOList))
                 .map(count -> count > 0);
     }
 
     @Override
     public Mono<List<CustomJSLib>> getAllJSLibsInContext(
-            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+            @NotNull String branchedContextId, CreatorContextType contextType, Boolean isViewMode) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext)
                 .collectList()
                 .map(jsLibList -> {
@@ -135,10 +156,21 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
 
     @Override
     public Flux<CustomJSLib> getAllVisibleJSLibsInContext(
-            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+            @NotNull String branchedContextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
         ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
         return contextBasedService
-                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .getAllVisibleJSLibContextDTOFromContext(branchedContextId, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext);
+    }
+
+    private void addDryOpsForEntity(
+            DBOpsType queryType, Map<DBOpsType, List<CustomJSLib>> dryRunOpsMap, CustomJSLib createdCustomJsLib) {
+        if (dryRunOpsMap.containsKey(queryType)) {
+            dryRunOpsMap.get(queryType).add(createdCustomJsLib);
+        } else {
+            List<CustomJSLib> customJsLibList = new ArrayList<>();
+            customJsLibList.add(createdCustomJsLib);
+            dryRunOpsMap.put(queryType, customJsLibList);
+        }
     }
 }

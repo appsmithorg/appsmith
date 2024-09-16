@@ -1,5 +1,5 @@
 import type { ApiActionConfig } from "entities/Action";
-import { DEFAULT_ACTION_TIMEOUT } from "@appsmith/constants/ApiConstants";
+import { DEFAULT_ACTION_TIMEOUT } from "ee/constants/ApiConstants";
 import {
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
@@ -19,8 +19,14 @@ export const GRAPHQL_HTTP_METHOD_OPTIONS = [
 
 // Graphql Pagination type
 interface GRAPHQL_PAGINATION_INDIVIDUAL_TYPE {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   name?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
 }
 

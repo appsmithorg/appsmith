@@ -65,6 +65,9 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceCreate() called for AppsmithAI plugin.";
+            System.out.println(printMessage);
             ApiKeyAuth apiKeyAuth = new ApiKeyAuth();
             apiKeyAuth.setValue("test-key");
             return ApiKeyAuthentication.create(apiKeyAuth)
@@ -78,6 +81,8 @@ public class AppsmithAiPlugin extends BasePlugin {
         @Override
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            String printMessage = Thread.currentThread().getName() + ": trigger() called for AppsmithAI plugin.";
+            System.out.println(printMessage);
             SourceDetails sourceDetails = SourceDetails.createSourceDetails(request);
             String requestType = request.getRequestType();
             if (UPLOAD_FILES.equals(requestType)) {
@@ -143,6 +148,9 @@ public class AppsmithAiPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage =
+                    Thread.currentThread().getName() + ": executeParameterized() called for AppsmithAI plugin.";
+            System.out.println(printMessage);
             // Get input from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -162,6 +170,8 @@ public class AppsmithAiPlugin extends BasePlugin {
                 List<Map.Entry<String, String>> insertedParams,
                 ExecuteActionDTO executeActionDTO) {
 
+            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for AppsmithAI plugin.";
+            System.out.println(printMessage);
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
@@ -199,11 +209,16 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration, boolean isEmbedded) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for AppsmithAI plugin.";
+            System.out.println(printMessage);
             return Set.of();
         }
 
         @Override
         public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+            String printMessage = Thread.currentThread().getName() + ": preSaveHook() called for AppsmithAI plugin.";
+            System.out.println(printMessage);
             return aiServerService
                     .associateDatasource(createAssociateDTO(datasourceStorage))
                     .thenReturn(datasourceStorage);
@@ -211,6 +226,8 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStorage> preDeleteHook(DatasourceStorage datasourceStorage) {
+            String printMessage = Thread.currentThread().getName() + ": preDeleteHook() called for AppsmithAI plugin.";
+            System.out.println(printMessage);
             DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
             if (hasFiles(datasourceConfiguration)) {
                 return aiServerService

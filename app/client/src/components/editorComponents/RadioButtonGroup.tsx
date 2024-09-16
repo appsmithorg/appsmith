@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 
 interface RadioButtonGroupProps {
@@ -112,6 +112,8 @@ const RadioButtonGroup = ({
     }
   }, [value]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onClickHandler = (event: any) => {
     if (!!event.target && event.target instanceof HTMLElement) {
       const clickedButton: HTMLElement | null = event.target.closest(

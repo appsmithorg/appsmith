@@ -9,6 +9,8 @@ import type { MenuButtonWidgetProps } from "widgets/wds/WDSMenuButtonWidget/widg
 export function sourceDataArrayValidation(
   options: unknown,
   props: MenuButtonWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   const invalidResponse = {

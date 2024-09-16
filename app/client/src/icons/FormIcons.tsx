@@ -4,7 +4,7 @@ import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
-import { importRemixIcon, importSvg } from "design-system-old";
+import { importRemixIcon, importSvg } from "@appsmith/ads-old";
 
 const InfoIcon = importSvg(
   async () => import("assets/icons/form/info-outline.svg"),

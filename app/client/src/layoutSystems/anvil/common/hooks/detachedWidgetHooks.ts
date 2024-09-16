@@ -7,7 +7,7 @@ import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
-import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 /**
  * This hook is used to select and focus on a detached widget
@@ -26,6 +26,8 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
   useEffect(() => {
     // The select handler sends a custom event that is handled at a singular place in the AnvilEditorCanvas
     // The event listener is actually attached to the body and not the AnvilEditorCanvas. This can be changed in the future if necessary.
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleWidgetSelect = (e: any) => {
       // EventPhase 2 is the Target phase.
       // This signifies that the event has reached the target element.
@@ -49,6 +51,8 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
 
     // The handler for focusing on a detached widget
     // It makes sure to check if the app mode is preview or not
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleWidgetFocus = (e: any) => {
       // In case of a detached widget like (modal widget) fully capture the focus event.
       e.stopImmediatePropagation();

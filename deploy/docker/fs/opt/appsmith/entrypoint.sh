@@ -437,10 +437,19 @@ init_postgres() {
 
 }
 
-safe_init_postgres(){
-runEmbeddedPostgres=1
-# fail safe to prevent entrypoint from exiting, and prevent postgres from starting
-init_postgres || runEmbeddedPostgres=0
+safe_init_postgres() {
+  runEmbeddedPostgres=1
+  # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
+  # when runEmbeddedPostgres=0 , postgres conf file for supervisord will not be copied
+  # so postgres will not be started by supervisor. Explicit message helps us to know upgrade script failed.
+
+  if init_postgres; then
+    tlog "init_postgres succeeded."
+  else
+    local exit_status=$?
+    tlog "init_postgres failed with exit status $exit_status."
+    runEmbeddedPostgres=0
+  fi
 }
 
 setup_caddy() {
@@ -465,6 +474,14 @@ function setup_auto_heal(){
      # By default APPSMITH_AUTO_HEAL=0
      # To enable auto heal set APPSMITH_AUTO_HEAL=1
      bash /opt/appsmith/auto_heal.sh $APPSMITH_AUTO_HEAL_CURL_TIMEOUT >> "$APPSMITH_LOG_DIR"/cron/auto_heal.log 2>&1 &
+   fi
+}
+
+function setup_monitoring(){
+   if [[ ${APPSMITH_MONITORING-} = 1 ]]; then
+     # By default APPSMITH_MONITORING=0
+     # To enable auto heal set APPSMITH_MONITORING=1
+     bash /opt/appsmith/JFR-recording-24-hours.sh $APPSMITH_LOG_DIR 2>&1 &
    fi
 }
 
@@ -521,6 +538,7 @@ mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,p
 
 setup_auto_heal
 capture_infra_details
+setup_monitoring || echo true
 
 # Handle CMD command
 exec "$@"

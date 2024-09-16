@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import CreateNewAppFromTemplatesModal from ".";
-import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
+import { getIsReconnectingDatasourcesModalOpen } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 
 interface Props {

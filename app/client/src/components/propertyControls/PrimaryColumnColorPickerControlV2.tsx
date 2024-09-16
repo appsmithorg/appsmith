@@ -45,6 +45,8 @@ class PrimaryColumnsColorPickerControlV2 extends BaseControl<PrimaryColumnColorP
     return "PRIMARY_COLUMNS_COLOR_PICKER_V2";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return !isDynamicValue(value);
   }

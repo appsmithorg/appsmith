@@ -105,6 +105,8 @@ export const isEmbeddedAIDataSource = (datasource: StoredDatasource) => {
 };
 
 export const isEmbeddedRestDatasource = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   val: any,
 ): val is EmbeddedRestDatasource => {
   if (!_.isObject(val)) return false;

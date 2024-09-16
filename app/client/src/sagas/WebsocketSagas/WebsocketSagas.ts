@@ -3,10 +3,7 @@ import { io } from "socket.io-client";
 import type { EventChannel, Task } from "redux-saga";
 import { eventChannel } from "redux-saga";
 import { fork, take, call, cancel, put } from "redux-saga/effects";
-import {
-  ReduxActionTypes,
-  ReduxSagaChannels,
-} from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   WEBSOCKET_EVENTS,
   RTS_BASE_PATH,
@@ -47,6 +44,8 @@ async function connect(namespace?: string) {
 
 function listenToSocket(socket: Socket) {
   return eventChannel((emit) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     socket.onAny((event: any, ...args: any) => {
       emit({
         type: event,
@@ -65,6 +64,8 @@ function listenToSocket(socket: Socket) {
   });
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* readFromAppSocket(socket: any) {
   const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
@@ -83,10 +84,12 @@ function* readFromAppSocket(socket: any) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* writeToAppSocket(socket: any) {
   while (true) {
     const { payload } = yield take(
-      ReduxSagaChannels.WEBSOCKET_APP_LEVEL_WRITE_CHANNEL,
+      ReduxActionTypes.WEBSOCKET_APP_LEVEL_WRITE_CHANNEL,
     );
     // reconnect to reset connection at the server
     try {
@@ -102,6 +105,8 @@ function* writeToAppSocket(socket: any) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* handleAppSocketIO(socket: any) {
   yield fork(readFromAppSocket, socket);
   yield fork(writeToAppSocket, socket);
@@ -130,6 +135,8 @@ function* openAppLevelSocketConnection() {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* readFromPageSocket(socket: any) {
   const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
@@ -148,10 +155,12 @@ function* readFromPageSocket(socket: any) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* writeToPageSocket(socket: any) {
   while (true) {
     const { payload } = yield take(
-      ReduxSagaChannels.WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL,
+      ReduxActionTypes.WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL,
     );
     // reconnect to reset connection at the server
     try {
@@ -167,6 +176,8 @@ function* writeToPageSocket(socket: any) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* handlePageSocketIO(socket: any) {
   yield fork(readFromPageSocket, socket);
   yield fork(writeToPageSocket, socket);

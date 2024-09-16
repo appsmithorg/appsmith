@@ -396,9 +396,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ],
           "formData": {
@@ -548,9 +546,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ],
           "formData": {
@@ -705,9 +701,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ],
           "formData": {
@@ -792,9 +786,7 @@
         "isValid": true,
         "invalids": [],
         "messages": [],
-        "jsonPathKeys": [
-          "(data_table.pageNo - 1) * data_table.pageSize"
-        ],
+        "jsonPathKeys": ["(data_table.pageNo - 1) * data_table.pageSize"],
         "confirmBeforeExecute": false,
         "userPermissions": [],
         "validName": "SelectQuery",
@@ -874,9 +866,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ],
           "formData": {
@@ -961,9 +951,7 @@
         "isValid": true,
         "invalids": [],
         "messages": [],
-        "jsonPathKeys": [
-          "(data_table.pageNo - 1) * data_table.pageSize"
-        ],
+        "jsonPathKeys": ["(data_table.pageNo - 1) * data_table.pageSize"],
         "confirmBeforeExecute": false,
         "userPermissions": [],
         "validName": "SelectQuery",
@@ -1049,9 +1037,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ],
           "formData": {
@@ -1205,9 +1191,7 @@
             },
             {
               "key": "where",
-              "value": [
-                {}
-              ]
+              "value": [{}]
             }
           ],
           "formData": {

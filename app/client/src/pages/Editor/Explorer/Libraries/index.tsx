@@ -12,18 +12,15 @@ import {
   Spinner,
   toast,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
   selectIsInstallerOpen,
   selectLibrariesForExplorer,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
 import useClipboard from "utils/hooks/useClipboard";
@@ -40,11 +37,11 @@ import {
 } from "selectors/editorSelectors";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { Installer } from "./Installer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 const docsURLMap = recommendedLibraries.reduce(
   (acc, lib) => {

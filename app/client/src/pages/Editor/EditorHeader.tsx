@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsPageSaving,
   getIsPublishingApplication,
   getPageSavingError,
@@ -12,21 +12,21 @@ import {
 import {
   getCurrentWorkspaceId,
   getCurrentAppWorkspace,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/selectors/selectedWorkspaceSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
 import {
   publishApplication,
   updateApplication,
-} from "@appsmith/actions/applicationActions";
+} from "ee/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
   getIsErroredSavingAppName,
   getCurrentApplication,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import EditorName from "./EditorName";
-import { EditInteractionKind, SavingState } from "design-system-old";
+import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
 import {
   Button,
   Tooltip,
@@ -38,14 +38,14 @@ import {
   TabsList,
   Tab,
   TabPanel,
-} from "design-system";
+} from "@appsmith/ads";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { fetchUsersForWorkspace } from "ee/actions/workspaceActions";
 import { useNavigationMenuData } from "./EditorName/useNavigationMenuData";
 
 import {
@@ -61,16 +61,16 @@ import {
   RENAME_APPLICATION_TOOLTIP,
   COMMUNITY_TEMPLATES,
   APPLICATION_INVITE,
-} from "@appsmith/constants/messages";
-import { viewerURL } from "@appsmith/RouteBuilder";
+} from "ee/constants/messages";
+import { viewerURL } from "ee/RouteBuilder";
 import { useHref } from "./utils";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import type { NavigationSetting } from "constants/AppConstants";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getEmbedSnippetForm } from "ee/utils/BusinessFeatures/privateEmbedHelpers";
 import { HeaderSection, HeaderWrapper } from "./commons/EditorHeaderComponents";
 import { Omnibar } from "./commons/Omnibar";
 import { EditorShareButton } from "./EditorShareButton";
@@ -93,13 +93,13 @@ export function EditorHeader() {
   const applicationId = useSelector(getCurrentApplicationId);
   const currentApplication = useSelector(getCurrentApplication);
   const isPublishing = useSelector(getIsPublishingApplication);
-  const pageId = useSelector(getCurrentPageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId) as string;
   const featureFlags = useSelector(selectFeatureFlags);
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
   const isProtectedMode = useSelector(protectedModeSelector);
 
-  const deployLink = useHref(viewerURL, { pageId });
+  const deployLink = useHref(viewerURL, { basePageId });
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);

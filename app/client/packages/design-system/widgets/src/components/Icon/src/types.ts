@@ -1,24 +1,28 @@
-import type { ComponentType } from "react";
-import type { IconProps as HeadlessIconProps } from "@design-system/headless";
-
+import type { AriaLabelingProps, DOMProps } from "@react-types/shared";
 import type { ICONS } from "./icons";
-import type { SIZES } from "../../../shared";
+import type { COLORS, SIZES } from "../../../shared";
 
-export type IconProps = Omit<HeadlessIconProps, "children"> & {
+export interface IconProps extends DOMProps, AriaLabelingProps {
   /** Size of the icon
    * @default medium
    *
    * Note: we need large size for the icon only
    */
   size?: keyof typeof SIZES;
-  /** custom icon component
-   * Note: if custom icon is provided, name prop will be ignored
+  /** Color of the Icon
+   * @default inherit
    */
-  icon?: ComponentType;
+  color?: keyof typeof COLORS;
   /** Name of the icon*/
-  name?: keyof typeof ICONS;
-  /** storke width */
+  name: keyof typeof ICONS;
+  /** Storke width */
   stroke?: number;
-  /** filled variant */
-  filled?: boolean;
-};
+  /** Defines a string value that labels the current element. */
+  "aria-label"?: string;
+  /** Defines the role of an element.  */
+  role?: string;
+  /** Sets the CSS className  for the content popover. Only use as a **last resort**. */
+  className?: string;
+  /** The aria-hidden state indicates whether the element is exposed to an accessibility API. */
+  "aria-hidden"?: boolean | "false" | "true";
+}

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Option, Select, Text, Icon } from "design-system";
+import { Option, Select, Text, Icon } from "@appsmith/ads";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { isNil } from "lodash";
@@ -226,6 +226,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isOptionSelected = (selectedOption: any) => {
     return selectedOption.value === this.props.propertyValue;
   };
@@ -236,6 +238,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
   static canDisplayValueInUI(
     config: DropDownControlProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     const options =
@@ -263,6 +267,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 export interface DropDownControlProps extends ControlProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
   defaultValue?: string;
   virtual?: boolean;

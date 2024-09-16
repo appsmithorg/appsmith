@@ -1,0 +1,55 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as TabStories from "./Tab.stories";
+
+<Meta of={TabStories} />
+
+# Tab
+
+Tabs are a highly useful feature that can help users quickly navigate through a website or application. By grouping related information together, tabs allow users to easily find the information they need without having to search for it. Tabs can help to make a website or application feel more organized and intuitive to use, which can lead to increased user satisfaction.
+
+## Anatomy
+
+1. **Selected:** The active tab.
+2. **Unselected:** The other available tabs.
+3. **Divider:** Separates the tab navigation and content.
+4. **Badge**: Use to inform a piece of information about the tabs.
+
+![Tab anatomy](./docs/tab-anatomy.png)
+
+## Spacing
+
+![Tab spacing](./docs/tab-spacing.png)
+
+## Usage
+
+- Avoid using more than five tabs in a tab list or segment control. Instead, consider using a [select component](https://www.notion.so/Select-347c0988903d4addb5224f2a1bb36c8e?pvs=21).
+- Keep in mind that the number of tabs listed in the properties is the maximum limit and should not be exceeded.
+- Avoid removing or detaching tabs to accommodate this limit.
+- For navigation purposes, avoid using multiple tabs in the same container and instead use segmented controls for secondary-level navigation.
+
+# **Tabs**
+
+A tab group segregates information. It will need to have at least two tabs. The labels need to be nouns or verbs. Not both. Tabs in ADS2.0 do not have icons next to the tab labels.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/0fc14372-e43e-46a7-b07e-9bf63cef1bdb/Untitled.png)
+
+Tabs span the width of the container. The tab separator spans the width of the container it is placed in. It does not stop with just the content of the tabs.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/2033b3f7-f7ae-456b-8d6a-de6cf617d0b9/Untitled.png)
+
+✅ Tab labels are nouns.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/564dc7c6-83f3-41bb-b075-d2ca8d3fe19a/Untitled.png)
+
+✅ Tab labels are verbs.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/4e4bead4-7587-4406-b549-fa8994ad1bd6/Untitled.png)
+
+❌ Noun and a verb. ‘Create new’ should be a button that triggers an action.
+
+### Content guidelines
+
+Make sure each tab has a clear and concise label that describes its content. Also, categorize each tab's content independently and make sure it does not overlap with the content of other tabs.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6130e245-6201-4e34-b9b3-1ca8f3ef103a/Untitled.png)

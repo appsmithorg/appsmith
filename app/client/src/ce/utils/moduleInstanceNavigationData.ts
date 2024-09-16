@@ -1,4 +1,4 @@
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 
 export const getModuleInstanceNavigationData = (

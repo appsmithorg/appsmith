@@ -13,7 +13,7 @@ export const generateDragStateForFixedLayout = (
     rightColumn,
     topRow,
     widgetId,
-  }: BaseWidgetProps,
+  }: Omit<BaseWidgetProps, "widgetName" | "type" | "isLoading" | "version">,
 ): SetDraggingStateActionPayload => {
   const widgetHeight = bottomRow - topRow;
   const widgetWidth = rightColumn - leftColumn;

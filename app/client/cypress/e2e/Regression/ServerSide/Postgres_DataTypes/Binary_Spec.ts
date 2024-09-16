@@ -8,7 +8,6 @@ import {
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
@@ -76,38 +75,7 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
   });
 
-  //Timing out a lot in CI, hence skipped, Insert verified also in next case
-  // it.skip("3. Inserting record - binarytype", () => {
-  //   imageNameToUpload = "Datatypes/Bridge.jpg";
-  //   // entityExplorer.SelectEntityByName("Page1");
-  //   // deployMode.DeployApp();
-  //   // table.WaitForTableEmpty(); //asserting table is empty before inserting!
-  //   agHelper.ClickButton("Run InsertQuery");
-  //   agHelper.AssertElementVisibility(locators._modal);
-
-  //   agHelper.ClickButton("Select New Image");
-  //   agHelper.UploadFile(imageNameToUpload);
-
-  //   agHelper.ClickButton("Insert");
-  //   agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
-  //   agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-  //   agHelper.AssertElementAbsence(locators._btnSpinner, 10000); //for the update row to appear at last
-  //   table.WaitUntilTableLoad();
-  //   agHelper.Sleep(3000); //some more time for all rows with images to be populated
-  //   table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-  //     expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
-  //   });
-  //   table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
-  //     expect($cellData).to.eq("Bridge.jpg");
-  //   });
-  //   table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
-  //     table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
-  //       expect($oldimage).to.eq($newimage);
-  //     });
-  //   });
-  // });
-
-  it("4. Inserting another record - binarytype", () => {
+  it("3. Inserting another record - binarytype", () => {
     imageNameToUpload = "Datatypes/Georgia.jpeg";
 
     agHelper.ClickButton("Run InsertQuery");
@@ -121,21 +89,21 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //some more time for all rows with images to be populated
-    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-      expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
+    const rowIndex = 0;
+    table.ReadTableRowColumnData(rowIndex, 0).then(($cellData) => {
+      expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(rowIndex, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Georgia.jpeg");
     });
-    table.AssertTableRowImageColumnIsLoaded(1, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(1, 3).then(($newimage) => {
+    table.AssertTableRowImageColumnIsLoaded(rowIndex, 2).then(($oldimage) => {
+      table.AssertTableRowImageColumnIsLoaded(rowIndex, 3).then(($newimage) => {
         expect($oldimage).to.eq($newimage);
       });
     });
   });
 
-  it("5. Inserting another record - binarytype", () => {
+  it("4. Inserting another record - binarytype", () => {
     imageNameToUpload = "Datatypes/Maine.jpeg";
 
     agHelper.ClickButton("Run InsertQuery");
@@ -149,21 +117,21 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //some more time for all rows with images to be populated
-    table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-      expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
+    const rowIndex = 1;
+    table.ReadTableRowColumnData(rowIndex, 0).then(($cellData) => {
+      expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(rowIndex, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Maine.jpeg");
     });
-    table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(2, 3).then(($newimage) => {
+    table.AssertTableRowImageColumnIsLoaded(rowIndex, 2).then(($oldimage) => {
+      table.AssertTableRowImageColumnIsLoaded(rowIndex, 3).then(($newimage) => {
         expect($oldimage).to.eq($newimage);
       });
     });
   });
 
-  it("6. Updating record - binarytype", () => {
+  it("5. Updating record - binarytype", () => {
     imageNameToUpload = "Datatypes/NewJersey.jpeg";
 
     table.SelectTableRow(1);
@@ -178,45 +146,38 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementVisibility(locators._buttonByText("Run UpdateQuery"));
     agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(14000); //some more time for rows to rearrange!
-    table.ReadTableRowColumnData(2, 0, "v1", 2000).then(($cellData) => {
+    const rowIndex = 1;
+    table.ReadTableRowColumnData(rowIndex, 0, "v1", 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($cellData) => {
+    table.ReadTableRowColumnData(rowIndex, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("NewJersey.jpeg");
     });
-    table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(2, 3).then(($newimage) => {
+    table.AssertTableRowImageColumnIsLoaded(rowIndex, 2).then(($oldimage) => {
+      table.AssertTableRowImageColumnIsLoaded(rowIndex, 3).then(($newimage) => {
         expect($oldimage).to.not.eq($newimage);
       });
     });
   });
 
-  it("7. Deleting records - binarytype", () => {
-    //entityExplorer.SelectEntityByName("Page1");//commenting 2 lines since case 6th is skipped!
-    //deployMode.DeployApp();
+  it("6. Deleting records - binarytype", () => {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
     assertHelper.AssertNetworkStatus("@postExecute", 200);
-    agHelper.AssertElementAbsence(locators._btnSpinner, 20000); //Allowing time for delete to be success
-    agHelper.Sleep(6000); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-      expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
-    });
-    table.ReadTableRowColumnData(1, 0, "v1", 200).then(($cellData) => {
-      expect($cellData).to.eq("2");
+    agHelper.WaitUntilEleDisappear(locators._btnSpinner); //Allowing time for delete to be success
+    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
+      expect($cellData).to.eq("1");
     });
 
     //Deleting all records from .table
     agHelper.GetNClick(locators._deleteIcon);
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
-    agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("8. Inserting another record (to check serial column) - binarytype", () => {
+  it("7. Inserting another record (to check serial column) - binarytype", () => {
     imageNameToUpload = "Datatypes/Massachusetts.jpeg";
 
     agHelper.ClickButton("Run InsertQuery");
@@ -230,9 +191,8 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.AssertElementAbsence(locators._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(0, 0, "v1", 2000).then(($cellData) => {
-      expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
+      expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(0, 1, "v1", 200).then(($cellData) => {
       expect($cellData).to.eq("Massachusetts.jpeg");
@@ -244,7 +204,7 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     });
   });
 
-  it("9. Validating Binary (bytea) - escape, hex, base64 functions", () => {
+  it("8. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
@@ -291,7 +251,7 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     });
   });
 
-  it("10. Validating Binary (bytea) - escape, hex, base64 functions, conts", () => {
+  it("9. Validating Binary (bytea) - escape, hex, base64 functions, conts", () => {
     //Validating backslash
     query = `select encode('\\\\'::bytea, 'escape') as "backslash Escape1", encode('\\134'::bytea, 'escape') as "backslash Escape2", encode('\\\\'::bytea, 'hex') as "backslash Hex1", encode('\\134'::bytea, 'hex') as "backslash Hex2", encode('\\\\'::bytea, 'base64') as "backslash Base64";`;
     dataSources.EnterQuery(query);
@@ -375,8 +335,6 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
     });
     AppSidebar.navigate(AppSidebarButton.Editor);
   });
-
-  //Since query delete & Postgress DS delete is covered in other specs, commenting below code
   // after(
   //   "Validate Drop of the Newly Created - binarytype - Table & Verify Deletion of all created queries",
   //   () => {

@@ -1,14 +1,16 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
 import {
   SettingTypes,
   SettingSubtype,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 import Accordion from "./Accordion";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { reduxForm } from "redux-form";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const setting: Setting = {
   id: "SETTING_TOGGLE_ID",
@@ -41,6 +43,8 @@ function renderComponent() {
       />
     );
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};

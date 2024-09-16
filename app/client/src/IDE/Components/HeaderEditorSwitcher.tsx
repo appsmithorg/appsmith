@@ -1,4 +1,4 @@
-import { Flex, Icon, Text } from "design-system";
+import { Flex, Icon, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 
@@ -23,6 +23,8 @@ const SwitchTrigger = styled.div<{ active: boolean }>`
 `;
 
 const HeaderEditorSwitcher = React.forwardRef(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: HeaderEditorSwitcherProps, ref: any) => {
     const { active, className, prefix, title, titleTestId, ...rest } = props;
 

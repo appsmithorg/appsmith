@@ -64,6 +64,7 @@ import java.util.UUID;
 import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_DATASOURCES_WITH_STORAGES;
 import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_PLUGINS_IN_WORKSPACE;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.dtos.DBOpsType.SAVE;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
@@ -147,7 +148,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     // TODO: Check usage
     @Override
     public Mono<Datasource> createWithoutPermissions(
-            Datasource datasource, Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
+            Datasource datasource, Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
         return createEx(datasource, null, true, datasourceStorageDryRunQueries);
     }
 
@@ -160,7 +161,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             @NotNull Datasource datasource,
             AclPermission permission,
             boolean isDryOps,
-            Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
+            Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
         // Validate incoming request
         String workspaceId = datasource.getWorkspaceId();
         if (!hasText(workspaceId)) {
@@ -232,9 +233,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .create(datasourceStorage, isDryOps)
                             .map(datasourceStorage1 -> {
                                 if (datasourceStorageDryRunQueries != null && isDryOps) {
-                                    datasourceStorageDryRunQueries
-                                            .computeIfAbsent(DBOpsType.SAVE.name(), k -> new ArrayList<>())
-                                            .add(datasourceStorage1);
+                                    List<DatasourceStorage> datasourceStorages =
+                                            datasourceStorageDryRunQueries.get(SAVE);
+                                    if (datasourceStorages == null) {
+                                        datasourceStorages = new ArrayList<>();
+                                    }
+                                    datasourceStorages.add(datasourceStorage1);
+                                    datasourceStorageDryRunQueries.put(SAVE, datasourceStorages);
                                 }
                                 return datasourceStorage1;
                             });
@@ -539,7 +544,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                         .map(dbDatasourceStorage -> {
                                             copyNestedNonNullProperties(datasourceStorage, dbDatasourceStorage);
                                             return dbDatasourceStorage;
-                                        });
+                                        })
+                                        .switchIfEmpty(Mono.just(datasourceStorage));
                             })
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
                 }
@@ -841,7 +847,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(objects -> {
                     final Long actionsCount = objects.getT2();
                     if (actionsCount > 0) {
-                        return Mono.error(new AppsmithException(AppsmithError.DATASOURCE_HAS_ACTIONS, actionsCount));
+                        String queryWord = actionsCount == 1 ? "query" : "queries";
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.DATASOURCE_HAS_ACTIONS, actionsCount, queryWord));
                     }
                     return Mono.just(objects.getT1());
                 })

@@ -1,26 +1,32 @@
 import type {
   BufferedReduxAction,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { JS_ACTIONS } from "@appsmith/actions/evaluationActionsList";
+} from "ee/constants/ReduxActionConstants";
+import { JS_ACTIONS } from "ee/actions/evaluationActionsList";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import type { JSCollection } from "entities/JSCollection";
 
 export function getAffectedJSObjectIdsFromJSAction(
   action: ReduxAction<unknown> | BufferedReduxAction<unknown>,
 ): AffectedJSObjects {
+  if (action.type === ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION) {
+    return {
+      ids: [],
+      isAllAffected: true,
+    };
+  }
+
   if (!JS_ACTIONS.includes(action.type)) {
     return {
       ids: [],
       isAllAffected: false,
     };
   }
-  // only JS actions here
-  action as ReduxAction<unknown>;
+
   // When fetching JSActions fails, we need to diff all JSObjects because the reducer updates it
   // to empty collection
   if (

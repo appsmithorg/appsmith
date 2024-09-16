@@ -2,8 +2,8 @@ import {
   createMessage,
   FETCHING_TEMPLATES,
   FORKING_TEMPLATE,
-} from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,

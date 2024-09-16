@@ -1,4 +1,4 @@
-import { CLICK_ON, createMessage } from "@appsmith/constants/messages";
+import { CLICK_ON, createMessage } from "ee/constants/messages";
 import React from "react";
 import styled from "styled-components";
 import { DebugButton } from "./DebugCTA";

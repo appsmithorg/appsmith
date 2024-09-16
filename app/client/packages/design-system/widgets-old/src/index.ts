@@ -36,8 +36,6 @@ export * from "./Text";
 export { default as TooltipComponent } from "./Tooltip";
 export * from "./Tooltip";
 
-export * from "./Toast";
-
 export * from "./constants/classes";
 export * from "./constants/typography";
 export * from "./constants/variants";

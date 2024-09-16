@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Switch } from "design-system";
+import { Switch } from "@appsmith/ads";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
@@ -23,6 +23,8 @@ const SwitchWrapped = styled.div`
   max-width: 60vw;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class SwitchField extends React.Component<SwitchFieldProps, any> {
   get value() {
     const { input } = this.props;

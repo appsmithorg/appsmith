@@ -1,5 +1,5 @@
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import { DataTreeDiffEvent } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import { DataTreeDiffEvent } from "ee/workers/Evaluation/evaluationUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
@@ -52,6 +52,8 @@ const configTree: ConfigTree = {
       widgetName: "Text1",
       text: "Label",
       type: "TEXT_WIDGET",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
     {},
     new Set(),
@@ -64,6 +66,8 @@ const configTree: ConfigTree = {
       text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
       type: "TEXT_WIDGET",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
     {},
     new Set(),
@@ -78,6 +82,8 @@ const unEvalTree = {
       widgetName: "Text1",
       text: "Label",
       type: "TEXT_WIDGET",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
     {},
     new Set(),
@@ -90,6 +96,8 @@ const unEvalTree = {
       text: "{{Text1.text}}",
       dynamicBindingPathList: [{ key: "text" }],
       type: "TEXT_WIDGET",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any,
     {},
     new Set(),
@@ -97,6 +105,8 @@ const unEvalTree = {
 };
 
 describe("evaluateAndPushResponse", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let pushResponseToMainThreadMock: any;
   beforeAll(() => {
     pushResponseToMainThreadMock = jest
@@ -132,6 +142,8 @@ describe("getAffectedNodesInTheDataTree", () => {
             propertyPath: "Text2.text",
             value: "",
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       ],
       ["Text1.text"],
@@ -163,6 +175,8 @@ describe("evaluateAndGenerateResponse", () => {
   ) => {
     const updates = JSON.parse(webworkerResponse.workerResponse.updates);
     //scrub out all __evaluation__ patches
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return updates.filter((p: any) => !p.rhs.__evaluation__);
   };
   beforeEach(() => {
@@ -190,7 +204,6 @@ describe("evaluateAndGenerateResponse", () => {
 
     expect(parsedUpdates).toEqual([]);
     expect(webworkerResponse).toEqual({
-      unevalTree: {},
       workerResponse: {
         dependencies: {},
         errors: [],
@@ -224,31 +237,11 @@ describe("evaluateAndGenerateResponse", () => {
 
     expect(parsedUpdates).toEqual([]);
   });
-  test("should send the new unevalTree in the web worker response", () => {
-    const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
-      if (draft.Text1?.text) {
-        draft.Text1.text = UPDATED_LABEL;
-      }
-    });
-    expect(evaluator.getOldUnevalTree()).toEqual(unEvalTree);
-    const updateTreeResponse = evaluator.setupUpdateTree(
-      updatedLabelUnevalTree,
-      configTree,
-    );
-    // the new unevalTree gets set in setupUpdateTree
-    expect(evaluator.getOldUnevalTree()).toEqual(updatedLabelUnevalTree);
-
-    const { unevalTree } = evalTreeWithChanges.evaluateAndGenerateResponse(
-      evaluator,
-      updateTreeResponse,
-      [],
-      [],
-    );
-    expect(unevalTree).toEqual(updatedLabelUnevalTree);
-  });
 
   describe("updates", () => {
     test("should generate updates based on the unEvalUpdates", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         draft.Text1.text = UPDATED_LABEL;
         draft.Text1.label = UPDATED_LABEL;
@@ -267,6 +260,8 @@ describe("evaluateAndGenerateResponse", () => {
             value: "",
           },
         },
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any;
       // the eval tree should have the uneval update but the diff should not be generated because the unEvalUpdates has been altered
       expect(evaluator.evalTree).toHaveProperty("Text1.text", UPDATED_LABEL);
@@ -291,6 +286,8 @@ describe("evaluateAndGenerateResponse", () => {
       );
     });
     test("should generate updates based on the evalOrder", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         draft.Text1.text = UPDATED_LABEL;
       });
@@ -324,6 +321,8 @@ describe("evaluateAndGenerateResponse", () => {
       );
     });
     test("should generate the correct updates to be sent to the main thread's state when the value tied to a binding changes ", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
@@ -361,6 +360,8 @@ describe("evaluateAndGenerateResponse", () => {
       expect(evaluator.evalTree).toHaveProperty("Text2.text", UPDATED_LABEL);
     });
     test("should merge additional updates to the dataTree as well as push the updates back to the main thread's state when unEvalUpdates is ignored", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
@@ -397,6 +398,8 @@ describe("evaluateAndGenerateResponse", () => {
 
   describe("evalMetaUpdates", () => {
     test("should add metaUpdates in the webworker's response", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
@@ -425,6 +428,8 @@ describe("evaluateAndGenerateResponse", () => {
       expect(workerResponse.evalMetaUpdates).toEqual(metaUpdates);
     });
     test("should sanitise metaUpdates in the webworker's response and strip out non serialisable properties", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
@@ -462,6 +467,8 @@ describe("evaluateAndGenerateResponse", () => {
 
   describe("unEvalUpdates", () => {
     test("should add unEvalUpdates to the web worker response", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;
@@ -497,6 +504,8 @@ describe("evaluateAndGenerateResponse", () => {
       );
     });
     test("should ignore generating updates when unEvalUpdates is empty", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
         if (draft.Text1?.text) {
           draft.Text1.text = UPDATED_LABEL;

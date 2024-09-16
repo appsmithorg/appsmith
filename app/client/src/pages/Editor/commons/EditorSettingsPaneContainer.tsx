@@ -1,4 +1,3 @@
-import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import React from "react";
 import styled from "styled-components";
 import PaneHeader from "../IDE/LeftPane/PaneHeader";
@@ -10,10 +9,13 @@ type EditorSettingsPaneContainerProps = React.PropsWithChildren<{
 const SettingsPageWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: ${APP_SETTINGS_PANE_WIDTH}px;
+  width: 100%;
+
   &:nth-child(2) {
     height: 100%;
   }
+
+  border-right: 1px solid var(--ads-v2-color-border);
 `;
 
 const EditorSettingsPaneContainer = ({

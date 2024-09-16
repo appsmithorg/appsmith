@@ -1,0 +1,3069 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "jjj2374hc0",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "3xw9fgt5c4",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "07dhan9aca",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "youo7ffpyy",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "gufcnkwr8e",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "elzayk8etb",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "aag56c7c49",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "40rb1l0t2y",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "dgumvjdud8",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "dynamicTriggerPathList": [],
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "a5abkgb8fi",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy2",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "vok1cc3v2i",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy1",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "9y0qfv5fs5",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy4",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "uxwarxkrl1",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "yjac0otvf2",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy10Copy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "jqzqcmh3sq",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy9",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "5t83uokwct",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy10CopyCopy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "vvdoac7b9z",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy10CopyCopyCopy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "51a4yj1tjo",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "wuc1m4ltf7",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "end"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8CopyCopy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "123",
+                "widgetId": "ff54pxvjjr",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "end"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy1",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "accent",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "ma1t5aotg4",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy1Copy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "positive",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "bg29nj0b2b",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy1Copy1",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "negative",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "6e6uzp8x4x",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy1Copy2",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "warning",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "y8bckkeio1",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy2",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "accent",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "3ysj8r8cym",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy2Copy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "neutral",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "v6hirt5p53",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy2Copy1",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "negative",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "42yml3xivg",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy2Copy2",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "warning",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "2s5fc0o7t0",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy3",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "gprvpt0kcv",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy10",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "5uv78gxjkf",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget1Copy8Copy4",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "tndb3l3uso",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": false,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ms8gbtfcke",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "ms8gbtfcke",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "3xw9fgt5c4",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "tmqkornps5",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "yjac0otvf2",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "5uv78gxjkf",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "jqzqcmh3sq",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "vvdoac7b9z",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "ajzk1saxje",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "5t83uokwct",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "51a4yj1tjo",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "gprvpt0kcv",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "tndb3l3uso",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "cb23yx295v",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "wuc1m4ltf7",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "ff54pxvjjr",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "jnzdtl7sl1",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ma1t5aotg4",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "bg29nj0b2b",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "6e6uzp8x4x",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "y8bckkeio1",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "82b10f1qmt",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "3ysj8r8cym",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "v6hirt5p53",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "42yml3xivg",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "2s5fc0o7t0",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "q9k6dau0pk",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "a5abkgb8fi",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "njygkcaqt5",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "vok1cc3v2i",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "9y0qfv5fs5",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "uxwarxkrl1",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "06p0v4k3bi",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "n99fzhhr4o",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "3xw9fgt5c4",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "ms8gbtfcke",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "mqsjoguqt4",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "ms8gbtfcke": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "dynamicTriggerPathList": [],
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "2yjxfiyq66",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "9qp7n2qzuz",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "9qp7n2qzuz",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "youo7ffpyy",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "9g3g058t7y",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "2yjxfiyq66",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "016qep256y",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "dynamicTriggerPathList": [],
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "k2v8ysclqw",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "fxtwqsiy4g",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "fxtwqsiy4g",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "youo7ffpyy",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "yuf26yg7wc",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "k2v8ysclqw",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "cxbpa9zlky",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "n99fzhhr4o",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "youo7ffpyy",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "9qp7n2qzuz",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "fxtwqsiy4g",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "abqwcbs4tf",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "9qp7n2qzuz": 6,
+          "fxtwqsiy4g": 6
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy1",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy1",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "ysn4ksmrzn",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "wbv9ma0eht",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "wbv9ma0eht",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "elzayk8etb",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "fqew5hra0h",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ysn4ksmrzn",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "lrbwfye4x8",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy2",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy2",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "rcg7j2h5cd",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "whwld6tf2e",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "whwld6tf2e",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "elzayk8etb",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "uemhxtslgt",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "rcg7j2h5cd",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "201dsb61qz",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy3",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy3",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "tzzhriq0vh",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "ev1r7t1gj2",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "ev1r7t1gj2",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "elzayk8etb",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "3g5wj0dcqx",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "tzzhriq0vh",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "6k71x7kcb2",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "n99fzhhr4o",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "elzayk8etb",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "wbv9ma0eht",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "whwld6tf2e",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "ev1r7t1gj2",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "u24ren24oy",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "wbv9ma0eht": 4,
+          "whwld6tf2e": 4,
+          "ev1r7t1gj2": 4
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section4",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy4",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy4",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "pha85ubdoo",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "sj7k3qu8db",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "sj7k3qu8db",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "40rb1l0t2y",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "dvvsfjg2dg",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "pha85ubdoo",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "928zjurfjz",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy5",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy5",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "4m8ckft93l",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "aoa7dyyejc",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "aoa7dyyejc",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "40rb1l0t2y",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "bkpa4bh4mw",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "4m8ckft93l",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "75pgsubctn",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy6",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy6",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "xmwhj95g1i",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "y267g5mn7o",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "y267g5mn7o",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "40rb1l0t2y",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "i6vj7cgjwt",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "xmwhj95g1i",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "3gb3urfvhb",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy7",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "StatsWidget2Copy7",
+                "isCanvas": false,
+                "displayName": "Stats",
+                "searchTags": [
+                  "statbox"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "caption": "This week",
+                "parentRowSpace": 10,
+                "valueChangeColor": "positive",
+                "type": "WDS_STATS_WIDGET",
+                "hideCard": false,
+                "valueColor": "neutral",
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "valueChange": "+50%",
+                "value": "42",
+                "elevatedBackground": false,
+                "key": "yt53hj1sju",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "shopping-bag",
+                "widgetId": "q4byyc85l3",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Active Users",
+                "version": 1,
+                "parentId": "rv3dnnmvq2",
+                "tags": [
+                  "Display"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "l1jaejmi68",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "rv3dnnmvq2",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "40rb1l0t2y",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "d7hq5ja1xn",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "q4byyc85l3",
+                        "widgetType": "WDS_STATS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "bcpdfhfzg8",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "n99fzhhr4o",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "40rb1l0t2y",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 4,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "sj7k3qu8db",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "aoa7dyyejc",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "y267g5mn7o",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "rv3dnnmvq2",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "virevop6p0",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "sj7k3qu8db": 3,
+          "aoa7dyyejc": 3,
+          "y267g5mn7o": 3,
+          "rv3dnnmvq2": 3
+        }
+      }
+    ]
+  }
+}

@@ -41,7 +41,16 @@ export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
   } = props;
   const generateDragState = useCallback(
     (e: React.DragEvent<Element>, draggableRef: HTMLElement) => {
-      return generateDragStateForFixedLayout(e, draggableRef, props);
+      return generateDragStateForFixedLayout(e, draggableRef, {
+        bottomRow,
+        topRow,
+        leftColumn,
+        rightColumn,
+        parentColumnSpace,
+        parentRowSpace,
+        parentId,
+        widgetId,
+      });
     },
     [
       bottomRow,

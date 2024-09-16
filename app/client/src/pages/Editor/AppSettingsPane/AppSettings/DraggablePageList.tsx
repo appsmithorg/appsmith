@@ -1,13 +1,13 @@
 import { setPageOrder } from "actions/pageActions";
 import styled from "styled-components";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 // import classNames from "classnames";
-import { DraggableList } from "design-system-old";
+import { DraggableList } from "@appsmith/ads-old";
 import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { Flex, Icon } from "design-system";
+import { Flex, Icon } from "@appsmith/ads";
 
 const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 const PageIcon = MenuIcons.PAGE_ICON;
@@ -90,6 +90,8 @@ function DraggablePageList(props: {
   const applicationId = useSelector(getCurrentApplicationId);
 
   const onListOrderUpdate = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     newOrder: any,
     originalIndex: number,
     newIndex: number,

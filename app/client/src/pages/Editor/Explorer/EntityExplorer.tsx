@@ -1,9 +1,6 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Colors } from "constants/Colors";
@@ -14,24 +11,25 @@ import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import history from "utils/history";
 import {
+  getCurrentBasePageId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { importSvg } from "design-system-old";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { fetchWorkspace } from "ee/actions/workspaceActions";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { importSvg } from "@appsmith/ads-old";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { FilesContextProvider } from "./Files/FilesContextProvider";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
-import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
+import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 
 const NoEntityFoundSvg = importSvg(
   async () => import("assets/svg/no_entities_found.svg"),
@@ -49,7 +47,7 @@ const NoResult = styled(NonIdealState)`
       svg {
         height: 52px;
         width: 144px;
-      
+      }
     }
 
     div {
@@ -65,24 +63,21 @@ const NoResult = styled(NonIdealState)`
 
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
-  PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
-  useEffect(() => {
-    PerformanceTracker.stopTracking();
-  });
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
   );
   const noResults = false;
+  const basePageId = useSelector(getCurrentBasePageId);
   const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
     AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
-    history.push(builderURL({ pageId }));
+    history.push(builderURL({ basePageId }));
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [isFirstTimeUserOnboardingEnabled, pageId]);
+  }, [isFirstTimeUserOnboardingEnabled, basePageId]);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
 

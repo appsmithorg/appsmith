@@ -1,18 +1,18 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import { getSettingsLoadingState } from "selectors/settingsSelectors";
 import styled from "styled-components";
 import LeftPane from "pages/AdminSettings/LeftPane";
 import Main from "pages/AdminSettings/Main";
-import WithSuperUserHOC from "@appsmith/pages/AdminSettings/WithSuperUserHoc";
+import WithSuperUserHOC from "ee/pages/AdminSettings/WithSuperUserHoc";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import { LoaderContainer } from "pages/AdminSettings/components";
 import { useParams } from "react-router";
-import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { Spinner } from "design-system";
+import AdminConfig from "ee/pages/AdminSettings/config";
+import { Spinner } from "@appsmith/ads";
 
 const FlexContainer = styled.div`
   display: flex;
@@ -23,6 +23,8 @@ function Settings() {
   const dispatch = useDispatch();
   const user = useSelector(getCurrentUser);
   const isLoading = useSelector(getSettingsLoadingState);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
   const isSavable = AdminConfig.savableCategories.includes(

@@ -12,13 +12,13 @@ import {
   CodeEditorBorder,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes } from "design-system-old";
+import { Classes } from "@appsmith/ads-old";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import RequestDropdownField from "./RequestDropdownField";
 
 interface CustomStack {
@@ -126,7 +126,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
       )}
       {props.fields.length > 0 && (
         <>
+          {/* TODO: Fix this the next time the file is edited */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {props.fields.map((field: any, index: number) => {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const otherProps: Record<string, any> = {};
             if (
               props.actionConfig &&
@@ -277,6 +281,8 @@ interface Props {
   label: string;
   rightIcon?: React.ReactNode;
   description?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionConfig?: any;
   addOrDeleteFields?: boolean;
   mandatory?: boolean;

@@ -1,4 +1,4 @@
-import { getBaseURL } from "@appsmith/utils/preloadHelpers";
+import { getBaseURL } from "ee/utils/preloadHelpers";
 // This file preloads chunks for the edit and view modes ahead of the import()
 // call that will actually require them. This puts these chunks into HTTP cache
 // (so they can be executed immediately) but doesn’t execute them (so that the

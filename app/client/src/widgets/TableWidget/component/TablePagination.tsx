@@ -20,6 +20,8 @@ function PagerIcon(props: {
       className={props.className}
       icon={props.icon}
       iconSize={14}
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onClick={props.onClick as any}
       style={{
         padding: 14,

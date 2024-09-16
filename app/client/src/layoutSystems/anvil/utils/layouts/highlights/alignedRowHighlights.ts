@@ -465,6 +465,8 @@ function extractAlignmentInfo(
   layout: WidgetLayoutProps[],
   getDimensions: GetDimensions,
 ): AlignmentInfo {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map: { [key: string]: any } = {
     [FlexLayerAlignment.Start]: {
       dimension: getDimensions(

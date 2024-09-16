@@ -1,8 +1,5 @@
-import {
-  COMMUNITY_TEMPLATES,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { Switch, Text } from "design-system";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
+import { Switch, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 

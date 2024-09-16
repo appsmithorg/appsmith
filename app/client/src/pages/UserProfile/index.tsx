@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
+import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
 import General from "./General";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
 import { BackButton } from "components/utils/helperComponents";
+import { useDispatch } from "react-redux";
+import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 
 const ProfileWrapper = styled.div`
   width: 978px;
@@ -22,6 +24,7 @@ const ProfileWrapper = styled.div`
 
 function UserProfile() {
   const location = useLocation();
+  const dispatch = useDispatch();
 
   let initialTab = "general";
   const tabs = [
@@ -44,6 +47,11 @@ function UserProfile() {
   }
 
   const [selectedTab, setSelectedTab] = useState(initialTab);
+
+  useEffect(() => {
+    // onMount Fetch Global config
+    dispatch(fetchGlobalGitConfigInit());
+  }, []);
 
   return (
     <PageWrapper displayName={"Profile"}>

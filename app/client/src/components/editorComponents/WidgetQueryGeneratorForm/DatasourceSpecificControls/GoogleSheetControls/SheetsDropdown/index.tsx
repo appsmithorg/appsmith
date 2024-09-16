@@ -3,7 +3,7 @@ import {
   Label,
   SelectWrapper,
 } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
-import { Tooltip, Select } from "design-system";
+import { Tooltip, Select } from "@appsmith/ads";
 import React, { memo } from "react";
 import { useSheets } from "./useSheets";
 

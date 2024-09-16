@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   position: absolute;

@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { get } from "lodash";
 import type { LintError } from "utils/DynamicBindingUtils";
 

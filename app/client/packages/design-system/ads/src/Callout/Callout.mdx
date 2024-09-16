@@ -1,0 +1,74 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as CalloutStories from "./Callout.stories";
+
+<Meta of={CalloutStories} />
+
+# Callout
+
+Callouts are messages that communicate the system’s response to the user.
+System response. We currently use toasts to communicate system response across the app. Callouts are typically persistent unless the user discards them. The information kind of the callout can be used to emphasize certain information on the page, even if it is technically not a system response.. in this case, it is a system’s “suggestion” rather than a response.
+
+<Canvas of={CalloutStories.CalloutStory} />
+
+## Anatomy
+
+1. **Icon:** Informs users of the kind of notification at a glance.
+2. **Action (actionable only):** Tertiary button that allows users to address the notification or navigates them to a page with further details.
+3. **Close button (optional):** Closes the notification.
+4. **Message:** Provides additional detail and actionable steps for the user to take.
+
+![Callout anatomy](./docs/callout-anatomy.png)
+
+## Spacing
+
+Callouts will take the smallest width possible in relation to its content. It has a minimum width, but its maximum width is constrained by its parent.
+![Callout spacing](./docs/callout-spacing.png)
+
+## Kind
+
+### Info
+
+Use the callout kind: info to provide additional context or explanations for various components and widgets used in the app.
+
+<Canvas of={CalloutStories.CalloutInfoStory} />
+
+### Success
+
+The callout kind: success can be utilized to celebrate successful operations, such as saving data, and executing actions.
+It can be used to provide positive feedback to users, reinforcing that their actions have been completed successfully.
+
+<Canvas of={CalloutStories.CalloutSuccessStory} />
+
+### Warning
+
+Use warning callouts when you want the user to take a specific action or to warn them that something is about to go wrong. The callout kind: warning can be used to caution users about potentially risky actions, like deleting data or making irreversible changes.
+It can also be used to warn users about deprecated features or upcoming changes to the application.
+
+<Canvas of={CalloutStories.CalloutWarningStory} />
+
+### Error
+
+Use Error callouts kind: error to alert users about critical issues, such as data validation errors, failed API requests, or any system-related problems.
+Use error banners to inform users something critical has happened and requires immediate attention.
+
+<Canvas of={CalloutStories.CalloutErrorStory} />
+
+## Other variations
+
+### Closable
+
+Include the close button if it is not critical for a user to read or interact with the notification.
+
+### With link
+
+Use callouts with links to direct users to external resources, and official documentation for more in-depth explanations or troubleshooting.
+
+<Canvas of={CalloutStories.CalloutWithLink} />
+
+## Usage
+
+1. Callouts are sparingly to maintain their impact and avoid overwhelming the user with excessive visual elements.
+2. Use Callouts for crucial information, errors, and warnings, or provide essential guidance.
+3. Keep the content of the callout concise and clear. Avoid unnecessary jargon or technical language that might confuse users.
+4. Use short sentences or bullet points to deliver the message concisely.

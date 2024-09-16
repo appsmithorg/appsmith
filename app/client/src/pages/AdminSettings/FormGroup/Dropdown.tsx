@@ -2,7 +2,7 @@ import React from "react";
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import SelectField from "components/editorComponents/form/fields/SelectField";
-import type { SelectOptionProps } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
 
 export default function DropDown(
   props: {

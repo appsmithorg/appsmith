@@ -53,6 +53,8 @@ export function updateWidgetPositions(
   isMobile = false,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
@@ -317,6 +319,8 @@ export function extractAlignmentInfo(
   const startChildren: AlignmentChildren[] = [],
     centerChildren: AlignmentChildren[] = [],
     endChildren: AlignmentChildren[] = [],
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     fillChildren: any[] = [];
   let startColumns = 0,
     centerColumns = 0,
@@ -725,6 +729,8 @@ export function updatePositionsOfParentAndSiblings(
   isMobile: boolean,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };

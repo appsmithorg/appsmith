@@ -29,7 +29,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -60,7 +58,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -445,7 +442,8 @@ public class AutoCommitEventHandlerImplTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(applicationJson);
+                .migrateApplicationJsonToLatestSchema(
+                        Mockito.eq(applicationJson), Mockito.anyString(), Mockito.anyString());
 
         doReturn(Mono.just("success"))
                 .when(gitExecutor)
@@ -577,7 +575,9 @@ public class AutoCommitEventHandlerImplTest {
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
         applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
-        doReturn(Mono.just(applicationJson1)).when(jsonSchemaMigration).migrateApplicationJsonToLatestSchema(any());
+        doReturn(Mono.just(applicationJson1))
+                .when(jsonSchemaMigration)
+                .migrateApplicationJsonToLatestSchema(any(), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
 

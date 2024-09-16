@@ -19,9 +19,9 @@ import {
   LIGHTNING_MENU_QUERY_CREATE_NEW,
   LIGHTNING_MENU_API_CREATE_NEW,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { Skin } from "constants/DefaultTheme";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 export const getApiOptions = (
   skin: Skin,

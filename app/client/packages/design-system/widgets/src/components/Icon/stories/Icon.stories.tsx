@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Flex, Icon, ICONS, SIZES } from "@design-system/widgets";
+import { Flex, Icon, ICONS, SIZES } from "@appsmith/wds";
 
 /**
  * Icon is a component that just displays an icon.
  */
 const meta: Meta<typeof Icon> = {
   component: Icon,
-  title: "Design-system/Widgets/Icon",
+  title: "WDS/Widgets/Icon",
 };
 
 export default meta;
@@ -42,6 +42,7 @@ export const Sizes: Story = {
 export const CustomIcon: Story = {
   render: () => (
     <Icon
+      // @ts-expect-error we don't want to cast a type here
       icon={(props) => {
         return (
           <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
@@ -50,19 +51,6 @@ export const CustomIcon: Story = {
         );
       }}
     />
-  ),
-};
-
-/**
- * For some icons, you can also pass a `filled` prop to the Icon component to get a filled variant. If there is no filled variant, it will just display the normal icon.
- */
-
-export const Filled: Story = {
-  render: () => (
-    <Flex gap="spacing-2">
-      <Icon name="stars" />
-      <Icon filled name="stars" />
-    </Flex>
   ),
 };
 

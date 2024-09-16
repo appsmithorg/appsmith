@@ -1,13 +1,13 @@
-import { watchActionExecutionSagas } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import NavigationSagas from "@appsmith/sagas/NavigationSagas";
-import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
-import tenantSagas from "@appsmith/sagas/tenantSagas";
-import userSagas from "@appsmith/sagas/userSagas";
-import workspaceSagas from "@appsmith/sagas/WorkspaceSagas";
+import { watchActionExecutionSagas } from "ee/sagas/ActionExecution/ActionExecutionSagas";
+import NavigationSagas from "ee/sagas/NavigationSagas";
+import SuperUserSagas from "ee/sagas/SuperUserSagas";
+import tenantSagas from "ee/sagas/tenantSagas";
+import userSagas from "ee/sagas/userSagas";
+import workspaceSagas from "ee/sagas/WorkspaceSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
 import { watchActionSagas } from "sagas/ActionSagas";
 import apiPaneSagas from "sagas/ApiPaneSagas";
-import applicationSagas from "@appsmith/sagas/ApplicationSagas";
+import applicationSagas from "ee/sagas/ApplicationSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
 import AutoHeightSagas from "sagas/autoHeightSagas";
 import autoLayoutUpdateSagas from "sagas/AutoLayoutUpdateSagas";
@@ -25,14 +25,14 @@ import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import gitSyncSagas from "sagas/GitSyncSagas";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
 import initSagas from "sagas/InitSagas";
-import { watchJSActionSagas } from "@appsmith/sagas/JSActionSagas";
+import { watchJSActionSagas } from "ee/sagas/JSActionSagas";
 import JSLibrarySaga from "sagas/JSLibrarySaga";
 import jsPaneSagas from "sagas/JSPaneSagas";
 import layoutConversionSagas from "sagas/layoutConversionSagas";
 import LintingSaga from "sagas/LintingSagas";
 import modalSagas from "sagas/ModalSagas";
 import onboardingSagas from "sagas/OnboardingSagas";
-import pageSagas from "@appsmith/sagas/PageSagas";
+import pageSagas from "ee/sagas/PageSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 import pluginSagas from "sagas/PluginSagas";
 import queryPaneSagas from "sagas/QueryPaneSagas";
@@ -42,7 +42,6 @@ import snapshotSagas from "sagas/SnapshotSagas";
 import snipingModeSagas from "sagas/SnipingModeSagas";
 import templateSagas from "sagas/TemplatesSagas";
 import themeSagas from "sagas/ThemeSaga";
-import utilSagas from "sagas/UtilSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
@@ -83,7 +82,6 @@ export const sagas = [
   onboardingSagas,
   actionExecutionChangeListeners,
   formEvaluationChangeListener,
-  utilSagas,
   globalSearchSagas,
   websocketSagas,
   debuggerSagas,

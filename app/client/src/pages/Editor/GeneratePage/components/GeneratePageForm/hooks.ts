@@ -5,11 +5,11 @@ import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
 import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceActions";
 import { executeDatasourceQuery } from "actions/datasourceActions";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import { useDispatch, useSelector } from "react-redux";
 import { PluginPackageName } from "entities/Action";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
@@ -113,6 +113,8 @@ export const useDatasourceOptions = ({
 interface FetchAllSpreadSheets {
   selectedDatasourceId: string;
   pluginId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestObject?: Record<any, string>;
 }
 
@@ -239,6 +241,8 @@ export interface FetchSheetsList {
   selectedDatasourceId: string;
   selectedSpreadsheetUrl: string;
   pluginId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestObject?: Record<any, string>;
 }
 
@@ -247,6 +251,8 @@ export interface FetchSheetData {
   selectedSpreadsheetUrl: string;
   selectedSheetName: string;
   pluginId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestObject?: Record<any, string>;
 }
 
@@ -262,6 +268,8 @@ export interface UseSheetListReturn {
 }
 
 export interface UseSheetDataReturn {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sheetData: Array<any>;
   isFetchingSheetData: boolean;
   failedFetchingSheetData: boolean;
@@ -373,6 +381,8 @@ export const useSheetData = (
 ): UseSheetDataReturn => {
   const dispatch = useDispatch();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [sheetData, setSheetData] = useState<any>([]);
 
   const [isFetchingSheetData, setIsFetchingSheetData] =
@@ -475,6 +485,8 @@ export interface FetchColumnHeaderListParams {
   sheetName: string;
   pluginId: string;
   tableHeaderIndex: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestObject?: Record<any, string>; //possily unneccesary
 }
 

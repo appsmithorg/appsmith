@@ -72,7 +72,6 @@ describe("Omnibar functionality test cases", () => {
     agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
     agHelper.GetNClickByContains(omnibar.createNew, "New cURL import");
     cy.wait(1000);
-    cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
   });
 

@@ -9,7 +9,16 @@
  * These are composable components that you can use to spread the content of the header
  * It is possible to use the IDE Header without using these subsections
  */
+export { IDE_HEADER_HEIGHT } from "./Structure/constants";
 export { default as IDEHeader } from "./Structure/Header";
+
+/**
+ * The IDEToolbar gets exported with 2 layout subsections.
+ * IDEToolbar.Left and IDEToolbar.Right
+ * These are composable components that you can use to spread the content of the toolbar
+ * It is possible to use the Toolbar without using these subsections
+ */
+export { default as IDEToolbar } from "./Structure/Toolbar";
 
 /* ====================================================
     **** UI Components ****
@@ -40,9 +49,17 @@ export { default as IDEHeaderDropdown } from "./Components/HeaderDropdown";
  */
 export { default as IDEBottomView } from "./Components/BottomView";
 
+/**
+ * IDESidebar is used inside the IDE to have a navigation menu on the left side of the screen.
+ * It switches between different editor states
+ */
+export { default as IDESidebar } from "./Components/Sidebar";
+
 /* ====================================================
     **** Interfaces ****
     Common types that are used by the different components of the IDE
 =======================================================**/
 
 export { ViewHideBehaviour, ViewDisplayMode } from "./Interfaces/View";
+export { Condition } from "./enums";
+export type { IDESidebarButton } from "./Components/Sidebar";

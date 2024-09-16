@@ -1,5 +1,5 @@
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import TriggerEmitter, {
   jsVariableUpdatesHandlerWrapper,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";
@@ -8,6 +8,8 @@ import JSObjectCollection from "../Collection";
 const applyJSVariableUpdatesToEvalTreeMock = jest.fn();
 jest.mock("../JSVariableUpdates.ts", () => ({
   ...jest.requireActual("../JSVariableUpdates.ts"),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   applyJSVariableUpdatesToEvalTree: (...args: any[]) => {
     applyJSVariableUpdatesToEvalTreeMock(args);
   },

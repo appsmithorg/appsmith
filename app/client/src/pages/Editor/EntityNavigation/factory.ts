@@ -2,7 +2,7 @@ import PropertyPaneNavigation from "./PropertyPane";
 import ActionPaneNavigation from "./ActionPane";
 import type { EntityInfo } from "./types";
 import { call } from "redux-saga/effects";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type PaneNavigation from "./PaneNavigation";
 import JSObjectsPaneNavigation from "./JSObjectsPane";
 

@@ -1,8 +1,8 @@
 import type {
   BufferedReduxAction,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { AFFECTED_JS_OBJECTS_FNS } from "@appsmith/sagas/InferAffectedJSObjects";
+} from "ee/constants/ReduxActionConstants";
+import { AFFECTED_JS_OBJECTS_FNS } from "ee/sagas/InferAffectedJSObjects";
 import log from "loglevel";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 
@@ -20,6 +20,8 @@ export const parseUpdatesAndDeleteUndefinedUpdates = (
 
   //delete all undefined properties from the state
   const { deleteUpdates, regularUpdates } = parsedUpdates.reduce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: any, curr: any) => {
       const { kind, path, rhs } = curr;
 

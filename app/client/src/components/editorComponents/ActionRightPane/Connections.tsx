@@ -1,18 +1,18 @@
 import React from "react";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
   INCOMING_ENTITIES,
   NO_INCOMING_ENTITIES,
   NO_OUTGOING_ENTITIES,
   OUTGOING_ENTITIES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Connection } from "../Debugger/EntityDependecies";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import Collapsible from "components/common/Collapsible";
 
 const ConnectionType = styled.span`
@@ -55,6 +55,8 @@ const ConnectionsContainer = styled.span`
   color: var(--ads-v2-color-fg);
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Dependencies(props: any) {
   const { navigateToEntity } = useEntityLink();
 

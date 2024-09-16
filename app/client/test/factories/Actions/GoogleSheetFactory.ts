@@ -7,7 +7,9 @@ const pageId = "0123456789abcdef00000000";
 export const GoogleSheetFactory = Factory.Sync.makeFactory<SaaSAction>({
   dynamicBindingPathList: [],
   id: "api_id",
+  baseId: "api_base_id",
   workspaceId: "workspaceID",
+  applicationId: "applicationID",
   pluginType: PluginType.SAAS,
   pluginId: PluginIDs[PluginPackageName.GOOGLE_SHEETS],
   name: Factory.each((i) => `Api${i + 1}`),

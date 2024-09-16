@@ -1,0 +1,33 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as SwitchStories from "./Switch.stories";
+
+<Meta of={SwitchStories} />
+
+# Switch
+
+Switches are binary. They “turn on” or “turn off” a certain setting. The result of the switch is instant. Use them when the change is apparent to the user.
+
+<Canvas of={SwitchStories.SwitchStory} />
+
+## Anatomy
+
+![Switch anatomy](./docs/switch-anatomy.png)
+
+## Spacing
+
+![Switch spacing](./docs/switch-spacing.png)
+
+## Usage
+
+- Switches are typically used when users need to turn a single option on or off, such as enabling or disabling a feature.
+- Switches are often used for binary settings, where there are only two options, such as "On/Off," "Yes/No," or "Enable/Disable.
+- Switches provide an immediate visual indication of the current state of the option, as they have a clear "on" or "off" position.
+- Switches usually do not require an additional "Submit" or "Apply" button, as the changes are applied immediately when the user toggles the switch.
+
+| Checkbox                                                    | Toggle Switch                                                                  |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Checked or unchecked                                        | On or off                                                                      |
+| Can be used for both binary choices and multiple selections | Often used for simple on/off or enable/disable options                         |
+| Can be used in lists, forms, or dialog boxes                | Often used for settings, preferences, or control panels                        |
+| "I agree to the terms and conditions" checkbox              | "Turn on/off" switch for a specific feature or functionality in property pane. |

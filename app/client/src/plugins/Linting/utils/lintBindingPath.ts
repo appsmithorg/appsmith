@@ -1,7 +1,7 @@
 import type { LintError } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { getScriptToEval, getScriptType } from "workers/Evaluation/evaluate";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import type { lintBindingPathProps } from "../types";
 import getLintingErrors from "./getLintingErrors";
 import { getJSToLint } from "./getJSToLint";

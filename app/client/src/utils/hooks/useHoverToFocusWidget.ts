@@ -3,10 +3,10 @@ import { useSelector } from "react-redux";
 import { isWidgetFocused } from "selectors/widgetSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type React from "react";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorState } from "ee/entities/IDE/constants";
 
 export const useHoverToFocusWidget = (
   widgetId: string,

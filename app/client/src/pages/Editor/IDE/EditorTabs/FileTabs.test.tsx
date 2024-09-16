@@ -1,7 +1,7 @@
 import React from "react";
 import { fireEvent, render } from "test/testUtils";
 import FileTabs from "./FileTabs";
-import { EditorState, type EntityItem } from "@appsmith/entities/IDE/constants";
+import { EditorState, type EntityItem } from "ee/entities/IDE/constants";
 import { PluginType } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
 import { sanitizeString } from "utils/URLUtils";

@@ -1,28 +1,21 @@
 import React from "react";
-import { Text, Link, Button, Icon } from "design-system";
-import {
-  createMessage,
-  IN_APP_EMBED_SETTING,
-} from "@appsmith/constants/messages";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { Text, Link, Button, Icon } from "@appsmith/ads";
+import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import {
   RAMP_NAME,
   RampFeature,
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 import { useSelector } from "react-redux";
-import {
-  getRampLink,
-  showProductRamps,
-} from "@appsmith/selectors/rampSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import EnterpriseTag from "components/EnterpriseTag";
 
 function PrivateEmbeddingContent(props: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userAppPermissions: any[];
   changeTab?: () => void;
   isAppSettings?: boolean;

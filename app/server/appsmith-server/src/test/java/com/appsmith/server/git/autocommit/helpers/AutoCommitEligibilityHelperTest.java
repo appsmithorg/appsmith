@@ -22,14 +22,12 @@ import net.minidev.json.JSONObject;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -44,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class AutoCommitEligibilityHelperTest {
 
     @SpyBean
@@ -107,9 +104,6 @@ public class AutoCommitEligibilityHelperTest {
     @BeforeEach
     public void beforeEach() {
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
-                .thenReturn(Mono.just(Boolean.TRUE));
-
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_eligibility_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
 
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(RANDOM_DSL_VERSION_NUMBER));
@@ -295,8 +289,6 @@ public class AutoCommitEligibilityHelperTest {
 
     @Test
     public void isServerMigrationRequired_whenFeatureIsFlagFalse_returnsFalse() {
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_eligibility_enabled))
-                .thenReturn(Mono.just(Boolean.FALSE));
 
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
 
@@ -353,8 +345,6 @@ public class AutoCommitEligibilityHelperTest {
 
     @Test
     public void isClientMigrationRequired_whenFeatureFlagIsFalse_returnsFalse() {
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_eligibility_enabled))
-                .thenReturn(Mono.just(Boolean.FALSE));
 
         PageDTO pageDTO = createPageDTO(RANDOM_DSL_VERSION_NUMBER);
         Mono<Boolean> isClientMigrationRequiredMono = autoCommitEligibilityHelper.isClientMigrationRequired(pageDTO);
@@ -367,8 +357,6 @@ public class AutoCommitEligibilityHelperTest {
 
     @Test
     public void isAutoCommitRequired_whenFeatureIsFlagFalse_returnsAllFalse() {
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_eligibility_enabled))
-                .thenReturn(Mono.just(Boolean.FALSE));
 
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
         PageDTO pageDTO = createPageDTO(RANDOM_DSL_VERSION_NUMBER - 1);

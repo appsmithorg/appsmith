@@ -4,7 +4,7 @@ import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
-import { SegmentedControl, Tooltip } from "design-system";
+import { SegmentedControl, Tooltip } from "@appsmith/ads";
 import {
   DSEventTypes,
   DS_EVENT,
@@ -83,6 +83,8 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return optionsValues.has(value);
   }

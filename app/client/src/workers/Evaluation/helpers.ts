@@ -1,5 +1,5 @@
-import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { WidgetEntity } from "@appsmith//entities/DataTree/types";
+import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
+import type { WidgetEntity } from "ee//entities/DataTree/types";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
@@ -25,6 +25,8 @@ export const getNewDataTreeUpdates = (paths: string[], dataTree: object) =>
 
 export interface DiffNewTreeState {
   kind: "newTree";
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rhs: any;
 }
 export type DiffWithNewTreeState = Diff<DataTree, DataTree> | DiffNewTreeState;
@@ -91,6 +93,8 @@ export const stringifyFnsInObject = (
   const fnStrings: string[] = [];
 
   for (const path of paths) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fnValue: any = get(userObject, path);
     fnStrings.push(fnValue.toString());
   }
@@ -149,6 +153,8 @@ const parseFunctionsInObject = (
   return paths;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isLargeCollection = (val: any) => {
   if (!Array.isArray(val)) return false;
   const rowSize = !isObject(val[0]) ? 1 : Object.keys(val[0]).length;
@@ -162,6 +168,8 @@ const getReducedDataTree = (
   dataTree: DataTree,
   constrainedDiffPaths: string[],
 ): DataTree => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const withErrors = Object.keys(dataTree).reduce((acc: any, key: string) => {
     const widgetValue = dataTree[key] as WidgetEntity;
     acc[key] = {
@@ -204,6 +212,8 @@ const generateDiffUpdates = (
         attachDirectly.push({
           kind: "E",
           lhs,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           rhs: rhs as any,
           path: segmentedPath,
         });
@@ -249,6 +259,8 @@ const correctUndefinedUpdatesToDeletesOrNew = (
 ) =>
   updates.reduce(
     (acc, update) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { kind, lhs, path, rhs } = update as any;
       if (kind === "E") {
         if (lhs === undefined && rhs !== undefined) {
@@ -282,6 +294,8 @@ const generateRootWidgetUpdates = (
         typeof v.path[v.path.length - 1] === "number",
     )
     .map(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ({ path }: any) => {
         const pathCopy = [...path];
         pathCopy.pop();
@@ -304,7 +318,8 @@ const getScrubbedOutUpdatesWhenRootCollectionIsUpdated = (
     .filter((update) => update?.path?.length)
     .map((update) => (update.path as string[]).join("."));
   return (
-    updates
+    updates // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((update: any) => ({ update, condensedPath: update.path.join(".") }))
       .filter(
         ({ condensedPath }) =>
@@ -344,6 +359,8 @@ export const generateSerialisedUpdates = (
   prevState: DataTree,
   currentState: DataTree,
   constrainedDiffPaths: string[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mergeAdditionalUpdates?: any,
 ): {
   serialisedUpdates: string;
@@ -357,7 +374,7 @@ export const generateSerialisedUpdates = (
 
   //remove lhs from diff to reduce the size of diff upload,
   //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   let removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
   removedLhs = [...removedLhs, ...(mergeAdditionalUpdates || [])];
 
@@ -378,8 +395,12 @@ export const generateSerialisedUpdates = (
 
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: DataTree,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dataTreeEvaluator: any,
   constrainedDiffPaths: string[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mergeAdditionalUpdates?: any,
 ) => {
   const { error, serialisedUpdates } = generateSerialisedUpdates(

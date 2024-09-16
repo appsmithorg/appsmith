@@ -1,5 +1,5 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
+import { getAllAsyncFunctions } from "ee/workers/Evaluation/Actions";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
 import type DependencyMap from "entities/DependencyMap";
@@ -10,7 +10,7 @@ import {
 import { jsPropertiesState } from "./JSObject/jsPropertiesState";
 import { get, isEmpty, toPath } from "lodash";
 import { APP_MODE } from "entities/App";
-import { isAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isAction } from "ee/workers/Evaluation/evaluationUtils";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getMemberExpressionObjectFromProperty } from "@shared/ast";
@@ -26,6 +26,8 @@ interface ExtraData {
   isViewMode: boolean;
 }
 type Modifier = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any,
   metaData: ErrorMetaData & ExtraData,
 ) => Partial<{
@@ -66,6 +68,8 @@ class ErrorModifier {
     this.dataTree = dataTree;
   }
   run(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
     metaData: ErrorMetaData,
     modifiers: Modifier[],
@@ -195,6 +199,8 @@ function isActionInvokedInDataField(error: EvaluationError) {
 const UNDEFINED_TYPE_ERROR_REGEX =
   /Cannot read properties of undefined \(reading '([^\s]+)'/;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertAllDataTypesToString(e: any) {
   // Functions do not get converted properly with JSON.stringify
   // So using String fot functions

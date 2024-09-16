@@ -64,15 +64,12 @@ public interface Executable {
 
     EntityReferenceType getEntityReferenceType();
 
-    DefaultResources getDefaultResources();
-
     default LayoutExecutableUpdateDTO createLayoutExecutableUpdateDTO() {
         LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = new LayoutExecutableUpdateDTO();
 
         layoutExecutableUpdateDTO.setId(this.getId());
         layoutExecutableUpdateDTO.setName(this.getValidName());
         layoutExecutableUpdateDTO.setExecuteOnLoad(this.getExecuteOnLoad());
-        layoutExecutableUpdateDTO.setDefaultActionId(this.getDefaultResources().getActionId());
 
         return layoutExecutableUpdateDTO;
     }

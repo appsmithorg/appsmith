@@ -9,7 +9,7 @@ import {
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { DefaultMobileCameraTypes } from "WidgetProvider/constants";
 export default [
   {

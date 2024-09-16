@@ -2,9 +2,9 @@ import {
   CLOSE_SIDEBAR_MESSAGE,
   createMessage,
   LOCK_SIDEBAR_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import classNames from "classnames";
-import { TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "@appsmith/ads-old";
 import React from "react";
 import type { NavigationSetting } from "constants/AppConstants";
 import {
@@ -12,7 +12,7 @@ import {
   StyledIconContainer,
   TooltipStyles,
 } from "./CollapseButton.styled";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const UnpinIcon = importSvg(
   async () => import("assets/icons/ads/double-arrow-right.svg"),

@@ -82,6 +82,8 @@ describe("Validate Chart Widget's data property config", () => {
 
     let hiddenFns = visibleFields.map(
       (config) => config.hidden,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) as unknown as ((props: any) => boolean)[];
 
     expect(hiddenFns.length).toEqual(1);
@@ -105,6 +107,8 @@ describe("Validate Chart Widget's data property config", () => {
     });
 
     hiddenFns = hiddenFields.map((config) => config.hidden) as unknown as ((
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       props: any,
     ) => boolean)[];
 
@@ -124,6 +128,8 @@ describe("Validate Chart Widget's data property config", () => {
 
     let hiddenFns = visibleFields.map(
       (config) => config.hidden,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) as unknown as ((props: any) => boolean)[];
     expect(hiddenFns.length).toEqual(1);
 
@@ -148,6 +154,8 @@ describe("Validate Chart Widget's data property config", () => {
     });
 
     hiddenFns = hiddenFields.map((config) => config.hidden) as unknown as ((
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       props: any,
     ) => boolean)[];
     expect(hiddenFns.length).toEqual(8);

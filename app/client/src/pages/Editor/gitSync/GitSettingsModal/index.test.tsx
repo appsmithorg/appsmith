@@ -7,6 +7,8 @@ import { Provider } from "react-redux";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import GitSettingsModal from ".";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const createInitialState = (overrideFn = (o: any) => o) => {
   const initialState = {
     ui: {
@@ -48,10 +50,12 @@ jest.mock("./TabBranch", () => {
   return () => null;
 });
 
-jest.mock("@appsmith/components/gitComponents/GitSettingsCDTab", () => {
+jest.mock("ee/components/gitComponents/GitSettingsCDTab", () => {
   return () => null;
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderComponent = (store: MockStoreEnhanced<unknown, any>) => {
   return render(
     <Provider store={store}>

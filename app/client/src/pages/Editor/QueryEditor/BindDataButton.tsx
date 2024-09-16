@@ -8,12 +8,12 @@ import {
   Text,
   MenuSeparator,
   Flex,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   ADD_NEW_WIDGET,
   CONNECT_EXISTING_WIDGET_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -22,13 +22,13 @@ import {
 } from "selectors/editorSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { addSuggestedWidget } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -52,7 +52,7 @@ interface BindDataButtonProps {
   hasResponse: boolean;
 }
 
-const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2"];
+const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2", "WDS_TABLE_WIDGET"];
 
 const connectExistingWidgetLabel = createMessage(CONNECT_EXISTING_WIDGET_LABEL);
 const addNewWidgetLabel = createMessage(ADD_NEW_WIDGET);
@@ -95,6 +95,14 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/existing_table.svg`,
     icon: tableWidgetIconSvg,
   },
+  WDS_TABLE_WIDGET: {
+    label: "tabledata",
+    propertyName: "tableData",
+    widgetName: "Table",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/existing_table.svg`,
+    icon: tableWidgetIconSvg,
+  },
   CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
@@ -129,7 +137,9 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
   },
 };
 
-//TODO(Balaji): Abstraction leak.
+// This function and the above map can resolve the abstraction leaks, if the widgets themselves provide these configurations.
+// We can then access them via the widget configs and avoid mentioning individual widget types
+// Created an issue here: https://github.com/appsmithorg/appsmith/issues/34813
 function getWidgetProps(
   suggestedWidget: SuggestedWidget,
   widgetInfo: WidgetBindingInfo,
@@ -239,9 +249,10 @@ function BindDataButton(props: BindDataButtonProps) {
   const pagePermissions = useSelector(getPagePermissions);
 
   const params = useParams<{
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
+    basePageId: string;
+    baseApiId?: string;
+    baseQueryId?: string;
+    moduleInstanceId?: string;
   }>();
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -264,6 +275,9 @@ function BindDataButton(props: BindDataButtonProps) {
   const pages = useSelector(getPageList);
 
   const isAnvilLayout = useSelector(getIsAnvilLayout);
+  // The purpose of this filter is to make sure that if Anvil is enabled
+  // only those widgets which have an alternative in Anvil are listed
+  // for selection for adding a new suggested widget
   const filteredSuggestedWidgets =
     isAnvilLayout && suggestedWidgets
       ? suggestedWidgets.filter((each) =>
@@ -312,6 +326,10 @@ function BindDataButton(props: BindDataButtonProps) {
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
     });
+    // This action calls the Anvil Suggested widget saga
+    // which transforms a legacy widget into an Anvil widget
+    // For example: a request to add TABLE_WIDGET_V2, is transformed
+    // to add WDS_TABLE_WIDGET
     dispatch(addSuggestedWidget(payload));
   };
 
@@ -321,9 +339,11 @@ function BindDataButton(props: BindDataButtonProps) {
     }
     dispatch(
       bindDataOnCanvas({
-        queryId: (params.apiId || params.queryId) as string,
+        queryId: (params.baseApiId ||
+          params.baseQueryId ||
+          params.moduleInstanceId) as string,
         applicationId: applicationId as string,
-        pageId: params.pageId,
+        basePageId: params.basePageId,
       }),
     );
 

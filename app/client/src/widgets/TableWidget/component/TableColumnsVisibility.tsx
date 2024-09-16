@@ -13,7 +13,7 @@ import Button from "components/editorComponents/Button";
 import type { ReactTableColumnProps } from "./Constants";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableActionIcon from "./TableActionIcon";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const VisibleIcon = importSvg(
   async () => import("assets/icons/control/columns-visibility.svg"),

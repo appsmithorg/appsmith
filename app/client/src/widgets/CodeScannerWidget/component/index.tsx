@@ -27,7 +27,7 @@ import {
 import { ScannerLayout } from "../constants";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { usePageVisibility } from "react-page-visibility";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { getVideoConstraints } from "widgets/utils";
 import { isMobile } from "react-device-detect";
 
@@ -489,6 +489,8 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   };
 
   const renderComponent = () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleOnResult = (err: any, result: any) => {
       if (!!result) {
         const codeData = result.text;

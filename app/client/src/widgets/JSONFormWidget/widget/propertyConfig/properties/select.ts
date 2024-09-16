@@ -11,6 +11,8 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 export function defaultOptionValueValidation(
   inputValue: unknown,
   props: JSONFormWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   const DEFAULT_ERROR_MESSAGE = {
@@ -21,6 +23,8 @@ export function defaultOptionValueValidation(
   let value = inputValue;
 
   const hasLabelValueProperties = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     obj: any,
   ): obj is { value: string | number; label: string } => {
     return (

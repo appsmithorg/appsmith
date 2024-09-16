@@ -10,7 +10,6 @@
           "controlType": "SEGMENTED_CONTROL",
           "initialValue": "READ_WRITE",
           "options": [
-
             {
               "label": "Read / Write",
               "value": "READ_WRITE"

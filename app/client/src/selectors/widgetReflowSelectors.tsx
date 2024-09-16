@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import { createSelector } from "reselect";
 import { getIsResizing } from "./widgetSelectors";

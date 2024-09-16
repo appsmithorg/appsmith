@@ -1,9 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type {
-  UpdateCanvasPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { uniq, get, set } from "lodash";
 import type { Diff } from "deep-diff";
@@ -13,10 +10,12 @@ import {
   getCanvasWidgetHeightsToUpdate,
 } from "utils/WidgetSizeUtils";
 import { klona } from "klona";
+import type { UpdateCanvasPayload } from "actions/pageActions";
+import type { SetWidgetDynamicPropertyPayload } from "../../actions/controlActions";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
-and property values 
-For example: 
+and property values
+For example:
 { "xyz123": [{ propertyPath: "bottomRow", propertyValue: 20 }] }
 */
 export type UpdateWidgetsPayload = Record<
@@ -139,6 +138,25 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
+  },
+  [ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+  ) => {
+    const { isDynamic, propertyPath, widgetId } = action.payload;
+    const widget = state[widgetId];
+
+    // When options JS mode is disabled, reset the optionLabel and optionValue to standard values
+    if (
+      widget.type === "WDS_SELECT_WIDGET" &&
+      propertyPath === "options" &&
+      !isDynamic
+    ) {
+      set(state, `${widgetId}.optionLabel`, "label");
+      set(state, `${widgetId}.optionValue`, "value");
+    }
+
+    return state;
   },
 });
 

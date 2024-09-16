@@ -9,7 +9,7 @@ import {
   ModalHeader,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { EditFieldsButton } from "../../styles";
 import styled from "styled-components";
 import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
@@ -23,7 +23,7 @@ import {
   FIELDS_CONFIGURATION,
   SAVE_CHANGES,
   SAVE_CHANGES_DISABLED_TOOLTIP_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import EditFieldsTable from "./EditFieldsTable";
 import { WidgetQueryGeneratorFormContext } from "../../index";
 
@@ -77,6 +77,8 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
     setTrainsientSelectedColumnsNames(selectedColumnsNames);
   }, [selectedColumnsNames]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSelect = (row: any, isSelected: boolean) => {
     if (row) {
       const col = row.original;
@@ -124,6 +126,8 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
     {
       Header: createMessage(COLUMN_NAME),
       accessor: "name",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function (cellProps: any) {
         const { row } = cellProps;
         const isDisabled = row.original.name === primaryColumn;
@@ -143,6 +147,8 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
     {
       Header: createMessage(COLUMN_TYPE),
       accessor: "type",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function (cellProps: any) {
         const { row } = cellProps;
         return <Text>{row.original.type}</Text>;
@@ -179,6 +185,8 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
             <EditFieldsTable
               columns={tableColumnHeaders}
               data={tableData || []}
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               rowProps={(row: any) => {
                 const isDisabled = row.original.name === primaryColumn;
                 return {

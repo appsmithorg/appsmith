@@ -7,14 +7,11 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DSLWidget } from "WidgetProvider/constants";
-import type {
-  ClonePageActionPayload,
-  CreatePageActionPayload,
-} from "actions/pageActions";
-import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
+import type { FetchApplicationResponse } from "ee/api/ApplicationApi";
+import type { APP_MODE } from "entities/App";
 
 export interface FetchPageRequest {
-  id: string;
+  pageId: string;
   isFirstLoad?: boolean;
   handleResponseLater?: boolean;
   migrateDSL?: boolean;
@@ -51,6 +48,7 @@ export interface PageLayoutsRequest {
 
 export interface FetchPageResponseData {
   id: string;
+  baseId: string;
   name: string;
   slug: string;
   applicationId: string;
@@ -77,13 +75,14 @@ export interface SavePageResponseData {
   layoutOnLoadActionErrors?: Array<LayoutOnLoadActionErrors>;
 }
 
-export type CreatePageRequest = Omit<
-  CreatePageActionPayload,
-  "blockNavigation"
->;
+export interface CreatePageRequest {
+  applicationId: string;
+  name: string;
+  layouts: Partial<PageLayout>[];
+}
 
 export interface UpdatePageRequest {
-  id: string;
+  pageId: string;
   name?: string;
   isHidden?: boolean;
   customSlug?: string;
@@ -91,6 +90,7 @@ export interface UpdatePageRequest {
 
 export interface UpdatePageResponse {
   id: string;
+  baseId: string;
   name: string;
   slug: string;
   customSlug?: string;
@@ -112,6 +112,7 @@ export type CreatePageResponse = ApiResponse;
 export interface FetchPageListResponseData {
   pages: Array<{
     id: string;
+    baseId: string;
     name: string;
     isDefault: boolean;
     isHidden?: boolean;
@@ -124,10 +125,12 @@ export interface FetchPageListResponseData {
 }
 
 export interface DeletePageRequest {
-  id: string;
+  pageId: string;
 }
 
-export type ClonePageRequest = Omit<ClonePageActionPayload, "blockNavigation">;
+export interface ClonePageRequest {
+  pageId: string;
+}
 
 export interface UpdateWidgetNameRequest {
   pageId: string;
@@ -144,6 +147,8 @@ export interface GenerateTemplatePageRequest {
   columns?: string[];
   searchColumn?: string;
   mode?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pluginSpecificParams?: Record<any, any>;
 }
 
@@ -168,59 +173,41 @@ export type FetchPageResponse = ApiResponse<FetchPageResponseData>;
 export type FetchPublishedPageResponse =
   ApiResponse<FetchPublishedPageResponseData>;
 
+export interface FetchAppAndPagesRequest {
+  applicationId?: string | null;
+  pageId?: string | null;
+  mode: APP_MODE;
+}
+
 class PageApi extends Api {
   static url = "v1/pages";
-  static refactorLayoutURL = "v1/layouts/refactor";
   static pageUpdateCancelTokenSource?: CancelTokenSource = undefined;
-  static getLayoutUpdateURL = (
-    applicationId: string,
-    pageId: string,
-    layoutId: string,
-  ) => {
-    return `v1/layouts/${layoutId}/pages/${pageId}?applicationId=${applicationId}`;
-  };
-
-  static getGenerateTemplateURL = (pageId?: string) => {
-    return `${PageApi.url}/crud-page${pageId ? `/${pageId}` : ""}`;
-  };
 
   static getPublishedPageURL = (pageId: string, bustCache?: boolean) => {
     const url = `v1/pages/${pageId}/view`;
     return !!bustCache ? url + "?v=" + +new Date() : url;
   };
 
-  static getSaveAllPagesURL = (applicationId: string) => {
-    return `v1/layouts/application/${applicationId}`;
-  };
-
-  static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
-  static setPageOrderUrl = (
-    applicationId: string,
-    pageId: string,
-    order: number,
-  ) => `v1/applications/${applicationId}/page/${pageId}/reorder?order=${order}`;
-
   static async fetchPage(
     pageRequest: FetchPageRequest,
   ): Promise<AxiosPromise<FetchPageResponse>> {
     const params = { migrateDsl: pageRequest.migrateDSL };
-    return Api.get(PageApi.url + "/" + pageRequest.id, undefined, { params });
+    return Api.get(PageApi.url + "/" + pageRequest.pageId, undefined, {
+      params,
+    });
   }
 
   static savePage(
-    savePageRequest: SavePageRequest,
+    request: SavePageRequest,
   ): AxiosPromise<SavePageResponse> | undefined {
     if (PageApi.pageUpdateCancelTokenSource) {
       PageApi.pageUpdateCancelTokenSource.cancel();
     }
-    const body = { dsl: savePageRequest.dsl };
+    const body = { dsl: request.dsl };
     PageApi.pageUpdateCancelTokenSource = axios.CancelToken.source();
+    const { applicationId, layoutId, pageId } = request;
     return Api.put(
-      PageApi.getLayoutUpdateURL(
-        savePageRequest.applicationId,
-        savePageRequest.pageId,
-        savePageRequest.layoutId,
-      ),
+      `v1/layouts/${layoutId}/pages/${pageId}?applicationId=${applicationId}`,
       body,
       undefined,
       { cancelToken: PageApi.pageUpdateCancelTokenSource.token },
@@ -231,7 +218,7 @@ class PageApi extends Api {
     applicationId: string,
     pageLayouts: PageLayoutsRequest[],
   ) {
-    return Api.put(PageApi.getSaveAllPagesURL(applicationId), {
+    return Api.put(`v1/layouts/application/${applicationId}`, {
       pageLayouts,
     });
   }
@@ -245,78 +232,58 @@ class PageApi extends Api {
   }
 
   static async createPage(
-    createPageRequest: CreatePageRequest,
+    request: CreatePageRequest,
   ): Promise<AxiosPromise<FetchPageResponse>> {
-    return Api.post(PageApi.url, createPageRequest);
+    return Api.post(PageApi.url, request);
   }
 
   static async updatePage(
     request: UpdatePageRequest,
   ): Promise<AxiosPromise<ApiResponse<UpdatePageResponse>>> {
-    return Api.put(PageApi.updatePageUrl(request.id), {
-      ...request,
-      id: undefined,
-    });
+    const { pageId, ...rest } = request;
+    return Api.put(`${PageApi.url}/${pageId}`, rest);
   }
 
   static async generateTemplatePage(
     request: GenerateTemplatePageRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const payload = {
-      ...request,
-      pageId: undefined,
-    };
-    if (request.pageId) {
-      return Api.put(PageApi.getGenerateTemplateURL(request.pageId), payload);
+    const { pageId, ...rest } = request;
+    if (pageId) {
+      return Api.put(`${PageApi.url}/crud-page/${pageId}`, rest);
     } else {
-      return Api.post(PageApi.getGenerateTemplateURL(), payload);
+      return Api.post(`${PageApi.url}/crud-page`, rest);
     }
-  }
-
-  static async fetchPageList(
-    applicationId: string,
-  ): Promise<AxiosPromise<FetchPageListResponse>> {
-    return Api.get(PageApi.url + "/application/" + applicationId);
-  }
-
-  static async fetchPageListViewMode(
-    applicationId: string,
-  ): Promise<AxiosPromise<FetchPageListResponse>> {
-    return Api.get(PageApi.url + "/view/application/" + applicationId);
   }
 
   static async deletePage(
     request: DeletePageRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
-    return Api.delete(PageApi.url + "/" + request.id);
+    return Api.delete(`${PageApi.url}/${request.pageId}`);
   }
 
   static async clonePage(
     request: ClonePageRequest,
-  ): Promise<AxiosPromise<ApiResponse>> {
-    return Api.post(PageApi.url + "/clone/" + request.id);
+  ): Promise<AxiosPromise<FetchPageResponse>> {
+    return Api.post(`${PageApi.url}/clone/${request.pageId}`);
   }
 
   static async updateWidgetName(
     request: UpdateWidgetNameRequest,
   ): Promise<AxiosPromise<UpdateWidgetNameResponse>> {
-    return Api.put(PageApi.refactorLayoutURL, request);
+    return Api.put("v1/layouts/refactor", request);
   }
 
   static async setPageOrder(
     request: SetPageOrderRequest,
   ): Promise<AxiosPromise<FetchPageListResponse>> {
+    const { applicationId, order, pageId } = request;
     return Api.put(
-      PageApi.setPageOrderUrl(
-        request.applicationId,
-        request.pageId,
-        request.order,
-      ),
+      `v1/applications/${applicationId}/page/${pageId}/reorder?order=${order}`,
     );
   }
 
   static async fetchAppAndPages(
-    params: any,
+    params: FetchAppAndPagesRequest,
   ): Promise<AxiosPromise<FetchApplicationResponse>> {
     return Api.get(PageApi.url, params);
   }

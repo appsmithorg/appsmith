@@ -45,6 +45,8 @@ export function generateMockDataWithSectionAndZone() {
       },
     ],
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allWidgets: any = {
     [mockWidgetId]: {
       widgetId: mockWidgetId,
@@ -70,6 +72,8 @@ export function generateMockDataWithSectionAndZone() {
       layout: [mainCanvasLayout],
     },
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const copiedWidgets: any = [
     {
       list: [allWidgets[mockWidgetId]],

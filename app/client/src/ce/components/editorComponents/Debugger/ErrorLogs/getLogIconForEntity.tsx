@@ -8,7 +8,7 @@ import {
   EntityIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 type IconProps = LogItemProps & {

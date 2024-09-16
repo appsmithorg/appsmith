@@ -11,11 +11,11 @@ import type { JSCollection } from "entities/JSCollection";
 import type {
   BufferedReduxAction,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 
 describe("getAffectedJSObjectIdsFromAction", () => {
   const jsObject1 = { id: "1234" } as JSCollection;

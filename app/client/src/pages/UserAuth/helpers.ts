@@ -1,9 +1,9 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 import { useCallback, useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
-import UserApi from "@appsmith/api/UserApi";
-import { toast } from "design-system";
+import UserApi from "ee/api/UserApi";
+import { toast } from "@appsmith/ads";
 import type { ApiResponse } from "../../api/ApiResponses";
 
 export interface LoginFormValues {
@@ -32,7 +32,11 @@ export interface ForgotPasswordFormValues {
 
 export const signupFormSubmitHandler = async (
   values: SignupFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email, password } = values;
   return new Promise((resolve, reject) => {
@@ -52,7 +56,11 @@ export const signupFormSubmitHandler = async (
 
 export const resetPasswordSubmitHandler = async (
   values: ResetPasswordFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email, password, token } = values;
   return new Promise((resolve, reject) => {
@@ -73,7 +81,11 @@ export const resetPasswordSubmitHandler = async (
 
 export const createPasswordSubmitHandler = async (
   values: CreatePasswordFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email, password, token } = values;
   return new Promise((resolve, reject) => {
@@ -94,7 +106,11 @@ export const createPasswordSubmitHandler = async (
 
 export const forgotPasswordSubmitHandler = async (
   values: ForgotPasswordFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email } = values;
   return new Promise((resolve, reject) => {

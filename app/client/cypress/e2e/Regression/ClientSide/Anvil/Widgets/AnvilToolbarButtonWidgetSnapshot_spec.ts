@@ -6,22 +6,25 @@ import {
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Toolbar Button Widget`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
     before(() => {
       agHelper.AddDsl("anvilToolbarButtonWidget");
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.verifyCanvasMode("ToolbarButtonWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("ToolbarButtonWidget");
+      anvilSnapshot.setTheme("dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("ToolbarButtonWidget", "dark");
+      anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("ToolbarButtonWidget");
+      anvilSnapshot.matchSnapshotForPreviewMode("ToolbarButtonWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("ToolbarButtonWidget");
+      anvilSnapshot.matchSnapshotForDeployMode("ToolbarButtonWidget");
     });
   },
 );

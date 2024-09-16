@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function useHover(ref: any) {
   const [hover, setHover] = useState(false);
   const onMouseEnter = () => setHover(true);

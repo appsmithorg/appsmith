@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
-import type { TreeDropdownOption } from "design-system-old";
-import { TreeDropdown } from "design-system-old";
-import { Input } from "design-system";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+import { TreeDropdown } from "@appsmith/ads-old";
+import { Input } from "@appsmith/ads";
 import { debounce } from "lodash";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { AppsmithFunction, FieldType } from "../../constants";
@@ -62,6 +62,8 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionType = (selectedOption.type || selectedOption.value) as any;
 
   const { action } = getActionInfo(valueWithoutMoustache, actionType, true);

@@ -20,10 +20,10 @@ import {
   Select,
   Text,
   toast,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 import { CopyButton } from "../../components/CopyButton";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   ADD_DEPLOY_KEY_STEP_TITLE,
   CONSENT_ADDED_DEPLOY_KEY,
@@ -33,7 +33,7 @@ import {
   HOW_TO_ADD_DEPLOY_KEY,
   READ_DOCS,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useSSHKeyPair } from "../../hooks";
 import type { GitProvider } from "./ChooseGitProvider";
 import { GIT_DEMO_GIF } from "./constants";
@@ -141,6 +141,8 @@ interface AddDeployKeyProps {
   onChange: (args: Partial<AddDeployKeyState>) => void;
   value: Partial<AddDeployKeyState>;
   isImport?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errorData?: any;
   connectLoading?: boolean;
 }

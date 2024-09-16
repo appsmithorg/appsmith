@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import store from "store";
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { BrowserRouter } from "react-router-dom";
 

@@ -10,7 +10,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import * as log from "loglevel";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
@@ -54,6 +54,8 @@ export function* buildWidgetBlueprint(
 export interface UpdatePropertyArgs {
   widgetId: string;
   propertyName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any;
 }
 export type BlueprintOperationAddActionFn = () => void;

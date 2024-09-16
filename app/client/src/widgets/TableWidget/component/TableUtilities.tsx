@@ -45,7 +45,7 @@ import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
 import tinycolor from "tinycolor2";
 import { generateTableColumnId } from "./TableHelpers";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const CheckBoxLineIcon = importSvg(
   async () => import("assets/icons/widget/table/checkbox-line.svg"),
@@ -55,6 +55,8 @@ const CheckBoxCheckIcon = importSvg(
 );
 
 export const renderCell = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   columnType: string,
   isHidden: boolean,
@@ -516,9 +518,15 @@ export const renderCheckBoxHeaderCell = (
 
 export const renderEmptyRows = (
   rowCount: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: any,
   tableWidth: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   page: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareRow: any,
   multiRowSelection = false,
   accentColor: string,
@@ -537,6 +545,8 @@ export const renderEmptyRows = (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection &&
             renderCheckBoxCell(false, accentColor, borderRadius)}
+          {/* TODO: Fix this the next time the file is edited */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
             set(
@@ -574,6 +584,8 @@ export const renderEmptyRows = (
             >
               {multiRowSelection &&
                 renderCheckBoxCell(false, accentColor, borderRadius)}
+              {/* TODO: Fix this the next time the file is edited */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {tableColumns.map((column: any, colIndex: number) => {
                 return (
                   <div
@@ -631,6 +643,8 @@ export function TableHeaderCell(props: {
   isAscOrder?: boolean;
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
@@ -691,6 +705,8 @@ export function TableHeaderCell(props: {
 export function getDefaultColumnProperties(
   accessor: string,
   index: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widgetProperties: any,
   isDerived?: boolean,
 ): ColumnProperties {

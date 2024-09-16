@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import history from "utils/history";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
@@ -10,57 +10,58 @@ import BackToCanvas from "components/common/BackToCanvas";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { changeQuery } from "actions/queryPaneActions";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
-  getAction,
+  getActionByBaseId,
   getIsActionConverting,
   getPluginImages,
   getPluginSettingConfigs,
-} from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+} from "ee/selectors/entitiesSelector";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import { QueryEditorContextProvider } from "./QueryEditorContext";
 import type { QueryEditorRouteParams } from "constants/routes";
 import {
   getHasCreateActionPermission,
   getHasDeleteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import Disabler from "pages/common/Disabler";
-import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
-import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
+import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import { MODULE_TYPE } from "ee/constants/ModuleConstants";
+import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { AppPluginActionEditor } from "../AppPluginActionEditor";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
 function QueryEditor(props: QueryEditorProps) {
-  const { apiId, queryId } = props.match.params;
-  const actionId = queryId || apiId;
+  const { baseApiId, basePageId, baseQueryId } = props.match.params;
+  const baseActionId = baseQueryId || baseApiId;
   const dispatch = useDispatch();
-  const action = useSelector((state) => getAction(state, actionId || ""));
+  const action = useSelector((state) =>
+    getActionByBaseId(state, baseActionId || ""),
+  );
   const pluginId = action?.pluginId || "";
   const isEditorInitialized = useSelector(getIsEditorInitialized);
   const applicationId: string = useSelector(getCurrentApplicationId);
-  const pageId: string = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const settingsConfig = useSelector((state) =>
     getPluginSettingConfigs(state, pluginId),
   );
   const pagePermissions = useSelector(getPagePermissions);
   const isConverting = useSelector((state) =>
-    getIsActionConverting(state, actionId || ""),
+    getIsActionConverting(state, action?.id || ""),
   );
   const pluginImages = useSelector(getPluginImages);
   const editorMode = useSelector(getIDEViewMode);
@@ -102,12 +103,12 @@ function QueryEditor(props: QueryEditorProps) {
     return (
       <>
         <MoreActionsMenu
+          basePageId={basePageId}
           className="t--more-action-menu"
           id={action?.id || ""}
           isChangePermitted={isChangePermitted}
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
-          pageId={pageId}
           prefixAdditionalMenus={
             editorMode === EditorViewMode.SplitScreen && (
               <ConvertToModuleInstanceCTA {...convertToModuleProps} />
@@ -126,26 +127,28 @@ function QueryEditor(props: QueryEditorProps) {
     action?.name,
     isChangePermitted,
     isDeletePermitted,
-    pageId,
+    basePageId,
     isCreatePermitted,
     editorMode,
   ]);
 
   const actionRightPaneBackLink = useMemo(() => {
-    return <BackToCanvas pageId={pageId} />;
-  }, [pageId]);
+    return <BackToCanvas basePageId={basePageId} />;
+  }, [basePageId]);
 
   const changeQueryPage = useCallback(
-    (queryId: string) => {
-      dispatch(changeQuery({ id: queryId, pageId, applicationId }));
+    (baseQueryId: string) => {
+      dispatch(
+        changeQuery({ baseQueryId: baseQueryId, basePageId, applicationId }),
+      );
     },
-    [pageId, applicationId],
+    [basePageId, applicationId],
   );
 
   const onCreateDatasourceClick = useCallback(() => {
     history.push(
       integrationEditorURL({
-        pageId,
+        basePageId: basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -155,7 +158,7 @@ function QueryEditor(props: QueryEditorProps) {
       entryPoint,
     });
   }, [
-    pageId,
+    basePageId,
     history,
     integrationEditorURL,
     DatasourceCreateEntryPoints,
@@ -167,11 +170,11 @@ function QueryEditor(props: QueryEditorProps) {
     () =>
       history.push(
         integrationEditorURL({
-          pageId,
+          basePageId: basePageId,
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),
       ),
-    [pageId, history, integrationEditorURL],
+    [basePageId, history, integrationEditorURL],
   );
 
   const notification = useMemo(() => {
@@ -185,6 +188,14 @@ function QueryEditor(props: QueryEditorProps) {
       />
     );
   }, [action?.name, isConverting]);
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
+  if (isActionRedesignEnabled) {
+    return <AppPluginActionEditor />;
+  }
 
   return (
     <QueryEditorContextProvider

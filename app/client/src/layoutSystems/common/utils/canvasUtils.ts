@@ -31,6 +31,8 @@ export function renderChildWidget({
   widgetId: string;
   renderMode: RenderModes;
   layoutSystemProps: LayoutSystemProps;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultWidgetProps: Record<string, any>;
   noPad: boolean;
 }): React.ReactNode | null {

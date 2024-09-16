@@ -1,0 +1,12 @@
+import React from "react";
+
+import { {{capitalize name}}Props } from "./{{capitalize name}}.types";
+import { Styled{{capitalize name}} } from "./{{capitalize name}}.styles";
+
+function {{capitalize name}}({ children, ...rest }: {{capitalize name}}Props) {
+  return <Styled{{capitalize name}} {...rest}>{children}</Styled{{capitalize name}}>;
+}
+
+{{capitalize name}}.displayName = "{{capitalize name}}";
+
+export { {{capitalize name}} };

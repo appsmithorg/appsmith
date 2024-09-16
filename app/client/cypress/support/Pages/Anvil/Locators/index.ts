@@ -1,6 +1,6 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetConstants";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/viewer/canvas/utils";
-import { AnvilDataAttributes } from "../../../../../src/widgets/anvil/constants";
+import { AnvilDataAttributes } from "../../../../../src/widgets/wds/constants";
 
 // anvil widget based selectors
 const anvilWidgetSelector = "[data-testid=t--anvil-widget-wrapper]";
@@ -14,6 +14,9 @@ const anvilWidgetBasedSelectors = {
   anvilWidgetTypeSelector: (widgetType: string) => {
     return `.t--widget-${widgetType}`;
   },
+  anvilWidgetNameSelectorFromEntityExplorer: (widgetName: string) => {
+    return `[data-testid=t--entity-item-${widgetName}]`;
+  },
 };
 
 const anvilModalWidgetSelectors = {
@@ -26,6 +29,11 @@ const anvilModalWidgetSelectors = {
   anvilModalFooterSubmitButtonSelector: (widgetName: string) => {
     return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} > div > div:last-child > button[data-button]:last-child`;
   },
+};
+
+const anvilOnCanvasUISelectors = {
+  anvilOnCanvasWidgetNameSelector:
+    "[data-testid=t--anvil-draggable-widget-name]",
 };
 
 // sections and zones based selectors
@@ -65,4 +73,5 @@ export const anvilLocators = {
   ...anvilWidgetsLocators,
   ...anvilSectionAndZonesBasedSelectors,
   ...anvilDnDBasedSelectors,
+  ...anvilOnCanvasUISelectors,
 };

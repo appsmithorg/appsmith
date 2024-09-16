@@ -1,3 +1,5 @@
+@import "../../../shared/colors/colors.module.css";
+
 .icon {
   &[data-size="small"] {
     inline-size: var(--icon-size-1);
@@ -15,5 +17,11 @@
     inline-size: var(--icon-size-3);
     block-size: var(--icon-size-3);
     stroke-width: var(--stroke-width-3);
+  }
+
+  @each $color in colors {
+    &[data-color="$(color)"] {
+      color: var(--color-fg-$(color));
+    }
   }
 }

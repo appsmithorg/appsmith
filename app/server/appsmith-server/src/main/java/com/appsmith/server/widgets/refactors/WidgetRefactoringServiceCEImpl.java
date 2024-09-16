@@ -95,7 +95,7 @@ public class WidgetRefactoringServiceCEImpl implements EntityRefactoringServiceC
     }
 
     @Override
-    public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
+    public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO) {
         // Do nothing, DSL refactor will take care of this
         return Mono.empty().then();
     }

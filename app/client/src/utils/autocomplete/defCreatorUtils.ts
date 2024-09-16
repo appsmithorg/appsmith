@@ -1,5 +1,5 @@
 import { isTrueObject } from "@shared/ast/src/utils";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { Variable } from "entities/JSCollection";
 import { isObject, uniqueId } from "lodash";

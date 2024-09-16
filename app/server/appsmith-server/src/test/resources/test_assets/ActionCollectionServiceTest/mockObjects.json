@@ -2,9 +2,6 @@
   "newPage": {
     "id": "testPageId",
     "applicationId": "testApplicationId",
-    "defaultResources": {
-      "pageId" : "testPageId"
-    },
     "unpublishedPage": {
       "name": "TestPage",
       "layouts": [
@@ -16,9 +13,7 @@
             "children": []
           },
           "layoutOnLoadActions": [],
-          "widgetNames": [
-            "MainContainer"
-          ],
+          "widgetNames": ["MainContainer"],
           "allOnPageLoadActionNames": [],
           "actionsUsedInDynamicBindings": [],
           "policies": []
@@ -35,9 +30,7 @@
             "widgetName": "MainContainer",
             "children": []
           },
-          "widgetNames": [
-            "MainContainer"
-          ],
+          "widgetNames": ["MainContainer"],
           "policies": []
         }
       ]

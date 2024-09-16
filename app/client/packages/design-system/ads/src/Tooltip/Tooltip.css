@@ -1,0 +1,55 @@
+/* TODO: Find a better way to style */
+/* wrapping in styled component is not working anymore */
+.rc-tooltip.ads-v2-tooltip {
+  --ads-v2-colors-content-tooltip-surface-default-bg: var(
+    --ads-v2-color-bg-emphasis-max
+  );
+  --ads-v2-colors-content-tooltip-label-default-fg: var(
+    --ads-v2-color-fg-on-emphasis-max
+  );
+
+  /* This is important because the styles is getting overridden by main repo */
+  opacity: 1;
+  z-index: 100000;
+  max-width: 300px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+/* Tooltip inner element styles */
+.ads-v2-tooltip > .rc-tooltip-content > .rc-tooltip-inner {
+  background-color: var(--ads-v2-colors-content-tooltip-surface-default-bg);
+  color: var(--ads-v2-colors-content-tooltip-label-default-fg);
+  font-family: var(--ads-v2-font-family);
+  border-radius: var(--ads-v2-border-radius);
+  min-height: unset;
+  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+  box-shadow:
+    0 2px 4px -2px rgba(0, 0, 0, 0.06),
+    0 4px 8px -2px rgba(0, 0, 0, 0.1);
+}
+
+/* arrow color for different placement */
+.ads-v2-tooltip.rc-tooltip-placement-right .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-rightTop .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-rightBottom .rc-tooltip-arrow {
+  border-right-color: var(--ads-v2-colors-content-tooltip-surface-default-bg);
+}
+
+.ads-v2-tooltip.rc-tooltip-placement-left .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-leftTop .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-leftBottom .rc-tooltip-arrow {
+  border-left-color: var(--ads-v2-colors-content-tooltip-surface-default-bg);
+}
+
+.ads-v2-tooltip.rc-tooltip-placement-top .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-topLeft .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-topRight .rc-tooltip-arrow {
+  border-top-color: var(--ads-v2-colors-content-tooltip-surface-default-bg);
+}
+
+.ads-v2-tooltip.rc-tooltip-placement-bottom .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-bottomLeft .rc-tooltip-arrow,
+.ads-v2-tooltip.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
+  border-bottom-color: var(--ads-v2-colors-content-tooltip-surface-default-bg);
+}

@@ -4,24 +4,24 @@ import {
   START_WITH_DATA_CONNECT_HEADING,
   START_WITH_DATA_CONNECT_SUBHEADING,
   createMessage,
-} from "@appsmith/constants/messages";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { getCurrentPluginIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+} from "ee/constants/messages";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
+import { getCurrentPluginIdForCreateNewApp } from "ee/selectors/applicationSelectors";
 import {
   resetCurrentApplicationIdForCreateNewApp,
   resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
 import { fetchPlugins } from "actions/pluginActions";
-import { Flex, Link, Text } from "design-system";
+import { Flex, Link, Text } from "@appsmith/ads";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { default as React, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import history from "utils/history";
-import { builderURL } from "@appsmith/RouteBuilder";
-import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { builderURL } from "ee/RouteBuilder";
+import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { PluginPackageName, PluginType } from "entities/Action";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
@@ -29,9 +29,9 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
-import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
-import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { fetchingEnvironmentConfigs } from "ee/actions/environmentAction";
+import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   display: flex;
@@ -145,17 +145,17 @@ const CreateNewAppsOption = ({
       {
         applicationSlug: applicationObject.slug,
         applicationVersion: applicationObject.applicationVersion,
-        applicationId: applicationObject.id,
+        baseApplicationId: applicationObject.baseId,
       },
       applicationObject.pages.map((page) => ({
         pageSlug: page.slug,
         customSlug: page.customSlug,
-        pageId: page.id,
+        basePageId: page.baseId,
       })),
     );
     history.push(
       builderURL({
-        pageId: applicationObject.pages[0].id,
+        basePageId: applicationObject.pages[0].baseId,
       }),
     );
 
@@ -178,12 +178,12 @@ const CreateNewAppsOption = ({
         {
           applicationSlug: application.slug,
           applicationVersion: application.applicationVersion,
-          applicationId: application.id,
+          baseApplicationId: application.baseId,
         },
         application.pages.map((page) => ({
           pageSlug: page.slug,
           customSlug: page.customSlug,
-          pageId: page.id,
+          basePageId: page.baseId,
         })),
       );
 

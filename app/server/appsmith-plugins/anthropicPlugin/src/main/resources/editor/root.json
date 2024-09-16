@@ -1,32 +1,35 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose the method you would like to use",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "CHAT",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z1",
+          "children": [
             {
-              "label": "Chat",
-              "value": "CHAT"
-            },
-            {
-              "label": "Vision",
-              "value": "VISION"
+              "label": "Command",
+              "description": "Choose the method you would like to use",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "initialValue": "CHAT",
+              "options": [
+                {
+                  "label": "Chat",
+                  "value": "CHAT"
+                },
+                {
+                  "label": "Vision",
+                  "value": "VISION"
+                }
+              ]
             }
           ]
         }
       ]
     }
   ],
-  "files": [
-    "chat.json",
-    "vision.json"
-  ]
+  "files": ["chat.json", "vision.json"]
 }

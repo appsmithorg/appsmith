@@ -1,17 +1,17 @@
 import React, { useContext, useMemo } from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import history from "utils/history";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import { INTEGRATION_TABS } from "constants/routes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { useParams } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
   createMessage,
   DATASOURCE_DROPDOWN_OPTIONS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
 
@@ -30,7 +30,7 @@ function useOtherOptions(props: OtherOptionsProps) {
     sampleData,
     updateConfig,
   } = useContext(WidgetQueryGeneratorFormContext);
-  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+  const { basePageId } = useParams<ExplorerURLParams>();
   const isAddBindingAllowed =
     datasourceDropdownVariant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS;
   const { widget } = props;
@@ -44,7 +44,7 @@ function useOtherOptions(props: OtherOptionsProps) {
         onSelect: () => {
           history.push(
             integrationEditorURL({
-              pageId: currentPageId,
+              basePageId,
               selectedTab: INTEGRATION_TABS.NEW,
             }),
           );
@@ -117,14 +117,7 @@ function useOtherOptions(props: OtherOptionsProps) {
     }
 
     return options;
-  }, [
-    currentPageId,
-    sampleData,
-    addBinding,
-    updateConfig,
-    widget,
-    propertyName,
-  ]);
+  }, [basePageId, sampleData, addBinding, updateConfig, widget, propertyName]);
 
   return otherOptions;
 }

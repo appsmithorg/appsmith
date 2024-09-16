@@ -9,7 +9,7 @@ import {
   EmptyCell,
   EmptyRow,
 } from "../TableStyledWrappers";
-import { Text } from "@design-system/widgets";
+import { Text } from "@appsmith/wds";
 
 const addStickyModifierClass = (
   columns: ReactTableColumnProps[],
@@ -122,6 +122,8 @@ export const renderEmptyRows = (
               role="cell"
             />
           )}
+          {/* TODO: Fix this the next time the file is edited */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {tableColumns.map((column: any, colIndex: number) => {
             const distanceFromEdge: {
               left?: number;

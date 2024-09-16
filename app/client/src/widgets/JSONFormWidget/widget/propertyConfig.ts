@@ -15,7 +15,7 @@ import {
   JSON_FORM_CONNECT_BUTTON_TEXT,
   SUCCESSFULL_BINDING_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
 
@@ -24,8 +24,12 @@ const MAX_NESTING_LEVEL = 5;
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
 
 export const sourceDataValidationFn = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: JSONFormWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ): ValidationResponse => {
   if (value === "") {
@@ -122,8 +126,11 @@ export const onGenerateFormClick = ({
   const widgetProperties: JSONFormWidgetProps = props.widgetProperties;
   if (widgetProperties.autoGenerateForm) return;
 
+  // TODO: Fix this the next time the file is edited
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const currSourceData = widgetProperties[EVALUATION_PATH]?.evaluatedValues
     ?.sourceData as Record<string, any> | Record<string, any>[];
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   const prevSourceData = widgetProperties.schema?.__root_schema__?.sourceData;
 
@@ -204,6 +211,8 @@ export const contentConfig = [
                   id: "edit",
                 },
               ],
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               isVisible: (config: Record<string, any>) => {
                 // Whether the field should be visible or not based on the config
                 return config?.tableName !== "";
@@ -215,6 +224,8 @@ export const contentConfig = [
               fieldType: FieldType.SELECT,
               optionType: FieldOptionsType.WIDGETS,
               isRequired: true,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               isVisible: (config: Record<string, any>) => {
                 return config?.otherFields?.formType === "edit";
               },
@@ -229,6 +240,8 @@ export const contentConfig = [
               getDefaultValue: (options: Record<string, unknown>) => {
                 return options?.primaryColumn;
               },
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               isVisible: (config: Record<string, any>) => {
                 return config?.otherFields?.formType === "edit";
               },

@@ -72,13 +72,13 @@ jobs:
         with:
           files: "app/client/**"
 
-      - name: Run step if any file(s) in the client folder change
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
-        run: |
-          echo "One or more files in the server folder has changed."
-          echo "List all the files that have changed: $ALL_CHANGED_FILES"
+      #- name: Run step if any file(s) in the client folder change
+      #  if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #  env:
+      #    ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+      #  run: |
+      #    echo "One or more files in the server folder has changed."
+      #    echo "List all the files that have changed: $ALL_CHANGED_FILES"
 
       - name: Check compliance
         if: inputs.pr != 0 && steps.changed-files-specific.outputs.any_changed == 'true'
@@ -227,6 +227,7 @@ jobs:
           reponame: ${{ github.event.repository.name }}
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        # git lfs update --force in the script below overrides appsmith git hooks with git lfs hooks since appsmith hooks are not required during workflow runs
         run: |
           pwd
           mkdir cacherepo
@@ -234,6 +235,7 @@ jobs:
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs update --force
           git lfs install
           cd cibuildcache/
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi

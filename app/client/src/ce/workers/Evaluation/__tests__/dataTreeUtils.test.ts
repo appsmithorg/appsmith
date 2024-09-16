@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
+import { makeEntityConfigsAsObjProperties } from "ee/workers/Evaluation/dataTreeUtils";
 
 const unevalTreeFromMainThread = {
   Api2: {

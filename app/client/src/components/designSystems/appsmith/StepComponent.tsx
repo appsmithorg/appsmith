@@ -1,4 +1,4 @@
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 

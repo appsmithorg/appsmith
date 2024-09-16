@@ -7,8 +7,8 @@ import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import { getFormEvaluationState } from "selectors/formSelectors";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isEmpty } from "lodash";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { isActionSaving } from "@appsmith/selectors/entitiesSelector";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { isActionSaving } from "ee/selectors/entitiesSelector";
 
 export default class QueryPaneNavigation extends ActionPaneNavigation {
   constructor(entityInfo: EntityInfo) {

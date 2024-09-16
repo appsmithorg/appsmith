@@ -1,15 +1,15 @@
 import React from "react";
-import { Button, Flex, SegmentedControl } from "design-system";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
+import { Button, Flex, SegmentedControl } from "@appsmith/ads";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
+import { EditorEntityTab } from "ee/entities/IDE/constants";
 import history from "utils/history";
-import { globalAddURL } from "@appsmith/RouteBuilder";
+import { globalAddURL } from "ee/RouteBuilder";
 import { useSelector } from "react-redux";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 const Container = styled(Flex)`
   #editor-pane-segment-control {
@@ -26,9 +26,9 @@ const SegmentedHeader = () => {
   const isGlobalAddPaneEnabled = useFeatureFlag(
     FEATURE_FLAG.release_global_add_pane_enabled,
   );
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const onAddButtonClick = () => {
-    history.push(globalAddURL({ pageId }));
+    history.push(globalAddURL({ basePageId }));
   };
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();

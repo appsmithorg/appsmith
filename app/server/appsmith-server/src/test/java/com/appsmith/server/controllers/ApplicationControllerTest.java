@@ -23,7 +23,6 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -46,7 +44,6 @@ import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.any;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureWebTestClient
 @EnableAutoConfiguration(exclude = ReactiveMultipartAutoConfiguration.class)

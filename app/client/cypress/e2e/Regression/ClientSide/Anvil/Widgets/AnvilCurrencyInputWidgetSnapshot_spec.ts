@@ -6,7 +6,7 @@ import {
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Currency Input Widget`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
     before(() => {
       agHelper.AddDsl("anvilCurrencyInputWidget");
@@ -14,15 +14,18 @@ describe(
 
     it("1. Canvas Mode", () => {
       anvilSnapshot.triggerInputInvalidState();
-      anvilSnapshot.verifyCanvasMode("CurrencyInputWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("CurrencyInputWidget");
+      anvilSnapshot.setTheme("dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("CurrencyInputWidget", "dark");
+      anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("CurrencyInputWidget");
+      anvilSnapshot.matchSnapshotForPreviewMode("CurrencyInputWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("CurrencyInputWidget");
+      anvilSnapshot.matchSnapshotForDeployMode("CurrencyInputWidget");
     });
   },
 );

@@ -28,6 +28,8 @@ import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 export interface WidgetOperationParams {
   operation: WidgetOperation;
   widgetId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any;
 }
 

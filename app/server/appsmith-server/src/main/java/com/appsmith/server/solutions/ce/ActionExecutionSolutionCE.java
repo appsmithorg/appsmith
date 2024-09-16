@@ -13,11 +13,7 @@ import java.util.Map;
 
 public interface ActionExecutionSolutionCE {
     Mono<ActionExecutionResult> executeAction(
-            Flux<Part> partFlux,
-            String branchName,
-            String environmentId,
-            HttpHeaders httpHeaders,
-            Boolean operateWithoutPermission);
+            Flux<Part> partFlux, String environmentId, HttpHeaders httpHeaders, Boolean operateWithoutPermission);
 
     Mono<ActionExecutionResult> executeAction(
             ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO);

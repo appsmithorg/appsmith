@@ -15,10 +15,12 @@ import {
 import type { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hiddenTrueInputs: any = [
       { values: { name: "Name" }, hidden: true },
       {
@@ -87,12 +89,16 @@ describe("isHidden test", () => {
       },
     ];
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     hiddenTrueInputs.forEach((input: any) => {
       expect(isHidden(input.values, input.hidden)).toBeTruthy();
     });
   });
 
   it("Test for isHidden false", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hiddenFalseInputs: any = [
       { values: { name: "Name" }, hidden: false },
       {
@@ -209,6 +215,8 @@ describe("isHidden test", () => {
       },
     ];
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     hiddenFalseInputs.forEach((input: any) => {
       expect(isHidden(input.values, input.hidden)).toBeFalsy();
     });
@@ -433,6 +441,8 @@ describe("json/form viewTypes test", () => {
   });
 
   it("should change the viewType", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const outputValues: any[] = [
       {
         actionConfiguration: {
@@ -550,6 +560,8 @@ describe("json/form viewTypes test", () => {
     const customSetterFunction = (
       formName: string,
       path: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value: any,
     ) => {
       set(outputValues[Number(formName.split("-")[1])], path, value);
@@ -576,6 +588,8 @@ describe("json/form viewTypes test", () => {
         },
       },
     };
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const expectedOutputValues: any[] = [
       {
         actionConfiguration: {
@@ -862,6 +876,8 @@ describe("UQI form render methods", () => {
   });
 
   it("check if valid form config", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const testCases: any[] = [
       {
         input: {},
@@ -961,6 +977,8 @@ describe("UQI form render methods", () => {
 });
 
 // Constant evaluation object used for testing
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const formEvaluation: Record<string, any> = {
   propertyName: {
     conditionals: {},

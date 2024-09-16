@@ -17,7 +17,7 @@ import { evaluateHiddenProperty } from "./helpers";
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import equal from "fast-deep-equal/es6";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface PropertyControlsGeneratorProps {
@@ -99,6 +99,8 @@ const generatePropertyControl = (
 };
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
 
   const isCollapseAllExceptDataEnabled: boolean = useFeatureFlag(

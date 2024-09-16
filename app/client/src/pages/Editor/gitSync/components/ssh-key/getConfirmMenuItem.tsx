@@ -8,8 +8,8 @@ import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   REGENERATE_KEY_CONFIRM_MESSAGE,
   YES,
-} from "@appsmith/constants/messages";
-import { Button, MenuItem, Text } from "design-system";
+} from "ee/constants/messages";
+import { Button, MenuItem, Text } from "@appsmith/ads";
 
 /**
  * getConfirmMenuItem

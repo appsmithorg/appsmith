@@ -7,19 +7,22 @@ import {
   EditableText,
   EditInteractionKind,
   SavingState,
-} from "design-system-old";
-import type { TooltipPlacement } from "design-system";
-import { Tooltip, Button } from "design-system";
+} from "@appsmith/ads-old";
+import type { TooltipPlacement } from "@appsmith/ads";
+import { Tooltip, Button } from "@appsmith/ads";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import type { WidgetType } from "constants/WidgetConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import {
+  getIsCurrentWidgetRecentlyAdded,
+  getPropertyPaneWidth,
+} from "selectors/propertyPaneSelectors";
 
 interface PropertyPaneTitleProps {
   title: string;
@@ -29,6 +32,8 @@ interface PropertyPaneTitleProps {
   onBackClick?: () => void;
   isPanelTitle?: boolean;
   actions: Array<{
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tooltipContent: any;
     icon: ReactElement;
     tooltipPosition?: TooltipPlacement;
@@ -61,6 +66,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const isCurrentWidgetRecentlyAdded = useSelector(
     getIsCurrentWidgetRecentlyAdded,
   );
+  const width = useSelector(getPropertyPaneWidth);
 
   const { dispatchInteractionAnalyticsEvent, eventEmitterRef } =
     useInteractionAnalyticsEvent<HTMLDivElement>();
@@ -158,8 +164,9 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   return props.widgetId || props.isPanelTitle ? (
     <div
-      className="flex items-center w-full px-4 py-3 space-x-1 fixed bg-white z-3"
+      className="flex items-center px-4 py-3 space-x-1 fixed bg-white z-3"
       ref={eventEmitterRef}
+      style={{ width: width + "px" }}
     >
       {/* BACK BUTTON */}
       {props.isPanelTitle && (

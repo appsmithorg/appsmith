@@ -10,11 +10,11 @@ import {
   MenuSubContent,
   Tooltip,
   MenuSeparator,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { AddButtonWrapper, EntityClassNames } from "./Entity";
 import styled from "styled-components";
 
@@ -51,11 +51,11 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       // MenuTrigger takes focus after the Menu closes. For an input to be focused for e.g
-      // edit name we have to take focus back from it.
+      // Rename we have to take focus back from it.
       // Without this the input takes focus first post which the Menu closes post which MenuTrigger
       // takes back focus.
       setTimeout(() => {
-        option.onSelect && option.onSelect(option);
+        option.onSelect?.(option);
       }, 0);
       if (option.value === "delete" && !option.confirmDelete) {
         handleOpenChange(true);

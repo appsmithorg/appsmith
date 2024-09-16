@@ -1,5 +1,5 @@
-import type { AppState } from "@appsmith/reducers";
-import type { FeatureFlag, FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import type { FeatureFlag, FeatureFlags } from "ee/entities/FeatureFlag";
 import memoize from "micro-memoize";
 import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
 

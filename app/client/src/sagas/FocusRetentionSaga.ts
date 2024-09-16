@@ -16,12 +16,12 @@ import {
 } from "actions/focusHistoryActions";
 import type { AppsmithLocationState } from "utils/history";
 import type { Action } from "entities/Action";
-import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
-import { getIDEFocusStrategy } from "@appsmith/navigation/FocusStrategy";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
 
 export interface FocusPath {
   key: string;
@@ -39,11 +39,15 @@ export interface FocusStrategy {
     previousPath: string,
     currentPath: string,
     state: AppsmithLocationState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Generator<any, Array<FocusPath>, any>;
   /** based on the route change, what states need to be stored for the previous route **/
   getEntitiesForStore: (
     path: string,
     currentPath: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Generator<any, Array<FocusPath>, any>;
   /** For entities with hierarchy, return the parent entity path for storing its state  **/
   getEntityParentUrl: (
@@ -54,6 +58,8 @@ export interface FocusStrategy {
   waitForPathLoad: (
     currentPath: string,
     previousPath: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Generator<any, void, any>;
 }
 
@@ -143,6 +149,8 @@ class FocusRetention {
     const selectors =
       this.focusStrategy.focusElements[focusPath.entityInfo.entity];
     if (!selectors) return;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const state: Record<string, any> = {};
     for (const selectorInfo of selectors) {
       state[selectorInfo.name] = yield call(

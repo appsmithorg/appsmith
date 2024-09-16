@@ -11,8 +11,12 @@ import type { ReactTableColumnProps } from "../../component/Constants";
 import memoizeOne from "memoize-one";
 
 export type getColumns = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderCell: any,
   columnWidthMap: { [key: string]: number } | undefined,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   orderedTableColumns: any,
   componentWidth: number,
   renderMode: RenderMode,
@@ -35,6 +39,8 @@ export const getColumnsPureFn: getColumns = (
   let totalColumnWidth = 0;
 
   if (isArray(orderedTableColumns)) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     orderedTableColumns.forEach((column: any) => {
       const isHidden = !column.isVisible;
 
@@ -45,6 +51,8 @@ export const getColumnsPureFn: getColumns = (
             ? column.label
             : DEFAULT_COLUMN_NAME,
         alias: column.alias,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         accessor: (row: any) => row[column.alias],
         width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
         minWidth: COLUMN_MIN_WIDTH,

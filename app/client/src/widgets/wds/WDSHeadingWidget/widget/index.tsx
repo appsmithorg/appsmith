@@ -1,8 +1,8 @@
-import { klona as clone } from "klona";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WDSParagraphWidget } from "widgets/wds/WDSParagraphWidget";
 import { HeadingIcon, HeadingThumbnail } from "appsmith-icons";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 class WDSHeadingWidget extends WDSParagraphWidget {
   static type = "WDS_HEADING_WIDGET";
@@ -33,7 +33,10 @@ class WDSHeadingWidget extends WDSParagraphWidget {
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const parentConfig = klonaRegularWithTelemetry(
+      super.getPropertyPaneContentConfig(),
+      "WDSHeadingWidget.getPropertyPaneContentConfig",
+    );
 
     const generelSectionIndex = parentConfig.findIndex(
       (section) => section.sectionName === "General",

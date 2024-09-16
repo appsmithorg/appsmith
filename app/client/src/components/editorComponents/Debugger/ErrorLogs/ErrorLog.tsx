@@ -4,7 +4,7 @@ import _debounce from "lodash/debounce";
 import styled from "styled-components";
 import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
 import { BlankState } from "../helpers";
-import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
+import { createMessage, NO_ERRORS } from "ee/constants/messages";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { Log } from "entities/AppsmithConsole";
 import { setResponsePaneScrollPosition } from "actions/debuggerActions";

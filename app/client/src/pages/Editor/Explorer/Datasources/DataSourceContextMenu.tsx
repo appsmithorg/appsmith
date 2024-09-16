@@ -3,22 +3,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
-  CONTEXT_EDIT_NAME,
+  CONTEXT_RENAME,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
-} from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
+import { getDatasource } from "ee/selectors/entitiesSelector";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -59,7 +59,7 @@ export function DataSourceContextMenu(props: {
       value: "rename",
       className: "single-select t--datasource-rename",
       onSelect: editDatasourceName,
-      label: createMessage(CONTEXT_EDIT_NAME),
+      label: createMessage(CONTEXT_RENAME),
     },
     canDeleteDatasource && {
       confirmDelete: confirmDelete,

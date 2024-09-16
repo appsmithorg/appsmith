@@ -1,19 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { Callout, Text } from "design-system";
+import { Callout, Text } from "@appsmith/ads";
 import type {
   ProductAlertConfig,
   ProductAlertState,
 } from "reducers/uiReducers/usersReducer";
-import { setMessageConfig } from "@appsmith/sagas/userSagas";
-import type { CalloutLinkProps } from "design-system/build/Callout/Callout.types";
+import { setMessageConfig } from "ee/sagas/userSagas";
+import type { CalloutLinkProps } from "@appsmith/ads";
 import moment from "moment/moment";
-import {
-  createMessage,
-  I_UNDERSTAND,
-  LEARN_MORE,
-} from "@appsmith/constants/messages";
+import { createMessage, I_UNDERSTAND, LEARN_MORE } from "ee/constants/messages";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { updateProductAlertConfig } from "actions/userActions";
 import { getIsUserLoggedIn } from "selectors/usersSelectors";

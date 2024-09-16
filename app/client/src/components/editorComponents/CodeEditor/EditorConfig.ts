@@ -1,5 +1,5 @@
 import type CodeMirror from "codemirror";
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
@@ -76,6 +76,8 @@ export interface Hinter {
   showHint: (
     editor: CodeMirror.Editor,
     entityInformation: FieldEntityInformation,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     additionalData?: any,
   ) => boolean;
   update?: (data: DataTree) => void;
@@ -108,6 +110,8 @@ export enum AUTOCOMPLETE_CLOSE_KEY {
   ")" = ")",
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isCloseKey = (key: any): key is AUTOCOMPLETE_CLOSE_KEY => {
   return AUTOCOMPLETE_CLOSE_KEY.hasOwnProperty(key);
 };
@@ -119,6 +123,8 @@ export enum MODIFIER {
   Shift = "Shift",
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isModifierKey = (key: any): key is MODIFIER => {
   return MODIFIER.hasOwnProperty(key);
 };
@@ -136,6 +142,8 @@ export const INDENTATION_CHARACTERS = {
   "\n": "\n",
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isNavKey = (key: any): key is AUTOCOMPLETE_NAVIGATION => {
   return AUTOCOMPLETE_NAVIGATION.hasOwnProperty(key);
 };
