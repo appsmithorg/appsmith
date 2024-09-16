@@ -74,5 +74,9 @@
   "NavHomePage": "[data-testid='t--default-home-icon']",
   "apiCallToast": "div.Toastify__toast-body",
   "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle",
-  "toggleButtonVariant": ".t--property-control-buttonvariant .t--js-toggle"
+  "toggleButtonVariant": ".t--property-control-buttonvariant .t--js-toggle",
+  "minDateTextArea" : ".t--property-control-mindate  .CodeMirror textarea",
+  "minDateInput" : ".t--property-control-mindate .ads-v2-input__input-section-input",
+  "datePickerInput": ".t--widget-datepickerwidget2 .bp3-input",
+  "dayPickerNextButton": ".DayPicker-NavButton--next"
 }
