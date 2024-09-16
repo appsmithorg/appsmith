@@ -67,28 +67,38 @@ public class JsonSchemaMigration {
                     // TODO: make import flow migration reactive
                     return Mono.just(migrateServerSchema(appJson))
                             .flatMap(migratedApplicationJson -> {
-                                if (migratedApplicationJson.getServerSchemaVersion() == 9
-                                        && Boolean.TRUE.equals(MigrationHelperMethods.doesRestApiRequireMigration(
-                                                migratedApplicationJson))) {
-                                    return jsonSchemaMigrationHelper
-                                            .addDatasourceConfigurationToDefaultRestApiActions(
-                                                    baseApplicationId, branchName, migratedApplicationJson)
-                                            .map(applicationJsonWithMigration10 -> {
-                                                applicationJsonWithMigration10.setServerSchemaVersion(10);
-                                                return applicationJsonWithMigration10;
-                                            });
+                                // In Server version 9, there was a bug where the Embedded REST API datasource URL
+                                // was not being persisted correctly. Once the bug was fixed,
+                                // any previously uncommitted changes started appearing as uncommitted modifications
+                                // in the apps. To automatically commit these changes
+                                // (which were now appearing as uncommitted), a migration process was needed.
+                                // This migration fetches the datasource URL from the database
+                                // and serializes it in Git if the URL exists.
+                                // If the URL is missing, it copies the empty datasource configuration
+                                // if the configuration is present in the database.
+                                // Otherwise, it leaves the configuration unchanged.
+                                // Due to an update in the migration logic after version 10 was shipped,
+                                // the entire migration process was moved to version 11.
+                                // This adjustment ensures that the same operation can be
+                                // performed again for the changes introduced in version 10.
+                                if (migratedApplicationJson.getServerSchemaVersion() == 9) {
+                                    migratedApplicationJson.setServerSchemaVersion(10);
                                 }
 
-                                migratedApplicationJson.setServerSchemaVersion(10);
+                                if (migratedApplicationJson.getServerSchemaVersion() == 10) {
+                                    if (Boolean.TRUE.equals(MigrationHelperMethods.doesRestApiRequireMigration(
+                                            migratedApplicationJson))) {
+                                        return jsonSchemaMigrationHelper
+                                                .addDatasourceConfigurationToDefaultRestApiActions(
+                                                        baseApplicationId, branchName, migratedApplicationJson);
+                                    }
+
+                                    migratedApplicationJson.setServerSchemaVersion(11);
+                                }
+
                                 return Mono.just(migratedApplicationJson);
                             })
                             .map(migratedAppJson -> {
-                                if (applicationJson
-                                        .getServerSchemaVersion()
-                                        .equals(jsonSchemaVersions.getServerVersion())) {
-                                    return applicationJson;
-                                }
-
                                 applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
                                 return applicationJson;
                             });
@@ -193,14 +203,12 @@ public class JsonSchemaMigration {
 
         switch (applicationJson.getServerSchemaVersion()) {
             case 9:
+                applicationJson.setServerSchemaVersion(10);
+            case 10:
                 // this if for cases where we have empty datasource configs
                 MigrationHelperMethods.migrateApplicationJsonToVersionTen(applicationJson, Map.of());
-                applicationJson.setServerSchemaVersion(10);
+                applicationJson.setServerSchemaVersion(11);
             default:
-        }
-
-        if (applicationJson.getServerSchemaVersion().equals(jsonSchemaVersions.getServerVersion())) {
-            return applicationJson;
         }
 
         applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
