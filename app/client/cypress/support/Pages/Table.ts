@@ -68,6 +68,8 @@ export class Table {
     ` .tbody .td[data-colindex=${colNum}]` +
     this._tableRowColumnDataVersion(version) +
     ` div:contains("${columnText}")`;
+  _tableRowColumns = (rowNum: number, version: "v1" | "v2") =>
+    this._tableWidgetVersion(version) + ` .tbody .td[data-rowindex=${rowNum}]`;
   _editCellIconDiv = ".t--editable-cell-icon";
   _editCellEditor = ".t--inlined-cell-editor";
   _editCellEditorInput = this._editCellEditor + " input";
@@ -299,18 +301,27 @@ export class Table {
       .invoke("text");
   }
 
-  public VerifyTableRowColumnData(
+  public VerifyDataInRow(
     rowNum: number,
-    colNum: number,
     tableVersion: "v1" | "v2" = "v1",
-    text: string,
-    timeout = 1000,
+    text: string[] | string,
   ) {
-    //timeout can be sent higher values incase of larger tables
-    this.agHelper.Sleep(timeout); //Settling time for table!
-    return this.agHelper.AssertElementExist(
-      `${this._tableRowColumnData(rowNum, colNum, tableVersion)} div:contains("${text}")`,
-    );
+    this.agHelper
+      .GetElement(this._tableRowColumns(rowNum, tableVersion))
+      .then(($elements: any) => {
+        const rowColumnTexts: string[] = [];
+        $elements.each((_: number, element: any) => {
+          const eleText = Cypress.$(element).text().trim();
+          rowColumnTexts.push(eleText);
+        });
+        if (typeof text === "string") {
+          expect(rowColumnTexts).to.include(text);
+        } else {
+          cy.wrap(text).each((textItem: string) => {
+            expect(rowColumnTexts).to.include(textItem);
+          });
+        }
+      });
   }
 
   public AssertTableRowImageColumnIsLoaded(

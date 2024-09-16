@@ -22,10 +22,6 @@ describe(
   () => {
     let dsName: any;
 
-    beforeEach(() => {
-      agHelper.CypressReload();
-    });
-
     it("1. Create DS & Generate CRUD template", () => {
       dataSources.NavigateToDSCreateNew();
       agHelper.GenerateUUID();
@@ -84,8 +80,8 @@ describe(
       table.ReadTableRowColumnData(2, 0, "v2", 200).then(($cellData) => {
         expect($cellData).to.be.empty;
       });
-      table.VerifyTableRowColumnData(2, 6, "v2", "WiredTiger T-shirt", 2000);
-      table.VerifyTableRowColumnData(2, 7, "v2", "Apparel", 200);
+
+      table.VerifyDataInRow(2, "v2", ["WiredTiger T-shirt", "Apparel"]);
 
       table.SelectTableRow(8, 0, true, "v2");
       deployMode.ClearJSONFieldValue("Slogan");
@@ -226,30 +222,8 @@ function GenerateCRUDNValidateDeployPage(
   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
 
   agHelper.AssertElementExist(dataSources._selectedRow);
-  table.VerifyTableRowColumnData(0, 1, "v2", col1Text, 2000);
-  agHelper
-    .GetElement(`.tbody .td[data-colindex=6] .cell-wrapper`)
-    .then(($elements: any) => {
-      const arr: string[] = [];
-      $elements.each((index: any, element: any) => {
-        const eleText = Cypress.$(element).text().trim();
-        arr.push(eleText);
-      });
-      cy.log(JSON.stringify(arr));
-    });
 
-  agHelper
-    .GetElement(`.tbody .td[data-colindex=7] .cell-wrapper`)
-    .then(($elements: any) => {
-      const arr: string[] = [];
-      $elements.each((index: any, element: any) => {
-        const eleText = Cypress.$(element).text().trim();
-        arr.push(eleText);
-      });
-      cy.log(JSON.stringify(arr));
-    });
-  table.VerifyTableRowColumnData(0, 6, "v2", col6Text, 200);
-  table.VerifyTableRowColumnData(0, 7, "v2", col7Text, 200);
+  table.VerifyDataInRow(0, "v2", [col1Text, col6Text, col7Text]);
 
   //Validating loaded JSON form
   cy.xpath(locators._buttonByText("Update")).then((selector) => {
