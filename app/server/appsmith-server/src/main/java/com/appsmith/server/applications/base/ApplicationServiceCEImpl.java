@@ -245,21 +245,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             .orElse(new RecentlyUsedEntityDTO());
                 });
 
-        // Collect all the applications and sort them alphabetically by name
+        // Fetch applications sorted by name from MongoDB
         return workspaceMono.thenMany(userDataMono.flatMapMany(
-                recentlyUsedEntityDTO -> this.findByWorkspaceId(workspaceId, applicationPermission.getReadPermission())
+                recentlyUsedEntityDTO -> repository.findByWorkspaceIdOrderByNameAsc(workspaceId)
                         .filter(application -> {
-                            /*
-                             * Filter applications based on the following criteria:
-                             * - Applications that are not connected to Git.
-                             * - Applications that, when connected, revert with default branch only.
-                             */
+                            // Filter applications that are either not connected to Git or are default-branched
                             return !GitUtils.isApplicationConnectedToGit(application)
                                     || GitUtils.isDefaultBranchedApplication(application);
                         })
-                        .sort(Comparator.comparing(
-                                workspace -> workspace.getName().toLowerCase())) // Sort alphabetically by name
-                ));
+        ));
     }
 
     @Override
