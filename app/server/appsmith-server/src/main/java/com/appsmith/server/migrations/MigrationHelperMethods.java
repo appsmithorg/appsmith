@@ -44,6 +44,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 
@@ -1260,13 +1262,34 @@ public class MigrationHelperMethods {
         }
     }
 
-    private static boolean conditionForDefaultRestDatasourceMigration(NewAction action) {
+    public static boolean conditionForDefaultRestDatasource(NewAction action) {
+        if (action.getUnpublishedAction() == null
+                || action.getUnpublishedAction().getDatasource() == null) {
+            return false;
+        }
+
         Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
+
+        // probable check for the  default rest datasource action is.
+        // it has no datasource id and action's plugin id is either rest-api or graphql plugin.
+        boolean probableCheckForDefaultRestDatasource = !org.springframework.util.StringUtils.hasText(
+                        actionDatasource.getId())
+                && (REST_API_PLUGIN.equals(action.getPluginId()) || GRAPHQL_PLUGIN.equals(action.getPluginId()));
 
         // condition to check if the action is default rest datasource.
         // it has no datasource id and name is equal to DEFAULT_REST_DATASOURCE
-        boolean isActionDefaultRestDatasource = !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
-                && PluginConstants.DEFAULT_REST_DATASOURCE.equals(actionDatasource.getName());
+        boolean certainCheckForDefaultRestDatasource =
+                !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
+                        && PluginConstants.DEFAULT_REST_DATASOURCE.equals(actionDatasource.getName());
+
+        // Two separate types of checks over here, it's either the obvious certain way to identify or
+        // the likely chance that the datasource is present.
+        return certainCheckForDefaultRestDatasource || probableCheckForDefaultRestDatasource;
+    }
+
+    private static boolean conditionForDefaultRestDatasourceMigration(NewAction action) {
+        boolean isActionDefaultRestDatasource = conditionForDefaultRestDatasource(action);
+        Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
 
         // condition to check if the action has missing url or has no config at all
         boolean isDatasourceConfigurationOrUrlMissing = actionDatasource.getDatasourceConfiguration() == null
@@ -1347,18 +1370,25 @@ public class MigrationHelperMethods {
 
         if (defaultDatasourceActionMap.containsKey(action.getGitSyncId())) {
             NewAction actionFromMap = defaultDatasourceActionMap.get(action.getGitSyncId());
+            // NPE check to avoid migration failures
+            if (actionFromMap.getUnpublishedAction() == null
+                    || actionFromMap.getUnpublishedAction().getDatasource() == null
+                    || actionFromMap.getUnpublishedAction().getDatasource().getDatasourceConfiguration() == null) {
+                return;
+            }
+
+            // set the datasource config in the json action only if the datasource config from db is not null,
+            // else it'll start to show as uncommited changes.
             DatasourceConfiguration datasourceConfigurationFromDBAction =
                     actionFromMap.getUnpublishedAction().getDatasource().getDatasourceConfiguration();
 
-            if (datasourceConfigurationFromDBAction != null) {
-                datasourceConfiguration.setUrl(datasourceConfigurationFromDBAction.getUrl());
-            }
-        }
+            // At this point it's established that datasource config of db action is not null.
+            datasourceConfiguration.setUrl(datasourceConfigurationFromDBAction.getUrl());
+            actionDatasource.setDatasourceConfiguration(datasourceConfiguration);
 
-        if (!org.springframework.util.StringUtils.hasText(datasourceConfiguration.getUrl())) {
+        } else {
             datasourceConfiguration.setUrl("");
+            actionDatasource.setDatasourceConfiguration(datasourceConfiguration);
         }
-
-        actionDatasource.setDatasourceConfiguration(datasourceConfiguration);
     }
 }
