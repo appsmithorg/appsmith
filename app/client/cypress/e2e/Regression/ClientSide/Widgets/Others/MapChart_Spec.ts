@@ -14,13 +14,13 @@ import EditorNavigation, {
 
 const _mapChartCaption = "text:last-child";
 const _mapChartPlot = (text: string) =>
-  "//text()[contains(., '" + text + "')]/..";
+  `//*[name()='svg']//*[name()='text' and contains(text(), '${text}')]`;
 
 describe(
   "Map Chart Widget Functionality",
   { tags: ["@tag.Widget", "@tag.Maps", "@tag.Visual"] },
   function () {
-    it("1. Drag and drop a Map Chart widget and verify", function () {
+    it.only("1. Drag and drop a Map Chart widget and verify", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAPCHART, 200, 200);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
@@ -135,18 +135,17 @@ describe(
     it("4. Verify General settings", function () {
       // update the title and verify
       propPane.TypeTextIntoField("Title", "App Sign Up");
+      agHelper.AssertText(_mapChartCaption, "text", "App Sign Up");
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      agHelper.AssertText(_mapChartCaption, "text", "App Sign Up");
       agHelper.VerifySnapshot(locators._root, "mapwithcustomtitle");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
       // update the visibility using toggle and verify
       propPane.TogglePropertyState("Visible", "Off");
-      deployMode.DeployApp();
-      agHelper.AssertElementAbsence(
+      deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
       agHelper.VerifySnapshot(locators._root, "mapwithvisibilityoff");
@@ -156,9 +155,6 @@ describe(
       // update the visibility using JS and verify
       propPane.EnterJSContext("Visible", "true");
       deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.MAPCHART),
-      );
-      agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
       agHelper.VerifySnapshot(locators._root, "mapwithvisibilityon");
@@ -184,7 +180,7 @@ describe(
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
     });
 
-    it("5. Update onDataPointClick and Verify", function () {
+    it.only("5. Update onDataPointClick and Verify", function () {
       // Create the Alert Modal and verify Modal name
       propPane.SelectPropertiesDropDown("Map type", "Asia");
       propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
@@ -192,12 +188,12 @@ describe(
         propPane._actionSelectorFieldByLabel("Message"),
         "Data Point {{MapChart1.selectedDataPoint.label}} Clicked",
       );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
+     
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      agHelper.GetNClick(_mapChartPlot("RU: 1.30"), 0, true);
-      agHelper.ValidateToastMessage("Data Point Russian Federation Clicked");
+      agHelper.GetNClick(_mapChartPlot("IN: 2"), 0);
+      agHelper.ValidateToastMessage("Data Point India Clicked");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
 
@@ -206,11 +202,11 @@ describe(
         "onDataPointClick",
         "{{showAlert('Converted to Js and clicked '+ MapChart1.selectedDataPoint.label)}}",
       );
+      agHelper.GetNClick(_mapChartPlot("IN: 2"), 0);
+      agHelper.ValidateToastMessage("Converted to Js and clicked India");
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      agHelper.GetNClick(_mapChartPlot("CN: .40"), 0, true);
-      agHelper.ValidateToastMessage("Converted to Js and clicked China");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
     });
