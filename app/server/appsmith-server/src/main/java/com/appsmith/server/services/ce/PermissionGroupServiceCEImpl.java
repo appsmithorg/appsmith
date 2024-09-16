@@ -314,7 +314,8 @@ public class PermissionGroupServiceCEImpl
 
     @Override
     public boolean isEntityAccessible(BaseDomain object, String permission, String permissionGroupId) {
-        return object.getPolicies().stream()
+        Set<Policy> policies = object.getPolicies() == null ? Set.of() : object.getPolicies();
+        return policies.stream()
                 .filter(policy -> policy.getPermission().equals(permission)
                         && policy.getPermissionGroups().contains(permissionGroupId))
                 .findFirst()

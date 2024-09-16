@@ -538,7 +538,9 @@ public class ActionCollectionServiceCEImpl
         newAction.setUnpublishedAction(action);
 
         Set<Policy> actionCollectionPolicies = new HashSet<>();
-        actionCollection.getPolicies().forEach(policy -> {
+        Set<Policy> existingPolicies =
+                actionCollection.getPolicies() == null ? Set.of() : actionCollection.getPolicies();
+        existingPolicies.forEach(policy -> {
             Policy actionPolicy = new Policy();
             actionPolicy.setPermission(policy.getPermission());
             actionPolicy.setPermissionGroups(policy.getPermissionGroups());

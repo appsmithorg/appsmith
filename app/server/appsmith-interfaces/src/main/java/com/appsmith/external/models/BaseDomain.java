@@ -107,7 +107,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         if (!CollectionUtils.isEmpty(policies)) {
             return policies;
         }
-        return policyMap == null ? Set.of() : Set.copyOf(policyMap.values());
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
     // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
