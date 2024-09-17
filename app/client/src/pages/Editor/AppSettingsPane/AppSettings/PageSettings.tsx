@@ -71,9 +71,7 @@ function PageSettings(props: { page: Page }) {
 
   const [pageName, setPageName] = useState(page.pageName);
   const [isPageNameSaving, setIsPageNameSaving] = useState(false);
-  const [pageNameError, setPageNameError] = useState<string | null>(
-    null,
-  );
+  const [pageNameError, setPageNameError] = useState<string | null>(null);
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
@@ -101,7 +99,7 @@ function PageSettings(props: { page: Page }) {
     (name: string) => !isNameValid(name, conflictingNames),
     [conflictingNames],
   );
-  
+
   useEffect(() => {
     setPageName(page.pageName);
     setCustomSlug(page.customSlug || "");
@@ -129,7 +127,7 @@ function PageSettings(props: { page: Page }) {
   useEffect(() => {
     setPageNameError(null);
   }, [page]);
-  
+
   const savePageName = useCallback(() => {
     if (!canManagePages || pageNameError !== null || page.pageName === pageName)
       return;
