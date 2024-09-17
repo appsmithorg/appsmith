@@ -74,22 +74,8 @@ export interface FetchPublishedPageActionPayload {
 
 export interface FetchPublishedPageResourcesPayload {
   pageId: string;
+  firstLoad: boolean;
 }
-
-export const fetchPublishedPageAction = (
-  pageId: string,
-  bustCache = false,
-  firstLoad = false,
-  pageWithMigratedDsl?: FetchPageResponse,
-): ReduxAction<FetchPublishedPageActionPayload> => ({
-  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
-  payload: {
-    pageId,
-    bustCache,
-    firstLoad,
-    pageWithMigratedDsl,
-  },
-});
 
 export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
   return {
@@ -97,12 +83,6 @@ export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
     payload: undefined,
   };
 };
-
-export const fetchPublishedPageSuccess =
-  (): EvaluationReduxAction<undefined> => ({
-    type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
-    payload: undefined,
-  });
 
 /**
  * After all page entities are fetched like DSL, actions and JsObjects,
@@ -294,14 +274,23 @@ export const clonePageSuccess = ({
   };
 };
 
-// Fetches resources required for published page, currently only used for fetching actions
-// In future we can reuse this for fetching other page level resources in published mode
-export const fetchPublishedPageResourcesAction = (
-  pageId: string,
-): ReduxAction<FetchPublishedPageResourcesPayload> => ({
+/**
+ *
+ * Fetches resources required for published page, currently only used for fetching actions and pages.
+ * In future we can reuse this for fetching other page level resources in published mode like actionCollection
+ * @returns
+ */
+export const fetchPublishedPageResources = ({
+  firstLoad,
+  pageId,
+}: {
+  pageId: string;
+  firstLoad: boolean;
+}): ReduxAction<FetchPublishedPageResourcesPayload> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
   payload: {
     pageId,
+    firstLoad,
   },
 });
 
@@ -674,18 +663,3 @@ export interface SetupPublishedPageActionPayload {
   firstLoad: boolean;
   pageWithMigratedDsl?: FetchPageResponse;
 }
-
-export const setupPublishedPage = (
-  pageId: string,
-  bustCache = false,
-  firstLoad = false,
-  pageWithMigratedDsl?: FetchPageResponse,
-): ReduxAction<SetupPublishedPageActionPayload> => ({
-  type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
-  payload: {
-    pageId,
-    bustCache,
-    firstLoad,
-    pageWithMigratedDsl,
-  },
-});
