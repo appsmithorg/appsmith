@@ -1,5 +1,5 @@
 import React from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 
 const EmptySearchResult = ({ type }: { type: string }) => {

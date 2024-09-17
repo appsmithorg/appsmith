@@ -24,7 +24,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "ee/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
-import { Tooltip, Tag, Spinner } from "design-system";
+import { Tooltip, Tag, Spinner } from "@appsmith/ads";
 import { createMessage, EXPLORER_BETA_ENTITY } from "ee/constants/messages";
 import classNames from "classnames";
 

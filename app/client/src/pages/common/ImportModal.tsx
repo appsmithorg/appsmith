@@ -26,7 +26,7 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import useMessages from "ee/hooks/importModal/useMessages";
 import useMethods from "ee/hooks/importModal/useMethods";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
@@ -75,7 +75,7 @@ const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
       height: 100%;
       justify-content: flex-start;
 
-      .cs-icon {
+      .ads-v2-icon {
         border-radius: 50%;
         width: ${(props) => props.theme.spaces[12] + 2}px;
         height: ${(props) => props.theme.spaces[12] + 2}px;
@@ -146,7 +146,7 @@ const StatusbarWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  .cs-icon {
+  .ads-v2-icon {
     margin: auto;
     border-radius: var(--ads-v2-border-radius-circle);
     width: 32px;

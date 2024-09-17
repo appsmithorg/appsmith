@@ -18,7 +18,7 @@ import {
   Classes,
 } from "@blueprintjs/core";
 import styled from "styled-components";
-import Icon, { IconSize } from "../Icon";
+import { Icon } from "@appsmith/ads";
 import { replayHighlightClass } from "../constants/classes";
 import useDSEvent from "../hooks/useDSEvent";
 import { DSEventTypes } from "../types/common";
@@ -626,7 +626,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }`}
         elementRef={buttonRef}
         onKeyDown={handleKeydown}
-        rightIcon={<Icon name="down-arrow" size={IconSize.XXL} />}
+        rightIcon={<Icon name="down-arrow" size="md" />}
         text={
           selectedLabelModifier
             ? selectedLabelModifier(selectedOptionFromProps, displayValue)

@@ -24,7 +24,7 @@ import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 interface ReduxStateProps {
   dynamicData: DataTree;

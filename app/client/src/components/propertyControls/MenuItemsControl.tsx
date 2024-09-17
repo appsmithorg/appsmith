@@ -7,7 +7,7 @@ import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 interface State {
   focusedIndex: number | null;

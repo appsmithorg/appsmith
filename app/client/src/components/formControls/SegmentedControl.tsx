@@ -11,8 +11,8 @@ import type { AppState } from "ee/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import type { Action } from "entities/Action";
-import type { SelectOptionProps } from "design-system";
-import { SegmentedControl } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
 
 const SegmentedControlWrapper = styled.div<{
   width: string;

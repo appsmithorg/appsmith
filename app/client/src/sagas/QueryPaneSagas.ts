@@ -7,9 +7,8 @@ import {
   takeEvery,
   fork,
 } from "redux-saga/effects";
-import * as Sentry from "@sentry/react";
+import type { ApplicationPayload } from "entities/Application";
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
 } from "ee/constants/ReduxActionConstants";
@@ -70,7 +69,6 @@ import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
 import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
@@ -494,18 +492,16 @@ function* handleNameChangeSuccessSaga(
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
     // Error case, log to sentry
-    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, ""), {
-      kind: "error",
-    });
-
-    Sentry.captureException(
-      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, "")),
-      {
-        extra: {
-          actionId: actionId,
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
+      payload: {
+        show: true,
+        error: {
+          message: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
         },
+        logToSentry: true,
       },
-    );
+    });
     return;
   }
   if (actionObj.pluginType === PluginType.DB) {

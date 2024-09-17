@@ -8,7 +8,7 @@ import {
 import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
 import { useParams } from "react-router";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Link, Text } from "design-system";
+import { Link, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";

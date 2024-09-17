@@ -13,7 +13,7 @@ import {
   EDIT_DATASOURCE,
   SAVE_DATASOURCE,
 } from "ee/constants/messages";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 interface storeDataSourceProps {
   datasourceId?: string;
@@ -60,11 +60,12 @@ function StoreAsDatasource(props: storeDataSourceProps) {
   return (
     <Button
       className="t--store-as-datasource"
+      data-testid="t--store-as-datasource"
       isDisabled={!props.enable}
       kind="secondary"
       onClick={saveOrEditDatasource}
       size="md"
-      startIcon={props.shouldSave ? "cloud" : "pencil-line"}
+      startIcon={props.shouldSave ? "database-2-line" : "pencil-line"}
     >
       {props.shouldSave
         ? createMessage(SAVE_DATASOURCE)

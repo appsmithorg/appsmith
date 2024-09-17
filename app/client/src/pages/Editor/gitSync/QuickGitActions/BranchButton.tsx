@@ -15,7 +15,7 @@ import {
   showBranchPopupSelector,
 } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
 import { importRemixIcon } from "@appsmith/ads-old";
 import { setShowBranchPopupAction } from "actions/gitSyncActions";

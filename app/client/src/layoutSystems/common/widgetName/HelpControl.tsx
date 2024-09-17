@@ -9,7 +9,7 @@ import {
   setHelpModalVisibility,
 } from "actions/helpActions";
 import type { WidgetType } from "constants/WidgetConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const StyledHelpIcon = styled.div`
   justify-self: flex-start;

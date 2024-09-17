@@ -79,12 +79,16 @@ public class DatabricksPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": execute() called for Databricks plugin.";
+            System.out.println(printMessage);
             String query = actionConfiguration.getBody();
 
             List<Map<String, Object>> rowsList = new ArrayList<>(INITIAL_ROWLIST_CAPACITY);
             final List<String> columnsList = new ArrayList<>();
 
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": creating action execution result from Databricks plugin.");
                         try {
 
                             // Check for connection validity :
@@ -179,6 +183,9 @@ public class DatabricksPlugin extends BasePlugin {
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceCreate() called for Databricks plugin.";
+            System.out.println(printMessage);
             // Ensure the databricks JDBC driver is loaded.
             try {
                 Class.forName(JDBC_DRIVER);
@@ -242,6 +249,8 @@ public class DatabricksPlugin extends BasePlugin {
             }
 
             return (Mono<Connection>) Mono.fromCallable(() -> {
+                        System.out.println(
+                                Thread.currentThread().getName() + ": creating connection from Databricks plugin.");
                         Connection connection = DriverManager.getConnection(url, p);
 
                         // Execute statements to default catalog and schema for all queries on this datasource.
@@ -292,6 +301,9 @@ public class DatabricksPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Connection connection) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceDestroy() called for Databricks plugin.";
+            System.out.println(printMessage);
             try {
                 if (connection != null) {
                     connection.close();
@@ -310,7 +322,11 @@ public class DatabricksPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 Connection connection, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Databricks plugin.";
+            System.out.println(printMessage);
             return Mono.fromSupplier(() -> {
+                        System.out.println(Thread.currentThread().getName()
+                                + ": fetching datasource structure from Databricks plugin.");
                         final DatasourceStructure structure = new DatasourceStructure();
                         final Map<String, DatasourceStructure.Table> tablesByName =
                                 new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -347,7 +363,6 @@ public class DatabricksPlugin extends BasePlugin {
                             for (DatasourceStructure.Table table : structure.getTables()) {
                                 table.getKeys().sort(Comparator.naturalOrder());
                             }
-                            log.debug("Got the structure of Databricks DB");
                             return structure;
                         } catch (SQLException e) {
                             return Mono.error(new AppsmithPluginException(

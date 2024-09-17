@@ -1,4 +1,4 @@
-import type { ButtonProps, COLORS, IconProps } from "@design-system/widgets";
+import type { ButtonProps, COLORS, IconProps } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { IconName } from "@blueprintjs/icons";
 

@@ -51,7 +51,7 @@ import {
   Icon,
   ModalFooter,
   ModalBody,
-} from "design-system";
+} from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 

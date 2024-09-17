@@ -1,6 +1,6 @@
 import React, { memo } from "react";
-import type { COLORS } from "@design-system/widgets";
-import { Text } from "@design-system/widgets";
+import type { COLORS } from "@appsmith/wds";
+import { Text } from "@appsmith/wds";
 
 import type { BaseCellComponentProps } from "../Constants";
 

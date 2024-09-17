@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Collapse } from "@blueprintjs/core";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const CollapseWrapper = styled.div`
   position: relative;

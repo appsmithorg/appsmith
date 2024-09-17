@@ -18,7 +18,7 @@ import {
   Avatar,
   Callout,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -52,7 +52,7 @@ const Wrapper = styled.div`
       margin-bottom: 16px;
       .left-icon {
         margin-left: 14px;
-        .cs-icon {
+        .ads-v2-icon {
           margin-right: 0;
         }
       }

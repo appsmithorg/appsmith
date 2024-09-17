@@ -3,7 +3,7 @@ import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import type { Intent } from "constants/DefaultTheme";
 import { FieldError } from "@appsmith/ads-old";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 import type { Setting } from "ee/pages/AdminSettings/config/types";
 
 const renderComponent = (

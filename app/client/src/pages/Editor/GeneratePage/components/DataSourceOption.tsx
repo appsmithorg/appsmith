@@ -8,7 +8,7 @@ import type {
 } from "@appsmith/ads-old";
 import { Classes, Text, TextType } from "@appsmith/ads-old";
 import _ from "lodash";
-import { Tooltip, Icon } from "design-system";
+import { Tooltip, Icon } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------

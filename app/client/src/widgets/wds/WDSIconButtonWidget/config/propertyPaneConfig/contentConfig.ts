@@ -1,4 +1,4 @@
-import { ICONS } from "@design-system/widgets";
+import { ICONS } from "@appsmith/wds";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneContentConfig = [

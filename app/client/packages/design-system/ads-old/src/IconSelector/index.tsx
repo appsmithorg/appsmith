@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import type { AppIconName } from "../AppIcon";
 import AppIcon, { AppIconCollection } from "../AppIcon";
-import { Size } from "../Button";
+import { Size } from "../AppIcon";
 import type { CommonComponentProps } from "../types/common";
 import { Classes } from "../constants/classes";
 

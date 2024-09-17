@@ -1,9 +1,5 @@
 import type { AppState } from "ee/reducers";
-import type {
-  Page,
-  ReduxAction,
-  UpdateCanvasPayload,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -14,10 +10,12 @@ import type {
   DeletePageActionPayload,
   FetchPageActionPayload,
   FetchPublishedPageActionPayload,
+  FetchPublishedPageResourcesPayload,
   GenerateTemplatePageActionPayload,
   SetPageOrderActionPayload,
   SetupPageActionPayload,
   SetupPublishedPageActionPayload,
+  UpdateCanvasPayload,
   UpdatePageActionPayload,
 } from "actions/pageActions";
 import {
@@ -90,6 +88,7 @@ import {
   fetchActionsForPage,
   fetchActionsForPageError,
   fetchActionsForPageSuccess,
+  fetchActionsForView,
   setActionsToExecuteOnPageLoad,
   setJSActionsToExecuteOnPageLoad,
 } from "actions/pluginActionActions";
@@ -97,9 +96,6 @@ import type { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { clearEvalCache } from "../../sagas/EvaluationsSaga";
 import { getQueryParams } from "utils/URLUtils";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
@@ -119,6 +115,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import { builderURL } from "ee/RouteBuilder";
 import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
+import { type InitConsolidatedApi } from "sagas/InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
   checkAndLogErrorsIfCyclicDependency,
@@ -130,7 +127,7 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { getPageList } from "ee/selectors/entitiesSelector";
 import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
@@ -151,6 +148,8 @@ import { ActionExecutionContext } from "entities/Action";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import type { Page } from "entities/Page";
+import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -298,10 +297,6 @@ export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
       isFirstLoad = false,
       pageWithMigratedDsl,
     } = action.payload;
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      { pageId },
-    );
 
     const params: FetchPageRequest = { pageId, migrateDSL: true };
     const fetchPageResponse: FetchPageResponse = yield call(
@@ -315,18 +310,8 @@ export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
       pageId,
       isFirstLoad,
     });
-
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-    );
   } catch (error) {
     log.error(error);
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      {
-        failed: true,
-      },
-    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PAGE_ERROR,
       payload: {
@@ -342,13 +327,7 @@ export function* fetchPublishedPageSaga(
   try {
     const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
       action.payload;
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      {
-        pageId: pageId,
-        published: true,
-      },
-    );
+
     const params = { pageId, bustCache };
     const response: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -392,20 +371,47 @@ export function* fetchPublishedPageSaga(
       if (!firstLoad) {
         yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
       }
-
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_API,
-      );
     }
   } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_API,
-      {
-        failed: true,
-      },
-    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchPublishedPageResourcesSaga(
+  action: ReduxAction<FetchPublishedPageResourcesPayload>,
+) {
+  try {
+    const { pageId } = action.payload;
+
+    const params = { defaultPageId: pageId };
+    const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
+      yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
+
+    const isValidResponse: boolean = yield validateResponse(
+      initConsolidatedApiResponse,
+    );
+    const response: InitConsolidatedApi | undefined =
+      initConsolidatedApiResponse.data;
+
+    if (isValidResponse) {
+      // We need to recall consolidated view API in order to fetch actions when page is switched
+      // As in the first call only actions of the current page are fetched
+      // In future, we can reuse this saga to fetch other resources of the page like actionCollections etc
+      const { publishedActions } = response;
+
+      // Sending applicationId as empty as we have publishedActions present,
+      // it won't call the actions view api with applicationId
+      yield put(fetchActionsForView({ applicationId: "", publishedActions }));
+      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_RESOURCES_ERROR,
       payload: {
         error,
       },
@@ -447,12 +453,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
     widgets,
     editorConfigs,
   );
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.SAVE_PAGE_API,
-    {
-      pageId: savePageRequest.pageId,
-    },
-  );
+
   try {
     // Store the updated DSL in the pageDSLs reducer
     yield put({
@@ -512,22 +513,13 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       }
       yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.SAVE_PAGE_API,
-      );
+
       checkAndLogErrorsIfCyclicDependency(
         (savePageResponse.data as SavePageResponseData)
           .layoutOnLoadActionErrors,
       );
     }
   } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.SAVE_PAGE_API,
-      {
-        failed: true,
-      },
-    );
-
     if (error instanceof UserCancelledActionExecutionError) {
       return;
     }

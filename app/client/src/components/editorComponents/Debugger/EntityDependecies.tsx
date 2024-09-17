@@ -19,7 +19,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import { importSvg } from "@appsmith/ads-old";
 
 const LongArrowSVG = importSvg(

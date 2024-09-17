@@ -42,9 +42,6 @@ import {
 } from "actions/userActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
@@ -78,7 +75,7 @@ import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import {
   USER_PROFILE_PICTURE_UPLOAD_FAILED,
@@ -154,9 +151,6 @@ export function* getCurrentUserSaga(action?: {
 }) {
   const userProfile = action?.payload?.userProfile;
   try {
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.USER_ME_API,
-    );
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       userProfile,
@@ -172,10 +166,6 @@ export function* getCurrentUserSaga(action?: {
       });
     }
   } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.USER_ME_API,
-      { failed: true },
-    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
       payload: {
@@ -237,8 +227,6 @@ export function* runUserSideEffectsSaga() {
   if (currentUser.emptyInstance) {
     history.replace(SETUP);
   }
-
-  PerformanceTracker.stopAsyncTracking(PerformanceTransactionName.USER_ME_API);
 }
 
 export function* forgotPasswordSaga(

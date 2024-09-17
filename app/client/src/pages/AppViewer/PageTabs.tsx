@@ -2,10 +2,8 @@ import React, { useRef, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { get } from "lodash";
-import type {
-  ApplicationPayload,
-  Page,
-} from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 import { isEllipsisActive, trimQueryString } from "utils/helpers";
 import { getTypographyByKey, TooltipComponent } from "@appsmith/ads-old";
 import { getAppMode } from "ee/selectors/applicationSelectors";

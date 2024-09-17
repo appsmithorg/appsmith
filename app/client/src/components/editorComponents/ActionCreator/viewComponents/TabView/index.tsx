@@ -3,7 +3,7 @@ import {
   ControlWrapper,
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
-import { SegmentedControl } from "design-system";
+import { SegmentedControl } from "@appsmith/ads";
 import React from "react";
 
 interface Option {

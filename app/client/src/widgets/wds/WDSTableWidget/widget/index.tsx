@@ -68,7 +68,6 @@ import {
   ButtonCell,
 } from "../component/cellComponents";
 
-import { klona as clone } from "klona";
 import localStorage from "utils/localStorage";
 import type { Stylesheet } from "entities/AppTheming";
 import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
@@ -82,6 +81,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import * as config from "../config";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -1511,7 +1511,11 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   removeRowFromTransientTableData = (index: number) => {
-    const newTransientTableData = clone(this.props.transientTableData);
+    const newTransientTableData = klonaRegularWithTelemetry(
+      this.props.transientTableData,
+      "WDSTableWidget.removeRowFromTransientTableData",
+    );
+
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     if (newTransientTableData) {

@@ -1,8 +1,7 @@
 import { Form } from "@storybook/components";
 import React, { useCallback } from "react";
-import { Flex, Text } from "@design-system/widgets";
+import { Flex, Text } from "@appsmith/wds";
 import { ColorControl, BooleanControl, RangeControl } from "@storybook/blocks";
-import { FONT_METRICS } from "@design-system/theming";
 import styled from "styled-components";
 import { debounce } from "lodash";
 import { AddonPanel } from "@storybook/components";
@@ -42,12 +41,10 @@ interface ThemeSettingsProps {
 export const ThemeSettings = ({
   borderRadius,
   direction = "column",
-  fontFamily,
   isDarkMode,
   seedColor,
   setBorderRadius,
   setDarkMode,
-  setFontFamily,
   setSeedColor,
   setUserDensity,
   setUserSizing,
@@ -102,36 +99,6 @@ export const ThemeSettings = ({
               <option value="0px">Sharp</option>
               <option value="6px">Rounded</option>
               <option value="20px">Pill</option>
-            </StyledSelect>
-          </Flex>
-        )}
-
-        {setFontFamily && (
-          <Flex direction="column" gap="4px">
-            <Text size="footnote">Font Family</Text>
-            <StyledSelect
-              defaultValue={fontFamily}
-              id="font-family"
-              onChange={(e) => setFontFamily(e.target.value)}
-              size="100%"
-              title="Font Family"
-            >
-              <option value="">System Default</option>
-              {Object.keys(FONT_METRICS)
-                .filter((item) => {
-                  return (
-                    [
-                      "-apple-system",
-                      "BlinkMacSystemFont",
-                      "Segoe UI",
-                    ].includes(item) === false
-                  );
-                })
-                .map((font) => (
-                  <option key={`font-famiy-${font}`} value={font}>
-                    {font}
-                  </option>
-                ))}
             </StyledSelect>
           </Flex>
         )}

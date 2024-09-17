@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Button, Divider, Text, Tooltip } from "design-system";
+import { Button, Divider, Text, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {

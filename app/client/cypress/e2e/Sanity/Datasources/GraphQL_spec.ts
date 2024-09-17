@@ -279,7 +279,7 @@ describe(
       });
 
       apiPage.SelectPaneTab("Authentication");
-      agHelper.ClickButton("Save as datasource");
+      agHelper.GetNClick(locators._saveDatasource);
 
       agHelper.AssertText(
         locators._inputFieldByName("URL") + "//" + locators._inputField,
@@ -296,16 +296,14 @@ describe(
       // });
       dataSources.SaveDatasource();
       agHelper.ValidateToastMessage("datasource created");
-      agHelper.AssertElementVisibility(
-        locators._buttonByText("Edit datasource"),
-      );
+      agHelper.AssertElementVisibility(locators._saveDatasource);
       apiPage.SelectPaneTab("Body");
       dataSources.UpdateGraphqlQueryAndVariable({
         query: GRAPHQL_QUERY,
         variable: GRAPHQL_VARIABLES,
       });
       apiPage.RunAPI();
-      agHelper.ClickButton("Edit datasource");
+      agHelper.GetNClick(locators._saveDatasource);
       dataSources.AssertDataSourceInfo([
         dataManager.dsValues[
           dataManager.defaultEnviorment

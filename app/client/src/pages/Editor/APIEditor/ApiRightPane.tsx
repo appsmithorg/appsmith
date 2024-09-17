@@ -12,7 +12,7 @@ import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
+import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";
@@ -97,7 +97,7 @@ const DatasourceCard = styled.div`
     opacity: 0;
     visibility: hidden;
   }
-  .cs-icon {
+  .ads-v2-icon {
     opacity: 0;
     transition: 0.3s all ease;
   }
@@ -107,7 +107,7 @@ const DatasourceCard = styled.div`
   }
   &:hover {
     background-color: var(--ads-v2-color-bg-subtle);
-    .cs-icon {
+    .ads-v2-icon {
       opacity: 1;
     }
   }

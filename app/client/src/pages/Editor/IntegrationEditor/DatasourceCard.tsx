@@ -13,7 +13,7 @@ import type { AppState } from "ee/reducers";
 import history from "utils/history";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
+import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";

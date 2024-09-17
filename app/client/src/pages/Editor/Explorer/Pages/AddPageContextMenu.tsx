@@ -17,7 +17,7 @@ import {
   GENERATE_PAGE_ACTION_TITLE,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { ButtonSizes } from "design-system";
+import type { ButtonSizes } from "@appsmith/ads";
 import {
   Menu,
   MenuContent,
@@ -25,7 +25,7 @@ import {
   MenuItem,
   Tooltip,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import {

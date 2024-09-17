@@ -30,7 +30,7 @@ import type { JSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { selectInstalledLibraries } from "ee/selectors/entitiesSelector";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
@@ -55,14 +55,15 @@ function* handleInstallationFailure(
     text: `Failed to install library script at ${url}`,
   });
 
-  toast.show(message || `Failed to install library script at ${url}`, {
-    kind: "error",
-  });
   const applicationid: ReturnType<typeof getCurrentApplicationId> =
     yield select(getCurrentApplicationId);
   yield put({
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
-    payload: { url, show: false },
+    payload: {
+      url,
+      show: true,
+      message: message || `Failed to install library script at ${url}`,
+    },
   });
   AnalyticsUtil.logEvent("INSTALL_LIBRARY", {
     url,
@@ -247,7 +248,16 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
     if (!isValidResponse) {
       yield put({
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
-        payload: accessor,
+        payload: {
+          show: true,
+          accessor,
+          error: {
+            message: createMessage(
+              customJSLibraryMessages.UNINSTALL_FAILED,
+              name,
+            ),
+          },
+        },
       });
       AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
         url: action.payload.url,
@@ -270,12 +280,19 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       accessor,
     );
     if (!success) {
-      toast.show(
-        createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
-        {
-          kind: "error",
+      yield put({
+        type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
+        payload: {
+          accessor,
+          show: true,
+          error: {
+            message: createMessage(
+              customJSLibraryMessages.UNINSTALL_FAILED,
+              name,
+            ),
+          },
         },
-      );
+      });
     }
 
     try {
@@ -297,8 +314,18 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       success: true,
     });
   } catch (e) {
-    toast.show(createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name), {
-      kind: "error",
+    yield put({
+      type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
+      payload: {
+        accessor,
+        show: true,
+        error: {
+          message: createMessage(
+            customJSLibraryMessages.UNINSTALL_FAILED,
+            name,
+          ),
+        },
+      },
     });
     AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
       url: action.payload.url,

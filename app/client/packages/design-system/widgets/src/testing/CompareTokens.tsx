@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { useThemeContext } from "@design-system/theming";
+import { useThemeContext } from "@appsmith/wds-theming";
 
 export const CompareTokens = () => {
   const [leftBg, setLeftBg] = useState<string>();

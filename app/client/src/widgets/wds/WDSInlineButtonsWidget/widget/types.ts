@@ -1,7 +1,4 @@
-import type {
-  InlineButtonsProps,
-  InlineButtonsItem,
-} from "@design-system/widgets";
+import type { InlineButtonsProps, InlineButtonsItem } from "@appsmith/wds";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { InlineButtonsItemComponentProps } from "../component/types";
 

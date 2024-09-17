@@ -16,7 +16,9 @@
     "sort-destructure-keys",
     "cypress",
     "testing-library",
-    "jest"
+    "jest",
+    "@appsmith",
+    "react-perf"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
@@ -24,6 +26,8 @@
     "plugin:cypress/recommended",
     "plugin:testing-library/react",
     "plugin:react-hooks/recommended",
+    "plugin:@appsmith/recommended",
+    "plugin:react-perf/recommended",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
     "plugin:prettier/recommended"
@@ -65,6 +69,17 @@
     ],
     "no-console": "error",
     "no-debugger": "error",
+    "react-perf/jsx-no-new-array-as-prop": "warn",
+    "react-perf/jsx-no-new-function-as-prop": "warn",
+    "react-perf/jsx-no-jsx-as-prop": "warn",
+   "react-perf/jsx-no-new-object-as-prop": [
+      "warn",
+      {
+        // we are disabling this rule here for native component since it won't make much difference in performance
+        // we want to target react components more since there is possibility they can be pure components and new istance props should be avoided for them
+        "nativeAllowList": "all"
+      }
+    ],
     "@typescript-eslint/no-restricted-imports": [
       "error",
       {

@@ -8,14 +8,14 @@ import {
   Menu,
   MenuTrigger,
   TextInput,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 
 /**
  * TextInput is a component that allows users to input text.
  */
 const meta: Meta<typeof TextInput> = {
   component: TextInput,
-  title: "Design-system/Widgets/TextInput",
+  title: "WDS/Widgets/TextInput",
 };
 
 export default meta;

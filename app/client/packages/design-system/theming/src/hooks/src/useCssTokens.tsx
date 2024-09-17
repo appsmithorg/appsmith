@@ -1,22 +1,21 @@
 import { css } from "@emotion/css";
-import { useEffect, useState } from "react";
-import { cssRule, getTypographyClassName } from "../../utils";
+import { useMemo } from "react";
+import { objectKeys } from "@appsmith/utils";
 
 import type { Theme } from "../../theme";
-import type { FontFamily, ThemeToken, Typography } from "../../token";
+import type { ThemeToken, Typography } from "../../token";
+import { cssRule, getTypographyClassName } from "../../utils";
 
-const fontFamilyCss = (fontFamily?: FontFamily) => {
+const fontFamilyCss = () => {
   const fontFamilyCss =
-    fontFamily && fontFamily !== "System Default"
-      ? `${fontFamily}, sans-serif`
-      : "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu', sans-serif";
+    "-apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Ubuntu', sans-serif";
 
   return `font-family: ${fontFamilyCss}; --font-family: ${fontFamilyCss}`;
 };
 
 const getTypographyCss = (typography: Typography) => {
   return css`
-    ${Object.keys(typography).reduce((prev, key) => {
+    ${objectKeys(typography).reduce((prev, key) => {
       const currentKey = key as keyof Typography;
       const { after, before, fontSize, lineHeight } = typography[currentKey];
       return (
@@ -55,47 +54,39 @@ const getColorCss = (color: ThemeToken["color"]) => {
 };
 
 export function useCssTokens(props: Theme) {
-  const { color, colorMode, fontFamily, typography, ...restTokens } = props;
+  const { color, colorMode, typography, ...restTokens } = props;
 
-  const [colorClassName, setColorClassName] = useState<string>();
-  const [colorModeClassName, setColorModeClassName] = useState<string>();
-  const [fontFamilyClassName, setFontFamilyClassName] = useState<string>();
-  const [typographyClassName, setTypographyClassName] = useState<string>();
-  const [providerClassName, setProviderClassName] = useState<string>();
-
-  useEffect(() => {
+  const colorClassName = useMemo(() => {
     if (color != null) {
-      setColorClassName(css`
+      return css`
         ${getColorCss(color)}
-      `);
+      `;
     }
   }, [color]);
 
-  useEffect(() => {
+  const typographyClassName = useMemo(() => {
     if (typography != null) {
-      setTypographyClassName(css`
+      return css`
         ${getTypographyCss(typography)}
-      `);
+      `;
     }
   }, [typography]);
 
-  useEffect(() => {
-    setFontFamilyClassName(css`
-      ${fontFamilyCss(fontFamily)}
-    `);
-  }, [fontFamily]);
+  const fontFamilyClassName = css`
+    ${fontFamilyCss()}
+  `;
 
-  useEffect(() => {
-    setProviderClassName(css`
+  const providerClassName = useMemo(() => {
+    return css`
       ${cssRule(restTokens)};
-    `);
+    `;
   }, [restTokens]);
 
-  useEffect(() => {
+  const colorModeClassName = useMemo(() => {
     if (colorMode != null) {
-      setColorModeClassName(css`
+      return css`
         color-scheme: ${colorMode};
-      `);
+      `;
     }
   }, [colorMode]);
 

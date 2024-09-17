@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Icon, Link, Option, Select, Text, Tooltip } from "design-system";
+import { Icon, Link, Option, Select, Text, Tooltip } from "@appsmith/ads";
 import { capitalizeFirstLetter } from "utils/helpers";
 import {
   BUSINESS_EDITION_TEXT,

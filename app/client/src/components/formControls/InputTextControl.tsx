@@ -5,11 +5,11 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import type { InputType } from "components/constants";
-import type { InputTypes as DSInputType } from "design-system";
+import type { InputTypes as DSInputType } from "@appsmith/ads";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -144,6 +144,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
     return (
       <FieldWrapper
+        className="uqi-input-text"
         data-testid={configProperty}
         style={customStyles || {}}
         width={width || ""}

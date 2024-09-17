@@ -34,7 +34,7 @@ describe("Debugger logs", { tags: ["@tag.IDE"] }, function () {
     _.agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
     _.agHelper.AssertElementVisibility(".t--debugger-count");
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
     _.agHelper.GetNClick(_.jsEditor._logsTab);
     _.debuggerHelper.DoesConsoleLogExist(logString);
   });
@@ -286,7 +286,7 @@ describe("Debugger logs", { tags: ["@tag.IDE"] }, function () {
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     _.agHelper.AssertElementVisibility(".t--debugger-count");
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
 
     _.debuggerHelper.ClicklogEntityLink();
 

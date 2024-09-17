@@ -11,7 +11,7 @@ import {
   getCurrentApplicationId,
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
-import { Icon, SegmentedControl, Tooltip } from "design-system";
+import { Icon, SegmentedControl, Tooltip } from "@appsmith/ads";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   > .ads-v2-segmented-control__segments-container {

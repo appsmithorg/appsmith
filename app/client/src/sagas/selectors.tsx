@@ -10,7 +10,7 @@ import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { getActions, getPlugins } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";

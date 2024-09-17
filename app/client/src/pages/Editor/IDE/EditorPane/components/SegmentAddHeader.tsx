@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Flex, Text } from "design-system";
+import { Button, Flex, Text } from "@appsmith/ads";
 import { createMessage } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";

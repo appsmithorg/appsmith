@@ -12,7 +12,7 @@ import {
   Spinner,
   toast,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";

@@ -41,7 +41,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";

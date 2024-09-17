@@ -18,7 +18,7 @@ import {
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "ee/constants/messages";
 import { hasInviteUserToApplicationPermission } from "ee/utils/permissionHelpers";
-import { Button, Icon, Switch, Tooltip } from "design-system";
+import { Button, Icon, Switch, Tooltip } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Link, Button, Icon } from "design-system";
+import { Text, Link, Button, Icon } from "@appsmith/ads";
 import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
 import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 import {

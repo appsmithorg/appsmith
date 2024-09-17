@@ -393,7 +393,7 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgNeutralSubtle() {
-    const color = this.seedColor.clone();
+    const color = this.bgAccentSubtle.clone();
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
     if (this.seedLightness > 0.29) {
@@ -726,7 +726,7 @@ export class DarkModeTheme implements ColorModeTheme {
     // Neutral foreground. Slightly less prominent than main fg
     const color = this.fg.clone();
 
-    color.oklch.l -= 0.02;
+    color.oklch.l -= 0.1;
 
     return color;
   }
@@ -734,7 +734,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get fgNeutralSubtle() {
     const color = this.fgNeutral.clone();
 
-    color.oklch.l -= 0.15;
+    color.oklch.l -= 0.3;
 
     return color;
   }

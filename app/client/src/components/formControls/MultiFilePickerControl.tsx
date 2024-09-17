@@ -6,7 +6,7 @@ import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field, getFormValues } from "redux-form";
-import { Button, Tag, Text, toast } from "design-system";
+import { Button, Tag, Text, toast } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import type { Datasource } from "entities/Datasource";
 import type { Action } from "entities/Action";

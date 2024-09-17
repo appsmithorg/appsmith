@@ -29,7 +29,7 @@ import {
   Text,
   Icon,
   MenuGroupName,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface KeysProps {
   copyToClipboard: () => void;

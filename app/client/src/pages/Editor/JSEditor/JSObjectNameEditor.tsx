@@ -16,7 +16,7 @@ import {
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import NameEditorComponent, {
   IconBox,

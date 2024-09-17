@@ -5,7 +5,7 @@ import {
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
   WIDGET_MULTI_SELECT,
 } from "ee/constants/messages";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";

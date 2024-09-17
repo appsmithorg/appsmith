@@ -86,7 +86,6 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
-import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   getJSActionPathNameToDisplay,
@@ -371,11 +370,16 @@ function* handleJSObjectNameChangeSuccessSaga(
   );
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
   if (!actionObj) {
-    // Error case, log to sentry
-    toast.show(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
-      kind: "error",
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR,
+      payload: {
+        actionId,
+        show: true,
+        error: {
+          message: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
+        },
+      },
     });
-
     return;
   }
 

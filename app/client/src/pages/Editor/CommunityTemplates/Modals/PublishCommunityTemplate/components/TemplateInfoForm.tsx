@@ -4,7 +4,7 @@ import {
   TemplateInfoFormFieldWrapper,
   TemplateInfoFormWrapper,
 } from "../StyledComponents";
-import { Input, Select, Option } from "design-system";
+import { Input, Select, Option } from "@appsmith/ads";
 import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { allTemplatesFiltersSelector } from "selectors/templatesSelectors";

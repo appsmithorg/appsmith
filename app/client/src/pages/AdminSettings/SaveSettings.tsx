@@ -6,7 +6,7 @@ import {
   SAVE_BUTTON,
   createMessage,
 } from "ee/constants/messages";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import styled from "styled-components";
 
 const SettingsButtonWrapper = styled.div`

@@ -177,6 +177,7 @@ export function ThemeCard(props: ThemeCard) {
             "overflow-hidden": !selectable,
             "hover:shadow-xl cursor-pointer": selectable,
           })}
+          data-testid={`t--theme-card-${theme.name}`}
           onClick={changeSelectedTheme}
         >
           <MainContainer backgroundColor={backgroundColor}>

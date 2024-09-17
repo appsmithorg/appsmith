@@ -18,7 +18,7 @@ import {
   BUILDING_BLOCK_EXPLORER_TYPE,
   RenderModes,
 } from "constants/WidgetConstants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
@@ -434,6 +434,7 @@ export function* addChildSaga(
       payload: {
         action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -533,6 +534,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
         error,
+        logToDebugger: true,
       },
     });
   }

@@ -1,7 +1,7 @@
 import React from "react";
 import type { StatsComponentProps } from "./types";
 
-import { Flex, Icon, Text } from "@design-system/widgets";
+import { Flex, Icon, Text } from "@appsmith/wds";
 
 export const StatsComponent = (props: StatsComponentProps) => {
   const {

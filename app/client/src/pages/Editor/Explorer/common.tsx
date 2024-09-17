@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Entity from "./Entity";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const ECContainer = styled.div`
   display: flex;

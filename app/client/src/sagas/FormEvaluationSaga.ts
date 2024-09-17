@@ -21,7 +21,6 @@ import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
-import { klona } from "klona/lite";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   extractFetchDynamicValueFormConfigs,
@@ -31,6 +30,7 @@ import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -68,10 +68,14 @@ function* setFormEvaluationSagaAsync(
       const fetchDynamicValueFormConfigs = extractFetchDynamicValueFormConfigs(
         workerResponse[action?.payload?.formId],
       );
+
       yield put({
         type: ReduxActionTypes.INIT_TRIGGER_VALUES,
         payload: {
-          [action?.payload?.formId]: klona(fetchDynamicValueFormConfigs),
+          [action?.payload?.formId]: klonaLiteWithTelemetry(
+            fetchDynamicValueFormConfigs,
+            "FormEvaluationSaga.setFormEvaluationSagaAsync",
+          ),
         },
       });
     }

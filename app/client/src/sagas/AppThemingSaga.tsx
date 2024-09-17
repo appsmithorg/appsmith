@@ -13,7 +13,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select, call } from "redux-saga/effects";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   CHANGE_APP_THEME,
   createMessage,

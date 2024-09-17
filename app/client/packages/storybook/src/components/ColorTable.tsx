@@ -5,8 +5,8 @@ import {
   StyledSquarePreview,
   ThemeSettings,
 } from "@design-system/storybook";
-import { useTheme, ThemeProvider } from "@design-system/theming";
-import { defaultTokens } from "@design-system/theming";
+import { useTheme, ThemeProvider } from "@appsmith/wds-theming";
+import { defaultTokens } from "@appsmith/wds-theming";
 
 interface ColorTableProps {
   filter?: string | string[];

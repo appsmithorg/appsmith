@@ -1,5 +1,5 @@
 import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import ProfileImage from "pages/common/ProfileImage";
 import React from "react";
 import { useSelector } from "react-redux";

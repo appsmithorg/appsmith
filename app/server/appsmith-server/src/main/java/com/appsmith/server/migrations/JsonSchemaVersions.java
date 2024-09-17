@@ -1,7 +1,5 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.external.annotations.FeatureFlagged;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,8 +18,7 @@ public class JsonSchemaVersions extends JsonSchemaVersionsFallback {
      * @return an Integer which is server version
      */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Integer getServerVersion() {
-        return super.getServerVersion() + 1;
+        return super.getServerVersion();
     }
 }

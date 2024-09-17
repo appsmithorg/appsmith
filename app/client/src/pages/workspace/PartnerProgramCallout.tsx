@@ -1,5 +1,5 @@
-import type { CalloutLinkProps } from "design-system";
-import { Callout } from "design-system";
+import type { CalloutLinkProps } from "@appsmith/ads";
+import { Callout } from "@appsmith/ads";
 import React from "react";
 import {
   PARTNER_PROGRAM_CALLOUT,

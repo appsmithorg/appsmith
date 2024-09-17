@@ -30,7 +30,7 @@ import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "design-system";
+import type { ListItemProps } from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 

@@ -1,7 +1,7 @@
 import type { EventName } from "ee/utils/analyticsUtilTypes";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { CANVAS_STARTER_TEMPLATES_SEE_MORE_BUILDING_BLOCKS_PRE_FILTER } from "constants/TemplatesConstants";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import TemplatesLayoutWithFilters from "../TemplatesLayoutWithFilters";

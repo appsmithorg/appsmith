@@ -7,7 +7,7 @@ import {
   MenuSubTrigger,
   MenuSubContent,
   MenuSeparator,
-} from "design-system";
+} from "@appsmith/ads";
 import type { noop } from "lodash";
 
 import type { CommonComponentProps } from "@appsmith/ads-old";

@@ -1468,7 +1468,7 @@ export function IconProvider(props: {
       iconName,
       " not found. If you haven't made a typo, the icon probably does not exit " +
         "in our database - check the lookup here: " +
-        "https://github.com/appsmithorg/design-system/blob/c6c2d821c45e459fcb0522fccb273fccbce41664/packages/design-system/src/Icon/Icon.provider.tsx#L292",
+        "https://github.com/appsmithorg/appsmith/blob/release/app/client/packages/design-system/ads/src/Icon/Icon.provider.tsx#L1078",
     );
   }
   return Icon && <Icon color={color} size={size} />;

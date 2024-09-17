@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import { getAppsmithConfigs } from "ee/configs";
 import { APPSMITH_DISPLAY_VERSION, createMessage } from "ee/constants/messages";
 import moment from "moment";

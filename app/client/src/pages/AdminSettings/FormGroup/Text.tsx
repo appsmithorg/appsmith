@@ -1,4 +1,4 @@
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
 import { useSelector } from "react-redux";

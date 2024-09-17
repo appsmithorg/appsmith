@@ -131,7 +131,7 @@ public class RedshiftPlugin extends BasePlugin {
 
         private void checkResultSetValidity(ResultSet resultSet) throws AppsmithPluginException {
             if (resultSet == null) {
-                log.debug("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
+                System.out.println("Redshift plugin: getRow: driver failed to fetch result: resultSet is null.");
                 throw new AppsmithPluginException(
                         RedshiftPluginError.QUERY_EXECUTION_FAILED, RedshiftErrorMessages.NULL_RESULTSET_ERROR_MSG);
             }
@@ -147,7 +147,7 @@ public class RedshiftPlugin extends BasePlugin {
              *    ResultSetMetaData.
              */
             if (metaData == null) {
-                log.debug("Redshift plugin: getRow: metaData is null. Ideally this is never supposed to "
+                System.out.println("Redshift plugin: getRow: metaData is null. Ideally this is never supposed to "
                         + "happen as the Redshift JDBC driver does a null check before passing this object. This means "
                         + "that something has gone wrong while processing the query result.");
                 throw new AppsmithPluginException(
@@ -195,6 +195,8 @@ public class RedshiftPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            String printMessage = Thread.currentThread().getName() + ": execute() called for Redshift plugin.";
+            System.out.println(printMessage);
             String query = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
@@ -271,7 +273,8 @@ public class RedshiftPlugin extends BasePlugin {
                                 try {
                                     resultSet.close();
                                 } catch (SQLException e) {
-                                    log.error("Error closing Redshift ResultSet", e);
+                                    System.out.println("Error closing Redshift ResultSet");
+                                    e.printStackTrace();
                                 }
                             }
 
@@ -279,14 +282,16 @@ public class RedshiftPlugin extends BasePlugin {
                                 try {
                                     statement.close();
                                 } catch (SQLException e) {
-                                    log.error("Error closing Redshift Statement", e);
+                                    System.out.println("Error closing Redshift Statement");
+                                    e.printStackTrace();
                                 }
                             }
 
                             try {
                                 connection.close();
                             } catch (SQLException e) {
-                                log.error("Error closing Redshift Connection", e);
+                                System.out.println("Error closing Redshift Connection");
+                                e.printStackTrace();
                             }
                         }
 
@@ -294,7 +299,8 @@ public class RedshiftPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.debug("In RedshiftPlugin, got action execution result");
+                        System.out.println(Thread.currentThread().getName()
+                                + ": In the RedshiftPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -327,19 +333,25 @@ public class RedshiftPlugin extends BasePlugin {
         }
 
         public void printConnectionPoolStatus(HikariDataSource connectionPool, boolean isFetchingStructure) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": printConnectionPoolStatus() called for Redshift plugin.";
+            System.out.println(printMessage);
             HikariPoolMXBean poolProxy = connectionPool.getHikariPoolMXBean();
             int idleConnections = poolProxy.getIdleConnections();
             int activeConnections = poolProxy.getActiveConnections();
             int totalConnections = poolProxy.getTotalConnections();
             int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-            log.debug(Thread.currentThread().getName()
+            System.out.println(Thread.currentThread().getName()
                     + (isFetchingStructure
-                            ? "Before fetching Redshift db" + " structure."
-                            : "Before executing Redshift query.")
-                    + " Hikari Pool stats : " + " active - "
-                    + activeConnections + ", idle - "
-                    + idleConnections + ", awaiting - "
-                    + threadsAwaitingConnection + ", total - "
+                            ? " Before fetching Redshift db structure."
+                            : " Before executing Redshift query.")
+                    + " Hikari Pool stats: active - "
+                    + activeConnections
+                    + ", idle - "
+                    + idleConnections
+                    + ", awaiting - "
+                    + threadsAwaitingConnection
+                    + ", total - "
                     + totalConnections);
         }
 
@@ -360,6 +372,8 @@ public class RedshiftPlugin extends BasePlugin {
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Redshift plugin.";
+            System.out.println(printMessage);
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -370,7 +384,7 @@ public class RedshiftPlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Connecting to Redshift db");
+                        System.out.println(Thread.currentThread().getName() + ": Connecting to Redshift db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -378,6 +392,9 @@ public class RedshiftPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(HikariDataSource connectionPool) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": datasourceDestroy() called for Redshift plugin.";
+            System.out.println(printMessage);
             if (connectionPool != null) {
                 connectionPool.close();
             }
@@ -385,6 +402,9 @@ public class RedshiftPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
+            String printMessage =
+                    Thread.currentThread().getName() + ": validateDatasource() called for Redshift plugin.";
+            System.out.println(printMessage);
             Set<String> invalids = new HashSet<>();
 
             if (CollectionUtils.isEmpty(datasourceConfiguration.getEndpoints())) {
@@ -429,6 +449,9 @@ public class RedshiftPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for Redshift plugin.";
+            System.out.println(printMessage);
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier
@@ -602,6 +625,8 @@ public class RedshiftPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) {
+            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Redshift plugin.";
+            System.out.println(printMessage);
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
@@ -640,7 +665,7 @@ public class RedshiftPlugin extends BasePlugin {
 
                         // Ref:
                         // <https://docs.oracle.com/en/java/javase/11/docs/api/java.sql/java/sql/DatabaseMetaData.html>.
-                        log.debug(Thread.currentThread().getName() + ": Getting Redshift Db structure");
+                        System.out.println(Thread.currentThread().getName() + ": Getting Redshift Db structure");
                         try (Statement statement = connection.createStatement()) {
 
                             // Get tables' schema and fill up their columns.
@@ -672,7 +697,8 @@ public class RedshiftPlugin extends BasePlugin {
                             try {
                                 connection.close();
                             } catch (SQLException e) {
-                                log.error("Error closing Redshift Connection", e);
+                                System.out.println("Error closing Redshift Connection");
+                                e.printStackTrace();
                             }
                         }
 

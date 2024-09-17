@@ -7,7 +7,7 @@ import {
 } from "ee/actions/workspaceActions";
 import type { SaveWorkspaceRequest } from "ee/api/WorkspaceApi";
 import { debounce } from "lodash";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,

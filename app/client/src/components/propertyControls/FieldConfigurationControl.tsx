@@ -1,6 +1,5 @@
 import React from "react";
 import log from "loglevel";
-import { klona } from "klona";
 import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
 import type { ControlProps } from "./BaseControl";
@@ -10,7 +9,7 @@ import SchemaParser, {
 } from "widgets/JSONFormWidget/schemaParser";
 import type { Schema } from "widgets/JSONFormWidget/constants";
 import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import type { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -25,6 +24,8 @@ import {
   noOfItemsToDisplay,
   extraSpace,
 } from "widgets/JSONFormWidget/constants";
+
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type DroppableItem = BaseItemProps & {
   index: number;
@@ -165,8 +166,12 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
        * the new added paths gets into the dynamicBindingPathList until
        * the updateProperty function is fixed.
        */
+
       const updatedSchema = {
-        schema: klona(widgetProperties.schema),
+        schema: klonaRegularWithTelemetry(
+          widgetProperties.schema,
+          "FieldConfigurationControl.addNewField",
+        ),
       };
       set(updatedSchema, path, schemaItem);
 
@@ -187,7 +192,10 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   updateItems = (items: DroppableItem[]) => {
     const { propertyName, propertyValue } = this.props;
-    const clonedSchema: Schema = klona(propertyValue);
+    const clonedSchema: Schema = klonaRegularWithTelemetry(
+      propertyValue,
+      "FieldConfigurationControl.updateItems",
+    );
 
     items.forEach((item, index) => {
       clonedSchema[item.id].position = index;

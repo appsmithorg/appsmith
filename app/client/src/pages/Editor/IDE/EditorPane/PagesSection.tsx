@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
 import { selectAllPages } from "ee/selectors/entitiesSelector";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { getHasCreatePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";

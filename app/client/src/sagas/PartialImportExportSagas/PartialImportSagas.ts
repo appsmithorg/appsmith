@@ -11,7 +11,7 @@ import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { pasteWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { call, fork, put, select } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {

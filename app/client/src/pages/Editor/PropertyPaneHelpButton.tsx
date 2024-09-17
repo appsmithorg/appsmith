@@ -8,7 +8,7 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import WidgetFactory from "WidgetProvider/factory";
 import { getSelectedWidget } from "sagas/selectors";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 function PropertyPaneHelpButton() {
   const selectedWidget = useSelector(getSelectedWidget);

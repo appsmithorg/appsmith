@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|konva|design-system|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios)",
+    "<rootDir>/node_modules/(?!codemirror|konva|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -30,9 +30,6 @@ module.exports = {
     "@appsmith/ads-old": "<rootDir>/node_modules/@appsmith/ads-old",
     "@design-system/widgets-old":
       "<rootDir>/node_modules/@design-system/widgets-old",
-    "@design-system/widgets": "<rootDir>/node_modules/@design-system/widgets",
-    "@design-system/headless": "<rootDir>/node_modules/@design-system/headless",
-    "@design-system/theming": "<rootDir>/node_modules/@design-system/theming",
     "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
     // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
     // contains sources that are transpiled to ES5. As Jest does not transpile our sources to ES5,
@@ -49,7 +46,7 @@ module.exports = {
       "<rootDir>/node_modules/@blueprintjs/popover2/lib/esnext",
     "^@blueprintjs/select$":
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
-    "design-system": "<rootDir>/node_modules/design-system",
+    "@appsmith/ads": "<rootDir>/node_modules/@appsmith/ads",
     "^canvas$": "jest-canvas-mock",
   },
   globals: {

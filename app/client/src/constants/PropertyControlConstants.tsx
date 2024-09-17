@@ -55,20 +55,24 @@ export interface PanelConfig {
 }
 
 export interface PropertyPaneControlConfig {
+  // unique id to identify the property. It is added automatically with generateReactKey()
   id?: string;
+  // label is used to display the name of the property
   label: string;
+  // unique name of the property
   propertyName: string;
   // Serves in the tooltip
   helpText?: string;
-  //Dynamic text serves below the property pane inputs
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  helperText?: ((props: any) => React.ReactNode) | React.ReactNode;
+  // Dynamic text serves below the property pane inputs
+  helperText?: ((props: unknown) => React.ReactNode) | React.ReactNode;
+  // used to tell if the property is a JS convertible property.
+  // If true, It will show the little JS icon button next to the property name
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;
   validationMessage?: string;
   dataTreePath?: string;
+  // used to define children property configs when the current property is a section
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
   updateRelatedWidgetProperties?: (
@@ -80,6 +84,7 @@ export interface PropertyPaneControlConfig {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     props: any,
   ) => UpdateWidgetPropertyPayload[];
+  // Function that is called when the property is updated, it is mainly used to update other properties
   updateHook?: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,10 +106,12 @@ export interface PropertyPaneControlConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   additionalAutoComplete?: (props: any) => AdditionalDynamicDataTree;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
+  // all the properties that current property  is dependent on. All the properties passed here comes into widgetProperties
   dependencies?: string[];
   dynamicDependencies?: (widget: WidgetProps) => string[];
   evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
   expected?: CodeEditorExpected;
+  // Used to get value of the property from stylesheet config. Used in app theming v1 ( Not needed in anvil )
   getStylesheetValue?: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

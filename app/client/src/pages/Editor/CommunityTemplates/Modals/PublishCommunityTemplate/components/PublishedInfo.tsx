@@ -1,5 +1,5 @@
 import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 

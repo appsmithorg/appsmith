@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import DebuggerTabs from "./DebuggerTabs";
 import { setErrorCount } from "actions/debuggerActions";
 import { getMessageCount, showDebuggerFlag } from "selectors/debuggerSelectors";
-import { Button, Tooltip } from "design-system";
+import { Button, Tooltip } from "@appsmith/ads";
 import useDebuggerTriggerClick from "./hooks/useDebuggerTriggerClick";
 
 function Debugger() {

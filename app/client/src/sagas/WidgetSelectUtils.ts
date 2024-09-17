@@ -18,7 +18,7 @@ import {
 import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import WidgetFactory from "WidgetProvider/factory";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 
 /**

@@ -10,7 +10,7 @@ import {
   ModalContent,
   ModalBody,
   ModalFooter,
-} from "design-system";
+} from "@appsmith/ads";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 

@@ -20,7 +20,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";

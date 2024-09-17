@@ -10,7 +10,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import useClipboard from "utils/hooks/useClipboard";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
-import { Tooltip, Icon } from "design-system";
+import { Tooltip, Icon } from "@appsmith/ads";
 import { COPY_ELEMENT, createMessage } from "ee/constants/messages";
 import CollapseToggle from "./CollapseToggle";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

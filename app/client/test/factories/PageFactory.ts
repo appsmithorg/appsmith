@@ -1,5 +1,5 @@
+import type { Page } from "entities/Page";
 import * as Factory from "factory.ts";
-import type { Page } from "ee/constants/ReduxActionConstants";
 
 function generateRandomHexId() {
   const hexChars = "0123456789abcdef";

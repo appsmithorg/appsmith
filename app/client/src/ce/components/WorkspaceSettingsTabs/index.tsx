@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import MemberSettings from "ee/pages/workspace/Members";
 import { GeneralSettings } from "pages/workspace/General";
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
+import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
 import { navigateToTab } from "ee/pages/workspace/helpers";
 import styled from "styled-components";
 

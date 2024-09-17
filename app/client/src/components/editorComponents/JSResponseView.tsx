@@ -19,7 +19,7 @@ import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import type { JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";

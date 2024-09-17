@@ -15,9 +15,9 @@ import {
   PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE,
   PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR,
 } from "ee/constants/messages";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import classNames from "classnames";
-import { Input, Switch } from "design-system";
+import { Input, Switch } from "@appsmith/ads";
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";

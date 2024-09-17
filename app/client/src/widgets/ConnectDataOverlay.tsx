@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 

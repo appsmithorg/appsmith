@@ -13,9 +13,6 @@ export interface AppsmithUIConfigs {
     dsn: string;
     release: string;
     environment: string;
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    integrations: any[];
     normalizeDepth: number;
     tracesSampleRate: number;
   };

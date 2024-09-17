@@ -24,7 +24,7 @@ import DataSourceOption, {
 } from "../DataSourceOption";
 import { getQueryStringfromObject } from "ee/entities/URLRedirect/URLAssembly";
 import type { DropdownOption } from "@appsmith/ads-old";
-import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
+import { Button, Icon, Text, Select, Option, Tooltip } from "@appsmith/ads";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -372,7 +372,6 @@ function GeneratePageForm() {
                     value: column.name,
                     subText: column.type,
                     icon: columnIcon,
-                    // @ts-expect-error Fix this the next time the file is edited
                     iconSize: "md",
                     iconColor: "var(--ads-v2-color-fg)",
                   });
@@ -448,8 +447,7 @@ function GeneratePageForm() {
         iconSize: "md",
         iconColor: "var(--ads-v2-color-fg)",
       }));
-      // @ts-expect-error Fix this the next time the file is edited
-      setSelectedDatasourceTableOptions(tables);
+      setSelectedDatasourceTableOptions(tables as DropdownOptions);
     }
   }, [bucketList, isS3Plugin, setSelectedDatasourceTableOptions]);
 
@@ -482,8 +480,7 @@ function GeneratePageForm() {
               columns,
             },
           }));
-          // @ts-expect-error Fix this the next time the file is edited
-          setSelectedDatasourceTableOptions(newTables);
+          setSelectedDatasourceTableOptions(newTables as DropdownOptions);
         }
       }
     }
@@ -774,9 +771,7 @@ function GeneratePageForm() {
                       <StyledIconWrapper>
                         <Icon
                           color={table?.iconColor}
-                          // @ts-expect-error Fix this the next time the file is edited
-                          name={table.icon}
-                          // @ts-expect-error Fix this the next time the file is edited
+                          name={table.icon as string}
                           size={table.iconSize}
                         />
                       </StyledIconWrapper>
@@ -849,9 +844,7 @@ function GeneratePageForm() {
                           <StyledIconWrapper>
                             <Icon
                               color={column?.iconColor}
-                              // @ts-expect-error Fix this the next time the file is edited
-                              name={column.icon}
-                              // @ts-expect-error Fix this the next time the file is edited
+                              name={column.icon as string}
                               size={column.iconSize}
                             />
                           </StyledIconWrapper>

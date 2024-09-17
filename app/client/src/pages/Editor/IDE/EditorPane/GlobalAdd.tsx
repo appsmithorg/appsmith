@@ -1,7 +1,7 @@
 import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import { Button, Flex, Icon, Text } from "design-system";
+import { Button, Flex, Icon, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history from "utils/history";

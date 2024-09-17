@@ -13,7 +13,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 
 export function* createSectionAndAddWidget(
@@ -25,9 +25,7 @@ export function* createSectionAndAddWidget(
   /**
    * Step 1: Create Section widget.
    */
-  const widgetId: string = generateReactKey({
-    prefix: "section-",
-  });
+  const widgetId: string = generateReactKey();
   const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
     {

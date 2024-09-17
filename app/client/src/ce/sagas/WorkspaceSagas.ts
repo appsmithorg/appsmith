@@ -39,7 +39,7 @@ import {
   createMessage,
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "ee/constants/messages";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getWorkspaceEntitiesActions } from "ee/utils/workspaceHelpers";
 import type { SearchApiResponse } from "ee/types/ApiResponseTypes";

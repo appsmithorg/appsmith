@@ -23,7 +23,7 @@ import {
 } from "ee/pages/Editor/Explorer/helpers";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
@@ -67,7 +67,7 @@ function Files() {
 
   const onCreate = useCallback(() => {
     openMenu(true);
-  }, [dispatch, openMenu]);
+  }, [openMenu]);
 
   const activeActionBaseId = useActiveActionBaseId();
 
@@ -141,7 +141,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionBaseId, parentEntityId],
+    [files, activeActionBaseId, parentEntityId, parentEntityType],
   );
 
   const handleClick = useCallback(
@@ -161,7 +161,7 @@ function Files() {
         item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
       }
     },
-    [parentEntityId, dispatch],
+    [dispatch, parentEntityId, parentEntityType],
   );
 
   return (

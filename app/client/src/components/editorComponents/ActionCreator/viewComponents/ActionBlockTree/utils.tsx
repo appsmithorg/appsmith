@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { AppsmithFunction, FieldType } from "../../constants";
 import type { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";

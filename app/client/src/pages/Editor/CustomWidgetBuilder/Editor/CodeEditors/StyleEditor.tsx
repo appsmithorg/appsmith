@@ -9,7 +9,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CustomWidgetBuilderContext } from "../..";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { Icon, Tooltip, Spinner } from "design-system";
+import { Icon, Tooltip, Spinner } from "@appsmith/ads";
 import styles from "./styles.module.css";
 import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import styled from "styled-components";

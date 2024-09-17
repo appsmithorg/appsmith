@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "../Icon";
+import { Icon } from "@appsmith/ads";
 import Text, { TextType } from "../Text";
 import { Classes } from "../constants/classes";
 
@@ -60,7 +60,7 @@ function GifPlayer(props: GifPlayerProps) {
       <Overlay />
       <img src={props.thumbnail} />
       <PlayButton>
-        <Icon name="play" size={IconSize.XXXL} />
+        <Icon name="play" size="lg" />
         <Text color={"var(--ads-v2-color-fg)"} type={TextType.P3}>
           Click to play
         </Text>

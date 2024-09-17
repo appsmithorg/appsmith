@@ -16,7 +16,7 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Avatar } from "design-system";
+import { Avatar } from "@appsmith/ads";
 
 export interface AvatarProps {
   className?: string;

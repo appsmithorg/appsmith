@@ -6,7 +6,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { updateGitDefaultBranch } from "actions/gitSyncActions";
-import { Button, Link, Option, Select, Text } from "design-system";
+import { Button, Link, Option, Select, Text } from "@appsmith/ads";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getGitBranches } from "selectors/gitSyncSelectors";

@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { TreeDropdown } from "@appsmith/ads-old";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 import { debounce } from "lodash";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { AppsmithFunction, FieldType } from "../../constants";

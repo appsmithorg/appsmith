@@ -5,7 +5,7 @@ import {
   LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
   createMessage,
 } from "ee/constants/messages";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 
 export const LOCAL_STORAGE_KEYS = {
   CANVAS_CARDS_STATE: "CANVAS_CARDS_STATE",

@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
+import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "@appsmith/ads";
 import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

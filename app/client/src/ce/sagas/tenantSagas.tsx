@@ -11,7 +11,7 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ee/reducers/tenantReducer";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 

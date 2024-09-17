@@ -2,7 +2,7 @@ import clsx from "clsx";
 import {
   getTypographyClassName,
   type TYPOGRAPHY_FONT_WEIGHTS,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 import type { Ref } from "react";
 import React, { forwardRef } from "react";
 

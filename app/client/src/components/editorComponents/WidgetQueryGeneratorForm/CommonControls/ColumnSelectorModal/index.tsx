@@ -9,7 +9,7 @@ import {
   ModalHeader,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { EditFieldsButton } from "../../styles";
 import styled from "styled-components";
 import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";

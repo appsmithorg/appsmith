@@ -6,7 +6,7 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import { Button, Spinner, toast, Tooltip } from "design-system";
+import { Button, Spinner, toast, Tooltip } from "@appsmith/ads";
 import { INVALID_NAME_ERROR, createMessage } from "ee/constants/messages";
 
 export enum EditInteractionKind {

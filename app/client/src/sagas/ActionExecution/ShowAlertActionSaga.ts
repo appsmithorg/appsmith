@@ -1,7 +1,7 @@
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import type { ToastKind } from "design-system";
+import type { ToastKind } from "@appsmith/ads";
 import type { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
 import { call } from "redux-saga/effects";
 import showToast from "sagas/ToastSagas";

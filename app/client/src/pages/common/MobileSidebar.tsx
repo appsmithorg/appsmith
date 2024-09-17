@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { MenuItem } from "@appsmith/ads-old";
-import { Text, Avatar } from "design-system";
+import { Text, Avatar } from "@appsmith/ads";
 import { getInitials } from "utils/AppsmithUtils";
 import {
   DropdownOnSelectActions,
@@ -62,7 +62,7 @@ const UserNameSection = styled.div`
 
 const StyledMenuItem = styled(MenuItem)`
   svg,
-  .cs-icon svg path {
+  .ads-v2-icon svg path {
     width: 18px;
     height: 18px;
     fill: var(--ads-v2-color-fg);

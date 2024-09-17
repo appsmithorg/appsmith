@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import {
   BACK_TO_HOMEPAGE,

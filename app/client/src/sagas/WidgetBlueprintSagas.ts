@@ -10,7 +10,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import * as log from "loglevel";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 

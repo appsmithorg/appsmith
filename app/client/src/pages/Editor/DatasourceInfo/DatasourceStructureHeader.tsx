@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import {

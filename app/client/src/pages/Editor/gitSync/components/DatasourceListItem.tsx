@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, TextType } from "@appsmith/ads-old";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
@@ -50,7 +50,7 @@ const DsTitle = styled.div`
     text-overflow: ellipsis;
     padding-right: 4px;
   }
-  .cs-icon {
+  .ads-v2-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
   }
 `;

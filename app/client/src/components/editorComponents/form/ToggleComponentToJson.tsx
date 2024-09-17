@@ -15,7 +15,7 @@ import { bindActionCreators } from "redux";
 import { change } from "redux-form";
 import { get } from "lodash";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "ee/constants/messages";
-import { ToggleButton, Tooltip } from "design-system";
+import { ToggleButton, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 
 interface Props {
@@ -76,7 +76,7 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
       content={!!configPropertyPathJsonValue && JS_TOGGLE_DISABLED_MESSAGE}
       isDisabled={!configPropertyPathJsonValue}
     >
-      <span>
+      <span className="flex items-center justify-center h-[16px]">
         <StyledToggleButton
           data-testid={`t--${props.configProperty}-JS`}
           icon="js-toggle-v2"

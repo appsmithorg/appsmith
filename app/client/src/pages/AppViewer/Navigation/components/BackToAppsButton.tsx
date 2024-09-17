@@ -7,13 +7,13 @@ import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 
 interface BackToAppsButtonProps {
   currentApplicationDetails?: ApplicationPayload;

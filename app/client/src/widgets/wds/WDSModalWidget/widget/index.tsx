@@ -3,16 +3,11 @@ import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import * as config from "./../config";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import {
-  Modal,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@design-system/widgets";
+import { Modal, ModalContent, ModalFooter, ModalHeader } from "@appsmith/wds";
 import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { ModalBody } from "@design-system/widgets";
+import { ModalBody } from "@appsmith/wds";
 import { WDS_MODAL_WIDGET_CLASSNAME } from "widgets/wds/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
@@ -26,7 +21,7 @@ import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalL
 import styles from "./styles.module.css";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { AnvilDataAttributes } from "widgets/anvil/constants";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";

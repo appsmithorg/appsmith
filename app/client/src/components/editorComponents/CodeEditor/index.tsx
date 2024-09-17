@@ -73,7 +73,7 @@ import {
 } from "components/editorComponents/CodeEditor/hintHelpers";
 
 import { showBindingPrompt } from "./BindingPromptHelper";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
