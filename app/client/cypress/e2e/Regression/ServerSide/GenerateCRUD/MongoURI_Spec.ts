@@ -15,12 +15,14 @@ import EditorNavigation, {
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+import data from "../../../../fixtures/mongouri_data_spec.json";
 
 describe(
   "Validate Mongo URI CRUD with JSON Form",
   { tags: ["@tag.Datasource"] },
   () => {
     let dsName: any;
+    let importDataCollectionName: string;
 
     it("1. Create DS & Generate CRUD template", () => {
       dataSources.NavigateToDSCreateNew();
@@ -32,13 +34,38 @@ describe(
         dataSources.FillMongoDatasourceFormWithURI();
         dataSources.TestSaveDatasource();
         AppSidebar.navigate(AppSidebarButton.Editor);
+
+        importDataCollectionName = dsName + "_Import_data";
+
+        // Create data dump in new collection
+        dataSources.CreateQueryForDS(dsName, "", importDataCollectionName);
+        dataSources.ValidateNSelectDropdown(
+          "Command",
+          "Find document(s)",
+          "Insert document(s)",
+        );
+        dataSources.EnterJSContext({
+          fieldLabel: "Collection",
+          fieldValue: importDataCollectionName,
+        });
+        agHelper.EnterValue(JSON.stringify(data), {
+          propFieldName: "",
+          directInput: false,
+          inputFieldName: "Documents",
+        });
+
+        dataSources.RunQuery();
+
         PageList.AddNewPage("Generate page with data");
         agHelper.GetNClick(dataSources._selectDatasourceDropdown);
         agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
 
         assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
         agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
-        agHelper.GetNClickByContains(dataSources._dropdownOption, "mongomart");
+        agHelper.GetNClickByContains(
+          dataSources._dropdownOption,
+          importDataCollectionName,
+        );
         GenerateCRUDNValidateDeployPage(
           "/img/products/mug.jpg",
           "Coffee Mug",
@@ -56,6 +83,13 @@ describe(
 
     it("2. Verify Update data from Deploy page - on mongomart - existing record", () => {
       //Update documents query to handle the int _id data
+      EditorNavigation.SelectEntityByName("DeleteQuery", EntityType.Query);
+      agHelper.EnterValue(`{ _id: {{data_table.triggeredRow._id}}}`, {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Query",
+      });
+
       EditorNavigation.SelectEntityByName("UpdateQuery", EntityType.Query);
       agHelper.EnterValue(`{ _id: {{data_table.selectedRow._id}}}`, {
         propFieldName: "",
@@ -65,7 +99,7 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       agHelper.GetNAssertElementText(
         locators._textWidgetInDeployed,
-        "mongomart Data",
+        `${importDataCollectionName} Data`,
       );
       //Validating loaded table
       table.SelectTableRow(2, 0, true, "v2");
@@ -132,7 +166,7 @@ describe(
       }
     });
 
-    it("4. Verify Delete from Deploy page - on MongoMart - newly added record", () => {
+    it("4. Verify Delete from Deploy page - on mongo mart data - newly added record", () => {
       agHelper.ClickButton("Delete", 0);
       agHelper.AssertElementVisibility(locators._modal);
       agHelper.AssertElementVisibility(
@@ -141,7 +175,7 @@ describe(
         ),
       );
       agHelper.ClickButton("Confirm");
-      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      assertHelper.AssertNetworkExecutionSuccess("@postExecute");
       assertHelper.AssertNetworkStatus("@postExecute", 200);
       table.ReadTableRowColumnData(0, 6, "v2", 200).then(($cellData) => {
         expect($cellData).to.eq("Coffee Mug");
@@ -151,7 +185,7 @@ describe(
       });
     });
 
-    it("5 Verify Filter & Search & Download from Deploy page - on MongoMart - existing record", () => {
+    it("5 Verify Filter & Search & Download from Deploy page - on mongo mart data - existing record", () => {
       table.SearchTable("Swag");
       agHelper.Sleep(2500); //for search to load
       for (let i = 0; i <= 1; i++) {
@@ -198,7 +232,11 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
       PageList.AddNewPage();
       dataSources.CreateQueryForDS(dsName);
-      dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
+      dataSources.ValidateNSelectDropdown(
+        "Collection",
+        "",
+        importDataCollectionName,
+      );
       dataSources.RunQuery({ toValidateResponse: false });
       dataSources.AddSuggestedWidget(Widgets.Table);
       table.ReadTableRowColumnData(0, 3, "v2").then((cellData) => {
@@ -223,7 +261,6 @@ function GenerateCRUDNValidateDeployPage(
   assertHelper.AssertNetworkStatus("@updateLayout", 200);
   appSettings.OpenPaneAndChangeTheme("Pacific");
   deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
-
   //Validating loaded table
   agHelper.AssertElementExist(dataSources._selectedRow);
   table.ReadTableRowColumnData(0, 1, "v2", 2000).then(($cellData) => {
