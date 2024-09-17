@@ -131,14 +131,6 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-
-  ${FormRow} {
-    min-height: auto;
-    padding: ${(props) => props.theme.spaces[0]}px;
-    & > * {
-      margin-right: 0px;
-    }
-  }
 `;
 
 const TabsListWrapper = styled.div`
@@ -529,7 +521,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   };
   const {
     actionRightPaneAdditionSections,
-    actionRightPaneBackLink,
     moreActionsMenu,
     notification,
     saveActionName,
@@ -782,7 +773,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
             </SecondaryWrapper>
           </div>
           <ActionRightPane
-            actionRightPaneBackLink={actionRightPaneBackLink}
             additionalSections={actionRightPaneAdditionSections}
           />
         </Wrapper>
