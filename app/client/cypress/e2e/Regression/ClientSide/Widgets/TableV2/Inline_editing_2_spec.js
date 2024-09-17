@@ -10,6 +10,7 @@ import {
   propPane,
   table,
   draggableWidgets,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
@@ -18,7 +19,6 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     beforeEach(() => {
-      agHelper.RestoreLocalStorageCache();
       agHelper.AddDsl("Table/InlineEditingDSL");
     });
 
@@ -157,7 +157,6 @@ describe(
     });
 
     it("7. should check if updatedRowIndex is getting updated for multi row update mode", () => {
-      agHelper.AddDsl("Table/InlineEditingDSL");
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
       cy.get(".t--widget-textwidget").should("exist");
       cy.updateCodeInput(
@@ -172,7 +171,7 @@ describe(
         PROPERTY_SELECTOR.onClick,
         `{{resetWidget("Table1",true)}}`,
       );
-
+      agHelper.ClickOutside();
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       agHelper.GetNClick(table._updateMode("Multi"), 0, false, 1000);
