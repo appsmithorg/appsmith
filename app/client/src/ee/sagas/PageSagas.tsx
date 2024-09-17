@@ -2,6 +2,7 @@ export * from "ce/sagas/PageSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   fetchPageSaga,
+  fetchPublishedPageSaga,
   saveLayoutSaga,
   createPageSaga,
   createNewPageFromEntity,
@@ -19,6 +20,7 @@ import {
   setPreviewModeInitSaga,
   refreshTheApp,
   setupPageSaga,
+  setupPublishedPageSaga,
   fetchPublishedPageResourcesSaga,
 } from "ce/sagas/PageSagas";
 import {
@@ -33,6 +35,10 @@ import { clearEvalCache } from "sagas/EvaluationsSaga";
 export default function* pageSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_PAGE_INIT, fetchPageSaga),
+    takeLatest(
+      ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
+      fetchPublishedPageSaga,
+    ),
     takeLatest(ReduxActionTypes.UPDATE_LAYOUT, saveLayoutSaga),
     takeLeading(ReduxActionTypes.CREATE_PAGE_INIT, createPageSaga),
     takeLeading(
@@ -63,6 +69,10 @@ export default function* pageSagas() {
     takeLatest(ReduxActionTypes.REFRESH_THE_APP, refreshTheApp),
     takeLatest(ReduxActionTypes.CLEAR_CACHE, clearEvalCache),
     takeLatest(ReduxActionTypes.SETUP_PAGE_INIT, setupPageSaga),
+    takeLatest(
+      ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
+      setupPublishedPageSaga,
+    ),
     takeLatest(
       ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
       fetchPublishedPageResourcesSaga,
