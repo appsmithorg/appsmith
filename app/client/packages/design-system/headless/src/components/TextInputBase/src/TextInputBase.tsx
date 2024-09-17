@@ -101,4 +101,5 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
 }
 
 const _TextInputBase = forwardRef(TextInputBase);
+
 export { _TextInputBase as TextInputBase };

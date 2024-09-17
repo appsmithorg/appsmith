@@ -12,6 +12,7 @@ export const addPrivateWidgetsToAllListWidgets = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
     if (child.type === "LIST_WIDGET") {
       const privateWidgets: any = {};
+
       Object.keys(child.template).forEach((entityName) => {
         privateWidgets[entityName] = true;
       });
@@ -20,6 +21,7 @@ export const addPrivateWidgetsToAllListWidgets = (currentDSL: DSLWidget) => {
         set(child, `privateWidgets`, privateWidgets);
       }
     }
+
     return child;
   });
 

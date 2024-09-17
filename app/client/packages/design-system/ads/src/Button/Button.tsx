@@ -36,10 +36,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       UNSAFE_width,
       ...rest
     } = props;
+
     // disable button when loading
     rest.onClick =
       props.isLoading || props.isDisabled ? undefined : props.onClick;
     const buttonRef = useDOMRef(ref);
+
     return (
       <StyledButton
         as={renderAs || "button"}

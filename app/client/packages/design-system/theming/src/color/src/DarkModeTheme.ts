@@ -31,6 +31,7 @@ export class DarkModeTheme implements ColorModeTheme {
       isYellow,
       lightness,
     } = new ColorsAccessor(color);
+
     this.seedColor = seedColor;
     this.seedLightness = lightness;
     this.seedChroma = chroma;
@@ -154,6 +155,7 @@ export class DarkModeTheme implements ColorModeTheme {
     if (!this.seedIsAchromatic && !this.seedIsCold) {
       color.oklch.c = 0.012;
     }
+
     return color;
   }
 
@@ -441,6 +443,7 @@ export class DarkModeTheme implements ColorModeTheme {
       if (this.seedHue < 145) {
         color.oklch.h = 155;
       }
+
       if (this.seedHue >= 145) {
         color.oklch.h = 135;
       }
@@ -501,6 +504,7 @@ export class DarkModeTheme implements ColorModeTheme {
       if (this.seedHue < 27) {
         color.oklch.h = 32;
       }
+
       if (this.seedHue >= 27) {
         color.oklch.h = 22;
       }
@@ -561,6 +565,7 @@ export class DarkModeTheme implements ColorModeTheme {
       if (this.seedHue < 85) {
         color.oklch.h = 95;
       }
+
       if (this.seedHue >= 85) {
         color.oklch.h = 70;
       }
@@ -760,6 +765,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get fgNegative() {
     // Negative foreground is produced from the initially adjusted background color (see above). Additional tweaks are applied to make sure it's distinct from fgAccent when seed is red.
     const color = this.bgNegative.clone();
+
     color.oklch.l += 0.05;
     color.oklch.c += 0.1;
     color.oklch.h -= 10;
@@ -938,6 +944,7 @@ export class DarkModeTheme implements ColorModeTheme {
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
     }
+
     // For light content on dark background APCA contrast is negative. −15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”.
     if (this.bg.contrastAPCA(this.seedColor) >= -15) {
       color.oklch.l += 0.05;

@@ -25,7 +25,9 @@ export const migrateChartWidgetReskinningData = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = migrateChartWidgetReskinningData(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

@@ -86,6 +86,7 @@ export default function OnboardingStatusbar(props: StatusbarProps) {
   const displayMessage = showOnlyMessage
     ? message
     : `${percentage}% ${message}`;
+
   return (
     <Wrapper active={active} data-testid="statusbar-container">
       <StatusProgressbar

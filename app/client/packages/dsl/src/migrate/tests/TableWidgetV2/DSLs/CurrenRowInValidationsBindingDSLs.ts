@@ -91,6 +91,7 @@ const newBindingSuffixForInlineEditValidProperty = (
 };
 
 const binding = "JSObject.myFun(currentRow)";
+
 export const currentRownInValidationsBindingInput = {
   children: [
     {
