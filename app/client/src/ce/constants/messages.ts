@@ -2502,3 +2502,7 @@ export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
   "Create a datasource to power your app with data.";
 
 export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
+export const EMPTY_JS_OBJECT_ERROR_MESSAGE = () =>
+  "JS object must contain 'export default'.";
+export const JS_OBJECT_DEFAULT_EXPORT_ERROR_MESSAGE = () =>
+  "Start object with export default";

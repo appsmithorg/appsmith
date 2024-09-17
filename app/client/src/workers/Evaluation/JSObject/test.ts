@@ -1,5 +1,8 @@
 import type { ConfigTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
-import { getUpdatedLocalUnEvalTreeAfterJSUpdates } from ".";
+import {
+  getUpdatedLocalUnEvalTreeAfterJSUpdates,
+  saveResolvedFunctionsAndJSUpdates,
+} from ".";
 
 describe("updateJSCollectionInUnEvalTree", function () {
   it("updates async value of jsAction", () => {
@@ -133,5 +136,47 @@ describe("updateJSCollectionInUnEvalTree", function () {
     };
 
     expect(expectedResult).toStrictEqual(actualResult);
+  });
+  it("should raise empty toast message when JSObject is empty", () => {
+    const mockFunction = jest.fn();
+    saveResolvedFunctionsAndJSUpdates(
+      { errors: { push: mockFunction } },
+      { body: " " },
+      {},
+      {},
+      "JSObject1",
+    );
+
+    expect(mockFunction).toBeCalled;
+    expect(mockFunction).toHaveBeenCalledWith({
+      type: "PARSE_JS_ERROR",
+      context: {
+        entity: { body: " " },
+        propertyPath: "JSObject1",
+      },
+      message: "JS object must contain 'export default'.",
+      show: false,
+    });
+  });
+  it("should raise appropriate toast message based on JSObject body content", () => {
+    const mockFunction = jest.fn();
+
+    saveResolvedFunctionsAndJSUpdates(
+      { errors: { push: mockFunction } },
+      { body: "export" },
+      {},
+      {},
+      "JSObject1",
+    );
+
+    expect(mockFunction).toBeCalled();
+    expect(mockFunction).toHaveBeenCalledWith({
+      type: "PARSE_JS_ERROR",
+      context: {
+        entity: { body: "export" },
+        propertyPath: "JSObject1.body",
+      },
+      message: "Start object with export default",
+    });
   });
 });

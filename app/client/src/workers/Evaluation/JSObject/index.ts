@@ -21,6 +21,11 @@ import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
+import {
+  createMessage,
+  EMPTY_JS_OBJECT_ERROR_MESSAGE,
+  JS_OBJECT_DEFAULT_EXPORT_ERROR_MESSAGE,
+} from "ee/constants/messages";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -226,7 +231,7 @@ export function saveResolvedFunctionsAndJSUpdates(
           entity: entity,
           propertyPath: entityName + ".body",
         },
-        message: "Start object with export default",
+        message: createMessage(JS_OBJECT_DEFAULT_EXPORT_ERROR_MESSAGE),
       };
       dataTreeEvalRef.errors.push(errors);
     } else {
@@ -236,7 +241,7 @@ export function saveResolvedFunctionsAndJSUpdates(
           entity: entity,
           propertyPath: entityName,
         },
-        message: "JS object must contain 'export default'.",
+        message: createMessage(EMPTY_JS_OBJECT_ERROR_MESSAGE),
         show: false,
       };
       dataTreeEvalRef.errors.push(errors);
