@@ -31,7 +31,6 @@
         <jackson.version>2.17.0</jackson.version>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
-        <logback.version>1.4.14</logback.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
