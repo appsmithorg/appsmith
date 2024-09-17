@@ -30,6 +30,7 @@ import {
   getSearchedWorkflows,
   getSearchedWorkspaces,
 } from "ee/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import DesktopEntitySearchField from "pages/common/SearchBar/DesktopEntitySearchField";
 import MobileEntitySearchField from "pages/common/SearchBar/MobileEntitySearchField";
 import { getPackagesList } from "ee/selectors/packageSelectors";
@@ -81,6 +82,7 @@ function EntitySearchBar(props: any) {
   const location = useLocation();
   const searchListContainerRef = useRef(null);
   const searchInputRef = useRef(null);
+  const selectedWorkspaceId = useSelector(getCurrentWorkspaceId);
 
   useEffect(() => {
     if (searchInput.trim().length > 0) {
@@ -192,6 +194,7 @@ function EntitySearchBar(props: any) {
       setShowMobileSearchBar={setShowMobileSearchBar}
       workflowsList={workflowsList}
       workspacesList={workspacesList}
+      selectedWorkspaceId={selectedWorkspaceId}
     />
   ) : (
     <>
@@ -253,6 +256,7 @@ function EntitySearchBar(props: any) {
             setIsDropdownOpen={setIsDropdownOpen}
             workflowsList={workflowsList}
             workspacesList={workspacesList}
+            selectedWorkspaceId={selectedWorkspaceId}
           />
         ))}
 

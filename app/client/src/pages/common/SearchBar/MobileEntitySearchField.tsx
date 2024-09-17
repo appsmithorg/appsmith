@@ -51,6 +51,7 @@ function MobileEntitySearchField(props: any) {
     setShowMobileSearchBar,
     workflowsList,
     workspacesList,
+    selectedWorkspaceId,
   } = props;
 
   const isHomePage = useRouteMatch("/applications")?.isExact;
@@ -105,6 +106,7 @@ function MobileEntitySearchField(props: any) {
               <ApplicationSearchItem
                 applicationsList={applicationsList}
                 navigateToApplication={navigateToApplication}
+                selectedWorkspaceId={selectedWorkspaceId}
               />
               <PackageSearchItem searchedPackages={searchedPackages} />
               <WorkflowSearchItem workflowsList={workflowsList} />

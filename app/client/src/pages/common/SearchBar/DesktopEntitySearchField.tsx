@@ -52,6 +52,7 @@ const DesktopEntitySearchField = (props: any) => {
     setIsDropdownOpen,
     workflowsList,
     workspacesList,
+    selectedWorkspaceId,
   } = props;
 
   const isHomePage = useRouteMatch("/applications")?.isExact;
@@ -96,6 +97,7 @@ const DesktopEntitySearchField = (props: any) => {
               <ApplicationSearchItem
                 applicationsList={applicationsList}
                 navigateToApplication={navigateToApplication}
+                selectedWorkspaceId={selectedWorkspaceId}
               />
               <PackageSearchItem searchedPackages={searchedPackages} />
               <WorkflowSearchItem workflowsList={workflowsList} />

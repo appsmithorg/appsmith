@@ -22,18 +22,20 @@ const CircleAppIcon = styled(AppIcon)`
 interface Props {
   applicationsList: ApplicationPayload[] | undefined;
   navigateToApplication: (id: string) => void;
+  selectedWorkspaceId: string;
 }
 
 const ApplicationSearchItem = (props: Props) => {
-  const { applicationsList, navigateToApplication } = props;
+  const { applicationsList, navigateToApplication, selectedWorkspaceId } = props;
   if (!applicationsList || applicationsList?.length === 0) return null;
   return (
     <div className="mb-2">
       <Text className="!mb-2 !block" kind="body-s">
         Applications
       </Text>
-      {applicationsList.map((application: ApplicationPayload) => (
-        <SearchListItem
+      {applicationsList.map((application: ApplicationPayload) => {
+        return (application.workspaceId === selectedWorkspaceId) && (
+          <SearchListItem
           data-testId={application.name}
           key={application.id}
           onClick={() => navigateToApplication(application.id)}
@@ -50,7 +52,8 @@ const ApplicationSearchItem = (props: Props) => {
             {application.name}
           </Text>
         </SearchListItem>
-      ))}
+        )
+      })}
     </div>
   );
 };
