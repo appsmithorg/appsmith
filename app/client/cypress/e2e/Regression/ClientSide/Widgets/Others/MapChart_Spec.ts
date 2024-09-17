@@ -13,6 +13,8 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const _mapChartCaption = "text:last-child";
+const _mapChartPlot = (text: string) =>
+  `//*[name()='svg']//*[name()='text' and contains(text(), '${text}')]`;
 
 describe(
   "Map Chart Widget Functionality",
@@ -20,17 +22,11 @@ describe(
   function () {
     it("1. Drag and drop a Map Chart widget and verify", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAPCHART, 200, 200);
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "AS");
+      agHelper.AssertElementExist(_mapChartPlot("AS"));
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "AS");
+      agHelper.AssertElementExist(_mapChartPlot("AS"));
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
     });
@@ -38,61 +34,37 @@ describe(
     it("2.1 Update the Map type to different types and verify - part1", function () {
       // Change the map type to World with Antarctica and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "World with Antarctica");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "AT");
+      agHelper.AssertElementExist(_mapChartPlot("AT"));
 
       // Change the map type to Europe and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Europe");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "FR");
+      agHelper.AssertElementExist(_mapChartPlot("FR"));
 
       // Change the map type to North America and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "North America");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "CA");
+      agHelper.AssertElementExist(_mapChartPlot("CA"));
 
       // Change the map type to South America and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "South America");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "BR");
+      agHelper.AssertElementExist(_mapChartPlot("BR"));
     });
 
     it("2.2 Update the Map type to different types and verify - part2", function () {
       // Change the map type to Oceania and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Oceania");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "AU");
+      agHelper.AssertElementExist(_mapChartPlot("AU"));
 
       // Change the map type to Africa and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Africa");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "ZA");
+      agHelper.AssertElementExist(_mapChartPlot("ZA"));
 
       // Change the map type to USA and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "USA");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "TX");
+      agHelper.AssertElementExist(_mapChartPlot("TX"));
 
       // Change the map type to Asia and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Asia");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "IN");
+      agHelper.AssertElementExist(_mapChartPlot("IN"));
     });
 
     it("3. Update the Chart data and verify", function () {
@@ -104,10 +76,7 @@ describe(
       ];
 
       propPane.TypeTextIntoField("Chart data", JSON.stringify(data));
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "IN: 2");
+      agHelper.AssertElementExist(_mapChartPlot("IN: 2"));
     });
 
     it("4. Verify General settings", function () {
@@ -117,17 +86,11 @@ describe(
 
       // update the show labels using toggle and verify
       propPane.TogglePropertyState("Show Labels", "Off");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("not.contain.text", "IN: 2");
+      agHelper.AssertElementAbsence(_mapChartPlot("IN: 2"));
 
       // update the visibility using JS and verify
       propPane.EnterJSContext("Show Labels", "true");
-      cy.get(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "IN: 2");
+      agHelper.AssertElementExist(_mapChartPlot("IN: 2"));
     });
 
     it("5. Update onDataPointClick and Verify", function () {
@@ -140,11 +103,7 @@ describe(
       );
 
       agHelper.GetNClick(locators._enterPreviewMode);
-      agHelper.GetElement(publishWidgetspage.mapChartWidget)
-      .find("svg")
-      .find("text")
-      .contains("IN: 2")
-      .click();
+      agHelper.GetElement(_mapChartPlot("IN: 2")).click();
     
       agHelper.ValidateToastMessage("Data Point India Clicked");
       agHelper.GetNClick(locators._exitPreviewMode);
@@ -156,11 +115,7 @@ describe(
         "{{showAlert('Converted to Js and clicked '+ MapChart1.selectedDataPoint.label)}}",
       );
       agHelper.GetNClick(locators._enterPreviewMode);
-      agHelper.GetElement(publishWidgetspage.mapChartWidget)
-      .find("svg")
-      .find("text")
-      .contains("IN: 2")
-      .click();
+      agHelper.GetElement(_mapChartPlot("IN: 2")).click();
       agHelper.ValidateToastMessage("Converted to Js and clicked India");
       agHelper.GetNClick(locators._exitPreviewMode);
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
