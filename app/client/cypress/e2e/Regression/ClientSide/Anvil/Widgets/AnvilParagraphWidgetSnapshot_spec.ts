@@ -6,7 +6,7 @@ import {
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Paragraph Widget`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
     before(() => {
       agHelper.AddDsl("anvilParagraphWidget");

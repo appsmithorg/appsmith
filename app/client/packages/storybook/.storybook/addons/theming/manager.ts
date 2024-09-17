@@ -10,7 +10,10 @@ addons.register("widgets/theming", () => {
       const { viewMode, storyId } = args;
 
       // show the addon only on wds
-      return Boolean(storyId && storyId?.includes("widgets"));
+      return Boolean(
+        (storyId && storyId?.includes("widgets")) ||
+          storyId?.includes("testing"),
+      );
     },
   });
 });

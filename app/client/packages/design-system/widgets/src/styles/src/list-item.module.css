@@ -44,9 +44,7 @@
 }
 
 .item[data-focus-visible] {
-  box-shadow:
-    inset 0 0 0 2px var(--color-bg),
-    inset 0 0 0 4px var(--color-bd-focus);
+  box-shadow: inset 0 0 0 2px var(--color-bd-focus);
 }
 
 .separator {

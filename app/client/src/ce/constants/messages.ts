@@ -364,8 +364,8 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "Edit datasource";
-export const SAVE_DATASOURCE = () => "Save as datasource";
+export const EDIT_DATASOURCE = () => "Edit";
+export const SAVE_DATASOURCE = () => "Save";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
