@@ -13,10 +13,7 @@ import { Button } from "@appsmith/ads";
 import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import store from "store";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import {
-  APP_SIDEBAR_WIDTH,
-  DEFAULT_EXPLORER_PANE_WIDTH,
-} from "constants/AppConstants";
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
 const BindingContainerMaxHeight = 300;
@@ -119,8 +116,7 @@ export function EntityProperties() {
         ref.current.style.top = top - EntityHeight + "px";
         ref.current.style.bottom = "unset";
       }
-      ref.current.style.left =
-        APP_SIDEBAR_WIDTH + DEFAULT_EXPLORER_PANE_WIDTH + "px";
+      ref.current.style.left = DEFAULT_EXPLORER_PANE_WIDTH + "px";
     }
   }, [entityId]);
 
