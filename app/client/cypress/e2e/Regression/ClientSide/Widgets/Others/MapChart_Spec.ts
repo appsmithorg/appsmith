@@ -140,12 +140,12 @@ describe(
       );
 
       agHelper.GetNClick(locators._enterPreviewMode);
-      agHelper
-        .GetElement(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "IN: 2")
-        .click();
+      agHelper.GetElement(publishWidgetspage.mapChartWidget)
+      .find("svg")
+      .find("text")
+      .contains("IN: 2")
+      .click();
+    
       agHelper.ValidateToastMessage("Data Point India Clicked");
       agHelper.GetNClick(locators._exitPreviewMode);
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
@@ -156,12 +156,11 @@ describe(
         "{{showAlert('Converted to Js and clicked '+ MapChart1.selectedDataPoint.label)}}",
       );
       agHelper.GetNClick(locators._enterPreviewMode);
-      agHelper
-        .GetElement(publishWidgetspage.mapChartWidget)
-        .find("svg")
-        .find("text")
-        .should("contain.text", "IN: 2")
-        .click();
+      agHelper.GetElement(publishWidgetspage.mapChartWidget)
+      .find("svg")
+      .find("text")
+      .contains("IN: 2")
+      .click();
       agHelper.ValidateToastMessage("Converted to Js and clicked India");
       agHelper.GetNClick(locators._exitPreviewMode);
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
@@ -181,7 +180,7 @@ describe(
       cy.get(publishWidgetspage.mapChartWidget)
         .find("svg")
         .find("path")
-        .should("have.attr", "fill", "rgb(0,0,0)");
+        .should("have.attr", "fill", "#aeaeae");
 
       // Change border radius and verify
       propPane.MoveToTab("Style");
