@@ -17,10 +17,6 @@ describe(
   "Table widget inline editing functionality",
   { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
-    afterEach(() => {
-      agHelper.SaveLocalStorageCache();
-    });
-
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
       agHelper.AddDsl("Table/InlineEditingDSL");
@@ -161,6 +157,7 @@ describe(
     });
 
     it("7. should check if updatedRowIndex is getting updated for multi row update mode", () => {
+      agHelper.AddDsl("Table/InlineEditingDSL");
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
       cy.get(".t--widget-textwidget").should("exist");
       cy.updateCodeInput(
