@@ -7,7 +7,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
-import { Button, Link, Option, Select, Text } from "design-system";
+import { Button, Link, Option, Select, Text } from "@appsmith/ads";
 import { xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

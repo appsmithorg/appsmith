@@ -23,7 +23,7 @@ import type { AppState } from "ee/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const POPUP_HEIGHT = 122;
 const POPUP_WIDTH = 38;

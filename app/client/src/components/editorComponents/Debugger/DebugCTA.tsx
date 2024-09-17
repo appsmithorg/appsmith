@@ -9,7 +9,7 @@ import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const EVDebugButton = styled(Button)`
   ${getTypographyByKey("btnSmall")};

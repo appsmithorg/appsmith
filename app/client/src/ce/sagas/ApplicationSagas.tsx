@@ -1,8 +1,4 @@
-import type {
-  ApplicationPayload,
-  Page,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -101,13 +97,13 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type { SetDefaultPageActionPayload } from "actions/pageActions";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "ee/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import {
   defaultNavigationSetting,
   keysOfNavigationSetting,
@@ -122,6 +118,8 @@ import {
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import type { Page } from "entities/Page";
+import type { ApplicationPayload } from "entities/Application";
 
 export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
   const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];
@@ -236,11 +234,7 @@ export function* fetchAppAndPagesSaga(
 ) {
   try {
     const { pages, ...payload } = action.payload;
-    const request = {
-      applicationId: payload.applicationId,
-      pageId: payload.pageId,
-      mode: payload.mode,
-    };
+    const request = { ...payload };
     if (request.pageId && request.applicationId) {
       delete request.applicationId;
     }

@@ -10,16 +10,13 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { updateExplorerWidthAction } from "actions/explorerActions";
 import {
   getExplorerActive,
   getExplorerWidth,
 } from "selectors/explorerSelector";
 import { tailwindLayers } from "constants/Layers";
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
@@ -73,10 +70,6 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
 
   const resizer = useHorizontalResize(sidebarRef, onWidthChange, onDragEnd);
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
-  PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
-  useEffect(() => {
-    PerformanceTracker.stopTracking();
-  });
 
   /**
    * on hover of resizer, show tooltip

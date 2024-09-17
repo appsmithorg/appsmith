@@ -10,7 +10,7 @@ import {
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
-import { Button, Checkbox, Divider, Icon, Text } from "design-system";
+import { Button, Checkbox, Divider, Icon, Text } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { ContentBox } from "pages/AdminSettings/components";
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE,

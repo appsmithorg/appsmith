@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "classnames";
-import { Text, Tag } from "design-system";
+import { Text, Tag } from "@appsmith/ads";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import type { TActionBlock, VariantType } from "../../types";

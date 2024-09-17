@@ -21,7 +21,7 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
-import { Select, Option, Checkbox, Text, Tooltip, Link } from "design-system";
+import { Select, Option, Checkbox, Text, Tooltip, Link } from "@appsmith/ads";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";

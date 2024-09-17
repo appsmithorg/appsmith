@@ -5,7 +5,7 @@ import type {
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { layoutSystemBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";

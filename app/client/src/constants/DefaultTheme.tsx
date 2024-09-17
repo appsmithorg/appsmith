@@ -12,7 +12,7 @@ import {
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SCROLLBAR_WIDTH,
 } from "widgets/TableWidgetV2/component/Constants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import React from "react";
 export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 

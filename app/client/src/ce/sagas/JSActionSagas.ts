@@ -68,7 +68,7 @@ import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
 } from "sagas/helper";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
@@ -192,10 +192,15 @@ export function* copyJSCollectionSaga(
     }
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
-    toast.show(createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName), {
-      kind: "error",
-    });
-    yield put(copyJSCollectionError(action.payload));
+    yield put(
+      copyJSCollectionError({
+        ...action.payload,
+        show: true,
+        error: {
+          message: createMessage(ERROR_JS_ACTION_COPY_FAIL, actionName),
+        },
+      }),
+    );
   }
 }
 
@@ -265,13 +270,14 @@ export function* moveJSCollectionSaga(
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
-    toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
-      kind: "error",
-    });
     yield put(
       moveJSCollectionError({
         id: action.payload.id,
         originalPageId: actionObject.pageId,
+        show: true,
+        error: {
+          message: createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name),
+        },
       }),
     );
   }
@@ -375,15 +381,15 @@ export function* saveJSObjectName(
       payload: {
         actionId: action.payload.id,
         oldName: collection.config.name,
+        show: true,
+        error: {
+          message: createMessage(
+            ERROR_JS_COLLECTION_RENAME_FAIL,
+            action.payload.name,
+          ),
+        },
       },
     });
-    toast.show(
-      createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
-      {
-        kind: "error",
-      },
-    );
-    log.error(e);
   }
 }
 

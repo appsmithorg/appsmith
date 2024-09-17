@@ -59,7 +59,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 
-import { toast, Callout } from "design-system";
+import { toast, Callout } from "@appsmith/ads";
 import styled from "styled-components";
 import {
   isDatasourceAuthorizedForQueryCreation,
@@ -88,7 +88,7 @@ import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "ee/components/DSDataFilter";
 import { DEFAULT_ENV_ID } from "ee/api/ApiUtils";
 import { isStorageEnvironmentCreated } from "ee/utils/Environments";
-import type { CalloutKind } from "design-system";
+import type { CalloutKind } from "@appsmith/ads";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";

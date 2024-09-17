@@ -34,7 +34,7 @@ import {
   TabPanel,
   Tooltip,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   API_EDITOR_TAB_TITLES,
   API_PANE_AUTO_GENERATED_HEADER,

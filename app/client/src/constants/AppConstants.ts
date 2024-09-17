@@ -1,15 +1,11 @@
 import localStorage from "utils/localStorage";
 import { GridDefaults } from "./WidgetConstants";
-import { APP_MAX_WIDTH } from "@design-system/theming";
+import { APP_MAX_WIDTH, type AppMaxWidth } from "@appsmith/wds-theming";
 
-export const CANVAS_DEFAULT_HEIGHT_PX = 1292;
 export const CANVAS_DEFAULT_MIN_HEIGHT_PX = 380;
-export const CANVAS_DEFAULT_GRID_HEIGHT_PX = 1;
-export const CANVAS_DEFAULT_GRID_WIDTH_PX = 1;
 export const CANVAS_DEFAULT_MIN_ROWS = Math.ceil(
   CANVAS_DEFAULT_MIN_HEIGHT_PX / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
 );
-export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
 export const DEFAULT_ENTITY_EXPLORER_WIDTH = 256;
 export const DEFAULT_PROPERTY_PANE_WIDTH = 288;
 export const APP_SETTINGS_PANE_WIDTH = 525;
@@ -40,7 +36,6 @@ export const getPersistentAppStore = (appId: string, branch?: string) => {
   return store;
 };
 
-export const TOOLTIP_HOVER_ON_DELAY = 1000;
 export const TOOLTIP_HOVER_ON_DELAY_IN_S = 1;
 
 export const MOBILE_MAX_WIDTH = 767;
@@ -63,11 +58,6 @@ export const NAVIGATION_SETTINGS = {
     STATIC: "static",
     STICKY: "sticky",
   },
-  ITEM_STYLE: {
-    TEXT_ICON: "textIcon",
-    TEXT: "text",
-    ICON: "icon",
-  },
   COLOR_STYLE: {
     LIGHT: "light",
     THEME: "theme",
@@ -87,7 +77,6 @@ export interface NavigationSetting {
   orientation: (typeof NAVIGATION_SETTINGS.ORIENTATION)[keyof typeof NAVIGATION_SETTINGS.ORIENTATION];
   navStyle: (typeof NAVIGATION_SETTINGS.NAV_STYLE)[keyof typeof NAVIGATION_SETTINGS.NAV_STYLE];
   position: (typeof NAVIGATION_SETTINGS.POSITION)[keyof typeof NAVIGATION_SETTINGS.POSITION];
-  itemStyle: (typeof NAVIGATION_SETTINGS.ITEM_STYLE)[keyof typeof NAVIGATION_SETTINGS.ITEM_STYLE];
   colorStyle: (typeof NAVIGATION_SETTINGS.COLOR_STYLE)[keyof typeof NAVIGATION_SETTINGS.COLOR_STYLE];
   logoAssetId: string;
   logoConfiguration: (typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION)[keyof typeof NAVIGATION_SETTINGS.LOGO_CONFIGURATION];
@@ -100,8 +89,7 @@ export interface ThemeSetting {
   density: number;
   sizing: number;
   fontFamily: string;
-  iconStyle: "FILLED" | "OUTLINED";
-  appMaxWidth: APP_MAX_WIDTH;
+  appMaxWidth: AppMaxWidth;
 }
 
 export type StringsFromNavigationSetting = Omit<
@@ -127,7 +115,6 @@ export const defaultNavigationSetting = {
   orientation: NAVIGATION_SETTINGS.ORIENTATION.TOP,
   navStyle: NAVIGATION_SETTINGS.NAV_STYLE.STACKED,
   position: NAVIGATION_SETTINGS.POSITION.STATIC,
-  itemStyle: NAVIGATION_SETTINGS.ITEM_STYLE.TEXT,
   colorStyle: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
   logoAssetId: NAVIGATION_SETTINGS.LOGO_ASSET_ID,
   logoConfiguration:
@@ -141,7 +128,6 @@ export const defaultThemeSetting: ThemeSetting = {
   borderRadius: "6px",
   density: 1,
   sizing: 1,
-  iconStyle: "OUTLINED",
   appMaxWidth: APP_MAX_WIDTH.Large,
 };
 

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { TextType, Text } from "@appsmith/ads-old";
 import { Colors } from "constants/Colors";
 import { createMessage, EDITOR_HEADER } from "ee/constants/messages";
-import { Icon, Spinner } from "design-system";
+import { Icon, Spinner } from "@appsmith/ads";
 
 const SaveStatusContainer = styled.div`
   align-items: center;

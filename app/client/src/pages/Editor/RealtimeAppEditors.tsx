@@ -12,7 +12,7 @@ import {
 } from "actions/appCollabActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsAppLevelSocketConnected } from "selectors/websocketSelectors";
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 
 const UserImageContainer = styled.div`
   display: flex;

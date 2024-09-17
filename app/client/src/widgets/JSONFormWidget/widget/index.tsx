@@ -1,7 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { debounce, difference, isEmpty, merge, noop } from "lodash";
-import { klona } from "klona";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -61,7 +60,7 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
   ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
@@ -69,6 +68,7 @@ import {
 } from "../constants/messages";
 import { createMessage } from "ee/constants/messages";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -660,7 +660,10 @@ class JSONFormWidget extends BaseWidget<
   ) => {
     const span = startRootSpan("JSONFormWidget.parseAndSaveFieldState");
     const fieldState = generateFieldState(schema, metaInternalFieldState);
-    const action = klona(afterUpdateAction);
+    const action = klonaRegularWithTelemetry(
+      afterUpdateAction,
+      "JSONFormWidget.parseAndSaveFieldState",
+    );
 
     const actionPayload =
       action && this.applyGlobalContextToAction(action, { fieldState });
@@ -723,7 +726,11 @@ class JSONFormWidget extends BaseWidget<
     actionPayload: ExecuteTriggerPayload,
     context: Record<string, unknown> = {},
   ) => {
-    const payload = klona(actionPayload);
+    const payload = klonaRegularWithTelemetry(
+      actionPayload,
+      "JSONFormWidget.applyGlobalContextToAction",
+    );
+
     const { globalContext } = payload;
 
     /**

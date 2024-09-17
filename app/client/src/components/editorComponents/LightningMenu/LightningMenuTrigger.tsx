@@ -7,7 +7,7 @@ import {
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 
 const LightningIconWrapper = styled.span<{
   background: string;

@@ -10,7 +10,7 @@ import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-import { get, set, isNil, has, uniq } from "lodash";
+import { get, isNil, has, uniq } from "lodash";
 import type { Workspace } from "ee/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import moment from "moment";
@@ -38,7 +38,12 @@ import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
-import { klona as clone } from "klona/full";
+import { klona as klonaFull } from "klona/full";
+import { klona as klonaRegular } from "klona";
+import { klona as klonaLite } from "klona/lite";
+import { klona as klonaJson } from "klona/json";
+
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -651,24 +656,6 @@ export const flattenObject = (data: Record<string, any>) => {
   return result;
 };
 
-/**
- * renames key in object
- *
- * @param object
- * @param key
- * @param newKey
- * @returns
- */
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const renameKeyInObject = (object: any, key: string, newKey: string) => {
-  if (object[key]) {
-    set(object, newKey, object[key]);
-  }
-
-  return object;
-};
-
 // Can be used to check if the user has developer role access to workspace
 export const getCanCreateApplications = (currentWorkspace: Workspace) => {
   const userWorkspacePermissions = currentWorkspace.userPermissions || [];
@@ -836,6 +823,34 @@ export function isValidColor(color: string) {
   return color?.includes("url") || validateColor(color) || isEmptyOrNill(color);
 }
 
+function klonaWithTelemetryWrapper<T>(
+  value: T,
+  codeSegment: string,
+  variant: string,
+  klonaFn: (input: T) => T,
+): T {
+  return startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment,
+      variant,
+    },
+    () => klonaFn(value),
+  );
+}
+export function klonaFullWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "full", klonaFull);
+}
+export function klonaRegularWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "regular", klonaRegular);
+}
+export function klonaLiteWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "lite", klonaLite);
+}
+export function klonaJsonWithTelemetry<T>(value: T, codeSegment: string): T {
+  return klonaWithTelemetryWrapper(value, codeSegment, "json", klonaJson);
+}
+
 /*
  *  Function to merge property pane config of a widget
  *
@@ -846,7 +861,10 @@ export const mergeWidgetConfig = (target: any, source: any) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sectionMap: Record<string, any> = {};
-  const mergedConfig = clone(target);
+  const mergedConfig = klonaFullWithTelemetry(
+    target,
+    "helpers.mergeWidgetConfig",
+  );
 
   mergedConfig.forEach((section: { sectionName: string }) => {
     sectionMap[section.sectionName] = section;

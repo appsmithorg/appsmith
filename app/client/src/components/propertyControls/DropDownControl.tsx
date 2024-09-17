@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Option, Select, Text, Icon } from "design-system";
+import { Option, Select, Text, Icon } from "@appsmith/ads";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { isNil } from "lodash";

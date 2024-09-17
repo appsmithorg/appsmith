@@ -1,5 +1,5 @@
 import React from "react";
-import { Spinner, Tooltip } from "design-system";
+import { Spinner, Tooltip } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
 import { Text, TextType } from "@appsmith/ads-old";
 import { BranchListItemContainer } from "./BranchListItemContainer";

@@ -14,7 +14,7 @@ import {
   Select,
   Tooltip,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 const Wrapper = styled.div`
   flex-direction: row;

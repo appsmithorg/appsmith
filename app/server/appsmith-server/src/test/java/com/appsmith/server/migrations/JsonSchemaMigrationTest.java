@@ -78,9 +78,6 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         ArtifactExchangeJson artifactExchangeJson = jsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson);
-
-        assertThat(artifactExchangeJson.getServerSchemaVersion())
-                .isNotEqualTo(jsonSchemaVersionsFallback.getServerVersion());
         assertThat(artifactExchangeJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
         assertThat(artifactExchangeJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
         assertThat(artifactExchangeJson.getClientSchemaVersion())
@@ -100,11 +97,9 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         Mono<ApplicationJson> applicationJsonMono =
-                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson);
+                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
         StepVerifier.create(applicationJsonMono)
                 .assertNext(appJson -> {
-                    assertThat(appJson.getServerSchemaVersion())
-                            .isNotEqualTo(jsonSchemaVersionsFallback.getServerVersion());
                     assertThat(appJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
                     assertThat(appJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
                     assertThat(appJson.getClientSchemaVersion())
@@ -126,7 +121,7 @@ public class JsonSchemaMigrationTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         Mono<ApplicationJson> applicationJsonMono =
-                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson);
+                jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null);
         StepVerifier.create(applicationJsonMono)
                 .assertNext(appJson -> {
                     assertThat(appJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());

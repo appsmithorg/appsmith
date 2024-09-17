@@ -1,10 +1,10 @@
 import React from "react";
-import type { CollapsibleTabProps } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
-import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import styled from "styled-components";
 import { LIST_HEADER_HEIGHT, FOOTER_MARGIN } from "./Debugger/DebuggerLogs";
+import type { RefObject } from "react";
 
 const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;
@@ -40,8 +40,12 @@ interface EntityBottomTabsProps {
   isCollapsed?: boolean;
 }
 
-type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
-  CollapsibleTabProps;
+type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps & {
+  // Reference to container for collapsing or expanding content
+  containerRef: RefObject<HTMLDivElement>;
+  // height of container when expanded( usually the default height of the tab component)
+  expandedHeight: string;
+};
 
 // Using this if there are debugger related tabs
 function EntityBottomTabs(
@@ -59,23 +63,6 @@ function EntityBottomTabs(
       }
     }
   };
-
-  // if (props.isCollapsed) {
-  //   return (
-  //     <Flex alignItems="center" gap="spaces-3" height="100%" pl="spaces-5">
-  //       {props.tabs.map((tab) => (
-  //         <Button
-  //           key={tab.key}
-  //           kind="tertiary"
-  //           onClick={() => onTabSelect(tab.key)}
-  //           size="md"
-  //         >
-  //           {tab.title}
-  //         </Button>
-  //       ))}
-  //     </Flex>
-  //   );
-  // }
 
   return (
     <Tabs

@@ -2,7 +2,7 @@ import { getAssetUrl } from "ee/utils/airgapHelpers";
 import React from "react";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { Avatar } from "design-system";
+import { Avatar } from "@appsmith/ads";
 
 const Wrapper = styled.div`
   width: 432px;

@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import { useSelector } from "react-redux";

@@ -34,7 +34,7 @@ export function AppPage(props: AppPageProps) {
   }, [isAnvilLayout, canvasWidth]);
 
   const pageViewWrapperRef = useRef<HTMLDivElement>(null);
-  useCanvasWidthAutoResize({ ref: pageViewWrapperRef, sidebarWidth });
+  useCanvasWidthAutoResize({ ref: pageViewWrapperRef });
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {

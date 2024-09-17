@@ -1,4 +1,4 @@
-import { Button, Icon, SearchInput, Spinner, Text } from "design-system";
+import { Button, Icon, SearchInput, Spinner, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";

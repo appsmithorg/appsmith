@@ -11,7 +11,7 @@ import {
   MenuSubTrigger,
   MenuTrigger,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 export interface ContextMenuOption {
   id?: string;

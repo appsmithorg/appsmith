@@ -40,7 +40,7 @@ import {
   SettingsFormWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,

@@ -22,12 +22,9 @@ import type { CSSProperties } from "styled-components";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { changeApi } from "actions/apiPaneActions";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   getActionByBaseId,
   getPageList,
@@ -88,9 +85,6 @@ class ApiEditor extends React.Component<Props> {
   context!: React.ContextType<typeof ApiEditorContext>;
 
   componentDidMount() {
-    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
-      actionType: "API",
-    });
     const type = this.getFormName();
     if (this.props.apiId) {
       this.props.changeAPIPage(this.props.apiId, type === "SAAS");
@@ -109,9 +103,6 @@ class ApiEditor extends React.Component<Props> {
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.isRunning && !this.props.isRunning) {
-      PerformanceTracker.stopTracking(PerformanceTransactionName.RUN_API_CLICK);
-    }
     if (prevProps.apiId !== this.props.apiId) {
       const type = this.getFormName();
       this.props.changeAPIPage(this.props.apiId || "", type === "SAAS");

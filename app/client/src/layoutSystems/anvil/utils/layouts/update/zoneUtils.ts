@@ -11,7 +11,7 @@ import { call } from "redux-saga/effects";
 import { addWidgetsToChildTemplate } from "./additionUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { isLargeWidget } from "../../widgetUtils";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import {
   moveWidgets,
   severTiesFromParents,
@@ -34,7 +34,7 @@ export function* createZoneAndAddWidgets(
   /**
    * Create Zone widget.
    */
-  const widgetId: string = generateReactKey({ prefix: "zone-" });
+  const widgetId: string = generateReactKey();
   const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
     {

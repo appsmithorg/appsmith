@@ -4,7 +4,7 @@ import { BranchListItemContainer } from "./BranchListItemContainer";
 import DefaultTag from "./DefaultTag";
 import { useHover } from "../hooks";
 import BranchMoreMenu from "./BranchMoreMenu";
-import { Tooltip, Text, Spinner } from "design-system";
+import { Tooltip, Text, Spinner } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getBranchSwitchingDetails } from "selectors/gitSyncSelectors";

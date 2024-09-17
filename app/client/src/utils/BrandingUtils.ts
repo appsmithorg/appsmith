@@ -8,10 +8,10 @@ import {
   ADMIN_BRANDING_FAVICON_FORMAT_ERROR,
   ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
 } from "ee/constants/messages";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { LightModeTheme } from "@design-system/theming";
+import { LightModeTheme } from "@appsmith/wds-theming";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;

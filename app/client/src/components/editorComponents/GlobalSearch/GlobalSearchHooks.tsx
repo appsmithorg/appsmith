@@ -38,7 +38,10 @@ import type { Plugin } from "api/PluginApi";
 import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { createNewQueryBasedOnParentEntity } from "ee/actions/helpers";
-import { useWorkflowOptions } from "ee/utils/workflowHelpers";
+import {
+  checkIfJSObjectCreationAllowed,
+  useWorkflowOptions,
+} from "ee/utils/workflowHelpers";
 
 export interface FilterFileOperationsProps {
   canCreateActions: boolean;
@@ -57,6 +60,11 @@ export const useFilteredFileOperations = ({
   const plugins = useSelector(getPlugins);
   const moduleOptions = useModuleOptions();
   const workflowOptions = useWorkflowOptions();
+
+  // We don't want to show the create new JS object option if the user is in the workflow editor
+  // this is done since worflows runner doesn't support multiple JS objects
+  // TODO: Remove this once workflows can support multiple JS objects
+  const disableJSObjectCreation = checkIfJSObjectCreationAllowed();
 
   // helper map for sorting based on recent usage
   const recentlyUsedDSMap = useRecentlyUsedDSMap();
@@ -90,6 +98,8 @@ export const useFilteredFileOperations = ({
     plugins,
     recentlyUsedDSMap,
     query,
+    // TODO: Remove this once workflows can support multiple JS objects
+    disableJSObjectCreation,
   });
 };
 
@@ -97,6 +107,7 @@ export const useFilteredAndSortedFileOperations = ({
   allDatasources = [],
   canCreateActions = true,
   canCreateDatasource = true,
+  disableJSObjectCreation = false,
   moduleOptions = [],
   plugins = [],
   query,
@@ -111,6 +122,7 @@ export const useFilteredAndSortedFileOperations = ({
   query: string;
   recentlyUsedDSMap?: Record<string, number>;
   workflowOptions?: ActionOperation[];
+  disableJSObjectCreation?: boolean;
 }) => {
   const fileOperations: ActionOperation[] = [];
 
@@ -127,8 +139,11 @@ export const useFilteredAndSortedFileOperations = ({
    */
   const actionOps = updateActionOperations(plugins, actionOperations);
 
-  // Add JS Object operation
-  fileOperations.push(actionOps[2]);
+  // TODO: Remove this check once workflows can support multiple JS objects
+  if (!disableJSObjectCreation) {
+    // Add JS Object operation
+    fileOperations.push(actionOps[2]);
+  }
 
   // Add Module operations
   if (moduleOptions.length > 0) {

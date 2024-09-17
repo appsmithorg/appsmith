@@ -1,4 +1,4 @@
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
 import React, { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Divider } from "design-system";
+import { Divider } from "@appsmith/ads";
 import { ImportAppSettings } from "./ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 

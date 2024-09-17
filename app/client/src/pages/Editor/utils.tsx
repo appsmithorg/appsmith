@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import { debounce, random } from "lodash";
+import { debounce, random, sortBy } from "lodash";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
@@ -32,7 +32,7 @@ import { PluginType } from "entities/Action";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import {
   EditorEntityTab,
   EditorEntityTabState,
@@ -40,6 +40,7 @@ import {
   EditorViewMode,
 } from "ee/entities/IDE/constants";
 import { FocusEntity } from "navigation/FocusEntity";
+import { objectKeys } from "@appsmith/utils";
 
 export const draggableElement = (
   id: string,
@@ -329,6 +330,15 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
         }
       });
     }
+  });
+
+  objectKeys(groupedCards).forEach((tag) => {
+    if (tag === WIDGET_TAGS.SUGGESTED_WIDGETS) return;
+
+    groupedCards[tag] = sortBy(groupedCards[tag], [
+      "displayOrder",
+      "displayName",
+    ]);
   });
 
   return groupedCards;

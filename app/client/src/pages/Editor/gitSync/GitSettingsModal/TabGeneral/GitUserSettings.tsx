@@ -12,7 +12,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import styled, { keyframes } from "styled-components";
-import { Button, Input, Switch, Text } from "design-system";
+import { Button, Input, Switch, Text } from "@appsmith/ads";
 import {
   getGlobalGitConfig,
   getLocalGitConfig,

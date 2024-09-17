@@ -21,7 +21,7 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { ControlIcons } from "icons/ControlIcons";
 import { MenuIcons } from "icons/MenuIcons";
 import { useAppWideAndOtherDatasource } from "ee/pages/Editor/Explorer/hooks";

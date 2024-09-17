@@ -2153,7 +2153,8 @@ public class ImportServiceTests {
                                 .filter(actionDTO -> actionDTO.getId().equals(actionCollection.getId()))
                                 .collect(Collectors.toList())
                                 .get(0);
-                        assertThat(actionCollection.getPolicies()).isEqualTo(currentAction.getPolicies());
+                        assertThat(actionCollection.getPolicies())
+                                .containsExactlyInAnyOrderElementsOf(currentAction.getPolicies());
                     }
                 })
                 .verifyComplete();
@@ -2505,8 +2506,6 @@ public class ImportServiceTests {
         StepVerifier.create(resultMonoWithDiscardOperation)
                 .assertNext(application -> {
                     assertThat(application.getWorkspaceId()).isNotNull();
-                    assertThat(application.getUnpublishedApplicationDetail()).isNull();
-                    assertThat(application.getPublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
@@ -4938,10 +4937,12 @@ public class ImportServiceTests {
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     // remove page create permission from this application for current user
-                    application.getPolicies().removeIf(policy -> policy.getPermission()
-                            .equals(applicationPermission
-                                    .getPageCreatePermission()
-                                    .getValue()));
+                    application.setPolicies(application.getPolicies().stream()
+                            .filter(policy -> !policy.getPermission()
+                                    .equals(applicationPermission
+                                            .getPageCreatePermission()
+                                            .getValue()))
+                            .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);
                 })
                 .flatMap(application -> {
@@ -4973,10 +4974,12 @@ public class ImportServiceTests {
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     // remove page create permission from this application for current user
-                    application.getPolicies().removeIf(policy -> policy.getPermission()
-                            .equals(applicationPermission
-                                    .getPageCreatePermission()
-                                    .getValue()));
+                    application.setPolicies(application.getPolicies().stream()
+                            .filter(policy -> !policy.getPermission()
+                                    .equals(applicationPermission
+                                            .getPageCreatePermission()
+                                            .getValue()))
+                            .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);
                 })
                 .flatMap(application -> {

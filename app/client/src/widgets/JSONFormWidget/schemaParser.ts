@@ -7,7 +7,6 @@ import {
   sortBy,
   startCase,
 } from "lodash";
-import { klona } from "klona";
 
 import { sanitizeKey } from "widgets/WidgetUtils";
 import type {
@@ -28,6 +27,7 @@ import {
   ROOT_SCHEMA_KEY,
 } from "./constants";
 import { getFieldStylesheet } from "./helper";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type Obj = Record<string, unknown>;
 
@@ -138,7 +138,11 @@ export const getSourceDataPathFromSchemaItemPath = (
   schemaItemPath: string,
 ) => {
   const keys = schemaItemPath.split("."); //schema.__root_schema__.children.name -> ["schema", ROOT_SCHEMA_KEY, "children", "name"]
-  let clonedSchema = klona(schema);
+  let clonedSchema = klonaRegularWithTelemetry(
+    schema,
+    "schemaParser.getSourceDataPathFromSchemaItemPath",
+  );
+
   let sourceDataPath = "sourceData";
   let schemaItem: SchemaItem;
   let skipIteration = false;
@@ -660,7 +664,10 @@ class SchemaParser {
     widgetName,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = klona(prevSchema);
+    const schema = klonaRegularWithTelemetry(
+      prevSchema,
+      "schemaParser.convertArrayToSchema",
+    );
 
     if (!Array.isArray(currSourceData)) {
       return schema;
@@ -729,7 +736,11 @@ class SchemaParser {
     sourceDataPath,
     ...rest
   }: Omit<ParserOptions, "identifier">): Schema => {
-    const schema = klona(prevSchema);
+    const schema = klonaRegularWithTelemetry(
+      prevSchema,
+      "schemaParser.convertObjectToSchema",
+    );
+
     const origIdentifierToIdentifierMap =
       mapOriginalIdentifierToSanitizedIdentifier(schema);
 
@@ -762,7 +773,11 @@ class SchemaParser {
 
     modifiedKeys.forEach((modifiedKey) => {
       const identifier = origIdentifierToIdentifierMap[modifiedKey];
-      const prevSchemaItem = klona(schema[identifier]);
+      const prevSchemaItem = klonaRegularWithTelemetry(
+        schema[identifier],
+        "schemaParser.convertObjectToSchema.modifiedKeys",
+      );
+
       const currData = currSourceData[modifiedKey];
       const prevData = prevSchemaItem.sourceData;
       const currDataType = dataTypeFor(currData);

@@ -4,7 +4,7 @@ import {
   CollapsibleHeader,
   Icon,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";

@@ -43,7 +43,6 @@ export function getWidgetSessionValues(
   }
 
   for (const key in configMap) {
-    if (configMap[key] === undefined) continue;
     let sessionStorageKey = `${widgetType}.${key}`;
 
     if (type === "ZONE_WIDGET") {

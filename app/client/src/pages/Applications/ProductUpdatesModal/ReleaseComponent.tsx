@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import { Divider, Text, Button, Tag } from "design-system";
+import { Divider, Text, Button, Tag } from "@appsmith/ads";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};

@@ -5,7 +5,7 @@ import { generateReactKey } from "utils/generators";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Button, Flex } from "design-system";
+import { Button, Flex } from "@appsmith/ads";
 import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";

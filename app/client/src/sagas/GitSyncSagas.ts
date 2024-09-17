@@ -1,5 +1,4 @@
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithCallbacks,
 } from "ee/constants/ReduxActionConstants";
@@ -133,10 +132,11 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
 import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { ApplicationPayload } from "entities/Application";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { DropdownOption } from "@appsmith/ads-old";
-import { Button, SearchInput } from "design-system";
+import { Button, SearchInput } from "@appsmith/ads";
 import {
   useSheetData,
   useSheetsList,

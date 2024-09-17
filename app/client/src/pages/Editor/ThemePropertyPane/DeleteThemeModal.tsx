@@ -13,7 +13,7 @@ import {
   ModalFooter,
   Text,
   ModalBody,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;

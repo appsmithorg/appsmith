@@ -27,7 +27,7 @@ import {
 } from "ee/constants/messages";
 import log from "loglevel";
 import type { AppState } from "ee/reducers";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
 

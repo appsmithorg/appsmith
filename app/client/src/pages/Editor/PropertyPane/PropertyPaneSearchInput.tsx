@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 import styled from "styled-components";
-import { SearchInput } from "design-system";
+import { SearchInput } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
   getShouldFocusPanelPropertySearch,

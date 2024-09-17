@@ -31,9 +31,6 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
 import type { WidgetProps } from "widgets/BaseWidget";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import type { Action } from "redux";
 import {
@@ -51,7 +48,7 @@ import {
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
-  dynamicTriggerErrorHandler,
+  showExecutionErrors,
   handleJSFunctionExecutionErrorLog,
   logJSVarCreatedEvent,
   logSuccessfulBindings,
@@ -162,13 +159,6 @@ export function* updateDataTreeHandler(
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
 
-  PerformanceTracker.stopAsyncTracking(
-    PerformanceTransactionName.DATA_TREE_EVALUATION,
-  );
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.SET_EVALUATED_TREE,
-  );
-
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
@@ -176,10 +166,6 @@ export function* updateDataTreeHandler(
   yield put(setEvaluatedTree(parsedUpdates));
 
   ConfigTreeActions.setConfigTree(configTree);
-
-  PerformanceTracker.stopAsyncTracking(
-    PerformanceTransactionName.SET_EVALUATED_TREE,
-  );
 
   // if evalMetaUpdates are present only then dispatch updateMetaState
   if (evalMetaUpdates.length) {
@@ -267,9 +253,7 @@ export function* evaluateTreeSaga(
   const theme: ReturnType<typeof getSelectedAppTheme> =
     yield select(getSelectedAppTheme);
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.DATA_TREE_EVALUATION,
-  );
+
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
@@ -357,16 +341,15 @@ export function* evaluateAndExecuteDynamicTrigger(
       triggerMeta,
     },
   );
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { errors = [] } = response as any;
+  const { errors = [] } = response;
 
   const transformedErrors: EvaluationError[] = yield call(
     transformTriggerEvalErrors,
     errors,
   );
-
-  yield call(dynamicTriggerErrorHandler, transformedErrors);
+  if (transformedErrors.length) {
+    yield fork(showExecutionErrors, transformedErrors);
+  }
   yield fork(logDynamicTriggerExecution, {
     dynamicTrigger,
     errors: transformedErrors,

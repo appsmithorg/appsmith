@@ -19,7 +19,7 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -36,9 +36,6 @@ import {
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import history from "utils/history";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import type { AppEnginePayload } from ".";
 import AppEngine, {
   ActionsNotFoundError,
@@ -105,18 +102,6 @@ export default class AppEditorEngine extends AppEngine {
     CodemirrorTernService.resetServer();
 
     endSpan(editorSetupSpan);
-  }
-
-  public startPerformanceTracking() {
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.INIT_EDIT_APP,
-    );
-  }
-
-  public stopPerformanceTracking() {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.INIT_EDIT_APP,
-    );
   }
 
   private *loadPageThemesAndActions(

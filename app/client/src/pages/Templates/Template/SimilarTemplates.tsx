@@ -4,7 +4,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "ee/constants/messages";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import { Text, Link } from "design-system";
+import { Text, Link } from "@appsmith/ads";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Section } from "./TemplateDescription";

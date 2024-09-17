@@ -22,8 +22,9 @@ import {
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import FormControl from "../FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import type { QueryAction, SaaSAction } from "entities/Action";
+import { Section, Zone } from "../ActionForm";
 
 interface Props {
   // TODO: Fix this the next time the file is edited
@@ -78,7 +79,10 @@ const FormRender = (props: Props) => {
   const renderConfig = () => {
     try {
       // Selectively rendering form based on uiComponent prop
-      if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+      if (
+        uiComponent === UIComponentTypes.UQIDbEditorForm ||
+        uiComponent === UIComponentTypes.DbEditorForm
+      ) {
         // If the formEvaluation is not ready yet, just show loading state.
         if (
           props.hasOwnProperty("formEvaluationState") &&
@@ -154,21 +158,18 @@ const FormRender = (props: Props) => {
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
-      if (
-        section.controlType === "SECTION" &&
-        section.hasOwnProperty("children")
-      ) {
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return section.children.map((section: any, idx: number) => {
-          return renderEachConfigV2(formName, section, idx);
-        });
+      if (Object.hasOwn(section, "children")) {
+        return rederNodeWithChildren(section, formName);
       }
       try {
         const { configProperty } = section;
         const modifiedSection = modifySectionConfig(section, enabled);
         return (
-          <FieldWrapper key={`${configProperty}_${idx}`}>
+          // TODO: Remove classname once action redesign epic is done
+          <FieldWrapper
+            className="uqi-form-wrapper"
+            key={`${configProperty}_${idx}`}
+          >
             <FormControl config={modifiedSection} formName={formName} />
           </FieldWrapper>
         );
@@ -183,6 +184,32 @@ const FormRender = (props: Props) => {
       });
     }
     return null;
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rederNodeWithChildren = (section: any, formName: string) => {
+    if (!Object.hasOwn(section, "children")) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const children = section.children.map((section: any, idx: number) =>
+      renderEachConfigV2(formName, section, idx),
+    );
+
+    switch (section.controlType) {
+      case "SECTION_V2":
+        return <Section>{children}</Section>;
+
+      case "SINGLE_COLUMN_ZONE":
+      case "DOUBLE_COLUMN_ZONE": {
+        const layout =
+          section.controlType === "SINGLE_COLUMN_ZONE"
+            ? "single_column"
+            : "double_column";
+        return <Zone layout={layout}>{children}</Zone>;
+      }
+      default:
+        return children;
+    }
   };
 
   // Recursive call to render forms pre UQI
@@ -200,7 +227,10 @@ const FormRender = (props: Props) => {
             try {
               const { configProperty } = formControlOrSection;
               return (
-                <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FieldWrapper
+                  className="uqi-form-wrapper"
+                  key={`${configProperty}_${idx}`}
+                >
                   <FormControl
                     config={formControlOrSection}
                     formName={formName}

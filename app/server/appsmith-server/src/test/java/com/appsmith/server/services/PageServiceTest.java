@@ -746,6 +746,16 @@ public class PageServiceTest {
                     assertThat(collections.get(0).getUnpublishedCollection().getPageId())
                             .isEqualTo(clonedPage.getId());
 
+                    NewAction actionWithCollection = actions.stream()
+                            .filter(newAction -> StringUtils.hasLength(
+                                    newAction.getUnpublishedAction().getCollectionId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    // Confirm that js action has correct collection id reference
+                    assertThat(actionWithCollection.getUnpublishedAction().getCollectionId())
+                            .isEqualTo(collections.get(0).getId());
+
                     // Check if the parent page collections are not altered
                     List<ActionCollection> parentPageCollections = tuple.getT4();
                     assertThat(parentPageCollections).hasSize(1);
@@ -853,7 +863,7 @@ public class PageServiceTest {
         final Mono<NewPage> pageMono = applicationPageService
                 .clonePage(page.getId())
                 .flatMap(pageDTO ->
-                        newPageService.findByBranchNameAndBasePageId(branchName, pageDTO.getId(), MANAGE_PAGES))
+                        newPageService.findByBranchNameAndBasePageId(branchName, pageDTO.getId(), MANAGE_PAGES, null))
                 .cache();
 
         Mono<List<NewAction>> actionsMono = pageMono.flatMapMany(

@@ -15,7 +15,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import moment from "moment";
 import LogHelper from "./components/LogHelper";
 import { toggleExpandErrorLogItem } from "actions/debuggerActions";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 
 const InnerWrapper = styled.div`
   display: flex;

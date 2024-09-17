@@ -21,11 +21,10 @@ app/client/tsconfig.path.json @KelvinOm
 # WDS team
 app/client/packages/design-system/* @appsmithorg/wds-team
 app/client/packages/storybook/* @appsmithorg/wds-team
-app/client/src/widgets/wds/* @appsmithorg/wds-team
+app/client/src/widgets/wds/* @appsmithorg/wds-team @appsmithorg/anvil-team
 
 # Anvil-team
 app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
-app/client/src/widgets/anvil/* @appsmithorg/anvil-team
 
 # App viewers pod
 app/client/src/widgets/* @appsmithorg/app-viewers
@@ -53,52 +52,44 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/services/FeatureFla
 app/server/appsmith-server/src/test/java/com/appsmith/server/services/FeatureFlagServiceTest.java @nilanshbansal
 
 # UI Builders Pod
-app/client/generators/* @appsmithorg/ui-builders
-app/client/src/actions/autoHeightActions.ts @appsmithorg/ui-builders
-app/client/src/actions/autoLayoutActions.ts @appsmithorg/ui-builders
-app/client/src/actions/canvasSelectionActions.ts @appsmithorg/ui-builders
-app/client/src/actions/reflowActions.ts @appsmithorg/ui-builders
-app/client/src/actions/widgetSelectionActions.ts @appsmithorg/ui-builders
-app/client/src/components/propertyControls/* @appsmithorg/ui-builders
-app/client/src/layoutSystems/* @appsmithorg/ui-builders
-app/client/src/pages/Editor/Canvas.tsx @appsmithorg/ui-builders
-app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/ui-builders
-app/client/src/pages/Editor/PropertyPane/* @appsmithorg/ui-builders
-app/client/src/pages/Editor/WidgetsEditor/* @appsmithorg/ui-builders
-app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/ui-builders
-app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/ui-builders
-app/client/src/reflow/* @appsmithorg/ui-builders
-app/client/src/sagas/AutoLayoutUpdateSagas.tsx @appsmithorg/ui-builders
-app/client/src/sagas/CanvasSagas/* @appsmithorg/ui-builders
-app/client/src/sagas/ReplaySaga.ts @appsmithorg/ui-builders
-app/client/src/sagas/SnapshotSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetAdditionSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetBlueprintSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetDeletionSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetOperationSagas.tsx @appsmithorg/ui-builders
-app/client/src/sagas/WidgetOperationUtils.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetSelectUtils.ts @appsmithorg/ui-builders
-app/client/src/sagas/WidgetSelectionSagas.ts @appsmithorg/ui-builders
-app/client/src/sagas/autoHeightSagas/* @appsmithorg/ui-builders
-app/client/src/sagas/layoutConversionSagas.ts @appsmithorg/ui-builders
-app/client/src/selectors/autoHeightSelectors.ts @appsmithorg/ui-builders
-app/client/src/selectors/autoLayoutSelectors.tsx @appsmithorg/ui-builders
-app/client/src/selectors/canvasSelectors.ts @appsmithorg/ui-builders
-app/client/src/selectors/widgetSelectors.ts @appsmithorg/ui-builders
-app/client/src/utils/autoHeight/* @appsmithorg/ui-builders
-app/client/src/utils/hooks/autoHeightUIHooks.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/ui-builders
-app/client/src/utils/hooks/useDynamicAppLayout.tsx @appsmithorg/ui-builders
-app/client/src/utils/hooks/usePositionedContainerZIndex.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useReflow.ts @appsmithorg/ui-builders
-app/client/src/utils/hooks/useWidgetSelection.ts @appsmithorg/ui-builders
-app/client/src/widgets/BaseWidget.tsx @appsmithorg/ui-builders
-app/client/src/widgets/BaseWidgetHOC/* @appsmithorg/ui-builders
-app/client/src/widgets/CanvasWidget.tsx @appsmithorg/ui-builders
-app/client/src/widgets/ContainerWidget/* @appsmithorg/ui-builders
-app/client/src/widgets/MetaHOC.tsx @appsmithorg/ui-builders
-app/client/src/widgets/withWidgetProps.tsx @appsmithorg/ui-builders
+app/client/generators/* @appsmithorg/anvil-team
+app/client/src/actions/canvasSelectionActions.ts @appsmithorg/anvil-team
+app/client/src/actions/reflowActions.ts @appsmithorg/anvil-team
+app/client/src/actions/widgetSelectionActions.ts @appsmithorg/anvil-team
+app/client/src/components/propertyControls/* @appsmithorg/anvil-team
+app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
+app/client/src/pages/Editor/Canvas.tsx @appsmithorg/anvil-team
+app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/anvil-team
+app/client/src/pages/Editor/PropertyPane/* @appsmithorg/anvil-team
+app/client/src/pages/Editor/WidgetsEditor/* @appsmithorg/anvil-team
+app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/anvil-team
+app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/anvil-team
+app/client/src/reflow/* @appsmithorg/anvil-team
+app/client/src/sagas/CanvasSagas/* @appsmithorg/anvil-team
+app/client/src/sagas/ReplaySaga.ts @appsmithorg/anvil-team
+app/client/src/sagas/SnapshotSagas.ts @appsmithorg/anvil-team
+app/client/src/sagas/WidgetAdditionSagas.ts @appsmithorg/anvil-team
+app/client/src/sagas/WidgetBlueprintSagas.ts @appsmithorg/anvil-team
+app/client/src/sagas/WidgetDeletionSagas.ts @appsmithorg/anvil-team
+app/client/src/sagas/WidgetOperationSagas.tsx @appsmithorg/anvil-team
+app/client/src/sagas/WidgetOperationUtils.ts @appsmithorg/anvil-team
+app/client/src/sagas/WidgetSelectUtils.ts @appsmithorg/anvil-team
+app/client/src/sagas/WidgetSelectionSagas.ts @appsmithorg/anvil-team
+app/client/src/sagas/layoutConversionSagas.ts @appsmithorg/anvil-team
+app/client/src/selectors/canvasSelectors.ts @appsmithorg/anvil-team
+app/client/src/selectors/widgetSelectors.ts @appsmithorg/anvil-team
+app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/anvil-team
+app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/anvil-team
+app/client/src/utils/hooks/useDynamicAppLayout.tsx @appsmithorg/anvil-team
+app/client/src/utils/hooks/usePositionedContainerZIndex.ts @appsmithorg/anvil-team
+app/client/src/utils/hooks/useReflow.ts @appsmithorg/anvil-team
+app/client/src/utils/hooks/useWidgetSelection.ts @appsmithorg/anvil-team
+app/client/src/widgets/BaseWidget.tsx @appsmithorg/anvil-team
+app/client/src/widgets/BaseWidgetHOC/* @appsmithorg/anvil-team
+app/client/src/widgets/CanvasWidget.tsx @appsmithorg/anvil-team
+app/client/src/widgets/ContainerWidget/* @appsmithorg/anvil-team
+app/client/src/widgets/MetaHOC.tsx @appsmithorg/anvil-team
+app/client/src/widgets/withWidgetProps.tsx @appsmithorg/anvil-team
 
 # Git Pod
 app/server/appsmith-git/ @appsmithorg/git-be-reviewers
@@ -199,7 +190,7 @@ app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
 app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale
 
 # Enterprise Success
-app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @vivonk @abhvsn
+app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn
 
 # DevOps & Shri
 deploy/**/* @sharat87 @pratapaprasanna

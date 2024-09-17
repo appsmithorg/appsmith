@@ -18,7 +18,7 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { FormErrors, InjectedFormProps } from "redux-form";
 import { FormGroup } from "@appsmith/ads-old";
-import { Button, Checkbox } from "design-system";
+import { Button, Checkbox } from "@appsmith/ads";
 import { proficiencyOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";

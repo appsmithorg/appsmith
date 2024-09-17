@@ -9,7 +9,7 @@ import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import DatasourceStructure from "./DatasourceStructure";
-import { Button, Flex, SearchInput, Text } from "design-system";
+import { Button, Flex, SearchInput, Text } from "@appsmith/ads";
 import { getIsFetchingDatasourceStructure } from "ee/selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";

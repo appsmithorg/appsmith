@@ -2,9 +2,6 @@ import React, { useCallback, useEffect } from "react";
 import EntityProperty from "./EntityProperty";
 
 import { useDispatch, useSelector } from "react-redux";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import type { AppState } from "ee/reducers";
 import classNames from "classnames";
@@ -12,14 +9,15 @@ import styled from "styled-components";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import store from "store";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
+import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
-const BottomBarHeight = 34;
 
 const EntityInfoContainer = styled.div`
   min-width: 220px;
@@ -45,15 +43,6 @@ export function EntityProperties() {
   const selectedWidgetId = useSelector(
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
-
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
-  );
-  useEffect(() => {
-    PerformanceTracker.stopTracking(
-      PerformanceTransactionName.ENTITY_EXPLORER_ENTITY,
-    );
-  });
 
   useEffect(() => {
     document.addEventListener("click", handleOutsideClick);
@@ -116,7 +105,7 @@ export function EntityProperties() {
       let bottom;
       if (
         top + BindingContainerMaxHeight >
-        window.innerHeight - BottomBarHeight
+        window.innerHeight - BOTTOM_BAR_HEIGHT
       ) {
         bottom = window.innerHeight - rect?.bottom - EntityHeight;
       }
@@ -127,7 +116,7 @@ export function EntityProperties() {
         ref.current.style.top = top - EntityHeight + "px";
         ref.current.style.bottom = "unset";
       }
-      ref.current.style.left = "100%";
+      ref.current.style.left = DEFAULT_EXPLORER_PANE_WIDTH + "px";
     }
   }, [entityId]);
 

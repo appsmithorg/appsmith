@@ -1,6 +1,6 @@
 import React from "react";
-import type { SpinnerProps } from "design-system";
-import { Spinner } from "design-system";
+import type { SpinnerProps } from "@appsmith/ads";
+import { Spinner } from "@appsmith/ads";
 
 type Props = SpinnerProps;
 

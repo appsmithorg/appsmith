@@ -16,7 +16,7 @@ import {
   setGitSettingsModalOpenAction,
 } from "actions/gitSyncActions";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { Button, Divider, Text } from "design-system";
+import { Button, Divider, Text } from "@appsmith/ads";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {

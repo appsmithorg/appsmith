@@ -81,10 +81,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_REPOSITORY_CALL;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_ACTIONS_FROM_DB;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FETCH_PLUGIN_FROM_DB;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FILTER_ACTION;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_FINAL_ACTION;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_INITIAL_ACTION;
-import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SANITISE_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION;
 import static com.appsmith.external.constants.spans.ce.ActionSpanCE.VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -738,27 +734,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
                 .findByApplicationId(applicationId, permission, sort)
-                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
-                .tap(Micrometer.observation(observationRegistry))
                 // In case of view mode being true, filter out all the actions which haven't been published
-                .flatMap(action -> {
-                    if (Boolean.TRUE.equals(viewMode)) {
-                        // In case we are trying to fetch published actions but this action has not been published, do
-                        // not return
-                        if (action.getPublishedAction() == null) {
-                            return Mono.empty();
-                        }
-                    }
-                    // No need to handle the edge case of unpublished action not being present. This is not possible
-                    // because every created action starts from an unpublishedAction state.
-
-                    return Mono.just(action);
-                })
-                .name(VIEW_MODE_FILTER_ACTION)
-                .tap(Micrometer.observation(observationRegistry))
-                .flatMap(this::sanitizeAction)
-                .name(VIEW_MODE_SANITISE_ACTION)
-                .tap(Micrometer.observation(observationRegistry));
+                .flatMap(action -> this.filterAction(action, viewMode))
+                .flatMap(this::sanitizeAction);
     }
 
     @Override
@@ -785,22 +763,41 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
-    @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String applicationId) {
 
         if (applicationId == null || applicationId.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION_ID));
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
 
-        // fetch the published actions by applicationId
+        List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
+
+        // fetch the published actions by appId
         // No need to sort the results
-        return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
-                .name(VIEW_MODE_INITIAL_ACTION)
+        return repository
+                .findPublishedActionsByAppIdAndExcludedPluginType(
+                        applicationId, excludedPluginTypes, actionPermission.getExecutePermission(), null)
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry))
-                .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true))
-                .name(VIEW_MODE_FINAL_ACTION)
-                .tap(Micrometer.observation(observationRegistry));
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
+    }
+
+    @Override
+    public Flux<ActionViewDTO> getActionsForViewModeByPageId(String pageId) {
+
+        if (pageId == null || pageId.isEmpty()) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
+        }
+
+        List<String> excludedPluginTypes = List.of(PluginType.JS.toString());
+
+        // fetch the published actions by pageId
+        // No need to sort the results
+        return repository
+                .findPublishedActionsByPageIdAndExcludedPluginType(
+                        pageId, excludedPluginTypes, actionPermission.getExecutePermission(), null)
+                .name(VIEW_MODE_FETCH_ACTIONS_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry))
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
     }
 
     @Override
@@ -1015,7 +1012,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<NewPage> branchedPageMono = !StringUtils.hasLength(params.getFirst(FieldName.PAGE_ID))
                 ? Mono.just(new NewPage())
                 : newPageService.findByBranchNameAndBasePageId(
-                        branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission());
+                        branchName, params.getFirst(FieldName.PAGE_ID), pagePermission.getReadPermission(), null);
         Mono<Application> branchedApplicationMono = !StringUtils.hasLength(params.getFirst(FieldName.APPLICATION_ID))
                 ? Mono.just(new Application())
                 : applicationService.findByBranchNameAndBaseApplicationId(
@@ -1081,6 +1078,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return actionMono;
+    }
+
+    public Mono<NewAction> filterAction(NewAction action, Boolean viewMode) {
+        if (Boolean.TRUE.equals(viewMode)) {
+            // In case we are trying to fetch published actions but this action has not been published, do
+            // not return
+            if (action.getPublishedAction() == null) {
+                return Mono.empty();
+            }
+        }
+        // No need to handle the edge case of unpublished action not being present. This is not possible
+        // because every created action starts from an unpublishedAction state.
+
+        return Mono.just(action);
     }
 
     public Flux<NewAction> addMissingPluginDetailsIntoAllActions(List<NewAction> actionList) {

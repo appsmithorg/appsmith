@@ -10,7 +10,7 @@ import {
   Text,
   MenuSeparator,
   Tag,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,

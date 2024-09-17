@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   hasDeleteApplicationPermission,
   isPermitted,
@@ -25,7 +25,7 @@ import {
   IconSelector,
   SavingState,
 } from "@appsmith/ads-old";
-import type { MenuItemProps } from "design-system";
+import type { MenuItemProps } from "@appsmith/ads";
 import {
   Button,
   Menu,
@@ -33,7 +33,7 @@ import {
   MenuContent,
   MenuItem,
   MenuTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import type {
   ApplicationPagePayload,
@@ -48,7 +48,7 @@ import { getExportAppAPIRoute } from "ee/constants/ApiConstants";
 import { builderURL, viewerURL } from "ee/RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";

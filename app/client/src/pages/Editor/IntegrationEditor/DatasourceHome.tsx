@@ -16,7 +16,7 @@ import {
 import type { AppState } from "ee/reducers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
@@ -24,7 +24,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import {
   createMessage,

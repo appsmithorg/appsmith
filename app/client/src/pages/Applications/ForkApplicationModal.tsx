@@ -11,7 +11,7 @@ import {
   Spinner,
   Select,
   Option,
-} from "design-system";
+} from "@appsmith/ads";
 import { ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import {
   CANCEL,

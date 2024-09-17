@@ -22,7 +22,7 @@ import {
   ModalFooter,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   getConflictFoundDocUrlDeploy,
   getGitCommitAndPushError,

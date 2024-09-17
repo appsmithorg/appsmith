@@ -48,7 +48,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { fetchActions, runAction } from "actions/pluginActionActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import WidgetFactory from "WidgetProvider/factory";
 
 export function* createActionsForOneClickBindingSaga(
@@ -374,16 +374,15 @@ function* BindWidgetToDatasource(
       isMock: datasource.isMock,
       formType: otherFields?.formType,
     });
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    toast.show(e.message, {
-      hideProgressBar: false,
-      kind: "error",
-    });
-
+  } catch (e: unknown) {
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR,
+      payload: {
+        show: true,
+        error: {
+          message: e instanceof Error ? e.message : "Failed to Bind to widget",
+        },
+      },
     });
   }
 

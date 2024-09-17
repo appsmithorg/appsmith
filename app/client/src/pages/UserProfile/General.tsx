@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, toast, Text } from "design-system";
+import { Button, Input, toast, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";

@@ -5,7 +5,7 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import { ExpandableChange, ExpandableChangeKind } from "./ExpandableChange";
 import StaticChange, { StaticChangeKind } from "./StaticChange";
 import PageChanges from "./PageChanges";

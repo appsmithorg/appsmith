@@ -2,8 +2,8 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import type { SegmentedControlOption } from "design-system";
-import { Select, Option } from "design-system";
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { Select, Option } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,

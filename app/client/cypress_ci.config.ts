@@ -1,3 +1,4 @@
+import { addMatchImageSnapshotPlugin } from "@simonsmith/cypress-image-snapshot/plugin";
 import { defineConfig } from "cypress";
 
 export default defineConfig({
@@ -19,12 +20,13 @@ export default defineConfig({
   viewportWidth: 1400,
   scrollBehavior: "center",
   retries: {
-    runMode: 1,
+    runMode: 0,
     openMode: 0,
   },
   e2e: {
     baseUrl: "http://localhost/",
     setupNodeEvents(on, config) {
+      addMatchImageSnapshotPlugin(on);
       require("@cypress/grep/src/plugin")(config);
       return require("./cypress/plugins/index.js")(on, config);
     },

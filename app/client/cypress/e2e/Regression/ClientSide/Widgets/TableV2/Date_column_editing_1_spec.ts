@@ -180,7 +180,7 @@ describe(
       agHelper.AssertCSS(
         table._editCellEditor,
         "border",
-        "1px solid rgb(255, 255, 255)",
+        "1px solid rgb(242, 43, 43)",
       );
       agHelper
         .GetText(`${table._tableRow1Child3} ${locators._inputField}`)

@@ -1,6 +1,6 @@
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
 import { LayoutSystemTypes } from "layoutSystems/types";

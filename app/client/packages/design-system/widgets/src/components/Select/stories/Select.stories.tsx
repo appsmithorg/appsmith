@@ -1,6 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Select, Button, Flex, SIZES } from "@design-system/widgets";
+import { Select, Button, Flex, SIZES } from "@appsmith/wds";
 import { selectItems, selectItemsWithIcons } from "./selectData";
 
 /**
@@ -8,7 +8,7 @@ import { selectItems, selectItemsWithIcons } from "./selectData";
  */
 const meta: Meta<typeof Select> = {
   component: Select,
-  title: "Design-system/Widgets/Select",
+  title: "WDS/Widgets/Select",
 };
 
 export default meta;
@@ -32,7 +32,7 @@ export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="sizing-60">
       {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
+        .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
           <Select
             items={selectItems}
@@ -61,7 +61,7 @@ export const Validation: Story = {
         alert("Form submitted");
       }}
     >
-      <Flex direction="column" gap="spacing-2" width="sizing-60">
+      <Flex direction="column" gap="spacing-5" width="sizing-60">
         <Select
           description="description"
           isRequired

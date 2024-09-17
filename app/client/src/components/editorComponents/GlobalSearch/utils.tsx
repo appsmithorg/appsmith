@@ -22,7 +22,7 @@ import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import {
   createNewAPIBasedOnParentEntity,

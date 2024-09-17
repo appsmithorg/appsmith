@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { Flex, List, Text } from "design-system";
+import { Flex, List, Text } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import {
   getDatasourceUsageCountForApp,
@@ -98,7 +98,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
       borderRight="1px solid var(--ads-v2-color-border)"
       flexDirection="column"
       height="100%"
-      width="300px"
+      width="100%"
     >
       <PaneHeader
         rightIcon={

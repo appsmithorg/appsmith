@@ -13,7 +13,7 @@ import {
 import { EntityClassNames } from "../Entity";
 import { createNewPageFromEntities } from "actions/pageActions";
 import { ADD_PAGE_TOOLTIP, createMessage } from "ee/constants/messages";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";

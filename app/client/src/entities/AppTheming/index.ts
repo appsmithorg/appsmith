@@ -67,7 +67,7 @@ export interface AppThemeProperties {
   colors: {
     primaryColor: string;
     backgroundColor: string;
-    [key: string]: string;
+    [key: Exclude<string, number>]: string;
   };
   borderRadius: {
     [key: string]: string;

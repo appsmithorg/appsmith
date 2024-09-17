@@ -42,6 +42,7 @@ export const defaultsConfig = {
   buttonLabel: "Action",
   buttonColor: "accent",
   buttonVariant: "filled",
+  isVisible: true,
   blueprint: {
     operations: [
       {

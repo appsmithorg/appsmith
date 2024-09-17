@@ -15,7 +15,7 @@ import {
 } from "ee/constants/messages";
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";

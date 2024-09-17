@@ -28,7 +28,7 @@ import {
   CUSTOM_WIDGET_DOC_URL,
   CUSTOM_WIDGET_HEIGHT_DOC_URL,
 } from "pages/Editor/CustomWidgetBuilder/constants";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 import styled from "styled-components";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";

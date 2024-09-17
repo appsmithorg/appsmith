@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 

@@ -8,7 +8,7 @@ import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { CONFIRM_BEFORE_CALLING_HEADING, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Icon, Tooltip, Switch } from "design-system";
+import { Icon, Tooltip, Switch } from "@appsmith/ads";
 import RemoveConfirmationModal from "./RemoveConfirmBeforeCallingDialog";
 
 interface SettingsHeadingProps {

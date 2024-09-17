@@ -10,7 +10,7 @@ import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
-import { Button, Modal, ModalBody, ModalContent } from "design-system";
+import { Button, Modal, ModalBody, ModalContent } from "@appsmith/ads";
 
 const StyledDiv = styled.div`
   flex: 1;

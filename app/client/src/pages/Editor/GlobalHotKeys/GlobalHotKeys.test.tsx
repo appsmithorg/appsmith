@@ -6,7 +6,7 @@ import {
 } from "ee/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toast } from "design-system";
+import { Toast } from "@appsmith/ads";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";

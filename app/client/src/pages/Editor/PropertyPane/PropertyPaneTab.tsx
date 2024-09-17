@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import { useDispatch, useSelector } from "react-redux";
-import { Tabs, TabsList, Tab, TabPanel } from "design-system";
+import { Tabs, TabsList, Tab, TabPanel } from "@appsmith/ads";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
 import type { AppState } from "ee/reducers";

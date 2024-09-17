@@ -1,6 +1,7 @@
 import React from "react";
-import { Divider, Flex } from "design-system";
+import { Divider, Flex } from "@appsmith/ads";
 import { AppsmithLink } from "pages/Editor/AppsmithLink";
+import { IDE_HEADER_HEIGHT } from "./constants";
 
 interface ChildrenProps {
   children: React.ReactNode | React.ReactNode[];
@@ -59,7 +60,7 @@ const Header = (props: ChildrenProps) => {
       alignItems="center"
       border="1px solid var(--ads-v2-color-border)"
       className="t--editor-header"
-      height="40px"
+      height={IDE_HEADER_HEIGHT + "px"}
       overflow="hidden"
       width="100%"
     >

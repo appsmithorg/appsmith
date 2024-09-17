@@ -23,7 +23,7 @@ import {
   IMPORT_APP,
 } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Modal, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalContent, ModalHeader } from "@appsmith/ads";
 import GitConnectionV2 from "../Tabs/GitConnectionV2";
 import { GitSyncModalTab } from "entities/GitSync";
 import ConnectionSuccess from "../Tabs/ConnectionSuccess";

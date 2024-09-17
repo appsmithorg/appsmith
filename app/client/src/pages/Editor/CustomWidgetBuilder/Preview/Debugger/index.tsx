@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import { Tabs, TabsList, Tab, TabPanel, Icon, Tooltip } from "design-system";
+import { Tabs, TabsList, Tab, TabPanel, Icon, Tooltip } from "@appsmith/ads";
 import DebuggerItem from "./debuggerItem";
 import styles from "./styles.module.css";
 import Counter from "./counter";

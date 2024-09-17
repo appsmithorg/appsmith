@@ -1,7 +1,7 @@
 // Check if user is updating the app when toast is shown
 // Check how many times does the user see a toast before updating
 
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   createMessage,
   INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,

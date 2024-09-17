@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import PageUnavailableImage from "assets/images/invalid-page.png";
 import {
   PAGE_NOT_FOUND_ERROR,

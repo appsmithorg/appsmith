@@ -4,7 +4,7 @@ import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import styled from "styled-components";
 import type { OptionType } from "./constants";
-import { Select, Option } from "design-system";
+import { Select, Option } from "@appsmith/ads";
 
 export const FormHeaderLabel = styled.h5`
   width: 100%;

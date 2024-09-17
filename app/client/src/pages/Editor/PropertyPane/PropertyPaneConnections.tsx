@@ -24,7 +24,7 @@ import {
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";
-import type { TooltipPlacement } from "design-system";
+import type { TooltipPlacement } from "@appsmith/ads";
 import {
   Button,
   Menu,
@@ -34,7 +34,7 @@ import {
   MenuSeparator,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface DropdownOption {
   label?: string;

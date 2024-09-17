@@ -89,7 +89,7 @@ import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getAllPathsFromPropertyConfig,
@@ -281,6 +281,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_RESIZE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -1644,6 +1645,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }

@@ -35,14 +35,18 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateWidgetMetaPropAndEval } from "actions/metaActions";
-import { focusWidget, showModal } from "actions/widgetActions";
+import {
+  closePropertyPane,
+  focusWidget,
+  showModal,
+} from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
 import {
@@ -53,6 +57,7 @@ import { getModalWidgetType } from "selectors/widgetSelectors";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { getWidgetSelectionBlock } from "selectors/ui";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { showPropertyPane } from "../actions/propertyPaneActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -174,14 +179,13 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
     );
     yield delay(1000);
   }
-  yield put({
-    type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-    payload: {
+  yield put(
+    showPropertyPane({
       widgetId: action.payload.modalId,
       callForDragOrResize: undefined,
       force: true,
-    },
-  });
+    }),
+  );
 }
 
 export function* closeModalSaga(
@@ -198,10 +202,7 @@ export function* closeModalSaga(
         modalName,
       );
       widgetIds = widget ? [widget.widgetId] : [];
-      yield put({
-        type: ReduxActionTypes.SHOW_PROPERTY_PANE,
-        payload: {},
-      });
+      yield put(closePropertyPane());
     } else {
       // If modalName is not provided, find all open modals
       // Get all meta prop records
@@ -310,6 +311,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_RESIZE,
         error,
+        logToDebugger: true,
       },
     });
   }

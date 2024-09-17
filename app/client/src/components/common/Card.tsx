@@ -5,7 +5,7 @@ import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "@appsmith/ads-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import { Button, type MenuItemProps } from "design-system";
+import { Button, type MenuItemProps } from "@appsmith/ads";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 
@@ -260,6 +260,7 @@ const CardFooter = styled.div`
   display: flex;
   align-items: center;
   margin: 4px 0 0 0;
+  justify-content: space-between;
   width: ${(props) => props.theme.card.minWidth}px;
 
   @media screen and (min-width: 1500px) {

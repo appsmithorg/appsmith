@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 export const FilterWrapper = styled.div`
   overflow: auto;
@@ -65,6 +65,6 @@ export const SearchWrapper = styled.div<{ sticky?: boolean }>`
   z-index: 1;
   background-color: var(--ads-v2-color-bg);
   padding: var(--ads-v2-spaces-7);
-  margin-left: 0; 
+  margin-left: 0;
   `}
 `;

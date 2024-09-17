@@ -21,7 +21,7 @@ import {
   Tooltip,
   MenuSeparator,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { getAppsmithConfigs } from "ee/configs";
 import moment from "moment/moment";
 import styled from "styled-components";

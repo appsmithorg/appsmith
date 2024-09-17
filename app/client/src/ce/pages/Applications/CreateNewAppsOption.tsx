@@ -12,7 +12,7 @@ import {
   resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
 import { fetchPlugins } from "actions/pluginActions";
-import { Flex, Link, Text } from "design-system";
+import { Flex, Link, Text } from "@appsmith/ads";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { default as React, useEffect } from "react";

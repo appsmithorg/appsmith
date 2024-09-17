@@ -24,6 +24,6 @@ jobs:
         close-issue-message: 'This issue has been closed because of inactivity.'
         close-pr-message: 'This PR has been closed because of inactivity.'
         only-issue-labels: 'Critical'
-        exempt-pr-labels: 'Dont merge,WIP'
+        exempt-pr-labels: 'Dont merge,WIP,User Testing'
         
         
