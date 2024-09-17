@@ -85,9 +85,7 @@ public class GraphQLPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": executeParameterized() called for GraphQL plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for GraphQL plugin.");
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -164,8 +162,7 @@ public class GraphQLPlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration,
                 List<Map.Entry<String, String>> insertedParams) {
 
-            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for GraphQL plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for GraphQL plugin.");
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);

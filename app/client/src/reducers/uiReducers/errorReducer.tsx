@@ -38,6 +38,28 @@ const errorReducer = createReducer(initialState, {
   [ReduxActionTypes.FLUSH_ERRORS]: () => {
     return initialState;
   },
+  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
+    state: ErrorReduxState,
+  ) => {
+    if (
+      state?.currentError?.sourceAction === "FETCH_CURRENT_TENANT_CONFIG_ERROR"
+    ) {
+      return {
+        ...state,
+        ...initialState,
+      };
+    }
+    return state;
+  },
+  [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (state: ErrorReduxState) => {
+    if (state?.currentError?.sourceAction === "UPDATE_TENANT_CONFIG_ERROR") {
+      return {
+        ...state,
+        ...initialState,
+      };
+    }
+    return state;
+  },
 });
 
 export interface ErrorReduxState {

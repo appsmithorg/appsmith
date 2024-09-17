@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JsonSchemaVersionsFallback {
-    private static final Integer serverVersion = 10;
+    private static final Integer serverVersion = 11;
     public static final Integer clientVersion = 1;
 
     public Integer getServerVersion() {

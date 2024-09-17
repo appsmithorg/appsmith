@@ -7,9 +7,7 @@ import type {
   TokenObj,
   TokenSource,
   TokenType,
-  FontFamily,
   Typography,
-  IconStyle,
 } from "./types";
 
 export class TokensAccessor {
@@ -20,12 +18,10 @@ export class TokensAccessor {
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
   private typography?: Typography;
-  private fontFamily?: FontFamily;
   private outerSpacing?: TokenObj;
   private innerSpacing?: TokenObj;
   private sizing?: TokenObj;
   private zIndex?: TokenObj;
-  private iconStyle?: IconStyle;
   private strokeWidth?: TokenObj;
   private iconSize?: TokenObj;
 
@@ -34,9 +30,7 @@ export class TokensAccessor {
     borderWidth,
     boxShadow,
     colorMode,
-    fontFamily,
     iconSize,
-    iconStyle,
     innerSpacing,
     opacity,
     outerSpacing,
@@ -52,20 +46,14 @@ export class TokensAccessor {
     this.boxShadow = boxShadow;
     this.borderWidth = borderWidth;
     this.opacity = opacity;
-    this.fontFamily = fontFamily;
     this.sizing = sizing;
     this.outerSpacing = outerSpacing;
     this.innerSpacing = innerSpacing;
     this.typography = typography;
     this.zIndex = zIndex;
-    this.iconStyle = iconStyle;
     this.strokeWidth = strokeWidth;
     this.iconSize = iconSize;
   }
-
-  updateFontFamily = (fontFamily?: FontFamily) => {
-    this.fontFamily = fontFamily;
-  };
 
   updateTypography = (typography: Typography) => {
     this.typography = typography;
@@ -120,10 +108,6 @@ export class TokensAccessor {
     this.sizing = sizing;
   };
 
-  updateIconStyle = (iconStyle: IconStyle) => {
-    this.iconStyle = iconStyle;
-  };
-
   updateStrokeWidth = (strokeWidth: TokenObj) => {
     this.strokeWidth = strokeWidth;
   };
@@ -135,7 +119,6 @@ export class TokensAccessor {
   getAllTokens = () => {
     return {
       typography: this.getTypography(),
-      fontFamily: this.getFontFamily(),
       ...this.getOuterSpacing(),
       ...this.getInnerSpacing(),
       ...this.getSizing(),
@@ -148,16 +131,11 @@ export class TokensAccessor {
       ...this.getStrokeWidth(),
       ...this.getIconSize(),
       colorMode: this.getColorMode(),
-      iconStyle: this.getIconStyle(),
     };
   };
 
   getTypography = () => {
     return this.typography;
-  };
-
-  getFontFamily = () => {
-    return this.fontFamily;
   };
 
   getColors = () => {
@@ -235,10 +213,6 @@ export class TokensAccessor {
 
   getColorMode = () => {
     return this.colorMode;
-  };
-
-  getIconStyle = () => {
-    return this.iconStyle;
   };
 
   getStrokeWidth = () => {

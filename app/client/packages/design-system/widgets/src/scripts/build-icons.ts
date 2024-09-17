@@ -9,7 +9,6 @@ let content = `export const ICONS = {`;
 
 Object.keys(icons)
   .filter((name) => name !== "createReactComponent")
-  .filter((name) => !name.endsWith("Filled"))
   .map((name) => {
     content += `\n  "${kebabCase(name).replace("icon-", "")}": "${name}",`;
   });
