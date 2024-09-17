@@ -32,7 +32,7 @@ export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="sizing-60">
       {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
+        .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
           <ComboBox items={items} key={size} placeholder={size} size={size} />
         ))}
@@ -56,7 +56,7 @@ export const Validation: Story = {
         alert("Form submitted");
       }}
     >
-      <Flex direction="column" gap="spacing-2" width="sizing-60">
+      <Flex direction="column" gap="spacing-5" width="sizing-60">
         <ComboBox
           description="description"
           isRequired

@@ -94,8 +94,7 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Oracle plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Oracle plugin.");
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
@@ -106,7 +105,7 @@ public class OraclePlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
-                        System.out.println(Thread.currentThread().getName() + ": Connecting to Oracle db");
+                        log.debug(Thread.currentThread().getName() + ": Connecting to Oracle db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -119,8 +118,7 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Oracle plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for Oracle plugin.");
             return OracleDatasourceUtils.validateDatasource(datasourceConfiguration);
         }
 
@@ -140,9 +138,7 @@ public class OraclePlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": executeParameterized() called for Oracle plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for Oracle plugin.");
             final Map<String, Object> formData = actionConfiguration.getFormData();
             String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
@@ -201,8 +197,7 @@ public class OraclePlugin extends BasePlugin {
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO) {
 
-            String printMessage = Thread.currentThread().getName() + ": executeCommon() called for Oracle plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for Oracle plugin.");
             final Map<String, Object> requestData = new HashMap<>();
             requestData.put("preparedStatement", TRUE.equals(preparedStatement) ? true : false);
 
@@ -231,8 +226,7 @@ public class OraclePlugin extends BasePlugin {
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            System.out.println(
-                                    "Exception Occurred while getting connection from pool" + e.getMessage());
+                            log.error("Exception Occurred while getting connection from pool" + e.getMessage());
                             e.printStackTrace(System.out);
                             return Mono.error(
                                     e instanceof StaleConnectionException
@@ -285,9 +279,9 @@ public class OraclePlugin extends BasePlugin {
                                     statement,
                                     preparedQuery);
                         } catch (SQLException e) {
-                            System.out.println(Thread.currentThread().getName()
+                            log.error(Thread.currentThread().getName()
                                     + ": In the OraclePlugin, got action execution error");
-                            System.out.println(e.getMessage());
+                            log.error(e.getMessage());
                             return Mono.error(new AppsmithPluginException(
                                     OraclePluginError.QUERY_EXECUTION_FAILED,
                                     OracleErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG,
@@ -305,7 +299,7 @@ public class OraclePlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        System.out.println(Thread.currentThread().getName()
+                        log.debug(Thread.currentThread().getName()
                                 + ": In the OraclePlugin, got action execution result");
                         return Mono.just(result);
                     })
@@ -336,8 +330,7 @@ public class OraclePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connectionPool, DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Oracle plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getStructure() called for Oracle plugin.");
             return OracleDatasourceUtils.getStructure(connectionPool, datasourceConfiguration);
         }
 
@@ -446,9 +439,8 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName()
-                    + ": getEndpointIdentifierForRateLimit() called for Oracle plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for Oracle plugin.");
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier
