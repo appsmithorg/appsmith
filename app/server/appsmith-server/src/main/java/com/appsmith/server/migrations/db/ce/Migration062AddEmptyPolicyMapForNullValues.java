@@ -27,7 +27,7 @@ public class Migration062AddEmptyPolicyMapForNullValues {
 
     private final ReactiveMongoTemplate mongoTemplate;
 
-    private static final Set<String> CE_COLLECTION_NAMES = Set.of(
+    private static final Set<String> COLLECTION_NAMES = Set.of(
             "actionCollection",
             "application",
             "applicationSnapshot",
@@ -48,7 +48,20 @@ public class Migration062AddEmptyPolicyMapForNullValues {
             "theme",
             "user",
             "userData",
-            "workspace");
+            "workspace",
+            "approvalRequest",
+            "auditLog",
+            "datasourceConfigurationStructure",
+            "environment",
+            "inviteUser",
+            "knowledgeStore",
+            "module",
+            "moduleInstance",
+            "package",
+            "role",
+            "userApiKey",
+            "userGroup",
+            "workflow");
 
     @RollbackExecution
     public void rollbackExecution() {}
@@ -56,7 +69,7 @@ public class Migration062AddEmptyPolicyMapForNullValues {
     @Execution
     public void execute() {
         Stopwatch stopwatch = new Stopwatch("Migration062AddEmptyPolicyMapForNullValues");
-        Mono.whenDelayError(CE_COLLECTION_NAMES.stream()
+        Mono.whenDelayError(COLLECTION_NAMES.stream()
                         .map(c -> addEmptyPolicyMapForNullEntries(mongoTemplate, c))
                         .toList())
                 .onErrorResume(error -> {
@@ -75,7 +88,7 @@ public class Migration062AddEmptyPolicyMapForNullValues {
         stopwatch.stopAndLogTimeInMillis();
     }
 
-    public static Mono<Void> addEmptyPolicyMapForNullEntries(
+    private static Mono<Void> addEmptyPolicyMapForNullEntries(
             ReactiveMongoTemplate mongoTemplate, String collectionName) {
         log.info("Adding empty policyMap for empty policies {}", collectionName);
 
