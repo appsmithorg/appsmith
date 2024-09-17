@@ -22,6 +22,7 @@ export const useAnvilDnDEvents = (
     isCurrentDraggedCanvas,
     isDragging,
   } = anvilDragStates;
+
   useCanvasDragToScroll(
     anvilDnDListenerRef,
     isCurrentDraggedCanvas,

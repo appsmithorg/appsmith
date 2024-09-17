@@ -41,6 +41,7 @@ export function createDependencyMap(
     AppsmithFunctionsWithFields,
   );
   const setterFunctions = getAllSetterFunctions(unEvalTree, configTree);
+
   dependencyMap.addNodes(
     { ...allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
     false,
@@ -61,6 +62,7 @@ export function createDependencyMap(
         pathDependencies,
         allKeys,
       );
+
       dependencyMap.addDependency(path, references);
       dataTreeEvalRef.errors.push(...errors);
     }
@@ -84,9 +86,11 @@ const addNodesToDependencyMap =
   (affectedNodes: Set<string>, dependencyMap: DependencyMap) =>
   (addedNodes: Record<string, true>, strict?: boolean) => {
     const didUpdateDep = dependencyMap.addNodes(addedNodes, strict);
+
     if (didUpdateDep) {
       addingAffectedNodesToList(affectedNodes, Object.keys(addedNodes));
     }
+
     return didUpdateDep;
   };
 
@@ -125,6 +129,7 @@ export const updateDependencyMap = ({
     affectedNodes,
     dependencyMap,
   );
+
   translatedDiffs.forEach((dataTreeDiff) => {
     const {
       event,
@@ -148,6 +153,7 @@ export const updateDependencyMap = ({
           const allAddedPaths = getAllPaths({
             [fullPropertyPath]: get(unEvalDataTree, fullPropertyPath),
           });
+
           // If a new entity is added, add setter functions to all nodes
           if (entityName === fullPropertyPath) {
             const addedNodes = getEntitySetterFunctions(
@@ -155,6 +161,7 @@ export const updateDependencyMap = ({
               entityName,
               entity,
             );
+
             didUpdateDependencyMap =
               addNodesToDepedencyMapFn(addedNodes) || didUpdateDependencyMap;
           }
@@ -170,6 +177,7 @@ export const updateDependencyMap = ({
                 configTree[entityName],
                 allKeys,
               );
+
               if (!isEmpty(entityDependencyMap)) {
                 // The entity might already have some dependencies,
                 // so we just want to update those
@@ -205,23 +213,27 @@ export const updateDependencyMap = ({
               );
             }
           }
+
           break;
         }
         case DataTreeDiffEvent.DELETE: {
           const allDeletedPaths = getAllPaths({
             [fullPropertyPath]: get(oldUnEvalTree, fullPropertyPath),
           });
+
           // If an entity is deleted, remove all setter functions
           if (entityName === fullPropertyPath) {
             const didUpdateDep = dependencyMap.removeNodes(
               getEntitySetterFunctions(entityConfig, entityName, entity),
             );
+
             if (didUpdateDep) didUpdateDependencyMap = true;
           }
 
           for (const deletedPath of Object.keys(allDeletedPaths)) {
             const pathsThatDependOnDeletedPath =
               dependencyMap.getDependents(deletedPath);
+
             dependenciesOfRemovedPaths.push(...pathsThatDependOnDeletedPath);
           }
 
@@ -231,6 +243,7 @@ export const updateDependencyMap = ({
 
           if (isWidgetActionOrJsObject(entity)) {
             const entityId = getEntityId(entity);
+
             for (const deletedPath of Object.keys(allDeletedPaths)) {
               removedPaths.push({
                 entityId: entityId || "",
@@ -238,6 +251,7 @@ export const updateDependencyMap = ({
               });
             }
           }
+
           break;
         }
         case DataTreeDiffEvent.EDIT: {
@@ -258,6 +272,7 @@ export const updateDependencyMap = ({
             );
             const { errors: extractDependencyErrors, references } =
               extractInfoFromBindings(entityPathDependencies, allKeys);
+
             setDependenciesToDepedencyMapFn(fullPropertyPath, references);
 
             didUpdateDependencyMap = true;
@@ -265,6 +280,7 @@ export const updateDependencyMap = ({
               extractDependencyErrors,
             );
           }
+
           break;
         }
         default: {
@@ -296,6 +312,7 @@ export const updateDependencyMap = ({
   }
 
   const updateChangedDependenciesStop = performance.now();
+
   dataTreeEvalRef.logs.push({
     diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),
     updateChangedDependencies: getFixedTimeDifference(

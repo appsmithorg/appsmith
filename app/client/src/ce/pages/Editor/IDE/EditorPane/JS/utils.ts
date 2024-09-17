@@ -28,6 +28,7 @@ export const getJSUrl = (
   } else if (item.entity === FocusEntity.JS_OBJECT_ADD) {
     return jsCollectionListURL({ basePageId: item.params.basePageId });
   }
+
   return add
     ? jsCollectionAddURL({ basePageId: item.params.basePageId })
     : jsCollectionListURL({ basePageId: item.params.basePageId });

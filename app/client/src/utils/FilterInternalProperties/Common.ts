@@ -19,7 +19,9 @@ export const createObjectPeekData = (
 ) => {
   Object.keys(defs).forEach((key: string) => {
     if (key.startsWith("!")) return;
+
     const childKeyPathArray = [parentKey, key];
+
     if (
       isObject(defs[key]) &&
       Object.keys(defs[key]).filter((k) => !k.startsWith("!")).length > 0
@@ -31,6 +33,7 @@ export const createObjectPeekData = (
         peekData[key],
         key,
       );
+
       _.set(peekData, childKeyPathArray, result.peekData);
     } else {
       peekData[key] = isTernFunctionDef(defs[key])
@@ -39,6 +42,7 @@ export const createObjectPeekData = (
         : data[key];
     }
   });
+
   return { peekData };
 };
 

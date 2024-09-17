@@ -67,6 +67,7 @@ function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -243,11 +244,13 @@ class MenuButtonDynamicItemsControl extends BaseControl<MenuButtonDynamicItemsCo
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
+
     if (typeof event !== "string") {
       value = event.target?.value;
     } else {
       value = event;
     }
+
     if (isString(value)) {
       const output = this.getComputedValue(
         value,

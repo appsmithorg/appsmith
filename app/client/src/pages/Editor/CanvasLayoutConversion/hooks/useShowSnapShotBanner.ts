@@ -37,5 +37,6 @@ export const useShowSnapShotBanner = (isPreviewMode: boolean) => {
     isConversionFlowEnabled &&
     !!readableSnapShotDetails &&
     !isPreviewingNavigation;
+
   return shouldShowSnapShotBanner;
 };

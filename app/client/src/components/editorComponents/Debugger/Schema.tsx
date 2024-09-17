@@ -33,6 +33,7 @@ const Schema = (props: Props) => {
   ]);
 
   const columnsAndKeys: Array<DatasourceColumns | DatasourceKeys> = [];
+
   if (selectedTableItems) {
     columnsAndKeys.push(...selectedTableItems.keys);
     columnsAndKeys.push(...selectedTableItems.columns);
@@ -44,6 +45,7 @@ const Schema = (props: Props) => {
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
+
   useEffect(() => {
     setSelectedTable(undefined);
   }, [props.datasourceId]);

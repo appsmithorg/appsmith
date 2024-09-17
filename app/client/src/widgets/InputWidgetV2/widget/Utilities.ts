@@ -20,6 +20,7 @@ export function getParsedText(value: string, inputType: InputTypes) {
           text = null;
         }
       }
+
       break;
     default:
       text = value;

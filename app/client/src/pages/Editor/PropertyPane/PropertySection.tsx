@@ -128,12 +128,14 @@ export const PropertySection = memo((props: PropertySectionProps) => {
             props.panelPropertyPath,
           ),
         );
+
         return !x;
       });
   }, [props.collapsible, props.id, currentWidgetId]);
 
   useEffect(() => {
     let initialIsOpenState = true;
+
     if (isSearchResult) {
       initialIsOpenState = true;
     } else if (isContextOpen !== undefined) {
@@ -155,6 +157,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
       const isWidgetIdTableDataExist = document.querySelector(
         `#${PROPERTY_PANE_ID} [id='${btoa(widgetId + ".tableData")}']`,
       );
+
       if (isWidgetIdTableDataExist) {
         if (className === "data") {
           setIsOpen(true);

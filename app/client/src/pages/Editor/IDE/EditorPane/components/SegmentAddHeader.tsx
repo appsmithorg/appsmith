@@ -11,6 +11,7 @@ interface Props {
 
 const SegmentAddHeader = (props: Props) => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+
   return (
     <Flex
       alignItems="center"

@@ -35,6 +35,7 @@ export default function Action(props: TRootActionProps) {
   const handleChange = useCallback(
     (actionBlock: TActionBlock) => {
       const newCode = actionToCode(actionBlock, true);
+
       onChange(newCode);
     },
     [onChange],

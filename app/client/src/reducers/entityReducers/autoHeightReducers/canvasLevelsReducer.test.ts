@@ -39,6 +39,7 @@ describe("Canvas Levels Reducer", () => {
       0: 0,
       1: 1,
     };
+
     expect(reducer(state, { type, payload: payload2 })).toEqual(expected);
   });
 });

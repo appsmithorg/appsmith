@@ -58,8 +58,10 @@ describe("isChildPropertyPath function", () => {
       ["Dropdown1.options[1]", "Dropdown1.options[1].value", true],
       ["Dropdown1", "Dropdown1.options[1].value", true],
     ];
+
     cases.forEach((testCase) => {
       const result = isChildPropertyPath(testCase[0], testCase[1]);
+
       expect(result).toBe(testCase[2]);
     });
   });
@@ -175,6 +177,7 @@ describe("getPropertyPath function", () => {
 
     testCases.forEach(([input, expectedResult]) => {
       const actualResult = getPropertyPath(input);
+
       expect(actualResult).toStrictEqual(expectedResult);
     });
   });
@@ -198,6 +201,7 @@ describe("getNestedEvalPath", () => {
     );
     const expectedUnpopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.['primaryColumns.state']`;
     const expectedPopulatedNestedPath = `Table1.${EVAL_VALUE_PATH}.primaryColumns.state`;
+
     expect(actualPopulatedNestedPath).toEqual(expectedPopulatedNestedPath);
     expect(actualUnpopulatedNestedPath).toEqual(expectedUnpopulatedNestedPath);
   });

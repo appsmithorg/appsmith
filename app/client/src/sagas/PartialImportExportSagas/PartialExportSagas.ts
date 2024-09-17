@@ -54,6 +54,7 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
       body,
     );
     const isValid: boolean = yield validateResponse(response);
+
     if (isValid) {
       const application: ApplicationPayload = yield select(
         getCurrentApplication,
@@ -64,6 +65,7 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
           "data:text/json;charset=utf-8," +
           encodeURIComponent(JSON.stringify(response));
         const downloadAnchorNode = document.createElement("a");
+
         downloadAnchorNode.setAttribute("href", dataStr);
         downloadAnchorNode.setAttribute("download", `${application.name}.json`);
         document.body.appendChild(downloadAnchorNode); // required for firefox
@@ -115,5 +117,6 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
     widgets: widgetListsToStore,
     flexLayers,
   };
+
   return widgetsDSL;
 }

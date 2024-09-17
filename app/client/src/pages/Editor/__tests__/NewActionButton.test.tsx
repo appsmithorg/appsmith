@@ -45,6 +45,7 @@ describe("New Action Button Component", () => {
       PluginType.API,
       datasourceWithUrl,
     );
+
     expect(result).toBe(false);
   });
 
@@ -54,12 +55,14 @@ describe("New Action Button Component", () => {
       PluginType.SAAS,
       datasourceWithUrl,
     );
+
     expect(result).toBe(false);
   });
 
   // Negative cases, error is there due to various reasons
   it("3. Plugin type is API but datasource not defined, should return true", () => {
     const result: boolean = apiPluginHasUrl("env1", PluginType.API, undefined);
+
     expect(result).toBe(true);
   });
 
@@ -69,6 +72,7 @@ describe("New Action Button Component", () => {
       PluginType.API,
       datasourceWithUrl,
     );
+
     expect(result).toBe(true);
   });
 
@@ -78,6 +82,7 @@ describe("New Action Button Component", () => {
       PluginType.API,
       datasourceWithoutUrl,
     );
+
     expect(result).toBe(true);
   });
 });

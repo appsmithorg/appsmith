@@ -144,6 +144,7 @@ describe("ArrayField", () => {
           genres: schemaItem.defaultValue,
         },
       });
+
       return (
         <ThemeProvider
           theme={
@@ -191,6 +192,7 @@ describe("ArrayField", () => {
       );
     };
     const { container } = render(<TestComponent />);
+
     expect(
       container.getElementsByClassName("t--jsonformfield-genres-item").length,
     ).toBe(2);
@@ -218,6 +220,7 @@ describe("ArrayField", () => {
           genres: schemaItem.defaultValue,
         },
       });
+
       return (
         <ThemeProvider
           theme={
@@ -265,6 +268,7 @@ describe("ArrayField", () => {
       );
     };
     const { container } = render(<TestComponent />);
+
     expect(
       container.getElementsByClassName("t--jsonformfield-genres-item").length,
     ).toBe(2);

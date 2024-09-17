@@ -14,16 +14,19 @@ export function generateTree(
   const spaceMap: Record<string, NodeSpace> = spaces;
 
   const _spaces: string[] = Object.keys(spaceMap);
+
   // If widget doesn't exist in this DS, this means that its height changes does not effect any other sibling
   _spaces.sort((A, B) => {
     const a: NodeSpace = spaceMap[A];
     const b: NodeSpace = spaceMap[B];
+
     //if both are of the same level and previous tree exists, check originalTops
     if (a.top === b.top && previousTree[a.id] && previousTree[b.id]) {
       return (
         previousTree[a.id].originalTopRow - previousTree[b.id].originalTopRow
       );
     }
+
     return a.top - b.top;
   }); // Sort based on position, top to bottom, so that we know which is above the other
 
@@ -36,19 +39,24 @@ export function generateTree(
   for (let i = 0; i < Object.keys(spaces).length; i++) {
     // Get the left most box in the array (Remember: we sorted from top to bottom, so the leftmost will be the top most)
     const _curr: string | undefined = _spaces.shift();
+
     if (_curr !== undefined) {
       // Create a reference copy as we need to override the bottom value
       const currentSpace = { ...spaceMap[_curr] };
+
       // Add a randomly large value to the bottom; this will help us know if any box is below this box
       currentSpace.bottom += MAX_BOX_SIZE;
+
       // For each of the remaining sibling widgets
       for (let j = 0; j < _spaces.length; j++) {
         // Create a reference copy as we need to override the bottom value
         const comparisionSpace = { ...spaceMap[_spaces[j]] };
+
         // Add a randomly large value to the bottom; this will help us know if any box is below this box
         // TODO(abhinav): This addition may not be necessary, as we're only looking to see if these boxes
         // are below the currentSpace
         comparisionSpace.bottom += MAX_BOX_SIZE;
+
         // Check if comparison space has an overlap with current space
         if (areIntersecting(currentSpace, comparisionSpace)) {
           // If there is an overlap, comparisonSpace is below the current space
@@ -63,6 +71,7 @@ export function generateTree(
           ) as string[];
         }
       }
+
       // Get the originalTop and originalBottom from the previous tree.
       // This is so that we can get close to the original (user defined) positions of the boxes
       // For example, if box1 increases in size and pushes box2 by 100 rows, while box3 is also above box2
@@ -70,6 +79,7 @@ export function generateTree(
       // Otherwise, if box1 happens to go below the bottomRow of box3, box2 will tend to overlap with box3.
       let originalTopRow = previousTree[currentSpace.id]?.originalTopRow;
       let originalBottomRow = previousTree[currentSpace.id]?.originalBottomRow;
+
       // We also udpate the original if the layout is being updated
       // This happens when the user repositions/resizes boxes
       // If the previousTree doesn't have any originals, we can assume that this is the
@@ -78,6 +88,7 @@ export function generateTree(
       if (originalTopRow === undefined || layoutUpdated) {
         originalTopRow = currentSpace.top;
       }
+
       if (originalBottomRow === undefined || layoutUpdated) {
         originalBottomRow = currentSpace.bottom - MAX_BOX_SIZE;
       }
@@ -101,8 +112,10 @@ export function generateTree(
     // We also need to make sure that the nearest above doesn't go below 0, otherwise,
     // they can overlap.
     const nearestAbove = getNearestAbove(tree, boxId, {});
+
     if (nearestAbove.length > 0) {
       const distance = tree[boxId].topRow - tree[nearestAbove[0]].bottomRow;
+
       tree[boxId].distanceToNearestAbove = Math.max(distance, 0);
     }
   }

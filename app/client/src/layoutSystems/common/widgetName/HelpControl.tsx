@@ -35,6 +35,7 @@ const StyledHelpIcon = styled.div`
 
 export function HelpControl(props: { type: WidgetType; show: boolean }) {
   const dispatch = useDispatch();
+
   return props.show ? (
     <StyledHelpIcon
       className="control t--widget-help-control"

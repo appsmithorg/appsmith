@@ -88,6 +88,7 @@ class WDSSwitchGroupWidget extends BaseWidget<
 
   onChange = (selectedValues: OptionProps["value"][]) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     if (!this.props.isDirty) {
       pushBatchMetaUpdates("isDirty", true);
     }

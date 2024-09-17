@@ -134,13 +134,16 @@ export function getMovementMap(
 
     let staticOccupiedLength = 0,
       maxOccupiedSpace = 0;
+
     if (!directionalVariables[childNode.collidingId]) {
       directionalVariables[childNode.collidingId] = {};
     }
+
     if (directionalVariables[childNode.collidingId][childDirection]) {
       [staticOccupiedLength, maxOccupiedSpace] =
         directionalVariables[childNode.collidingId][childDirection];
     }
+
     staticOccupiedLength = Math.max(staticOccupiedLength, occupiedLength);
     maxOccupiedSpace = Math.max(maxOccupiedSpace, occupiedSpace);
     directionalVariables[childNode.collidingId][childDirection] = [
@@ -212,6 +215,7 @@ export function getCollisionTree(
 
   for (let i = 0; i < collidingSpaces.length; i++) {
     const collidingSpace = collidingSpaces[i];
+
     if (
       checkProcessNodeForTree(collidingSpace, globalProcessedNodes)
         .shouldProcessNode
@@ -264,6 +268,7 @@ export function getCollisionTree(
         gridProps,
         occupiedLength,
       );
+
       if (currentCollisionTree) {
         collisionTrees.push({
           ...currentCollisionTree,
@@ -275,6 +280,7 @@ export function getCollisionTree(
         if (!globalProcessedNodes[currentCollidingSpace.id]) {
           globalProcessedNodes[currentCollidingSpace.id] = {};
         }
+
         //add value to cache
         globalProcessedNodes[currentCollidingSpace.id][
           currentCollidingSpace.direction
@@ -341,6 +347,7 @@ function getCollisionTreeHelper(
   secondOrderCollisionMap?: SecondOrderCollisionMap,
 ) {
   if (!collidingSpace) return {};
+
   let occupiedLength = 0;
   const collisionTree: CollisionTree = { ...collidingSpace, children: {} };
 
@@ -425,6 +432,7 @@ function getCollisionTreeHelper(
       modifiedCollidingSpace,
       globalProcessedNodes,
     );
+
     if (shouldProcessNode) {
       //Recursively call to build the tree
       const {
@@ -465,6 +473,7 @@ function getCollisionTreeHelper(
           gridProps,
           currentOccupiedLength,
         );
+
         //add value to cache
         globalProcessedNodes[modifiedCollidingSpace.id][
           modifiedCollidingSpace.direction
@@ -481,6 +490,7 @@ function getCollisionTreeHelper(
           };
         }
       }
+
       //store overall maximum travel
       if (currentOccupiedLength)
         occupiedLength = Math.max(occupiedLength, currentOccupiedLength);
@@ -490,6 +500,7 @@ function getCollisionTreeHelper(
       };
     }
   }
+
   return {
     collisionTree,
     occupiedLength:
@@ -574,6 +585,7 @@ export function getModifiedArgumentsForCollisionTree(
       return a[currentAccessors.direction] - b[currentAccessors.direction];
     });
   }
+
   return {
     currentOccSpacesMap,
     currentAccessors,
@@ -629,6 +641,7 @@ function getMovementMapHelper(
         globalCollisionTrees.splice(index + 1, 0, childNode);
         continue;
       }
+
       const nextEmptySpaces =
         emptySpaces +
         Math.abs(prevWidgetDistance - childNode[accessors.oppositeDirection]);
@@ -639,6 +652,7 @@ function getMovementMapHelper(
         occupiedSpace,
         shouldProcessNode,
       } = checkProcessNodeForTree(childNode, globalProcessedNodes);
+
       //process the nodes if either one is undefined
       if (
         shouldProcessNode ||
@@ -661,10 +675,12 @@ function getMovementMapHelper(
           shouldResize,
           globalProcessedNodes,
         );
+
         //initialize if undefined
         if (!globalProcessedNodes[childNode.id]) {
           globalProcessedNodes[childNode.id] = {};
         }
+
         //add value to cache
         globalProcessedNodes[childNode.id][childNode.direction] = {
           value: childNode.collidingValue,
@@ -726,6 +742,7 @@ function getMovementMapHelper(
     )
   ) {
     const { isHorizontal } = getAccessor(direction);
+
     return isHorizontal
       ? {
           occupiedSpace:
@@ -977,5 +994,6 @@ function getMovementVariables(
 
     movementVariablesMap[newSpacePositionId] = directionalMovements;
   }
+
   return movementVariablesMap;
 }

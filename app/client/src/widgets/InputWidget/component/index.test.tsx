@@ -47,6 +47,7 @@ describe("<InputComponent />", () => {
     });
     const textarea = container?.querySelector("textarea");
     const styles = textarea ? getComputedStyle(textarea) : { resize: "" };
+
     expect(styles.resize).toEqual("none");
   });
 });

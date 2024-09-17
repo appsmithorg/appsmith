@@ -45,22 +45,26 @@ describe("Property Controls Generator", () => {
   // When feature flag is enabled, it should check for expandedByDefault property of section config
   it("Should return true when section has expandedByDefault property set to true", () => {
     const result = shouldSectionBeExpanded(config[0], true);
+
     expect(result).toEqual(true);
   });
 
   it("Should return false when section has expandedByDefault property set to false", () => {
     const result = shouldSectionBeExpanded(config[1], true);
+
     expect(result).toEqual(false);
   });
 
   // Following tests check for a case where feature flag is disabled, it should always expand the sections
   it("Should return true as the flag is set to false, even though expandedByDefault is true", () => {
     const result = shouldSectionBeExpanded(config[0], false);
+
     expect(result).toEqual(true);
   });
 
   it("Should return true as the flag is set to false, even though expandedByDefault is false", () => {
     const result = shouldSectionBeExpanded(config[1], false);
+
     expect(result).toEqual(true);
   });
 
@@ -81,6 +85,7 @@ describe("Property Controls Generator", () => {
       configWithoutExpandedByDefault,
       true,
     );
+
     expect(result).toEqual(true);
   });
 });

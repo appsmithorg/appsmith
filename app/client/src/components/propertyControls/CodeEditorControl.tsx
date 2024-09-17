@@ -27,7 +27,9 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     const props: Partial<ControlProps> = {};
 
     if (dataTreePath) props.dataTreePath = dataTreePath;
+
     if (evaluatedValue) props.evaluatedValue = evaluatedValue;
+
     if (expected) props.expected = expected;
 
     return (

@@ -375,6 +375,7 @@ describe(".generateFieldState", () => {
     inputAndExpectedOutput.forEach(
       ({ expectedOutput, metaInternalFieldState }) => {
         const result = generateFieldState(schema, metaInternalFieldState);
+
         expect(result).toEqual(expectedOutput);
       },
     );

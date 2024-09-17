@@ -49,6 +49,7 @@ const errorReducer = createReducer(initialState, {
         ...initialState,
       };
     }
+
     return state;
   },
   [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (state: ErrorReduxState) => {
@@ -58,6 +59,7 @@ const errorReducer = createReducer(initialState, {
         ...initialState,
       };
     }
+
     return state;
   },
 });

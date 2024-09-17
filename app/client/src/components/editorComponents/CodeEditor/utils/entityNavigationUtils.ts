@@ -10,5 +10,6 @@ export const addThisReference = (
       this: navigationData[entityName],
     };
   }
+
   return navigationData;
 };

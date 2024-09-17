@@ -65,6 +65,7 @@ export const useGetEntityInfo = (name: string) => {
     } else if (isJSAction(entity)) {
       const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
       const icon = jsIcon;
+
       return {
         name,
         icon,

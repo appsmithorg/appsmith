@@ -34,6 +34,7 @@ export default function CodeEditorFallback({
 
   let contentKind: ContentKind;
   let fallbackToRender: string;
+
   if (!parsedValue) {
     contentKind = ContentKind.PLACEHOLDER;
     fallbackToRender = placeholder || "";
@@ -54,8 +55,10 @@ export default function CodeEditorFallback({
 
   function parseInputValue() {
     const value = input.value;
+
     try {
       if (value && typeof value === "string") return value;
+
       return JSON.parse(value);
     } catch (e) {
       return value;

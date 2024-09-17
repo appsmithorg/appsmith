@@ -165,6 +165,7 @@ export const handlers = {
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
+
     return {
       ...state,
       isRunning: {
@@ -199,6 +200,7 @@ export const handlers = {
     action: ReduxAction<{ selectedTabIndex: number }>,
   ) => {
     const { selectedTabIndex } = action.payload;
+
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,

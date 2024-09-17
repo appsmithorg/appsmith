@@ -9,6 +9,7 @@ type GetFormData = (
 
 export const getDisplayFormat: GetFormData = (state, apiId) => {
   const displayFormat = state.ui.apiPane.extraformData[apiId];
+
   return displayFormat;
 };
 

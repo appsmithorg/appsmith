@@ -16,6 +16,7 @@ export default [
     isTriggerProperty: false,
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
+
       return hideByColumnType(props, path, [ColumnTypes.DATE], true);
     },
     dependencies: ["primaryColumns"],
@@ -30,6 +31,7 @@ export default [
     isTriggerProperty: false,
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
+
       return hideByColumnType(props, path, [ColumnTypes.DATE], true);
     },
     dependencies: ["primaryColumns"],

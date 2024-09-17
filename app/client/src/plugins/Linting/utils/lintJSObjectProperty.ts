@@ -30,6 +30,7 @@ export default function lintJSObjectProperty(
     jsPropertyState,
     globalData.getGlobalData(!isAsyncJSFunctionBoundToSyncField),
   );
+
   lintErrors = lintErrors.concat(jsPropertyLintErrors);
 
   // if function is async, and bound to a data field, then add custom lint error
@@ -42,6 +43,7 @@ export default function lintJSObjectProperty(
       ),
     );
   }
+
   return lintErrors;
 }
 

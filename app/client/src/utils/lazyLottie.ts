@@ -45,6 +45,7 @@ const lazyLottie = {
 
       cachedLottie = lottie;
       const animation = lottie.loadAnimation(params);
+
       for (const command of queuedCommands) {
         // @ts-expect-error – Getting “A spread argument must either have a tuple type or be passed to a rest parameter”, and it’s tricky to work around with this generalized code
         // TODO: Fix this the next time the file is edited

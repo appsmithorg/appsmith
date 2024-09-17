@@ -38,6 +38,7 @@ export const redirectUserAfterSignup = (
         shouldEnableFirstTimeUserOnboarding === "true"
       ) {
         let urlObject;
+
         try {
           urlObject = new URL(redirectUrl);
         } catch (e) {}
@@ -55,6 +56,7 @@ export const redirectUserAfterSignup = (
           exact: false,
         });
         const { baseApplicationId, basePageId } = match?.params || {};
+
         /** ! Dev Note:
          *  setCurrentApplicationIdForCreateNewApp & firstTimeUserOnboardingInit
          *  in the following block support only applicationId
@@ -84,7 +86,9 @@ export const redirectUserAfterSignup = (
               urlObject = new URL(redirectUrl, window.location.origin);
             } catch (e) {}
           }
+
           const newRedirectUrl = urlObject?.toString() || "";
+
           if (getIsSafeRedirectURL(newRedirectUrl)) {
             window.location.replace(newRedirectUrl);
           }
@@ -105,9 +109,11 @@ export const getSocialLoginButtonProps = (
 ): SocialLoginButtonProps[] => {
   return logins.map((login) => {
     const socialLoginButtonProps = SocialLoginButtonPropsList[login];
+
     if (!socialLoginButtonProps) {
       throw Error("Social login not registered: " + login);
     }
+
     return socialLoginButtonProps;
   });
 };

@@ -51,6 +51,7 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const dbStructure = props.dbStructure;
   let templateMenu = null;
   const [active, setActive] = useState(false);
+
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
   const collapseRef = useRef<HTMLDivElement | null>(null);
 

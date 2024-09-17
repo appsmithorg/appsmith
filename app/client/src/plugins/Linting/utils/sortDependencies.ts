@@ -4,6 +4,7 @@ import toposort from "toposort";
 export function sortDependencies(dependencyMap: TDependencies): Array<string> {
   // https://github.com/marcelklehr/toposort#sorting-dependencies
   const edges: Array<[string, string | undefined]> = [];
+
   dependencyMap.forEach((dependencies, path) => {
     if (!dependencies.size) {
       edges.push([path, undefined]);

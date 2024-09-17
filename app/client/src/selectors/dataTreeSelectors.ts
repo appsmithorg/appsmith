@@ -118,6 +118,7 @@ export const getUnevaluatedDataTree = createSelector(
     modulesData,
   ) => {
     const pageList = pageListPayload || [];
+
     return DataTreeFactory.create({
       ...currentActionEntities,
       widgets,

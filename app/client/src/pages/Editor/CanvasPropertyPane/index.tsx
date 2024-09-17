@@ -15,6 +15,7 @@ const Title = styled.p`
 const MainHeading = styled.h3`
   color: var(--ads-v2-color-fg-emphasis);
 `;
+
 export function CanvasPropertyPane() {
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
   const [enableLayoutControl, enableLayoutConversion] =

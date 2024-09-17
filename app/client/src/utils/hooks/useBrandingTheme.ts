@@ -9,12 +9,14 @@ import { LightModeTheme } from "@appsmith/wds-theming";
 const useBrandingTheme = () => {
   const config = useSelector(getTenantConfig);
   let activeColor: string | undefined = undefined;
+
   if (
     config.brandColors.primary !== undefined &&
     (config.brandColors.active === undefined ||
       config.brandColors.active === "")
   ) {
     const lightTheme = new LightModeTheme(config.brandColors.primary);
+
     activeColor =
       config.brandColors.primary === APPSMITH_BRAND_PRIMARY_COLOR
         ? getComputedStyle(document.documentElement).getPropertyValue(
@@ -52,6 +54,7 @@ const useBrandingTheme = () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let favicon: any = document.querySelector("link[rel='shortcut icon']");
+
     if (!favicon) {
       favicon = document.createElement("link");
       favicon.rel = "shortcut icon";

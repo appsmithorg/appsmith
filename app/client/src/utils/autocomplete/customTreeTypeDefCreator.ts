@@ -12,8 +12,10 @@ export const customTreeTypeDefCreator = (data: AdditionalDynamicDataTree) => {
   const def: Def = {
     "!name": "customDataTree",
   };
+
   Object.keys(data).forEach((keyName) => {
     const entity = data[keyName];
+
     def[keyName] = generateTypeDef(entity, extraDefsToDefine);
   });
   def["!define"] = { ...extraDefsToDefine };
