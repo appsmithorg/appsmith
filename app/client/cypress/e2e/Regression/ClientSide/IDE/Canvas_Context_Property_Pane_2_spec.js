@@ -196,8 +196,8 @@ function verifyPropertyPaneSectionState(propertySectionState) {
     propertySectionState,
   )) {
     cy.get(`${propertySectionClass(sectionName)}`)
-      .siblings(".bp3-collapse")
-      .find(".bp3-collapse-body")
+      .siblings(_.locators._propertyCollapse)
+      .find(_.locators._propertyCollapseBody)
       .invoke("attr", "aria-hidden")
       .then((isSectionOpen) => {
         const expectedValue = shouldSectionOpen ? "false" : "true";
