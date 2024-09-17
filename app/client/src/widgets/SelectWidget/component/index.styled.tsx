@@ -134,15 +134,13 @@ export const StyledSingleDropDown = styled(
     ${(props) =>
       !props.hasError
         ? `
-border-color: ${
-            props.hasError
-              ? "var(--wds-color-border-danger)"
-              : props.accentColor
-          };
-box-shadow: ${`0px 0px 0px 2px ${lightenColor(
-            props.hasError ? Colors.DANGER_SOLID : props.accentColor,
-          )} !important;`};
-`
+        border-color: ${
+          props.hasError ? "var(--wds-color-border-danger)" : props.accentColor
+        };
+        box-shadow: ${`0px 0px 0px 2px ${lightenColor(
+          props.hasError ? Colors.DANGER_SOLID : props.accentColor,
+        )} !important;`};
+      `
         : `border: 1px solid var(--wds-color-border-danger);`}
   }
   &&&&& .${Classes.DISABLED} {
