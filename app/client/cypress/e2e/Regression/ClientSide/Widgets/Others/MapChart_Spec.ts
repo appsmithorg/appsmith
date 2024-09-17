@@ -180,7 +180,7 @@ describe(
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
     });
 
-    it.only("5. Update onDataPointClick and Verify", function () {
+    it("5. Update onDataPointClick and Verify", function () {
       // Create the Alert Modal and verify Modal name
       propPane.SelectPropertiesDropDown("Map type", "Asia");
       propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
