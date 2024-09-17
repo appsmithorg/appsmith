@@ -188,7 +188,7 @@ describe(
         propPane._actionSelectorFieldByLabel("Message"),
         "Data Point {{MapChart1.selectedDataPoint.label}} Clicked",
       );
-     
+
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
