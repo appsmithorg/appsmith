@@ -10,7 +10,6 @@ import {
   propPane,
   table,
   draggableWidgets,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
