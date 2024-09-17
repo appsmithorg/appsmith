@@ -24,6 +24,7 @@ import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
 import { ApiEditorContext } from "../ApiEditorContext";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
+import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -139,6 +140,7 @@ function GraphQLEditorForm(props: Props) {
       closeEditorLink={closeEditorLink}
       defaultTabSelected={2}
       formName={API_EDITOR_FORM_NAME}
+      httpsMethods={GRAPHQL_HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
           actionName={actionName}
