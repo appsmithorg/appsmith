@@ -1,6 +1,11 @@
 import React, { forwardRef, useRef } from "react";
 import { CheckboxGroup as HeadlessToggleGroup } from "react-aria-components";
-import { ErrorMessage, Label, Flex, useGroupOrientation } from "@appsmith/wds";
+import {
+  FieldError,
+  FieldLabel,
+  Flex,
+  useGroupOrientation,
+} from "@appsmith/wds";
 import styles from "./styles.module.css";
 import type { ForwardedRef } from "react";
 import type { ToggleGroupProps } from "./types";
@@ -33,7 +38,7 @@ const _ToggleGroup = (
       ref={ref}
       {...rest}
     >
-      <Label
+      <FieldLabel
         contextualHelp={contextualHelp}
         isDisabled={isDisabled}
         isRequired={isRequired}
@@ -48,7 +53,7 @@ const _ToggleGroup = (
       >
         {items.map((item, index) => children({ ...item, index }))}
       </Flex>
-      <ErrorMessage text={errorMessage} />
+      <FieldError errorMessage={errorMessage} />
     </HeadlessToggleGroup>
   );
 };
