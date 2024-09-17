@@ -5,7 +5,7 @@ import { Label as HeadlessLabel } from "react-aria-components";
 import styles from "./styles.module.css";
 import type { LabelProps } from "./types";
 
-export const Label = (props: LabelProps) => {
+export const FieldLabel = (props: LabelProps) => {
   const { className, contextualHelp, isDisabled, isRequired, text, ...rest } =
     props;
 

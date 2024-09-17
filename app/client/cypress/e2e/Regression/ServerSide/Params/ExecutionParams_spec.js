@@ -37,7 +37,7 @@ describe(
         "select * from {{ this.params.tableName || 'users' }} limit 10",
       );
       cy.get(queryLocators.settings).click({ force: true });
-      cy.get(queryLocators.switch).last().click({ force: true });
+      dataSources.ToggleUsePreparedStatement(false);
       cy.xpath(queryLocators.query).click({ force: true });
       cy.runQuery();
     });
