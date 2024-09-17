@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { IntentColors } from "constants/DefaultTheme";
 import type { IRef, Alignment } from "@blueprintjs/core";
-import { ControlGroup, Classes } from "@blueprintjs/core";
+import { ControlGroup, Classes, Position } from "@blueprintjs/core";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment";
@@ -390,6 +390,11 @@ class DatePickerComponent extends React.Component<
                 usePortal: !this.props.withoutPortal,
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
+                position: Position.RIGHT,
+                modifiers: {
+                  flip: { enabled: false },
+                  preventOverflow: { enabled: true, boundariesElement: "viewport"},
+                },
                 onClose: this.props.onPopoverClosed,
                 /*
                   Conditional popover props are the popover props that should not be sent to
