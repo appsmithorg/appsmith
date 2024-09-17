@@ -91,6 +91,9 @@ for await (const collectionName of sortedCollectionNames) {
       continue;
     }
     transformFields(doc);
+    if (doc.policyMap == null) {
+      doc.policyMap = {};
+    }
 
     if (outFile == null) {
       // Don't create the file unless there's data to write.
