@@ -1,5 +1,5 @@
 /// <reference types="Cypress" />
-import viewWidgetsPage from "../../../../../locators/ViewWidgets.json";
+import publishWidgetspage from "../../../../../locators/publishWidgetspage.json";
 import {
   agHelper,
   entityExplorer,
@@ -13,8 +13,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const _mapChartCaption = "text:last-child";
-const _mapChartPlot = (text: string) =>
-  `//*[name()='svg']//*[name()='text' and contains(text(), '${text}')]`;
 
 describe(
   "Map Chart Widget Functionality",
@@ -192,7 +190,12 @@ describe(
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      agHelper.GetNClick(_mapChartPlot("IN: 2"), 0);
+      agHelper
+        .GetElement(publishWidgetspage.mapChartWidget)
+        .find("svg")
+        .find("text")
+        .should("contain.text", "IN: 2")
+        .click();
       agHelper.ValidateToastMessage("Data Point India Clicked");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
@@ -205,7 +208,12 @@ describe(
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      agHelper.GetNClick(_mapChartPlot("IN: 2"), 0);
+      agHelper
+        .GetElement(publishWidgetspage.mapChartWidget)
+        .find("svg")
+        .find("text")
+        .should("contain.text", "IN: 2")
+        .click();
       agHelper.ValidateToastMessage("Converted to Js and clicked India");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
