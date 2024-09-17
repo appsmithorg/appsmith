@@ -131,7 +131,7 @@ function PageSettings(props: { page: Page }) {
   }, [page]);
   
   const savePageName = useCallback(() => {
-    if (!canManagePages || pageNameError === null || page.pageName === pageName)
+    if (!canManagePages || pageNameError !== null || page.pageName === pageName)
       return;
     const payload: UpdatePageActionPayload = {
       id: page.pageId,
