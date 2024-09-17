@@ -20,7 +20,7 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
     fontFamilyClassName,
     providerClassName,
     typographyClassName,
-  } = useCssTokens({ ...theme });
+  } = useCssTokens(theme);
 
   return (
     <ThemeContext.Provider value={theme}>
