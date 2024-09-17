@@ -195,12 +195,14 @@ function verifyPropertyPaneSectionState(propertySectionState) {
   for (const [sectionName, shouldSectionOpen] of Object.entries(
     propertySectionState,
   )) {
-    cy.get("body").then(($body) => {
-      const isSectionOpen =
-        $body.find(`${propertySectionClass(sectionName)} .t--chevron-icon`)
-          .length > 0;
-      expect(isSectionOpen).to.equal(shouldSectionOpen);
-    });
+    cy.get(`${propertySectionClass(sectionName)}`)
+      .siblings(".bp3-collapse")
+      .find(".bp3-collapse-body")
+      .invoke("attr", "aria-hidden")
+      .then((isSectionOpen) => {
+        const expectedValue = shouldSectionOpen ? "false" : "true";
+        expect(isSectionOpen).to.equal(expectedValue);
+      });
   }
 }
 
