@@ -21,7 +21,7 @@ export interface TextInputProps extends HeadlessTextInputProps {
    *
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "large">;
+  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
@@ -60,7 +60,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
           excludeFromTabOrder
           icon={icon}
           onPress={onPressEyeIcon}
-          size="small"
+          size={size === "medium" ? "small" : "xSmall"}
           variant="ghost"
         />
       );

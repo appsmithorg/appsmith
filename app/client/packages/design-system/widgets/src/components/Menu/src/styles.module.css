@@ -6,7 +6,7 @@
   &:has([data-icon]:not([data-chevron]))
     [role="menuitem"]:not(:has([data-icon])) {
     padding-inline-start: calc(
-      var(--icon-size-2) + var(--inner-spacing-3) + var(--inner-spacing-2)
+      var(--icon-size-4) + var(--inner-spacing-3) + var(--inner-spacing-2)
     );
   }
 }
