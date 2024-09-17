@@ -152,7 +152,11 @@ class WDSComboBoxWidget extends BaseWidget<
         id: option["value"] as string,
       }));
 
-      return items;
+      const isValidItems = items.every(
+        (item) => item.label !== undefined && item.id !== undefined,
+      );
+
+      return isValidItems ? items : [];
     }
 
     return [];

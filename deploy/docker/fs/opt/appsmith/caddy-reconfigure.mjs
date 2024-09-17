@@ -43,7 +43,7 @@ const parts = []
 parts.push(`
 {
   debug
-  admin 127.0.0.1:2019
+  admin 0.0.0.0:2019
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {

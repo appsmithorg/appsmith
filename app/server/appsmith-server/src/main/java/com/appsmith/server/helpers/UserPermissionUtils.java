@@ -15,7 +15,8 @@ import java.util.Set;
 public class UserPermissionUtils {
     public static boolean validateDomainObjectPermissionExists(
             BaseDomain baseDomain, AclPermission aclPermission, Set<String> permissionGroups) {
-        Optional<Policy> permissionPolicy = baseDomain.getPolicies().stream()
+        Set<Policy> basePolicies = baseDomain.getPolicies() == null ? Set.of() : baseDomain.getPolicies();
+        Optional<Policy> permissionPolicy = basePolicies.stream()
                 .filter(policy -> policy.getPermission().equals(aclPermission.getValue()))
                 .findFirst();
         return permissionPolicy.isPresent()
