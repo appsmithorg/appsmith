@@ -49,6 +49,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -74,6 +75,8 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @ExtendWith(AfterAllCleanUpExtension.class)
+@TestPropertySource(
+        properties = "spring.aop.auto=false") // for turning off the aop,the aop and spybean don't work well together
 public class ConsolidatedAPIServiceImplTest {
 
     @Autowired
