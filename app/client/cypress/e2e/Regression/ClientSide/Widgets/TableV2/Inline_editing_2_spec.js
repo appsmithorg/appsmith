@@ -12,6 +12,7 @@ import {
   draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
+import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Table widget inline editing functionality",
@@ -156,6 +157,9 @@ describe(
     });
 
     it("7. should check if updatedRowIndex is getting updated for multi row update mode", () => {
+      PageList.AddNewPage("New blank page");
+      cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
+      table.AddSampleTableData();
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
       cy.get(".t--widget-textwidget").should("exist");
       cy.updateCodeInput(
@@ -166,10 +170,13 @@ describe(
       cy.get(".t--widget-buttonwidget").should("exist");
       cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
       cy.updateCodeInput(".t--property-control-label", "Reset");
-      cy.updateCodeInput(
-        PROPERTY_SELECTOR.onClick,
-        `{{resetWidget("Table1",true)}}`,
+      propPane.EnterJSContext(
+        "onClick",
+        '{{resetWidget("Table1",true)}}',
+        true,
+        false,
       );
+
       agHelper.ClickOutside();
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
