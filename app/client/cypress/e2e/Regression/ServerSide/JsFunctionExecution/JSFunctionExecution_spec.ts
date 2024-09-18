@@ -126,7 +126,7 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
     //It should open only in case of execution error.
     debuggerHelper.AssertClosed();
     //Verify there is no error shown in the response tab.
-    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.OpenDebugger();
     debuggerHelper.ClickResponseTab();
     jsEditor.AssertParseError(false);
     agHelper.ActionContextMenuWithInPane({
@@ -400,7 +400,6 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
         jsEditor.EnableDisableAsyncFuncSettings(
           functionSetting.name,
           functionSetting.onPageLoad,
-          functionSetting.confirmBeforeExecute,
         );
       },
     );
@@ -496,12 +495,12 @@ return "yes";`;
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     // Enable all settings
-    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true);
 
     // Modify js object
     jsEditor.EditJSObj(syncJSCode, false);
     agHelper.RefreshPage();
-    jsEditor.VerifyAsyncFuncSettings("asyncToSync", true, false);
+    jsEditor.VerifyAsyncFuncSettings("asyncToSync", true);
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.JSObject,

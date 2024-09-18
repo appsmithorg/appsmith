@@ -169,7 +169,7 @@ describe(
       cy.get(queryLocators.queryNameField).type("Query1");
 
       // switching off Use Prepared Statement toggle
-      cy.get(queryLocators.switch).last().click({ force: true });
+      _.dataSources.ToggleUsePreparedStatement(false);
 
       _.dataSources.EnterQuery(
         "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",

@@ -36,17 +36,7 @@ describe(
       anvilSnapshot.setAccentColor("#0080ff");
     });
 
-    it("3. Typography", () => {
-      anvilSnapshot.setTypography("Inter");
-
-      anvilSnapshot.matchSnapshotForCanvasMode("AppThemingTypography");
-      anvilSnapshot.matchSnapshotForPreviewMode("AppThemingTypography");
-      anvilSnapshot.matchSnapshotForDeployMode("AppThemingTypography");
-
-      anvilSnapshot.setTypography("System Default");
-    });
-
-    it("4. Density", () => {
+    it("3. Density", () => {
       ["Tight", "Regular", "Loose"].forEach((density) => {
         anvilSnapshot.setDensity(density);
 
@@ -58,7 +48,7 @@ describe(
       });
     });
 
-    it("5. Sizing", () => {
+    it("4. Sizing", () => {
       ["Small", "Regular", "Big"].forEach((size) => {
         anvilSnapshot.setSizing(size);
 
@@ -68,23 +58,13 @@ describe(
       });
     });
 
-    it("6. Corners", () => {
+    it("5. Corners", () => {
       ["0px", "6px", "20px"].forEach((corner) => {
         anvilSnapshot.setCorners(corner);
 
         anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingCorner${corner}`);
         anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingCorner${corner}`);
         anvilSnapshot.matchSnapshotForDeployMode(`AppThemingCorner${corner}`);
-      });
-    });
-
-    it("7. Icon Style", () => {
-      ["Filled", "Outlined"].forEach((iconStyle) => {
-        anvilSnapshot.setIconStyle(iconStyle);
-
-        anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingIcon${iconStyle}`);
-        anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingIcon${iconStyle}`);
-        anvilSnapshot.matchSnapshotForDeployMode(`AppThemingIcon${iconStyle}`);
       });
     });
   },

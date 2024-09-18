@@ -76,7 +76,7 @@ function ThemeEditor() {
 
       dispatch(updateSelectedAppThemeAction({ applicationId, theme }));
     },
-    [updateSelectedAppThemeAction],
+    [applicationId, dispatch],
   );
 
   /**
@@ -91,7 +91,7 @@ function ThemeEditor() {
         AppThemingMode.APP_THEME_SELECTION,
       ]),
     );
-  }, [setAppThemingModeStackAction]);
+  }, [dispatch, themingStack]);
 
   /**
    * resets theme

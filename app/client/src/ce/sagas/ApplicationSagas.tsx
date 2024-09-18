@@ -234,11 +234,7 @@ export function* fetchAppAndPagesSaga(
 ) {
   try {
     const { pages, ...payload } = action.payload;
-    const request = {
-      applicationId: payload.applicationId,
-      pageId: payload.pageId,
-      mode: payload.mode,
-    };
+    const request = { ...payload };
     if (request.pageId && request.applicationId) {
       delete request.applicationId;
     }

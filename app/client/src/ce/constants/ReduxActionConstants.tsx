@@ -368,7 +368,6 @@ const UserAuthActionTypes = {
   SAAS_GET_OAUTH_ACCESS_TOKEN: "SAAS_GET_OAUTH_ACCESS_TOKEN",
   GET_OAUTH_ACCESS_TOKEN: "GET_OAUTH_ACCESS_TOKEN",
   GET_OAUTH_ACCESS_TOKEN_SUCCESS: "GET_OAUTH_ACCESS_TOKEN_SUCCESS",
-  GET_OAUTH_ACCESS_TOKEN_ERROR: "GET_OAUTH_ACCESS_TOKEN_ERROR",
 };
 const UserAuthActionErrorTypes = {
   CREATE_USER_ERROR: "CREATE_USER_ERROR",
@@ -379,6 +378,7 @@ const UserAuthActionErrorTypes = {
   LOGOUT_USER_ERROR: "LOGOUT_USER_ERROR",
   VERIFY_INVITE_ERROR: "VERIFY_INVITE_ERROR",
   INVITED_USER_SIGNUP_ERROR: "INVITED_USER_SIGNUP_ERROR",
+  GET_OAUTH_ACCESS_TOKEN_ERROR: "GET_OAUTH_ACCESS_TOKEN_ERROR",
 };
 
 const UserProfileActionTypes = {
@@ -980,6 +980,7 @@ const AppViewActionTypes = {
   FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS: "FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS",
   SET_APP_VIEWER_HEADER_HEIGHT: "SET_APP_VIEWER_HEADER_HEIGHT",
   SET_APP_SIDEBAR_PINNED: "SET_APP_SIDEBAR_PINNED",
+  FETCH_PUBLISHED_PAGE_RESOURCES_INIT: "FETCH_PUBLISHED_PAGE_RESOURCES_INIT",
 };
 
 const AppViewActionErrorTypes = {
@@ -988,6 +989,7 @@ const AppViewActionErrorTypes = {
   PUBLISH_APPLICATION_ERROR: "PUBLISH_APPLICATION_ERROR",
   FETCH_ACTIONS_VIEW_MODE_ERROR: "FETCH_ACTION_VIEW_MODE_ERROR",
   FETCH_JS_ACTIONS_VIEW_MODE_ERROR: "FETCH_JS_ACTIONS_VIEW_MODE_ERROR",
+  FETCH_PUBLISHED_PAGE_RESOURCES_ERROR: "FETCH_PUBLISHED_PAGE_RESOURCES_ERROR",
 };
 
 const WorkspaceActionTypes = {
@@ -1331,6 +1333,20 @@ export const ReduxActionErrorTypes = {
   ...UserProfileActionErrorTypes,
   ...WidgetCanvasActionErrorTypes,
   ...WidgetOperationActionErrorTypes,
+  ...WorkspaceActionErrorTypes,
+};
+
+export const toastMessageErrorTypes = {
+  ...AdminSettingsActionErrorTypes,
+  ...ApplicationActionErrorTypes,
+  ...AppViewActionErrorTypes,
+  ...DatasourceEditorActionErrorTypes,
+  ...GitActionErrorTypes,
+  ...ImportExportActionErrorTypes,
+  ...PlatformActionErrorTypes,
+  ...TenantActionErrorTypes,
+  ...UserAuthActionErrorTypes,
+  ...UserProfileActionErrorTypes,
   ...WorkspaceActionErrorTypes,
 };
 

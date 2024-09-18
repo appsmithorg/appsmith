@@ -281,6 +281,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_RESIZE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -1644,6 +1645,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }

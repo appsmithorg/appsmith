@@ -1,6 +1,6 @@
 import { Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
@@ -11,11 +11,13 @@ import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({
+  configTree,
   dataTree,
   errors,
 }: {
-  errors: LintErrorsStore;
+  configTree: ConfigTree;
   dataTree: DataTree;
+  errors: LintErrorsStore;
 }) {
   const errorsToAdd = [];
   const errorsToRemove = [];
@@ -23,8 +25,10 @@ export function* logLatestLintPropertyErrors({
   for (const path of Object.keys(errors)) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];
+    const config = configTree[entityName];
     // only log lint errors in JSObjects
-    if (!isLintErrorLoggingEnabledForEntity(entity)) continue;
+    if (!isLintErrorLoggingEnabledForEntity(entity, propertyPath, config))
+      continue;
     // only log lint errors (not warnings)
     const lintErrorsInPath = errors[path].filter(
       (error) => error.severity === Severity.ERROR,

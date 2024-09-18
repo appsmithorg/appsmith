@@ -2,10 +2,10 @@ import React from "react";
 import { isNil } from "lodash";
 import { TextInput } from "@appsmith/wds";
 import { Icon, TextArea } from "@appsmith/wds";
-
-import { INPUT_TYPES } from "../constants";
-import type { InputComponentProps } from "./types";
 import { useDebouncedValue } from "@mantine/hooks";
+import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget";
+
+import type { InputComponentProps } from "./types";
 
 const DEBOUNCE_TIME = 300;
 

@@ -1,6 +1,7 @@
 export { ButtonThumbnail } from "./components/Thumbnails/ButtonThumbnail";
 export { CheckboxGroupThumbnail } from "./components/Thumbnails/CheckboxGroupThumbnail";
 export { CheckboxThumbnail } from "./components/Thumbnails/CheckboxThumbnail";
+export { ComboboxSelectThumbnail } from "./components/Thumbnails/ComboboxSelectThumbnail";
 export { CurrencyInputThumbnail } from "./components/Thumbnails/CurrencyInputThumbnail";
 export { EmailInputThumbnail } from "./components/Thumbnails/EmailInputThumbnail";
 export { HeadingThumbnail } from "./components/Thumbnails/HeadingThumbnail";
@@ -27,6 +28,7 @@ export { ZoneThumbnail } from "./components/Thumbnails/ZoneThumbnail";
 export { ButtonIcon } from "./components/Icons/ButtonIcon";
 export { CheckboxGroupIcon } from "./components/Icons/CheckboxGroupIcon";
 export { CheckboxIcon } from "./components/Icons/CheckboxIcon";
+export { ComboboxSelectIcon } from "./components/Icons/ComboboxSelectIcon";
 export { CurrencyInputIcon } from "./components/Icons/CurrencyInputIcon";
 export { EmailInputIcon } from "./components/Icons/EmailInputIcon";
 export { HeadingIcon } from "./components/Icons/HeadingIcon";

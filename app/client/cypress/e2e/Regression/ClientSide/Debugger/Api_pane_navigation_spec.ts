@@ -27,7 +27,7 @@ describe(
       apiPage.EnterHeader("test", "test");
       debuggerHelper.AssertErrorCount(1);
       EditorNavigation.ShowCanvas();
-      debuggerHelper.ClickDebuggerIcon();
+      debuggerHelper.OpenDebugger();
       debuggerHelper.ClicklogEntityLink();
 
       agHelper.AssertElementVisibility(apiPage._nextCursorValue);

@@ -41,6 +41,15 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     private final ObservationRegistry observationRegistry;
 
     @Override
+    public Mono<NewPage> findById(String id, AclPermission permission, List<String> projectedFields) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewPage.Fields.id, id))
+                .permission(permission)
+                .fields(projectedFields)
+                .one();
+    }
+
+    @Override
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
@@ -161,7 +170,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<NewPage> findPageByBranchNameAndBasePageId(
-            String branchName, String basePageId, AclPermission permission) {
+            String branchName, String basePageId, AclPermission permission, List<String> projectedFieldNames) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
@@ -177,6 +186,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .criteria(q)
                 .permission(permission)
+                .fields(projectedFieldNames)
                 .one()
                 .name(FETCH_PAGE_FROM_DB)
                 .tap(Micrometer.observation(observationRegistry));

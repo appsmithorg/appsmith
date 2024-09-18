@@ -1,8 +1,8 @@
-// components
 export * from "./components/Icon";
 export * from "./components/Button";
 export * from "./components/IconButton";
 export * from "./components/Checkbox";
+export * from "./components/ComboBox";
 export * from "./components/Text";
 export * from "./components/ToggleGroup";
 export * from "./components/Tooltip";
@@ -21,8 +21,10 @@ export * from "./components/Select";
 export * from "./components/ContextualHelp";
 export * from "./components/Link";
 export * from "./components/Popover";
-export * from "./components/Label";
-export * from "./components/ErrorMessage";
+export * from "./components/FieldLabel";
+export * from "./components/FieldError";
+export * from "./components/FieldDescription";
+export * from "./components/FieldListPopover";
 
 export * from "./utils";
 export * from "./styles";
