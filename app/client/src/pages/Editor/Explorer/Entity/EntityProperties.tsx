@@ -120,7 +120,10 @@ export function EntityProperties() {
         ref.current.style.top = top - EntityHeight + "px";
         ref.current.style.bottom = "unset";
       }
-      ref.current.style.left = (ideViewMode === EditorViewMode.SplitScreen) ? "100%" : DEFAULT_EXPLORER_PANE_WIDTH + "px";
+      ref.current.style.left =
+        ideViewMode === EditorViewMode.SplitScreen
+          ? "100%"
+          : DEFAULT_EXPLORER_PANE_WIDTH + "px";
     }
   }, [entityId]);
 
