@@ -104,7 +104,7 @@ describe(
 
       agHelper.GetNClick(locators._enterPreviewMode);
       agHelper.GetElement(_mapChartPlot("IN: 2")).click();
-    
+
       agHelper.ValidateToastMessage("Data Point India Clicked");
       agHelper.GetNClick(locators._exitPreviewMode);
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
