@@ -9,6 +9,16 @@ import type {
 } from "web-vitals";
 import isString from "lodash/isString";
 
+type TNavigator = Navigator & {
+  deviceMemory: number;
+  connection: {
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+    saveData: boolean;
+  };
+};
+
 export class PageLoadInstrumentation extends InstrumentationBase {
   // PerformanceObserver to observe resource timings
   resourceTimingObserver: PerformanceObserver | null = null;
@@ -40,6 +50,12 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   }
 
   enable(): void {
+    // Register connection change listener
+    this.addConnectionAttributes();
+
+    // Add device attributes to the root span
+    this.addDeviceAttributes();
+
     // Listen for LCP and FCP events
     // reportAllChanges: true will report all LCP and FCP events
     // binding the context to the class to access class properties
@@ -52,6 +68,28 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     } else {
       // If PerformanceObserver is not available, fallback to polling
       this.pollResourceTimingEntries();
+    }
+  }
+
+  private addDeviceAttributes() {
+    this.rootSpan.setAttributes({
+      deviceMemory: (navigator as TNavigator).deviceMemory,
+      hardwareConcurrency: navigator.hardwareConcurrency,
+    });
+  }
+
+  private addConnectionAttributes() {
+    if ((navigator as TNavigator).connection) {
+      const { downlink, effectiveType, rtt, saveData } = (
+        navigator as TNavigator
+      ).connection;
+
+      this.rootSpan.setAttributes({
+        effectiveConnectionType: effectiveType,
+        connectionDownlink: downlink,
+        connectionRtt: rtt,
+        connectionSaveData: saveData,
+      });
     }
   }
 
