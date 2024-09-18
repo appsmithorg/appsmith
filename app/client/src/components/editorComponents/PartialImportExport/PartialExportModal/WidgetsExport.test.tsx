@@ -8,6 +8,8 @@ import {
   getAllWidgetIds,
   mockTblUserInfoWidgetId,
   mockWidgetsProps,
+  allSelectedWidgetIds,
+  partialSelectedWidgetIds,
 } from "./unitTestUtils";
 
 jest.mock("pages/Editor/Explorer/Widgets/WidgetIcon", () => ({
@@ -77,5 +79,39 @@ describe("<WidgetsExport />", () => {
     expect(baseProps.updateSelectedWidgets).toHaveBeenCalledWith([
       mockTblUserInfoWidgetId,
     ]);
+  });
+  it('should check "Select All" checkbox after selecting all individual widgets', async () => {
+    render(
+      <WidgetsExport
+        {...baseProps}
+        selectAllchecked={
+          allSelectedWidgetIds.length ==
+          getAllWidgetIds(mockWidgetsProps).slice(1).length
+        }
+        selectedWidgetIds={allSelectedWidgetIds}
+        widgets={mockWidgetsProps}
+      />,
+    );
+    const selectAllCheckbox = screen.getByTestId(
+      "t--partial-export-modal-widget-select-all",
+    );
+    expect(selectAllCheckbox).toBeChecked();
+  });
+  it('should uncheck "Select All" checkbox after selecting only some individual widgets', async () => {
+    render(
+      <WidgetsExport
+        {...baseProps}
+        selectAllchecked={
+          partialSelectedWidgetIds.length ==
+          getAllWidgetIds(mockWidgetsProps).slice(1).length
+        }
+        selectedWidgetIds={partialSelectedWidgetIds}
+        widgets={mockWidgetsProps}
+      />,
+    );
+    const selectAllCheckbox = screen.getByTestId(
+      "t--partial-export-modal-widget-select-all",
+    );
+    expect(selectAllCheckbox).not.toBeChecked();
   });
 });
