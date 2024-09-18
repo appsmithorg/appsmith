@@ -16,10 +16,6 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   rootSpan: Span;
   // List of resource URLs to ignore
   ignoreResourceUrls: string[] = [];
-  // Timestamp when the page was last hidden
-  pageLastHiddenAt: number = 0;
-  // Duration the page was hidden for
-  pageHiddenFor: number = 0;
   // Flag to check if navigation entry was pushed
   wasNavigationEntryPushed: boolean = false;
   // Set to keep track of resource entries
@@ -44,8 +40,6 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   }
 
   enable(): void {
-    this.addVisibilityChangeListener();
-
     // Listen for LCP and FCP events
     // reportAllChanges: true will report all LCP and FCP events
     // binding the context to the class to access class properties
@@ -59,18 +53,6 @@ export class PageLoadInstrumentation extends InstrumentationBase {
       // If PerformanceObserver is not available, fallback to polling
       this.pollResourceTimingEntries();
     }
-  }
-
-  private addVisibilityChangeListener() {
-    // Listen for page visibility changes to track time spent on hidden page
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        this.pageLastHiddenAt = performance.now();
-      } else {
-        const endTime = performance.now();
-        this.pageHiddenFor = endTime - this.pageLastHiddenAt;
-      }
-    });
   }
 
   // Handler for LCP report
@@ -155,7 +137,6 @@ export class PageLoadInstrumentation extends InstrumentationBase {
         element: this.getElementName(element),
         entryType,
         loadTime,
-        pageHiddenFor: this.pageHiddenFor,
       },
       0,
     );
