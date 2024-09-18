@@ -2,10 +2,12 @@ import * as _ from "../../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../../support/Pages/EditorNavigation";
+import commonlocators from "../../../../../../locators/commonlocators.json";
+import common from "mocha/lib/interfaces/common";
 
 describe(
   "Table widget - Select column validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Select"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
@@ -56,19 +58,22 @@ describe(
 
       // Expect select to have an error color
       _.agHelper
-        .GetElement(".bp3-button.select-button")
+        .GetElement(commonlocators.singleSelectWidgetButtonControl)
         .should("have.css", "border-color", "rgb(217, 25, 33)");
 
       // Select a valid option from the select table cell
-      _.agHelper.GetNClick(".bp3-button.select-button");
-      _.agHelper.GetElement(".menu-item-link").contains("#1").click();
+      _.agHelper.GetNClick(commonlocators.singleSelectWidgetButtonControl);
+      _.agHelper
+        .GetElement(commonlocators.singleSelectWidgetMenuItem)
+        .contains("#1")
+        .click();
 
       // Expect the save row option to be enabled
       _.agHelper.GetElement(_.table._saveNewRow).should("be.enabled");
 
       // Expect button to have a valid color
       _.agHelper
-        .GetElement(".bp3-button.select-button")
+        .GetElement(commonlocators.singleSelectWidgetButtonControl)
         .should("have.css", "border-color", "rgb(85, 61, 233)");
 
       // Discard save new row
@@ -108,7 +113,7 @@ describe(
 
       // Exect the select to have an error color
       _.agHelper
-        .GetElement(".bp3-button.select-button")
+        .GetElement(commonlocators.singleSelectWidgetButtonControl)
         .should("have.css", "border-color", "rgb(217, 25, 33)");
     });
   },
