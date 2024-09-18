@@ -63,6 +63,7 @@ describe("<TemplateInfoForm />", () => {
   it("sets the default title input value", () => {
     render(<BaseComponentRender />);
     const input = screen.getByTestId("t--community-template-name-input");
+
     expect(input).toHaveValue(TEMPLATE_NAME);
   });
 
@@ -75,6 +76,7 @@ describe("<TemplateInfoForm />", () => {
     const useCasesSelectPlaceholderString = screen.getByText(
       "Please select an option",
     );
+
     expect(excerpt).toHaveAttribute(
       "placeholder",
       createMessage(
@@ -95,6 +97,7 @@ describe("<TemplateInfoForm />", () => {
   it("calls setTemplateName when input value changes", () => {
     render(<BaseComponentRender />);
     const input = screen.getByTestId("t--community-template-name-input");
+
     fireEvent.change(input, { target: { value: "New Template Name" } });
     expect(mockProps.setTemplateName).toHaveBeenCalledWith("New Template Name");
   });
@@ -102,6 +105,7 @@ describe("<TemplateInfoForm />", () => {
   it("calls setTemplateExcerpt when input value changes", () => {
     render(<BaseComponentRender />);
     const input = screen.getByTestId("t--community-template-excerpt-input");
+
     fireEvent.change(input, { target: { value: "New Template Excerpt" } });
     expect(mockProps.setTemplateExcerpt).toHaveBeenCalledWith(
       "New Template Excerpt",
@@ -111,6 +115,7 @@ describe("<TemplateInfoForm />", () => {
   it("calls setTemplateDescription when input value changes", () => {
     render(<BaseComponentRender />);
     const input = screen.getByTestId("t--community-template-description-input");
+
     fireEvent.change(input, { target: { value: "New Template Description" } });
     expect(mockProps.setTemplateDescription).toHaveBeenCalledWith(
       "New Template Description",
@@ -121,11 +126,13 @@ describe("<TemplateInfoForm />", () => {
     render(<BaseComponentRender />);
     const select = screen.getByTestId("t--community-template-usecases-input");
     const input = select.querySelector("input");
+
     if (input) {
       fireEvent.change(input, {
         target: { value: "Cas" },
       });
       const option = screen.getByText("Case1");
+
       fireEvent.click(option);
       expect(mockProps.setTemplateUseCases).toHaveBeenCalled();
     }

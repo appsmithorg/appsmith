@@ -45,8 +45,10 @@ export function BackButton({ goTo }: { goTo?: string }) {
   const onBack = () => {
     if (goTo) {
       history.push(goTo);
+
       return;
     }
+
     history.goBack();
   };
 

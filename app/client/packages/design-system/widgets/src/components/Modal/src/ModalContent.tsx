@@ -6,5 +6,6 @@ import type { ModalContentProps } from "./types";
 
 export const ModalContent = (props: ModalContentProps) => {
   const { children, className } = props;
+
   return <div className={clsx(styles.content, className)}>{children}</div>;
 };

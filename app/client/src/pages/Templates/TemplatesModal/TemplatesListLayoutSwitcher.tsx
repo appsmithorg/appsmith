@@ -33,6 +33,7 @@ const TemplatesListLayoutSwitcher = ({
         : undefined,
     [isStartWithTemplateFlow],
   );
+
   return (
     <Flex flexDirection="column">
       <TemplateWrapper>

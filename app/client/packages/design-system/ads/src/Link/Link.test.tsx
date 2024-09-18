@@ -15,6 +15,7 @@ describe("Link component", () => {
     );
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const link = getByTestId(LinkClassName);
+
     expect(link).toBeInTheDocument();
     expect(link.getAttribute("href")).toBe("/old");
   });
@@ -27,6 +28,7 @@ describe("Link component", () => {
     );
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const link = getByTestId(LinkClassName);
+
     expect(link).toBeInTheDocument();
     expect(link.getAttribute("href")).toBe("https://appsmith.com");
   });

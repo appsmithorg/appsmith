@@ -53,6 +53,7 @@ function GitDefaultBranch() {
 
   const currentDefaultBranch = useMemo(() => {
     const defaultBranch = unfilteredBranches.find((b) => b.default);
+
     return defaultBranch?.branchName;
   }, [unfilteredBranches]);
 
@@ -62,6 +63,7 @@ function GitDefaultBranch() {
 
   useEffect(() => {
     const defaultBranch = unfilteredBranches.find((b) => b.default);
+
     setSelectedValue(defaultBranch?.branchName);
   }, []);
 

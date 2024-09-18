@@ -29,6 +29,7 @@ export class LightModeTheme implements ColorModeTheme {
       isYellow,
       lightness,
     } = new ColorsAccessor(color);
+
     this.seedColor = seedColor;
     this.seedLightness = lightness;
     this.seedChroma = chroma;
@@ -434,6 +435,7 @@ export class LightModeTheme implements ColorModeTheme {
       if (this.seedHue < 145) {
         color.oklch.h = 155;
       }
+
       if (this.seedHue >= 145) {
         color.oklch.h = 135;
       }
@@ -494,6 +496,7 @@ export class LightModeTheme implements ColorModeTheme {
       if (this.seedHue < 27) {
         color.oklch.h = 34;
       }
+
       if (this.seedHue >= 27) {
         color.oklch.h = 20;
       }
@@ -554,6 +557,7 @@ export class LightModeTheme implements ColorModeTheme {
       if (this.seedHue < 85) {
         color.oklch.h = 95;
       }
+
       if (this.seedHue >= 85) {
         color.oklch.h = 70;
       }
@@ -633,6 +637,7 @@ export class LightModeTheme implements ColorModeTheme {
     if (!this.seedIsVeryLight) {
       color.oklch.l += 0.015;
     }
+
     return color;
   }
 

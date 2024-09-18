@@ -68,6 +68,7 @@ export function EditableText(props: EditableTextProps) {
     (e: React.MouseEvent) => {
       setIsEditing(true);
       const errorMessage = inputValidation && inputValidation(defaultValue);
+
       setIsInvalid(errorMessage ? errorMessage : false);
       e.preventDefault();
       e.stopPropagation();
@@ -83,6 +84,7 @@ export function EditableText(props: EditableTextProps) {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
+
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
@@ -96,6 +98,7 @@ export function EditableText(props: EditableTextProps) {
           setIsEditing(true);
           e.preventDefault();
         }
+
         break;
       case "Escape":
         if (
@@ -104,6 +107,7 @@ export function EditableText(props: EditableTextProps) {
           )
         )
           props.wrapperRef?.current?.focus();
+
         break;
     }
   };

@@ -15,6 +15,7 @@ const LibrarySidePane = () => {
     enter: { opacity: 1 },
     leave: { opacity: 1 },
   });
+
   return (
     <Flex
       borderRight="1px solid var(--ads-v2-color-border)"

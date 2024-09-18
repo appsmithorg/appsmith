@@ -69,6 +69,7 @@ describe("hasWidgetJsPropertiesEnabled", () => {
       ...mockButtonProps(),
       dynamicPropertyPathList: [],
     };
+
     expect(hasWidgetJsPropertiesEnabled(widget)).toBe(false);
   });
 
@@ -77,6 +78,7 @@ describe("hasWidgetJsPropertiesEnabled", () => {
       ...mockButtonProps(),
       dynamicPropertyPathList: undefined,
     };
+
     expect(hasWidgetJsPropertiesEnabled(widget)).toBe(false);
   });
 });

@@ -28,6 +28,7 @@ export function RecaptchaV2(props: RecaptchaV2Props) {
   } = props;
   const onClick = () => {
     if (isDisabled) return onClickProp;
+
     if (isLoading) return onClickProp;
 
     if (isInvalidKey) {

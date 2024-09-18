@@ -6,6 +6,7 @@ const addFilterDefaultValue = (currentDSL: DSLWidget) => {
       currentDSL.isFilterable = true;
     }
   }
+
   return currentDSL;
 };
 

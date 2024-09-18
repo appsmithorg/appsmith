@@ -46,6 +46,7 @@ export const handlers = {
       const foundAction = draftMetaState.find((currentAction) => {
         return currentAction.config.id === action.id;
       });
+
       return {
         isLoading: false,
         config: action,
@@ -72,6 +73,7 @@ export const handlers = {
 
       action.payload.forEach((actionPayload: Action) => {
         const stateAction = stateActionMap[actionPayload.id];
+
         if (stateAction) {
           result.push({
             data: stateAction.data,
@@ -194,6 +196,7 @@ export const handlers = {
     const foundAction = draftMetaState.find((stateAction) => {
       return stateAction.config.id === action.payload.id;
     });
+
     if (foundAction) {
       foundAction.isLoading = false;
       foundAction.data = action.payload.response;
@@ -203,6 +206,7 @@ export const handlers = {
         config: { id: action.payload.id, baseId: action.payload.baseId },
         data: action.payload.response,
       };
+
       draftMetaState.push(partialAction);
     }
   },
@@ -253,9 +257,11 @@ export const handlers = {
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
+
     draftMetaState.forEach((a) => {
       if (a.config.id === actionId) {
         a.isLoading = false;
+
         if (a.data) _.assign(a.data, action.payload[actionId]);
         else a.data = action.payload[actionId];
       }
@@ -313,6 +319,7 @@ export const handlers = {
     >,
   ) => {
     const actionUpdateSearch = _.keyBy(action.payload, "id");
+
     draftMetaState.forEach((action) => {
       if (action.config.id in actionUpdateSearch) {
         action.config.executeOnLoad =

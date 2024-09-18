@@ -60,6 +60,7 @@ function FieldGroup(props: FieldGroupProps) {
   if (fields.length === 0) return null;
 
   const remainingFields = fields.slice(1);
+
   return (
     <>
       {Field({
@@ -77,6 +78,7 @@ function FieldGroup(props: FieldGroupProps) {
         {remainingFields.map((field: any, index: number) => {
           if (Array.isArray(field)) {
             const selectorField = field[0];
+
             return (
               <li key={index}>
                 <FieldGroup
@@ -95,6 +97,7 @@ function FieldGroup(props: FieldGroupProps) {
                     const parentValue =
                       selectorField.getParentValue &&
                       selectorField.getParentValue(value);
+
                     props.onValueChange(
                       parentValue || value,
                       isUpdatedViaKeyboard,

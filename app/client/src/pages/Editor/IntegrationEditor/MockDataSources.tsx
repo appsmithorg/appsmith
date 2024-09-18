@@ -31,6 +31,7 @@ const Description = styled.div`
 
 function MockDataSources(props: { mockDatasources: MockDatasource[] }) {
   const workspaceId = useSelector(getCurrentWorkspaceId);
+
   return (
     <MockDataSourceWrapper className="t--mock-datasource-list">
       {props.mockDatasources.map((datasource: MockDatasource, idx) => {
@@ -102,6 +103,7 @@ export function MockDatasourceCard(props: MockDatasourceCardProps) {
   const currentPlugin = plugins.find(
     (eachPlugin) => eachPlugin.packageName === datasource.packageName,
   );
+
   if (!currentPlugin) {
     return null;
   }

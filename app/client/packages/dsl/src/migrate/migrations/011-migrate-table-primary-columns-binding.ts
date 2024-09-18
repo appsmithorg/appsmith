@@ -10,6 +10,7 @@ export const migrateTablePrimaryColumnsBindings = (currentDSL: DSLWidget) => {
         Object.keys(child.primaryColumns).length > 0
       ) {
         const newPrimaryColumns: Record<string, any> = {};
+
         for (const [key, value] of Object.entries(
           child.primaryColumns as Record<string, any>,
         )) {
@@ -20,15 +21,18 @@ export const migrateTablePrimaryColumnsBindings = (currentDSL: DSLWidget) => {
                 `${child.widgetName}.sanitizedTableData.map`,
               )
             : "";
+
           newPrimaryColumns[sanitizedKey] = {
             ...value,
             computedValue: newComputedValue,
           };
         }
+
         child.primaryColumns = newPrimaryColumns;
         child.dynamicBindingPathList = child.dynamicBindingPathList?.map(
           (path: { key: string }) => {
             path.key = path.key.split(" ").join("_");
+
             return path;
           },
         );
@@ -36,7 +40,9 @@ export const migrateTablePrimaryColumnsBindings = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = migrateTablePrimaryColumnsBindings(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

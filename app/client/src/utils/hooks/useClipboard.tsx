@@ -44,10 +44,12 @@ const useClipboard = (ref: MutableRefObject<HTMLElement | null>) => {
   const write = (text: string) => {
     const el = document.createElement("div");
     const content = document.createTextNode("");
+
     el.classList.add("clipboard-message");
     el.appendChild(content);
     writeToClipboard(text, el, ref);
   };
+
   return write;
 };
 

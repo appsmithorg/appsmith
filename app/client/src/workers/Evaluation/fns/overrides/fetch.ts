@@ -5,5 +5,6 @@ export async function fetch(...args: Parameters<typeof _originalFetch>) {
     ...args[1],
     credentials: "omit",
   });
+
   return _originalFetch(request);
 }

@@ -186,15 +186,19 @@ export const getDatasourceInfo = (datasource: any): string => {
     "datasourceConfiguration.authentication.authenticationType",
     "",
   ).toUpperCase();
+
   if (headers.length)
     info.push(`${headers.length} Header${headers.length > 1 ? "s" : ""}`);
+
   if (queryParameters.length)
     info.push(
       `${queryParameters.length} query parameters${
         queryParameters.length > 1 ? "s" : ""
       }`,
     );
+
   if (authType.length) info.push(authType);
+
   return info.join(" | ");
 };
 
@@ -273,6 +277,7 @@ function ApiRightPane(props: ApiRightPaneProps) {
                   {(sortedDatasources || []).map(
                     (d: Datasource, idx: number) => {
                       const dataSourceInfo: string = getDatasourceInfo(d);
+
                       return (
                         <DatasourceCard
                           key={idx}

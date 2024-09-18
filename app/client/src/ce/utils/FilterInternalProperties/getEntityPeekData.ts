@@ -32,6 +32,7 @@ export const getEntityPeekData: Record<
     const jsAction = jsActions.find(
       (jsAction) => jsAction.config.id === entity.actionId,
     );
+
     return jsAction
       ? getJsActionPeekData(jsAction, dataTree)?.peekData
       : entity;
@@ -43,6 +44,7 @@ export const getEntityPeekData: Record<
     objectName,
   }) => {
     const entity = dataTreeEntity as WidgetEntity;
+
     return getWidgetChildrenPeekData(
       objectName,
       entity.type,

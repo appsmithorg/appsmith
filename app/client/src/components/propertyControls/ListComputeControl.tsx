@@ -60,6 +60,7 @@ export function InputText(props: {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <CodeEditor
@@ -103,11 +104,13 @@ export const stringToJS = (string: string): string => {
       }
     })
     .join(" + ");
+
   return js;
 };
 
 export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
+
   return segments
     .map((segment) => {
       if (segment.charAt(0) === "`") {
@@ -177,6 +180,7 @@ class ListComputeControl extends BaseControl<ListComputeControlProps> {
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
         const { widgetName } = this.props.widgetProperties;
+
         return ListComputeControl.getInputComputedValue(
           propertyValue,
           widgetName,

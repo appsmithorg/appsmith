@@ -47,6 +47,7 @@ export default {
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             const baseProperty = getBasePropertyPath(propertyPath);
             const columnType = get(props, `${baseProperty}.columnType`, "");
+
             return columnType !== ColumnTypes.EDIT_ACTIONS;
           },
           dependencies: ["primaryColumns"],

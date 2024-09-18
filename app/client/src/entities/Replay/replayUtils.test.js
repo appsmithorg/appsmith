@@ -11,6 +11,7 @@ describe("check canvas diff from replayUtils for type of update", () => {
       },
     },
   });
+
   describe("check diff of kind 'N' and 'D'", () => {
     it("should create toasts on creation of widgets on Undo", () => {
       const replay = {};
@@ -27,6 +28,7 @@ describe("check canvas diff from replayUtils for type of update", () => {
         widgetName: "abcde",
         widgetId: "abcde",
       };
+
       canvasReplay.processDiff(createWidgetDiff, replay, true);
 
       expect(replay[TOASTS]).toHaveLength(1);
@@ -223,6 +225,7 @@ describe("check canvas diff from replayUtils for type of update", () => {
       };
       const replayEditor = new ReplayEditor(action);
       const replay = {};
+
       replayEditor.processDiff(diff, replay, false);
 
       expect(replay.updates).toStrictEqual([

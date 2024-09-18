@@ -96,11 +96,13 @@ export class GracefulWorkerService {
    */
   *start() {
     if (this._isReady || this._Worker) return;
+
     this._Worker = this._workerClass;
     this._Worker.addEventListener("message", this._broker);
     // Inform all pending requests that we're good to go!
     this._isReady = true;
     yield put(this._readyChan, true);
+
     return this.listenerChannel;
   }
 
@@ -110,14 +112,18 @@ export class GracefulWorkerService {
    */
   *shutdown() {
     if (!this._isReady) return;
+
     // stop accepting new requests
     this._isReady = false;
+
     // wait for current responses to drain, check every 10 milliseconds
     while (this._channels.size > 0) {
       yield delay(10);
     }
+
     // close the worker
     if (!this._Worker) return;
+
     this._Worker.removeEventListener("message", this._broker);
     this._Worker.terminate();
     this._Worker = undefined;
@@ -129,10 +135,13 @@ export class GracefulWorkerService {
    */
   *ready(block = false) {
     if (this._isReady && this._Worker) return true;
+
     if (block) {
       yield take(this._readyChan);
+
       return true;
     }
+
     return false;
   }
 
@@ -140,8 +149,11 @@ export class GracefulWorkerService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *respond(messageId = "", data = {}): any {
     if (!messageId) return;
+
     yield this.ready(true);
+
     if (!this._Worker) return;
+
     const messageType = MessageType.RESPONSE;
 
     sendMessage.call(this._Worker, {
@@ -157,8 +169,11 @@ export class GracefulWorkerService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *ping(data = {}, messageId?: string): any {
     yield this.ready(true);
+
     if (!this._Worker) return;
+
     const messageType = MessageType.DEFAULT;
+
     sendMessage.call(this._Worker, {
       body: data,
       messageId,
@@ -186,9 +201,11 @@ export class GracefulWorkerService {
     }
 
     const { transferDataToMainThread } = webworkerTelemetry;
+
     if (transferDataToMainThread) {
       transferDataToMainThread.endTime = Date.now();
     }
+
     /// Add the completeWebworkerComputation span to the root span
     webworkerTelemetry["completeWebworkerComputation"] = {
       startTime,
@@ -210,6 +227,7 @@ export class GracefulWorkerService {
       undefined,
       startTime,
     );
+
     completeWebworkerComputationRoot?.setAttribute("taskType", method);
     completeWebworkerComputationRoot?.end(endTime);
   }
@@ -226,6 +244,7 @@ export class GracefulWorkerService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *request(method: string, data = {}): any {
     yield this.ready(true);
+
     // Impossible case, but helps avoid `?` later in code and makes it clearer.
     if (!this._Worker) return;
 
@@ -234,6 +253,7 @@ export class GracefulWorkerService {
      */
     const messageId = `${method}__${uniqueId()}`;
     const ch = channel();
+
     this._channels.set(messageId, ch);
     const mainThreadStartTime = Date.now();
     let timeTaken;
@@ -271,6 +291,7 @@ export class GracefulWorkerService {
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
       const { data, endTime, startTime } = response;
+
       webworkerTelemetryResponse = data.webworkerTelemetry;
 
       this.addChildSpansToRootSpan({
@@ -282,11 +303,13 @@ export class GracefulWorkerService {
       });
 
       timeTaken = endTime - startTime;
+
       return data;
     } finally {
       // Log perf of main thread and worker
       const mainThreadEndTime = Date.now();
       const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;
+
       if (yield cancelled()) {
         rootSpan?.setAttribute("cancelled", true);
         log.debug(`Main ${method} cancelled in ${timeTakenOnMainThread}ms`);
@@ -296,6 +319,7 @@ export class GracefulWorkerService {
 
       if (timeTaken) {
         const transferTime = timeTakenOnMainThread - timeTaken;
+
         log.debug(` Worker ${method} took ${timeTaken}ms`);
         log.debug(` Transfer ${method} took ${transferTime}ms`);
       }
@@ -321,11 +345,16 @@ export class GracefulWorkerService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _broker(event: MessageEvent<TMessage<any>>) {
     if (!event || !event.data) return;
+
     const { body, messageType } = event.data;
+
     if (messageType === MessageType.RESPONSE) {
       const { messageId } = event.data;
+
       if (!messageId) return;
+
       const ch = this._channels.get(messageId);
+
       if (ch) {
         ch.put(body);
         this._channels.delete(messageId);

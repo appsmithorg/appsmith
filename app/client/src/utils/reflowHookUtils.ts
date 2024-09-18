@@ -79,14 +79,17 @@ export function getBottomRowAfterReflow(
     (bottomMostRow, each) => {
       const [id, reflowedParams] = each;
       const widget = occupiedSpaces.find((eachSpace) => eachSpace.id === id);
+
       if (widget) {
         const bottomMovement =
           (reflowedParams.Y || 0) / gridProps.parentRowSpace;
         const bottomRow = widget.bottom + bottomMovement;
+
         if (bottomRow > bottomMostRow) {
           return bottomRow;
         }
       }
+
       return bottomMostRow;
     },
     0,

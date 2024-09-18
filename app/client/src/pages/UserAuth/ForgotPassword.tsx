@@ -32,11 +32,13 @@ const { mailEnabled } = getAppsmithConfigs();
 
 const validate = (values: ForgotPasswordFormValues) => {
   const errors: ForgotPasswordFormValues = {};
+
   if (!values.email || isEmptyString(values.email)) {
     errors.email = createMessage(FORM_VALIDATION_EMPTY_EMAIL);
   } else if (!isEmail(values.email)) {
     errors.email = createMessage(FORM_VALIDATION_INVALID_EMAIL);
   }
+
   return errors;
 };
 
@@ -134,6 +136,7 @@ const selector = formValueSelector(FORGOT_PASSWORD_FORM_NAME);
 
 export default connect((state, props: ForgotPasswordProps) => {
   const queryParams = new URLSearchParams(props.location.search);
+
   return {
     initialValues: {
       email: queryParams.get("email") || "",

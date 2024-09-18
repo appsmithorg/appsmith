@@ -66,6 +66,7 @@ export class EChartElementVisibilityCalculator {
 
     while (index < count && remainingHeight > 0) {
       const elementConfig = this.props.layoutConfigs[index];
+
       if (elementConfig.minHeight <= remainingHeight) {
         remainingHeight -= elementConfig.minHeight;
 
@@ -89,12 +90,14 @@ export class EChartElementVisibilityCalculator {
           remainingHeight,
           elementConfig,
         );
+
         remainingHeight -= height;
         elementConfig.height += height;
       } else {
         break;
       }
     }
+
     return selectedElements;
   }
 
@@ -103,6 +106,7 @@ export class EChartElementVisibilityCalculator {
     elementConfig: EChartElementLayoutParams,
   ) {
     const difference = elementConfig.maxHeight - elementConfig.minHeight;
+
     if (remainingHeight > difference) {
       return difference;
     } else {

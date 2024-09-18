@@ -25,6 +25,7 @@ import LabelWithTooltip, {
 } from "widgets/components/LabelWithTooltip";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
+
 import { required } from "utils/validation/common";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
@@ -39,6 +40,7 @@ function hasFulfilledRequiredCondition(
 
   return !required(value);
 }
+
 const StyledControlGroup = styled(ControlGroup)<{
   isValid: boolean;
   compactMode: boolean;
@@ -179,6 +181,7 @@ class DatePickerComponent extends React.Component<
 
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
+
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
@@ -188,6 +191,7 @@ class DatePickerComponent extends React.Component<
         isOpen: props.isPopoverOpen,
       };
     }
+
     return {};
   };
 
@@ -422,8 +426,10 @@ class DatePickerComponent extends React.Component<
   isValidDate = (date: Date): boolean => {
     let isValid = true;
     const parsedCurrentDate = moment(date);
+
     if (this.props.minDate) {
       const parsedMinDate = moment(this.props.minDate);
+
       if (
         this.props.minDate &&
         parsedMinDate.isValid() &&
@@ -433,8 +439,10 @@ class DatePickerComponent extends React.Component<
         isValid = false;
       }
     }
+
     if (this.props.maxDate) {
       const parsedMaxDate = moment(this.props.maxDate);
+
       if (
         isValid &&
         this.props.maxDate &&
@@ -445,14 +453,17 @@ class DatePickerComponent extends React.Component<
         isValid = false;
       }
     }
+
     if (!isValid && this.props?.onDateOutOfRange) {
       this.props.onDateOutOfRange();
     }
+
     return isValid;
   };
 
   formatDate = (date: Date): string => {
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+
     return moment(date).format(dateFormat);
   };
 
@@ -463,6 +474,7 @@ class DatePickerComponent extends React.Component<
       return null;
     } else {
       const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+
       return parseDate(dateStr, dateFormat);
     }
   };
@@ -479,6 +491,7 @@ class DatePickerComponent extends React.Component<
     if (isUserChange) {
       const { onDateSelected } = this.props;
       const date = selectedDate ? selectedDate.toISOString() : "";
+
       this.setState({
         selectedDate: date,
       });

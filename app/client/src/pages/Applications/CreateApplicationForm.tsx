@@ -44,6 +44,7 @@ const validate = (values: CreateApplicationFormValues) => {
       [CREATE_APPLICATION_FORM_NAME_FIELD]: createMessage(NAME_SPACE_ERROR),
     };
   }
+
   return {};
 };
 
@@ -51,6 +52,7 @@ const validate = (values: CreateApplicationFormValues) => {
 
 function CreateApplicationForm(props: Props) {
   const { error, handleSubmit, invalid, pristine, submitting } = props;
+
   return (
     <Form onSubmit={handleSubmit(createApplicationFormSubmitHandler)}>
       {error && !pristine && <FormMessage intent="danger" message={error} />}
@@ -80,6 +82,7 @@ function CreateApplicationForm(props: Props) {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: Props): any => {
   const workspaceId = props.workspaceId;
+
   return {
     initialValues: { workspaceId },
   };

@@ -40,6 +40,7 @@ export function LocalBranchList(
           activeHoverIndex,
           index,
         );
+
         return (
           <BranchListItem
             active={currentBranch === branch}

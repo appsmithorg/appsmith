@@ -57,6 +57,7 @@ export const PLATFORM_FUNCTIONS: Record<
   storeValue: function (key: string, value: string, persist = true) {
     // momentarily store this value in local state to support loops
     _.set(self, ["appsmith", "store", key], value);
+
     return {
       type: "STORE_VALUE",
       payload: {

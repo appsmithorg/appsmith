@@ -155,6 +155,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         } else {
           const column = columns[columnIndex];
           const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+
           if (
             columnType !== ColumnTypes.IMAGE &&
             columnType !== ColumnTypes.VIDEO

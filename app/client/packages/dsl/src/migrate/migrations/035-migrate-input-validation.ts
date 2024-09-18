@@ -13,10 +13,12 @@ export const migrateInputValidation = (currentDSL: DSLWidget) => {
       }
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child: DSLWidget) =>
       migrateInputValidation(child),
     );
   }
+
   return currentDSL;
 };

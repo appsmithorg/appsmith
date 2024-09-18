@@ -24,7 +24,9 @@ const InputContainer = styled.div<{ focused: boolean; isValid: boolean }>`
     border-radius: 3px;
     border-color: ${(props) => {
       let color = props.focused ? "hsl(0,0%,80%)" : "white";
+
       color = !props.isValid ? "red" : color;
+
       return color;
     }};
     display: block;
@@ -59,6 +61,7 @@ export function validateEntityName(name: string, allNames?: string[]) {
     validation.isValid = false;
     validation.validationMessage += createMessage(VALID_FUNCTION_NAME_ERROR);
   }
+
   if (!name) {
     validation.isValid = false;
     validation.validationMessage += createMessage(FIELD_REQUIRED_ERROR);

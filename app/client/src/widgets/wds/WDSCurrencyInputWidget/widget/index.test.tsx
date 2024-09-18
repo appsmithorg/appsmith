@@ -40,6 +40,7 @@ describe("defaultValueValidation", () => {
 
   it("should validate defaulttext with object value", () => {
     const value = {};
+
     result = defaultValueValidation(value, {} as CurrencyInputWidgetProps, _);
 
     expect(result).toEqual({

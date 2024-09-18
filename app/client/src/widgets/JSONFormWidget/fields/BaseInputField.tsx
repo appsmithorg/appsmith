@@ -183,6 +183,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     const stringifiedValue = isNil(inputDefaultValue)
       ? inputDefaultValue
       : `${inputDefaultValue}`;
+
     setInputText(stringifiedValue);
   }, [inputDefaultValue]);
 
@@ -210,6 +211,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     if (isNil(value)) {
       if (isNilSetByField.current) {
         isNilSetByField.current = false;
+
         return inputText;
       }
 
@@ -362,6 +364,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
       )
         ? { autoComplete: "off" }
         : {};
+
     return (
       <BaseInputComponent
         {...conditionalProps}

@@ -68,6 +68,7 @@ describe(".onGenerateFormClick", () => {
 
     expect(mockBatchUpdateProperties.mock.calls.length).toBe(1);
     const response = mockBatchUpdateProperties.mock.calls[0][0];
+
     expect(response.fieldLimitExceeded).toEqual(false);
     expect(response.dynamicPropertyPathList).toEqual(
       expectedDynamicPropertyPathList,
@@ -113,6 +114,7 @@ describe(".onGenerateFormClick", () => {
 
     expect(mockBatchUpdateProperties.mock.calls.length).toBe(1);
     const response = mockBatchUpdateProperties.mock.calls[0][0];
+
     expect(response.fieldLimitExceeded).toEqual(false);
     expect(response.dynamicPropertyPathList).toEqual(
       expectedDynamicPropertyPathList,
@@ -155,8 +157,10 @@ describe(".onGenerateFormClick", () => {
       ...existingDynamicBindingPropertyPathList,
       { key: "schema.__root_schema__.children.dob.defaultValue" },
     ];
+
     expect(mockBatchUpdateProperties.mock.calls.length).toBe(1);
     const response = mockBatchUpdateProperties.mock.calls[0][0];
+
     expect(response.fieldLimitExceeded).toEqual(false);
     expect(response.dynamicPropertyPathList).toEqual(
       expectedDynamicPropertyPathList,

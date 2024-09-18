@@ -29,6 +29,7 @@ import IconSVG from "../icon.svg";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
+
   if (value === undefined || value === null)
     return {
       isValid: false,
@@ -40,6 +41,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
         },
       ],
     };
+
   return { isValid: true, parsed: value };
 }
 
@@ -508,6 +510,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     });
 
     const { componentHeight, componentWidth } = this.props;
+
     return (
       <DropDownComponent
         accentColor={this.props.accentColor}
@@ -553,6 +556,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
     if (this.props.selectedOptionValue) {
       isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
+
     if (isChanged) {
       this.props.updateWidgetMetaProperty("value", selectedOption.value, {
         triggerPropertyName: "onOptionChange",
@@ -568,6 +572,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       value: this.props.selectedOptionValue ?? this.props.defaultOptionValue,
     });
     const value = this.props.options?.[index]?.value;
+
     this.props.updateWidgetMetaProperty("value", value);
   };
 

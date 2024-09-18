@@ -35,6 +35,7 @@ describe("auto height saga helpers", () => {
       "key1",
       propertiesToUpdate,
     );
+
     expect(result).toStrictEqual(expectedResult);
   });
   it("When property does not exist, it should update correctly", () => {
@@ -73,6 +74,7 @@ describe("auto height saga helpers", () => {
       "key2",
       propertiesToUpdate,
     );
+
     expect(result).toStrictEqual(expectedResult);
   });
 });

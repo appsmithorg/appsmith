@@ -163,6 +163,7 @@ class DatasourcesApi extends API {
         },
       },
     };
+
     return API.post(`${DatasourcesApi.url}/test`, payload, undefined, {
       timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
     });
@@ -200,6 +201,7 @@ class DatasourcesApi extends API {
         },
       },
     };
+
     return API.put(DatasourcesApi.url + `/datasource-storages`, payload);
   }
 
