@@ -66,6 +66,7 @@ export interface FieldEntityInformation {
   mode?: TEditorModes;
   token?: CodeMirror.Token;
   widgetType?: WidgetType;
+  currentPageId?: string;
 }
 
 export type HintHelper = (
