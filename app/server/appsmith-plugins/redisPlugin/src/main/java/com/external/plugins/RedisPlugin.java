@@ -68,8 +68,7 @@ public class RedisPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": execute() called for Redis plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": execute() called for Redis plugin.");
             String query = actionConfiguration.getBody();
             List<RequestParamDTO> requestParams =
                     List.of(new RequestParamDTO(ACTION_CONFIGURATION_BODY, query, null, null, null));
@@ -121,7 +120,7 @@ public class RedisPlugin extends BasePlugin {
                                 objectMapper.valueToTree(removeQuotes(processCommandOutput(commandOutput))));
                         actionExecutionResult.setIsExecutionSuccess(true);
 
-                        System.out.println(
+                        log.debug(
                                 Thread.currentThread().getName() + ": In the RedisPlugin, got action execution result");
 
                         return Mono.just(actionExecutionResult);
@@ -256,15 +255,14 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<JedisPool> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Redis plugin.");
             return Mono.fromCallable(() -> {
                         final JedisPoolConfig poolConfig = buildPoolConfig();
                         int timeout =
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration);
                         JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
-                        System.out.println(Thread.currentThread().getName() + ": Created Jedis pool.");
+                        log.debug(Thread.currentThread().getName() + ": Created Jedis pool.");
                         return jedisPool;
                     })
                     .subscribeOn(scheduler);
@@ -272,8 +270,7 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(JedisPool jedisPool) {
-            String printMessage = Thread.currentThread().getName() + ": datasourceDestroy() called for Redis plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for Redis plugin.");
             // Schedule on elastic thread pool and subscribe immediately.
             Mono.fromSupplier(() -> {
                         try {
@@ -281,7 +278,7 @@ public class RedisPlugin extends BasePlugin {
                                 jedisPool.destroy();
                             }
                         } catch (JedisException e) {
-                            System.out.println("Error destroying Jedis pool.");
+                            log.error("Error destroying Jedis pool.");
                         }
 
                         return Mono.empty();
@@ -292,8 +289,7 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": validateDatasource() called for Redis plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for Redis plugin.");
             Set<String> invalids = new HashSet<>();
 
             if (isEndpointMissing(datasourceConfiguration.getEndpoints())) {
@@ -310,9 +306,8 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<String> getEndpointIdentifierForRateLimit(DatasourceConfiguration datasourceConfiguration) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": getEndpointIdentifierForRateLimit() called for Redis plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName()
+                    + ": getEndpointIdentifierForRateLimit() called for Redis plugin.");
             List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
             String identifier = "";
             // When hostname and port both are available, both will be used as identifier
@@ -378,8 +373,7 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(JedisPool connectionPool) {
-            String printMessage = Thread.currentThread().getName() + ": testDatasource() called for Redis plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for Redis plugin.");
 
             return Mono.just(connectionPool)
                     .flatMap(c -> verifyPing(connectionPool))
