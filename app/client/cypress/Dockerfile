@@ -6,6 +6,6 @@ FROM cypress/factory:4.0.2
 
 # Install chromium in this way since there is no browsers in the docker container for the arm64 architecture
 # https://github.com/cypress-io/cypress-docker-images/issues/695
-RUN apt update && apt install -y chromium
+RUN apt-get update && apt-get install -y chromium=128.0.6613.137-1~deb12u1
 
 ENTRYPOINT ["yarn", "cypress:snapshot"]

@@ -139,7 +139,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@latest
         with:
-          chrome-version: stable
+          chrome-version: "128.0.6613.137"
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
@@ -243,6 +243,7 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
         with:
+          browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_hosted.config.ts
           working-directory: app/client

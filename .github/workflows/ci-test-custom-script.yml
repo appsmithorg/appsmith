@@ -242,7 +242,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@latest
         with:
-          chrome-version: stable
+          chrome-version: "128.0.6613.137"
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
@@ -441,20 +441,20 @@ jobs:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
           overwrite: true
-          
+
       - name: Collect docker log as file
         if: always()
         run: |
           docker logs appsmith >& app/server/docker-logs.log
- 
-      - name: Upload server docker logs bundle on failure 
+
+      - name: Upload server docker logs bundle on failure
         uses: actions/upload-artifact@v4
         if: always()
         with:
             name: docker-logs-${{ matrix.job }}
             path: app/server/docker-logs.log
             overwrite: true
-  
+
       # Set status = success
       - name: Save the status of the run
         run: |

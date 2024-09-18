@@ -17,7 +17,7 @@ on:
       run_count:
         description: 'Number of times to repeat the test run'
         required: false
-        type: number 
+        type: number
         default: 1
   workflow_call:
     inputs:
@@ -234,7 +234,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@latest
         with:
-          chrome-version: stable
+          chrome-version: "128.0.6613.137"
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
@@ -349,10 +349,10 @@ jobs:
             npx cypress-repeat-pro run -n ${{ inputs.run_count }} --force \
                 --spec ${{ env.specs_to_run }} \
                 --config-file "cypress_ci_custom.config.ts"
-            cat cy-repeat-summary.txt  
+            cat cy-repeat-summary.txt
             # Define the path for the failure flag file
             FAILURE_FLAG_FILE="ci_test_status.txt"
-            
+
             # Check for test results and store the status in the file
             if ! grep -q "Total Failed: 0" cy-repeat-summary.txt; then
                 echo "ci_test_failed=true" > "$FAILURE_FLAG_FILE"
@@ -360,7 +360,7 @@ jobs:
                 echo "ci_test_failed=false" > "$FAILURE_FLAG_FILE"
             fi
             cat "$FAILURE_FLAG_FILE"
-            
+
       - name: Trim number of cypress log files
         if: failure()
         run: |
@@ -373,7 +373,7 @@ jobs:
           name: cypress-repeat-logs
           path: ${{ github.workspace }}/app/client/cy-repeat-summary.txt
           overwrite: true
-      
+
       - name: Upload ci_test_status.txt artifact
         if: always()
         uses: actions/upload-artifact@v4
