@@ -18,7 +18,12 @@ describe(
   "Table widget inline editing functionality",
   { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
+    afterEach(() => {
+      agHelper.SaveLocalStorageCache();
+    });
+
     beforeEach(() => {
+      agHelper.RestoreLocalStorageCache();
       agHelper.AddDsl("Table/InlineEditingDSL");
     });
 
