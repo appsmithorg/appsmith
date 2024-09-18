@@ -88,11 +88,7 @@ jobs:
         id: set_base_tag
         run: |
           if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
-            if [[ ${{ inputs.is-pg-build }} == 'true' || "${{ github.ref_name }}" == pg ]]; then
-              base_tag=pg
-            else
-              base_tag=release
-            fi
+            base_tag=release
           else
             base_tag=nightly
           fi
