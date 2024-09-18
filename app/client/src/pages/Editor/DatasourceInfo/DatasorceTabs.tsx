@@ -25,6 +25,7 @@ const TabsContainer = styled(Tabs)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  max-height: unset;
 `;
 
 const TabListWrapper = styled(TabsList)`

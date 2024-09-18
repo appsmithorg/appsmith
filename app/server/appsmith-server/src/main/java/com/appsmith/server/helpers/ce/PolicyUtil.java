@@ -15,6 +15,9 @@ public class PolicyUtil {
     public static boolean isPermissionPresentInPolicies(
             String permission, Set<Policy> policies, Set<String> userPermissionGroupIds) {
 
+        if (policies == null) {
+            return FALSE;
+        }
         Optional<Policy> interestingPolicyOptional = policies.stream()
                 .filter(policy -> policy.getPermission().equals(permission))
                 .findFirst();

@@ -1,43 +1,55 @@
 {
   "editor": [
     {
-      "sectionName": "",
-      "id": 1,
+      "controlType": "SECTION_V2",
+      "identifier": "SECTION-ONE",
       "children": [
         {
-          "label": "Method",
-          "configProperty": "actionConfiguration.httpMethod",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "GET",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SO-Z1",
+          "children": [
             {
-              "label": "GET",
-              "value": "GET"
+              "label": "Method",
+              "configProperty": "actionConfiguration.httpMethod",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "initialValue": "GET",
+              "options": [
+                {
+                  "label": "GET",
+                  "value": "GET"
+                },
+                {
+                  "label": "POST",
+                  "value": "POST"
+                },
+                {
+                  "label": "PUT",
+                  "value": "PUT"
+                },
+                {
+                  "label": "DELETE",
+                  "value": "DELETE"
+                }
+              ]
             },
             {
-              "label": "POST",
-              "value": "POST"
-            },
-            {
-              "label": "PUT",
-              "value": "PUT"
-            },
-            {
-              "label": "DELETE",
-              "value": "DELETE"
+              "label": "Path",
+              "configProperty": "actionConfiguration.path",
+              "controlType": "QUERY_DYNAMIC_INPUT_TEXT"
             }
           ]
         },
         {
-          "label": "Path",
-          "configProperty": "actionConfiguration.path",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT"
-        },
-        {
-          "label": "Body",
-          "configProperty": "actionConfiguration.body",
-          "controlType": "QUERY_DYNAMIC_TEXT"
+          "controlType": "SINGLE_COLUMN_ZONE",
+          "identifier": "SO-Z2",
+          "children": [
+            {
+              "label": "Body",
+              "configProperty": "actionConfiguration.body",
+              "controlType": "QUERY_DYNAMIC_TEXT"
+            }
+          ]
         }
       ]
     }
