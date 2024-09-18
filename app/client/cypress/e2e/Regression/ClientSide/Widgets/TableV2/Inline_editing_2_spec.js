@@ -182,7 +182,6 @@ describe(
         false,
       );
 
-      agHelper.ClickOutside();
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       agHelper.GetNClick(table._updateMode("Multi"), 0, false, 1000);
