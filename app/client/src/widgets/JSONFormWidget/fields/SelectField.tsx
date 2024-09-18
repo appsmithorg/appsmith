@@ -72,6 +72,7 @@ const composeDefaultValue = (
   passedDefaultValue: DefaultValue,
 ) => {
   if (isPrimitive(passedDefaultValue)) return passedDefaultValue;
+
   if (isPrimitive(schemaItemDefaultValue)) return schemaItemDefaultValue;
 
   return schemaItemDefaultValue?.value ?? passedDefaultValue?.value;

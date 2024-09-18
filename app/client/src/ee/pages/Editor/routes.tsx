@@ -18,6 +18,7 @@ const Wrapper = styled.div<{ isVisible: boolean }>`
 
 function EditorsRouter() {
   const { path } = useRouteMatch();
+
   return (
     <Wrapper isVisible>
       <Switch key={path}>

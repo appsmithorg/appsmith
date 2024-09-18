@@ -85,6 +85,7 @@ const MenuItem = forwardRef(
 const MenuItemContent = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     const { onSelect } = props;
+
     return (
       <ItemRow
         className={props.className}
@@ -112,6 +113,7 @@ const MenuItemContent = forwardRef(
     );
   },
 );
+
 MenuItemContent.displayName = "MenuItemContent";
 MenuItem.displayName = "MenuItem";
 

@@ -16,6 +16,7 @@ import {
 describe("getAllWordOccurences()", function () {
   it("should get all the indexes", () => {
     const res = getAllWordOccurrences("this is a `this` string", "this");
+
     expect(res).toEqual([0, 11]);
   });
 
@@ -27,6 +28,7 @@ describe("getAllWordOccurences()", function () {
 describe("getKeyPositionsInString()", () => {
   it("should return results for single line string", () => {
     const res = getKeyPositionInString("this is a `this` string", "this");
+
     expect(res).toEqual([
       { line: 0, ch: 0 },
       { line: 0, ch: 11 },
@@ -35,6 +37,7 @@ describe("getKeyPositionsInString()", () => {
 
   it("should return results for multiline string", () => {
     const res = getKeyPositionInString("this is a \n`this` string", "this");
+
     expect(res).toEqual([
       { line: 0, ch: 0 },
       { line: 1, ch: 1 },
@@ -45,6 +48,7 @@ describe("getKeyPositionsInString()", () => {
 describe("getLintAnnotations()", () => {
   const { LINT } = PropertyEvaluationErrorType;
   const { ERROR, WARNING } = Severity;
+
   it("should return proper annotations", () => {
     const value1 = `Hello {{ world == test }}`;
     const errors1: LintError[] = [
@@ -96,6 +100,7 @@ describe("getLintAnnotations()", () => {
     ];
 
     const res1 = getLintAnnotations(value1, errors1, {});
+
     expect(res1).toEqual([
       {
         from: {
@@ -156,6 +161,7 @@ describe("getLintAnnotations()", () => {
     ];
 
     const res2 = getLintAnnotations(value2, errors2, {});
+
     expect(res2).toEqual([
       {
         from: {
@@ -236,6 +242,7 @@ describe("getLintAnnotations()", () => {
     ];
 
     const res = getLintAnnotations(value, errors, { isJSObject: true });
+
     expect(res).toEqual([
       {
         from: {

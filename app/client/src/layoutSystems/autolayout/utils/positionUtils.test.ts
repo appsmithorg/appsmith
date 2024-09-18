@@ -80,6 +80,7 @@ describe("test PositionUtils methods", () => {
           { id: "3", align: FlexLayerAlignment.End },
         ],
       };
+
       expect(extractAlignmentInfo(widgets, layer, false, 64, 1, false)).toEqual(
         {
           info: [
@@ -164,6 +165,7 @@ describe("test PositionUtils methods", () => {
           { id: "3", align: FlexLayerAlignment.End },
         ],
       };
+
       expect(
         extractAlignmentInfo(widgets, layer, false, 64, 1, false)
           .fillWidgetLength,
@@ -235,6 +237,7 @@ describe("test PositionUtils methods", () => {
         1,
         true,
       );
+
       expect(fillWidgetLength).toEqual(64);
       expect(info[0].columns).toEqual(128);
     });
@@ -327,6 +330,7 @@ describe("test PositionUtils methods", () => {
           responsiveBehavior: ResponsiveBehavior.Fill,
         },
       };
+
       jest
         .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
         // TODO: Fix this the next time the file is edited
@@ -343,6 +347,7 @@ describe("test PositionUtils methods", () => {
               maxWidth: undefined,
               maxHeight: undefined,
             };
+
           if (widget?.type === "CURRENCY_INPUT_WIDGET")
             return {
               minWidth: 120,
@@ -350,6 +355,7 @@ describe("test PositionUtils methods", () => {
               maxWidth: undefined,
               maxHeight: undefined,
             };
+
           return {
             minWidth: undefined,
             minHeight: undefined,
@@ -402,6 +408,7 @@ describe("test PositionUtils methods", () => {
         { alignment: FlexLayerAlignment.End, columns: 0, children: [] },
       ];
       const { centerSize, endSize, startSize } = getAlignmentSizeInfo(arr);
+
       expect(startSize).toEqual(endSize);
       expect(startSize).toEqual(centerSize);
     });
@@ -411,6 +418,7 @@ describe("test PositionUtils methods", () => {
         { alignment: FlexLayerAlignment.End, columns: 0, children: [] },
       ];
       const { centerSize, endSize, startSize } = getAlignmentSizeInfo(arr);
+
       expect(startSize).toEqual(0);
       expect(endSize).toEqual(32);
       expect(endSize).toEqual(centerSize);
@@ -422,6 +430,7 @@ describe("test PositionUtils methods", () => {
         { alignment: FlexLayerAlignment.End, columns: 0, children: [] },
       ];
       const { centerSize, endSize, startSize } = getAlignmentSizeInfo(arr);
+
       expect(startSize).toEqual(40);
       expect(endSize).toEqual(12);
       expect(endSize).toEqual(centerSize);
@@ -435,6 +444,7 @@ describe("test PositionUtils methods", () => {
         { alignment: FlexLayerAlignment.End, columns: 26, children: [] },
       ];
       const rows: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
+
       expect(rows.length).toEqual(3);
       expect(rows[0].length).toEqual(3);
       expect(rows.filter((row) => !row.length).length).toEqual(2);
@@ -447,6 +457,7 @@ describe("test PositionUtils methods", () => {
         { alignment: FlexLayerAlignment.End, columns: 26, children: [] },
       ];
       const rows: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
+
       expect(rows.length).toEqual(3);
       expect(rows[0].length).toEqual(1);
       expect(rows[1].length).toEqual(2);
@@ -461,6 +472,7 @@ describe("test PositionUtils methods", () => {
         { alignment: FlexLayerAlignment.End, columns: 10, children: [] },
       ];
       const rows: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
+
       expect(rows.length).toEqual(3);
       expect(rows[0].length).toEqual(1);
       expect(rows[1].length).toEqual(2);
@@ -545,6 +557,7 @@ describe("test PositionUtils methods", () => {
         ],
       };
       const rows: Row[] = getWrappedRows(arr, [], true);
+
       expect(rows.length).toEqual(2);
       expect(rows[0]).toEqual({
         alignment: arr.alignment,
@@ -634,6 +647,7 @@ describe("test PositionUtils methods", () => {
         height: number;
         widgets: CanvasWidgetsReduxState;
       } = placeWidgetsWithoutWrap(widgets, arr, 0, false, 0);
+
       expect(result.height).toEqual(7);
       expect(result.widgets["2"].leftColumn).toEqual(16);
       expect(result.widgets["2"].rightColumn).toEqual(40);
@@ -712,6 +726,7 @@ describe("test PositionUtils methods", () => {
         height: number;
         widgets: CanvasWidgetsReduxState;
       } = placeWidgetsWithoutWrap(widgets, arr, 0, false, 0);
+
       expect(result.height).toEqual(7);
       expect(result.widgets["1"].leftColumn).toEqual(8);
       expect(result.widgets["1"].rightColumn).toEqual(24);
@@ -807,6 +822,7 @@ describe("test PositionUtils methods", () => {
         height: number;
         widgets: CanvasWidgetsReduxState;
       } = placeWidgetsWithoutWrap(widgets, arr, 0, true, 0);
+
       expect(result.height).toEqual(7);
       expect(result.widgets["1"].mobileLeftColumn).toEqual(8);
       expect(result.widgets["1"].mobileRightColumn).toEqual(24);
@@ -905,6 +921,7 @@ describe("test PositionUtils methods", () => {
           responsiveBehavior: ResponsiveBehavior.Fill,
         },
       };
+
       jest
         .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
         // TODO: Fix this the next time the file is edited
@@ -921,6 +938,7 @@ describe("test PositionUtils methods", () => {
               maxWidth: undefined,
               maxHeight: undefined,
             };
+
           if (widget?.type === "CURRENCY_INPUT_WIDGET")
             return {
               minWidth: 120,
@@ -928,6 +946,7 @@ describe("test PositionUtils methods", () => {
               maxWidth: undefined,
               maxHeight: undefined,
             };
+
           return {
             minWidth: undefined,
             minHeight: undefined,
@@ -1042,6 +1061,7 @@ describe("test PositionUtils methods", () => {
           responsiveBehavior: ResponsiveBehavior.Fill,
         },
       };
+
       jest
         .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
         // TODO: Fix this the next time the file is edited
@@ -1058,6 +1078,7 @@ describe("test PositionUtils methods", () => {
               maxWidth: undefined,
               maxHeight: undefined,
             };
+
           if (widget?.type === "CURRENCY_INPUT_WIDGET")
             return {
               minWidth: 120,
@@ -1065,6 +1086,7 @@ describe("test PositionUtils methods", () => {
               maxWidth: undefined,
               maxHeight: undefined,
             };
+
           return {
             minWidth: undefined,
             minHeight: undefined,
@@ -1211,6 +1233,7 @@ describe("test PositionUtils methods", () => {
         0,
         true,
       );
+
       expect(result.height).toEqual(18);
       expect(result.widgets["1"].mobileLeftColumn).toEqual(48);
       expect(result.widgets["1"].mobileRightColumn).toEqual(64);
@@ -1333,6 +1356,7 @@ describe("test PositionUtils methods", () => {
         false,
         mainCanvasWidth,
       );
+
       expect(result["1"].leftColumn).toEqual(24);
       expect(result["1"].rightColumn).toEqual(40);
       expect(result["2"].leftColumn).toEqual(40);

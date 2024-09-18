@@ -33,6 +33,7 @@ export default function GitConnectError({
     if (error && onDisplay) {
       onDisplay();
     }
+
     if (containerRef.current) {
       containerRef.current.scrollIntoView();
     }

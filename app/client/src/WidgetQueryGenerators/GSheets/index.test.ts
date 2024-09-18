@@ -361,6 +361,7 @@ describe("GSheets WidgetQueryGenerator", () => {
       },
       initialValues,
     );
+
     expect(expr).toEqual([
       {
         name: "Insert_someSheet",
@@ -425,6 +426,7 @@ describe("GSheets WidgetQueryGenerator", () => {
       },
       initialValues,
     );
+
     expect(expr).toEqual([]);
   });
 });

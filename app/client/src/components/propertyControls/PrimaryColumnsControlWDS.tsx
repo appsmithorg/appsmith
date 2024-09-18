@@ -75,6 +75,7 @@ const getOriginalColumn = (
   const column: ColumnProperties | undefined = Object.values(
     reorderedColumns,
   ).find((column: ColumnProperties) => column.index === index);
+
   return column;
 };
 
@@ -87,6 +88,7 @@ interface State {
 }
 
 const LIST_CLASSNAME = "tablewidget-wds-primarycolumn-list";
+
 class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
     super(props);
@@ -100,6 +102,7 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
     for (let index = 0; index < tableColumnLabels.length; index++) {
       const currLabel = tableColumnLabels[index] as string;
       const duplicateValueIndex = tableColumnLabels.indexOf(currLabel);
+
       if (duplicateValueIndex !== index) {
         // get column id from columnOrder index
         duplicateColumnIds.push(reorderedColumns[columnOrder[index]].id);
@@ -149,6 +152,7 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
     if (Object.keys(columns).length === 0) {
       return <EmptyStateLabel>Table columns will appear here</EmptyStateLabel>;
     }
+
     // Get an empty array of length of columns
     let columnOrder: string[] = new Array(Object.keys(columns).length);
 
@@ -305,6 +309,7 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any;
     }[] = [];
+
     updates.push({
       propertyName: `${propertyName}.${column.id}.isEditable`,
       propertyValue: checked,
@@ -321,6 +326,7 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
         propertyValue: checked,
       });
     }
+
     return updates;
   };
   toggleCheckbox = (index: number, checked: boolean) => {
@@ -356,12 +362,14 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
       const columnOrderIndex = columnOrder.findIndex(
         (column: string) => column === originalColumn.id,
       );
+
       if (columnOrderIndex > -1)
         propertiesToDelete.push(`columnOrder[${columnOrderIndex}]`);
 
       this.deleteProperties(propertiesToDelete);
       // if column deleted, clean up duplicateIndexes
       let duplicateColumnIds = [...this.state.duplicateColumnIds];
+
       duplicateColumnIds = duplicateColumnIds.filter(
         (id) => id !== originalColumn.id,
       );
@@ -385,6 +393,7 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
       // check entered label is unique or duplicate
       const tableColumnLabels = _.map(columns, "label");
       let duplicateColumnIds = [...this.state.duplicateColumnIds];
+
       // if duplicate, add into array
       if (_.includes(tableColumnLabels, updatedLabel)) {
         duplicateColumnIds.push(originalColumn.id);
@@ -424,6 +433,7 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
     pathEvaluatedValue: unknown;
   } => {
     const { errors } = this.props;
+
     if (!dataTreePath) {
       return {
         isInvalid: false,
@@ -453,6 +463,7 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
     const { errors, isInvalid, pathEvaluatedValue } =
       this.getPropertyValidation(dynamicData, dataTreePath);
     let evaluated = evaluatedValue;
+
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }

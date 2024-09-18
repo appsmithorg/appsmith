@@ -32,6 +32,7 @@ import { ID_EXTRACTION_REGEX } from "ee/constants/routes/appRoutes";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
+
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 const appsmithConfig = getAppsmithConfigs();
 
@@ -72,6 +73,7 @@ const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
 
 const is404orAuthPath = () => {
   const pathName = window.location.pathname;
+
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
 };
 
@@ -81,9 +83,11 @@ export const blockedApiRoutesForAirgapInterceptor = async (
   const { url } = config;
 
   const isAirgappedInstance = isAirgapped();
+
   if (isAirgappedInstance && url && BLOCKED_ROUTES_REGEX.test(url)) {
     return Promise.resolve({ data: null, status: 200 });
   }
+
   return config;
 };
 
@@ -95,15 +99,18 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
 
   // Add header for CSRF protection.
   const methodUpper = config.method?.toUpperCase();
+
   if (methodUpper && methodUpper !== "GET" && methodUpper !== "HEAD") {
     config.headers["X-Requested-By"] = "Appsmith";
   }
 
   const state = store.getState();
   const branch = getCurrentGitBranch(state) || getQueryParamsObject().branch;
+
   if (branch && config.headers) {
     config.headers.branchName = branch;
   }
+
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
@@ -118,6 +125,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
+
   appsmithConfig.segment.enabled &&
     anonymousId &&
     (config.headers["x-anonymous-user-id"] = anonymousId);
@@ -136,6 +144,7 @@ export const apiSuccessResponseInterceptor = (
       return makeExecuteActionResponse(response);
     }
   }
+
   if (
     response.headers[CONTENT_TYPE_HEADER_KEY] === "application/json" &&
     !response.data.responseMeta
@@ -144,6 +153,7 @@ export const apiSuccessResponseInterceptor = (
       contexts: { response: response.data },
     });
   }
+
   return response.data;
 };
 
@@ -185,6 +195,7 @@ export const apiFailureResponseInterceptor = async (error: any) => {
   if (error.config && error.config.url.match(executeActionRegex)) {
     return makeExecuteActionResponse(error.response);
   }
+
   // Return error if any timeout happened in other api calls
   if (
     error.code === axiosConnectionAbortedCode &&
@@ -211,6 +222,7 @@ export const apiFailureResponseInterceptor = async (error: any) => {
     // that falls out of the range of 2xx
     if (!is404orAuthPath()) {
       const currentUrl = `${window.location.href}`;
+
       if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
         // Redirect to login and set a redirect url.
         store.dispatch(
@@ -221,6 +233,7 @@ export const apiFailureResponseInterceptor = async (error: any) => {
           }),
         );
         Sentry.captureException(error);
+
         return Promise.reject({
           ...error,
           code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
@@ -228,13 +241,16 @@ export const apiFailureResponseInterceptor = async (error: any) => {
           show: false,
         });
       }
+
       const errorData = error.response.data.responseMeta ?? {};
+
       if (
         errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
         (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error.code) ||
           SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData.error.code))
       ) {
         Sentry.captureException(error);
+
         return Promise.reject({
           ...error,
           code: ERROR_CODES.PAGE_NOT_FOUND,
@@ -243,12 +259,15 @@ export const apiFailureResponseInterceptor = async (error: any) => {
         });
       }
     }
+
     if (error.response.data.responseMeta) {
       return Promise.resolve(error.response.data);
     }
+
     Sentry.captureException(new Error("Api responded without response meta"), {
       contexts: { response: error.response.data },
     });
+
     return Promise.reject(error.response.data);
   } else if (error.request) {
     // The request was made but no response was received
@@ -259,7 +278,9 @@ export const apiFailureResponseInterceptor = async (error: any) => {
     // Something happened in setting up the request that triggered an Error
     log.error("Error", error.message);
   }
+
   log.debug(error.config);
+
   return Promise.resolve(error);
 };
 

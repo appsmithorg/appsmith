@@ -15,6 +15,7 @@ export function getEntityDependencies(
   allKeys: Record<string, true>,
 ): Record<string, string[]> {
   if (!isWidgetActionOrJsObject(entity)) return {};
+
   return (
     getDependencies[entity.ENTITY_TYPE](
       entity as DataTreeEntityObject,
@@ -31,6 +32,7 @@ export function getEntityPathDependencies(
   allKeys: Record<string, true>,
 ) {
   if (!isWidgetActionOrJsObject(entity)) return [];
+
   return (
     getPathDependencies[entity.ENTITY_TYPE](
       entity as DataTreeEntity,

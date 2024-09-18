@@ -37,9 +37,12 @@ const useResentEntities = (): Array<
       (recentEntities || emptyArr)
         .map((entity) => {
           const { id, pageId, type } = entity;
+
           if (type === FocusEntity.EDITOR) {
             if (!pages) return null;
+
             const result = pages.find((page) => page.pageId === id);
+
             if (result) {
               return {
                 ...result,
@@ -53,6 +56,7 @@ const useResentEntities = (): Array<
             const datasource = reducerDatasources.find(
               (reducerDatasource) => reducerDatasource.id === id,
             );
+
             return (
               datasource && {
                 ...datasource,

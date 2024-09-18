@@ -29,6 +29,7 @@ export default class EntityFactory {
     const { DiffGenerator, Parser } = classLoader.load(
       entity as DataTreeEntity,
     );
+
     if (isWidget(entity)) {
       return new WidgetEntity(
         entity as TWidgetEntity,

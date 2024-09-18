@@ -119,6 +119,7 @@ function JSResponseView(props: Props) {
   // error found while trying to parse JS Object
   const hasJSObjectParseError = errors.length > 0;
   const isSaving = useSelector(getIsSavingEntity);
+
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(
@@ -148,8 +149,10 @@ function JSResponseView(props: Props) {
     name: "",
     id: "",
   };
+
   try {
     let errorObject: Log | undefined;
+
     //get JS execution error from redux store.
     if (
       jsCollectionData &&
@@ -166,17 +169,21 @@ function JSResponseView(props: Props) {
           )
         ) {
           errorObject = error;
+
           return false;
         }
+
         return true;
       });
     }
+
     // update error message.
     if (errorObject) {
       if (errorObject.source) {
         // update action source.
         actionSource = errorObject.source;
       }
+
       if (errorObject.messages) {
         // update error message.
         errorMessage =
@@ -329,6 +336,7 @@ function JSResponseView(props: Props) {
 
 const mapStateToProps = (state: AppState) => {
   const errorCount = state.ui.debugger.context.errorCount;
+
   return {
     errorCount,
   };

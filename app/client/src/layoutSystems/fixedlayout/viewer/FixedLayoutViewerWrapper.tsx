@@ -24,5 +24,6 @@ export const FixedLayoutViewerWrapper = (props: WidgetProps) => {
       ? FixedLayoutViewerModalOnion
       : FixedLayoutViewerWidgetOnion;
   }, [props.type]);
+
   return <WidgetOnion {...props}>{props.children}</WidgetOnion>;
 };

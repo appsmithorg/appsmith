@@ -50,11 +50,13 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
 
   useEffect(() => {
     if (!currentApplication?.name) return;
+
     setTemplateName(currentApplication.name);
   }, [currentApplication?.name]);
 
   useEffect(() => {
     if (!currentApplication?.publishedAppToCommunityTemplate) return;
+
     onPublishSuccess();
   }, [currentApplication?.publishedAppToCommunityTemplate]);
 
@@ -64,6 +66,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
       (field) => field.length > 0,
     );
     const areSettingsTurnedON = isPublicSetting && isForkableSetting;
+
     return areRequiredFieldsPresent && areSettingsTurnedON && tnCCheck;
   }, [
     templateName,
@@ -80,6 +83,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     });
     const basePageId =
       currentApplication?.defaultBasePageId || currentBasePageId;
+
     dispatch(
       publishCommunityTemplate({
         title: templateName,
@@ -98,6 +102,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
       }),
     );
   };
+
   return (
     <>
       <PublishPageBodyContainer>

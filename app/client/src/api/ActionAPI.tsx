@@ -146,6 +146,7 @@ class ActionAPI extends API {
         new: undefined,
       },
     };
+
     return API.post(ActionAPI.url, payload);
   }
 
@@ -173,6 +174,7 @@ class ActionAPI extends API {
     if (ActionAPI.apiUpdateCancelTokenSource) {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
+
     ActionAPI.apiUpdateCancelTokenSource = axios.CancelToken.source();
     const payload: Partial<Action & { entityReferenceType: unknown }> = {
       ...apiConfig,
@@ -199,6 +201,7 @@ class ActionAPI extends API {
         new: undefined,
       },
     };
+
     return API.put(`${ActionAPI.url}/${apiConfig.id}`, payload, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });
@@ -233,9 +236,11 @@ class ActionAPI extends API {
     parentSpan?: OtlpSpan,
   ): Promise<AxiosPromise<ActionExecutionResponse>> {
     ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
+
     if (!parentSpan) {
       return this.executeApiCall(executeAction, timeout);
     }
+
     return wrapFnWithParentTraceContext(parentSpan, async () => {
       return await this.executeApiCall(executeAction, timeout);
     });
@@ -254,6 +259,7 @@ class ActionAPI extends API {
         },
       },
     };
+
     return API.put(ActionAPI.url + "/move", payload, undefined, {
       timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });

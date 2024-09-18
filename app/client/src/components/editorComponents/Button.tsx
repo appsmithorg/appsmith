@@ -131,6 +131,7 @@ export const Button = (props: ButtonProps) => {
     skin: props.skin,
     iconAlignment: props.iconAlignment ? props.iconAlignment : undefined,
   };
+
   if (props.href) {
     return (
       <StyledAnchorButton

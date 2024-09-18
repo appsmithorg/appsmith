@@ -228,6 +228,7 @@ describe("1. Correctly handle paths", () => {
     };
 
     const actual = getAllPaths(myTree);
+
     expect(actual).toStrictEqual(result);
   });
 });
@@ -318,6 +319,7 @@ describe("3. makeParentsDependOnChildren", () => {
       "Widget1.defaultText": true,
       "Widget1.defaultText.abc": true,
     };
+
     depMap = makeParentsDependOnChildren(depMap, allkeys);
     expect(depMap).toStrictEqual({
       Widget1: ["Widget1.defaultText"],
@@ -334,6 +336,7 @@ describe("3. makeParentsDependOnChildren", () => {
     const allkeys: Record<string, true> = {
       Widget1: true,
     };
+
     makeParentsDependOnChildren(depMap, allkeys);
     expect(logWarn).toBeCalledWith(
       "makeParentsDependOnChild - Widget1.defaultText is not present in dataTree.",
@@ -352,6 +355,7 @@ describe("4. translateDiffEvent", () => {
       rhs: undefined,
     };
     const result = translateDiffEventToDataTreeDiffEvent(noDiffPath, {});
+
     expect(result).toStrictEqual({
       payload: {
         propertyPath: "",
@@ -458,12 +462,14 @@ describe("4. translateDiffEvent", () => {
     const actualTranslations = flatten(
       diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
     );
+
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
   it("4. handles JsObject function renaming", () => {
     // cyclic dependency case
     const lhs = new String("() => {}");
+
     _.set(lhs, "data", {});
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -617,6 +623,7 @@ describe("5. overrideWidgetProperties", () => {
   describe("1. Input widget ", () => {
     const currentTree: DataTree = {};
     const configTree: ConfigTree = {};
+
     beforeAll(() => {
       const inputWidgetDataTree = generateDataTreeWidget(
         {
@@ -637,6 +644,7 @@ describe("5. overrideWidgetProperties", () => {
         {},
         new Set(),
       );
+
       currentTree["Input1"] = inputWidgetDataTree.unEvalEntity;
       configTree["Input1"] = inputWidgetDataTree.configEntity;
     });
@@ -702,6 +710,7 @@ describe("5. overrideWidgetProperties", () => {
   describe("2. Table widget ", () => {
     const currentTree: DataTree = {};
     const configTree: ConfigTree = {};
+
     beforeAll(() => {
       const tableWidgetDataTree = generateDataTreeWidget(
         {
@@ -722,6 +731,7 @@ describe("5. overrideWidgetProperties", () => {
         {},
         new Set(),
       );
+
       currentTree["Table1"] = tableWidgetDataTree.unEvalEntity;
       configTree["Table1"] = tableWidgetDataTree.configEntity;
     });
@@ -813,6 +823,7 @@ describe("6. Evaluated Datatype of a given value", () => {
     expect(findDatatype(null)).toBe("null");
     expect(findDatatype(undefined)).toBe("undefined");
     let tempDecVar;
+
     expect(findDatatype(tempDecVar)).toBe("undefined");
     expect(findDatatype({ a: 1 })).toBe("object");
     expect(findDatatype({})).toBe("object");
@@ -820,6 +831,7 @@ describe("6. Evaluated Datatype of a given value", () => {
     const func = function () {
       return "hello world";
     };
+
     expect(findDatatype(func)).toBe("function");
     expect(findDatatype(Math.sin)).toBe("function");
     expect(findDatatype(/test/i)).toBe("regexp");
@@ -844,6 +856,7 @@ describe("7. Test addErrorToEntityProperty method", () => {
       severity: Severity.ERROR,
       originalBinding: "",
     } as EvaluationError;
+
     addErrorToEntityProperty({
       errors: [error],
       evalProps: dataTreeEvaluator.evalProps,
@@ -859,10 +872,13 @@ describe("7. Test addErrorToEntityProperty method", () => {
 
 describe("convertJSFunctionsToString", () => {
   const JSObject1MyFun1 = new String('() => {\n  return "name";\n}');
+
   set(JSObject1MyFun1, "data", {});
   const JSObject2MyFun1 = new String("() => {}");
+
   set(JSObject2MyFun1, "data", {});
   const JSObject2MyFun2 = new String("async () => {}");
+
   set(JSObject2MyFun2, "data", {});
 
   const configTree = {
@@ -1001,6 +1017,7 @@ describe("convertMicroDiffToDeepDiff", () => {
   it("should generate edit deepDiff updates", () => {
     const microDiffUpdates = microDiff({ a: 1, b: 2 }, { a: 1, b: 3 });
     const deepDiffUpdates = convertMicroDiffToDeepDiff(microDiffUpdates);
+
     expect(deepDiffUpdates).toStrictEqual([
       {
         kind: "E",
@@ -1013,6 +1030,7 @@ describe("convertMicroDiffToDeepDiff", () => {
   it("should generate create deepDiff updates", () => {
     const microDiffUpdates = microDiff({ a: 1 }, { a: 1, b: 3 });
     const deepDiffUpdates = convertMicroDiffToDeepDiff(microDiffUpdates);
+
     expect(deepDiffUpdates).toStrictEqual([
       {
         kind: "N",
@@ -1024,6 +1042,7 @@ describe("convertMicroDiffToDeepDiff", () => {
   it("should generate delete deepDiff updates", () => {
     const microDiffUpdates = microDiff({ a: 1, b: 3 }, { a: 1 });
     const deepDiffUpdates = convertMicroDiffToDeepDiff(microDiffUpdates);
+
     expect(deepDiffUpdates).toStrictEqual([
       {
         kind: "D",

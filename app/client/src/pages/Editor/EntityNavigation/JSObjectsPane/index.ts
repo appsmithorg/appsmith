@@ -29,6 +29,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
 
   *init() {
     if (!this?.entityInfo) throw Error(`Initialisation failed`);
+
     const jsCollection: JSCollection | undefined = yield select(
       getJSCollection,
       this.entityInfo?.id,
@@ -36,11 +37,13 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
 
     if (!jsCollection)
       throw Error(`Couldn't find jsCollection with id: ${this.entityInfo.id}`);
+
     this.jsCollection = jsCollection;
   }
 
   *getConfig() {
     if (!this.entityInfo.propertyPath) return {};
+
     const tab: IJSPaneNavigationConfig["tab"] = yield call(
       this.getTab,
       this.entityInfo.propertyPath,
@@ -53,6 +56,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
 
   *navigate() {
     const config: IJSPaneNavigationConfig = yield call(this.getConfig);
+
     yield call(this.navigateToUrl);
 
     yield delay(NAVIGATION_DELAY);
@@ -82,6 +86,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
     ) {
       return JSEditorTab.SETTINGS;
     }
+
     return JSEditorTab.CODE;
   }
 
@@ -90,6 +95,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
       return action.name === this.entityInfo.propertyPath;
     });
     let functionName;
+
     if (matchesActionName) {
       functionName = this.entityInfo.propertyPath;
     }
@@ -100,6 +106,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
       baseCollectionId: this.jsCollection.baseId,
       functionName,
     });
+
     history.push(url);
   }
 }

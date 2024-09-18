@@ -100,6 +100,7 @@ function QueryEditor(props: QueryEditorProps) {
       entityId: action?.id || "",
       moduleType: MODULE_TYPE.QUERY,
     };
+
     return (
       <>
         <MoreActionsMenu
@@ -154,6 +155,7 @@ function QueryEditor(props: QueryEditorProps) {
     );
     // Event for datasource creation click
     const entryPoint = DatasourceCreateEntryPoints.QUERY_EDITOR;
+
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });

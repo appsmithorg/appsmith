@@ -116,6 +116,7 @@ function EntitySelectorComponent(props: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (singleSchema: any) => !singleSchema.hidden,
   );
+
   return (
     <EntitySelectorContainer
       className={`t--${configProperty}`}

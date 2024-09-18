@@ -250,6 +250,7 @@ export const getChartOption = (
           formatter: (d: any) => {
             const key = d?.name as string;
             const label = countryDetails[type][key]?.["label"];
+
             return `${label}, ${d.data?.value || "-"}`;
           },
           textStyle: {
@@ -267,6 +268,7 @@ export const getChartOption = (
           formatter: (d: any) => {
             const key = d?.name as string;
             const label = countryDetails[type][key]["short_label"];
+
             return `${label}: ${d.data?.value || "-"}`;
           },
           textStyle: {

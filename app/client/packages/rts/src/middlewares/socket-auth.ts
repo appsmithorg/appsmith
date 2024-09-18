@@ -14,6 +14,7 @@ export async function tryAuth(socket: Socket) {
 
   // const host = socket.handshake.headers.host;
   const connectionCookie = socket?.handshake?.headers?.cookie;
+
   if (
     connectionCookie === undefined ||
     connectionCookie === null ||
@@ -23,12 +24,14 @@ export async function tryAuth(socket: Socket) {
   }
 
   const matchedCookie = connectionCookie.match(/\bSESSION=\S+/);
+
   if (!matchedCookie) {
     return false;
   }
 
   const sessionCookie = matchedCookie[0];
   let response;
+
   try {
     response = await axios.request({
       method: "GET",
@@ -51,6 +54,7 @@ export async function tryAuth(socket: Socket) {
     } else {
       log.error("Error authenticating", error.cause?.toString());
     }
+
     return false;
   }
 

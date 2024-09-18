@@ -18,7 +18,9 @@ export const groupAndFilterDependantsMap = (
   Object.entries(inverseMap).forEach(([fullDependencyPath, dependants]) => {
     const dependencyEntityName = fullDependencyPath.split(".")[0];
     const dataTreeEntity = dataTree[dependencyEntityName];
+
     if (!dataTreeEntity) return;
+
     const isJS_Object = isJSObject(dataTreeEntity);
 
     const entityDependantsMap = entitiesDepMap[dependencyEntityName] || {};
@@ -48,6 +50,7 @@ export const groupAndFilterDependantsMap = (
     );
 
     if (!(entityPathDependants.length > 0)) return;
+
     set(
       entitiesDepMap,
       [dependencyEntityName, fullDependencyPath],
@@ -71,7 +74,9 @@ export const getEntityDependantPaths = (
   fullEntityPaths.forEach((fullEntityPath) => {
     const entityPathArray = fullEntityPath.split(".");
     const entityName = entityPathArray[0];
+
     if (!(entityName in allEntitiesDependantsmap)) return;
+
     const entityDependantsMap = allEntitiesDependantsmap[entityName];
 
     // goes through properties of an entity
@@ -89,10 +94,12 @@ export const getEntityDependantPaths = (
         // goes through dependants of a property
         dependants.forEach((dependantPath) => {
           const dependantEntityName = dependantPath.split(".")[0];
+
           // Marking visited paths to avoid infinite recursion.
           if (visitedPaths.has(dependantPath)) {
             return;
           }
+
           visitedPaths.add(dependantPath);
 
           dependantEntityNames.add(dependantEntityName);
@@ -137,6 +144,7 @@ export const findLoadingEntities = (
     const entityPathArray = entityPath.split(".");
     const entityName = entityPathArray[0];
     const widget = get(dataTree, [entityName]);
+
     if (isWidget(widget)) {
       const loadingProperties = WidgetFactory.getLoadingProperties(widget.type);
 

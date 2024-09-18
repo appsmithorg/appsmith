@@ -29,6 +29,7 @@ export const getOnSelectAction = (
       if (history.location.pathname !== payload.path) {
         history.push(payload.path);
       }
+
       break;
     default:
       log.error("No such action registered", type);

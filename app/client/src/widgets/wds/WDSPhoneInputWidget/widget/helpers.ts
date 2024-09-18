@@ -27,6 +27,7 @@ export function validateInput(props: any) {
 export const countryToFlag = (dialCode: string) => {
   const country = ISDCodeOptions.find((item) => item.dial_code === dialCode);
   const isoCode = country ? country.code : "";
+
   return typeof String.fromCodePoint !== "undefined"
     ? isoCode
         .toUpperCase()

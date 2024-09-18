@@ -48,6 +48,7 @@ function getPageName(pages: any, basePageId: string) {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const page = pages.find((page: any) => page.basePageId === basePageId);
+
   return page ? page.pageName : "";
 }
 
@@ -105,6 +106,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       entityId: action?.id || "",
       moduleType: MODULE_TYPE.QUERY,
     };
+
     return (
       <>
         <MoreActionsMenu
@@ -138,6 +140,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
       const pluginName = plugins.find((plugin) => plugin.id === pluginId)?.name;
+
       AnalyticsUtil.logEvent("RUN_API_CLICK", {
         apiName,
         apiID: action?.id,

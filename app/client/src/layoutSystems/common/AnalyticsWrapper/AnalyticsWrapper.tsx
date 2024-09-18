@@ -23,6 +23,7 @@ export const AnalyticsWrapper: React.FC = ({ children }) => {
       dispatch(sendAnalyticsForSideBySideHover());
     }
   };
+
   return (
     <div
       className={className}

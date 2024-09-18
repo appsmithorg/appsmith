@@ -73,6 +73,7 @@ export function SideNav(props: SideNavProps) {
   const { open, toggleCollapse } = props;
   const renderItems = (sideNavItems?: SideNavItemProps[]) => {
     let items = sideNavItems;
+
     if (!items) {
       items = [
         { id: "0", text: "", path: "", loading: true, showText: true },
@@ -80,6 +81,7 @@ export function SideNav(props: SideNavProps) {
         { id: "2", text: "", path: "", loading: true, showText: true },
       ];
     }
+
     return items.map((item) => {
       const icon =
         item.text.length > 0 ? (
@@ -87,6 +89,7 @@ export function SideNav(props: SideNavProps) {
             text={String.fromCodePoint(item.text.codePointAt(0) || 0)}
           />
         ) : null;
+
       return (
         <SideNavItem key={item.id} showText={open} {...item} icon={icon} />
       );

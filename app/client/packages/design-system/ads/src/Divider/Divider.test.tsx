@@ -7,6 +7,7 @@ describe("Divider", () => {
     const { getByTestId } = render(<Divider data-testid="divider" />);
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const divider = getByTestId("divider");
+
     expect(divider).toBeInTheDocument();
   });
 
@@ -14,6 +15,7 @@ describe("Divider", () => {
     const { getByTestId } = render(<Divider data-testid="divider" />);
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const divider = getByTestId("divider");
+
     expect(divider).toHaveAttribute("orientation", "horizontal");
   });
 
@@ -23,6 +25,7 @@ describe("Divider", () => {
     );
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const divider = getByTestId("divider");
+
     expect(divider).not.toHaveAttribute("orientation", "horizontal");
     expect(divider).toHaveAttribute("orientation", "vertical");
   });

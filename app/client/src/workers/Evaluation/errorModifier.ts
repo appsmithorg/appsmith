@@ -40,6 +40,7 @@ const FOUND_ACTION_IN_DATA_FIELD_EVAL_MESSAGE =
   "Found an action invocation during evaluation. Data fields cannot execute actions.";
 const UNDEFINED_ACTION_IN_SYNC_EVAL_ERROR =
   "Please remove any direct/indirect references to {{actionName}} and try again. Data fields cannot execute framework actions.";
+
 class ErrorModifier {
   private asyncFunctionsNameMap: Record<string, true> = {};
   private asyncJSFunctionsNames: string[] = [];
@@ -56,6 +57,7 @@ class ErrorModifier {
     dependencyMap: DependencyMap,
   ) {
     if (this.isViewMode) return;
+
     const allAsyncEntityFunctions = getAllAsyncFunctions(dataTree, configTree);
     const allAsyncJSFunctions = getAllAsyncJSFunctions(
       dataTree,
@@ -63,6 +65,7 @@ class ErrorModifier {
       dependencyMap,
       Object.keys(allAsyncEntityFunctions),
     );
+
     this.asyncFunctionsNameMap = allAsyncEntityFunctions;
     this.asyncJSFunctionsNames = allAsyncJSFunctions;
     this.dataTree = dataTree;
@@ -97,10 +100,12 @@ class ErrorModifier {
         userScript,
         isViewMode: this.isViewMode,
       });
+
       result.errorMessage = errorMessage || result.errorMessage;
       result.errorCategory = errorCategory || result.errorCategory;
       result.rootcause = rootcause || result.rootcause;
     }
+
     return result;
   }
 
@@ -117,6 +122,7 @@ class ErrorModifier {
           rootcause: asyncFunc,
         };
       }
+
       return error;
     });
   }
@@ -127,7 +133,9 @@ class ErrorModifier {
     dependencyMap: DependencyMap,
   ) {
     if (this.isViewMode) return errors;
+
     let updatedErrors = errors;
+
     if (isDataField(fullPropertyPath, configTree)) {
       const reachableAsyncJSFunctions = dependencyMap.getAllReachableNodes(
         fullPropertyPath,
@@ -140,6 +148,7 @@ class ErrorModifier {
           reachableAsyncJSFunctions[0],
         );
     }
+
     return updatedErrors;
   }
 }
@@ -163,6 +172,7 @@ export class ActionCalledInSyncFieldError extends Error {
 
     if (!actionName) {
       this.message = "Async function called in a data field";
+
       return;
     }
 
@@ -196,6 +206,7 @@ function isActionInvokedInDataField(error: EvaluationError) {
     PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD
   );
 }
+
 const UNDEFINED_TYPE_ERROR_REGEX =
   /Cannot read properties of undefined \(reading '([^\s]+)'/;
 
@@ -223,7 +234,9 @@ export const ActionInDataFieldErrorModifier: Modifier = (
   { asynFns, isViewMode },
 ) => {
   if (isViewMode) return {};
+
   const errorMessage = getErrorMessage(error);
+
   if (
     error instanceof FoundPromiseInSyncEvalError ||
     error instanceof ActionCalledInSyncFieldError
@@ -234,10 +247,12 @@ export const ActionInDataFieldErrorModifier: Modifier = (
         PropertyEvaluationErrorCategory.ACTION_INVOCATION_IN_DATA_FIELD,
     };
   }
+
   if (!["ReferenceError", "TypeError"].includes(error.name)) return {};
 
   for (const asyncFunctionFullPath of Object.keys(asynFns)) {
     const functionNameWithWhiteSpace = " " + asyncFunctionFullPath + " ";
+
     if (getErrorMessageWithType(error).match(functionNameWithWhiteSpace)) {
       return {
         errorMessage: {
@@ -252,6 +267,7 @@ export const ActionInDataFieldErrorModifier: Modifier = (
       };
     }
   }
+
   return {};
 };
 
@@ -260,7 +276,9 @@ export const TypeErrorModifier: Modifier = (
   { isViewMode, source, tree, userScript },
 ) => {
   if (isViewMode) return {};
+
   const errorMessage = getErrorMessage(error);
+
   if (
     error.name === "TypeError" &&
     errorMessage.message.startsWith(
@@ -270,23 +288,30 @@ export const TypeErrorModifier: Modifier = (
     const matchedString = errorMessage.message.match(
       UNDEFINED_TYPE_ERROR_REGEX,
     );
+
     if (!matchedString) return {};
+
     const undefinedProperty = matchedString[1];
     const allMemberExpressionObjects = getMemberExpressionObjectFromProperty(
       undefinedProperty,
       userScript,
     );
+
     if (isEmpty(allMemberExpressionObjects)) return {};
+
     const possibleCauses = new Set<string>();
+
     for (const objectString of allMemberExpressionObjects) {
       const paths = toPath(objectString);
       const topLevelEntity = tree[paths[0]];
+
       if (
         paths.at(1) === "data" &&
         isAction(topLevelEntity) &&
         !get(self, `${paths[0]}.data`, undefined)
       ) {
         errorMessage.message = `Cannot read data from ${paths[0]}. Please re-run your query.`;
+
         return {
           errorMessage,
           rootcause: `${paths[0]}`,
@@ -297,8 +322,11 @@ export const TypeErrorModifier: Modifier = (
         possibleCauses.add(`"${objectString}"`);
       }
     }
+
     if (isEmpty(possibleCauses)) return {};
+
     const possibleCausesArr = Array.from(possibleCauses);
+
     errorMessage.message = `${
       possibleCausesArr.length === 1
         ? `${possibleCausesArr[0]} is undefined`
@@ -310,12 +338,14 @@ export const TypeErrorModifier: Modifier = (
       rootcause: source,
     };
   }
+
   return {};
 };
 
 export const PrimitiveErrorModifier: Modifier = (error) => {
   if (error instanceof Error) {
     const errorMessage = getErrorMessage(error);
+
     return { errorMessage };
   } else {
     // this covers cases where any primitive value is thrown
@@ -326,6 +356,7 @@ export const PrimitiveErrorModifier: Modifier = (error) => {
       name: error?.name || "Error",
       message: error?.message || message,
     };
+
     return { errorMessage };
   }
 };

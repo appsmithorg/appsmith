@@ -45,6 +45,7 @@ const newBindingSuffix = (tableId: string, columnName: string) => {
 };
 
 const binding = "true";
+
 export const isEditableCellInput = {
   children: [
     {

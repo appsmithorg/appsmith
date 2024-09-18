@@ -25,6 +25,7 @@ export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
 
 const LeftPane = () => {
   const { path } = useRouteMatch();
+
   return (
     <LeftPaneContainer showRightBorder={false}>
       <Switch>

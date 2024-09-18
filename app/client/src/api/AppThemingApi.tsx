@@ -49,6 +49,7 @@ class AppThemingApi extends API {
       ...theme,
       new: undefined,
     };
+
     return API.put(
       `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
       payload,

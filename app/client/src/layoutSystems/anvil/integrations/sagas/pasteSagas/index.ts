@@ -47,6 +47,7 @@ function* pasteAnvilModalWidgets(
     {},
     {},
   );
+
   return res;
 }
 
@@ -70,6 +71,7 @@ export function* pasteWidgetSagas() {
 
     const selectedWidget: FlattenedWidgetProps =
       yield getSelectedWidgetWhenPasting();
+
     if (!selectedWidget) return;
 
     let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -101,6 +103,7 @@ export function* pasteWidgetSagas() {
         widgetIdMap,
         reverseWidgetIdMap,
       );
+
       allWidgets = res.widgets;
       widgetIdMap = res.widgetIdMap;
       reverseWidgetIdMap = res.reverseWidgetIdMap;
@@ -113,10 +116,12 @@ export function* pasteWidgetSagas() {
         widgetIdMap,
         reverseWidgetIdMap,
       );
+
       allWidgets = res.widgets;
       widgetIdMap = res.widgetIdMap;
       reverseWidgetIdMap = res.reverseWidgetIdMap;
     }
+
     if (modalWidgets.length > 0) {
       // paste into main canvas
       const res: PastePayload = yield call(
@@ -124,6 +129,7 @@ export function* pasteWidgetSagas() {
         allWidgets,
         modalWidgets,
       );
+
       allWidgets = res.widgets;
       widgetIdMap = { ...widgetIdMap, ...res.widgetIdMap };
       reverseWidgetIdMap = { ...reverseWidgetIdMap, ...res.reverseWidgetIdMap };
@@ -168,6 +174,7 @@ export function* pasteWidgetSagas() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+
   if (isAnvilLayout) {
     yield call(saga, action);
   }

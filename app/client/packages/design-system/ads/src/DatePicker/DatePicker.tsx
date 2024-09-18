@@ -73,6 +73,7 @@ function DatePicker(props: DatePickerProps) {
   ) => {
     setSelectedDate(date);
     onChange && onChange(date, e);
+
     if (e) {
       setIsOpen(false);
     }
@@ -179,8 +180,10 @@ export function createDefaultShortcuts(
   const today = new Date();
   const makeDate = (action: (d: Date) => void) => {
     const returnVal = clone(today);
+
     action(returnVal);
     returnVal.setDate(returnVal.getDate() + 1);
+
     return returnVal;
   };
 
@@ -261,6 +264,7 @@ function DateRangeShortcuts(props: DateRangeShortcutsProps) {
   const [selectedShortCut, setSelectedShortCut] = useState<
     DateRangeShortcut | undefined
   >();
+
   useEffect(() => {
     if (currentDates) {
       const currentSelectedShortcut = shortCuts.find(
@@ -269,9 +273,11 @@ function DateRangeShortcuts(props: DateRangeShortcutsProps) {
             currentDates[0]?.toDateString() &&
           each.dateRange[1]?.toDateString() === currentDates[1]?.toDateString(),
       );
+
       setSelectedShortCut(currentSelectedShortcut);
     }
   }, [currentDates]);
+
   return showRangeShortcuts ? (
     <DatePickerShortcutContainer {...rest}>
       <DatePickerShortcut>
@@ -280,6 +286,7 @@ function DateRangeShortcuts(props: DateRangeShortcutsProps) {
             onChangeHandler(each.dateRange, e, "shortcut");
           };
           const isSelected = selectedShortCut?.label === each.label;
+
           return (
             <DatePickerShortcutItem
               data-selected={isSelected}
@@ -340,6 +347,7 @@ function DatePickerHeader(props: DatePickerHeaderProps) {
   // }, []);
   useEffect(() => {
     const year = monthDate.getFullYear();
+
     if (year !== selectedYear) {
       setSelectedYear(year);
     }
@@ -473,10 +481,12 @@ function DateRangePicker(
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showPreviousMonthsState, setShowPreviousMonths] =
     useState<boolean>(showPreviousMonths);
+
   useEffect(() => {
     if (propStartDate !== startDate) {
       setStartDate(propStartDate || null);
     }
+
     if (propEndDate !== endDate) {
       setEndDate(propEndDate || null);
     }
@@ -488,12 +498,15 @@ function DateRangePicker(
     type?: string,
   ) => {
     const [startDate, endDate] = date;
+
     setStartDate(startDate);
     setEndDate(endDate);
     onChange && onChange(date, e);
+
     if (type === "shortcut") {
       setIsOpen(false);
     }
+
     if (showPreviousMonths) {
       // doing this to avoid janky behaviour when navigating through the datepicker.
       setShowPreviousMonths(false);

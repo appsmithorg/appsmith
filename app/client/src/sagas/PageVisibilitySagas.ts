@@ -17,10 +17,12 @@ function listenToVisibilityEvents() {
 
 function* handleTabVisibilityConnection() {
   const channel: EventChannel<unknown> = yield call(listenToVisibilityEvents);
+
   while (true) {
     const event: {
       target: { visibilityState: DocumentVisibilityState };
     } = yield take(channel);
+
     // Only invoke when page gets visible
     if (event.target && event.target.visibilityState === "visible") {
       yield put(pageVisibilityAppEvent(event.target.visibilityState));

@@ -11,7 +11,9 @@ export const migrateModalIconButtonWidget = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = migrateModalIconButtonWidget(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

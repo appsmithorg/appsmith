@@ -71,6 +71,7 @@ export const inviteUsersToWorkspaceSubmitHandler = async (
     permissionGroupId: value.permissionGroupId,
     emails: value.users ? value.users.split(",") : [],
   }));
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT,
@@ -103,6 +104,7 @@ export const inviteUsersToWorkspace = async (
       recaptchaToken: values.recaptchaToken,
     }),
   };
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT,
@@ -132,5 +134,6 @@ export function navigateToTab(
   } else {
     newUrl = `${location.pathname}/${tabKey}`;
   }
+
   history.push(newUrl);
 }

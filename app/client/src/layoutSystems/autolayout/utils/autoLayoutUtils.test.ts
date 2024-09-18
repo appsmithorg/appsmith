@@ -19,6 +19,7 @@ import type { FlexLayer, LayerChild } from "./types";
 
 describe("test AutoLayoutUtils methods", () => {
   const mainCanvasWidth = 960;
+
   describe("test updateFlexLayersOnDelete method", () => {
     it("should remove deleted widgets from flex layers of the parent", () => {
       const widgets = { ...data };
@@ -31,11 +32,13 @@ describe("test AutoLayoutUtils methods", () => {
         false,
         mainCanvasWidth,
       );
+
       expect(result[parentId].flexLayers?.length).toEqual(1);
       const layerIndex = getLayerIndexOfWidget(
         result[parentId]?.flexLayers,
         deletedWidgetId,
       );
+
       expect(layerIndex).toEqual(-1);
     });
     it("should return the layers as is, if the deleted widget does not exist in them", () => {
@@ -49,6 +52,7 @@ describe("test AutoLayoutUtils methods", () => {
         false,
         mainCanvasWidth,
       );
+
       expect(result[parentId].flexLayers?.length).toEqual(1);
       expect(result[parentId].flexLayers[0]?.children.length).toEqual(2);
     });
@@ -69,6 +73,7 @@ describe("test AutoLayoutUtils methods", () => {
         false,
         mainCanvasWidth,
       );
+
       expect(result[parentId].flexLayers?.length).toEqual(0);
     });
   });
@@ -78,6 +83,7 @@ describe("test AutoLayoutUtils methods", () => {
       let widgets = { ...data };
       const originalWidgetId = "pt32jvs72k";
       const newParentId = "2ydfwnmayi";
+
       expect(widgets[newParentId].flexLayers?.length).toEqual(0);
 
       const copiedWidget = {
@@ -91,6 +97,7 @@ describe("test AutoLayoutUtils methods", () => {
           ) + "yz",
         parentId: newParentId,
       };
+
       widgets = { ...widgets, [copiedWidget.widgetId]: copiedWidget };
       const result: CanvasWidgetsReduxState = pasteWidgetInFlexLayers(
         widgets,
@@ -118,6 +125,7 @@ describe("test AutoLayoutUtils methods", () => {
        * => split each child into a new layer.
        */
       const layers: FlexLayer[] = [];
+
       for (const layer of widgets[parentId].flexLayers) {
         for (const child of layer.children) {
           layers.push({
@@ -125,6 +133,7 @@ describe("test AutoLayoutUtils methods", () => {
           });
         }
       }
+
       widgets = {
         ...widgets,
         [parentId]: { ...widgets[parentId], flexLayers: layers },
@@ -142,6 +151,7 @@ describe("test AutoLayoutUtils methods", () => {
           ) + "yz",
         parentId: parentId,
       };
+
       widgets = { ...widgets, [copiedWidget.widgetId]: copiedWidget };
       const result: CanvasWidgetsReduxState = pasteWidgetInFlexLayers(
         widgets,
@@ -151,6 +161,7 @@ describe("test AutoLayoutUtils methods", () => {
         false,
         mainCanvasWidth,
       );
+
       // layer count should remain the same. => no new layer is created.
       expect(result[parentId].flexLayers?.length).toEqual(2);
       // new widget should be pasted in the same layer as the original
@@ -186,6 +197,7 @@ describe("test AutoLayoutUtils methods", () => {
     const widgets = dataForgetCanvasDimensions;
     const mainContainerPadding = 4 * 2;
     const containerPadding = (4 + AUTO_LAYOUT_CONTAINER_PADDING) * 2;
+
     it("should return proper dimension for MainContainer", () => {
       const button0parent = widgets["kv4o6eopdn"]
         .parentId as keyof typeof widgets;
@@ -199,6 +211,7 @@ describe("test AutoLayoutUtils methods", () => {
         mainCanvasWidth,
         false,
       );
+
       expect(canvasWidth).toEqual(mainCanvasWidth - mainContainerPadding);
     });
 
@@ -215,6 +228,7 @@ describe("test AutoLayoutUtils methods", () => {
         mainCanvasWidth,
         false,
       );
+
       expect(canvasWidth).toEqual(
         mainCanvasWidth - mainContainerPadding - containerPadding,
       );
@@ -233,6 +247,7 @@ describe("test AutoLayoutUtils methods", () => {
         mainCanvasWidth,
         false,
       );
+
       expect(canvasWidth).toEqual(
         (mainCanvasWidth - mainContainerPadding) / 4 - containerPadding,
       );
@@ -251,6 +266,7 @@ describe("test AutoLayoutUtils methods", () => {
         mainCanvasWidth,
         false,
       );
+
       expect(canvasWidth).toEqual(
         (mainCanvasWidth - mainContainerPadding - containerPadding) / 4 -
           containerPadding,
@@ -438,6 +454,7 @@ describe("test AutoLayoutUtils methods", () => {
         columns: 80,
       },
     ];
+
     // startColumns = 0
     // [0,20,20]
     info[0].columns = 0;

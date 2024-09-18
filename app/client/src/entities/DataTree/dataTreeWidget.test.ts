@@ -20,6 +20,7 @@ describe("generateDataTreeWidget", () => {
       WidgetFactory,
       "getWidgetMetaPropertiesMap",
     );
+
     getMetaProps.mockReturnValueOnce({
       text: undefined,
       isDirty: false,
@@ -30,6 +31,7 @@ describe("generateDataTreeWidget", () => {
       WidgetFactory,
       "getWidgetDerivedPropertiesMap",
     );
+
     getDerivedProps.mockReturnValueOnce({
       isValid: "{{true}}",
       value: "{{this.text}}",
@@ -39,6 +41,7 @@ describe("generateDataTreeWidget", () => {
       WidgetFactory,
       "getWidgetDefaultPropertiesMap",
     );
+
     getDefaultProps.mockReturnValueOnce({
       text: "defaultText",
     });
@@ -47,6 +50,7 @@ describe("generateDataTreeWidget", () => {
       WidgetFactory,
       "getWidgetPropertyPaneConfig",
     );
+
     getPropertyConfig.mockReturnValueOnce([
       {
         sectionName: "General",
@@ -308,6 +312,7 @@ describe("generateDataTreeWidget", () => {
     };
 
     const result = generateDataTreeWidget(widget, widgetMetaProps, new Set());
+
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
   });

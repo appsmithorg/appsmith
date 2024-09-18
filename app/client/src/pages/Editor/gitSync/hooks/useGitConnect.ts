@@ -28,6 +28,7 @@ export const useGitConnect = () => {
           onErrorCallback: (err, response) => {
             onErrorCallback(err, response);
             const errorResponse = response || err?.response?.data;
+
             setErrResponse(errorResponse);
             setIsConnectingToGit(false);
           },

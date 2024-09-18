@@ -172,18 +172,23 @@ export const EditableTextSubComponent = React.forwardRef(
     const onConfirm = useCallback(
       (_value: string) => {
         const finalVal: string = _value.trim();
+
         onBlurEverytime && onBlurEverytime(finalVal);
+
         if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
           setValue(lastValidValue);
           onBlur && onBlur(lastValidValue);
           setSavingState(SavingState.NOT_STARTED);
         }
+
         if (changeStarted) {
           onTextChanged && onTextChanged(finalVal);
         }
+
         if (finalVal && finalVal !== defaultValue) {
           onBlur && onBlur(finalVal);
         }
+
         setIsEditing(false);
         setChangeStarted(false);
       },
@@ -201,15 +206,19 @@ export const EditableTextSubComponent = React.forwardRef(
       (_value: string) => {
         let finalVal: string =
           _value.indexOf(" ") === 0 ? _value.trim() : _value;
+
         if (valueTransform) {
           finalVal = valueTransform(finalVal);
         }
+
         const errorMessage = inputValidation && inputValidation(finalVal);
         const error = errorMessage ? errorMessage : false;
+
         if (!error && finalVal !== "") {
           setLastValidValue(finalVal);
           onTextChanged && onTextChanged(finalVal);
         }
+
         setValue(finalVal);
         setIsInvalid(error);
         setChangeStarted(true);

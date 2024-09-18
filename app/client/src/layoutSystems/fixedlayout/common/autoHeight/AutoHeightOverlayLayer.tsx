@@ -17,6 +17,7 @@ export const AutoHeightOverlayLayer = (props: BaseWidgetProps) => {
   if (!isAutoHeightEnabledForWidgetWithLimits(props)) {
     return props.children;
   }
+
   // required when the limits have to be updated
   // simultaneosuly when they move together
   // to maintain the undo/redo stack
@@ -40,6 +41,7 @@ export const AutoHeightOverlayLayer = (props: BaseWidgetProps) => {
         minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
     }
+
     batchUpdateWidgetProperty &&
       batchUpdateWidgetProperty(
         props.widgetId,

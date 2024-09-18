@@ -12,6 +12,7 @@ const AddButton = () => {
   if (segmentMode === EditorEntityTabState.Add) {
     return null;
   }
+
   if (isJSLoading) {
     return (
       <Flex px="spaces-2">
@@ -19,6 +20,7 @@ const AddButton = () => {
       </Flex>
     );
   }
+
   return (
     <Button
       className="!min-w-[24px]"

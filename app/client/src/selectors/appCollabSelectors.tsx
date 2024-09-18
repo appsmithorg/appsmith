@@ -27,6 +27,7 @@ export const isConcurrentPageEditorToastVisible = createSelector(
       currentUser.email === ANONYMOUS_USERNAME
     )
       return;
+
     return pageEditors.some(
       (editor: User) => editor.email !== currentUser?.email,
     );
