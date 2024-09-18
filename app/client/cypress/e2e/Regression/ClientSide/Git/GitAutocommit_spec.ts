@@ -14,9 +14,6 @@ describe(
   { tags: ["@tag.Git", "@tag.GitAutocommit", "@tag.excludeForAirgap"] },
   function () {
     it("Check if autocommit progress bar is visible and network requests are properly called", function () {
-      featureFlagIntercept({
-        release_git_autocommit_feature_enabled: true,
-      });
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         wsName = "GitAC-" + uid;

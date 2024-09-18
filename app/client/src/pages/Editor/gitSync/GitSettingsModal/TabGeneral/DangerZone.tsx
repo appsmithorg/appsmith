@@ -15,9 +15,8 @@ import {
   setIsDisconnectGitModalOpen,
   setGitSettingsModalOpenAction,
 } from "actions/gitSyncActions";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Button, Divider, Text } from "@appsmith/ads";
-import React from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAutocommitEnabledSelector,
@@ -26,7 +25,6 @@ import {
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   useHasConnectToGitPermission,
   useHasManageAutoCommitPermission,
@@ -71,9 +69,6 @@ const StyledDivider = styled(Divider)`
 function DangerZone() {
   const isConnectToGitPermitted = useHasConnectToGitPermission();
   const isManageAutoCommitPermitted = useHasManageAutoCommitPermission();
-  const isAutocommitFeatureEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_git_autocommit_feature_enabled,
-  );
   const isAutocommitToggling = useSelector(getIsAutocommitToggling);
   const isAutocommitEnabled = useSelector(getAutocommitEnabledSelector);
   const gitMetadataLoading = useSelector(getGitMetadataLoadingSelector);
@@ -82,7 +77,7 @@ function DangerZone() {
 
   const currentApp = useSelector(getCurrentApplication);
 
-  const handleDisconnect = () => {
+  const handleDisconnect = useCallback(() => {
     AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
       source: "GIT_CONNECTION_MODAL",
     });
@@ -94,9 +89,9 @@ function DangerZone() {
       }),
     );
     dispatch(setIsDisconnectGitModalOpen(true));
-  };
+  }, [currentApp?.id, currentApp?.name, dispatch]);
 
-  const handleToggleAutocommit = () => {
+  const handleToggleAutocommit = useCallback(() => {
     if (isAutocommitEnabled) {
       dispatch(setGitSettingsModalOpenAction({ open: false }));
       dispatch(setIsAutocommitModalOpen(true));
@@ -104,10 +99,9 @@ function DangerZone() {
       dispatch(toggleAutocommitEnabledInit());
       AnalyticsUtil.logEvent("GS_AUTO_COMMIT_ENABLED");
     }
-  };
+  }, [dispatch, isAutocommitEnabled]);
 
-  const showAutoCommit =
-    isAutocommitFeatureEnabled && isManageAutoCommitPermitted;
+  const showAutoCommit = isManageAutoCommitPermitted;
   const showDisconnect = isConnectToGitPermitted;
   const showDivider = showAutoCommit && showDisconnect;
 
