@@ -25,6 +25,7 @@
   "chartCanvasVal": ".t--widget-chartwidget svg rect",
   "mapWidget": ".t--widget-mapwidget",
   "mapChartWidget": ".t--widget-mapchartwidget",
+  "mapChartWidgetContainer": "[data-testid='t--map-chart-container']",
   "tableLength": ".t--widget-tablewidget .tbody",
   "tableV2Length": ".t--widget-tablewidgetv2 .tbody",
   "mapSearch": ".t--widget-mapwidget input",

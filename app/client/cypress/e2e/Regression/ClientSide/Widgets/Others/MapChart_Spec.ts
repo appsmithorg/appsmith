@@ -141,7 +141,7 @@ describe(
       propPane.MoveToTab("Style");
       propPane.EnterJSContext("Border radius", "1.5rem");
       cy.get(publishWidgetspage.mapChartWidget)
-        .find("[data-testid='t--map-chart-container']")
+        .find(publishWidgetspage.mapChartWidgetContainer)
         .should("have.css", "border-radius", "24px");
 
       const boxShadow =
@@ -149,7 +149,7 @@ describe(
       propPane.MoveToTab("Style");
       propPane.EnterJSContext("Box shadow", boxShadow);
       cy.get(publishWidgetspage.mapChartWidget)
-        .find("[data-testid='t--map-chart-container']")
+        .find(publishWidgetspage.mapChartWidgetContainer)
         .should(
           "have.css",
           "box-shadow",
