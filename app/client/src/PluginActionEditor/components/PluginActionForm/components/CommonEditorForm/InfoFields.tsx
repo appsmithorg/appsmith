@@ -20,7 +20,7 @@ export function InfoFields(props: {
   theme: EditorTheme.LIGHT;
 }) {
   return (
-    <Flex className="api-info-row">
+    <Flex w="100%">
       <div>
         <RequestDropdownField
           className={`t--apiFormHttpMethod ${replayHighlightClass}`}

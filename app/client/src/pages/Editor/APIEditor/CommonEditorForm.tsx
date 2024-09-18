@@ -46,16 +46,20 @@ const Form = styled.form`
   flex: 1;
   overflow: hidden;
   width: 100%;
+
   ${FormLabel} {
     padding: ${(props) => props.theme.spaces[3]}px;
   }
+
   ${FormRow} {
     align-items: center;
+
     ${FormLabel} {
       padding: 0;
       width: 100%;
     }
   }
+
   .api-info-row {
     input {
       margin-left: ${(props) => props.theme.spaces[1] + 1}px;
@@ -66,13 +70,16 @@ const Form = styled.form`
 const MainConfiguration = styled.div`
   z-index: 7;
   padding: 0 var(--ads-v2-spaces-7);
+
   .api-info-row {
     padding-top: var(--ads-v2-spaces-5);
+
     .ads-v2-select > .rc-select-selector {
       min-width: 110px;
       width: 110px;
     }
   }
+
   .form-row-header {
     padding-top: var(--ads-v2-spaces-5);
   }
@@ -118,6 +125,7 @@ const MainContainer = styled.div`
   flex-direction: column;
   /* padding: var(--ads-v2-spaces-7); */
 `;
+
 export interface CommonFormProps {
   actionResponse?: ActionResponse;
   pluginId: string;
@@ -180,6 +188,7 @@ type CommonFormPropsWithExtraParams = CommonFormProps & {
 export const NameWrapper = styled.div`
   display: flex;
   align-items: center;
+
   input {
     margin: 0;
     box-sizing: border-box;
@@ -316,7 +325,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               {notification}
             </StyledNotificationWrapper>
           )}
-          <FormRow>
+          <FormRow className="api-info-row">
             <InfoFields
               actionName={props.actionName}
               changePermitted={isChangePermitted}
