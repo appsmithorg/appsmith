@@ -26,7 +26,8 @@ interface Props {
 }
 
 const ApplicationSearchItem = (props: Props) => {
-  const { applicationsList, navigateToApplication, selectedWorkspaceId } = props;
+  const { applicationsList, navigateToApplication, selectedWorkspaceId } =
+    props;
   if (!applicationsList || applicationsList?.length === 0) return null;
   return (
     <div className="mb-2">
@@ -34,25 +35,27 @@ const ApplicationSearchItem = (props: Props) => {
         Applications
       </Text>
       {applicationsList.map((application: ApplicationPayload) => {
-        return (application.workspaceId === selectedWorkspaceId) && (
-          <SearchListItem
-          data-testId={application.name}
-          key={application.id}
-          onClick={() => navigateToApplication(application.id)}
-        >
-          <CircleAppIcon
-            className="!mr-1"
-            name={
-              (application?.icon ||
-                getApplicationIcon(application.id)) as AppIconName
-            }
-            size={Size.xxs}
-          />
-          <Text className="truncate" kind="body-m">
-            {application.name}
-          </Text>
-        </SearchListItem>
-        )
+        return (
+          application.workspaceId === selectedWorkspaceId && (
+            <SearchListItem
+              data-testId={application.name}
+              key={application.id}
+              onClick={() => navigateToApplication(application.id)}
+            >
+              <CircleAppIcon
+                className="!mr-1"
+                name={
+                  (application?.icon ||
+                    getApplicationIcon(application.id)) as AppIconName
+                }
+                size={Size.xxs}
+              />
+              <Text className="truncate" kind="body-m">
+                {application.name}
+              </Text>
+            </SearchListItem>
+          )
+        );
       })}
     </div>
   );
