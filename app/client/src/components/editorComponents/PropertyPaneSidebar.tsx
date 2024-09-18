@@ -72,9 +72,11 @@ export const PropertyPaneSidebar = memo(() => {
 
   useEffect(() => {
     const currentSidebar = sidebarRef.current;
+
     if (isWalkthroughOpened) {
       currentSidebar?.addEventListener("click", closeWalkthrough);
     }
+
     return () => {
       currentSidebar?.removeEventListener("click", closeWalkthrough);
     };

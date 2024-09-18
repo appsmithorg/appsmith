@@ -15,6 +15,7 @@ jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
   const workerEventMock = jest.fn();
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   self.postMessage = (payload: any) => {
@@ -65,6 +66,7 @@ describe("Add functions", () => {
   it("action.clear works", () => {
     expect(evalContext.action1.clear()).resolves.toBe({});
     const arg = workerEventMock.mock.calls[0][0];
+
     expect(arg).toEqual(
       messageCreator("PROCESS_TRIGGER", {
         data: {
@@ -124,6 +126,7 @@ describe("Add functions", () => {
   it("showAlert works", () => {
     const message = "Alert message";
     const style = "info";
+
     expect(evalContext.showAlert(message, style)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
@@ -178,6 +181,7 @@ describe("Add functions", () => {
 
   it("closeModal works", () => {
     const modalName = "Modal 1";
+
     expect(evalContext.closeModal(modalName)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
@@ -207,6 +211,7 @@ describe("Add functions", () => {
     const value = "thing";
     const persist = false;
     const mockStoreUpdates = jest.fn();
+
     TriggerEmitter.on(BatchKey.process_store_updates, mockStoreUpdates);
     expect(evalContext.storeValue(key, value, persist)).resolves.toStrictEqual(
       {},
@@ -229,6 +234,7 @@ describe("Add functions", () => {
   it("removeValue works", () => {
     const key = "some";
     const mockStoreUpdates = jest.fn();
+
     TriggerEmitter.on(BatchKey.process_store_updates, mockStoreUpdates);
     expect(evalContext.removeValue(key)).resolves.toStrictEqual({});
     expect(mockStoreUpdates).toBeCalledWith({
@@ -245,6 +251,7 @@ describe("Add functions", () => {
 
   it("clearStore works", async () => {
     const mockStoreUpdates = jest.fn();
+
     TriggerEmitter.on(BatchKey.process_store_updates, mockStoreUpdates);
     expect(evalContext.clearStore()).resolves.toStrictEqual({});
     expect(mockStoreUpdates).toBeCalledWith({
@@ -290,6 +297,7 @@ describe("Add functions", () => {
 
   it("copyToClipboard works", () => {
     const data = "file";
+
     expect(evalContext.copyToClipboard(data)).resolves.toBe({});
     expect(workerEventMock).lastCalledWith(
       messageCreator("PROCESS_TRIGGER", {
@@ -318,6 +326,7 @@ describe("Add functions", () => {
   it("resetWidget works", () => {
     const widgetName = "widget1";
     const resetChildren = true;
+
     expect(evalContext.resetWidget(widgetName, resetChildren)).resolves.toBe(
       {},
     );
@@ -537,6 +546,7 @@ const configTree = {};
 
 describe("Test addDataTreeToContext method", () => {
   const evalContext: EvalContext = {};
+
   beforeAll(() => {
     addDataTreeToContext({
       EVAL_CONTEXT: evalContext,

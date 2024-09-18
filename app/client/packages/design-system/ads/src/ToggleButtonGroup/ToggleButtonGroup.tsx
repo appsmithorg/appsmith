@@ -41,6 +41,7 @@ export const ToggleButtonGroup = React.forwardRef<
       case "ArrowRight":
       case "Right":
         const rightIndex = index === options.length - 1 ? 0 : index + 1;
+
         toggleRefs[rightIndex]?.focus();
         setFocusedIndex(rightIndex);
         break;
@@ -48,6 +49,7 @@ export const ToggleButtonGroup = React.forwardRef<
       case "ArrowLeft":
       case "Left":
         const leftIndex = index === 0 ? options.length - 1 : index - 1;
+
         toggleRefs[leftIndex]?.focus();
         setFocusedIndex(leftIndex);
         break;
@@ -72,6 +74,7 @@ export const ToggleButtonGroup = React.forwardRef<
     >
       {options.map(({ icon, value }: ToggleGroupOption, index: number) => {
         const isSelected = valueSet.has(value);
+
         return (
           <div
             aria-selected={isSelected}

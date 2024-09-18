@@ -41,6 +41,7 @@ const VerificationError = (
   const code = queryParams.get("code");
   const message = queryParams.get("message");
   const [resendVerificationLink, enabled] = useResendEmailVerification(email);
+
   useEffect(() => {
     AnalyticsUtil.logEvent("EMAIL_VERIFICATION_FAILED", {
       errorCode: code,

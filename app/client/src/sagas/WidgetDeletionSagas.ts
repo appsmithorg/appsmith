@@ -75,6 +75,7 @@ function* deleteTabChildSaga(
   const { index, label, widgetId } = deleteChildTabAction.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const tabWidget = allWidgets[widgetId];
+
   if (tabWidget && tabWidget.parentId) {
     const tabParentWidget = allWidgets[tabWidget.parentId];
     // TODO: Fix this the next time the file is edited
@@ -84,7 +85,9 @@ function* deleteTabChildSaga(
       "index",
       "asc",
     );
+
     if (tabsArray && tabsArray.length === 1) return;
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedArray = tabsArray.filter((eachItem: any, i: number) => {
@@ -98,6 +101,7 @@ function* deleteTabChildSaga(
           ...each,
           index,
         };
+
         return obj;
       },
       {},
@@ -108,6 +112,7 @@ function* deleteTabChildSaga(
       widgetId,
       tabWidget.parentId,
     );
+
     if (updatedDslObj) {
       const { finalWidgets, otherWidgetsToDelete } = updatedDslObj;
       const parentUpdatedWidgets = {
@@ -121,6 +126,7 @@ function* deleteTabChildSaga(
         yield select(getLayoutSystemType);
       const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
       let finalData: CanvasWidgetsReduxState = parentUpdatedWidgets;
+
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         // Update flex layers of a canvas upon deletion of a widget.
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
@@ -128,6 +134,7 @@ function* deleteTabChildSaga(
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
         finalData = yield call(
           updateFlexLayersOnDelete,
           parentUpdatedWidgets,
@@ -145,6 +152,7 @@ function* deleteTabChildSaga(
           widgetType,
         );
       }
+
       yield call(updateAndSaveAnvilLayout, finalData);
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
@@ -163,6 +171,7 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
       payload: deleteAction.payload,
     });
   }
+
   if (!!widgetId || !!selectedWidget) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
@@ -183,6 +192,7 @@ type UpdatedDSLPostDelete =
 
 function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
   if (widgetId && parentId) {
     const widgets = { ...stateWidgets };
     const stateWidget: WidgetProps = yield select(getWidget, widgetId);
@@ -204,6 +214,7 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
 
     const otherWidgetsToDelete = getAllWidgetsInTree(widgetId, widgets);
     let widgetName = widget.widgetName;
+
     // SPECIAL HANDLING FOR TABS IN A TABS WIDGET
     if (parent.type === WidgetTypes.TABS_WIDGET && widget.tabName) {
       widgetName = widget.tabName;
@@ -234,6 +245,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (!widgetId) {
       const selectedWidget: FlattenedWidgetProps | undefined =
         yield select(getSelectedWidget);
+
       if (!selectedWidget) return;
 
       // if widget is not deletable, don't do anything
@@ -277,6 +289,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           yield select(getLayoutSystemType);
         const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
         let finalData: CanvasWidgetsReduxState = finalWidgets;
+
         if (layoutSystemType === LayoutSystemTypes.AUTO) {
           const isMobile: boolean = yield select(
             getIsAutoLayoutMobileBreakPoint,
@@ -285,6 +298,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
           // Update flex layers of a canvas upon deletion of a widget.
           finalData = updateFlexLayersOnDelete(
             finalWidgets,
@@ -307,6 +321,7 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             otherWidgetsToDelete,
           );
         }
+
         yield call(updateAndSaveAnvilLayout, finalData);
         yield put(generateAutoHeightLayoutTreeAction(true, true));
 
@@ -323,7 +338,9 @@ export function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
         const currentUrl = window.location.pathname;
+
         yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
@@ -368,7 +385,9 @@ function* deleteAllSelectedWidgetsSaga(
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const widgets = { ...stateWidgets };
     const selectedWidgets: string[] = yield select(getSelectedWidgets);
+
     if (!(selectedWidgets && selectedWidgets.length !== 1)) return;
+
     const widgetsToBeDeleted: WidgetsInTree = yield all(
       selectedWidgets.map((eachId) => {
         return call(getAllWidgetsInTree, eachId, widgets);
@@ -383,6 +402,7 @@ function* deleteAllSelectedWidgetsSaga(
         const { parentId, widgetId } = eachWidget;
         const stateParent: FlattenedWidgetProps = allWidgets[parentId];
         let parent = { ...stateParent };
+
         if (parent.children) {
           parent = {
             ...parent,
@@ -390,6 +410,7 @@ function* deleteAllSelectedWidgetsSaga(
           };
           allWidgets[parentId] = parent;
         }
+
         return allWidgets;
       },
       widgets,
@@ -403,16 +424,19 @@ function* deleteAllSelectedWidgetsSaga(
     let finalData = finalWidgets;
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
+
     if (parentId) {
       const layoutSystemType: LayoutSystemTypes =
         yield select(getLayoutSystemType);
       const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
         const mainCanvasWidth: number = yield select(getCanvasWidth);
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
         for (const widgetId of selectedWidgets) {
           finalData = yield call(
             updateFlexLayersOnDelete,
@@ -460,17 +484,20 @@ function* deleteAllSelectedWidgetsSaga(
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
+
     for (const widget of selectedWidgets) {
       yield call(
         FocusRetention.handleRemoveFocusHistory,
         widgetURL({ selectedWidgets: [widget] }),
       );
     }
+
     if (!disallowUndo) {
       // close property pane after delete
       yield put(closePropertyPane());
       yield put(closeTableFilterPane());
       showUndoRedoToast(`${selectedWidgets.length}`, true, false, true);
+
       if (bulkDeleteKey) {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

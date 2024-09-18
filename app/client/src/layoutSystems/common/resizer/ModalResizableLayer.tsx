@@ -64,6 +64,7 @@ export const ModalResizableLayer = ({
 
     const canvasWidgetId =
       widget.children && widget.children.length > 0 ? widget.children[0] : "";
+
     updateWidget &&
       updateWidget("MODAL_RESIZE", widgetProps.widgetId, {
         ...newDimensions,
@@ -105,6 +106,7 @@ export const ModalResizableLayer = ({
   const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
   const enableResizing =
     !isSnipingMode && !isPreviewMode && !isWidgetSelectionBlocked;
+
   return (
     <ModalResizable
       allowResize

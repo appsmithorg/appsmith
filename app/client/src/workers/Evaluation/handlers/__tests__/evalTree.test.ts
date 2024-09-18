@@ -9,6 +9,7 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => {
   const actualExports = jest.requireActual(
     "workers/Evaluation/handlers/evalTree",
   );
+
   return {
     __esModule: true,
     ...actualExports,
@@ -20,6 +21,7 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => {
 });
 jest.mock("utils/MessageUtil", () => {
   const actualExports = jest.requireActual("utils/MessageUtil");
+
   return {
     __esModule: true,
     ...actualExports,
@@ -30,6 +32,7 @@ jest.mock("utils/MessageUtil", () => {
       const {
         body: { data },
       } = args[0];
+
       if (isFunction(data.response)) {
         throw new Error("unserializable data");
       }
@@ -47,6 +50,7 @@ describe("test", () => {
         depedencies: { name: ["test", "you"] },
       },
     };
+
     WorkerMessenger.respond(
       "TEST",
       UNSERIALIZABLE_DATA,

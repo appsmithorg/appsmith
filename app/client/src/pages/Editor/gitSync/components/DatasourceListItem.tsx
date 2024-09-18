@@ -54,6 +54,7 @@ const DsTitle = styled.div`
     margin-left: ${(props) => props.theme.spaces[2]}px;
   }
 `;
+
 function ListItemWrapper(props: {
   currentEnvironment: string;
   ds: Datasource;
@@ -69,6 +70,7 @@ function ListItemWrapper(props: {
         currentEnvironment,
       )
     : isEnvironmentConfigured(ds, currentEnvironment);
+
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}

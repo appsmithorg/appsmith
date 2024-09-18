@@ -34,9 +34,11 @@ export function optionsCustomValidation(
 
     for (let i = 0; i < options.length; i++) {
       const { label, value } = options[i];
+
       if (!valueType) {
         valueType = typeof value;
       }
+
       //Checks the uniqueness all the values in the options
       if (!uniqueLabels.hasOwnProperty(value)) {
         uniqueLabels[value] = "";
@@ -117,6 +119,7 @@ export function optionsCustomValidation(
       },
     ],
   };
+
   try {
     if (_.isString(options)) {
       options = JSON.parse(options as string);

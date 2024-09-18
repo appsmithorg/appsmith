@@ -117,6 +117,7 @@ export default function Switch(props: SwitchProps) {
           if (!firstRender) {
             setFirstRender(true);
           }
+
           onChangeHandler(e.target.checked);
         }}
         type="checkbox"

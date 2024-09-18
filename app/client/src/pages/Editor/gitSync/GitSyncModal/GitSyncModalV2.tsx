@@ -69,6 +69,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
   const possibleMenuOptions = menuOptions.map((option) => option.key);
 
   let activeTabKey = useSelector(getActiveGitSyncModalTab);
+
   if (!isGitConnected && activeTabKey !== GitSyncModalTab.GIT_CONNECTION) {
     activeTabKey = GitSyncModalTab.GIT_CONNECTION;
   }
@@ -92,6 +93,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
           source: `${activeTabKey}_TAB`,
         });
       }
+
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: isModalOpen,

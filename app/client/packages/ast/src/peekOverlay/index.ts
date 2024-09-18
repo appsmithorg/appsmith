@@ -14,6 +14,7 @@ export class PeekOverlayExpressionIdentifier {
     script?: string,
   ) {
     this.options = options;
+
     if (script) this.updateScript(script);
   }
 
@@ -64,6 +65,7 @@ export class PeekOverlayExpressionIdentifier {
           pos,
           this.options,
         );
+
         if (expressionFound) {
           resolve(expressionFound);
         } else {
@@ -72,6 +74,7 @@ export class PeekOverlayExpressionIdentifier {
           );
         }
       }
+
       reject("PeekOverlayExpressionIdentifier - No node found");
     });
   }

@@ -227,8 +227,11 @@ class SaasEditorWrapper extends React.Component<
     const { configProperty, controlType, isRequired } = config;
     const configDetails = this.state.configDetails;
     const requiredFields = this.state.requiredFields;
+
     configDetails[configProperty] = controlType;
+
     if (isRequired) requiredFields[configProperty] = config;
+
     this.setState({
       configDetails,
       requiredFields,
@@ -311,6 +314,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   // from outside the datasource route
   setViewModeFromQueryParams() {
     const params = getQueryParams();
+
     if (this.props.viewMode) {
       if (
         (params.viewMode === "false" && !this.state.readUrlParams) ||
@@ -362,6 +366,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
         userPermissions,
       },
     });
+
     return true;
   }
 
@@ -388,6 +393,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
+
     this.props.loadFilePickerAction();
   }
 
@@ -420,6 +426,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           },
           this.routesBlockFormChangeCallback.bind(this),
         );
+
         return false;
       }),
     });
@@ -448,6 +455,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     this.props.toggleSaveActionFlag(false);
     this.props.toggleSaveActionFromPopupFlag(false);
     this.setState({ routesBlocked: false });
+
     if (isNavigateBack) {
       this.state.navigation();
     }
@@ -459,10 +467,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   render() {
     const { formConfig, pluginId } = this.props;
+
     if (!pluginId) {
       return <EntityNotFoundPane />;
     }
+
     const content = this.renderDataSourceConfigForm(formConfig);
+
     return this.renderForm(content);
   }
 
@@ -535,11 +546,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   shouldShowTabs = () => {
     const { isPluginAllowedToPreviewData, isPluginAuthorized } = this.props;
+
     return isPluginAllowedToPreviewData && isPluginAuthorized;
   };
 
   renderTabsForViewMode = () => {
     const { datasource } = this.props;
+
     return (
       <ViewModeContainer>
         {this.shouldShowTabs() ? (
@@ -804,6 +817,7 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const params: string = location.search;
   const viewModeFromURLParams = new URLSearchParams(params).get("viewMode");
+
   if (!!viewModeFromURLParams && viewModeFromURLParams?.length > 0) {
     viewMode = viewModeFromURLParams === "true";
   }

@@ -57,6 +57,7 @@ describe("getLintingErrors", () => {
 
   describe("2. Verify lint errors are shown for unsupported window APIs", () => {
     const data = {};
+
     it("1. For window", () => {
       const originalBinding = "{{window}}";
       const script = "window";
@@ -117,6 +118,7 @@ describe("getLintingErrors", () => {
         },
       },
     };
+
     it("1. Assigning values to input widget's properties", () => {
       const originalBinding = "'myFun1() {\n\t\tInput1.text = \"\";\n\t}'";
       const script =
@@ -132,6 +134,7 @@ describe("getLintingErrors", () => {
         script,
         scriptType,
       });
+
       expect(lintErrors.length).toEqual(1);
       expect(lintErrors[0].code).toEqual(
         CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
@@ -153,6 +156,7 @@ describe("getLintingErrors", () => {
         script,
         scriptType,
       });
+
       expect(lintErrors.length).toEqual(1);
       expect(lintErrors[0].code).toEqual(
         CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER,
@@ -174,6 +178,7 @@ describe("getLintingErrors", () => {
         script,
         scriptType,
       });
+
       expect(lintErrors.length).toEqual(1);
       expect(lintErrors[0].code).toEqual(
         CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER,

@@ -78,6 +78,7 @@ export function getSetterConfig(
   try {
     if (setterConfig.__setters) {
       modifiedSetterConfig.__setters = {};
+
       for (const setterMethodName of Object.keys(setterConfig.__setters)) {
         const staticConfigSetter = setterConfig.__setters[setterMethodName];
 
@@ -121,6 +122,7 @@ export function getSetterConfig(
 
         //propertyType = text, button etc
         const propertyType = accessorObject[property];
+
         if (!propertyType) continue;
 
         // "text": {
@@ -131,9 +133,11 @@ export function getSetterConfig(
         //     }
         // }
         const accessorSetterConfig = setterConfig[propertyType];
+
         if (!accessorSetterConfig) continue;
 
         const accessorSettersMap = accessorSetterConfig.__setters;
+
         if (!accessorSettersMap) continue;
 
         const entries = Object.entries(accessorSettersMap) as [
@@ -147,11 +151,13 @@ export function getSetterConfig(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const path = (setterBody as any).path.replace(placeHolder, accesskey);
           const setterPathArray = path.split(".");
+
           setterPathArray.pop();
           setterPathArray.push(setterName);
 
           //setterPath = primaryColumns.action.setIsRequired
           const setterPath = setterPathArray.join(".");
+
           modifiedSetterConfig.__setters[setterPath] = {
             path: `${widget.widgetName}.${path}`, //Table2.primaryColumns.action.isRequired
             type: setterBody.type,
@@ -200,10 +206,12 @@ const generateDataTreeWidgetWithoutMeta = (
     widget,
   );
   const dynamicBindingPathList = getEntityDynamicBindingPathList(widget);
+
   // Ensure all dynamic bindings are strings as they will be evaluated
   dynamicBindingPathList.forEach((dynamicPath) => {
     const propertyPath = dynamicPath.key;
     const propertyValue = _.get(widget, propertyPath);
+
     if (_.isObject(propertyValue)) {
       // Stringify this because composite controls may have bindings in the sub controls
       _.set(widget, propertyPath, JSON.stringify(propertyValue));
@@ -237,6 +245,7 @@ const generateDataTreeWidgetWithoutMeta = (
       if (!(defaultPropertyName in widget)) {
         unInitializedDefaultProps[defaultPropertyName] = undefined;
       }
+
       // defaultProperty on eval needs to override the widget's property eg: defaultText overrides text
       setOverridingProperty({
         propertyOverrideDependency,
@@ -313,8 +322,10 @@ const generateDataTreeWidgetWithoutMeta = (
     dynamicPropertyPathList?: DynamicPath[];
     dynamicTriggerPathList?: DynamicPath[];
   } = {};
+
   if (widget.dynamicPropertyPathList)
     dynamicPathsList.dynamicPropertyPathList = widget.dynamicPropertyPathList;
+
   if (widget.dynamicTriggerPathList)
     dynamicPathsList.dynamicTriggerPathList = widget.dynamicTriggerPathList;
 

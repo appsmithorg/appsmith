@@ -79,6 +79,7 @@ export function* handleWidgetMovement(
   isSection: boolean,
 ) {
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+
   if (isMainCanvas) {
     /**
      * * Widgets are dropped on to Main Canvas.

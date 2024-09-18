@@ -179,6 +179,7 @@ export function Table(props: TableProps) {
       ...props.columnWidthMap,
       ...columnWidths,
     };
+
     for (const i in columnWidthMap) {
       if (columnWidthMap[i] < 60) {
         columnWidthMap[i] = 60;
@@ -186,9 +187,11 @@ export function Table(props: TableProps) {
         const columnCounts = props.columns.filter(
           (column) => !column.isHidden,
         ).length;
+
         columnWidthMap[i] = props.width / columnCounts;
       }
     }
+
     props.handleResizeColumn(columnWidthMap);
   };
   const {
@@ -240,6 +243,7 @@ export function Table(props: TableProps) {
     useRowSelect,
     useSticky,
   );
+
   //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
     isResizingColumn.current = true;
@@ -254,12 +258,15 @@ export function Table(props: TableProps) {
       }, 0);
     }
   }
+
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
+
   if (props.serverSidePaginationEnabled) {
     startIndex = 0;
     endIndex = props.data.length;
   }
+
   const subPage = useMemo(
     () => page.slice(startIndex, endIndex),
     [page, startIndex, endIndex],
@@ -272,6 +279,7 @@ export function Table(props: TableProps) {
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!multiRowSelection) return null;
+
     const selectedRowCount = reduce(
       page,
       (count, row) => {
@@ -281,6 +289,7 @@ export function Table(props: TableProps) {
     );
     const result =
       selectedRowCount === 0 ? 0 : selectedRowCount === page.length ? 1 : 2;
+
     return result;
   }, [multiRowSelection, page, selectedRowIndices]);
   const handleAllRowSelectClick = useCallback(

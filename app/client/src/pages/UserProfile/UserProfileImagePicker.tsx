@@ -65,6 +65,7 @@ function FormDisplayImage() {
         message: USER_DISPLAY_PICTURE_FILE_INVALID(),
       },
     };
+
     dispatch({
       type: ReduxActionErrorTypes.USER_IMAGE_INVALID_FILE_CONTENT,
       payload,

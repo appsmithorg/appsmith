@@ -50,6 +50,7 @@ export class ActionValidationError extends TriggerFailureError {
       expectedType,
       received,
     );
+
     super(errorMessage);
   }
 }

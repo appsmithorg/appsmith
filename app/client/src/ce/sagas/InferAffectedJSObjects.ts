@@ -62,6 +62,7 @@ function getAffectedJSObjectIdsFromBufferedAction(
       isAllAffected: false,
     };
   }
+
   // only Buffered actions here
   return (
     (action as BufferedReduxAction<unknown>).affectedJSObjects || {

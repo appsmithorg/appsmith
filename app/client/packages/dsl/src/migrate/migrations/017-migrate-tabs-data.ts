@@ -17,9 +17,11 @@ function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
       delete currentDSL.tabs;
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map(migrateTabsDataUsingMigrator);
   }
+
   return currentDSL;
 }
 
@@ -31,6 +33,7 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
     try {
       currentDSL.type = "TABS_WIDGET";
       const isTabsDataBinded = isString(currentDSL.tabs);
+
       currentDSL.dynamicPropertyPathList =
         currentDSL.dynamicPropertyPathList || [];
       currentDSL.dynamicBindingPathList =
@@ -41,6 +44,7 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
           DATA_BIND_REGEX_GLOBAL,
           (word: any) => `"${word}"`,
         );
+
         try {
           currentDSL.tabs = JSON.parse(tabsString);
         } catch (error) {
@@ -54,6 +58,7 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
         const dynamicBindablePropsList = currentDSL.tabs.map((each: any) => {
           return { key: `tabsObj.${each.id}.isVisible` };
         });
+
         currentDSL.dynamicPropertyPathList = [
           ...currentDSL.dynamicPropertyPathList,
           ...dynamicPropsList,
@@ -63,6 +68,7 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
           ...dynamicBindablePropsList,
         ];
       }
+
       currentDSL.dynamicPropertyPathList =
         currentDSL.dynamicPropertyPathList.filter((each: { key: string }) => {
           return each.key !== "tabs";
@@ -81,6 +87,7 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
               index,
             },
           };
+
           return obj;
         },
         {},
@@ -96,8 +103,10 @@ export const migrateTabsData = (currentDSL: DSLWidget) => {
       delete currentDSL.tabs;
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map(migrateTabsData);
   }
+
   return currentDSL;
 };

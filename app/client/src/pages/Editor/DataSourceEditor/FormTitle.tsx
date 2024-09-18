@@ -54,6 +54,7 @@ function FormTitle(props: FormTitleProps) {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const datasourcesNames: Record<string, any> = {};
+
       datasources
         // in case of REST API and Authenticated GraphQL API, when user clicks on save as datasource
         // we first need to update the action and then redirect to action page,
@@ -89,6 +90,7 @@ function FormTitle(props: FormTitleProps) {
       } else if (hasNameConflict(name)) {
         return `${name} is already being used or is a restricted keyword.`;
       }
+
       return false;
     },
     [hasNameConflict],
@@ -98,6 +100,7 @@ function FormTitle(props: FormTitleProps) {
     (name: string) => {
       // Check if the datasource name equals "Untitled datasource ABC" if no , use the name passed.
       const datsourceName = name || "Untitled datasource ABC";
+
       if (
         !isInvalidDatasourceName(name) &&
         currentDatasource &&

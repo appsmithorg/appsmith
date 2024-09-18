@@ -12,6 +12,7 @@ export function autoLayoutDSLTransformer(mainCanvasWidth: number) {
     if (checkIsDSLAutoLayout(dsl)) {
       return dsl;
     }
+
     return convertDSLtoAutoAndUpdatePositions(dsl, mainCanvasWidth);
   };
 }

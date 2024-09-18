@@ -31,6 +31,7 @@ export const getExpressionStringAtPos = (
   replaceThisExpression = true,
 ): string | undefined => {
   if (!isPositionWithinNode(node, pos)) return;
+
   if (isMemberExpressionNode(node)) {
     return getExpressionAtPosFromMemberExpression(
       node,
@@ -60,12 +61,16 @@ const getExpressionAtPosFromMemberExpression = (
   replaceThisExpression = true,
 ): string | undefined => {
   const objectNode = node.object;
+
   if (isLocalVariableNode(node) || isLocalVariableNode(objectNode)) return;
+
   if (replaceThisExpression && options?.thisExpressionReplacement) {
     node = replaceThisinMemberExpression(node, options);
   }
+
   // stop if objectNode is a function call -> needs evaluation
   if (isCallExpressionNode(objectNode)) return;
+
   // position is within the object node
   if (pos <= objectNode.end) {
     return getExpressionStringAtPos(objectNode, pos, options, false);
@@ -73,6 +78,7 @@ const getExpressionAtPosFromMemberExpression = (
   // position is within the property node
   else {
     const propertyNode = node.property;
+
     if (isMemberExpressionNode(propertyNode)) {
       return getExpressionAtPosFromMemberExpression(
         propertyNode,
@@ -81,6 +87,7 @@ const getExpressionAtPosFromMemberExpression = (
         false,
       );
     }
+
     // generate string for the whole path
     return escodegen.generate(node);
   }
@@ -97,6 +104,7 @@ const getExpressionAtPosFromExpressionStatement = (
   ) {
     node.expression = thisReplacementNode(node.expression, options);
   }
+
   return getExpressionStringAtPos(node.expression, pos, options);
 };
 
@@ -106,6 +114,7 @@ const getExpressionAtPosFromCallExpression = (
   options?: PeekOverlayExpressionIdentifierOptions,
 ): string | undefined => {
   let selectedNode: Node | undefined;
+
   // function call -> needs evaluation
   // if (isPositionWithinNode(node.callee, pos)) {
   //   selectedNode = node.callee;
@@ -114,10 +123,12 @@ const getExpressionAtPosFromCallExpression = (
     const argumentNode = node.arguments.find((node) =>
       isPositionWithinNode(node, pos),
     );
+
     if (argumentNode) {
       selectedNode = argumentNode;
     }
   }
+
   return selectedNode && getExpressionStringAtPos(selectedNode, pos, options);
 };
 
@@ -127,6 +138,7 @@ const getExpressionAtPosFromConditionalExpression = (
   options?: PeekOverlayExpressionIdentifierOptions,
 ): string | undefined => {
   let selectedNode: Node | undefined;
+
   if (isPositionWithinNode(node.test, pos)) {
     selectedNode = node.test;
   } else if (isPositionWithinNode(node.consequent, pos)) {
@@ -134,6 +146,7 @@ const getExpressionAtPosFromConditionalExpression = (
   } else if (isPositionWithinNode(node.alternate, pos)) {
     selectedNode = node.alternate;
   }
+
   return selectedNode && getExpressionStringAtPos(selectedNode, pos, options);
 };
 
@@ -143,11 +156,13 @@ const getExpressionAtPosFromBinaryExpression = (
   options?: PeekOverlayExpressionIdentifierOptions,
 ): string | undefined => {
   let selectedNode: Node | undefined;
+
   if (isPositionWithinNode(node.left, pos)) {
     selectedNode = node.left;
   } else if (isPositionWithinNode(node.right, pos)) {
     selectedNode = node.right;
   }
+
   return selectedNode && getExpressionStringAtPos(selectedNode, pos, options);
 };
 
@@ -160,6 +175,7 @@ export const replaceThisinMemberExpression = (
   } else if (isThisExpressionNode(node.object)) {
     node.object = thisReplacementNode(node.object, options);
   }
+
   return node;
 };
 

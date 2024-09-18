@@ -47,6 +47,7 @@ const EditorTabs = () => {
   // scroll to the active tab
   useEffect(() => {
     const activetab = document.querySelector(".editor-tab.active");
+
     if (activetab) {
       activetab.scrollIntoView({
         inline: "nearest",
@@ -59,6 +60,7 @@ const EditorTabs = () => {
     const ele = document.querySelector<HTMLElement>(
       '[data-testid="t--editor-tabs"] > [data-overlayscrollbars-viewport]',
     );
+
     if (ele && ele.scrollWidth > ele.clientWidth) {
       ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
     } else if (ele) {
@@ -67,10 +69,12 @@ const EditorTabs = () => {
   }, [files]);
 
   if (!isSideBySideEnabled) return null;
+
   if (segment === EditorEntityTab.UI) return null;
 
   const handleHamburgerClick = () => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;
+
     setShowListView(!showListView);
   };
 

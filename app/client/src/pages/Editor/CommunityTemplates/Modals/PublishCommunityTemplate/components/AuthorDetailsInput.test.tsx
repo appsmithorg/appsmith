@@ -58,6 +58,7 @@ describe("<AuthorDetailsInput />", () => {
     const nameInput = screen.getByTestId(
       "t--community-template-author-name-input",
     );
+
     fireEvent.change(nameInput, { target: { value: "John Doe" } });
     expect(mockProps.setAuthorName).toHaveBeenCalledWith("John Doe");
   });

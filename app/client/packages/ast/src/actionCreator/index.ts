@@ -39,10 +39,12 @@ export const getTextArgumentAtPosition = (
   let requiredArgument: any = "";
   const commentArray: Array<Comment> = [];
   let astWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
+
     ast = getAST(wrappedCode, {
       locations: true,
       ranges: true,
@@ -60,6 +62,7 @@ export const getTextArgumentAtPosition = (
 
   if (node && isCallExpressionNode(node)) {
     const argument = node.arguments[argNum];
+
     // return appropriate values based on the type of node
     switch (argument?.type) {
       case NodeTypes.Identifier:
@@ -114,9 +117,11 @@ export const setTextArgumentAtPosition = (
     typeof changeValue === "string"
       ? String.raw`"${changeValue}"`
       : String.raw`${changeValue}`;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const changeValueScript = sanitizeScript(rawValue, evaluationVersion);
+
     getAST(changeValueScript, {
       locations: true,
       ranges: true,
@@ -128,6 +133,7 @@ export const setTextArgumentAtPosition = (
       // collect all comments as they are not part of the ast, we will attach them back on line 46
       onComment: commentArray,
     });
+
     // clone ast to avoid mutating original ast
     ast = klona(__ast);
     // attach comments to ast
@@ -141,6 +147,7 @@ export const setTextArgumentAtPosition = (
 
   if (node && isCallExpressionNode(node)) {
     const startPosition = node.callee.end + NEXT_POSITION;
+
     node.arguments = node.arguments || [];
     node.arguments[argNum] = {
       type: NodeTypes.Literal,
@@ -179,9 +186,11 @@ export const setCallbackFunctionField = (
     | CallExpressionNode
     | BlockStatementNode
     | LiteralNode;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -190,6 +199,7 @@ export const setCallbackFunctionField = (
     });
 
     const sanitizedChangeValue = sanitizeScript(changeValue, evaluationVersion);
+
     changeValueAst = getAST(sanitizedChangeValue, {
       locations: true,
       ranges: true,
@@ -231,6 +241,7 @@ export const setCallbackFunctionField = (
 
   if (found) {
     const { node } = found;
+
     // When there is an argument after the specified argument number, then only add empty string literal
     // @ts-expect-error: types not matched
     if (changeValue === "" && node.arguments[argNum + 1]) {
@@ -281,11 +292,13 @@ export const setObjectAtPosition = (
   ) {
     changeValue = "{}";
   }
+
   changeValue = changeValue.trim();
   let ast: Node = { end: 0, start: 0, type: "" };
   let changedValue: string = currentValue;
   const commentArray: Array<Comment> = [];
   let astWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
@@ -295,6 +308,7 @@ export const setObjectAtPosition = (
       // collect all comments as they are not part of the ast, we will attach them back on line 46
       onComment: commentArray,
     });
+
     // clone ast to avoid mutating original ast
     ast = klona(__ast);
 
@@ -306,8 +320,10 @@ export const setObjectAtPosition = (
   }
 
   const node = findRootCallExpression(astWithComments);
+
   if (node && isCallExpressionNode(node)) {
     const startPosition = node.callee.end + NEXT_POSITION;
+
     node.arguments[argNum] = {
       type: NodeTypes.Literal,
       value: changeValue,
@@ -339,9 +355,11 @@ export const getEnumArgumentAtPosition = (
   let requiredArgument: string = defaultValue;
   const commentArray: Array<Comment> = [];
   let astWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     // const wrappedCode = wrapCode(sanitizedScript);
     ast = getAST(sanitizedScript, {
       locations: true,
@@ -364,6 +382,7 @@ export const getEnumArgumentAtPosition = (
   if (node && isCallExpressionNode(node)) {
     if (node.arguments[argNum]) {
       const argument = node.arguments[argNum];
+
       switch (argument?.type) {
         case NodeTypes.Literal:
           requiredArgument = argument.raw as string;
@@ -387,6 +406,7 @@ export const setEnumArgumentAtPosition = (
   let changedValue: string = currentValue;
   const commentArray: Array<Comment> = [];
   let astWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
@@ -396,6 +416,7 @@ export const setEnumArgumentAtPosition = (
       // collect all comments as they are not part of the ast, we will attach them back on line 46
       onComment: commentArray,
     });
+
     // clone ast to avoid mutating original ast
     ast = klona(__ast);
 
@@ -417,6 +438,7 @@ export const setEnumArgumentAtPosition = (
     // add 1 to get the starting position of the next
     // node to ending position of previous
     const startPosition = node.callee.end + NEXT_POSITION;
+
     node.arguments[argNum] = {
       type: NodeTypes.Literal,
       value: `${changeValue}`,
@@ -442,10 +464,12 @@ export const getModalName = (
   let modalName = "none";
   const commentArray: Array<Comment> = [];
   let astWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
+
     ast = getAST(wrappedCode, {
       locations: true,
       ranges: true,
@@ -463,6 +487,7 @@ export const getModalName = (
 
   if (node && isCallExpressionNode(node)) {
     const argument = node.arguments[0];
+
     switch (argument?.type) {
       case NodeTypes.Literal:
         modalName = argument.value as string;
@@ -490,6 +515,7 @@ export const setModalName = (
   let changedValue: string = currentValue;
   const commentArray: Array<Comment> = [];
   let astWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(currentValue, evaluationVersion);
@@ -499,6 +525,7 @@ export const setModalName = (
       // collect all comments as they are not part of the ast, we will attach them back on line 46
       onComment: commentArray,
     });
+
     // clone ast to avoid mutating original ast
     ast = klona(__ast);
 
@@ -510,6 +537,7 @@ export const setModalName = (
   }
 
   const node = findRootCallExpression(astWithComments);
+
   if (node && isCallExpressionNode(node)) {
     // add 1 to get the starting position of the next
     // node to ending position of previous
@@ -522,11 +550,13 @@ export const setModalName = (
       // add 2 for quotes
       end: startPosition + (changeValue.length + LENGTH_OF_QUOTES),
     };
+
     node.arguments = [newNode];
     changedValue = `{{${generate(astWithComments, {
       comments: true,
     }).trim()}}}`;
   }
+
   return changedValue;
 };
 
@@ -539,9 +569,11 @@ export const getFuncExpressionAtPosition = (
   let ast: Node = { end: 0, start: 0, type: "" };
   let requiredArgument = "() => {}";
   const commentArray: Array<Comment> = [];
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -562,6 +594,7 @@ export const getFuncExpressionAtPosition = (
     const firstCallExpressionNode = findRootCallExpression(astWithComments);
 
     const argumentNode = firstCallExpressionNode?.arguments[argNum];
+
     if (
       argumentNode &&
       (isTypeOfFunction(argumentNode.type) ||
@@ -588,10 +621,12 @@ export const getFunction = (
   let requiredFunction = "";
   const commentArray: Array<Comment> = [];
   let astWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
+
     ast = getAST(wrappedCode, {
       locations: true,
       ranges: true,
@@ -609,6 +644,7 @@ export const getFunction = (
 
   if (node && isCallExpressionNode(node)) {
     const func = `${generate(node)}`;
+
     requiredFunction = func !== "{}" ? `{{${func}}}` : "";
   }
 
@@ -637,9 +673,11 @@ export const replaceActionInQuery = (
   const commentArray: Array<Comment> = [];
   const changeActionCommentArray: Array<Comment> = [];
   let astWithComments: any, changeActionAstWithComments;
+
   try {
     // sanitize to remove unnecessary characters which might lead to invalid ast
     const sanitizedScript = sanitizeScript(query, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -651,6 +689,7 @@ export const replaceActionInQuery = (
       changeAction,
       evaluationVersion,
     );
+
     changeActionAst = getAST(sanitizedChangeAction, {
       locations: true,
       ranges: true,
@@ -687,6 +726,7 @@ export const replaceActionInQuery = (
         // add 1 to get the starting position of the next
         // node to ending position of previous
         const startPosition = node.arguments[argNum].start;
+
         requiredNode.start = startPosition;
         requiredNode.end = startPosition + changeAction.length;
         node.arguments[argNum] = requiredNode;
@@ -711,8 +751,10 @@ export function getActionBlocks(
   const commentArray: Array<Comment> = [];
   const actionBlocks: Array<string> = [];
   let astWithComments;
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -741,8 +783,10 @@ export function canTranslateToUI(
   const commentArray: Array<Comment> = [];
   let canTranslate = true;
   let astWithComments;
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -777,13 +821,16 @@ export function canTranslateToUI(
   for (const node of astWithComments.body) {
     if (isExpressionStatementNode(node)) {
       const expression = node.expression;
+
       if (!isCallExpressionNode(expression)) {
         canTranslate = false;
         break;
       }
+
       const rootCallExpression = findRootCallExpression(
         expression,
       ) as CallExpressionNode;
+
       if (!rootCallExpression) {
         canTranslate = false;
         break;
@@ -792,6 +839,7 @@ export function canTranslateToUI(
       canTranslate = false;
     }
   }
+
   return canTranslate;
 }
 
@@ -801,8 +849,10 @@ export function getFunctionBodyStatements(
 ): Array<string> {
   let ast: Node = { end: 0, start: 0, type: "" };
   const commentArray: Array<Comment> = [];
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -821,11 +871,13 @@ export function getFunctionBodyStatements(
           statementsBody = mainBody.expression.body.body;
         else if (mainBody.expression.body.type === NodeTypes.CallExpression)
           statementsBody = [mainBody.expression.body];
+
         break;
       case NodeTypes.FunctionDeclaration:
         statementsBody = mainBody.body.body;
         break;
     }
+
     return statementsBody.map((node: Node) =>
       generate(node, { comments: true }).trim(),
     );
@@ -842,8 +894,10 @@ export function getMainAction(
   const commentArray: Array<Comment> = [];
   let mainAction = "";
   let astWithComments;
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -881,8 +935,10 @@ export function getFunctionName(
   let ast: Node = { end: 0, start: 0, type: "" };
   const commentArray: Array<Comment> = [];
   const functionName = "";
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -911,8 +967,10 @@ export function getThenCatchBlocksFromQuery(
   let ast: Node = { end: 0, start: 0, type: "" };
   const commentArray: Array<Comment> = [];
   const returnValue: Record<string, string> = {};
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -922,6 +980,7 @@ export function getThenCatchBlocksFromQuery(
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
     const rootCallExpression = findRootCallExpression(astWithComments);
+
     if (!rootCallExpression) return returnValue;
 
     let firstBlockType;
@@ -937,24 +996,29 @@ export function getThenCatchBlocksFromQuery(
               if (isIdentifierNode(node.callee.property)) {
                 if (["then", "catch"].includes(node.callee.property.name)) {
                   firstBlockType = node.callee.property.name;
+
                   return true;
                 }
               }
             }
           }
         }
+
         return false;
       },
     )?.node;
 
     if (!firstBlock) return returnValue;
+
     if (!isCallExpressionNode(firstBlock) || !firstBlockType)
       return returnValue;
 
     const args = firstBlock.arguments;
+
     if (args.length) {
       returnValue[firstBlockType] = generate(args[0]);
     }
+
     const secondBlockType = firstBlockType === "then" ? "catch" : "then";
     const secondBlock = findNodeAt(ast, 0, undefined, function (type, node) {
       if (isCallExpressionNode(node)) {
@@ -965,11 +1029,13 @@ export function getThenCatchBlocksFromQuery(
           }
         }
       }
+
       return false;
     })?.node;
 
     if (secondBlock && isCallExpressionNode(secondBlock)) {
       const args = secondBlock.arguments;
+
       if (args.length > 0) {
         returnValue[secondBlockType] = generate(args[0]);
       }
@@ -989,6 +1055,7 @@ export function setThenBlockInQuery(
   let ast: Node = { end: 0, start: 0, type: "" };
   const commentArray: Array<Comment> = [];
   let requiredQuery = "";
+
   thenBlock = thenBlock || "() => {}";
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
@@ -1016,6 +1083,7 @@ export function setThenBlockInQuery(
             }
           }
         }
+
         return false;
       },
     )?.node;
@@ -1040,6 +1108,7 @@ export function setThenBlockInQuery(
           },
         },
       };
+
       astWithComments.body[0].expression = callExpression;
       astWithComments.body[0].end = callExpression.end;
     }
@@ -1058,6 +1127,7 @@ export function setThenBlockInQuery(
             }
           }
         }
+
         return false;
       },
     )?.node;
@@ -1095,9 +1165,11 @@ export function setCatchBlockInQuery(
   let ast: Node = { end: 0, start: 0, type: "" };
   const commentArray: Array<Comment> = [];
   let requiredQuery = "";
+
   catchBlock = catchBlock || "() => {}";
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -1112,12 +1184,14 @@ export function setCatchBlockInQuery(
       rootCallExpression,
       "catch",
     );
+
     if (!catchCallExpressionInGivenQuery) {
       const thenCallExpressionInGivenQuery = findNodeWithCalleeAndProperty(
         astWithComments,
         rootCallExpression,
         "then",
       );
+
       catchCallExpressionInGivenQuery =
         thenCallExpressionInGivenQuery &&
         findNodeWithCalleeAndProperty(
@@ -1125,6 +1199,7 @@ export function setCatchBlockInQuery(
           thenCallExpressionInGivenQuery,
           "catch",
         );
+
       if (!catchCallExpressionInGivenQuery) {
         const expression = klona(
           thenCallExpressionInGivenQuery ?? rootCallExpression,
@@ -1146,6 +1221,7 @@ export function setCatchBlockInQuery(
             },
           },
         };
+
         catchCallExpressionInGivenQuery = callExpression;
         astWithComments.body[0].expression = catchCallExpressionInGivenQuery;
       }
@@ -1184,8 +1260,10 @@ export function getFunctionArguments(
   const commentArray: Array<Comment> = [];
   const argumentsArray: Array<any> = [];
   let astWithComments;
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -1215,8 +1293,10 @@ export function getFunctionNameFromJsObjectExpression(
   const commentArray: Array<Comment> = [];
   let functionName = "";
   let astWithComments;
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -1249,8 +1329,10 @@ export function getCallExpressions(
   const commentArray: Array<Comment> = [];
   const callExpressions: Array<any> = [];
   let astWithComments;
+
   try {
     const sanitizedScript = sanitizeScript(value, evaluationVersion);
+
     ast = getAST(sanitizedScript, {
       locations: true,
       ranges: true,
@@ -1291,6 +1373,7 @@ function findRootCallExpression(ast: Node) {
    * pick the one the that has the least end offset.
    */
   let rootCallExpression = callExpressions[0];
+
   for (const ce of callExpressions) {
     if (rootCallExpression.start === ce.start) {
       rootCallExpression =
@@ -1309,6 +1392,7 @@ function findNodeWithCalleeAndProperty(
   property?: string,
 ) {
   if (!ast || !callee || !property) return undefined;
+
   return findNodeAt(ast, 0, undefined, function (type, node) {
     if (isCallExpressionNode(node)) {
       if (isMemberExpressionNode(node.callee)) {
@@ -1319,6 +1403,7 @@ function findNodeWithCalleeAndProperty(
         }
       }
     }
+
     return false;
   })?.node;
 }
@@ -1326,6 +1411,7 @@ function findNodeWithCalleeAndProperty(
 export function getFunctionParams(code: string, evaluationVersion: number) {
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
+
     code = `let a = ${sanitizedScript.trim()}`;
     const ast = getAST(code, {
       locations: true,
@@ -1336,6 +1422,7 @@ export function getFunctionParams(code: string, evaluationVersion: number) {
     const params =
       functionExpression.params?.map((param: any) => generate(param).trim()) ||
       [];
+
     return params;
   } catch (e) {
     return [];
@@ -1355,20 +1442,25 @@ export function getQueryParam(
     });
 
     const rootCallExpression = findRootCallExpression(ast);
+
     if (!rootCallExpression) return `{{ {} }}`;
 
     const args = rootCallExpression.arguments;
+
     if (!args || args.length === 0) return `{{{}}}`;
 
     const firstArg = args[0] || ({} as ArgumentTypes);
+
     if (firstArg.type && !isTypeOfFunction(firstArg.type)) {
       return getTextArgumentAtPosition(code, 0, evaluationVersion);
     }
 
     const thirdArg = args[2] || ({} as ArgumentTypes);
+
     if (thirdArg.type && !isTypeOfFunction(thirdArg.type)) {
       return getTextArgumentAtPosition(code, 2, evaluationVersion);
     }
+
     return `{{{}}}`;
   } catch (e) {
     return `{{{}}}`;
@@ -1389,22 +1481,27 @@ export function setQueryParam(
     });
 
     const rootCallExpression = findRootCallExpression(ast);
+
     if (!rootCallExpression) return code;
 
     if (position === 0) {
       rootCallExpression.arguments = [];
       code = generate(ast);
+
       return setObjectAtPosition(code, value, position, evaluationVersion);
     } else {
       const firstArg = rootCallExpression.arguments[0] || ({} as ArgumentTypes);
       const secondArg =
         rootCallExpression.arguments[1] || ({} as ArgumentTypes);
+
       if (firstArg && !isTypeOfFunction(firstArg.type)) {
         code = setCallbackFunctionField(code, "() => {}", 0, evaluationVersion);
       }
+
       if (secondArg && !isTypeOfFunction(secondArg.type)) {
         code = setCallbackFunctionField(code, "() => {}", 1, evaluationVersion);
       }
+
       return setObjectAtPosition(code, value, 2, evaluationVersion);
     }
   } catch (e) {
@@ -1423,20 +1520,27 @@ export function checkIfThenBlockExists(
       ranges: true,
     });
     const rootCallExpression = findRootCallExpression(ast);
+
     if (!rootCallExpression) return code;
+
     let thenBlock = findNodeWithCalleeAndProperty(
       ast,
       rootCallExpression,
       "then",
     );
+
     if (thenBlock) return true;
+
     const catchBlock = findNodeWithCalleeAndProperty(
       ast,
       rootCallExpression,
       "catch",
     );
+
     thenBlock = findNodeWithCalleeAndProperty(ast, catchBlock, "then");
+
     if (thenBlock) return true;
+
     return false;
   } catch (e) {
     return false;
@@ -1454,20 +1558,27 @@ export function checkIfCatchBlockExists(
       ranges: true,
     });
     const rootCallExpression = findRootCallExpression(ast);
+
     if (!rootCallExpression) return code;
+
     let catchBlock = findNodeWithCalleeAndProperty(
       ast,
       rootCallExpression,
       "catch",
     );
+
     if (catchBlock) return true;
+
     const thenBlock = findNodeWithCalleeAndProperty(
       ast,
       rootCallExpression,
       "then",
     );
+
     catchBlock = findNodeWithCalleeAndProperty(ast, thenBlock, "catch");
+
     if (catchBlock) return true;
+
     return false;
   } catch (e) {
     return false;
@@ -1486,9 +1597,13 @@ export function checkIfArgumentExistAtPosition(
       ranges: true,
     });
     const rootCallExpression = findRootCallExpression(ast);
+
     if (!rootCallExpression) return false;
+
     const args = rootCallExpression.arguments;
+
     if (!args || args.length === 0 || !args[position]) return false;
+
     return true;
   } catch (e) {
     return false;
@@ -1509,12 +1624,14 @@ export function setGenericArgAtPostition(
       ranges: true,
       onComment: commentArray,
     });
+
     arg = arg.trim();
     const astWithComments = attachCommentsToAst(ast, commentArray);
 
     let argAst;
     let argASTWithComments;
     let argNode;
+
     try {
       argAst = getAST(arg, {
         locations: true,
@@ -1522,9 +1639,11 @@ export function setGenericArgAtPostition(
         onComment: argCommentArray,
       });
       argASTWithComments = attachCommentsToAst(argAst, argCommentArray);
+
       if (isBlockStatementNode(argASTWithComments.body[0])) {
         throw "Object interpretted as Block statement";
       }
+
       argNode = argASTWithComments.body[0].expression;
     } catch (e) {
       // If the arg is { a: 2 }, ast will BlockStatement and would end up here.
@@ -1539,10 +1658,14 @@ export function setGenericArgAtPostition(
     }
 
     const rootCallExpression = findRootCallExpression(astWithComments);
+
     if (!rootCallExpression) return code;
+
     const args = rootCallExpression.arguments || [];
+
     args[position] = argNode;
     rootCallExpression.arguments = args;
+
     return generate(ast).trim();
   } catch (e) {
     return code;

@@ -178,6 +178,7 @@ function GitConnection({ isImport }: Props) {
     const initialGlobalConfigInputVal = !isGitConnected
       ? true
       : useGlobalProfile;
+
     setUseGlobalConfigInputVal(!!initialGlobalConfigInputVal);
   }, [useGlobalProfile, isGitConnected]);
 
@@ -210,6 +211,7 @@ function GitConnection({ isImport }: Props) {
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
     }
+
     AnalyticsUtil.logEvent("GS_COPY_SSH_KEY_BUTTON_CLICK");
   };
 
@@ -222,6 +224,7 @@ function GitConnection({ isImport }: Props) {
 
   const remoteUrlChangeHandler = (value: string) => {
     const isInvalid = !isValidGitRemoteUrl(value);
+
     setIsValidRemoteUrl(isInvalid);
     setRemoteUrl(value);
     dispatch(remoteUrlInputValue({ tempRemoteUrl: value }));
@@ -236,6 +239,7 @@ function GitConnection({ isImport }: Props) {
   const submitButtonDisabled = useMemo(() => {
     const isAuthInfoUpdated = isAuthorInfoUpdated();
     let buttonDisabled;
+
     if (isGitConnected) {
       const isFetchingConfig =
         isFetchingGlobalGitConfig || isFetchingLocalGitConfig;
@@ -246,6 +250,7 @@ function GitConnection({ isImport }: Props) {
     } else {
       buttonDisabled = isInvalidRemoteUrl;
     }
+
     return buttonDisabled;
   }, [
     isAuthorInfoUpdated,
@@ -269,14 +274,17 @@ function GitConnection({ isImport }: Props) {
 
   const onSubmit = useCallback(() => {
     if (isConnectingToGit || submitButtonDisabled) return;
+
     setTriedSubmit(true);
     AnalyticsUtil.logEvent("GS_CONNECT_BUTTON_ON_GIT_SYNC_MODAL_CLICK");
+
     if (!isAuthorInfoValid) return;
 
     if (isGitConnected) {
       const updatedGitConfig = useGlobalConfigInputVal
         ? localGitConfig
         : authorInfo;
+
       dispatch(
         updateLocalGitConfigInit({
           ...updatedGitConfig,
@@ -320,10 +328,12 @@ function GitConnection({ isImport }: Props) {
   }, [setUseGlobalConfigInputVal, useGlobalConfigInputVal]);
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
+
   useEffect(() => {
     if (gitConnectError && scrollWrapperRef.current) {
       setTimeout(() => {
         const top = scrollWrapperRef.current?.scrollHeight || 0;
+
         scrollWrapperRef.current?.scrollTo({
           top: top,
         });

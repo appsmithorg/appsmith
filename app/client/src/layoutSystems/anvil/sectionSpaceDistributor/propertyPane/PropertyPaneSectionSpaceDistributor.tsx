@@ -67,6 +67,7 @@ export const PropertyPaneSectionSpaceDistributor = ({
         const propPaneZoneId = getPropertyPaneZoneId(zoneId);
         const propPaneHandleId = getPropertyPaneDistributionHandleId(zoneId);
         const flexBasisValue = convertFlexGrowToFlexBasisForPropPane(zoneValue);
+
         return (
           // Render mocked zone and distribution handle for each zone
           <>

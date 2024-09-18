@@ -114,6 +114,7 @@ describe("JSResponseView", () => {
         </ThemeProvider>
       </Provider>,
     );
+
     expect(getByText(EMPTY_RESPONSE_LAST_HALF())).toBeInTheDocument();
   });
 

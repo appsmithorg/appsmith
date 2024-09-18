@@ -31,6 +31,7 @@ function PanelHeader(props: PanelHeaderProps) {
     dispatch(unsetSelectedPropertyPanel(props.parentPropertyPath));
     props.closePanel();
   };
+
   return (
     <div
       // TODO: Fix this the next time the file is edited
@@ -77,6 +78,7 @@ export function PanelPropertiesEditor(
   // For example: `someProperty.<thisValue>`
   const currentIndex = useMemo(() => {
     const parentProperty = get(widgetProperties, panelParentPropertyPath);
+
     if (parentProperty) {
       if (isPlainObject(parentProperty)) {
         return panelProps[panelConfig.panelIdPropertyName];
@@ -86,21 +88,26 @@ export function PanelPropertiesEditor(
             panelProps[panelConfig.panelIdPropertyName] ===
             entry[panelConfig.panelIdPropertyName],
         );
+
         return currentIndex;
       }
     }
+
     return;
   }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
 
   const panelConfigs = useMemo(() => {
     if (currentIndex !== undefined && panelConfig.children) {
       let path: string | undefined = undefined;
+
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}`;
       } else if (isNumber(currentIndex)) {
         path = `${panelParentPropertyPath}[${currentIndex}]`;
       }
+
       const configChildren = [...panelConfig.children];
+
       return path ? updateConfigPaths(configChildren, path) : configChildren;
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
@@ -112,14 +119,17 @@ export function PanelPropertiesEditor(
       panelConfig.styleChildren
     ) {
       let path: string | undefined = undefined;
+
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}`;
       } else if (isNumber(currentIndex)) {
         path = `${panelParentPropertyPath}[${currentIndex}]`;
       }
+
       const contentChildren = [...panelConfig.contentChildren];
       const styleChildren = [...panelConfig.styleChildren];
       const searchConfig = [...(panelConfig.searchConfig || [])];
+
       return {
         content: path
           ? updateConfigPaths(contentChildren, path)
@@ -155,6 +165,7 @@ export function PanelPropertiesEditor(
     const searchPath = `${panelParentPropertyPath}.${
       panelProps[panelConfig.panelIdPropertyName]
     }`;
+
     sendPropertyPaneSearchAnalytics({
       widgetType: widgetProperties?.type ?? "",
       searchText,
@@ -164,29 +175,35 @@ export function PanelPropertiesEditor(
   }, [searchText]);
 
   if (!widgetProperties) return null;
+
   const updatePropertyTitle = (title: string) => {
     if (panelConfig.titlePropertyName) {
       const propertiesToUpdate: Record<string, unknown> = {};
       let path: string | undefined = undefined;
+
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}.${panelConfig.titlePropertyName}`;
       } else if (isNumber(currentIndex)) {
         path = `${panelParentPropertyPath}[${currentIndex}].${panelConfig.titlePropertyName}`;
       }
+
       if (path) {
         propertiesToUpdate[path] = title;
+
         if (panelConfig.updateHook) {
           const additionalPropertiesToUpdate = panelConfig.updateHook(
             widgetProperties,
             path,
             title,
           );
+
           additionalPropertiesToUpdate?.forEach(
             ({ propertyPath, propertyValue }) => {
               propertiesToUpdate[propertyPath] = propertyValue;
             },
           );
         }
+
         props.onPropertiesChange(propertiesToUpdate);
       }
     }

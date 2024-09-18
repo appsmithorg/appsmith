@@ -243,6 +243,7 @@ const staticProps = omit(
   "topRowBeforeCollapse",
   "bottomRowBeforeCollapse",
 );
+
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps

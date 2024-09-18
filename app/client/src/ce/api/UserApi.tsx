@@ -148,6 +148,7 @@ export class UserApi extends Api {
     request: InviteUserRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     const { recaptchaToken, ...requestPayload } = request;
+
     return Api.post(
       UserApi.inviteUserURL,
       requestPayload,
@@ -185,6 +186,7 @@ export class UserApi extends Api {
     }>
   > {
     const formData = new FormData();
+
     if (request.file) {
       formData.append("file", request.file);
     }

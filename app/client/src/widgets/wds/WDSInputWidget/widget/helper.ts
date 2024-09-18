@@ -32,6 +32,7 @@ export function parseText(value: string, inputType: InputType) {
 
   if (inputType === INPUT_TYPES.NUMBER) {
     if (isNil(value) || value === "") return null;
+
     if (isNaN(parsedText)) return null;
 
     return parsedText;

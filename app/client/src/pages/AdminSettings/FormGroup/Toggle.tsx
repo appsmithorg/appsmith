@@ -32,6 +32,7 @@ function FieldToggleWithToggleText(
 
     function onToggle(value?: boolean) {
       const toggleValue = isPropertyDisabled ? !value : value;
+
       componentProps.input.onChange &&
         componentProps.input.onChange(toggleValue);
       componentProps.input.onBlur && componentProps.input.onBlur(toggleValue);
@@ -68,6 +69,7 @@ const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 
 export function ToggleComponent({ setting }: SettingComponentProps) {
   const settings = useSelector(formValuesSelector);
+
   return (
     <StyledFieldToggleGroup className="t--admin-settings-toggle">
       <Field
