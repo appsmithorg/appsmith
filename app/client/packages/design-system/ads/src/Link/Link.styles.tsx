@@ -71,6 +71,7 @@ const Kind = {
     }
   `,
 };
+
 export const Styles = css<{ kind?: LinkKind }>`
   ${Variables}
 

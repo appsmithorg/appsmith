@@ -21,6 +21,7 @@ export const getIndexOfRegex = (
   start = 0,
 ): number => {
   const pos = str.slice(start).search(regex);
+
   return pos > -1 ? pos + start : pos;
 };
 
@@ -61,7 +62,9 @@ export const getAllWordOccurrences = (str: string, key: string) => {
   const indices = [];
   let index, startIndex;
   const regex = new RegExp(buildBoundaryRegex(key));
+
   index = getIndexOfRegex(str, regex, startIndex);
+
   while (index > -1) {
     indices.push(index);
     startIndex = index + key.length;
@@ -77,6 +80,7 @@ export const getKeyPositionInString = (
 ): Position[] => {
   const indices = getAllWordOccurrences(str, key);
   let positions: Position[] = [];
+
   if (str.includes("\n")) {
     for (const index of indices) {
       const substr = str.slice(0, index);
@@ -89,11 +93,13 @@ export const getKeyPositionInString = (
   } else {
     positions = indices.map((index) => ({ line: 0, ch: index }));
   }
+
   return positions;
 };
 
 export const getFirstNonEmptyPosition = (lines: string[]): Position => {
   const lineNumber = lines.findIndex((line) => !isEmpty(line));
+
   return lineNumber > -1
     ? {
         line: lineNumber,
@@ -137,6 +143,7 @@ export const getLintAnnotations = (
     if (!originalBinding) {
       return annotations;
     }
+
     if (code === INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE) {
       // The binding position of every valid JS Object is constant, so we need not
       // waste time checking for position of binding.
@@ -149,7 +156,9 @@ export const getLintAnnotations = (
         severity: Severity.ERROR,
       });
     }
+
     let variableLength = 1;
+
     // Find the variable with minimal length
     if (variables) {
       for (const variable of variables) {
@@ -198,6 +207,7 @@ export const getLintAnnotations = (
           line: from.line,
           ch: from.ch + variableLength,
         };
+
         annotations.push({
           from,
           to,
@@ -210,6 +220,7 @@ export const getLintAnnotations = (
       return [];
     }
   });
+
   return annotations;
 };
 

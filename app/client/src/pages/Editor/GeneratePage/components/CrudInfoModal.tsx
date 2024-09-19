@@ -145,6 +145,7 @@ function GenCRUDSuccessModal(props: Props) {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
     }, DELAY_TIME);
+
     return () => {
       if (timerId) clearTimeout(timerId);
     };

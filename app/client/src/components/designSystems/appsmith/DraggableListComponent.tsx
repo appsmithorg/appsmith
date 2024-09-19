@@ -67,6 +67,7 @@ export class DroppableComponent extends React.Component<
     const items: Array<Record<string, unknown>> = [...this.state.items];
     const sourceIndex = source.index;
     let destinationIndex;
+
     if (!destination) {
       destinationIndex = items.length;
     } else {
@@ -76,8 +77,10 @@ export class DroppableComponent extends React.Component<
       ) {
         return;
       }
+
       destinationIndex = destination.index;
     }
+
     items.splice(destinationIndex, 0, items[sourceIndex]);
     items.splice(sourceIndex + (destinationIndex < sourceIndex ? 1 : 0), 1);
     this.setState({ items: items });
@@ -93,6 +96,7 @@ export class DroppableComponent extends React.Component<
       updateCurrentFocusedInput,
       updateOption,
     } = this.props;
+
     return (
       <DragDropContext onDragEnd={this.onDragEnd}>
         <Droppable droppableId="droppable">

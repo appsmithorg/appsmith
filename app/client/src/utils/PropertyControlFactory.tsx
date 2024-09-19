@@ -48,6 +48,7 @@ class PropertyControlFactory {
       if (customEditor === "COMPUTE_VALUE" && isArray(evaluatedValue)) {
         evaluatedValue = evaluatedValue[0];
       }
+
       controlBuilder = this.controlMap.get(controlData.controlType);
     }
 
@@ -64,6 +65,7 @@ class PropertyControlFactory {
       };
 
       const control = controlBuilder.buildPropertyControl(controlProps);
+
       return control;
     } else {
       const ex: ControlCreationException = {
@@ -71,6 +73,7 @@ class PropertyControlFactory {
           "Control Builder not registered for control type " +
           controlData.controlType,
       };
+
       throw ex;
     }
   }

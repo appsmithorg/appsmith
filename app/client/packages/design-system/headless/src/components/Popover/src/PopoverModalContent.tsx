@@ -68,6 +68,7 @@ const _PopoverModalContent = (
   }, [triggerRef?.current]);
 
   const referenceProps = getReferenceProps({ ref: refs });
+
   useEffect(() => {
     if (triggerRef?.current != null) {
       setAriaAttrs(triggerRef?.current, referenceProps);

@@ -38,6 +38,7 @@ const StyledText = styled(Text)`
   padding-top: 8px;
   padding-bottom: 4px;
 `;
+
 function Files() {
   // Import the context
   const context = useContext(FilesContext);
@@ -73,6 +74,7 @@ function Files() {
 
   useEffect(() => {
     if (!activeActionBaseId) return;
+
     document.getElementById(`entity-${activeActionBaseId}`)?.scrollIntoView({
       block: "nearest",
       inline: "nearest",
@@ -149,6 +151,7 @@ function Files() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (item: any) => {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
+
       if (item.action) {
         dispatch(
           item.action(

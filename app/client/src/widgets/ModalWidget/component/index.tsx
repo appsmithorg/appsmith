@@ -69,6 +69,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   const isTableFilterPaneVisible = useSelector(
     (state: AppState) => state.ui.tableFilterPane.isVisible,
   );
+
   useEffect(() => {
     return () => {
       // handle modal close events when this component unmounts
@@ -80,6 +81,7 @@ export default function ModalComponent(props: ModalComponentProps) {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
+
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
@@ -104,6 +106,7 @@ export default function ModalComponent(props: ModalComponentProps) {
   }, [props.isOpen]);
   const renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     const childData = { ...childWidgetData };
+
     childData.parentId = props.widgetId;
 
     childData.canExtend = props.shouldScrollContents;
@@ -115,6 +118,7 @@ export default function ModalComponent(props: ModalComponentProps) {
     childData.positioning = props.positioning;
     childData.alignment = props.alignment;
     childData.spacing = props.spacing;
+
     return renderAppsmithCanvas(childData as WidgetProps);
   };
   const getChildren = (): ReactNode => {
@@ -125,10 +129,12 @@ export default function ModalComponent(props: ModalComponentProps) {
       props.modalChildrenProps.length > 0
     ) {
       const children = props.modalChildrenProps.filter(Boolean);
+
       return children.length > 0 && children.map(renderChildWidget);
     }
   };
   const children = getChildren();
+
   return (
     <Wrapper
       $background={props.background}

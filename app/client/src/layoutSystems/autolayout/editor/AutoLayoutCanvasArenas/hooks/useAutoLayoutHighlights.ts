@@ -47,17 +47,23 @@ export const useAutoLayoutHighlights = ({
 
   const checkForFillWidget = (): boolean => {
     let flag = false;
+
     if (!blocksToDraw?.length) return flag;
+
     for (const block of blocksToDraw) {
       const widget = allWidgets[block.widgetId];
+
       if (widget) {
         if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
           flag = true;
           break;
         }
+
         continue;
       }
+
       const config = WidgetFactory.widgetConfigMap.get(block.type);
+
       if (config) {
         if (config.responsiveBehavior === ResponsiveBehavior.Fill) {
           flag = true;
@@ -65,13 +71,16 @@ export const useAutoLayoutHighlights = ({
         }
       }
     }
+
     return flag;
   };
 
   const calculateHighlights = (snapColumnSpace: number): HighlightInfo[] => {
     cleanUpTempStyles();
+
     if (isDragging && isCurrentDraggedCanvas) {
       if (!blocksToDraw || !blocksToDraw.length) return [];
+
       isFillWidget = checkForFillWidget();
       highlights.current = deriveHighlightsFromLayers(
         allWidgets,
@@ -82,6 +91,7 @@ export const useAutoLayoutHighlights = ({
         isMobile,
       );
     }
+
     return highlights.current;
   };
 
@@ -119,9 +129,11 @@ export const useAutoLayoutHighlights = ({
       e || null,
       val,
     );
+
     if (!highlight) return;
 
     lastActiveHighlight = highlight;
+
     return highlight;
   };
 

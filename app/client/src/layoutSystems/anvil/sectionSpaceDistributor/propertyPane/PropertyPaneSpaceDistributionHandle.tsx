@@ -36,6 +36,7 @@ export const PropertyPaneSpaceDistributionHandle = ({
 
     // Dispatch a custom event to notify about the mouse down event on the handle
     const distributionHandle = document.getElementById(distributionHandleId);
+
     if (distributionHandle) {
       distributionHandle.dispatchEvent(
         new CustomEvent(PropPaneDistributionHandleCustomEvent, {

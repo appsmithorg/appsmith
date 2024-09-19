@@ -12,6 +12,7 @@ export const useAnvilWidgetClick = (
   const isFocused = useSelector(isWidgetFocused(widgetId));
   const isSnipingMode = useSelector(snipingModeSelector);
   const allowSelectionRef = useRef(false);
+
   useEffect(() => {
     allowSelectionRef.current = isFocused;
   }, [isFocused]);
@@ -45,6 +46,7 @@ export const useAnvilWidgetClick = (
     },
     [widgetId],
   );
+
   return {
     onClickFn,
     onClickCaptureFn,

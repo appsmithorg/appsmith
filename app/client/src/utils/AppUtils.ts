@@ -8,6 +8,7 @@ import Modal from "react-modal";
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
+
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
 
   // For accessibility (https://reactcommunity.org/react-modal/accessibility/)
@@ -18,11 +19,14 @@ export const appInitializer = () => {
 
 const getEnvLogLevel = (configLevel: LogLevelDesc): LogLevelDesc => {
   let logLevel = configLevel;
+
   if (localStorage && localStorage.getItem) {
     const localStorageLevel = localStorage.getItem(
       "logLevelOverride",
     ) as LogLevelDesc;
+
     if (localStorageLevel) logLevel = localStorageLevel;
   }
+
   return logLevel;
 };

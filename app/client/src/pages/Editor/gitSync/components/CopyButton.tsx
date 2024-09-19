@@ -46,6 +46,7 @@ export function CopyButton({
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
     }
+
     onCopy();
   };
 

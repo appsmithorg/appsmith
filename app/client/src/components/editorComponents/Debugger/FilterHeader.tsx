@@ -55,6 +55,7 @@ interface FilterHeaderProps {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
+
   return (
     <Wrapper>
       <Tooltip

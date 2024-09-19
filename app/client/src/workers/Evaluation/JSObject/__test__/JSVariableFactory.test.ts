@@ -6,6 +6,7 @@ import TriggerEmitter, {
 import JSObjectCollection from "../Collection";
 
 const applyJSVariableUpdatesToEvalTreeMock = jest.fn();
+
 jest.mock("../JSVariableUpdates.ts", () => ({
   ...jest.requireActual("../JSVariableUpdates.ts"),
   // TODO: Fix this the next time the file is edited

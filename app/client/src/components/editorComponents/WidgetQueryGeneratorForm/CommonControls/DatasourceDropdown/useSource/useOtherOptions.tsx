@@ -90,6 +90,7 @@ function useOtherOptions(props: OtherOptionsProps) {
         },
       });
     }
+
     if (isAddBindingAllowed) {
       options.push({
         icon: <Icon name="code" size="md" />,

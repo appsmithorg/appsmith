@@ -5,6 +5,7 @@ describe("resolvePixelValues", () => {
     const totalPixels = 1000;
     const sizes = ["1fr", "2fr", "1fr"];
     const result = resolvePixelValues(totalPixels, sizes);
+
     expect(result).toEqual([250, 500, 250]);
   });
 
@@ -12,6 +13,7 @@ describe("resolvePixelValues", () => {
     const totalPixels = 1200;
     const sizes = ["1fr", "200px", "2fr"];
     const result = resolvePixelValues(totalPixels, sizes);
+
     expect(result).toEqual([333.3333333333333, 200, 666.6666666666666]);
   });
 
@@ -19,6 +21,7 @@ describe("resolvePixelValues", () => {
     const totalPixels = 1000;
     const sizes: string[] = [];
     const result = resolvePixelValues(totalPixels, sizes);
+
     expect(result).toEqual([]);
   });
 
@@ -26,6 +29,7 @@ describe("resolvePixelValues", () => {
     const totalPixels = 1000;
     const sizes = ["1fr", "invalid", "2fr"];
     const result = resolvePixelValues(totalPixels, sizes);
+
     // Assuming the function returns NaN for invalid entries
     expect(result).toEqual([333.3333333333333, 0, 666.6666666666666]);
   });

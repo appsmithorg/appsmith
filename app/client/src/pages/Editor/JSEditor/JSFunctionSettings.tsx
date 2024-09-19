@@ -125,6 +125,7 @@ const SettingsBodyWrapper = styled.div`
 const SwitchWrapper = styled.div`
   margin-left: 6ch;
 `;
+
 function SettingsHeading({
   grow,
   hasInfo,

@@ -28,6 +28,7 @@ const AuthorDetailsInput = ({
     () => authorEmail && emailValidator(authorEmail).isValid,
     [authorEmail],
   );
+
   return (
     <Container>
       <Text kind="heading-s" renderAs="h2">

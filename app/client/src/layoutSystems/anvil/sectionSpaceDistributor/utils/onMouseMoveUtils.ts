@@ -16,6 +16,7 @@ export interface SpaceDistributionZoneDomCollection {
 }
 const isSafari = memoize(() => {
   const browserInfo = getBrowserInfo();
+
   return typeof browserInfo === "object" && browserInfo?.browser === "Safari";
 });
 // Constants for animation and speed control during handle move
@@ -48,6 +49,7 @@ const adjustZoneFlexGrowForMagneticEffect = (
         baseAnimationDuration -
         Math.min(mouseSpeed, speedLimitForAnimation) * ratioOfSpeedToAnimation
       }s ease-in-out`;
+
   // Apply transition styles to left and right zones
   [leftZoneDom, rightZoneDom].forEach((zoneDom) => {
     zoneDom.style.transition = transitionStyle;
@@ -107,6 +109,7 @@ const applyResistiveForceOnHandleMove = (
   const transitionStyle = isTransitionEnabled
     ? `flex-basis ${baseAnimationDuration}s ease`
     : "";
+
   [leftZoneDom, rightZoneDom].forEach((zoneDom) => {
     zoneDom.style.transition = transitionStyle;
   });

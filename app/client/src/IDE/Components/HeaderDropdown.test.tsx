@@ -34,6 +34,7 @@ describe("HeaderDropdown", () => {
     );
 
     const headerElement = container.querySelector(`.${customClass}`);
+
     expect(headerElement).toBeInTheDocument();
   });
 });

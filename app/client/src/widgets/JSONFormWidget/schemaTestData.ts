@@ -42,6 +42,7 @@ export const schemaItemFactory = (item: any): SchemaItem => {
 
 export const replaceBindingWithValue = (schemaItem: SchemaItem) => {
   if (isEmpty(schemaItem)) return {} as SchemaItem;
+
   const updatedSchemaItem = klonaRegularWithTelemetry(
     schemaItem,
     "schemaTestData.replaceBindingWithValue",
@@ -52,6 +53,7 @@ export const replaceBindingWithValue = (schemaItem: SchemaItem) => {
 
     if (key === "children") {
       const schema = schemaItem[key];
+
       Object.keys(schema).forEach((itemKey) => {
         updatedSchemaItem.children[itemKey] = replaceBindingWithValue(
           schemaItem.children[itemKey],

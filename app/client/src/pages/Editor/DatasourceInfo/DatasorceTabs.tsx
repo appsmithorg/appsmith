@@ -25,6 +25,7 @@ const TabsContainer = styled(Tabs)`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  max-height: unset;
 `;
 
 const TabListWrapper = styled(TabsList)`
@@ -70,6 +71,7 @@ const DatasourceTabs = (props: DatasourceTabProps) => {
           currentEnvironmentId,
         )
       : false;
+
   return (
     <TabsContainer
       defaultValue={

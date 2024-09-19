@@ -101,6 +101,7 @@ function MultiSelectComponent({
     ) {
       setIsSelectAll(true);
     }
+
     if (isSelectAll && options.length !== value.length) {
       setIsSelectAll(false);
     }
@@ -108,20 +109,25 @@ function MultiSelectComponent({
 
   const getDropdownPosition = useCallback(() => {
     const node = _menu.current;
+
     if (Boolean(node?.closest(`.${MODAL_PORTAL_CLASSNAME}`))) {
       return document.querySelector(
         `.${MODAL_PORTAL_CLASSNAME}`,
       ) as HTMLElement;
     }
+
     return document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
   }, []);
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
       const allOption = options.map((option) => option.value) as string[];
+
       onChange(allOption);
+
       return;
     }
+
     return onChange([]);
   };
 
@@ -164,10 +170,12 @@ function MultiSelectComponent({
     const updateFilter = (filterValue: string) => {
       onFilterChange(filterValue);
     };
+
     return debounce(updateFilter, DEBOUNCE_TIMEOUT);
   }, []);
 
   const id = _.uniqueId();
+
   return (
     <MultiSelectContainer
       className={loading ? Classes.SKELETON : ""}

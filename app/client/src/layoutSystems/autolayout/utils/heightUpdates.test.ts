@@ -20,6 +20,7 @@ describe("auto-layout: heightUpdates", () => {
             maxWidth: undefined,
             maxHeight: undefined,
           };
+
         return {
           minWidth: undefined,
           minHeight: undefined,
@@ -33,6 +34,7 @@ describe("auto-layout: heightUpdates", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: { [k: string]: any } = { ...MAIN_CONTAINER_WIDGET_WITH_BUTTON };
     let updatedWidgets = updateWidgetPositions(data, "3", false, 4896);
+
     expect(updatedWidgets["2"].bottomRow).toBe(6);
 
     // Add a button in a new row
@@ -63,6 +65,7 @@ describe("auto-layout: heightUpdates", () => {
         ],
       },
     };
+
     updatedWidgets = updateWidgetPositions(data2, "3", false, 4896);
     /**
      * buttonHeight = 4
@@ -107,6 +110,7 @@ describe("auto-layout: heightUpdates", () => {
       },
     };
     let updatedWidgets = updateWidgetPositions(data2, "3", false, 4896);
+
     /**
      * buttonHeight = 4
      * rowGap = 1.2
@@ -135,6 +139,7 @@ describe("auto-layout: heightUpdates", () => {
       },
       "4": data["4"],
     };
+
     updatedWidgets = updateWidgetPositions(data3, "3", false, 4896);
     expect(updatedWidgets["2"].bottomRow).toBe(6);
   });
@@ -172,6 +177,7 @@ describe("auto-layout: heightUpdates", () => {
       },
     };
     let updatedWidgets = updateWidgetPositions(data2, "3", false, 4896);
+
     expect(Math.round(updatedWidgets["2"].bottomRow)).toBe(11);
 
     // Remove all child widgets
@@ -185,6 +191,7 @@ describe("auto-layout: heightUpdates", () => {
       },
       "4": data["4"],
     };
+
     updatedWidgets = updateWidgetPositions(data3, "3", false, 4896);
     /**
      * Container (minHeight = 5)
@@ -210,6 +217,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
             maxWidth: undefined,
             maxHeight: undefined,
           };
+
         return {
           minWidth: undefined,
           minHeight: undefined,
@@ -231,6 +239,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       false,
       { "1": { selectedTabWidgetId: "2" } },
     );
+
     /**
      * minHeight of TabsWidget = 30;
      * Buffer for Tabs header = 4;
@@ -253,6 +262,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       false,
       { "1": { selectedTabWidgetId: selectedTabWidgetId } },
     );
+
     /**
      * TABS
      *  CANVAS
@@ -275,6 +285,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       false,
       { "1": { selectedTabWidgetId: selectedTabWidgetId } },
     );
+
     expect(updatedWidgets2["1"].bottomRow).toBe(30);
     expect(updatedWidgets2["3"].bottomRow).toBe(260);
   });
@@ -292,6 +303,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       false,
       { "1": { selectedTabWidgetId: selectedTabWidgetId } },
     );
+
     /**
      * TABS
      *  CANVAS
@@ -326,6 +338,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       false,
       { "1": { selectedTabWidgetId: selectedTabWidgetId } },
     );
+
     // height of canvas remains the same.
     expect(updatedWidgets2["2"].bottomRow).toBe(402);
     expect(updatedWidgets2["1"].bottomRow).toBe(40.2);
@@ -353,6 +366,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       false,
       { "1": { selectedTabWidgetId: "2" } },
     );
+
     expect(updatedWidgets["2"].bottomRow).toBe(402);
     expect(updatedWidgets["1"].bottomRow).toBe(40.2);
   });
@@ -375,6 +389,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       false,
       { "1": { selectedTabWidgetId: undefined } },
     );
+
     expect(updatedWidgets["2"].bottomRow).toBe(402);
     expect(updatedWidgets["1"].bottomRow).toBe(40.2);
   });
@@ -418,6 +433,7 @@ describe("auto-layout dynamic height: tabs widget", () => {
       "1": { selectedTabWidgetId: "2" },
     });
     const mobileBottomRow = updatedWidgets2["1"].mobileBottomRow;
+
     expect(mobileBottomRow).toBeGreaterThan(bottomRow);
   });
 });

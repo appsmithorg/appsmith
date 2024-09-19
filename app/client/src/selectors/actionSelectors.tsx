@@ -33,6 +33,7 @@ export const getUsedActionNames = createSelector(
     installedLibraries: JSLibrary[],
   ) => {
     const map: Record<string, boolean> = {};
+
     // The logic has been copied from Explorer/Entity/Name.tsx Component.
     // Todo(abhinav): abstraction leak
     if (
@@ -54,6 +55,7 @@ export const getUsedActionNames = createSelector(
       const libAccessors = ([] as string[]).concat(
         ...installedLibraries.map((lib) => lib.accessor),
       );
+
       for (const accessor of libAccessors) {
         map[accessor] = true;
       }

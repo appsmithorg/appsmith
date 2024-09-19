@@ -166,6 +166,7 @@ class FormWidget extends ContainerWidget {
               layoutSystemType: LayoutSystemTypes,
             ) => {
               if (layoutSystemType === LayoutSystemTypes.FIXED) return {};
+
               return { rows: 10 };
             },
           },
@@ -180,6 +181,7 @@ class FormWidget extends ContainerWidget {
               if (layoutSystemType === LayoutSystemTypes.FIXED) {
                 return [];
               }
+
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -319,9 +321,11 @@ class FormWidget extends ContainerWidget {
       if ("children" in child) {
         return this.checkInvalidChildren(child.children || []);
       }
+
       if ("isValid" in child) {
         return !child.isValid;
       }
+
       return false;
     });
   };
@@ -361,6 +365,7 @@ class FormWidget extends ContainerWidget {
     const childWidgets = containerWidget.children || [];
 
     const hasChanges = childWidgets.some((child) => child.isDirty);
+
     if (!hasChanges) {
       return childWidgets.some(
         (child) =>
@@ -374,13 +379,16 @@ class FormWidget extends ContainerWidget {
 
   getChildContainer = () => {
     const { childWidgets = [] } = this.props;
+
     return { ...childWidgets[0] };
   };
 
   updateFormData() {
     const firstChild = this.getChildContainer();
+
     if (firstChild) {
       const formData = this.getFormData(firstChild);
+
       if (!equal(formData, this.props.data)) {
         this.props.updateWidgetMetaProperty("data", formData);
       }
@@ -391,12 +399,14 @@ class FormWidget extends ContainerWidget {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formData: any = {};
+
     if (formWidget.children)
       formWidget.children.forEach((widgetData) => {
         if (!_.isNil(widgetData.value)) {
           formData[widgetData.widgetName] = widgetData.value;
         }
       });
+
     return formData;
   }
 
@@ -407,18 +417,24 @@ class FormWidget extends ContainerWidget {
 
     if (childContainer.children) {
       const isInvalid = this.checkInvalidChildren(childContainer.children);
+
       childContainer.children = childContainer.children.map(
         (child: WidgetProps) => {
           const grandChild = { ...child };
+
           if (isInvalid) grandChild.isFormValid = false;
+
           // Add submit and reset handlers
           grandChild.onReset = this.handleResetInputs;
+
           return grandChild;
         },
       );
     }
+
     childContainer.rightColumn = componentWidth;
     childContainer.bottomRow = componentHeight;
+
     return super.renderChildWidget(childContainer);
   }
 

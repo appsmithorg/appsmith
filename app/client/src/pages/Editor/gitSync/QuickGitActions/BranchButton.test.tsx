@@ -8,6 +8,7 @@ describe("BranchButton", () => {
     const currentBranch = screen.queryByTestId(
       "t--branch-button-currentBranch",
     );
+
     expect(currentBranch?.innerHTML).toContain("*");
   });
 });

@@ -251,6 +251,7 @@ function FilePickerComponent(props: FilePickerProps) {
 
   function ButtonClick(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
+
     if (inputRef.current) {
       inputRef.current.click();
     }
@@ -259,9 +260,11 @@ function FilePickerComponent(props: FilePickerProps) {
   function onDrop(monitor: DropTargetMonitor) {
     if (monitor) {
       const files = monitor.getItem().files;
+
       if (!files) {
         return;
       }
+
       handleFileUpload(files);
     }
   }
@@ -270,8 +273,10 @@ function FilePickerComponent(props: FilePickerProps) {
     if (progressRef.current) {
       progressRef.current.style.width = `${uploadPercentage}%`;
     }
+
     if (uploadPercentage === 100) {
       setIsUploaded(true);
+
       if (fileDescRef.current && bgRef.current && fileType === FileType.IMAGE) {
         fileDescRef.current.style.display = "none";
         bgRef.current.style.opacity = "1";
@@ -294,21 +299,27 @@ function FilePickerComponent(props: FilePickerProps) {
   function handleOtherFileUpload(files: FileList | null) {
     const file = files && files[0];
     let fileSize = 0;
+
     if (!file) {
       return;
     }
+
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
+
     if (props.delayedUpload) {
       setIsUploaded(true);
       setProgress(100);
     }
+
     if (fileDescRef.current) {
       fileDescRef.current.style.display = "flex";
     }
+
     if (fileContainerRef.current) {
       fileContainerRef.current.style.display = "none";
     }
+
     fileUploader && fileUploader(file, setProgress, onUpload);
   }
 
@@ -319,6 +330,7 @@ function FilePickerComponent(props: FilePickerProps) {
     if (!file) {
       return;
     }
+
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
 
@@ -329,9 +341,11 @@ function FilePickerComponent(props: FilePickerProps) {
         )})`;
         bgRef.current.style.opacity = "0.5";
       }
+
       if (fileDescRef.current) {
         fileDescRef.current.style.display = "block";
       }
+
       if (fileContainerRef.current) {
         fileContainerRef.current.style.display = "none";
       }
@@ -348,13 +362,17 @@ function FilePickerComponent(props: FilePickerProps) {
   function removeFile() {
     if (fileContainerRef.current) {
       setFileUrl("");
+
       if (fileDescRef.current) {
         fileDescRef.current.style.display = "none";
       }
+
       fileContainerRef.current.style.display = "flex";
+
       if (bgRef.current) {
         bgRef.current.style.backgroundImage = "url('')";
       }
+
       setIsUploaded(false);
       onFileRemoved && onFileRemoved();
     }
@@ -365,6 +383,7 @@ function FilePickerComponent(props: FilePickerProps) {
   useEffect(() => {
     if (props.url) {
       const urlKeys = props.url.split("/");
+
       if (urlKeys[urlKeys.length - 1] !== "null") {
         setFileUrl(props.url);
       } else {
@@ -377,13 +396,16 @@ function FilePickerComponent(props: FilePickerProps) {
   useEffect(() => {
     if (fileUrl && !isUploaded && fileType === FileType.IMAGE) {
       setIsUploaded(true);
+
       if (bgRef.current) {
         bgRef.current.style.backgroundImage = `url(${fileUrl})`;
         bgRef.current.style.opacity = "1";
       }
+
       if (fileDescRef.current) {
         fileDescRef.current.style.display = "none";
       }
+
       if (fileContainerRef.current) {
         fileContainerRef.current.style.display = "none";
       }

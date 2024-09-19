@@ -204,6 +204,7 @@ const validateMetaWidgetType = (
   const maxMetaWidgets = Object.keys(metaWidgets).length;
   const maxExpectedWidgets = validators.reduce((acc, validator) => {
     acc += validator.occurrence;
+
     return acc;
   }, 0);
 
@@ -214,6 +215,7 @@ const validateMetaWidgetType = (
   );
   const expectedWidgetTypes = validators.reduce((acc: string[], validator) => {
     const { occurrence, widgetType } = validator;
+
     acc = [...acc, ...Array(occurrence).fill(widgetType)];
 
     return acc;
@@ -288,6 +290,7 @@ describe("#generate", () => {
       { id: 3, name: "Black" },
       { id: 4, name: "White" },
     ];
+
     options.data = newData;
     options.primaryKeys = newData.map((d) => d.id.toString());
 
@@ -376,6 +379,7 @@ describe("#generate", () => {
     const buttonWidgetId = buttonWidget.widgetId;
     const imageWidgetId = "epowimtfiu";
     const removedWidgetIds = [buttonWidgetId, imageWidgetId];
+
     newContainerCanvas.children = newContainerCanvas.children?.filter(
       (c) => !removedWidgetIds.includes(c),
     );
@@ -634,6 +638,7 @@ describe("#generate", () => {
     const templateWidgetIds = Object.keys(simpleListInput.templateWidgets);
 
     const count = Object.keys(initialResult.metaWidgets).length;
+
     expect(count).toEqual(18);
 
     Object.values(initialResult.metaWidgets).forEach((metaWidget) => {
@@ -849,6 +854,7 @@ describe("#generate", () => {
       .generate();
 
     const count = Object.keys(initialResult.metaWidgets).length;
+
     expect(count).toEqual(15);
     expect(initialResult.removedMetaWidgetIds.length).toEqual(0);
   });
@@ -902,6 +908,7 @@ describe("#generate", () => {
     };
 
     const metaNestedTextWidget = initialResult.metaWidgets[nestedTextWidgetId];
+
     expect(metaNestedTextWidget.level_1).toEqual(expectedLevel_1);
   });
 
@@ -1016,6 +1023,7 @@ describe("#generate", () => {
       "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        ,\n          List6: { backgroundColor: List6.backgroundColor,isVisible: List6.isVisible,itemSpacing: List6.itemSpacing,selectedItem: List6.selectedItem,selectedItemView: List6.selectedItemView,triggeredItem: List6.triggeredItem,triggeredItemView: List6.triggeredItemView,listData: List6.listData,pageNo: List6.pageNo,pageSize: List6.pageSize,currentItemsView: List6.currentItemsView }\n        \n      }\n    }}";
 
     const count = Object.keys(metaWidgets).length;
+
     expect(count).toEqual(18);
     expect(removedMetaWidgetIds.length).toEqual(0);
 
@@ -1064,6 +1072,7 @@ describe("#generate", () => {
     });
 
     const count1 = Object.keys(initialResult.metaWidgets).length;
+
     expect(count1).toEqual(12);
     expect(initialResult.removedMetaWidgetIds.length).toEqual(0);
 
@@ -1077,6 +1086,7 @@ describe("#generate", () => {
       .generate();
 
     const count2 = Object.keys(result2.metaWidgets).length;
+
     expect(count2).toEqual(12);
     expect(result2.removedMetaWidgetIds.length).toEqual(6);
 
@@ -1090,6 +1100,7 @@ describe("#generate", () => {
       .generate();
 
     const count3 = Object.keys(result3.metaWidgets).length;
+
     expect(count3).toEqual(12);
     expect(result3.removedMetaWidgetIds.length).toEqual(6);
   });
@@ -1129,6 +1140,7 @@ describe("#generate", () => {
     });
 
     const count1 = Object.keys(initialResult.metaWidgets).length;
+
     expect(count1).toEqual(12);
     expect(initialResult.removedMetaWidgetIds.length).toEqual(0);
 
@@ -1142,6 +1154,7 @@ describe("#generate", () => {
       .generate();
 
     const count2 = Object.keys(result2.metaWidgets).length;
+
     expect(count2).toEqual(12);
     expect(result2.removedMetaWidgetIds.length).toEqual(12);
 
@@ -1155,6 +1168,7 @@ describe("#generate", () => {
       .generate();
 
     const count3 = Object.keys(result3.metaWidgets).length;
+
     expect(count3).toEqual(12);
     expect(result3.removedMetaWidgetIds.length).toEqual(12);
   });
@@ -1168,6 +1182,7 @@ describe("#generate", () => {
       (w) => w.widgetName,
     );
     const templateWidgetIds = Object.keys(options.currTemplateWidgets);
+
     Object.values(initialResult.metaWidgets).forEach(
       ({ widgetId, widgetName }) => {
         expect(templateWidgetIds).not.toContain(widgetId);
@@ -1255,12 +1270,14 @@ describe("#generate", () => {
     const result1 = generator.withOptions(options).generate();
 
     const count1 = Object.keys(result1.metaWidgets).length;
+
     expect(count1).toEqual(12);
     expect(result1.removedMetaWidgetIds.length).toEqual(6);
 
     options.pageNo = 1;
     const result2 = generator.withOptions(options).generate();
     const count2 = Object.keys(result2.metaWidgets).length;
+
     expect(count2).toEqual(12);
     expect(result2.removedMetaWidgetIds.length).toEqual(6);
   });
@@ -1281,6 +1298,7 @@ describe("#generate", () => {
               referencedWidgetId === metaWidget.widgetId,
           )
           .map(({ metaWidgetId }) => metaWidgetId);
+
         expect(metaWidget.siblingMetaWidgets).toStrictEqual(
           prevPageMetaWidgetIds,
         );
@@ -1300,12 +1318,14 @@ describe("#generate", () => {
     // If any one of the object properties has more than 1 candidateMetaWidget then siblingMetaWidgets is
     // being stored in more than on meta widget for a particular template widget.
     const candidateMetaWidgets: Record<string, string[]> = {};
+
     Object.values(result1.metaWidgets).forEach((metaWidget) => {
       const {
         referencedWidgetId = "",
         siblingMetaWidgets,
         widgetId,
       } = metaWidget;
+
       if (siblingMetaWidgets) {
         if (!Array.isArray(candidateMetaWidgets[referencedWidgetId])) {
           candidateMetaWidgets[referencedWidgetId] = [widgetId];
@@ -1324,6 +1344,7 @@ describe("#generate", () => {
             referencedWidgetId === candidateWidget.referencedWidgetId,
         )
         .map(({ metaWidgetId }) => metaWidgetId);
+
       expect(candidateWidgets.length).toBe(1);
       expect(candidateWidget.siblingMetaWidgets).toStrictEqual(
         prevPageMetaWidgetIds,
@@ -1386,6 +1407,7 @@ describe("#generate", () => {
             referencedWidgetId === candidateWidget.referencedWidgetId,
         )
         .map(({ metaWidgetId }) => metaWidgetId);
+
       expect(siblingsIds).toStrictEqual(expectedSiblings);
     });
 
@@ -1431,6 +1453,7 @@ describe("#generate", () => {
     ];
 
     const page2PropertyUpdates = nestedList2Page2.initialResult.propertyUpdates;
+
     expect(page2PropertyUpdates).not.toStrictEqual([]);
 
     expect(page2PropertyUpdates).not.toStrictEqual([]);
@@ -1443,6 +1466,7 @@ describe("#generate", () => {
             referencedWidgetId === candidateWidget.referencedWidgetId,
         )
         .map(({ metaWidgetId }) => metaWidgetId);
+
       expect(siblingsIds).toStrictEqual(expectedSiblings);
     });
   });
@@ -1726,6 +1750,7 @@ describe("#getMetaContainers", () => {
 
   it("returns meta containers", () => {
     const containers = generator.getMetaContainers();
+
     page1Containers = containers;
 
     expect(containers.ids.length).toEqual(2);
@@ -1790,6 +1815,7 @@ describe("#updateWidgetNameInDynamicBinding", () => {
           metaWidgetName,
           templateWidgetName,
         );
+
         expect(updatedBinding).toBe(expected);
       },
     );
@@ -1802,6 +1828,7 @@ describe("#updateWidgetNameInDynamicBinding", () => {
         "test",
         "test",
       );
+
       expect(updatedBinding).toBe(d);
     });
   });

@@ -92,6 +92,7 @@ export const ExplorerJSCollectionEntity = memo(
         name={jsAction.name}
       />
     );
+
     return (
       <Entity
         action={navigateToJSCollection}

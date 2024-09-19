@@ -21,6 +21,7 @@ export const useEditorStateLeftPaneWidth = (): number => {
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const isPreviewMode = useSelector(previewModeSelector);
   const isProtectedMode = useSelector(protectedModeSelector);
+
   useEffect(
     function updateWidth() {
       if (isPreviewMode || isProtectedMode) {

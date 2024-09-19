@@ -190,10 +190,12 @@ class ButtonGroupWidget extends BaseWidget<
           configuration: (props: ButtonGroupWidgetProps) => {
             let minWidth = 120;
             const buttonLength = Object.keys(props.groupButtons).length;
+
             if (props.orientation === "horizontal") {
               // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
               minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
             }
+
             return {
               minWidth: `${minWidth}px`,
               minHeight: "40px",
@@ -213,10 +215,12 @@ class ButtonGroupWidget extends BaseWidget<
       widgetSize: (props: ButtonGroupWidgetProps) => {
         let minWidth = 120;
         const buttonLength = Object.keys(props.groupButtons).length;
+
         if (props.orientation === "horizontal") {
           // 120 is the width of the button, 8 is widget padding, 1 is the gap between buttons
           minWidth = 120 * buttonLength + 8 + (buttonLength - 1) * 1;
         }
+
         return {
           maxHeight: {},
           maxWidth: {},
@@ -308,6 +312,7 @@ class ButtonGroupWidget extends BaseWidget<
                           `${propertyPath.split(".", 2).join(".")}.buttonType`,
                           "",
                         );
+
                         return buttonType !== "MENU";
                       },
                       dependencies: ["groupButtons"],
@@ -523,6 +528,7 @@ class ButtonGroupWidget extends BaseWidget<
                       `${propertyPath}.buttonType`,
                       "",
                     );
+
                     return buttonType === "MENU";
                   },
                   children: [

@@ -27,15 +27,18 @@ const nameValidator = (
   message: string;
 } => {
   const notEmpty = notEmptyValidator(value);
+
   if (!notEmpty.isValid) {
     return notEmpty;
   }
+
   if (!new RegExp(`^[${ALL_LANGUAGE_CHARACTERS_REGEX} 0-9.'-]+$`).test(value)) {
     return {
       isValid: false,
       message: createMessage(USER_DISPLAY_NAME_CHAR_CHECK_FAILED),
     };
   }
+
   return {
     isValid: true,
     message: "",

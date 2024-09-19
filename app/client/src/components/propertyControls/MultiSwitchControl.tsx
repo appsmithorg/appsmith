@@ -10,6 +10,7 @@ class MultiSwitchControl extends BaseControl<MultiSwitchControlProps> {
   renderOption = (option: SwitchOption) => {
     const isIcon: boolean =
       !!option.icon && iconNames.indexOf(option.icon) > -1;
+
     return (
       <Button
         active={this.props.propertyValue === option.value}

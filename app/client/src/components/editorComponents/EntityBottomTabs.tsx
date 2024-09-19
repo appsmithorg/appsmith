@@ -53,6 +53,7 @@ function EntityBottomTabs(
 ) {
   const onTabSelect = (key: string) => {
     const tab = props.tabs.find((tab) => tab.key === key);
+
     if (tab) {
       props.onSelect && props.onSelect(tab.key);
 
