@@ -23,8 +23,7 @@ describe(
   function () {
     before("Table Widget V2 Functionality", () => {
       agHelper.AddDsl("tableV2AndTextDsl");
-
-      (cy as any).openPropertyPane("tablewidgetv2");
+      agHelper.GetNClick(locators._widgetInCanvas("tablewidgetv2"));
     });
 
     it("1. Table Widget V2 Functionality To Filter and search data", function () {
@@ -44,7 +43,7 @@ describe(
       agHelper.TypeText(publish.tableFilterInputValue, "bind");
 
       agHelper.GetNClick(widgetsPage.filterApplyBtn, 0, true);
-      agHelper.GetNClick(".t--close-filter-btn", 0, true);
+      table.CloseFilter();
     });
 
     it("2. Table Widget V2 Functionality to validate filtered table data", function () {
