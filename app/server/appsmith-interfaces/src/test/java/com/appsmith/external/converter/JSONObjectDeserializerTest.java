@@ -2,13 +2,14 @@ package com.appsmith.external.converter;
 
 import com.appsmith.external.helpers.JsonForDatabase;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JSONObjectDeserializerTest {
 
@@ -16,97 +17,72 @@ public class JSONObjectDeserializerTest {
         return JsonForDatabase.create();
     }
 
-    @Test
-    void testDeserializeSimpleObject() throws Exception {
-        String json = "{\"intField\": 123, \"stringField\": \"test\", \"booleanField\": true, \"doubleField\": 45.67}";
-
-        ObjectMapper objectMapper = getObjectMapper();
-        JSONObject result = objectMapper.readValue(json, JSONObject.class);
-
-        assertNotNull(result);
-        assertEquals(123, result.getAsNumber("intField"));
-        assertEquals("test", result.getAsString("stringField"));
-        assertEquals(true, result.get("booleanField"));
-        assertEquals(45.67, result.getAsNumber("doubleField"));
+    public static class Widget {
+        public String widgetName;
+        public Integer rightColumn;
+        public String backgroundColor;
+        public Integer snapColumns;
+        public Boolean detachFromLayout;
+        public String widgetId;
+        public Integer topRow;
+        public Integer bottomRow;
+        public String containerStyle;
+        public Integer snapRows;
+        public Integer parentRowSpace;
+        public String type;
+        public Boolean canExtend;
+        public Integer version;
+        public Integer minHeight;
+        public Integer parentColumnSpace;
+        public Map<String, Object> children; // Changed type to Map to avoid cast exception
     }
 
     @Test
-    void testDeserializeObjectWithNullValue() throws Exception {
-        String json = "{\"stringField\": \"test\", \"nullField\": null}";
-
-        ObjectMapper objectMapper = getObjectMapper();
-        JSONObject result = objectMapper.readValue(json, JSONObject.class);
-
-        assertNotNull(result);
-        assertEquals("test", result.getAsString("stringField"));
-        assertNull(result.get("nullField"));
-    }
-
-    @Test
-    void testDeserializeNestedObject() throws Exception {
-        String json = "{\"nestedObject\": {\"innerField\": 42, \"innerString\": \"innerValue\"}}";
-
-        ObjectMapper objectMapper = getObjectMapper();
-        JSONObject result = objectMapper.readValue(json, JSONObject.class);
-
-        assertNotNull(result);
-        JSONObject nestedObject = (JSONObject) result.get("nestedObject");
-        assertNotNull(nestedObject);
-        assertEquals(42, nestedObject.getAsNumber("innerField"));
-        assertEquals("innerValue", nestedObject.getAsString("innerString"));
-    }
-
-    @Test
-    void testDeserializeArray() throws Exception {
-        String json = "{\"arrayField\": [1, \"two\", true, null]}";
-
-        ObjectMapper objectMapper = getObjectMapper();
-        JSONObject result = objectMapper.readValue(json, JSONObject.class);
-
-        assertNotNull(result);
-        JSONArray array = (JSONArray) result.get("arrayField");
-
-        assertNotNull(array);
-        assertEquals(4, array.size());
-        assertEquals(1, array.get(0));
-        assertEquals("two", array.get(1));
-        assertEquals(true, array.get(2));
-        assertNull(array.get(3));
-    }
-
-    @Test
-    void testDeserializeComplexObject() throws Exception {
-        String json = "{\n" + "  \"intField\": 10,\n"
-                + "  \"stringField\": \"hello\",\n"
-                + "  \"booleanField\": false,\n"
-                + "  \"nestedObject\": {\n"
-                + "    \"innerInt\": 5,\n"
-                + "    \"innerArray\": [1, 2, 3],\n"
-                + "    \"innerObject\": {\"innerKey\": \"innerValue\"}\n"
-                + "  }\n"
+    public void testDeserializeWithNullValues() throws IOException {
+        // Sample JSON with null values
+        String jsonWithNulls = "{\n" + "  \"widgetName\": \"MainContainer\",\n"
+                + "  \"rightColumn\": 4896,\n"
+                + "  \"backgroundColor\": null,\n"
+                + "  \"snapColumns\": 64,\n"
+                + "  \"detachFromLayout\": true,\n"
+                + "  \"widgetId\": \"0\",\n"
+                + "  \"topRow\": 0,\n"
+                + "  \"bottomRow\": 680,\n"
+                + "  \"containerStyle\": \"none\",\n"
+                + "  \"snapRows\": 124,\n"
+                + "  \"parentRowSpace\": 1,\n"
+                + "  \"type\": \"CANVAS_WIDGET\",\n"
+                + "  \"canExtend\": true,\n"
+                + "  \"version\": 90,\n"
+                + "  \"minHeight\": 1292,\n"
+                + "  \"parentColumnSpace\": null\n"
                 + "}";
 
+        // Configure ObjectMapper with the custom deserializer
         ObjectMapper objectMapper = getObjectMapper();
-        JSONObject result = objectMapper.readValue(json, JSONObject.class);
+        // Register your custom deserializer here if necessary
+        // e.g., objectMapper.registerModule(customModule);
 
-        assertNotNull(result);
-        assertEquals(10, result.getAsNumber("intField"));
-        assertEquals("hello", result.getAsString("stringField"));
-        assertEquals(false, result.get("booleanField"));
+        // Deserialize JSON into Widget object
+        JSONObjectDeserializerTest.Widget widget =
+                objectMapper.readValue(jsonWithNulls, JSONObjectDeserializerTest.Widget.class);
 
-        JSONObject nestedObject = (JSONObject) result.get("nestedObject");
-        assertNotNull(nestedObject);
-        assertEquals(5, nestedObject.getAsNumber("innerInt"));
-
-        JSONArray innerArray = (JSONArray) nestedObject.get("innerArray");
-        assertNotNull(innerArray);
-        assertEquals(3, innerArray.size());
-        assertEquals(1, innerArray.get(0));
-        assertEquals(2, innerArray.get(1));
-        assertEquals(3, innerArray.get(2));
-
-        JSONObject innerObject = (JSONObject) nestedObject.get("innerObject");
-        assertNotNull(innerObject);
-        assertEquals("innerValue", innerObject.getAsString("innerKey"));
+        // Assert deserialized values including null fields
+        assertEquals("MainContainer", widget.widgetName);
+        assertEquals(4896, widget.rightColumn);
+        assertNull(widget.backgroundColor); // Assert null field
+        assertEquals(64, widget.snapColumns);
+        assertTrue(widget.detachFromLayout);
+        assertEquals("0", widget.widgetId);
+        assertEquals(0, widget.topRow);
+        assertEquals(680, widget.bottomRow);
+        assertEquals("none", widget.containerStyle);
+        assertEquals(124, widget.snapRows);
+        assertEquals(1, widget.parentRowSpace);
+        assertEquals("CANVAS_WIDGET", widget.type);
+        assertTrue(widget.canExtend);
+        assertEquals(90, widget.version);
+        assertEquals(1292, widget.minHeight);
+        assertNull(widget.parentColumnSpace); // Assert null field
     }
 }

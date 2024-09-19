@@ -65,7 +65,6 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1044,15 +1043,18 @@ class LayoutActionServiceTest {
                     // verify that the layout of each page has been updated
                     JSONObject dsl1 = objects.getT1().getLayouts().get(0).getDsl();
                     JSONObject dsl2 = objects.getT2().getLayouts().get(0).getDsl();
-                    ArrayList<LinkedHashMap> childArray1 = (ArrayList) dsl1.get("children");
-                    ArrayList<LinkedHashMap> childArray2 = (ArrayList) dsl2.get("children");
+                    JSONArray childArray1 = (JSONArray) dsl1.get("children");
+                    JSONArray childArray2 = (JSONArray) dsl2.get("children");
 
                     assertEquals(1, childArray1.size());
                     assertEquals(1, childArray2.size());
 
-                    LinkedHashMap<String, String> widget1 = childArray1.get(0);
-                    LinkedHashMap<String, String> widget2 = childArray2.get(0);
-                    List<String> widgetNames = List.of(widget1.get("widgetName"), widget2.get("widgetName"));
+                    JSONObject child1 = (JSONObject) childArray1.get(0);
+                    JSONObject child2 = (JSONObject) childArray2.get(0);
+
+                    List<String> widgetNames = List.of(
+                            child1.get("widgetName").toString(),
+                            child2.get("widgetName").toString());
                     assertThat(widgetNames).contains("Layout1", "Layout2");
                 })
                 .verifyComplete();

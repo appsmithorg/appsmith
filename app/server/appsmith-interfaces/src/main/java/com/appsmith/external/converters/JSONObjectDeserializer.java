@@ -2,16 +2,14 @@ package com.appsmith.external.converters;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class JSONObjectDeserializer extends StdDeserializer<JSONObject> {
@@ -20,60 +18,7 @@ public class JSONObjectDeserializer extends StdDeserializer<JSONObject> {
         super(t);
     }
 
-    public JSONObject deserialize(JsonParser jsonParser, DeserializationContext context)
-            throws IOException, JsonProcessingException {
-        // Use Jackson to read a generic Object and then handle type casting appropriately
-        /*Object parsed = jsonParser.readValueAs(Object.class);
-        return handleParsedObject(parsed);*/
-        ObjectCodec codec = jsonParser.getCodec();
-        JsonNode node = codec.readTree(jsonParser);
-
-        // Convert JsonNode to LinkedHashMap to avoid the cast exception
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> map = mapper.convertValue(node, LinkedHashMap.class);
-
-        // Return the map wrapped in a JSONObject
-        return new JSONObject(map);
-    }
-
-    private JSONObject handleParsedObject(Object parsed) {
-        if (parsed instanceof Map) {
-            return convertMapToJSONObject((Map<String, Object>) parsed); // Handle objects
-        } else if (parsed instanceof JSONArray) {
-            throw new IllegalStateException("Expected JSONObject but found JSONArray");
-        } else {
-            throw new IllegalStateException("Unexpected JSON structure");
-        }
-    }
-
-    private JSONObject convertMapToJSONObject(Map<String, Object> map) {
-        JSONObject jsonObject = new JSONObject();
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            Object value = entry.getValue();
-
-            if (value instanceof Map) {
-                value = convertMapToJSONObject((Map<String, Object>) value); // Handle nested objects
-            } else if (value instanceof Iterable) {
-                value = convertIterableToJSONArray((Iterable<?>) value); // Handle arrays
-            }
-            // No need to cast anything further here, we preserve original types
-            jsonObject.put(entry.getKey(), value);
-        }
-        return jsonObject;
-    }
-
-    private JSONArray convertIterableToJSONArray(Iterable<?> iterable) {
-        JSONArray jsonArray = new JSONArray();
-        for (Object element : iterable) {
-            if (element instanceof Map) {
-                element = convertMapToJSONObject((Map<String, Object>) element); // Handle nested objects in arrays
-            }
-            jsonArray.add(element); // Preserve original element type
-        }
-        return jsonArray;
-    }
-
-    /*public JSONObject deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
+    public JSONObject deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
             throws IOException, JsonProcessingException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
         return processJsonNode(node);
@@ -141,5 +86,5 @@ public class JSONObjectDeserializer extends StdDeserializer<JSONObject> {
             // For other cases (like strings or non-standard types), we fallback to asText()
             return node.asText();
         }
-    }*/
+    }
 }

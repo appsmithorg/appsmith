@@ -3,10 +3,11 @@ package com.appsmith.external.converters;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class JSONObjectSerializer extends StdSerializer<JSONObject> {
 
@@ -15,37 +16,6 @@ public class JSONObjectSerializer extends StdSerializer<JSONObject> {
     }
 
     public void serialize(JSONObject value, JsonGenerator jsonGenerator, SerializerProvider serializers)
-            throws IOException {
-        jsonGenerator.writeStartObject();
-
-        for (String key : value.keySet()) {
-            Object obj = value.get(key);
-            if (obj == null) {
-                jsonGenerator.writeNullField(key);
-            } else if (obj instanceof JSONObject) {
-                jsonGenerator.writeFieldName(key);
-                serialize((JSONObject) obj, jsonGenerator, serializers);
-            } else if (obj instanceof JSONArray) {
-                jsonGenerator.writeArrayFieldStart(key);
-                for (Object element : (JSONArray) obj) {
-                    if (element == null) {
-                        jsonGenerator.writeNull();
-                    } else if (element instanceof JSONObject) {
-                        serialize((JSONObject) element, jsonGenerator, serializers);
-                    } else {
-                        jsonGenerator.writeObject(element);
-                    }
-                }
-                jsonGenerator.writeEndArray();
-            } else {
-                jsonGenerator.writeObjectField(key, obj); // Preserve original type
-            }
-        }
-
-        jsonGenerator.writeEndObject();
-    }
-
-    /*public void serialize(JSONObject value, JsonGenerator jsonGenerator, SerializerProvider serializers)
             throws IOException {
         if (value == null) {
             jsonGenerator.writeNull();
@@ -90,5 +60,5 @@ public class JSONObjectSerializer extends StdSerializer<JSONObject> {
             }
             jsonGenerator.writeEndObject();
         }
-    }*/
+    }
 }
