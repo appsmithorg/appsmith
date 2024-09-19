@@ -21,6 +21,7 @@ export class EChartsConfigurationBuilder {
     layoutConfig: Record<string, Record<string, unknown>>,
   ) {
     let seriesName = messages.Undefined;
+
     if (seriesData.seriesName && seriesData.seriesName.length > 0) {
       seriesName = seriesData.seriesName;
     }
@@ -42,6 +43,7 @@ export class EChartsConfigurationBuilder {
         value: seriesID,
       },
     };
+
     return config;
   }
 
@@ -66,6 +68,7 @@ export class EChartsConfigurationBuilder {
       }
 
       let seriesName = messages.Undefined;
+
       if (seriesData.seriesName && seriesData.seriesName.length > 0) {
         seriesName = seriesData.seriesName;
       }
@@ -108,6 +111,7 @@ export class EChartsConfigurationBuilder {
 
       configs.push(config);
     });
+
     return configs;
   }
 
@@ -121,6 +125,7 @@ export class EChartsConfigurationBuilder {
     layoutConfig: Record<string, Record<string, unknown>>,
   ) {
     const config: Record<string, unknown>[] = [];
+
     Object.values(allSeriesData).forEach((seriesData) => {
       config.push({
         top: (layoutConfig.grid.top as number) - 20,
@@ -129,6 +134,7 @@ export class EChartsConfigurationBuilder {
         text: seriesData.seriesName ?? "",
       });
     });
+
     return config;
   }
 
@@ -211,12 +217,14 @@ export class EChartsConfigurationBuilder {
         trigger: "item",
       },
     };
+
     config.grid = {
       top: layoutConfig.grid.top,
       bottom: layoutConfig.grid.bottom,
       left: layoutConfig.grid.left,
       show: false,
     };
+
     return config;
   };
 
@@ -246,18 +254,22 @@ export class EChartsConfigurationBuilder {
         },
       };
     }
+
     if (props.chartType == "BAR_CHART") {
       config.type = "category";
     }
+
     if (props.setAdaptiveYMin) {
       config.min = "dataMin";
     }
+
     config.axisLabel = {
       fontFamily: this.fontFamily,
       color: Colors.DOVE_GRAY2,
       show: layoutConfig.yAxis.show,
       ...(layoutConfig.yAxis.axisLabel as Record<string, unknown>),
     };
+
     return config;
   };
 
@@ -272,9 +284,11 @@ export class EChartsConfigurationBuilder {
      */
     const config: Record<string, unknown> = {};
     let type = "category";
+
     if (props.chartType == "BAR_CHART") {
       type = "value";
     }
+
     config.type = type;
     config.axisLabel = {
       show: layoutConfig.xAxis.show,
@@ -300,6 +314,7 @@ export class EChartsConfigurationBuilder {
     }
 
     config.show = layoutConfig.xAxis.show;
+
     return config;
   };
 
@@ -329,6 +344,7 @@ export class EChartsConfigurationBuilder {
         ];
       }
     }
+
     return [];
   };
 
@@ -356,6 +372,7 @@ export class EChartsConfigurationBuilder {
 
     const chartConfig: Record<string, unknown> =
       this.#defaultEChartConfig(layoutConfig);
+
     chartConfig.title = this.#titleConfigForChart(
       props,
       allSeriesData,
@@ -370,6 +387,7 @@ export class EChartsConfigurationBuilder {
       allSeriesData,
       layoutConfig,
     );
+
     return chartConfig;
   }
 }

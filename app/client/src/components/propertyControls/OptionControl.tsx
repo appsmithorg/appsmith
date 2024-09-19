@@ -34,8 +34,10 @@ class OptionControl extends BaseControl<ControlProps> {
 
     try {
       const pairs: DropdownOption[] = JSON.parse(value);
+
       for (const x of pairs) {
         const keys = Object.keys(x);
+
         if (!keys.includes("label") || !keys.includes("value")) {
           return false;
         }

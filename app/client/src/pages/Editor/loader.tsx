@@ -37,6 +37,7 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
     const { basePageId } = params;
+
     if (basePageId) {
       initEditor({
         basePageId,
@@ -57,10 +58,12 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
 
   componentWillUnmount() {
     const { clearCache } = this.props;
+
     clearCache();
   }
   render() {
     const { Page } = this.state;
+
     return Page ? <Page {...this.props} /> : <PageLoadingBar />;
   }
 }

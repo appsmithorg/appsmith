@@ -10,9 +10,11 @@ import { Text } from "../Text";
 function Tooltip(props: TooltipProps) {
   const { children, className, content, isDisabled = false, ...rest } = props;
   const disabledProps: { visible?: boolean } = {};
+
   if (isDisabled) {
     disabledProps["visible"] = false;
   }
+
   return (
     <RCTooltip
       mouseEnterDelay={0.5}

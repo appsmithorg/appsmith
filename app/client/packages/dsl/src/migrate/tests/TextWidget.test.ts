@@ -289,14 +289,17 @@ const outputDsl3: DSLWidget = {
 describe("Text Widget Property Pane Upgrade", () => {
   it("To test text widget textStyle property is migrated", () => {
     const newDsl = migrateTextStyleFromTextWidget(inputDsl1);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl1));
   });
   it("To test text widget textStyle property is migrated", () => {
     const newDsl = migrateTextStyleFromTextWidget(inputDsl2);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl2));
   });
   it("To test text widget textStyle property is migrated", () => {
     const newDsl = migrateTextStyleFromTextWidget(inputDsl3);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl3));
   });
 });
@@ -601,14 +604,17 @@ const outputDsl6: DSLWidget = {
 describe("Text Widget Scroll and Truncate Property migrate", () => {
   it("Overflow value should be SCROLL instead of shouldScroll true", () => {
     const newDsl = migrateScrollTruncateProperties(inputDsl4);
+
     expect(newDsl).toEqual(outputDsl4);
   });
   it("Overflow value should be TRUNCATE instead of shouldTruncate true", () => {
     const newDsl = migrateScrollTruncateProperties(inputDsl5);
+
     expect(newDsl).toEqual(outputDsl5);
   });
   it("Overflow value should be NONE in case of shouldScroll and shouldTruncate are false", () => {
     const newDsl = migrateScrollTruncateProperties(inputDsl6);
+
     expect(newDsl).toEqual(outputDsl6);
   });
 });

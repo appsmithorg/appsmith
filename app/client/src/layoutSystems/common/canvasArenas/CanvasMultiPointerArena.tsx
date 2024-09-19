@@ -54,7 +54,9 @@ const drawMousePointer = (
   radius = 2,
 ) => {
   if (width < 2 * radius) radius = width / 2;
+
   if (height < 2 * radius) radius = height / 2;
+
   ctx.fillStyle = POINTER_COLORS[idx % COLOR_COUNT];
   ctx.beginPath();
   ctx.moveTo(x, y);
@@ -97,6 +99,7 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
     const clearPointerDataInterval = setInterval(() => {
       dispatch(collabResetEditorsPointersData());
     }, TWO_MINS);
+
     return () => {
       window.cancelAnimationFrame(animationStepIdRef.current);
       clearInterval(clearPointerDataInterval);
@@ -112,6 +115,7 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
         ),
       );
     }
+
     return () => {
       dispatch(
         collabStopSharingPointerEvent(
@@ -126,18 +130,23 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const drawPointers = (animationStep: number) => {
     const pointerData: PointerDataType =
       store.getState().ui.appCollab.pointerData;
+
     if (previousAnimationStep.current === animationStep) return;
+
     const ctx = selectionCanvas.getContext("2d");
     const rect = selectionCanvas.getBoundingClientRect();
+
     if (!!selectionCanvas) {
       selectionCanvas.width = rect.width;
       selectionCanvas.height = rect.height;
     }
+
     ctx.clearRect(0, 0, rect.width, rect.height);
     ctx.font = "14px Verdana";
     Object.keys(pointerData).forEach((socId: string, idx: number) => {
       const eventData = pointerData[socId];
       const userName = eventData?.user?.name || eventData?.user?.email;
+
       drawMousePointer(
         idx,
         ctx,

@@ -5,6 +5,7 @@ import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
 
 export function updateJSLibraryGlobals(data: updateJSLibraryProps) {
   const { add, libs } = data;
+
   if (add) {
     JSLibraries.push(...libs);
   } else if (add === false) {
@@ -12,16 +13,21 @@ export function updateJSLibraryGlobals(data: updateJSLibraryProps) {
       const idx = JSLibraries.findIndex((l) =>
         isEqual(l.accessor.sort(), lib.accessor.sort()),
       );
+
       if (idx === -1) {
         JSLibraryAccessor.regenerateSet();
+
         return;
       }
+
       JSLibraries.splice(idx, 1);
     }
   } else {
     resetJSLibraries();
     JSLibraries.push(...libs);
   }
+
   JSLibraryAccessor.regenerateSet();
+
   return true;
 }

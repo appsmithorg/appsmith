@@ -9,6 +9,7 @@ import {
 export const isEmail = (value: string) => {
   const re =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
   return re.test(value);
 };
 
@@ -127,6 +128,7 @@ function TagInputComponent(props: TagInputProps) {
     if (inputValues.length === 0 && values.length > 0) {
       setValues([]);
     }
+
     if (inputValues.length > 0 && values.length === 0) {
       setValues(inputValues);
     }
@@ -139,6 +141,7 @@ function TagInputComponent(props: TagInputProps) {
   const validateEmail = (newValues: string[]) => {
     if (newValues && newValues.length > 0) {
       let error = "";
+
       newValues.forEach((user: any) => {
         if (!isEmail(user)) {
           error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
@@ -159,6 +162,7 @@ function TagInputComponent(props: TagInputProps) {
 
   const onTagsChange = (values: React.ReactNode[]) => {
     const _values = values as string[];
+
     commitValues(_values);
   };
 
@@ -173,12 +177,14 @@ function TagInputComponent(props: TagInputProps) {
       e.target.value
     ) {
       const newValues = [...values, e.target.value];
+
       commitValues(newValues);
       setCurrentValue("");
       e.preventDefault();
     } else if (e.key === "Backspace") {
       if (e.target.value.length === 0) {
         const newValues = values.slice(0, -1);
+
         commitValues(newValues);
       }
     }
@@ -197,6 +203,7 @@ function TagInputComponent(props: TagInputProps) {
   const handleInputBlur = (e: any) => {
     if (e?.target?.value?.trim() || isEmail(e.target.value)) {
       const newValues = [...values, e.target.value];
+
       commitValues(newValues);
       setCurrentValue("");
       e.preventDefault();

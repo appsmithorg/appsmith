@@ -24,13 +24,16 @@ function buildFlattenedChildCanvasWidgets(
   const {
     widgetSystem: { propertyEnhancer },
   } = getLayoutSystem(renderMode, layoutSystemType);
+
   parentWidget?.children?.forEach((childId) => {
     const childWidget = canvasWidgets[childId];
     let parentRowSpace =
       childWidget.parentRowSpace ?? GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     if (childWidget.type === "CANVAS_WIDGET") {
       parentRowSpace = 1;
     }
+
     flattenedChildCanvasWidgets[childId] = propertyEnhancer({
       ...childWidget,
       isMobile,

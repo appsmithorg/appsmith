@@ -13,6 +13,7 @@ export function defaultValueValidation(
     message: "This value must be string",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -20,7 +21,9 @@ export function defaultValueValidation(
       messages: [STRING_ERROR_MESSAGE],
     };
   }
+
   let parsed = value;
+
   if (!_.isString(value)) {
     try {
       parsed = _.toString(value);
@@ -32,6 +35,7 @@ export function defaultValueValidation(
       };
     }
   }
+
   return {
     isValid: _.isString(parsed),
     parsed: parsed,

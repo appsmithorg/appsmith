@@ -18,6 +18,7 @@ export const addLogBlackListToAllListWidgetChildren = (
         Object.keys(widget).map((key) => {
           logBlackList[key] = true;
         });
+
         if (!widget.logBlackList) {
           set(
             children,

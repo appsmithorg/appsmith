@@ -9,6 +9,7 @@ import {
 
 jest.mock("../WidgetProvider/factory", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     default: {
@@ -30,6 +31,7 @@ describe("widgetErrorsFromStaticProps functionality", () => {
     const dataTree = {} as unknown as WidgetEntity;
 
     const response = widgetErrorsFromStaticProps(dataTree);
+
     expect(response.length).toEqual(0);
   });
 
@@ -39,6 +41,7 @@ describe("widgetErrorsFromStaticProps functionality", () => {
     } as unknown as WidgetEntity;
 
     const response = widgetErrorsFromStaticProps(dataTree);
+
     expect(response.length).toEqual(0);
   });
 
@@ -60,6 +63,7 @@ describe("widgetErrorsFromStaticProps functionality", () => {
     } as unknown as WidgetEntity;
 
     const response = widgetErrorsFromStaticProps(dataTree);
+
     expect(response.length).toEqual(1);
     expect(response[0].name).toStrictEqual("Validation Error");
     expect(response[0].message).toStrictEqual("Error Message");
@@ -463,6 +467,7 @@ describe("test EditorUtils methods", () => {
           widgetName: "two",
         },
       ];
+
       expect(
         buildChildWidgetTree(
           canvasWidgets,

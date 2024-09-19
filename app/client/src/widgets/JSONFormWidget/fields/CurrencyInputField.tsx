@@ -51,6 +51,7 @@ export const isValid = (
   inputValue?: string | null,
 ) => {
   let hasValidValue, value;
+
   try {
     value = Number(inputValue);
     hasValidValue = !isEmpty(inputValue) && Number.isFinite(value);
@@ -122,6 +123,7 @@ function CurrencyInputField({
     (inputValue: string) => {
       let text = "";
       const decimalSeperator = getLocaleDecimalSeperator();
+
       try {
         if (inputValue && inputValue.includes(decimalSeperator)) {
           text = limitDecimalValue(schemaItem.decimalsInCurrency, inputValue);

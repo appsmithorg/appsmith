@@ -83,11 +83,15 @@ export function getBindingValue(
 ) {
   const defaultBindingValue = `{{${query.config.name}.data}}`;
   const querySuggestedWidgets = query.data?.suggestedWidgets;
+
   if (!querySuggestedWidgets) return defaultBindingValue;
+
   const suggestedWidget = querySuggestedWidgets.find(
     (suggestedWidget) => suggestedWidget.type === widget.type,
   );
+
   if (!suggestedWidget) return defaultBindingValue;
+
   return `{{${query.config.name}.${suggestedWidget.bindingQuery}}}`;
 }
 interface ConnectToOptionsProps {
@@ -107,6 +111,7 @@ export const getQueryIcon = (
     return getModuleIcon(module, pluginImages);
   } else {
     const action = query as ActionData;
+
     return (
       <ImageWrapper>
         <DatasourceImage
@@ -126,6 +131,7 @@ export const getAnalyticsInfo = (
 ) => {
   if (query.config.hasOwnProperty("pluginId")) {
     const action = query as ActionData;
+
     return {
       widgetName: widget.widgetName,
       widgetType: widget.type,
@@ -221,17 +227,20 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   const widgetOptions = useMemo(() => {
     if (!isConnectableToWidget) return [];
+
     // Get widgets from the current page
     return Object.entries(currentPageWidgets)
       .map(([widgetId, currWidget]) => {
         // Get the widget config for the current widget
         const { getOneClickBindingConnectableWidgetConfig } =
           WidgetFactory.getWidgetMethods(currWidget.type);
+
         // If the widget is connectable to the current widget, return the option
         if (getOneClickBindingConnectableWidgetConfig) {
           // This is the path we bind to the sourceData field Ex: `{{Table1.selectedRow}}`
           const { widgetBindPath } =
             getOneClickBindingConnectableWidgetConfig(currWidget);
+
           return {
             id: widgetId,
             value: `{{${widgetBindPath}}}`,
@@ -268,6 +277,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
             },
           };
         }
+
         return null;
       })
       .filter(Boolean);

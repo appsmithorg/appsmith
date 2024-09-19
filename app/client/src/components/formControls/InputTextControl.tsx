@@ -91,6 +91,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
   onClickSecretDisplayIndicator = () => {
     if (!this.state.secretDisplayVisible) return;
+
     this.setState({
       secretDisplayVisible: false,
     });
@@ -212,9 +213,11 @@ export interface InputControlProps extends ControlProps {
 const mapStateToProps = (state: AppState, props: InputControlProps) => {
   const valueSelector = formValueSelector(props.formName);
   let isSecretExistsData;
+
   if (props.isSecretExistsPath) {
     isSecretExistsData = valueSelector(state, props.isSecretExistsPath);
   }
+
   return {
     isSecretExistsData,
   };

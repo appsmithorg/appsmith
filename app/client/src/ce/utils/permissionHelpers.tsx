@@ -59,6 +59,7 @@ export const isPermitted = (
       return type.some((t) => permissions.includes(t));
     }
   }
+
   return permissions.includes(type);
 };
 

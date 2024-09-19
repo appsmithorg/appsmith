@@ -66,6 +66,7 @@ class LazyCodeEditorStateMachine {
             this.state = "loading";
           }
         }
+
         break;
       case "loading":
         if (event === "LOADING_FINISHED") {
@@ -73,19 +74,23 @@ class LazyCodeEditorStateMachine {
         } else if (event === "PLACEHOLDER_INTERACTED") {
           this.state = "loading-interacted";
         }
+
         break;
       case "loading-interacted":
         if (event === "LOADING_FINISHED") {
           this.state = "active-focused";
         }
+
         break;
       case "waiting-idle-callback":
         if (event === "IDLE_CALLBACK_FIRED") {
           this.state = "active";
         }
+
         if (event === "PLACEHOLDER_INTERACTED") {
           this.state = "active-focused";
         }
+
         break;
       case "active":
         break;
@@ -113,6 +118,7 @@ class LazyCodeEditorStateMachine {
           const codeEditorModule = await import(
             "components/editorComponents/CodeEditor"
           );
+
           // Once CodeEditor loads, save it, so we can render it synchronously in the future
           CachedCodeEditor = codeEditorModule.default;
           this.transition("LOADING_FINISHED");
@@ -145,6 +151,7 @@ class LazyCodeEditorStateMachine {
         if (this.idleCallbackId) {
           window.cancelIdleCallback(this.idleCallbackId);
         }
+
         break;
 
       default:
@@ -206,6 +213,7 @@ function LazyCodeEditor({
         const editor = editorWrapper.querySelector(
           ".CodeEditorTarget",
         ) as HTMLElement | null;
+
         if (editor) {
           editor.focus();
         }

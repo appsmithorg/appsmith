@@ -73,6 +73,7 @@ export function Routes() {
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
   useFeatureFlagOverride();
 
   return (
@@ -159,10 +160,12 @@ export default function AppRouter() {
   useBrandingTheme();
 
   const isLoading = isConsolidatedPageLoading;
+
   // hide the top loader once the tenant is loaded
   useEffect(() => {
     if (!isLoading) {
       const loader = document.getElementById("loader") as HTMLDivElement;
+
       if (loader) {
         loader.style.width = "100vw";
         setTimeout(() => {

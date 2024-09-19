@@ -52,11 +52,13 @@ export const revertButtonStyleToButtonColor = (currentDSL: DSLWidget) => {
           break;
         default:
           if (!currentDSL.buttonColor) currentDSL.buttonColor = Colors.GREEN;
+
           break;
       }
       delete currentDSL.buttonStyle;
     }
   }
+
   if (currentDSL.type === "MENU_BUTTON_WIDGET") {
     if (currentDSL.hasOwnProperty("menuStyle")) {
       switch (currentDSL.menuStyle) {
@@ -77,12 +79,14 @@ export const revertButtonStyleToButtonColor = (currentDSL: DSLWidget) => {
           break;
         default:
           if (!currentDSL.menuColor) currentDSL.menuColor = Colors.GREEN;
+
           break;
       }
       delete currentDSL.menuStyle;
       delete currentDSL.prevMenuStyle;
     }
   }
+
   if (currentDSL.type === "TABLE_WIDGET") {
     if (currentDSL.hasOwnProperty("primaryColumns")) {
       Object.keys(currentDSL.primaryColumns).forEach((column) => {
@@ -94,10 +98,12 @@ export const revertButtonStyleToButtonColor = (currentDSL: DSLWidget) => {
       });
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child: DSLWidget) =>
       revertButtonStyleToButtonColor(child),
     );
   }
+
   return currentDSL;
 };

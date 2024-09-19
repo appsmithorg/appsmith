@@ -31,6 +31,7 @@ describe("Tab View component", () => {
     ],
     value: "{{navigateTo('Page1', {}, 'SAME_WINDOW'}}",
   };
+
   test("Renders Tab view component correctly", () => {
     render(<TabView {...props} />);
     expect(screen.getByTestId("tabs-label")).toHaveTextContent("Type");

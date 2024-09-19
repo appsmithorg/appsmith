@@ -18,6 +18,7 @@ const getTypographyCss = (typography: Typography) => {
     ${objectKeys(typography).reduce((prev, key) => {
       const currentKey = key as keyof Typography;
       const { after, before, fontSize, lineHeight } = typography[currentKey];
+
       return (
         prev +
         `

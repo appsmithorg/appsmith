@@ -77,9 +77,11 @@ function DropdownItem(option: ContextDropdownOption) {
 
 export function ContextDropdown(props: ContextDropdownProps) {
   let trigger: ReactNode;
+
   if (props.toggle.type === "icon" && props.toggle.icon) {
     trigger = <Icon name={props.toggle.icon} size="md" />;
   }
+
   if (props.toggle.type === "button" && props.toggle.text)
     trigger = <Button text={props.toggle.text} />;
 

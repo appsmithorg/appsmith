@@ -53,6 +53,7 @@ export const AutoLayoutEditorCanvas = (props: BaseWidgetProps) => {
       props.widgetId,
     ],
   );
+
   return (
     <DropTargetComponentWrapper
       dropDisabled={props.dropDisabled}

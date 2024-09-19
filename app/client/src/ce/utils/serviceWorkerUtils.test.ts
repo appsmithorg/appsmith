@@ -33,6 +33,7 @@ describe("serviceWorkerUtils", () => {
       const result = matchBuilderPath(pathName, options);
 
       expect(result).toBeTruthy();
+
       if (result) {
         expect(result.params).toHaveProperty("applicationSlug");
         expect(result.params).toHaveProperty("pageSlug");
@@ -48,6 +49,7 @@ describe("serviceWorkerUtils", () => {
       const result = matchBuilderPath(pathName, options);
 
       expect(result).toBeTruthy();
+
       if (result) {
         expect(result.params).toHaveProperty("applicationSlug");
         expect(result.params).toHaveProperty("pageSlug");
@@ -63,6 +65,7 @@ describe("serviceWorkerUtils", () => {
       const result = matchBuilderPath(pathName, options);
 
       expect(result).toBeTruthy();
+
       if (result) {
         expect(result.params).toHaveProperty("customSlug");
         expect(result.params).toHaveProperty("basePageId", basePageId);
@@ -77,6 +80,7 @@ describe("serviceWorkerUtils", () => {
       const result = matchBuilderPath(pathName, options);
 
       expect(result).toBeTruthy();
+
       if (result) {
         expect(result.params).toHaveProperty(
           "baseApplicationId",
@@ -125,6 +129,7 @@ describe("serviceWorkerUtils", () => {
       const result = matchViewerPath(pathName);
 
       expect(result).toBeTruthy();
+
       if (result) {
         expect(result.params).toHaveProperty("applicationSlug");
         expect(result.params).toHaveProperty("pageSlug");
@@ -139,6 +144,7 @@ describe("serviceWorkerUtils", () => {
       const result = matchViewerPath(pathName);
 
       expect(result).toBeTruthy();
+
       if (result) {
         expect(result.params).toHaveProperty("customSlug");
         expect(result.params).toHaveProperty("basePageId", basePageId);
@@ -152,6 +158,7 @@ describe("serviceWorkerUtils", () => {
       const result = matchViewerPath(pathName);
 
       expect(result).toBeTruthy();
+
       if (result) {
         expect(result.params).toHaveProperty(
           "baseApplicationId",
@@ -176,6 +183,7 @@ describe("serviceWorkerUtils", () => {
       const search = "?key=value";
       const key = "key";
       const result = getSearchQuery(search, key);
+
       expect(result).toEqual("value");
     });
 
@@ -183,6 +191,7 @@ describe("serviceWorkerUtils", () => {
       const search = "?key=value";
       const key = "invalid";
       const result = getSearchQuery(search, key);
+
       expect(result).toEqual("");
     });
 
@@ -190,6 +199,7 @@ describe("serviceWorkerUtils", () => {
       const search = "";
       const key = "key";
       const result = getSearchQuery(search, key);
+
       expect(result).toEqual("");
     });
   });
@@ -227,6 +237,7 @@ describe("serviceWorkerUtils", () => {
 
     it("should return null if the path does not match any pattern", () => {
       const url = new URL("https://app.appsmith.com/invalid/path?branch=main");
+
       expect(getApplicationParamsFromUrl(url)).toBeNull();
     });
 
@@ -333,6 +344,7 @@ describe("serviceWorkerUtils", () => {
       };
 
       const request = getConsolidatedApiPrefetchRequest(params);
+
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
         `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=${basePageId}&applicationId=${baseApplicationId}`,
@@ -351,6 +363,7 @@ describe("serviceWorkerUtils", () => {
       };
 
       const request = getConsolidatedApiPrefetchRequest(params);
+
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
         `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=${basePageId}&applicationId=${baseApplicationId}`,
@@ -368,6 +381,7 @@ describe("serviceWorkerUtils", () => {
       };
 
       const request = getConsolidatedApiPrefetchRequest(params);
+
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
         `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123`,
@@ -385,6 +399,7 @@ describe("serviceWorkerUtils", () => {
       };
 
       const request = getConsolidatedApiPrefetchRequest(params);
+
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
         `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=page123`,
@@ -414,8 +429,10 @@ describe("serviceWorkerUtils", () => {
         basePageId: "page123",
       };
       const requests = getPrefetchRequests(params);
+
       expect(requests).toHaveLength(1);
       const [consolidatedAPIRequest] = requests;
+
       expect(consolidatedAPIRequest).toBeInstanceOf(Request);
       expect(consolidatedAPIRequest?.url).toBe(
         `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123`,
@@ -458,8 +475,10 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
+
         request.headers.append("branchname", "main");
         const key = prefetchApiService.getRequestKey(request);
+
         expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
       });
 
@@ -467,10 +486,12 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
+
         request.headers.append("branchname", "main");
         request.headers.append("another-header-key", "another-header-value");
         request.headers.append("Content-Type", "application/json");
         const key = prefetchApiService.getRequestKey(request);
+
         expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
       });
     });
@@ -481,6 +502,7 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const acquireSpy = jest.spyOn(Mutex.prototype, "acquire");
+
         await prefetchApiService.aqcuireFetchMutex(request);
         expect(acquireSpy).toHaveBeenCalled();
       });
@@ -490,11 +512,13 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const mutex = new Mutex();
+
         prefetchApiService.prefetchFetchMutexMap.set(
           prefetchApiService.getRequestKey(request),
           mutex,
         );
         const acquireSpy = jest.spyOn(mutex, "acquire");
+
         await prefetchApiService.aqcuireFetchMutex(request);
         expect(acquireSpy).toHaveBeenCalled();
       });
@@ -506,11 +530,13 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const mutex = new Mutex();
+
         prefetchApiService.prefetchFetchMutexMap.set(
           prefetchApiService.getRequestKey(request),
           mutex,
         );
         const waitForUnlockSpy = jest.spyOn(mutex, "waitForUnlock");
+
         await prefetchApiService.waitForUnlock(request);
         expect(waitForUnlockSpy).toHaveBeenCalled();
       });
@@ -519,6 +545,7 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
+
         await expect(
           prefetchApiService.waitForUnlock(request),
         ).resolves.not.toThrow();
@@ -531,11 +558,13 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const mutex = new Mutex();
+
         prefetchApiService.prefetchFetchMutexMap.set(
           prefetchApiService.getRequestKey(request),
           mutex,
         );
         const releaseSpy = jest.spyOn(mutex, "release");
+
         prefetchApiService.releaseFetchMutex(request);
         expect(releaseSpy).toHaveBeenCalled();
       });
@@ -544,6 +573,7 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
+
         expect(() =>
           prefetchApiService.releaseFetchMutex(request),
         ).not.toThrow();
@@ -587,6 +617,7 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
+
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (global as any).fetch.mockRejectedValue(new Error("Fetch error"));
@@ -610,8 +641,10 @@ describe("serviceWorkerUtils", () => {
         const response = new Response("test response", {
           headers: { date: new Date(Date.now() - 1000).toUTCString() },
         });
+
         mockCache.match.mockResolvedValue(response);
         const mutex = new Mutex();
+
         prefetchApiService.prefetchFetchMutexMap.set(
           prefetchApiService.getRequestKey(request),
           mutex,
@@ -634,6 +667,7 @@ describe("serviceWorkerUtils", () => {
         const response = new Response("test response", {
           headers: { date: new Date(Date.now() - 3 * 60 * 1000).toUTCString() },
         });
+
         mockCache.match.mockResolvedValue(response);
 
         const cachedResponse =
@@ -648,6 +682,7 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
+
         mockCache.match.mockResolvedValue(null);
 
         const cachedResponse =

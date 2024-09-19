@@ -43,15 +43,18 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
       // The measure/applied height is also incorrect/reset if we turn on and off
       // overflow: hidden in Firefox https://bugzilla.mozilla.org/show_bug.cgi?id=1787062
       const isFirefox = "MozAppearance" in input.style;
+
       if (!isFirefox) {
         input.style.overflow = "hidden";
       }
+
       input.style.alignSelf = "start";
       input.style.height = "auto";
 
       const computedStyle = getComputedStyle(input);
       const paddingTop = parseFloat(computedStyle.paddingTop);
       const paddingBottom = parseFloat(computedStyle.paddingBottom);
+
       input.style.height = `${
         // subtract comptued padding and border to get the actual content height
         input.scrollHeight -
@@ -113,4 +116,5 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
  * are available to text fields.
  */
 const _TextArea = React.forwardRef(TextArea);
+
 export { _TextArea as TextArea };

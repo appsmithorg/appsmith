@@ -15,9 +15,11 @@ import { protectedModeSelector } from "selectors/gitSyncSelectors";
 function AnimatedLayout() {
   const isProtectedMode = useSelector(protectedModeSelector);
   const { areas, columns, rows } = useGridLayoutTemplate();
+
   if (columns.length === 0) {
     return null;
   }
+
   return (
     <>
       {isProtectedMode && <ProtectedCallout />}

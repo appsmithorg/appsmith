@@ -57,6 +57,7 @@ export const JSLibraryAccessor = JSLibraryAccessorModifier();
 export const libraryReservedIdentifiers = defaultLibraries.reduce(
   (acc, lib) => {
     lib.accessor.forEach((a) => (acc[a] = true));
+
     return acc;
   },
   {} as Record<string, boolean>,

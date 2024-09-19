@@ -221,14 +221,17 @@ export const DateCell = (props: DateComponentProps) => {
     const formattedDate: string = date ? moment(date).format(inputFormat) : "";
     if (isNewRow) {
       updateNewRowValues(alias, date, formattedDate);
+
       return;
     }
 
     if (isRequired && !date) {
       setIsValid(false);
       setShowRequiredError(true);
+
       return;
     }
+
     setIsValid(true);
     setShowRequiredError(false);
     setHasFocus(false);
@@ -238,10 +241,12 @@ export const DateCell = (props: DateComponentProps) => {
 
   const onDateCellEdit = () => {
     setHasFocus(true);
+
     if (isRequired && !value) {
       setIsValid(false);
       setShowRequiredError(true);
     }
+
     toggleCellEditMode(true, rowIndex, alias, value);
   };
 

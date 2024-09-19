@@ -37,6 +37,7 @@ describe("File parser formats differenty file types correctly", () => {
         Date: "2022-09-15",
       },
     ];
+
     expect(result).toStrictEqual(expectedResult);
   });
 
@@ -82,6 +83,7 @@ describe("File parser formats differenty file types correctly", () => {
         Date: convertedDate,
       },
     ];
+
     expect(result).toStrictEqual(expectedResult);
   });
 
@@ -100,6 +102,7 @@ describe("File parser formats differenty file types correctly", () => {
       "json",
       false,
     )) as Record<string, unknown>;
+
     expect(result["APPURL"]).toStrictEqual(
       "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb",
     );
@@ -132,6 +135,7 @@ describe("File parser formats differenty file types correctly", () => {
         "Some parameter": "Row2C1",
       },
     ];
+
     expect(result).toStrictEqual(expectedResult);
   });
 
@@ -161,6 +165,7 @@ describe("File parser formats differenty file types correctly", () => {
         name: "Sheet1",
       },
     ];
+
     expect(result).toStrictEqual(expectedResult);
   });
 
@@ -189,6 +194,7 @@ describe("File parser formats differenty file types correctly", () => {
       "15/10/2017",
       1562,
     ];
+
     expect(result[0]["name"]).toStrictEqual("Sheet1");
     expect(result[0]["data"][1]).toStrictEqual(expectedFirstRow);
   });

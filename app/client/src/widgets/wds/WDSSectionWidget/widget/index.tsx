@@ -110,14 +110,17 @@ class WDSSectionWidget extends BaseWidget<WDSSectionWidgetProps, WidgetState> {
     widgetIdMap: Record<string, string>,
   ): FlattenedWidgetProps | null {
     const widget: FlattenedWidgetProps = { ...newWidget };
+
     if (widget.spaceDistributed) {
       const newSpaceDistribution: { [key: string]: string } = {};
+
       Object.keys(widget.spaceDistributed).forEach((key: string) => {
         if (widgetIdMap[key])
           newSpaceDistribution[widgetIdMap[key]] = widget.spaceDistributed[key];
       });
       widget.spaceDistributed = newSpaceDistribution;
     }
+
     return widget;
   }
 
@@ -136,6 +139,7 @@ class WDSSectionWidget extends BaseWidget<WDSSectionWidgetProps, WidgetState> {
       widgetIdMap,
       reverseWidgetIdMap,
     );
+
     return res;
   }
 

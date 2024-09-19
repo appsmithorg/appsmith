@@ -63,6 +63,7 @@ describe("Test reflow helper methods", () => {
       parentColumnSpace: 10,
       maxGridColumns: 200,
     };
+
     it("it should return a collision Tree for multiple directions", () => {
       const newSpacePositions = [
         {
@@ -146,6 +147,7 @@ describe("Test reflow helper methods", () => {
           direction: ReflowDirection.RIGHT,
         },
       ];
+
       expect(
         getCollisionTree(
           newSpacePositions,
@@ -258,6 +260,7 @@ describe("Test reflow helper methods", () => {
           top: 75,
         },
       ];
+
       expect(
         getCollisionTree(
           newSpacePositions,
@@ -329,6 +332,7 @@ describe("Test reflow helper methods", () => {
       X: 20,
       Y: 20,
     };
+
     it("should return movement map", () => {
       const newSpacePositionMap = {
         0: {
@@ -403,6 +407,7 @@ describe("Test reflow helper methods", () => {
           width: 400,
         },
       };
+
       expect(
         getMovementMap(
           Object.values(newSpacePositionMap),
@@ -475,9 +480,11 @@ describe("Test reflow helper methods", () => {
       parentColumnSpace: 10,
       maxGridCOLUMNS: 200,
     };
+
     it("should return the same values if colliding in the same direction as parent", () => {
       const currentAccessors = getAccessor(ReflowDirection.BOTTOM),
         currentDirection = ReflowDirection.BOTTOM;
+
       expect(
         getModifiedArgumentsForCollisionTree(
           collidingSpace,
@@ -527,6 +534,7 @@ describe("Test reflow helper methods", () => {
           right: 77,
         },
       };
+
       expect(
         getModifiedArgumentsForCollisionTree(
           collidingSpace,
@@ -567,6 +575,7 @@ describe("Test reflow helper methods", () => {
         X: 20,
         Y: 20,
       };
+
     it("should return Horizontal Movement Metrics", () => {
       expect(
         getHorizontalSpaceMovement(

@@ -117,6 +117,7 @@ function KeyValueRow(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const fieldsValue: any[] = JSON.parse(`${props.fields.getAll()}`);
+
       props.fields.removeAll();
       fieldsValue.forEach((value, index) => {
         props.fields.insert(index, value);
@@ -133,6 +134,7 @@ function KeyValueRow(
           ? { isValid: true }
           : { isValid: false, message: keyFieldProps.validationMessage };
       }
+
       return { isValid: true };
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],

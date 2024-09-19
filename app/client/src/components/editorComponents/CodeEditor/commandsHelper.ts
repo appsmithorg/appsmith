@@ -35,6 +35,7 @@ export const getShowHintOptions = (
     displayText: "",
   };
   const cursor = editor.getCursor();
+
   return {
     hint: () => {
       const hints = {
@@ -46,14 +47,17 @@ export const getShowHintOptions = (
         to: editor.getCursor(),
         selectedHint: list[0]?.isHeader ? 1 : 0,
       };
+
       function handleSelection(selected: CommandsCompletion) {
         currentSelection = selected;
       }
+
       function handlePick(selected: CommandsCompletion) {
         if (selected.action && typeof selected.action === "function") {
           const callback = (completion: string) => {
             editor.replaceRange(completion, cursor);
           };
+
           selected.action(callback);
         }
 
@@ -68,6 +72,7 @@ export const getShowHintOptions = (
         try {
           const { data, ...rest } = selected;
           const { name, type } = data as NavigationData;
+
           AnalyticsUtil.logEvent("SLASH_COMMAND", {
             ...rest,
             type,
@@ -79,8 +84,10 @@ export const getShowHintOptions = (
         CodeMirror.off(hints, "pick", handlePick);
         CodeMirror.off(hints, "select", handleSelection);
       }
+
       CodeMirror.on(hints, "pick", handlePick);
       CodeMirror.on(hints, "select", handleSelection);
+
       return hints;
     },
     extraKeys: {
@@ -88,6 +95,7 @@ export const getShowHintOptions = (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Up: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(-1);
+
         if (currentSelection.isHeader === true) {
           handle.moveFocus(-1);
         }
@@ -96,6 +104,7 @@ export const getShowHintOptions = (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Down: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(1);
+
         if (currentSelection.isHeader === true) {
           handle.moveFocus(1);
         }
@@ -112,6 +121,7 @@ export const slashCommandHintHelper: HintHelper = (
   const entitiesForSuggestions: NavigationData[] = Object.values(
     entitiesForNavigation || {},
   );
+
   return {
     showHint: (
       editor: CodeMirror.Editor,
@@ -184,9 +194,11 @@ export const slashCommandHintHelper: HintHelper = (
         editor,
         focusEditor,
       );
+
       editor.showHint(
         getShowHintOptions(list, editor, focusEditor, searchText),
       );
+
       return true;
     },
     fireOnFocus: true,

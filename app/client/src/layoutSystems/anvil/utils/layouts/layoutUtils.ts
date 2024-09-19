@@ -47,6 +47,7 @@ export function addChildToLayout(
 ): LayoutProps {
   const layout: WidgetLayoutProps[] | LayoutProps[] = props.layout;
   const { rowIndex: index } = highlight;
+
   return {
     ...props,
     layout: [...layout.slice(0, index), ...children, ...layout.slice(index)] as
@@ -67,7 +68,9 @@ export function removeChildFromLayout(
   child: WidgetLayoutProps | LayoutProps,
 ): LayoutProps | undefined {
   if (!child) return props;
+
   let updatedLayout: LayoutProps = { ...props };
+
   if (isWidgetLayoutProps(child)) {
     updatedLayout = {
       ...props,
@@ -85,6 +88,7 @@ export function removeChildFromLayout(
       ),
     };
   }
+
   return updatedLayout.isPermanent || updatedLayout.layout?.length
     ? updatedLayout
     : undefined;
@@ -92,6 +96,7 @@ export function removeChildFromLayout(
 
 export function extractWidgetIdsFromLayoutProps(props: LayoutProps): string[] {
   if (!props || !props.layout.length) return [];
+
   return (props.layout as WidgetLayoutProps[]).map(
     (each: WidgetLayoutProps) => each.widgetId,
   );
