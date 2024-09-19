@@ -8,7 +8,7 @@ import {
 
 describe(
   "Test API execution with dynamic binding in URL - Bug #24218",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Sanity"] },
   () => {
     it("1. Test API execution with dynamic binding in URL", () => {
       // Create JS Object to set Appsmith store variable to mockApiUrl
