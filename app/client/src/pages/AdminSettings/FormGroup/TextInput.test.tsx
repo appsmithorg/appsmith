@@ -25,6 +25,7 @@ function renderComponent() {
   function TextInputFieldComponent() {
     return <TextInput setting={setting} />;
   }
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
@@ -57,6 +58,7 @@ describe("Text Input", () => {
   it("is rendered", () => {
     renderComponent();
     const inputEl = document.querySelector("input");
+
     expect(inputEl?.value).toBeDefined();
     expect(inputEl?.value).toEqual("test value");
   });

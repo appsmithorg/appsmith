@@ -9,6 +9,7 @@ import type { TDownloadDescription } from "workers/Evaluation/fns/download";
 
 function downloadBlobURL(url: string, name: string) {
   const ele = document.createElement("a");
+
   ele.href = url;
   ele.download = name;
   ele.style.display = "none";
@@ -23,19 +24,25 @@ function downloadBlobURL(url: string, name: string) {
 export default async function downloadSaga(action: TDownloadDescription) {
   const { payload } = action;
   const { data, name, type } = payload;
+
   if (!name) {
     throw new TriggerFailureError("Please enter a file name");
   }
+
   if (isBlobUrl(data)) {
     downloadBlobURL(data, name);
     AppsmithConsole.info({
       text: `download('${data}', '${name}', '${type}') was triggered`,
     });
+
     return;
   }
+
   const dataType = getType(data);
+
   if (dataType === Types.ARRAY || dataType === Types.OBJECT) {
     const jsonString = JSON.stringify(data, null, 2);
+
     downloadjs(jsonString, name, type);
     AppsmithConsole.info({
       text: `download('${jsonString}', '${name}', '${type}') was triggered`,

@@ -21,6 +21,7 @@ export const getIDEViewMode = createSelector(
     if (featureFlag) {
       return ideViewMode;
     }
+
     return EditorViewMode.FullScreen;
   },
 );

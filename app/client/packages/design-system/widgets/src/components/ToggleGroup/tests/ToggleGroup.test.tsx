@@ -26,13 +26,16 @@ describe("@appsmith/wds/ToggleGroup", () => {
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const label = container.querySelector("label") as HTMLElement;
+
     expect(label).toHaveTextContent("Checkbox Group");
 
     const toggleGroup = screen.getByRole("group");
+
     expect(toggleGroup).toHaveAttribute("aria-labelledby");
     expect(toggleGroup.getAttribute("aria-labelledby")).toBe(label.id);
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     expect(checkboxes[0]).toHaveAttribute("value", "value-1");
     expect(checkboxes[1]).toHaveAttribute("value", "value-2");
 
@@ -62,6 +65,7 @@ describe("@appsmith/wds/ToggleGroup", () => {
     );
 
     const toggleGroup = screen.getByTestId("t--checkbox-group");
+
     expect(toggleGroup).toBeInTheDocument();
   });
 
@@ -81,6 +85,7 @@ describe("@appsmith/wds/ToggleGroup", () => {
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     expect(checkboxes[0]).toBeChecked();
     expect(checkboxes[1]).toBeChecked();
   });
@@ -103,6 +108,7 @@ describe("@appsmith/wds/ToggleGroup", () => {
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     await userEvent.click(checkboxes[0]);
     expect(onChangeSpy).toHaveBeenCalled();
   });
@@ -119,6 +125,7 @@ describe("@appsmith/wds/ToggleGroup", () => {
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     expect(checkboxes[0]).toBeDisabled();
     expect(checkboxes[1]).toBeDisabled();
   });

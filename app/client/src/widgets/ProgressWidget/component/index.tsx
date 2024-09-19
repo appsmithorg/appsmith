@@ -34,15 +34,18 @@ const renderProgress = (props: ProgressComponentProps) => {
         );
       }
     }
+
     // Pure circular progress
     return <CircularProgress {...props} />;
   }
+
   // Linear progress components
   if (variant === ProgressVariant.DETERMINATE) {
     // With steps
     if (steps > 1) {
       return <LinearProgressWithSteps {...props} />;
     }
+
     // Pure linear progress
     return (
       <DeterminateLinearProgress
@@ -53,6 +56,7 @@ const renderProgress = (props: ProgressComponentProps) => {
       />
     );
   }
+
   // Indeterminate linear progress component
   return (
     <IndeterminateLinearProgress
@@ -69,6 +73,7 @@ const getProgressPosition = (
   currentStep: number,
 ) => {
   const currStepProgress = percentage - stepSize * currentStep;
+
   if (currStepProgress > stepSize) {
     return 100;
   } else if (currStepProgress < 0) {
@@ -228,6 +233,7 @@ function LinearProgressWithSteps(props: ProgressComponentProps) {
     <StepWrapper>
       {[...Array(Number(steps))].map((_, index) => {
         const width = getProgressPosition(Number(value), stepSize, index);
+
         return (
           <StepContainer data-testid="step" key={index}>
             <DeterminateLinearProgress
@@ -337,6 +343,7 @@ function Separator(props: { turns: number }) {
 function RadialSeparators(props: { steps: number }) {
   const { steps } = props;
   const turns = 1 / steps;
+
   return (
     <>
       {_.range(steps).map((index) => (
@@ -345,6 +352,7 @@ function RadialSeparators(props: { steps: number }) {
     </>
   );
 }
+
 // Pure circular progress (indeterminate/determinate)
 function CircularProgress(props: ProgressComponentProps) {
   const {
@@ -474,6 +482,7 @@ function CircularProgressWithSteps(
 // Main component
 function ProgressComponent(props: ProgressComponentProps) {
   const { showResult, type, variant } = props;
+
   return (
     <ProgressContainer>
       {renderProgress(props)}

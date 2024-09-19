@@ -42,6 +42,7 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
 
   handleChangeColor = (color: string, isUpdatedViaKeyboard: boolean) => {
     let _color = color;
+
     _color = tinycolor(color).isValid() ? tinycolor(color).toString() : color;
 
     this.updateProperty(this.props.propertyName, _color, isUpdatedViaKeyboard);

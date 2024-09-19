@@ -20,12 +20,14 @@ export function getMetaWidgetResetObj(
   // evaluatedWidget is widget data inside dataTree, this will have latest default values of widget
   if (evaluatedWidget) {
     const { propertyOverrideDependency } = evaluatedWidgetConfig;
+
     // propertyOverrideDependency has defaultProperty name for each meta property of widget
     Object.entries(
       propertyOverrideDependency as PropertyOverrideDependency,
     ).map(([propertyName, dependency]) => {
       const defaultPropertyValue =
         dependency.DEFAULT && evaluatedWidget[dependency.DEFAULT];
+
       if (defaultPropertyValue !== undefined) {
         // cloning data to avoid mutation
 
@@ -36,6 +38,7 @@ export function getMetaWidgetResetObj(
       }
     });
   }
+
   return resetMetaObj;
 }
 
@@ -83,6 +86,7 @@ export function getNextMetaStateWithUpdates(
     evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
       set(draftMetaState, [widgetId, ...metaPropertyPath], value);
     });
+
     return draftMetaState;
   });
 

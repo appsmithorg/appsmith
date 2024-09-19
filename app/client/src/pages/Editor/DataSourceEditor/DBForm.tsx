@@ -53,6 +53,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     const plugin = appState.entities.plugins.list.find(
       (plugin) => plugin.id === this.props.datasource?.pluginId,
     );
+
     if (!!plugin)
       openDoc(DocsLink.WHITELIST_IP, plugin?.documentationLink, plugin?.name);
     else openDoc(DocsLink.WHITELIST_IP);

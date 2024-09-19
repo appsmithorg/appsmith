@@ -55,6 +55,7 @@ export const getDefaultActionError = (action: string) =>
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
     const response: ApiResponse = yield call(apiCall, requestPayload);
+
     return response;
   } catch (error) {
     return error;
@@ -198,12 +199,15 @@ const getErrorMessageFromActionType = (
   error: ErrorPayloadType,
 ): string => {
   const actionErrorMessage = get(error, "message");
+
   if (actionErrorMessage === undefined) {
     if (type in ActionErrorDisplayMap) {
       return ActionErrorDisplayMap[type](error);
     }
+
     return createMessage(DEFAULT_ERROR_MESSAGE);
   }
+
   return actionErrorMessage;
 };
 
@@ -285,6 +289,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
             );
           }
         }
+
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
@@ -312,6 +317,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 
 function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   log.debug(`Error in action ${action.type}`);
+
   if (action.payload) log.error(action.payload.error, action);
 }
 
@@ -321,6 +327,7 @@ export function embedRedirectURL() {
   const ssoLoginUrl = ssoTriggerQueryParam
     ? getLoginUrl(ssoTriggerQueryParam || "")
     : null;
+
   if (ssoLoginUrl) {
     window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
       window.location.href,
@@ -331,6 +338,7 @@ export function embedRedirectURL() {
     )}`;
   }
 }
+
 /**
  * this saga do some logic before actually setting safeCrash to true
  */
@@ -345,6 +353,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     embedRedirectURL();
+
     return false;
   }
 
@@ -365,6 +374,7 @@ export function* flushErrorsAndRedirectSaga(
   if (safeCrash) {
     yield put(flushErrors());
   }
+
   if (!action.payload.url) return;
 
   history.push(action.payload.url);

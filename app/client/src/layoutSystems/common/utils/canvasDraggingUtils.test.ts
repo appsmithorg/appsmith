@@ -123,6 +123,7 @@ describe("test canvasDraggingUtils Methods", () => {
         right: 31,
         bottom: 40,
       };
+
       expect(
         getMoveDirection(prevPosition, currentPosition, ReflowDirection.UNSET),
       ).toEqual(ReflowDirection.RIGHT);
@@ -135,6 +136,7 @@ describe("test canvasDraggingUtils Methods", () => {
         right: 30,
         bottom: 41,
       };
+
       expect(
         getMoveDirection(prevPosition, currentPosition, ReflowDirection.UNSET),
       ).toEqual(ReflowDirection.BOTTOM);
@@ -147,6 +149,7 @@ describe("test canvasDraggingUtils Methods", () => {
         right: 29,
         bottom: 40,
       };
+
       expect(
         getMoveDirection(prevPosition, currentPosition, ReflowDirection.UNSET),
       ).toEqual(ReflowDirection.LEFT);
@@ -159,6 +162,7 @@ describe("test canvasDraggingUtils Methods", () => {
         right: 30,
         bottom: 39,
       };
+
       expect(
         getMoveDirection(prevPosition, currentPosition, ReflowDirection.UNSET),
       ).toEqual(ReflowDirection.TOP);
@@ -189,6 +193,7 @@ describe("test canvasDraggingUtils Methods", () => {
         isNotColliding: true,
         type: "CANVAS_WIDGET",
       };
+
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, true, false),
       ).toEqual(modifiedBlock);
@@ -217,6 +222,7 @@ describe("test canvasDraggingUtils Methods", () => {
         isNotColliding: true,
         type: "CANVAS_WIDGET",
       };
+
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, true, false),
       ).toEqual(modifiedBlock);
@@ -245,6 +251,7 @@ describe("test canvasDraggingUtils Methods", () => {
         isNotColliding: true,
         type: "CANVAS_WIDGET",
       };
+
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, false, false),
       ).toEqual(modifiedBlock);
@@ -275,6 +282,7 @@ describe("test canvasDraggingUtils Methods", () => {
         fixedHeight: 90,
         type: "CANVAS_WIDGET",
       };
+
       expect(
         modifyBlockDimension(draggingBlock, 10, 10, 100, false, false),
       ).toEqual(modifiedBlock);

@@ -90,9 +90,11 @@ function RepoLimitExceededErrorModal() {
       });
 
       setWorkspaceName(workspace?.name || "");
+
       return (
         applicationsOfWorkspace.filter((application: ApplicationPayload) => {
           const data = application.gitApplicationMetadata;
+
           return (
             data &&
             data.remoteUrl &&
@@ -200,6 +202,7 @@ function RepoLimitExceededErrorModal() {
           <AppListContainer>
             {applications.map((application: ApplicationPayload) => {
               const { gitApplicationMetadata } = application;
+
               return (
                 <ApplicationWrapper
                   className="t--connected-app-wrapper"

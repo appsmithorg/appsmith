@@ -27,6 +27,7 @@ const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 export default function ButtonComponent({ setting }: SettingComponentProps) {
   const dispatch = useDispatch();
   const settings = useSelector(formValuesSelector);
+
   return (
     <ButtonWrapper>
       <FormGroup setting={setting}>

@@ -8,6 +8,7 @@ export const migrateResizableModalWidgetProperties = (
   currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
     if (child.type === "MODAL_WIDGET" && child.version === 1) {
       const size = child.size;
+
       switch (size) {
         case "MODAL_SMALL":
           child.width = 456;
@@ -27,7 +28,9 @@ export const migrateResizableModalWidgetProperties = (
     } else if (child.children && child.children.length > 0) {
       child = migrateResizableModalWidgetProperties(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

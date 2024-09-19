@@ -59,6 +59,7 @@ function ConnectionSuccessTitle() {
 
 function ConnectionSuccessBody() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
+
   return (
     <>
       <div className="flex gap-x-4 mb-6">

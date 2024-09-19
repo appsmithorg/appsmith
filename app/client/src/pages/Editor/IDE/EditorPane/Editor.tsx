@@ -23,9 +23,11 @@ const Container = styled(Flex)`
 const Editor = () => {
   const { path } = useRouteMatch();
   const { segment } = useCurrentEditorState();
+
   if (segment === EditorEntityTab.UI) {
     return null;
   }
+
   return (
     <Container
       className="relative"

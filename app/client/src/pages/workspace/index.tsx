@@ -9,6 +9,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 export function Workspace() {
   const { path } = useRouteMatch();
   const location = useLocation();
+
   return (
     <PageWrapper displayName="Workspace Settings">
       <Switch location={location}>

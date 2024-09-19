@@ -1,14 +1,17 @@
 import { isPromise } from "workers/Evaluation/JSObject/utils";
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import ExecutionMetaData from "./ExecutionMetaData";
+
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function addMetaDataToError(e: any, fnName: string, fnString: string) {
   // To account for cascaded errors, if error has a source, retain it
   e.source = e.source || fnName;
   e.userScript = e.userScript || fnString;
+
   return e;
 }
+
 declare global {
   interface Window {
     structuredClone: (
@@ -52,8 +55,10 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   return function (this: unknown, ...args: P) {
     if (!ExecutionMetaData.getExecutionMetaData().enableJSFnPostProcessors) {
       let result;
+
       try {
         result = fn.call(this, ...args);
+
         return result;
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,9 +67,12 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
         throw e;
       }
     }
+
     const executionMetaData = ExecutionMetaData.getExecutionMetaData();
+
     try {
       const result = fn.call(this, ...args);
+
       if (isPromise(result)) {
         result.then((res) => {
           postProcessors.forEach((p) =>
@@ -75,6 +83,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
               isSuccess: true,
             }),
           );
+
           return res;
         });
         result.catch((e) => {
@@ -99,6 +108,7 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
           }),
         );
       }
+
       return result;
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -22,9 +22,11 @@ function LandingScreen(props: Props) {
       return <Redirect to={APPLICATIONS_URL} />;
     }
   }
+
   if (props.authError && props.authError.length) {
     return <ServerUnavailable />;
   }
+
   return <PageLoadingBar />;
 }
 

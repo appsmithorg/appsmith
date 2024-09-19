@@ -92,6 +92,7 @@ export class JSONtoForm<
       )
     )
       return null;
+
     return (
       <Collapsible
         key={section.sectionName}
@@ -114,8 +115,10 @@ export class JSONtoForm<
         `datasourceStorages.${this.props.currentEnvironment}.` +
         config.configProperty,
     };
+
     try {
       this.props.setupConfig(customConfig);
+
       return (
         <div key={customConfig.configProperty} style={{ marginTop: "16px" }}>
           <FormControl
@@ -134,6 +137,7 @@ export class JSONtoForm<
     try {
       // setup config for each child
       children.forEach((c) => this.props.setupConfig(c));
+
       // We pass last child for legacy reasons, to keep the logic here exactly same as before.
       return this.renderSingleConfig(children[children.length - 1], children);
     } catch (e) {
@@ -165,13 +169,16 @@ export class JSONtoForm<
             )
           )
             return null;
+
           if ("children" in propertyControlOrSection) {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { children } = propertyControlOrSection as any;
+
             if (isKVArray(children)) {
               return this.renderKVArray(children);
             }
+
             return this.renderEachConfig(propertyControlOrSection);
           } else {
             return this.renderSingleConfig(propertyControlOrSection);

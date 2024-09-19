@@ -125,6 +125,7 @@ function PrimaryCTA(props: Props) {
     const encodedForkRedirectURL = `${encodeURIComponent(
       `${window.location.origin}${appViewerURL}`,
     )}`;
+
     return `${AUTH_LOGIN_URL}?redirectUrl=${encodedForkRedirectURL}`;
   }, [appViewerURL]);
 
@@ -173,10 +174,12 @@ function PrimaryCTA(props: Props) {
         </Tooltip>
       );
     }
+
     // We wait for the url to be available here to avoid showing the fork
     // button for a moment and then showing the edit button i.e show one of the buttons once
     // the data is available
     if (!currentUser || !url) return;
+
     if (
       currentApplication?.forkingEnabled &&
       currentUser?.username === ANONYMOUS_USERNAME

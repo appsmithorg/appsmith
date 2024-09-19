@@ -55,6 +55,7 @@ describe("<DropdownWidget />", () => {
   function renderDropdownWidget(props: DropdownWidgetProps) {
     // Mock store to bypass the error of react-redux
     const store = configureStore()(initialState);
+
     return render(
       <Provider store={store}>
         <ThemeProvider
@@ -91,10 +92,12 @@ describe("<DropdownWidget />", () => {
       onFilterUpdate: "mock-update",
       updateWidgetMetaProperty: jest.fn(),
     };
+
     // @ts-expect-error: type mismatch
     renderDropdownWidget(mockDataWithEmptyOptions);
 
     const selectElement = screen.getByText("-- Select --");
+
     fireEvent.click(selectElement);
 
     expect(screen.getByText("No Results Found")).toBeInTheDocument();

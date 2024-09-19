@@ -17,6 +17,7 @@ const resolveOptionLabelText = (option: AppMaxWidth) => {
       return "Medium";
     default: {
       const exhaustiveCheck: never = option;
+
       throw new Error(`Unhandled app max width: ${exhaustiveCheck}`);
     }
   }

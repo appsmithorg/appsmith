@@ -174,6 +174,7 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   }, []);
   const message = createMessage(IMPORT_APP_FROM_GIT_MESSAGE);
   const title = createMessage(IMPORT_APP_FROM_GIT_TITLE);
+
   return (
     <CardWrapper onClick={onClick}>
       <Icon name={"fork"} size="md" />

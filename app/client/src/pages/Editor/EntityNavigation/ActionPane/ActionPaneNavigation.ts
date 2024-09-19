@@ -39,6 +39,7 @@ export default class ActionPaneNavigation extends PaneNavigation {
 
     if (!action)
       throw Error(`Couldn't find action with id: ${this.entityInfo.id}`);
+
     this.action = action;
   }
 
@@ -54,6 +55,7 @@ export default class ActionPaneNavigation extends PaneNavigation {
     yield call(this.navigateToUrl);
 
     if (!this.entityInfo.propertyPath) return;
+
     yield call(this.scrollToView, this.entityInfo.propertyPath);
   }
 
@@ -75,7 +77,9 @@ export default class ActionPaneNavigation extends PaneNavigation {
     const url =
       applicationId &&
       actionConfig?.getURL(basePageId, baseActionId, pluginType, plugin);
+
     if (!url) return;
+
     history.push(url);
     yield delay(NAVIGATION_DELAY);
     // Reset context switching field for the id, to allow scrolling to the error field
@@ -90,6 +94,7 @@ export default class ActionPaneNavigation extends PaneNavigation {
     const element = document.querySelector(
       `[data-location-id="${btoa(modifiedProperty)}"]`,
     );
+
     element?.scrollIntoView({
       behavior: "smooth",
     });

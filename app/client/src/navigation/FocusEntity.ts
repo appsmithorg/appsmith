@@ -50,8 +50,10 @@ export interface FocusEntityInfo {
 
 const getMatchPaths = memoize((type: IDEType): string[] => {
   const basePaths = getBaseUrlsForIDEType(type);
+
   return EntityPaths.reduce((previousValue, currentValue) => {
     const toAdd = basePaths.map((b) => b + currentValue);
+
     return previousValue.concat(...toAdd);
   }, [] as string[]).concat(basePaths);
 });
@@ -83,6 +85,7 @@ export function matchEntityFromPath(
 ): match<MatchEntityFromPath> | null {
   const ideType = getIDETypeByUrl(path);
   const matchPaths = getMatchPaths(ideType);
+
   return matchPath(path, {
     path: matchPaths,
     exact: true,
@@ -109,6 +112,7 @@ const getJSAddPathObj = (match: match<MatchEntityFromPath>) => {
 
 export function identifyEntityFromPath(path: string): FocusEntityInfo {
   const match = matchEntityFromPath(path);
+
   if (!match) {
     return {
       entity: FocusEntity.NONE,
@@ -117,11 +121,13 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: {},
     };
   }
+
   if (match.params.baseApiId) {
     if (match.params.pluginPackageName) {
       if (match.url.endsWith(ADD_PATH)) {
         return getQueryAddPathObj(match);
       }
+
       return {
         entity: FocusEntity.QUERY,
         id: match.params.baseApiId,
@@ -129,9 +135,11 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         params: match.params,
       };
     }
+
     if (match.url.endsWith(ADD_PATH)) {
       return getQueryAddPathObj(match);
     }
+
     return {
       entity: FocusEntity.QUERY,
       id: match.params.baseApiId,
@@ -139,6 +147,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.datasourceId) {
     if (match.params.datasourceId == TEMP_DATASOURCE_ID) {
       return {
@@ -156,6 +165,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       };
     }
   }
+
   if (match.params.selectedTab) {
     return {
       entity: FocusEntity.DATASOURCE_CREATE,
@@ -164,6 +174,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.entity === "datasource") {
     return {
       entity: FocusEntity.DATASOURCE_LIST,
@@ -172,10 +183,12 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.baseQueryId) {
     if (match.params.baseQueryId == "add" || match.url.endsWith(ADD_PATH)) {
       return getQueryAddPathObj(match);
     }
+
     return {
       entity: FocusEntity.QUERY,
       id: match.params.baseQueryId,
@@ -183,11 +196,13 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.moduleType && match.params.moduleInstanceId) {
     if (match.params.moduleType === MODULE_TYPE.QUERY) {
       if (match.url.endsWith(ADD_PATH)) {
         return getQueryAddPathObj(match);
       }
+
       return {
         entity: FocusEntity.QUERY_MODULE_INSTANCE,
         id: match.params.moduleInstanceId,
@@ -195,10 +210,12 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         params: match.params,
       };
     }
+
     if (match.params.moduleType === MODULE_TYPE.JS) {
       if (match.url.endsWith(ADD_PATH)) {
         return getJSAddPathObj(match);
       }
+
       return {
         entity: FocusEntity.JS_MODULE_INSTANCE,
         id: match.params.moduleInstanceId,
@@ -207,6 +224,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       };
     }
   }
+
   if (match.params.baseCollectionId) {
     if (
       match.params.baseCollectionId == "add" ||
@@ -214,6 +232,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     ) {
       return getJSAddPathObj(match);
     }
+
     return {
       entity: FocusEntity.JS_OBJECT,
       id: match.params.baseCollectionId,
@@ -221,6 +240,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.widgetIds) {
     return {
       entity: FocusEntity.PROPERTY_PANE,
@@ -229,6 +249,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.entity === "widgets") {
     return {
       entity: FocusEntity.WIDGET_LIST,
@@ -237,6 +258,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.entity === "queries") {
     return {
       entity: FocusEntity.QUERY_LIST,
@@ -245,6 +267,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.entity === "jsObjects") {
     return {
       entity: FocusEntity.JS_OBJECT_LIST,
@@ -253,6 +276,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
+
   if (match.params.entity) {
     if (match.params.entity === "libraries") {
       return {
@@ -262,6 +286,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         params: match.params,
       };
     }
+
     if (match.params.entity === "settings") {
       return {
         entity: FocusEntity.SETTINGS,
@@ -271,6 +296,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       };
     }
   }
+
   return {
     entity: FocusEntity.CANVAS,
     id: "",

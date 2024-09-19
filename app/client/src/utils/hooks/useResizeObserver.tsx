@@ -14,6 +14,7 @@ const useResizeObserver = (
       const resizeObserver = new ResizeObserver((entries: any) => {
         callback(entries);
       });
+
       resizeObserver.observe(ref);
 
       return () => resizeObserver.unobserve(ref);

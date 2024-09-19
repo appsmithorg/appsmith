@@ -9,6 +9,7 @@ export const getSelectedWidgets = (state: AppState) =>
 
 export const getDefaultSelectedWidgetIds = (state: AppState) => {
   const widgets = Object.keys(state.entities.canvasWidgets);
+
   // We check for more than 1 because MainContainer is always present
   if (widgets.length > 1) {
     return [widgets[1]];

@@ -81,6 +81,7 @@ export function* updateRecentEntitySaga(entityInfo: FocusEntityInfo) {
     recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));
+
     if (applicationId) {
       yield call(
         setRecentAppEntities,
@@ -103,6 +104,7 @@ export function* restoreRecentEntities(
     fetchRecentAppEntities,
     getRecentEntitiesKey(applicationId, branch),
   );
+
   yield putResolve(setRecentEntities(recentAppEntities));
   yield put(restoreRecentEntitiesSuccess());
 }

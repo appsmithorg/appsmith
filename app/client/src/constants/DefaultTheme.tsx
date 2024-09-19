@@ -334,12 +334,14 @@ export const BlueprintRadioSwitchGroupTransform = css<{
       if (alignment === Alignment.RIGHT) {
         return inline ? "inline-block" : "block";
       }
+
       return "flex";
     }};
     width: ${({ alignment, inline }) => {
       if (alignment === Alignment.RIGHT) {
         return inline ? "auto" : "100%";
       }
+
       return "auto";
     }};
     align-items: center;
@@ -527,16 +529,19 @@ export const getColorWithOpacity = (color: Color, opacity: number) => {
   const r = (val >> 16) & 255;
   const g = (val >> 8) & 255;
   const b = val & 255;
+
   return `rgba(${r},${g},${b},${opacity})`;
 };
 
 export const getBorderCSSShorthand = (border?: ThemeBorder): string => {
   const values: string[] = [];
+
   if (border) {
     for (const [key, value] of Object.entries(border)) {
       values.push(key === "thickness" ? value + "px" : value.toString());
     }
   }
+
   return values.join(" ");
 };
 
@@ -1353,6 +1358,7 @@ const gitSyncModal = {
   closeIcon: Colors.SCORPION,
   closeIconHover: Colors.GREY_900,
 };
+
 type GitSyncModalColors = typeof gitSyncModal;
 
 const tabItemBackgroundFill = {

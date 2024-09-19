@@ -101,6 +101,7 @@ function NameEditor(props: NameEditorProps) {
     new URLSearchParams(window.location.search).get("editName") === "true";
   const [forceUpdate, setForceUpdate] = useState(false);
   const dispatch = useDispatch();
+
   if (!entityId) {
     log.error(idUndefinedErrorMessage);
   }
@@ -122,6 +123,7 @@ function NameEditor(props: NameEditorProps) {
       } else if (name !== entityName && hasActionNameConflict(name)) {
         return createMessage(suffixErrorMessage, name);
       }
+
       return false;
     },
     [hasActionNameConflict, entityName],

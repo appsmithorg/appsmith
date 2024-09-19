@@ -113,6 +113,7 @@ function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
     workspaceId,
     templateId: selectedBuildingBlock.id,
   };
+
   try {
     // api call adds DS, queries and JS to page and returns new page dsl with building block
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
@@ -178,6 +179,7 @@ export function* loadBuildingBlocksIntoApplication(
   skeletonLoaderId: string,
 ) {
   const { leftColumn, topRow } = buildingBlockWidget;
+
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -231,6 +233,7 @@ export function* loadBuildingBlocksIntoApplication(
 
       const timeTakenToDropWidgetsInSeconds =
         (Date.now() - buildingBlockDragStartTimestamp) / 1000;
+
       yield call(postPageAdditionSaga, applicationId);
 
       // stop loading after pasting process is complete
@@ -336,6 +339,7 @@ export function* addBuildingBlockToCanvasSaga(
     getWidgetByName,
     skeletonWidgetName,
   );
+
   yield call(
     loadBuildingBlocksIntoApplication,
     addEntityAction.payload,
@@ -381,6 +385,7 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
     getWidgetByName,
     skeletonWidgetName,
   );
+
   yield call(
     loadBuildingBlocksIntoApplication,
     {
@@ -467,6 +472,7 @@ export function* pasteBuildingBlockWidgetsSaga(
       { gridPosition },
       pastingIntoWidgetId,
     );
+
     for (const widgetGroup of copiedWidgetGroups) {
       //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
       const widgetType = widgetGroup.list.find(
@@ -527,6 +533,7 @@ export function* pasteBuildingBlockWidgetsSaga(
           widgetList.forEach((widget) => {
             // Create a copy of the widget properties
             const newWidget = cloneDeep(widget);
+
             newWidget.widgetId = generateReactKey();
             // Add the new widget id so that it maps the previous widget id
             widgetIdMap[widget.widgetId] = newWidget.widgetId;
@@ -537,6 +544,7 @@ export function* pasteBuildingBlockWidgetsSaga(
 
           // For each of the new widgets generated
           const evalTree: DataTree = yield select(getDataTree);
+
           for (let i = 0; i < newWidgetList.length; i++) {
             const widget = newWidgetList[i];
             const oldWidgetName = widget.widgetName;
@@ -557,6 +565,7 @@ export function* pasteBuildingBlockWidgetsSaga(
                 },
               );
             }
+
             if (oldWidgetName !== newWidgetName) {
               newActions = updateWidgetsNameInNewQueries(
                 oldWidgetName,
@@ -581,6 +590,7 @@ export function* pasteBuildingBlockWidgetsSaga(
                   : pastingIntoWidgetId;
               const { bottomRow, leftColumn, rightColumn, topRow } =
                 newWidgetPosition;
+
               widget.leftColumn = leftColumn;
               widget.topRow = topRow;
               widget.bottomRow = bottomRow;
@@ -597,6 +607,7 @@ export function* pasteBuildingBlockWidgetsSaga(
                 const originalWidgetId: string = widgetList[i].widgetId;
                 const originalWidgetIndex: number =
                   widgetChildren.indexOf(originalWidgetId);
+
                 parentChildren = [
                   ...widgetChildren.slice(0, originalWidgetIndex + 1),
                   ...parentChildren,
@@ -611,6 +622,7 @@ export function* pasteBuildingBlockWidgetsSaga(
                   children: parentChildren,
                 },
               };
+
               // If the copied widget's boundaries exceed the parent's
               // Make the parent scrollable
               if (
@@ -620,11 +632,13 @@ export function* pasteBuildingBlockWidgetsSaga(
                 !widget.detachFromLayout
               ) {
                 const parentOfPastingWidget = widgets[pastingParentId].parentId;
+
                 if (
                   parentOfPastingWidget &&
                   widget.parentId !== MAIN_CONTAINER_WIDGET_ID
                 ) {
                   const parent = widgets[parentOfPastingWidget];
+
                   widgets[parentOfPastingWidget] = {
                     ...parent,
                     shouldScrollContents: true,
@@ -641,8 +655,10 @@ export function* pasteBuildingBlockWidgetsSaga(
                   ? newWidget.widgetId === widgetIdMap[widget.parentId]
                   : false,
               )?.widgetId;
+
               if (newParentId) widget.parentId = newParentId;
             }
+
             // Generate a new unique widget name
             widget.widgetName = newWidgetName;
 
@@ -655,6 +671,7 @@ export function* pasteBuildingBlockWidgetsSaga(
              */
             if (widget.parentId) {
               const pastingIntoWidget = widgets[widget.parentId];
+
               if (
                 pastingIntoWidget &&
                 isStack(widgets, pastingIntoWidget) &&
@@ -666,6 +683,7 @@ export function* pasteBuildingBlockWidgetsSaga(
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const metaProps: Record<string, any> =
                   yield select(getWidgetsMeta);
+
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                   widgets = pasteWidgetInFlexLayers(
                     widgets,
@@ -688,11 +706,14 @@ export function* pasteBuildingBlockWidgetsSaga(
               }
             }
           }
+
           newlyCreatedWidgetIds.push(widgetIdMap[copiedWidgetId]);
+
           // 1. updating template in the copied widget and deleting old template associations
           // 2. updating dynamicBindingPathList in the copied grid widget
           for (let i = 0; i < newWidgetList.length; i++) {
             const widget = newWidgetList[i];
+
             widgets =
               handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
                 widget,
@@ -721,6 +742,7 @@ export function* pasteBuildingBlockWidgetsSaga(
       flexLayers.length > 0
     ) {
       const newFlexLayers = getNewFlexLayers(flexLayers, widgetIdMap);
+
       reflowedWidgets[pastingIntoWidgetId] = {
         ...reflowedWidgets[pastingIntoWidgetId],
         flexLayers: [
@@ -731,6 +753,7 @@ export function* pasteBuildingBlockWidgetsSaga(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
       reflowedWidgets = updateWidgetPositions(
         reflowedWidgets,
         pastingIntoWidgetId,
@@ -752,6 +775,7 @@ export function* pasteBuildingBlockWidgetsSaga(
       ),
       reflowedWidgets,
     );
+
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
     const basePageId: string = yield select(getCurrentBasePageId);
@@ -787,16 +811,19 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
         // Update the tabs for the tabs widget.
         if (widget.tabsObj) {
           const tabs = Object.values(widget.tabsObj);
+
           if (Array.isArray(tabs)) {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
               tab.widgetId = widgetIdMap[tab.widgetId];
               obj[tab.id] = tab;
+
               return obj;
             }, {});
           }
         }
+
         break;
       case "TABLE_WIDGET_V2":
       case "TABLE_WIDGET":
@@ -818,6 +845,7 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
           );
           widget.widgetName = newWidgetName;
         }
+
         break;
       case "MULTI_SELECT_WIDGET_V2":
       case "SELECT_WIDGET":
@@ -828,6 +856,7 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
             `${newWidgetName}.`,
           );
         }
+
         widget.widgetName = newWidgetName;
         break;
       case "JSON_FORM_WIDGET":
@@ -857,15 +886,19 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
       newWidgetList,
     );
   }
+
   if (widget.dynamicTriggerPathList) {
     handleWidgetDynamicTriggerPathList(widgetNameMap, widget);
   }
+
   if (widget.dynamicBindingPathList) {
     handleWidgetDynamicBindingPathList(widgetNameMap, widget);
   }
+
   if (widget.dynamicPropertyPathList) {
     handleWidgetDynamicPropertyPathList(widgetNameMap, widget);
   }
+
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
 
   return widgets;

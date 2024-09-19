@@ -19,6 +19,7 @@ describe("EChartsConfigurationBuilder", () => {
     it("1. returns all series data if chart type is not pie", () => {
       const chartType: ChartType = "AREA_CHART";
       const builder = new EChartsDatasetBuilder(chartType, chartData);
+
       expect(builder.filteredChartData).toEqual(chartData);
     });
 
@@ -29,6 +30,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedOutput = {
         seriesID1: chartData1,
       };
+
       expect(builder.filteredChartData).toEqual(expectedOutput);
     });
   });
@@ -67,6 +69,7 @@ describe("EChartsConfigurationBuilder", () => {
           ["Product1", "", "y2", ""],
         ],
       };
+
       expect(builder.datasetFromData()).toEqual(expectedChartDataSource);
     });
   });
@@ -100,6 +103,7 @@ describe("EChartsConfigurationBuilder", () => {
         series1ID: chartData1,
         series2ID: chartData2,
       });
+
       builder.datasetFromData();
 
       expect(builder.longestDataLabels()).toEqual({

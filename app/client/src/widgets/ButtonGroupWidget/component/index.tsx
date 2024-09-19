@@ -347,6 +347,7 @@ function PopoverContent(props: PopoverContentProps) {
   let items = Object.keys(menuItems)
     .map((itemKey) => menuItems[itemKey])
     .filter((item) => item.isVisible === true);
+
   // sort btns by index
   items = sortBy(items, ["index"]);
 
@@ -433,6 +434,7 @@ class ButtonGroupComponent extends React.Component<
       if (this.timer) {
         clearTimeout(this.timer);
       }
+
       this.timer = setTimeout(() => {
         this.setState(() => {
           return {
@@ -495,6 +497,7 @@ class ButtonGroupComponent extends React.Component<
           [id]: this.state.itemRefs[id].current?.getBoundingClientRect().width,
         };
       }
+
       return acc;
     }, {});
 
@@ -507,6 +510,7 @@ class ButtonGroupComponent extends React.Component<
           [id]: createRef(),
         };
       }
+
       return acc;
     }, {});
 
@@ -546,6 +550,7 @@ class ButtonGroupComponent extends React.Component<
     let items = Object.keys(groupButtons)
       .map((itemKey) => groupButtons[itemKey])
       .filter((item) => item.isVisible === true);
+
     // sort btns by index
     items = sortBy(items, ["index"]);
     const popoverId = `button-group-${widgetId}`;
@@ -570,6 +575,7 @@ class ButtonGroupComponent extends React.Component<
           const isLoading = button.id === loadedBtnId;
           const isButtonDisabled =
             button.isDisabled || isDisabled || !!loadedBtnId || isLoading;
+
           if (button.buttonType === "MENU" && !isButtonDisabled) {
             const { menuItems } = button;
 
@@ -641,6 +647,7 @@ class ButtonGroupComponent extends React.Component<
               </MenuButtonWrapper>
             );
           }
+
           return (
             <DragContainer
               buttonColor={button.buttonColor}
