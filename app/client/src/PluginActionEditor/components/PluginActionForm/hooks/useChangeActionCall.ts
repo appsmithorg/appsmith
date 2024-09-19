@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { changeApi } from "actions/apiPaneActions";
 import { changeQuery } from "actions/queryPaneActions";
 import { PluginType } from "entities/Action";
-import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
+import { usePluginActionContext } from "PluginActionEditor";
 
 export const useChangeActionCall = () => {
   const { action, plugin } = usePluginActionContext();
