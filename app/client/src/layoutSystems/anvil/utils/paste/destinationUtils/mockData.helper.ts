@@ -80,6 +80,7 @@ export function generateMockDataWithSectionAndZone() {
       hierarchy: 4,
     },
   ];
+
   return {
     allWidgets,
     copiedWidgets,

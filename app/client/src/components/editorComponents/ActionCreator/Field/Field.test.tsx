@@ -183,6 +183,7 @@ describe("Field component", () => {
         field: FieldType.DOWNLOAD_FILE_TYPE_FIELD,
       },
     };
+
     render(
       <ThemeProvider theme={lightTheme}>
         <Field {...props} />
@@ -202,14 +203,17 @@ describe("Field component", () => {
       };
       const expectedLabel = FIELD_CONFIG[field as FieldType].label(props);
       const expectedDefaultText = FIELD_CONFIG[field as FieldType].defaultText;
+
       render(
         <ThemeProvider theme={lightTheme}>
           <Field {...props} />
         </ThemeProvider>,
       );
+
       if (testId && expectedLabel) {
         expect(screen.getByTestId(testId)).toHaveTextContent(expectedLabel);
       }
+
       if (expectedDefaultText) {
         expect(screen.getByText(expectedDefaultText)).toBeInTheDocument();
       }

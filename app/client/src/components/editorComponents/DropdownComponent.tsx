@@ -110,6 +110,7 @@ class DropdownComponent extends Component<
         <BaseButton onClick={this.handleAddItem} text={addItem?.displayText} />
       </ControlGroup>
     );
+
     return (
       <StyledMenu ulRef={props.itemsParentRef} width={width}>
         {renderItems}
@@ -142,6 +143,7 @@ class DropdownComponent extends Component<
     if (!modifiers.matchesPredicate) {
       return null;
     }
+
     return (
       <StyledMenuItem
         active={modifiers.active}
@@ -170,6 +172,7 @@ class DropdownComponent extends Component<
       : this.props.selected?.value;
 
     const item = this.getDropdownOption(value);
+
     return item ? item.label : this.props.placeholder;
   };
 

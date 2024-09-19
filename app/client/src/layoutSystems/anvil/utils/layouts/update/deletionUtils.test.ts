@@ -26,6 +26,7 @@ describe("Layouts - deletionUtils tests", () => {
     it("should return layoutProps as is, if widgetId is falsy", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock()
         .layout as LayoutComponentProps;
+
       expect(deleteWidgetFromLayout(layout, "", ButtonWidget.type)).toEqual(
         layout,
       );
@@ -41,7 +42,9 @@ describe("Layouts - deletionUtils tests", () => {
         widgetId,
         (layout.layout[0] as WidgetLayoutProps).widgetType,
       );
+
       if (!res) return;
+
       expect(res.layout.length).toEqual(originalLength - 1);
       expect(
         extractWidgetIdsFromLayoutProps(res).includes(widgetId),
@@ -58,7 +61,9 @@ describe("Layouts - deletionUtils tests", () => {
         (layout.layout[0] as WidgetLayoutProps).widgetId,
         (layout.layout[0] as WidgetLayoutProps).widgetType,
       );
+
       if (!res) return;
+
       expect(res.layout.length).toEqual(originalLength - 1);
       expect(
         extractWidgetIdsFromLayoutProps(res).includes(
@@ -85,7 +90,9 @@ describe("Layouts - deletionUtils tests", () => {
         (layout.layout[0] as WidgetLayoutProps).widgetId,
         (layout.layout[0] as WidgetLayoutProps).widgetType,
       );
+
       if (!res) return;
+
       expect(res.layout.length).toEqual(originalLength - 1);
       expect(
         extractWidgetIdsFromLayoutProps(res).includes(
@@ -99,7 +106,9 @@ describe("Layouts - deletionUtils tests", () => {
         (res.layout[0] as WidgetLayoutProps).widgetId,
         (layout.layout[0] as WidgetLayoutProps).widgetType,
       );
+
       if (!res) return;
+
       expect(res.layout.length).toEqual(0);
     });
     it("should return undefined if AlignedRow is temporary and empty after deletion", () => {
@@ -119,7 +128,9 @@ describe("Layouts - deletionUtils tests", () => {
         widgetId,
         (layout.layout[0] as WidgetLayoutProps).widgetType,
       );
+
       if (!res) return;
+
       expect((res.layout as WidgetLayoutProps[]).length).toEqual(
         originalStartLength - 1,
       );
@@ -151,6 +162,7 @@ describe("Layouts - deletionUtils tests", () => {
         (layout.layout[0] as WidgetLayoutProps).widgetId,
         (layout.layout[0] as WidgetLayoutProps).widgetType,
       );
+
       if (!res) return;
 
       expect((res.layout as WidgetLayoutProps[]).length).toEqual(
@@ -170,6 +182,7 @@ describe("Layouts - deletionUtils tests", () => {
       );
 
       if (!res) return;
+
       expect(res.layout.length).toEqual(0);
     });
     it("should return the layout as is if widgetId is not present in the layout", () => {
@@ -180,6 +193,7 @@ describe("Layouts - deletionUtils tests", () => {
         "randomWidgetId",
         ButtonWidget.type,
       );
+
       expect(res).toEqual(layout);
       expect(res?.layout.length).toEqual(layout.layout.length);
     });
@@ -239,6 +253,7 @@ describe("Layouts - deletionUtils tests", () => {
         (layout2.layout[0] as WidgetLayoutProps).widgetId,
         (layout.layout[0] as WidgetLayoutProps).widgetType,
       );
+
       expect(res.length).toEqual(2);
 
       // delete the other widget

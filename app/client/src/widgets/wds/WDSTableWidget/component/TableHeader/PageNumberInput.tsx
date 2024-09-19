@@ -66,4 +66,5 @@ function PageNumberInputComponent(props: {
     />
   );
 }
+
 export const PageNumberInput = React.memo(PageNumberInputComponent);

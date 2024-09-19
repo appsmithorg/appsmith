@@ -249,6 +249,7 @@ describe("Validates getFilteredTableData Properties", () => {
       },
     ],
   };
+
   it("validates generate filtered table data", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
@@ -398,6 +399,7 @@ describe("Validates getFilteredTableData Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -415,6 +417,7 @@ describe("Validates getFilteredTableData Properties", () => {
     const expected = [];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -573,6 +576,7 @@ describe("Validates getFilteredTableData Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -737,6 +741,7 @@ describe("Validates getFilteredTableData Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -901,6 +906,7 @@ describe("Validates getFilteredTableData Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1020,6 +1026,7 @@ describe("Validates getFilteredTableData Properties", () => {
     });
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1170,6 +1177,7 @@ describe("Validates getFilteredTableData Properties", () => {
     const expected = [];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1275,6 +1283,7 @@ describe("Validates getFilteredTableData Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1300,6 +1309,7 @@ describe("Validates getFilteredTableData Properties", () => {
     const expected = [{ url: "B.COM", __originalIndex__: 1 }];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1320,6 +1330,7 @@ describe("Validates getFilteredTableData Properties", () => {
     const expected = [{ url: "B.COM", __originalIndex__: 1 }];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -1337,6 +1348,7 @@ describe("Validate getSelectedRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRow(input, moment, _)).toStrictEqual({
       id: 234,
       name: "Jane Doe",
@@ -1356,6 +1368,7 @@ describe("Validate getSelectedRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRow(input, moment, _)).toStrictEqual({
       id: "",
       name: "",
@@ -1375,6 +1388,7 @@ describe("Validate getSelectedRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRow(input, moment, _)).toStrictEqual({
       id: 234,
       name: "Jane Doe",
@@ -1565,6 +1579,7 @@ describe("Validate getTriggeredRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getTriggeredRow(input, moment, _)).toStrictEqual({
       id: 123,
       name: "John Doe",
@@ -1582,6 +1597,7 @@ describe("Validate getTriggeredRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getTriggeredRow(input, moment, _)).toStrictEqual({
       id: 1234,
       name: "Jim Doe",
@@ -1671,6 +1687,7 @@ describe("Validate getSelectedRows function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRows(input, moment, _)).toStrictEqual([
       {
         id: 234,
@@ -1691,6 +1708,7 @@ describe("Validate getSelectedRows function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRows(input, moment, _)).toStrictEqual([
       {
         id: 1234,
@@ -1715,6 +1733,7 @@ describe("Validate getSelectedRows function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRows(input, moment, _)).toStrictEqual([]);
   });
 
@@ -1728,6 +1747,7 @@ describe("Validate getSelectedRows function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRows(input, moment, _)).toStrictEqual([]);
   });
 
@@ -2327,6 +2347,7 @@ describe("validate getUpdatedRow", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getUpdatedRow(input1, moment, _)).toStrictEqual({
       id: 123,
       name: "John Doe1",
@@ -2366,6 +2387,7 @@ describe("validate getUpdatedRow", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getUpdatedRow(input1, moment, _)).toStrictEqual({
       id: "",
       name: "",

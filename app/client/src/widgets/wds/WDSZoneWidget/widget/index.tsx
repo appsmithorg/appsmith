@@ -117,8 +117,10 @@ class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
     if (widget.flexGrow && widget.flexGrow === SectionColumns) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { flexGrow, ...rest } = widget;
+
       widget = rest;
     }
+
     return widget;
   }
 
@@ -137,6 +139,7 @@ class WDSZoneWidget extends BaseWidget<WDSZoneWidgetProps, WidgetState> {
       widgetIdMap,
       reverseWidgetIdMap,
     );
+
     return res;
   }
 

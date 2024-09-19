@@ -221,12 +221,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     const { datasource, pluginId, workspaceId } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
+
     if (urlHasUpdated) {
       const isDatasourceRemoved =
         datasourceUrl.indexOf(datasource.datasourceConfiguration?.url) === -1;
       let newDatasource = isDatasourceRemoved
         ? { ...DEFAULT_DATASOURCE(pluginId, workspaceId) }
         : { ...datasource };
+
       newDatasource = {
         ...newDatasource,
         datasourceConfiguration: {
@@ -240,6 +242,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   handlePathUpdate = (path: string) => {
     const { onChange, value } = this.props.input;
+
     if (onChange && value !== path) {
       onChange(path);
     }
@@ -256,9 +259,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         path: "",
       };
     }
+
     if (datasource && datasource.hasOwnProperty("id")) {
       // We are not using datasourceStorages here since EmbeddedDatasources will not have environments
       const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
+
       if (value.includes(datasourceUrl)) {
         return {
           datasourceUrl,
@@ -270,8 +275,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     let datasourceUrl = "";
     let path = "";
     const isCorrectFullURL = DATASOURCE_URL_EXACT_MATCH_REGEX.test(value);
+
     if (isCorrectFullURL) {
       const matches = value.match(DATASOURCE_URL_EXACT_MATCH_REGEX);
+
       if (matches && matches.length) {
         datasourceUrl = matches[1];
         path = `${matches[2] || ""}${matches[3] || ""}`;
@@ -300,6 +307,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         ? valueOrEvent
         : valueOrEvent.target.value;
     const { datasourceUrl, path } = this.parseInputValue(value);
+
     this.handlePathUpdate(path);
     this.handleDatasourceUrlUpdate(datasourceUrl);
   };
@@ -331,6 +339,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         datasource.id !== TEMP_DATASOURCE_ID
       ) {
         const end = get(datasource, "datasourceConfiguration.url", "").length;
+
         editorInstance.markText(
           { ch: 0, line: 0 },
           { ch: end, line: 0 },
@@ -346,11 +355,13 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   handleDatasourceHint = (): HintHelper => {
     const { currentEnvironment, datasourceList } = this.props;
+
     return () => {
       return {
         showHint: (editor: CodeMirror.Editor) => {
           const value = editor.getValue();
           const parsed = this.parseInputValue(value);
+
           if (
             parsed.path === "" &&
             this.props.datasource &&
@@ -395,6 +406,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                 };
 
                 const CodeMirror = getCodeMirrorNamespaceFromEditor(editor);
+
                 CodeMirror.on(
                   hints,
                   "pick",
@@ -410,11 +422,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                     });
                   },
                 );
+
                 return hints;
               },
             });
+
             return true;
           }
+
           return false;
         },
         fireOnFocus: true,
@@ -462,6 +477,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
       return fullDatasourceUrlPath;
     }
+
     return "";
   };
 
@@ -477,6 +493,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         ).getBoundingClientRect()?.width,
       });
     }
+
     // add class to trigger custom tooltip to show when mouse enters the component
     document.getElementById("custom-tooltip")?.classList.add("highlighter");
   };
@@ -494,9 +511,11 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     if (!equal(nextProps, this.props)) {
       return true;
     }
+
     if (!equal(nextState, this.state)) {
       return true;
     }
+
     return false;
   }
 
@@ -609,12 +628,14 @@ const mapStateToProps = (
   const currentEnvironment = getCurrentEnvironmentId(state);
   const featureFlags = selectFeatureFlags(state);
   const isFeatureEnabled = isGACEnabled(featureFlags);
+
   // Todo: fix this properly later in #2164
   if (datasourceFromAction && "id" in datasourceFromAction) {
     datasourceFromDataSourceList = getDatasource(
       state,
       datasourceFromAction.id,
     );
+
     if (datasourceFromDataSourceList) {
       datasourceMerged = merge(
         {},

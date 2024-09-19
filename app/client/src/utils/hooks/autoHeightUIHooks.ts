@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 export const useAutoHeightUIState = () => {
   const dispatch = useDispatch();
+
   return {
     isAutoHeightWithLimitsChanging: useSelector(
       (state: AppState) => state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,

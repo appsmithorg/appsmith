@@ -56,6 +56,7 @@ export function RadioTabStory() {
     },
   ];
   const [selectedValue, setSelectedValue] = useState(possibleValues[0]);
+
   return (
     <RadioGroup
       defaultValue={selectedValue}

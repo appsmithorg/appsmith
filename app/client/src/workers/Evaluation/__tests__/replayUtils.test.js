@@ -7,6 +7,7 @@ describe("check processDiff from replayUtils for type of update", () => {
       widgetName: "abcde",
     },
   };
+
   describe("check diff of kind 'N' and 'D'", () => {
     it("should create toasts on creation of widgets on Undo", () => {
       const replay = {};

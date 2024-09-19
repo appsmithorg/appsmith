@@ -89,11 +89,13 @@ export const renderCell = (
           </CellWrapper>
         );
       }
+
       // better regex: /(?<!base64),/g ; can't use due to safari incompatibility
       const imageSplitRegex = /[^(base64)],/g;
       const imageUrlRegex =
         /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
+
       return (
         <CellWrapper
           cellProperties={cellProperties}
@@ -118,6 +120,7 @@ export const renderCell = (
                       if (isSelected) {
                         e.stopPropagation();
                       }
+
                       onClick();
                     }}
                   >
@@ -136,6 +139,7 @@ export const renderCell = (
     case ColumnTypes.VIDEO:
       const youtubeRegex =
         /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+
       if (!value) {
         return (
           <CellWrapper
@@ -241,6 +245,7 @@ export const renderIconButton = (
     </CellWrapper>
   );
 };
+
 function IconButton(props: {
   iconName?: IconName;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
@@ -269,6 +274,7 @@ function IconButton(props: {
       props.onCommandClick(props.action.dynamicTrigger, onComplete);
     }
   };
+
   return (
     <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
@@ -378,6 +384,7 @@ export const renderMenuButton = (
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
   action?: ColumnAction;
 }
+
 function MenuButton({
   borderRadius,
   boxShadow,
@@ -533,14 +540,17 @@ export const renderEmptyRows = (
   borderRadius: string,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
+
   if (page.length) {
     const row = page[0];
+
     return rows.map((item: string, index: number) => {
       prepareRow(row);
       const rowProps = {
         ...row.getRowProps(),
         style: { display: "flex" },
       };
+
       return (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection &&
@@ -549,11 +559,13 @@ export const renderEmptyRows = (
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
+
             set(
               cellProps,
               "style.backgroundColor",
               get(cell, "column.columnProperties.cellBackground"),
             );
+
             return (
               <div
                 {...cellProps}
@@ -570,6 +582,7 @@ export const renderEmptyRows = (
     const tableColumns = columns.length
       ? columns
       : new Array(3).fill({ width: tableWidth / 3, isHidden: false });
+
     return (
       <>
         {rows.map((row: string, index: number) => {
@@ -653,12 +666,16 @@ export function TableHeaderCell(props: {
   const { column, editMode, isSortable, width } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
+
     let columnIndex = props.columnIndex;
+
     if (props.isAscOrder === true) {
       columnIndex = -1;
     }
+
     const sortOrder =
       props.isAscOrder === undefined ? false : !props.isAscOrder;
+
     props.sortTableColumn(columnIndex, sortOrder);
   };
   const disableSort = editMode === false && isSortable === false;
@@ -800,6 +817,7 @@ export const renderDropdown = (props: {
     const optionIndex = findIndex(props.options, (option) => {
       return option.value === selectedOption.value;
     });
+
     return optionIndex === props.selectedIndex;
   };
   const renderSingleSelectItem = (
@@ -809,10 +827,13 @@ export const renderDropdown = (props: {
     if (!itemProps.modifiers.matchesPredicate) {
       return null;
     }
+
     if (!props.isCellVisible) {
       return null;
     }
+
     const isSelected: boolean = isOptionSelected(option);
+
     return (
       <MenuItem
         active={isSelected}
@@ -823,6 +844,7 @@ export const renderDropdown = (props: {
       />
     );
   };
+
   return (
     <div onClick={stopClickEventPropagation} style={{ height: "100%" }}>
       <StyledSingleDropDown

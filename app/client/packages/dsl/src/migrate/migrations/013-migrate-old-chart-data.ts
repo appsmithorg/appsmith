@@ -15,8 +15,10 @@ export const migrateOldChartData = (currentDSL: DSLWidget) => {
       }
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map(migrateOldChartData);
   }
+
   return currentDSL;
 };

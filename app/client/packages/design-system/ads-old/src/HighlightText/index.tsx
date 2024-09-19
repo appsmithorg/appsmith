@@ -14,6 +14,7 @@ export type HighlightTextProps = {
 
 export function HighlightText(props: HighlightTextProps) {
   const { highlight = "", text = "", ...rest } = props;
+
   if (!highlight.trim()) {
     return (
       <span data-testid="t--no-highlight" {...rest}>
@@ -21,6 +22,7 @@ export function HighlightText(props: HighlightTextProps) {
       </span>
     );
   }
+
   const regex = new RegExp(`(${escapeRegExp(highlight)})`, "gi");
   const parts: string[] = text.split(regex);
 

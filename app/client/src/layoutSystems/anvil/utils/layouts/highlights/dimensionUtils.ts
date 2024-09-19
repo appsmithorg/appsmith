@@ -14,7 +14,9 @@ export const getRelativeDimensions =
   (positions: LayoutElementPositions) =>
   (id: string): LayoutElementPosition => {
     const curr: LayoutElementPosition = positions[id];
+
     if (!curr) return curr;
+
     return {
       ...curr,
       top: curr?.offsetTop,

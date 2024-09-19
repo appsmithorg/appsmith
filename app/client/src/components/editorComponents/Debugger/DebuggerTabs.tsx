@@ -42,6 +42,7 @@ function DebuggerTabs() {
         source: "WIDGET_EDITOR",
       });
     }
+
     dispatch(setDebuggerSelectedTab(tabKey));
   };
   const onClose = () => dispatch(showDebugger(false));

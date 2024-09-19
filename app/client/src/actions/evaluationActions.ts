@@ -29,8 +29,10 @@ export const getAllActionTypes = (action: ReduxAction<unknown>) => {
     const batchedActionTypes = action.payload.map(
       (batchedAction) => batchedAction.type as string,
     );
+
     return batchedActionTypes;
   }
+
   return [action.type];
 };
 
@@ -48,6 +50,7 @@ export function shouldLog(action: ReduxAction<unknown>) {
     const batchedActionTypes = action.payload.map(
       (batchedAction) => batchedAction.type,
     );
+
     return batchedActionTypes.some(
       (actionType) => LOG_REDUX_ACTIONS[actionType],
     );

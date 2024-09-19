@@ -25,12 +25,14 @@ export const getIsAnvilEnabledInCurrentApplication = createSelector(
 
 export const getIsAnvilLayout = (state: AppState) => {
   const layoutSystemType = getLayoutSystemType(state);
+
   return layoutSystemType === LayoutSystemTypes.ANVIL;
 };
 
 // ToDo: This is a placeholder implementation this is bound to change
 export function getDropTargetLayoutId(state: AppState, canvasId: string) {
   const layout: LayoutProps[] = state.entities.canvasWidgets[canvasId].layout;
+
   return layout[0].layoutId;
 }
 

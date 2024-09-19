@@ -10,6 +10,7 @@ import { APPSMITH_GLOBAL_FUNCTIONS } from "../../constants";
 
 describe("tests for Action Tree in Action Selector", () => {
   const store = testStore({});
+
   it("callback button is rendered for chainable actions", function () {
     const actionBlock: TActionBlock = {
       code: "showAlert('Hello')",
@@ -41,6 +42,7 @@ describe("tests for Action Tree in Action Selector", () => {
     );
 
     const callbackBtn = component.queryByTestId("t--callback-btn-xyz");
+
     expect(callbackBtn).not.toBeNull();
   });
 
@@ -75,6 +77,7 @@ describe("tests for Action Tree in Action Selector", () => {
     );
 
     const callbackBtn = component.queryByTestId("t--callback-btn-xyz");
+
     expect(callbackBtn).toBeNull();
   });
 });

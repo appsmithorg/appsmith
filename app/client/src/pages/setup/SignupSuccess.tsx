@@ -70,6 +70,7 @@ export function SignupSuccess() {
     shouldEnableFirstTimeUserOnboarding !== "true"
   ) {
     redirectUsingQueryParam();
+
     // Showing a loader until the redirect
     return (
       <Center>
@@ -77,6 +78,7 @@ export function SignupSuccess() {
       </Center>
     );
   }
+
   return <UserWelcomeScreen isSuperUser={false} onGetStarted={onGetStarted} />;
 }
 

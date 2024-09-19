@@ -46,6 +46,7 @@ const positionProps = [
 function isPositionUpdate(widgetProperty: string) {
   return positionProps.indexOf(widgetProperty) !== -1;
 }
+
 export default class ReplayCanvas extends ReplayEntity<Canvas> {
   public constructor(entity: Canvas) {
     super(entity, ENTITY_TYPE.WIDGET);
@@ -121,10 +122,12 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
             isUndo,
             !isUndo,
           );
+
           addToArray(replay, TOASTS, toast);
         } else {
           setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         }
+
         break;
       // element is deleted in dsl
       case "D":
@@ -136,10 +139,12 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
             isUndo,
             isUndo,
           );
+
           addToArray(replay, TOASTS, toast);
         } else {
           setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         }
+
         break;
       // element is edited
       case "E":
@@ -148,6 +153,7 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
         } else {
           setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         }
+
         break;
       default:
         break;
@@ -166,6 +172,7 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
     const widgetName = isCreated
       ? diffWidget.widgetName
       : dslWidget?.widgetName;
+
     return {
       isCreated,
       isUndo,

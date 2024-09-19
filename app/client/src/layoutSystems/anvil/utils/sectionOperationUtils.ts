@@ -138,6 +138,7 @@ export function* mergeLastZonesOfSection(
         zoneOrder[currentZoneCount - count - 2],
         zoneOrder[currentZoneCount - count - 1],
       );
+
       updatedWidgets = {
         ...widgetsPostMerge,
       };
@@ -174,6 +175,7 @@ export function* addNewZonesToSection(
       type: anvilWidgets.ZONE_WIDGET,
     };
     const highlight = getSectionLastColumnHighlight(sectionWidget);
+
     updatedWidgets = yield call(
       getUpdatedListOfWidgetsAfterAddingNewWidget,
       highlight,

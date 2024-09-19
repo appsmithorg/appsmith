@@ -185,6 +185,7 @@ class PageApi extends Api {
 
   static getPublishedPageURL = (pageId: string, bustCache?: boolean) => {
     const url = `v1/pages/${pageId}/view`;
+
     return !!bustCache ? url + "?v=" + +new Date() : url;
   };
 
@@ -192,6 +193,7 @@ class PageApi extends Api {
     pageRequest: FetchPageRequest,
   ): Promise<AxiosPromise<FetchPageResponse>> {
     const params = { migrateDsl: pageRequest.migrateDSL };
+
     return Api.get(PageApi.url + "/" + pageRequest.pageId, undefined, {
       params,
     });
@@ -203,9 +205,12 @@ class PageApi extends Api {
     if (PageApi.pageUpdateCancelTokenSource) {
       PageApi.pageUpdateCancelTokenSource.cancel();
     }
+
     const body = { dsl: request.dsl };
+
     PageApi.pageUpdateCancelTokenSource = axios.CancelToken.source();
     const { applicationId, layoutId, pageId } = request;
+
     return Api.put(
       `v1/layouts/${layoutId}/pages/${pageId}?applicationId=${applicationId}`,
       body,
@@ -241,6 +246,7 @@ class PageApi extends Api {
     request: UpdatePageRequest,
   ): Promise<AxiosPromise<ApiResponse<UpdatePageResponse>>> {
     const { pageId, ...rest } = request;
+
     return Api.put(`${PageApi.url}/${pageId}`, rest);
   }
 
@@ -248,6 +254,7 @@ class PageApi extends Api {
     request: GenerateTemplatePageRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     const { pageId, ...rest } = request;
+
     if (pageId) {
       return Api.put(`${PageApi.url}/crud-page/${pageId}`, rest);
     } else {
@@ -277,6 +284,7 @@ class PageApi extends Api {
     request: SetPageOrderRequest,
   ): Promise<AxiosPromise<FetchPageListResponse>> {
     const { applicationId, order, pageId } = request;
+
     return Api.put(
       `v1/applications/${applicationId}/page/${pageId}/reorder?order=${order}`,
     );

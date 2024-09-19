@@ -116,6 +116,7 @@ function CustomComponent(props: CustomComponentProps) {
                 renderMode: props.renderMode,
               });
             }
+
             break;
           case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
             props.update(message.data);
@@ -135,6 +136,7 @@ function CustomComponent(props: CustomComponentProps) {
               iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
             }
+
             break;
           case "CUSTOM_WIDGET_CONSOLE_EVENT":
             props.onConsole &&

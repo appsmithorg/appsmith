@@ -42,6 +42,7 @@ describe("<WidgetsExport />", () => {
     const selectAllCheckbox = screen.getByTestId(
       "t--partial-export-modal-widget-select-all",
     );
+
     fireEvent.click(selectAllCheckbox!);
     expect(baseProps.updateSelectAllChecked).toHaveBeenCalledWith(true);
     expect(baseProps.updateSelectedWidgets).toHaveBeenCalledWith(
@@ -58,6 +59,7 @@ describe("<WidgetsExport />", () => {
     const widgetCheckbox = screen.getByTestId(
       `t--partial-export-modal-widget-select-${mockTblUserInfoWidgetId}`,
     );
+
     fireEvent.click(selectAllCheckbox!);
     expect(baseProps.updateSelectAllChecked).toHaveBeenCalledWith(true);
     expect(baseProps.updateSelectedWidgets).toHaveBeenCalledWith(
@@ -73,6 +75,7 @@ describe("<WidgetsExport />", () => {
     const widgetCheckbox = screen.getByTestId(
       `t--partial-export-modal-widget-select-${mockTblUserInfoWidgetId}`,
     );
+
     fireEvent.click(widgetCheckbox);
     expect(baseProps.updateSelectedWidgets).toHaveBeenCalledWith([
       mockTblUserInfoWidgetId,

@@ -54,16 +54,22 @@ export function StepComponent(props: StepComponentProps) {
     if (props.value < props.min) {
       return;
     }
+
     const value = props.value - props.steps;
+
     props.onChange(value);
   }
+
   function increase() {
     if (props.value > props.max) {
       return;
     }
+
     const value = props.value + props.steps;
+
     props.onChange(value);
   }
+
   return (
     <StepWrapper>
       <StyledDecreaseIcon

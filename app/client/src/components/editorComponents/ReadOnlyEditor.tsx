@@ -41,6 +41,7 @@ function ReadOnlyEditor(props: Props) {
     isRawView: props.isRawView,
     border: CodeEditorBorder.NONE,
   };
+
   return <LazyCodeEditor {...editorProps} />;
 }
 

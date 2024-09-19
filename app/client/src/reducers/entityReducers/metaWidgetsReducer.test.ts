@@ -331,6 +331,7 @@ describe("meta widget reducer test", () => {
   it("DELETE_META_WIDGETS", () => {
     const creatorId = "u9ibqgimu2";
     const expectedState: Record<string, unknown> = {};
+
     Object.entries(nestedMetaWidgetInitialState).forEach(
       ([widgetId, widgetProps]) => {
         if (widgetProps.creatorId !== creatorId) {

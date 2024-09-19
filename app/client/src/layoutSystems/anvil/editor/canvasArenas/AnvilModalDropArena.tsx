@@ -44,6 +44,7 @@ const StyledEmptyModalDropArena = styled.div<{
   font-weight: var(--info-text-font-weight);
   line-height: var(--info-text-line-height);
 `;
+
 export const AnvilModalDropArena = ({
   children,
   layoutId,
@@ -62,6 +63,7 @@ export const AnvilModalDropArena = ({
     dragDetails && dragDetails.draggedOn === layoutId;
   const widget = useSelector(getWidgetByID(modalId));
   const isModalEmpty = widget.children?.length === 0;
+
   return (
     <StyledModalEditorDropArenaWrapper
       isModalEmpty={isModalEmpty}

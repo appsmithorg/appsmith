@@ -27,6 +27,7 @@ export const canActivateCanvasForDraggedWidget = (
    * Get hierarchy of the drop target widget.
    */
   const dropTargetHierarchy: number = getWidgetHierarchy(widgetType, widgetId);
+
   /**
    * If drop target widget is of higher hierarchy than dragged widget, return true.
    * Higher hierarchy means the widget is closer to the main canvas and hierarchy index is closer to 0.
@@ -47,6 +48,7 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
       if (!widgetTypesArray.includes(each.type)) {
         widgetTypesArray.push(each.type);
       }
+
       return widgetTypesArray;
     },
     [] as string[],
@@ -76,6 +78,7 @@ export function getDraggedWidgetHierarchy(
 ): number {
   return draggedWidgets.reduce((acc: number, each: DraggedWidget) => {
     const order: number = getWidgetHierarchy(each.type, each.widgetId);
+
     return order < acc ? order : acc;
   }, 1000);
 }
@@ -94,6 +97,7 @@ export const getDraggedBlocks = (
 ): DraggedWidget[] => {
   if (isNewWidget) {
     const { newWidget } = dragDetails;
+
     return [
       {
         parentId: newWidget.parentId,
@@ -115,6 +119,7 @@ export const getDraggedBlocks = (
             widgetId: eachWidgetId,
           };
         }
+
         return;
       })
       .filter(Boolean) as DraggedWidget[];
@@ -134,6 +139,7 @@ export const getClosestHighlight = (
     highlights,
     pos,
   );
+
   /**
    * Defensive coding:
    * If filtered highlights are empty,
@@ -221,6 +227,7 @@ const closestHighlightByY = (
   const allClosestHighlights = highlights.filter(
     (highlight: AnvilHighlightInfo) => highlight.posY === closestHighlight.posY,
   );
+
   return allClosestHighlights;
 };
 
@@ -293,6 +300,7 @@ export function getViableDropPositions(
       closestVerticalHighlight,
       position,
     );
+
     shouldShowVerticalHighlights =
       isMouseInsideCell && !showHorizontalHighlights;
   }
@@ -304,8 +312,10 @@ export function getViableDropPositions(
 function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {
   let distX = 0,
     distY = 0;
+
   if (a.isVertical) {
     distX = b.x - a.posX;
+
     if (b.y < a.posY) {
       distY = b.y - a.posY;
     } else if (b.y > a.posY + a.height) {
@@ -315,6 +325,7 @@ function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {
     }
   } else {
     distY = b.y - a.posY;
+
     if (b.x < a.posX) {
       distX = b.x - a.posX;
     } else if (b.x > a.posX + a.width) {
@@ -323,6 +334,7 @@ function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {
       distX = 0;
     }
   }
+
   return Math.hypot(distX, distY);
 }
 

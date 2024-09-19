@@ -54,6 +54,7 @@ function CloseEditor() {
             params: getQueryParams(),
           })
         : redirectURL;
+
     AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
       type: "BACK_BUTTON",
       fromUrl: location.pathname,

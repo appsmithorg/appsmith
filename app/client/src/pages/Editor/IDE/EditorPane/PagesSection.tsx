@@ -46,6 +46,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
       PAGE_ENTITY_NAME,
       pages.map((page: Page) => page.pageName),
     );
+
     dispatch(
       createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );

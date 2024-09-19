@@ -57,18 +57,22 @@ export class JSEntity implements IEntity {
       this.entity,
       this.config,
     );
+
     for (const propertyName of Object.keys(parsedEntityConfig)) {
       const jsPropertyConfig = parsedEntityConfig[
         propertyName
       ] as TParsedJSProperty;
       const jsPropertyFullName = `${this.getName()}.${propertyName}`;
+
       if (!isJSFunctionProperty(jsPropertyConfig)) continue;
+
       jsFunctions.push({
         name: jsPropertyFullName,
         body: parsedEntity[propertyName],
         isMarkedAsync: jsPropertyConfig.isMarkedAsync,
       });
     }
+
     return jsFunctions;
   }
 }

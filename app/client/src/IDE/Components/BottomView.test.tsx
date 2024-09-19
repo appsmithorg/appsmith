@@ -39,6 +39,7 @@ describe("BottomView", () => {
       );
 
       const viewHideToggle = getByRole("button");
+
       act(() => {
         fireEvent.click(viewHideToggle);
       });
@@ -93,6 +94,7 @@ describe("BottomView", () => {
       );
 
       const viewHideToggle = getByRole("button");
+
       act(() => {
         fireEvent.click(viewHideToggle);
       });
@@ -148,6 +150,7 @@ describe("BottomView", () => {
       );
 
       const viewHideToggle = getByRole("button");
+
       act(() => {
         fireEvent.click(viewHideToggle);
       });
@@ -202,6 +205,7 @@ describe("BottomView", () => {
       );
 
       const viewHideToggle = getByRole("button");
+
       act(() => {
         fireEvent.click(viewHideToggle);
       });

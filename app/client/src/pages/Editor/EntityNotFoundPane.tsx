@@ -57,6 +57,7 @@ interface Props {
 
 function EntityNotFoundPane(props: Props) {
   const history = useHistory();
+
   return (
     <Wrapper>
       <img

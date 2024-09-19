@@ -26,6 +26,7 @@ export const WidgetEditorContainer = (props: { children: ReactNode }) => {
   const appState = useCurrentAppState();
   const isAppSettingsPaneWithNavigationTabOpen =
     appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
+
   return (
     <EditorContextProvider renderMode={RenderModes.CANVAS}>
       <Container className="relative flex flex-row h-full w-full overflow-hidden">

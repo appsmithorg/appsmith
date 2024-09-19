@@ -53,6 +53,7 @@ function PropertyPane() {
         }}
         onOpen={() => {
           const parent = panelWrapperRef.current;
+
           parent?.scrollTo(0, 0);
         }}
         showPanelHeader={false}

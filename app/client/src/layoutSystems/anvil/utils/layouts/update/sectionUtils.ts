@@ -66,6 +66,7 @@ export function splitWidgets(
 ): WidgetLayoutProps[][] {
   const zones: WidgetLayoutProps[] = [];
   const nonZones: WidgetLayoutProps[] = [];
+
   widgets.forEach((widget: WidgetLayoutProps) => {
     if (widget.widgetType === anvilWidgets.ZONE_WIDGET) {
       zones.push(widget);
@@ -73,6 +74,7 @@ export function splitWidgets(
       nonZones.push(widget);
     }
   });
+
   return [zones, nonZones];
 }
 
@@ -87,6 +89,7 @@ function* addZoneToSection(
   const { widgetId: zoneWidgetId } = zone;
   const { widgetId: sectionWidgetId } = canvasProps;
   let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+
   if (!canvasWidgets[zoneWidgetId]) {
     /**
      * Zone does not exist.
@@ -199,6 +202,7 @@ export function* addWidgetsToSection(
         { ...highlight, rowIndex: highlight.rowIndex + itemsAdded },
         sectionProps.widgetId,
       );
+
     sectionProps.children = [
       ...(sectionProps?.children || []),
       data.zone.widgetId,

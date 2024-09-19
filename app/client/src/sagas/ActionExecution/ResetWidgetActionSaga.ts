@@ -31,6 +31,7 @@ export default function* resetWidgetActionSaga(
     getWidgetByName,
     widgetName,
   );
+
   if (!widget) {
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }

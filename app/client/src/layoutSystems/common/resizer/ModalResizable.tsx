@@ -42,16 +42,21 @@ function ResizableHandle(props: ResizableHandleProps) {
       if (!props.allowResize) {
         return;
       }
+
       const snapped = getSnappedValues(mx, my, props.snapGrid);
+
       if (dragging && memo && (snapped.x !== memo.x || snapped.y !== memo.y)) {
         props.dragCallback(snapped.x, snapped.y);
       }
+
       if (first) {
         props.onStart();
       }
+
       if (last) {
         props.onStop();
       }
+
       return snapped;
     },
   );
@@ -121,13 +126,16 @@ export function ModalResizable(props: ResizableProps) {
     const { height, width, x, y } = rect;
     const shouldUpdateHeight =
       props.componentHeight !== height && props.enableVerticalResize;
+
     if (!shouldUpdateHeight) rect.height = props.componentHeight;
 
     const shouldUpdateWidth =
       props.componentWidth !== width && props.enableHorizontalResize;
+
     if (!shouldUpdateWidth) rect.width = props.componentWidth;
 
     const isColliding = props.isColliding({ width, height }, { x, y });
+
     if (!isColliding) {
       set({ ...rect, reset: false });
     }
@@ -260,6 +268,7 @@ export function ModalResizable(props: ResizableProps) {
       component: props.handles.bottomLeft,
     });
   }
+
   const onResizeStop = () => {
     togglePointerEvents(true);
     props.onStop(
@@ -292,6 +301,7 @@ export function ModalResizable(props: ResizableProps) {
         props.enableVerticalResize,
         handle.handleDirection,
       );
+
     return (
       <ResizableHandle
         {...handle}
