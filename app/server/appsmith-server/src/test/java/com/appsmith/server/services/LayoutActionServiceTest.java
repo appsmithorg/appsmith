@@ -1281,7 +1281,7 @@ class LayoutActionServiceTest {
         assertNotNull(createdAction);
         assertThat(createdAction.getErrorReports()).isNull();
 
-        // since the dependency has been introduced, calling updateLayout will return a LayoutDTO with a populated
+        // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated
         // layoutOnLoadActionErrors
         assertNotNull(firstLayout);
         assertEquals(1, firstLayout.getLayoutOnLoadActionErrors().size());
