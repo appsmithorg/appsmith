@@ -233,7 +233,11 @@ const QueryResponseTab = (props: Props) => {
   return (
     <ResponseContentWrapper isError={!!error}>
       {showPreparedStatementWarning && (
-        <Callout kind="warning" links={preparedStatementCalloutLinks}>
+        <Callout
+          data-testid="t--prepared-statement-warning"
+          kind="warning"
+          links={preparedStatementCalloutLinks}
+        >
           {createMessage(PREPARED_STATEMENT_WARNING.MESSAGE)}
         </Callout>
       )}
