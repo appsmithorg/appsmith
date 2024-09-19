@@ -150,9 +150,9 @@ describe(
           }}
         `,
       );
+      table.ChangeColumnType("unix", "Date", "v2");
       table.EditColumn("unix", "v2");
-      // table.ChangeColumnType("unix", "Date", "v2");
-      // propPane.UpdatePropertyFieldValue("Date format", "Milliseconds");
+      propPane.UpdatePropertyFieldValue("Date format", "Milliseconds");
     });
   },
 );
