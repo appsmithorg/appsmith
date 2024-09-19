@@ -3,7 +3,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Templates page",
-  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.Templates", "@tag.excludeForAirgap", "@tag.Sanity"] },
   () => {
     it("1. Templates Modal should have show only 'allowPageImport:true' templates", () => {
       cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
