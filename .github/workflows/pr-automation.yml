@@ -13,10 +13,11 @@ on:
     types: [ labeled, synchronize ]
 
 jobs:
-  checkTestLabel:
+  checkTestLabelAndCommit:
     runs-on: ubuntu-latest
     outputs:
       ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}
+      commit_contains_test: ${{ steps.checkCommitMessage.outputs.commit_contains_test }}
     steps:
 
       - name: Check PR Label
@@ -36,10 +37,23 @@ jobs:
               console.log("Label 'ok-to-test' is not present");
               core.setOutput("ok_to_test", "false");
             }
-
+      
+      - name: Check Commit Message
+        id: checkCommitMessage
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commitMessage = context.payload.pull_request.head.commit.message;
+            if (commitMessage.includes("/ok-to-test tags=")) {
+              console.log("Commit message contains '/ok-to-test tags='");
+              core.setOutput("commit_contains_test", "true");
+            } else {
+              console.log("Commit message does not contain '/ok-to-test tags='");
+              core.setOutput("commit_contains_test", "false");
+            }
   mark-stale:
-    needs: [ checkTestLabel ]
-    if: needs.checkTestLabel.outputs.ok_to_test == 'false'
+    needs: [ checkTestLabelAndCommit ]
+    if: needs.checkTestLabelAndCommit.outputs.ok_to_test == 'false' && needs.checkTestLabelAndCommit.outputs.commit_contains_test == 'false'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -60,9 +74,58 @@ jobs:
           script: |
             require("write-cypress-status.js")({core, context, github}, "warning", process.env.BODY)
 
-  parse-tags:
-    needs: [ checkTestLabel ]
-    if: needs.checkTestLabel.outputs.ok_to_test == 'true'
+  parse-tags-from-commit-message:
+    needs: [ checkTestLabelAndCommit ]
+    if: needs.checkTestLabelAndCommit.outputs.commit_contains_test == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      tags: ${{ steps.parseTagsFromCommit.outputs.tags }}
+      spec: ${{ steps.parseTagsFromCommit.outputs.spec }}
+      matrix: ${{ steps.checkAll.outputs.matrix }}
+    steps:
+      
+        # Checkout the code in the current branch in case the workflow is called because of a branch push event
+        - name: Checkout the head commit of the branch
+          uses: actions/checkout@v4
+          with:
+            repository: appsmithorg/appsmith
+  
+        - name: Parse tags from commit message
+          id: parseTagsFromCommit
+          run: |
+            commit_message=$(git log -1 --pretty=%B)
+            # Regex to match '/ok-to-test tags=' followed by any text within optional quotes
+            if [[ "$commit_message" =~ /ok-to-test[[:space:]]+tags=[[:space:]]*["'']?([^"'\n]*)["'']? ]]; then
+              tags=${BASH_REMATCH[1]}
+              echo "Commit contains /ok-to-test tags= with tags: $tags"
+              echo "has_test_spec=true" >> $GITHUB_OUTPUT
+              echo "tags_from_commit=$tags" >> $GITHUB_OUTPUT
+            else
+              echo "No /ok-to-test tags= found in the commit message"
+              echo "has_test_spec=false" >> $GITHUB_OUTPUT
+              echo "tags_from_commit=" >> $GITHUB_OUTPUT
+            fi
+  
+        # In case of a run with all test cases, allocate a larger matrix
+        - name: Check if @tag.All is present in tags
+          id: checkAll
+          run: |
+            if [[ -n "${{ steps.parseTagsFromCommit.outputs.spec }}" ]]; then
+              echo "matrix=[0]" >> $GITHUB_OUTPUT
+            else
+              tags="${{ steps.parseTagsFromCommit.outputs.tags }}"
+              if [[ $tags == "@tag.All" ]]; then
+                echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
+              else
+                echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+       
+
+  parse-tags-from-pr-description:
+    needs: [ checkTestLabelAndCommit ]
+    if: needs.checkTestLabelAndCommit.outputs.ok_to_test == 'true' && needs.checkTestLabelAndCommit.outputs.commit_contains_test == 'false'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -123,13 +186,24 @@ jobs:
             require("write-cypress-status.js")({core, context, github}, "important", process.env.BODY)
 
   # Call the workflow to run Cypress tests
-  perform-test:
-    needs: [ parse-tags ]
+  perform-test-for-tags-in-pr-description:
+    needs: [ parse-tags-from-pr-description ]
     if: success()
     uses: ./.github/workflows/pr-cypress.yml
     secrets: inherit
     with:
-      tags: ${{ needs.parse-tags.outputs.tags}}
-      spec: ${{ needs.parse-tags.outputs.spec}}
-      matrix: ${{ needs.parse-tags.outputs.matrix}}
+      tags: ${{ needs.parse-tags-from-pr-description.outputs.tags}}
+      spec: ${{ needs.parse-tags-from-pr-description.outputs.spec}}
+      matrix: ${{ needs.parse-tags-from-pr-description.outputs.matrix}}
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
+
+  perform-test-for-tags-in-commit-message:
+    needs: [ parse-tags-from-commit-message ]
+    if: success()
+    uses: ./.github/workflows/pr-cypress.yml
+    secrets: inherit
+    with:
+      tags: ${{ needs.parse-tags-from-commit-message.outputs.tags}}
+      spec: ${{ needs.parse-tags-from-commit-message.outputs.spec}}
+      matrix: ${{ needs.parse-tags-from-commit-message.outputs.matrix}}
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
