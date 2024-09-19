@@ -15,6 +15,7 @@ import {
   table,
   locators,
   jsEditor,
+  propPane,
 } from "../../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -23,7 +24,8 @@ describe(
   function () {
     before("Table Widget V2 Functionality", () => {
       agHelper.AddDsl("tableV2AndTextDsl");
-      cy.openPropertyPane("tablewidgetv2");
+
+      (cy as any).openPropertyPane("tablewidgetv2");
     });
 
     it("1. Table Widget V2 Functionality To Filter and search data", function () {
@@ -44,20 +46,18 @@ describe(
 
     it("2. Table Widget V2 Functionality to validate filtered table data", function () {
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
-      cy.testJsontext("text", "{{Table1.filteredTableData[0].task}}");
-      cy.readTableV2data("0", "1").then((tabData) => {
+      (cy as any).testJsontext("text", "{{Table1.filteredTableData[0].task}}");
+      (cy as any).readTableV2data("0", "1").then((tabData: unknown) => {
         const tableData = tabData;
         cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
       });
 
       //Table Widget V2 Functionality to validate filtered table data with actual table data
-      cy.readTableV2data("0", "1").then((tabData) => {
-        const tableData = JSON.parse(dsl.dsl.children[0].tableData);
-        cy.get(commonlocators.labelTextStyle).should(
-          "have.text",
-          tableData[2].task,
-        );
-      });
+      const tableData = JSON.parse(dsl.dsl.children[0].tableData);
+      cy.get(commonlocators.labelTextStyle).should(
+        "have.text",
+        tableData[2].task,
+      );
     });
 
     it.only("3. When primary key is set, selectedRowIndex should not updated after data update", function () {
@@ -92,7 +92,7 @@ describe(
         table.ReadTableRowColumnData(2, 0, "v2").then((text) => {
           expect(text).to.equal("Michael Wilson1");
         });
-        agHelper.AssertText(locators._textWidget, "text", text);
+        agHelper.AssertText(locators._textWidget, "text", text as string);
       });
     });
   },
