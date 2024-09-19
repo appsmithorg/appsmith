@@ -1,6 +1,5 @@
 import type { CreateAxiosDefaults } from "axios";
 import { ID_EXTRACTION_REGEX } from "constants/routes";
-import { convertObjectToQueryParams } from "utils/URLUtils";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
 
 export const REQUEST_TIMEOUT_MS = 20000;
@@ -17,7 +16,6 @@ export const DEFAULT_AXIOS_CONFIG: CreateAxiosDefaults = {
     "Content-Type": "application/json",
   },
   withCredentials: true,
-  paramsSerializer: convertObjectToQueryParams,
 };
 
 export const EXECUTION_ACTION_REGEX = /actions\/execute/;
