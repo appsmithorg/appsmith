@@ -17,9 +17,11 @@ export function generateLayoutComponentMock(
 ): { layout: LayoutComponentProps; childrenMap: Record<string, WidgetProps> } {
   if (data?.layoutType === LayoutComponentTypes.ALIGNED_WIDGET_ROW)
     return generateAlignedRowMock(data, rendersWidgets);
+
   const layout: WidgetLayoutProps[] | LayoutComponentProps[] = [];
   let childrenMap: { [key: string]: WidgetProps } = {};
   let type = LayoutComponentTypes.WIDGET_ROW;
+
   if (rendersWidgets) {
     /**
      * This generates a Row with button and input widgets in it.
@@ -29,6 +31,7 @@ export function generateLayoutComponentMock(
      */
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
+
     (layout as WidgetLayoutProps[]).push({
       alignment: FlexLayerAlignment.Start,
       widgetId: buttonWidget.widgetId,
@@ -45,6 +48,7 @@ export function generateLayoutComponentMock(
     type = LayoutComponentTypes.LAYOUT_ROW;
     const mock1 = generateLayoutComponentMock();
     const mock2 = generateLayoutComponentMock();
+
     (layout as LayoutComponentProps[]).push(mock1.layout);
     (layout as LayoutComponentProps[]).push(mock2.layout);
     childrenMap = {
@@ -53,6 +57,7 @@ export function generateLayoutComponentMock(
       ...mock2.childrenMap,
     };
   }
+
   return {
     layout: {
       layout,
@@ -93,9 +98,11 @@ export function generateAlignedRowMock(
 ): { layout: LayoutComponentProps; childrenMap: Record<string, WidgetProps> } {
   const layout: WidgetLayoutProps[] = [],
     childrenMap: { [key: string]: WidgetProps } = {};
+
   if (rendersWidgets) {
     const buttonWidget: BaseWidgetProps = mockButtonProps();
     const inputWidget: BaseWidgetProps = mockInputProps();
+
     (layout as WidgetLayoutProps[]).push({
       alignment: FlexLayerAlignment.Start,
       widgetId: buttonWidget.widgetId,
@@ -109,6 +116,7 @@ export function generateAlignedRowMock(
     childrenMap[buttonWidget.widgetId] = buttonWidget;
     childrenMap[inputWidget.widgetId] = inputWidget;
   }
+
   return {
     layout: {
       layout,

@@ -31,6 +31,7 @@ describe("getOriginalRowIndex", () => {
       selectedRowIndex,
     );
     const expected = undefined;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -61,6 +62,7 @@ describe("getOriginalRowIndex", () => {
       selectedRowIndex,
     );
     const expected = undefined;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -113,6 +115,7 @@ describe("getOriginalRowIndex", () => {
     ];
     const result = getOriginalRowIndex(oldTableData, newTableData, undefined);
     const expected = undefined;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -130,6 +133,7 @@ describe("getOriginalRowIndex", () => {
       selectedRowIndex,
     );
     const expected = undefined;
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -191,6 +195,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(0);
   });
 });
@@ -251,6 +256,7 @@ describe("selectRowIndices", () => {
       [],
       undefined,
     );
+
     expect(result).toEqual([0]);
   });
 });

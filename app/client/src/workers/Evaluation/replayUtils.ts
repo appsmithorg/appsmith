@@ -61,10 +61,12 @@ export function processDiff(
           isUndo,
           !isUndo,
         );
+
         addToArray(replay, TOASTS, toast);
       } else {
         setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
       }
+
       break;
     // element is deleted in dsl
     case "D":
@@ -76,10 +78,12 @@ export function processDiff(
           isUndo,
           isUndo,
         );
+
         addToArray(replay, TOASTS, toast);
       } else {
         setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
       }
+
       break;
     // element is edited
     case "E":
@@ -88,6 +92,7 @@ export function processDiff(
       } else {
         setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
       }
+
       break;
     default:
       break;
@@ -112,6 +117,7 @@ function createToast(
   isCreated: boolean,
 ) {
   const widgetName = isCreated ? diffWidget.widgetName : dslWidget?.widgetName;
+
   return {
     isCreated,
     isUndo,

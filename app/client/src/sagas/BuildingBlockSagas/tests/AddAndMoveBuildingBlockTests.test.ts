@@ -41,15 +41,18 @@ describe("addAndMoveBuildingBlockToCanvasSaga", () => {
 
     // Step 1: select getCurrentApplicationId
     let result = generator.next();
+
     expect(result.value).toEqual(select(getCurrentApplicationId));
 
     // Mock return value of getCurrentApplicationId
     const applicationId = "app1";
+
     result = generator.next(applicationId);
     expect(result.value).toEqual(select(getCurrentWorkspaceId));
 
     // Step 2: select getCurrentWorkspaceId
     const workspaceId = "workspace1";
+
     result = generator.next(workspaceId);
     expect(result.value).toEqual(select(getDragDetails));
 
@@ -59,6 +62,7 @@ describe("addAndMoveBuildingBlockToCanvasSaga", () => {
         displayName: "TestWidget",
       },
     };
+
     result = generator.next(dragDetails);
 
     // Generating the skeletonWidgetName
@@ -123,6 +127,7 @@ describe("addAndMoveBuildingBlockToCanvasSaga", () => {
     generator.next();
     // Introduce an error by throwing one manually
     const error = new Error("Something went wrong");
+
     try {
       generator.throw(error);
     } catch (err) {
@@ -138,15 +143,18 @@ describe("addBuildingBlockToCanvasSaga", () => {
 
     // Step 1: select getCurrentApplicationId
     let result = generator.next();
+
     expect(result.value).toEqual(select(getCurrentApplicationId));
 
     // Mock return value of getCurrentApplicationId
     const applicationId = "app1";
+
     result = generator.next(applicationId);
     expect(result.value).toEqual(select(getCurrentWorkspaceId));
 
     // Step 2: select getCurrentWorkspaceId
     const workspaceId = "workspace1";
+
     result = generator.next(workspaceId);
     expect(result.value).toEqual(select(getDragDetails));
 
@@ -156,6 +164,7 @@ describe("addBuildingBlockToCanvasSaga", () => {
         displayName: "TestWidget",
       },
     };
+
     result = generator.next(dragDetails);
 
     // Generating the skeletonWidgetName
@@ -214,6 +223,7 @@ describe("addBuildingBlockToCanvasSaga", () => {
     generator.next();
     // Introduce an error by throwing one manually
     const error = new Error("Something went wrong");
+
     try {
       generator.throw(error);
     } catch (err) {

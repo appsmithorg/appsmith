@@ -19,6 +19,7 @@ class PhoneInputComponent extends React.PureComponent<PhoneInputComponentProps> 
 
   getLeftIcon = () => {
     const selectedISDCode = getSelectedISDCode(this.props.dialCode);
+
     return (
       <ISDCodeDropdown
         accentColor={this.props.accentColor}

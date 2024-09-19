@@ -44,6 +44,7 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
       propertyValue,
       stepSize,
     } = this.props;
+
     return (
       <NumberInput
         max={max}

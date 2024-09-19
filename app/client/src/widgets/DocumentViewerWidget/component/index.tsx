@@ -24,16 +24,19 @@ const ErrorWrapper = styled.div`
 const checkUrlExtension = (docUrl: string) => {
   // Remove everything to the last slash in URL
   let url = docUrl.slice(1 + docUrl.lastIndexOf("/"));
+
   // Break URL at ? and take first part (file name, extension)
   url = url.split("?")[0];
   // Sometimes URL doesn't have ? but #, so we should aslo do the same for #
   url = url.split("#")[0];
   // Now we have only filename and extension
   const chunkList = url.split(".");
+
   if (chunkList.length > 1) {
     const ext = chunkList[chunkList.length - 1];
     // check extension is valid or not
     const validExtension = SUPPORTED_EXTENSIONS.includes(ext);
+
     return {
       hasExtension: true,
       validExtension: validExtension,
@@ -56,12 +59,15 @@ const getBlob = (docUrl: string) => {
     const decodedData = window.atob(parts[1]);
     // Create UNIT8ARRAY of size same as row data length
     const uInt8Array = new Uint8Array(decodedData.length);
+
     // Insert all character code into uInt8Array
     for (let i = 0; i < decodedData.length; ++i) {
       uInt8Array[i] = decodedData.charCodeAt(i);
     }
+
     // Return BLOB image after conversion
     const blob = new Blob([uInt8Array], { type: mimeType });
+
     return blob;
   } catch (error) {
     return;
@@ -127,8 +133,10 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
   if (docUrl && includes(docUrl, "base64")) {
     const extension = getFileExtensionFromBase64(docUrl);
     const isValidExtension = SUPPORTED_EXTENSIONS.includes(extension);
+
     if (isValidExtension) {
       blob = getBlob(docUrl);
+
       if (blob) {
         if (extension === "docx") {
           renderer = Renderers.DOCX_VIEWER;
@@ -143,6 +151,7 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
       errorMessage = "Current file type is not supported " + extension;
       renderer = Renderers.ERROR;
     }
+
     return { blob, url, viewer, errorMessage, renderer };
   }
 
@@ -152,8 +161,10 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
       url = replace(url, "?dl=0", "");
       url = url + "?raw=1";
     }
+
     return { url, viewer, renderer };
   }
+
   // handled onedrive url
   if (includes(url, "onedrive.live.com")) {
     const onedriveUrl = new URL(url);
@@ -168,11 +179,13 @@ export const getDocViewerConfigs = (docUrl: string): ConfigResponse => {
     );
 
     url = `https://onedrive.live.com/embed?cid=${cid}&resid=${resid}&em=2`;
+
     return { url, viewer, renderer };
   }
 
   // check url extension and if it is supported
   const { extension, hasExtension, validExtension } = checkUrlExtension(url);
+
   if (hasExtension) {
     if (validExtension) {
       if (!(extension === "txt" || extension === "pdf")) {
@@ -193,6 +206,7 @@ function DocumentViewerComponent(props: DocumentViewerComponentProps) {
     () => getDocViewerConfigs(props.docUrl),
     [props.docUrl],
   );
+
   switch (renderer) {
     case Renderers.ERROR:
       return <ErrorWrapper>{errorMessage}</ErrorWrapper>;

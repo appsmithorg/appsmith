@@ -42,6 +42,7 @@ const PickMyLocation: React.FC<PickMyLocationProps> = (props) => {
         const {
           coords: { latitude: lat, longitude: long },
         } = data;
+
         setSelected(true);
         updateCenter(lat, long);
       });

@@ -687,6 +687,7 @@ export const IconWrapper = styled.span<IconProps>`
 
 function getControlIcon(iconName: string) {
   const ControlIcon = ControlIcons[iconName];
+
   return <ControlIcon height={24} width={24} />;
 }
 
@@ -944,6 +945,7 @@ const Icon = forwardRef(
     const clickable = props.clickable === undefined ? true : props.clickable;
 
     let loader = <Spinner size={props.size} />;
+
     if (props.loaderWithIconWrapper) {
       loader = (
         <IconWrapper className={Classes.ICON} clickable={clickable} {...props}>

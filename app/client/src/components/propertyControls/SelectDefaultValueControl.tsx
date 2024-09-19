@@ -33,11 +33,13 @@ export const stringToJS = (string: string): string => {
       }
     })
     .join(" + ");
+
   return js;
 };
 
 export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
+
   return segments
     .map((segment) => {
       if (segment.charAt(0) === "`") {
@@ -70,6 +72,7 @@ function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -106,6 +109,7 @@ class SelectDefaultValueControl extends BaseControl<SelectDefaultValueControlPro
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
         const { widgetName } = this.props.widgetProperties;
+
         return this.getInputComputedValue(propertyValue, widgetName);
       }
 
@@ -115,6 +119,7 @@ class SelectDefaultValueControl extends BaseControl<SelectDefaultValueControlPro
     if (value && !propertyValue) {
       this.onTextChange(value);
     }
+
     return (
       <InputText
         dataTreePath={dataTreePath}
@@ -151,11 +156,13 @@ class SelectDefaultValueControl extends BaseControl<SelectDefaultValueControlPro
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
+
     if (typeof event !== "string") {
       value = event.target?.value;
     } else {
       value = event;
     }
+
     if (isString(value)) {
       const output = this.getComputedValue(
         value,

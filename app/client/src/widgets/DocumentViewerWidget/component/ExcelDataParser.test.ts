@@ -23,6 +23,7 @@ describe("parseExcelData", () => {
         },
       ];
       const output = parseExcelData(data);
+
       expect(output.headers).toEqual(expectedHeader);
     });
 
@@ -43,6 +44,7 @@ describe("parseExcelData", () => {
         },
       ];
       const output = parseExcelData(data);
+
       expect(output.headers).toEqual(expectedHeaders);
     });
 
@@ -67,6 +69,7 @@ describe("parseExcelData", () => {
         },
       ];
       const output = parseExcelData(data);
+
       expect(output.headers).toEqual(expectedHeaders);
     });
 
@@ -100,6 +103,7 @@ describe("parseExcelData", () => {
         ["r24c0"],
         ["r25c0"],
       ];
+
       data = [...data, ...lastRowData];
 
       const expectedHeaders = [
@@ -113,6 +117,7 @@ describe("parseExcelData", () => {
         },
       ];
       const output = parseExcelData(data);
+
       expect(output.headers).toEqual(expectedHeaders);
     });
   });
@@ -127,6 +132,7 @@ describe("parseExcelData", () => {
       ];
 
       const output = parseExcelData(data);
+
       expect(output.body).toEqual(expectedBody);
     });
 
@@ -139,6 +145,7 @@ describe("parseExcelData", () => {
       ];
 
       const output = parseExcelData(data);
+
       expect(output.body).toEqual(expectedBody);
     });
   });
@@ -172,6 +179,7 @@ describe("parseExcelData", () => {
       };
 
       const output = parseExcelData(data);
+
       expect(output).toEqual(expectedOutput);
     });
 
@@ -222,6 +230,7 @@ describe("parseExcelData", () => {
       };
 
       const output = parseExcelData(data);
+
       expect(output).toEqual(expectedOutput);
     });
   });

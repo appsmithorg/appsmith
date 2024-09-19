@@ -183,6 +183,7 @@ describe("Autocomplete Ranking", () => {
       entityInfo,
       true,
     ).map((c) => c.displayText);
+
     expect(sortedCompletionsText).not.toEqual(
       expect.arrayContaining(["showAlert(), APIQuery.clear(), APIQuery.run()"]),
     );
@@ -344,6 +345,7 @@ describe("Autocomplete Ranking", () => {
     )
       .filter((c) => !c.isHeader)
       .map((c) => c.displayText);
+
     expect(sortedCompletionsText).toEqual([
       "Table2.updatedRowIndices",
       "Table2.updatedRows",

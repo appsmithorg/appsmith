@@ -40,6 +40,7 @@ export default class ReplayEditor extends ReplayEntity<Replayable> {
     isUndo: boolean,
   ): void {
     if (!diff || !diff.path || !diff.path.length) return;
+
     replay.updates = (replay.updates || []).concat(
       this.getChanges(diff, isUndo) || [],
     );
@@ -55,8 +56,10 @@ export default class ReplayEditor extends ReplayEntity<Replayable> {
     isUndo: boolean,
   ): ReplayEditorUpdate | undefined {
     const { kind, path } = diff;
+
     if (diff.kind === "N") {
       if (isEmpty(diff.rhs)) return;
+
       return {
         modifiedProperty: pathArrayToString(path),
         update: diff.rhs,
@@ -77,6 +80,7 @@ export default class ReplayEditor extends ReplayEntity<Replayable> {
         kind,
       };
     }
+
     return {
       modifiedProperty: pathArrayToString(path),
       update: diff.lhs,

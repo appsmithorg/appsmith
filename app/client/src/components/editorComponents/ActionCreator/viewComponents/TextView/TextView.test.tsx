@@ -16,6 +16,7 @@ describe("Text view component", () => {
     },
     exampleText: "storeValue('a','1')",
   };
+
   test("Renders Text view component correctly", () => {
     render(<TextView {...props} />);
     expect(screen.getByTestId("text-view-label")).toHaveTextContent("Key");
@@ -41,6 +42,7 @@ describe("Text view component", () => {
     render(<TextView {...propsQueryParams} />);
     const queryParamsBody =
       screen.getByText("Query params").parentNode?.nextSibling;
+
     expect(queryParamsBody).toHaveStyle({ display: "none" });
   });
 
@@ -49,6 +51,7 @@ describe("Text view component", () => {
     render(<TextView {...propsQueryParams} />);
     const queryParamsBodyUpdated =
       screen.getByText("Query params").parentNode?.nextSibling;
+
     expect(queryParamsBodyUpdated).toHaveStyle({ display: "flex" });
   });
 
@@ -71,6 +74,7 @@ describe("Text view component", () => {
   test("Renders Text view with Params field collapsed for Query action selected", () => {
     render(<TextView {...propsParams} />);
     const queryParamsBody = screen.getByText("Params").parentNode?.nextSibling;
+
     expect(queryParamsBody).toHaveStyle({ display: "none" });
   });
   test("Renders Text view with Params field expanded for Query action selected", () => {
@@ -79,6 +83,7 @@ describe("Text view component", () => {
     render(<TextView {...propsParams} />);
     const queryParamsBodyUpdated =
       screen.getByText("Params").parentNode?.nextSibling;
+
     expect(queryParamsBodyUpdated).toHaveStyle({ display: "flex" });
   });
 });

@@ -6,9 +6,11 @@ import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const JSExplorer = () => {
   const ideViewMode = useSelector(getIDEViewMode);
+
   if (ideViewMode === EditorViewMode.FullScreen) {
     return <List />;
   }
+
   return null;
 };
 

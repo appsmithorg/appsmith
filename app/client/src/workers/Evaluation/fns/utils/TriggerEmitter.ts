@@ -21,6 +21,7 @@ export enum BatchKey {
 }
 
 const TriggerEmitter = new EventEmitter();
+
 /**
  * This function is used to batch actions and send them to the main thread
  * in a single message. This is useful for actions that are called frequently
@@ -33,6 +34,7 @@ export function priorityBatchedActionHandler<T>(
   task: (batchedData: T[]) => void,
 ) {
   let batchedData: T[] = [];
+
   return (data: T) => {
     if (batchedData.length === 0) {
       // Ref - https://developer.mozilla.org/en-US/docs/Web/API/HTML_DOM_API/Microtask_guide
@@ -41,6 +43,7 @@ export function priorityBatchedActionHandler<T>(
         batchedData = [];
       });
     }
+
     batchedData.push(data);
   };
 }
@@ -57,9 +60,12 @@ export function deferredBatchedActionHandler<T>(
 ) {
   let batchedData: T[] = [];
   let timerId: number | null = null;
+
   return (data: T) => {
     batchedData.push(data);
+
     if (timerId) _internalClearTimeout(timerId);
+
     timerId = _internalSetTimeout(() => {
       deferredTask(batchedData);
       batchedData = [];
@@ -107,6 +113,7 @@ const fnExecutionDataHandler = deferredBatchedActionHandler((data) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc, d: any) => {
       const { data, name } = d;
+
       try {
         acc.JSExecutionData[name] = self.structuredClone(data);
       } catch (e) {
@@ -115,6 +122,7 @@ const fnExecutionDataHandler = deferredBatchedActionHandler((data) => {
           message: `Execution of ${name} returned an unserializable data`,
         };
       }
+
       return acc;
     },
     { JSExecutionData: {}, JSExecutionErrors: {} },
@@ -125,6 +133,7 @@ const fnExecutionDataHandler = deferredBatchedActionHandler((data) => {
   ).map(([jsFnFullName, data]) => {
     const { entityName, propertyPath: funcName } =
       getEntityNameAndPropertyPath(jsFnFullName);
+
     return {
       entityName,
       dataPath: `${funcName}.data`,
@@ -148,6 +157,7 @@ TriggerEmitter.on(
 const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
   (batchedData) => {
     const updatesMap: UpdatedPathsMap = {};
+
     for (const patch of batchedData) {
       updatesMap[patch.path] = patch;
     }

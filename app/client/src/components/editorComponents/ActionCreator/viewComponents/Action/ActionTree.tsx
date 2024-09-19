@@ -90,6 +90,7 @@ export default function ActionTree(props: {
 
   const handleCardSelection = useCallback(() => {
     if (selectedBlockId === id) return;
+
     selectBlock(id);
     setCallbacksExpanded(true);
   }, [id, selectedBlockId, setCallbacksExpanded, selectBlock]);
@@ -100,12 +101,15 @@ export default function ActionTree(props: {
 
   const handleAddSuccessBlock = useCallback(() => {
     if (!canAddCallback) return;
+
     const {
       success: { blocks },
     } = actionBlock;
     const lastAction = blocks[blocks.length - 1];
+
     if (lastAction?.actionType === AppsmithFunction.none) {
       selectBlock(`${id}_success_${blocks.length - 1}`);
+
       return;
     }
 
@@ -124,14 +128,18 @@ export default function ActionTree(props: {
 
   const handleAddErrorBlock = useCallback(() => {
     if (!canAddCallback) return;
+
     const {
       error: { blocks },
     } = actionBlock;
     const lastAction = blocks[blocks.length - 1];
+
     if (lastAction?.actionType === AppsmithFunction.none) {
       selectBlock(`${id}_failure_${blocks.length - 1}`);
+
       return;
     }
+
     const newActionBlock = klonaLiteWithTelemetry(
       actionBlock,
       "ActionTree.handleAddErrorBlock",
@@ -291,12 +299,14 @@ export default function ActionTree(props: {
                               ? newActionBlock.error.blocks
                               : newActionBlock.success.blocks;
                           let isDummyBlockDelete = false;
+
                           if (del) {
                             isDummyBlockDelete =
                               blocks[index].actionType ===
                               AppsmithFunction.none;
 
                             const deletedBlock = blocks.splice(index, 1)[0];
+
                             AnalyticsUtil.logEvent("ACTION_DELETED", {
                               actionType: getActionTypeLabel(
                                 deletedBlock.actionType,
@@ -311,12 +321,14 @@ export default function ActionTree(props: {
                             const prevActionType = blocks[index].actionType;
                             const newActionType = childActionBlock.actionType;
                             const newActionCode = childActionBlock.code;
+
                             blocks[index].code = childActionBlock.code;
                             blocks[index].actionType =
                               childActionBlock.actionType;
 
                             const actionTypeLabel =
                               getActionTypeLabel(newActionType);
+
                             if (prevActionType === AppsmithFunction.none) {
                               AnalyticsUtil.logEvent("ACTION_ADDED", {
                                 actionType: actionTypeLabel,
@@ -337,6 +349,7 @@ export default function ActionTree(props: {
                               });
                             }
                           }
+
                           if (isDummyBlockDelete) {
                             setActionBlock(newActionBlock);
                           } else {

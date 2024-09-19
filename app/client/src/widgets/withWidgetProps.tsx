@@ -56,6 +56,7 @@ const { newRelic } = getAppsmithConfigs();
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
+
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
     props: WidgetProps & { skipWidgetPropsHydration?: boolean },
@@ -119,6 +120,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
+
       return getChildWidgets(state, widgetId);
     }, equal);
 
@@ -135,6 +137,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       if (!WIDGETS_REQUIRING_SELECTED_ANCESTRY.includes(type)) {
         return [];
       }
+
       return getSelectedWidgetAncestry(state);
     }, equal);
 
@@ -149,6 +152,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
             canvasWidget,
             mainCanvasProps,
           );
+
           if (renderMode === RenderModes.CANVAS) {
             return {
               ...computed,
@@ -202,6 +206,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           props.noPad && props.dropDisabled && props.openParentPropertyPane;
 
         widgetProps.rightColumn = props.rightColumn;
+
         if (isListWidgetCanvas) {
           widgetProps.bottomRow = props.bottomRow;
           widgetProps.minHeight = props.minHeight;
@@ -216,8 +221,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.parentId = props.parentId;
         // Form Widget Props
         widgetProps.onReset = props.onReset;
+
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
+
       if (defaultAutoLayoutWidgets.includes(props.type)) {
         widgetProps.positioning = isAutoLayout
           ? Positioning.Vertical
@@ -244,6 +251,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         ? widgetErrorsFromStaticProps(evaluatedWidget)
         : [];
     }
+
     //merging with original props
     widgetProps = {
       ...props,
@@ -256,6 +264,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;
     endSpan(span);
+
     // isVisible prop defines whether to render a detached widget
     if (
       widgetProps.detachFromLayout &&
@@ -279,6 +288,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       !isPreviewMode;
 
     widgetProps.mainCanvasWidth = mainCanvasWidth;
+
     if (isAnvilLayout) {
       if (shouldCollapseWidgetInViewOrPreviewMode) {
         return null;
@@ -301,6 +311,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
             },
           });
         }
+
         return null;
       } else if (
         shouldResetCollapsedContainerHeightInViewOrPreviewMode ||
@@ -322,6 +333,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
             (widgetProps.bottomRowBeforeCollapse -
               widgetProps.topRowBeforeCollapse) *
             GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
           dispatch({
             type: ReduxActionTypes.UPDATE_WIDGET_AUTO_HEIGHT,
             payload: {
@@ -340,6 +352,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           widgetProps,
           mainCanvasWidth,
         );
+
         widgetProps = {
           ...widgetProps,
           minWidth: minMaxDimensions.minWidth

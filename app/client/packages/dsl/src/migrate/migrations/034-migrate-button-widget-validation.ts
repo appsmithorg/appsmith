@@ -7,10 +7,12 @@ export const migrateButtonWidgetValidation = (currentDSL: DSLWidget) => {
       currentDSL.validation = true;
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children.map((eachWidgetDSL: DSLWidget) => {
       migrateButtonWidgetValidation(eachWidgetDSL);
     });
   }
+
   return currentDSL;
 };

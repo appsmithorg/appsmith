@@ -46,6 +46,7 @@ export function deleteWidgetFromLayout(
     if (!Comp.extractChildWidgetIds(layoutProps).includes(widgetId)) {
       return layoutProps;
     }
+
     return Comp.removeChild(layoutProps, {
       alignment: FlexLayerAlignment.Start,
       widgetId,
@@ -84,6 +85,7 @@ export function updateAnvilParentPostWidgetDeletion(
   widgetType: string,
 ): CanvasWidgetsReduxState {
   if (!parentId || !widgetId || !allWidgets[parentId]) return allWidgets;
+
   return {
     ...allWidgets,
     [parentId]: {

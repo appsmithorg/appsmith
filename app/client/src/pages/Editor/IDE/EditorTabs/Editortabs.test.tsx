@@ -36,6 +36,7 @@ describe("EditorTabs render checks", () => {
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit`,
       state,
     );
+
     expect(container.firstChild).toBeNull();
   });
 
@@ -47,6 +48,7 @@ describe("EditorTabs render checks", () => {
     );
     // check tabs is empty
     const tabsContainer = getByTestId("t--tabs-container");
+
     expect(tabsContainer.firstChild).toBeNull();
 
     //check add button is not present
@@ -65,11 +67,13 @@ describe("EditorTabs render checks", () => {
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries`,
       state,
     );
+
     // check toggle
     expect(queryByTestId("t--list-toggle")).toBeNull();
 
     // check tabs is empty
     const tabsContainer = getByTestId("t--tabs-container");
+
     expect(tabsContainer.firstChild).toBeNull();
 
     //check add button is not present
@@ -110,6 +114,7 @@ describe("EditorTabs render checks", () => {
 
     // check tabs is not empty
     const tabsContainer = getByTestId("t--tabs-container");
+
     expect(tabsContainer.firstChild).not.toBeNull();
 
     //check add button is present
@@ -147,6 +152,7 @@ describe("EditorTabs render checks", () => {
 
     // check tabs is not empty
     const tabsContainer = getByTestId("t--tabs-container");
+
     expect(tabsContainer.firstChild).not.toBeNull();
 
     //check add button is present
@@ -204,6 +210,7 @@ describe("EditorTabs render checks", () => {
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anApi.baseId}/add`,
       state,
     );
+
     // check list view
     expect(getByTestId("t--ide-tab-new_query")).not.toBeNull();
   });
@@ -227,6 +234,7 @@ describe("EditorTabs render checks", () => {
       `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anApi.baseId}/add`,
       state,
     );
+
     // check list view
     expect(getByTestId("t--ide-tab-new_query")).not.toBeNull();
   });

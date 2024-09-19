@@ -16,12 +16,14 @@ class SingletonResizeObserver {
     if (SingletonResizeObserver.instance) {
       throw new Error("SingletonResizeObserver is a singleton class");
     }
+
     SingletonResizeObserver.instance = this;
   }
 
   private resizeObserver = new ResizeObserver((entries, observer) => {
     entries.forEach((entry) => {
       const callbacks = this.callbacksMap.get(entry.target) ?? [];
+
       callbacks.forEach((callback) => callback(entry, observer));
     });
   });
@@ -34,6 +36,7 @@ class SingletonResizeObserver {
   observe(target: Element, callbacks: ResizeObserCallback[]) {
     this.resizeObserver.observe(target);
     const _callbacks = this.callbacksMap.get(target) ?? [];
+
     _callbacks.push(...callbacks);
     this.callbacksMap.set(target, _callbacks);
   }
@@ -45,12 +48,15 @@ class SingletonResizeObserver {
    */
   unobserve(target: Element, callbacks: ResizeObserCallback[]) {
     const _callbacks = this.callbacksMap.get(target) ?? [];
+
     for (const item of callbacks) {
       const index = _callbacks.indexOf(item);
+
       if (index >= 0) {
         _callbacks.splice(index, 1);
       }
     }
+
     if (_callbacks.length === 0) {
       this.resizeObserver.unobserve(target);
       this.callbacksMap.delete(target);

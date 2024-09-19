@@ -18,6 +18,7 @@ const CodeModeTooltip = (props: { children: React.ReactElement }) => {
   const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
   const editorState = useCurrentAppState();
   const [shouldShow, setShouldShow] = useState<boolean>(false);
+
   useEffect(() => {
     retrieveCodeWidgetNavigationUsed()
       .then((timesUsed) => {
@@ -29,8 +30,11 @@ const CodeModeTooltip = (props: { children: React.ReactElement }) => {
         setShouldShow(true);
       });
   }, [isWidgetSelectionBlock]);
+
   if (!isWidgetSelectionBlock) return props.children;
+
   if (editorState !== EditorState.EDITOR) return props.children;
+
   return (
     <Tooltip
       content={createMessage(CANVAS_VIEW_MODE_TOOLTIP, `${modText()}`)}

@@ -71,6 +71,7 @@ const ActionCreator = React.forwardRef(
           const prevIdValuePair = prevIdValuePairs.find(
             ([, value]) => value === block,
           );
+
           if (prevIdValuePair) {
             newActions[prevIdValuePair[0]] = block;
 
@@ -92,6 +93,7 @@ const ActionCreator = React.forwardRef(
             // If it is, we need to retain the id of the previous block
             // This is to ensure that the undo/redo stack is not broken
             const differences = diff(previousBlocks.current, newBlocks);
+
             if (differences?.length === 1 && differences[0].kind === "E") {
               const edit = differences[0];
               //@ts-expect-error fix later
@@ -99,20 +101,24 @@ const ActionCreator = React.forwardRef(
               const prevIdValuePair = prevIdValuePairs.find(
                 ([, value]) => value === prevBlock,
               );
+
               if (prevIdValuePair) {
                 newActions[prevIdValuePair[0]] = block;
                 prevIdValuePairs = prevIdValuePairs.filter(
                   ([id]) => id !== prevIdValuePair[0],
                 );
+
                 return;
               }
             }
+
             newActions[generateReactKey()] = block;
           }
         });
         previousBlocks.current = [...newBlocks];
         updatedIdRef.current = "";
         childUpdate.current = false;
+
         return newActions;
       });
     }, [props.value]);
@@ -137,8 +143,10 @@ const ActionCreator = React.forwardRef(
     const handleActionChange = (id: string) => (value: string) => {
       const newValueWithoutMoustache = getCodeFromMoustache(value);
       const newActions = { ...actions };
+
       updatedIdRef.current = id;
       childUpdate.current = true;
+
       if (newValueWithoutMoustache) {
         newActions[id] = newValueWithoutMoustache;
         const prevValue = actions[id];
@@ -191,6 +199,7 @@ const ActionCreator = React.forwardRef(
           // when No action card is deleted, the value is empty string, hence option is undefined
           // in that case, we set the actionType to none
           AppsmithFunction.none) as ActionTree["actionType"];
+
         AnalyticsUtil.logEvent("ACTION_DELETED", {
           actionType: getActionTypeLabel(actionType),
           code: newActions[id],
@@ -202,6 +211,7 @@ const ActionCreator = React.forwardRef(
         delete newActions[id];
         !actions[id] && setActions(newActions);
       }
+
       save(newActions);
     };
 
@@ -216,8 +226,10 @@ const ActionCreator = React.forwardRef(
 
     useEffect(() => {
       if (!id.current) return;
+
       const children = ref.current?.children || [];
       const lastChildElement = children[children.length - 1];
+
       lastChildElement?.scrollIntoView({ block: "nearest" });
       selectBlock(id.current);
       id.current = "";
@@ -239,12 +251,16 @@ const ActionCreator = React.forwardRef(
         selectBlock(hasAnEmptyBlock[0]);
         const children = ref.current?.children || [];
         const lastChildElement = children[children.length - 1];
+
         lastChildElement?.scrollIntoView({
           block: "nearest",
         });
+
         return;
       }
+
       const newActions = { ...actions };
+
       id.current = generateReactKey();
       newActions[id.current] = "";
       setActions(newActions);

@@ -19,13 +19,16 @@ export function getNearestAbove(
 
   return aboves.reduce((prev: string[], next: string) => {
     if (!prev[0]) return [next];
+
     // Get the bottomRow of the above box
     let nextBottomRow = tree[next].bottomRow;
     let prevBottomRow = tree[prev[0]].bottomRow;
+
     // If we've already repositioned this, use the new bottomRow of the box
     if (repositionedBoxes[next]) {
       nextBottomRow = repositionedBoxes[next].bottomRow;
     }
+
     if (repositionedBoxes[prev[0]]) {
       prevBottomRow = repositionedBoxes[prev[0]].bottomRow;
     }
@@ -43,12 +46,14 @@ export function getNearestAbove(
       ) {
         return prev;
       }
+
       if (
         repositionedBoxes[next] &&
         repositionedBoxes[next].bottomRow === repositionedBoxes[next].topRow
       ) {
         return [next];
       }
+
       return [...prev, next];
     }
     // This (next) box's bottom row is lower than the boxes selected so far

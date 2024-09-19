@@ -181,6 +181,7 @@ class StatboxWidget extends ContainerWidget {
               if (layoutSystemType === LayoutSystemTypes.FIXED) {
                 return [];
               }
+
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,

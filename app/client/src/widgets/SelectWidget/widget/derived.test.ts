@@ -264,6 +264,7 @@ describe("Derived property - Select Widget", () => {
         null,
         _,
       );
+
       expect(selectedOptionLabel).toBe("Yellow");
     });
 

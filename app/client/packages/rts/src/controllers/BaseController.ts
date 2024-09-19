@@ -57,6 +57,7 @@ export default class BaseController {
 
     if (errorMessage.constructor.name === "Result") {
       const validationError = errorMessage.array();
+
       errorBag.data = {
         error: [validationError[0].msg],
         validationErrors: validationError,

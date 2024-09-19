@@ -778,6 +778,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithRenamedAction,
       JSObject1,
     );
+
     expect(resultRenamedActions).toStrictEqual(result);
   });
 
@@ -786,6 +787,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithDeletedAction,
       JSObject1,
     );
+
     expect(resultDeletedActions).toStrictEqual(result);
   });
 
@@ -794,6 +796,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithAddedAction,
       JSObject2,
     );
+
     expect(resultAddedAction).toStrictEqual(result);
   });
 
@@ -802,6 +805,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithChangedVariable,
       JSObject2,
     );
+
     expect(resultChangedVariable).toStrictEqual(result);
   });
 
@@ -810,6 +814,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithChangeInBody,
       JSObject2,
     );
+
     expect(resultChangedBody).toStrictEqual(result);
   });
 
@@ -818,6 +823,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithChangedParameters,
       JSObject2,
     );
+
     expect(resultChangedParameters).toStrictEqual(result);
   });
   it("gets removed async tag in difference", () => {
@@ -825,6 +831,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithRemovedAsync,
       JSObject2,
     );
+
     expect(resultRemovedAsync).toStrictEqual(result);
   });
 
@@ -833,6 +840,7 @@ describe("getDifferenceInJSCollection", () => {
       parsedBodyWithAddedAsync,
       JSObject2,
     );
+
     expect(resultAddedAsync).toStrictEqual(result);
   });
 });

@@ -96,6 +96,7 @@ export function ActionButton(props: MessageAction) {
       />
     );
   }
+
   return null;
 }
 
@@ -115,6 +116,7 @@ export function FormMessage(props: FormMessageProps) {
     .lighten()
     .setAlpha(0.2)
     .toString();
+
   return (
     <StyledMessage>
       <MessageContainer iconbgcolor={iconbgcolor}>

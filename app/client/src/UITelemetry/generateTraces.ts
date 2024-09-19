@@ -35,6 +35,7 @@ const getAppMode = memoizeOne((pathname: string) => {
     : isViewerUrl
       ? APP_MODE.PUBLISHED
       : "";
+
   return appMode;
 });
 
@@ -93,6 +94,7 @@ export function startNestedSpan(
     },
     startTime,
   };
+
   return generatorTrace.startSpan(spanName, spanOptions, parentContext);
 }
 
@@ -114,7 +116,9 @@ export const startAndEndSpanForFn = <T>(
 ) => {
   const span = startRootSpan(spanName, spanAttributes);
   const res: T = fn();
+
   span.end();
+
   return res;
 };
 
@@ -122,6 +126,7 @@ export const startAndEndSpanForFn = <T>(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
+
   return context.with(parentContext, fn);
 }
 
@@ -134,5 +139,6 @@ export function startAndEndSpan(
   const endTime = startTime + Math.floor(difference);
 
   const span = startRootSpan(spanName, spanAttributes, startTime);
+
   span.end(endTime);
 }

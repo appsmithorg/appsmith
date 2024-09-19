@@ -163,10 +163,12 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
           viewportMinWidth: 0,
           configuration: (props: RateWidgetProps) => {
             let maxCount = props.maxCount;
+
             if (typeof maxCount !== "number")
               // TODO: Fix this the next time the file is edited
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               maxCount = parseInt(props.maxCount as any, 10);
+
             return {
               // 21 is the size of a star, 5 is the margin between stars
               minWidth: `${maxCount * 21 + (maxCount + 1) * 5}px`,
@@ -187,6 +189,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
       isLargeWidget: false,
       widgetSize: (props: RateWidgetProps) => {
         let maxCount = props.maxCount;
+
         if (typeof maxCount !== "number")
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

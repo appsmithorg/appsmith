@@ -137,6 +137,7 @@ function AppViewer(props: Props) {
     const prevLocation = prevValues?.location;
     const prevPageBaseId = prevValues?.basePageId;
     let isBranchUpdated = false;
+
     if (prevBranch && prevLocation) {
       isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
@@ -162,6 +163,7 @@ function AppViewer(props: Props) {
         const pageId = pages.find(
           (page) => page.basePageId === basePageId,
         )?.pageId;
+
         if (pageId) {
           dispatch(setupPublishedPage(pageId, true));
 

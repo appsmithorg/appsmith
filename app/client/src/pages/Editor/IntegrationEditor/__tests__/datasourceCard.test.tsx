@@ -19,6 +19,7 @@ describe("Tasks", () => {
         plugin={mockPlugins[0]}
       />,
     );
+
     expect(
       generatePageComponent.container.querySelector(".t--generate-template"),
     ).toBeDefined();
@@ -31,6 +32,7 @@ describe("Tasks", () => {
         plugin={mockPlugins[1]}
       />,
     );
+
     expect(
       NoGeneratePageComponent.container.querySelector(".t--generate-template"),
     ).toBeNull();

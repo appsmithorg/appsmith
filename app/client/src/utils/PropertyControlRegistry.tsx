@@ -36,6 +36,7 @@ function withAnalytics(WrappedControl: typeof BaseControl) {
 
     handleKbdEvent = (e: Event) => {
       const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+
       if (!event.detail?.propertyName) {
         e.stopPropagation();
         this.containerRef.current?.dispatchEvent(
@@ -69,6 +70,7 @@ class PropertyControlRegistry {
       (Control: typeof BaseControl & { getControlType: () => string }) => {
         const ControlWithAnalytics = withAnalytics(Control);
         const controlType = ControlWithAnalytics.getControlType();
+
         PropertyControlFactory.registerControlBuilder(
           controlType,
           {

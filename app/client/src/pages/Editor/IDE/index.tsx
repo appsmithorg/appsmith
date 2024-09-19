@@ -17,9 +17,11 @@ const checkAnimatedIDEFlagValue = (state: AppState) => {
  */
 function IDE() {
   const isAnimatedIDEEnabled = useSelector(checkAnimatedIDEFlagValue);
+
   if (isAnimatedIDEEnabled) {
     return <AnimatedLayout />;
   }
+
   return <UnanimatedLayout />;
 }
 

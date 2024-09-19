@@ -23,6 +23,7 @@ export function* getDestinedParent(
   const parentOrder: string[] = [selectedWidget.widgetId];
   let index = parentHierarchy;
   let currentWidget: FlattenedWidgetProps = selectedWidget;
+
   while (index >= childHierarchy) {
     if (!currentWidget.parentId) {
       /**
@@ -32,12 +33,14 @@ export function* getDestinedParent(
       parentOrder.push(MAIN_CONTAINER_WIDGET_ID);
       break;
     }
+
     /**
      * Traverse up the parent - child tree,
      * tracking all parentIds, until we reach a hierarchy where the copied widgets can be added.
      * MainCanvas > Modal > Section > Zone > Widgets.
      */
     const parent: FlattenedWidgetProps = allWidgets[currentWidget?.parentId];
+
     index = getWidgetHierarchy(parent.type, parent.widgetId);
     currentWidget = parent;
     parentOrder.push(parent.widgetId);
@@ -53,6 +56,7 @@ export function* getDestinedParent(
     allWidgets[parentOrder[parentOrder.length - 2]]?.widgetId,
     parentOrder,
   );
+
   return pasteInfo;
 }
 
@@ -69,6 +73,7 @@ function getPastingInfo(
       rowIndex: [0],
     };
   }
+
   const layout: LayoutProps = parent.layout[0];
   /**
    * If parentOrder.length === 1 => add the copied widgets at the end of the layout.
@@ -78,6 +83,7 @@ function getPastingInfo(
     parentOrder.length === 1
       ? getLastIndexInLayout(parent)
       : getChildIndexInLayout(layout, child, [layout], [layout.layout.length]);
+
   return { ...info, parentOrder };
 }
 
@@ -91,8 +97,10 @@ function getLastIndexInLayout(
       rowIndex: [0],
     };
   }
+
   const layout: LayoutProps = widget.layout[0];
   const rowIndex = [layout.layout.length];
+
   return {
     alignment: FlexLayerAlignment.Start,
     layoutOrder: [layout],
@@ -116,12 +124,14 @@ function getChildIndexInLayout(
     const index = (layout.layout as WidgetLayoutProps[]).findIndex(
       (w: WidgetLayoutProps) => w.widgetId === childId,
     );
+
     if (index === -1)
       return {
         alignment: FlexLayerAlignment.Start,
         layoutOrder,
         rowIndex: [...rowIndex, -1],
       };
+
     return {
       alignment: (layout.layout[index] as WidgetLayoutProps).alignment,
       layoutOrder,
@@ -136,6 +146,7 @@ function getChildIndexInLayout(
       layoutOrder,
       rowIndex: [...rowIndex, -1],
     };
+
     (layout.layout as LayoutProps[]).forEach(
       (each: LayoutProps, index: number) => {
         const temp: Omit<PasteDestinationInfo, "parentOrder"> =
@@ -145,12 +156,14 @@ function getChildIndexInLayout(
             [...layoutOrder, each],
             [...rowIndex, index + 1],
           );
+
         /**
          * Acknowledge the result only if the child is found in the layout.
          */
         if (temp.rowIndex[temp.rowIndex.length - 1] !== -1) res = temp;
       },
     );
+
     return res;
   }
 }

@@ -35,6 +35,7 @@ export const AutoDimensionObserverLayer = (props: BaseWidgetProps) => {
 
   const onDimensionUpdate = (width: number, height: number) => {
     if (!updateWidgetDimension) return;
+
     updateWidgetDimension(
       props.widgetId,
       width + 2 * FLEXBOX_PADDING,

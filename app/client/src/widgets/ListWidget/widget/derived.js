@@ -10,13 +10,16 @@ export default {
 
     if (selectedItemIndex === -1) {
       const emptyRow = { ...items[0] };
+
       Object.keys(emptyRow).forEach((key) => {
         emptyRow[key] = "";
       });
+
       return emptyRow;
     }
 
     const selectedItem = { ...items[selectedItemIndex] };
+
     return selectedItem;
   },
   //
@@ -121,6 +124,7 @@ export default {
     const itemsCount = (props.listData || []).length;
 
     let gridGap = 0;
+
     try {
       gridGap = parseInt(props.gridGap);
 
@@ -174,6 +178,7 @@ export default {
             })),
           )
         : {};
+
     return { currentItem: structure, currentIndex: "" };
   },
   //

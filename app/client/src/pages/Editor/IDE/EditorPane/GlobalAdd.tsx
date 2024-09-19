@@ -66,6 +66,7 @@ const GlobalAdd = () => {
   const onCreateJS = useCallback(() => {
     dispatch(createNewJSCollection(basePageId, "ADD_PANE"));
   }, [basePageId]);
+
   return (
     <Flex flexDirection={"column"}>
       <PaneHeader

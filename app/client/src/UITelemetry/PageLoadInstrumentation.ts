@@ -258,6 +258,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     this.resourceTimingObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries() as PerformanceResourceTiming[];
       const resources = this.getResourcesToTrack(entries);
+
       resources.forEach((entry) => {
         this.pushResourceTimingToSpan(entry);
       });
@@ -360,6 +361,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
 
     filteredResources.forEach((entry) => {
       const key = this.getResourceEntryKey(entry);
+
       if (!this.resourceEntriesSet.has(key)) {
         this.pushResourceTimingToSpan(entry);
         this.resourceEntriesSet.add(key);

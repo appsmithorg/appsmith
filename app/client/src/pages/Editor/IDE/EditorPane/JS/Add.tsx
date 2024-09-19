@@ -39,6 +39,7 @@ const AddJS = () => {
 
   const getListItems = (data: ActionOperation) => {
     const title = data.entityExplorerTitle || data.title;
+
     return {
       startIcon: data.icon,
       title,

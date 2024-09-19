@@ -82,7 +82,9 @@ export const getIcon = (icon?: string | MaybeElement, intent?: Intent) => {
         height: 16,
       });
     }
+
     const iconNames: string[] = Object.values({ ...IconNames });
+
     if (iconNames.indexOf(icon) > -1) {
       return (
         <Icon
@@ -104,6 +106,7 @@ const getContentSection = (
     section.options.map((option, index) => {
       const shouldClose =
         option.shouldCloseDropdown === undefined || option.shouldCloseDropdown;
+
       return (
         <Option
           active={!!option.active}
@@ -151,6 +154,7 @@ export function CustomizedDropdown(props: CustomizedDropdownProps) {
       {getContentSection(section, skin)}
     </DropdownContentSection>
   ));
+
   return (
     <>
       <Popover

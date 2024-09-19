@@ -28,6 +28,7 @@ const Main = () => {
 
   if (!!wrapperCategory?.component) {
     const { component: WrapperCategoryComponent } = wrapperCategory;
+
     return <WrapperCategoryComponent category={wrapperCategory} />;
   } else if (
     !Object.values(SettingCategories).includes(category) ||

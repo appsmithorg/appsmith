@@ -34,6 +34,7 @@ export default class AstController extends BaseController {
         script,
         evalVersion,
       );
+
       return super.sendResponse(res, data);
     } catch (err) {
       return super.sendError(
@@ -89,6 +90,7 @@ export default class AstController extends BaseController {
         isJSObject,
         evalVersion,
       );
+
       return super.sendEntityResponse(res, data.body, data.isSuccess);
     } catch (err) {
       return super.sendError(

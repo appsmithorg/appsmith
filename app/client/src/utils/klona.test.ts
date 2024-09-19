@@ -213,11 +213,13 @@ describe("Klona clone test", () => {
 
     // Descriptor
     const inputDesc = { foo: 123 };
+
     Object.defineProperty(inputDesc, "bar", {
       enumerable: false,
       value: [1, 2, 3],
     });
     const outputDesc = klona(inputDesc);
+
     expect(Object.getOwnPropertyDescriptor(outputDesc, "bar")).toStrictEqual({
       enumerable: false,
       configurable: false,

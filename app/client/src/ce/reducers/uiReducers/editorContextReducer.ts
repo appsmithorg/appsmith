@@ -78,6 +78,7 @@ export const handlers = {
     },
   ) => {
     const { path } = action.payload;
+
     state.focusedInputField = path;
   },
   [ReduxActionTypes.SET_CODE_EDITOR_CURSOR]: (
@@ -87,8 +88,11 @@ export const handlers = {
     },
   ) => {
     const { cursorPosition, path } = action.payload;
+
     if (!path) return;
+
     if (!state.codeEditorHistory[path]) state.codeEditorHistory[path] = {};
+
     state.codeEditorHistory[path].cursorPosition = cursorPosition;
   },
   [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY]: (
@@ -104,8 +108,11 @@ export const handlers = {
     action: { payload: { key: string; evalPopupState: EvaluatedPopupState } },
   ) => {
     const { evalPopupState, key } = action.payload;
+
     if (!key) return;
+
     if (!state.codeEditorHistory[key]) state.codeEditorHistory[key] = {};
+
     state.codeEditorHistory[key].evalPopupState = evalPopupState;
   },
   [ReduxActionTypes.SET_WIDGET_PROPERTY_SECTION_STATE]: (
@@ -113,7 +120,9 @@ export const handlers = {
     action: { payload: { key: string; isOpen: boolean } },
   ) => {
     const { isOpen, key } = action.payload;
+
     if (!key) return;
+
     state.propertySectionState[key] = isOpen;
   },
   [ReduxActionTypes.SET_ALL_PROPERTY_SECTION_STATE]: (
@@ -134,6 +143,7 @@ export const handlers = {
     action: { payload: { index: number; panelPropertyPath: string } },
   ) => {
     const { index, panelPropertyPath } = action.payload;
+
     if (!state.propertyPanelState[panelPropertyPath]) {
       state.propertyPanelState[panelPropertyPath] = {
         propertySectionState: {},
@@ -151,6 +161,7 @@ export const handlers = {
     },
   ) => {
     const { isOpen, key, panelPropertyPath } = action.payload;
+
     if (!key) return;
 
     if (!state.propertyPanelState[panelPropertyPath]) {
@@ -174,6 +185,7 @@ export const handlers = {
     action: { payload: { name: string; isOpen: boolean } },
   ) => {
     const { isOpen, name } = action.payload;
+
     if (isSubEntities(name)) state.subEntityCollapsibleFields[name] = isOpen;
     else state.entityCollapsibleFields[name] = isOpen;
   },
