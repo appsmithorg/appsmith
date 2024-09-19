@@ -8,8 +8,8 @@ import dsl from "../../../../../../fixtures/tableV2AndTextDsl.json";
 import widgetsPage from "../../../../../../locators/Widgets.json";
 import commonlocators from "../../../../../../locators/commonlocators.json";
 import publish from "../../../../../../locators/publishWidgetspage.json";
-import { firstJSObjectBody, secondJSObjectBody } from "./Fixture";
 
+import { tableDataJSObject } from "../../../../../../fixtures/tableV2FilteringWithPrimaryColumnJSObjectWidthData";
 import {
   agHelper,
   jsEditor,
@@ -69,14 +69,14 @@ describe(
 
     it("3. When primary key is set, selectedRowIndex should not updated after data update", function () {
       // https://github.com/appsmithorg/appsmith/issues/36080
-      jsEditor.CreateJSObject(firstJSObjectBody, {
+      jsEditor.CreateJSObject(tableDataJSObject, {
         paste: true,
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
         prettify: true,
       });
-      jsEditor.CreateJSObject(secondJSObjectBody, {
+      jsEditor.CreateJSObject(manipulateDataJSObject, {
         paste: true,
         completeReplace: true,
         toRun: true,
@@ -104,3 +104,12 @@ describe(
     });
   },
 );
+
+export const manipulateDataJSObject = `export default {
+	data: JSObject1.initData,
+	makeNewCopy() {
+		const my = _.cloneDeep(this.data);
+		my[5].name =my[5].name+"1";
+		this.data = my;
+	}
+}`;

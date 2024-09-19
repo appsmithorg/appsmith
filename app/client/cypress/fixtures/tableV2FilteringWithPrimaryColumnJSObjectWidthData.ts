@@ -1,5 +1,4 @@
-// #region FixtureData
-export const firstJSObjectBody = `export default {
+export const tableDataJSObject = `export default {
 	initData :[
   {
     "employeeId": 101,
@@ -83,14 +82,3 @@ export const firstJSObjectBody = `export default {
   }
 ]
 }`;
-
-export const secondJSObjectBody = `export default {
-	data: JSObject1.initData,
-	makeNewCopy() {
-		const my = _.cloneDeep(this.data);
-		my[5].name =my[5].name+"1";
-		this.data = my;
-	}
-}`;
-
-// #endregion FixtureData
