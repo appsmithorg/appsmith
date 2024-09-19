@@ -16,7 +16,7 @@ on:
         description: "This is a boolean value in case the workflow is being called for a PG build"
         required: false
         type: string
-        default: "false"
+        default: false
 
 jobs:
   server-build:
