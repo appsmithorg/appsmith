@@ -38,14 +38,16 @@ export const transformDataPureFn = (
                 const type = _.isArray(column.metaProperties.inputFormat)
                   ? column.metaProperties.inputFormat[rowIndex]
                   : column.metaProperties.inputFormat;
-
                 if (
                   type !== DateInputFormat.EPOCH &&
                   type !== DateInputFormat.MILLISECONDS
                 ) {
                   inputFormat = type;
                   moment(value as MomentInput, inputFormat);
-                } else if (!isNumber(value)) {
+                } else if (
+                  !isNumber(value) &&
+                  type !== DateInputFormat.MILLISECONDS
+                ) {
                   isValidDate = false;
                 }
               } catch (e) {

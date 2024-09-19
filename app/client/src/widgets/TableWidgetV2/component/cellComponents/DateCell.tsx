@@ -9,7 +9,10 @@ import DateComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import type { RenderDefaultPropsType } from "./PlainTextCell";
 import styled from "styled-components";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import {
+  DateInputFormat,
+  EditableCellActions,
+} from "widgets/TableWidgetV2/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import moment from "moment";
 import { BasicCell } from "./BasicCell";
@@ -218,6 +221,7 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
+    let momentAdjustedInputFormat = inputFormat;
     if (isNewRow) {
       updateNewRowValues(alias, date, date);
       return;
@@ -232,7 +236,11 @@ export const DateCell = (props: DateComponentProps) => {
     setShowRequiredError(false);
     setHasFocus(false);
 
-    const formattedDate = date ? moment(date).format(inputFormat) : "";
+    if (inputFormat === DateInputFormat.MILLISECONDS)
+      momentAdjustedInputFormat = "x";
+    const formattedDate = date
+      ? moment(date).format(momentAdjustedInputFormat)
+      : "";
     onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
 
