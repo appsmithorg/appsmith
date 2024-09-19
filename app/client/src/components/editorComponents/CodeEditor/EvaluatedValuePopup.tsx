@@ -200,6 +200,7 @@ const AsyncFunctionErrorView = styled.div`
 
 function CollapseToggle(props: { isOpen: boolean }) {
   const { isOpen } = props;
+
   return (
     <StyledIcon
       className={isOpen ? "open-collapse" : ""}
@@ -284,13 +285,16 @@ export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
   const { parameters, value } = props.evaluatedValue;
+
   if (!value) {
     Sentry.captureException("Prepared Statement got no value", {
       level: Severity.Debug,
       extra: { props },
     });
+
     return <div />;
   }
+
   const stringSegments = value.split(/\$\d+/);
   const $params = [...value.matchAll(/\$\d+/g)].map((matches) => matches[0]);
 
@@ -331,6 +335,7 @@ export function CurrentValueViewer(props: {
   onCopyContentText?: string;
 }) {
   const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+
   return (
     <ControlledCurrentValueViewer
       {...props}
@@ -376,6 +381,7 @@ const ControlledCurrentValueViewer = memo(
         {"undefined"}
       </CodeWrapper>
     );
+
     if (props.evaluatedValue !== undefined) {
       if (
         isObject(props.evaluatedValue) ||
@@ -406,9 +412,11 @@ const ControlledCurrentValueViewer = memo(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
+
               return index >= 2;
             },
           };
+
           content = (
             <ReactJson src={props.evaluatedValue} {...reactJsonProps} />
           );
@@ -423,6 +431,7 @@ const ControlledCurrentValueViewer = memo(
         );
       }
     }
+
     return (
       <>
         {!props.hideLabel && (
@@ -500,9 +509,11 @@ function PopoverContent(props: PopoverContentProps) {
     setOpenExpectedExample(!openExpectedExample);
 
   let error: EvaluationError | undefined;
+
   if (hasError) {
     error = errors[0];
   }
+
   const openDebugger = () => {
     dispatch(showDebugger());
     dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
@@ -623,11 +634,15 @@ function EvaluatedValuePopup(props: Props) {
   const [placement, offset]: [Placement, string] = useMemo(() => {
     const placement: Placement = "left-start";
     let offset = "0, 15";
+
     if (!wrapperRef.current) return [placement, "0, 0"];
+
     if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
+
     const { left, right } = wrapperRef.current.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const halfViewportWidth = viewportWidth / 2;
+
     // TODO: Remove this temporary fix
     if (left < halfViewportWidth) {
       if (right < halfViewportWidth) {
@@ -644,6 +659,7 @@ function EvaluatedValuePopup(props: Props) {
       // If the target is on the right half of the screen, show the popper on the left with offset eg. property pane
       offset = "0, 15";
     }
+
     return [placement, offset];
   }, [wrapperRef.current, props.popperPlacement]);
 
@@ -685,6 +701,7 @@ function EvaluatedValuePopup(props: Props) {
           }}
           onMouseLeave={() => {
             const id = setTimeout(() => setContentHovered(false), 500);
+
             setTimeoutId(id);
           }}
           preparedStatementViewer={

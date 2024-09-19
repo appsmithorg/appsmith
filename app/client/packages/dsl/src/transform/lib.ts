@@ -9,6 +9,7 @@ const SCHEMA_BY_ID = new schema.Entity(
   {},
   { idAttribute: "widgetId" },
 );
+
 SCHEMA_BY_ID.define({ children: [SCHEMA_BY_ID] });
 
 // Normalising using widgetId
@@ -19,6 +20,7 @@ export function flattenDSL<W>(nestedDSL: NestedDSL<W>): FlattenedDSL<W> {
     nestedDSL,
     SCHEMA_BY_ID,
   );
+
   return entities.canvasWidgets;
 }
 
@@ -28,5 +30,6 @@ export function nestDSL<W>(
   widgetId: string = ROOT_CONTAINER_WIDGET_ID,
 ): NestedDSL<W> {
   const entities = { canvasWidgets: flattenedDSL };
+
   return denormalize(widgetId, SCHEMA_BY_ID, entities);
 }

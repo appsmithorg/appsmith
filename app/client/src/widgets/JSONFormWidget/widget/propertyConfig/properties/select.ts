@@ -178,6 +178,7 @@ const PROPERTIES = {
           getSchemaItem<SelectFieldProps["schemaItem"]>(...args).compute(
             (schemaItem) => {
               if (schemaItem.fieldType !== FieldType.SELECT) return true;
+
               return !schemaItem.serverSideFiltering;
             },
           ),

@@ -8,24 +8,29 @@ export const getAllTableColumnKeys = (
   tableData?: Array<Record<string, unknown>>,
 ) => {
   const columnKeys: string[] = [];
+
   if (tableData) {
     for (let i = 0, tableRowCount = tableData.length; i < tableRowCount; i++) {
       const row = tableData[i];
+
       for (const key in row) {
         // Replace all special characters to _, limit key length to 200 characters.
         const sanitizedKey = removeSpecialChars(key, 200);
+
         if (!columnKeys.includes(sanitizedKey)) {
           columnKeys.push(sanitizedKey);
         }
       }
     }
   }
+
   return columnKeys;
 };
 
 export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: DSLWidget) => {
     let child = cloneDeep(_child);
+
     // If the current child is a TABLE_WIDGET
     if (child.type === "TABLE_WIDGET") {
       const hiddenColumns = child.hiddenColumns || [];
@@ -34,8 +39,10 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
       const columnTypeMap = child.columnTypeMap;
       let tableColumns: string[] = [];
       const dynamicBindingPathList = child.dynamicBindingPathList;
+
       if (child.tableData.length) {
         let tableData = [];
+
         // Try parsing the table data, if it parses great
         // If it does not parse, assign tableData the value as is.
         try {
@@ -43,6 +50,7 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
         } catch (e) {
           tableData = child.tableData;
         }
+
         if (
           !isString(tableData) &&
           dynamicBindingPathList?.findIndex(
@@ -55,11 +63,13 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
           child.migrated = false;
         }
       }
+
       // Get primaryColumns to be the list of column keys
       // Use the old order if it exists, else use the new order
       const primaryColumns = child.columnOrder?.length
         ? child.columnOrder
         : tableColumns;
+
       child.primaryColumns = {};
 
       // const hasActions = child.columnActions && child.columnActions.length > 0;
@@ -70,11 +80,13 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
           columnTypeMap && columnTypeMap[accessor]
             ? columnTypeMap[accessor].type
             : "text";
+
         // If the columnType is currency make it a text type
         // We're deprecating currency types
         if (columnType === "currency") {
           columnType = "text";
         }
+
         // Get a full set of column properties
         const column: any = {
           index, // Use to maintain order of columns
@@ -112,11 +124,13 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
           // Generate computed value
           computedValue: `{{${child.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor})}}`,
         };
+
         // copy inputForma nd outputFormat for date column types
         if (columnTypeMap && columnTypeMap[accessor]) {
           column.outputFormat = columnTypeMap[accessor].format || "";
           column.inputFormat = columnTypeMap[accessor].inputFormat || "";
         }
+
         child.primaryColumns[column.id] = column;
       });
 
@@ -128,6 +142,7 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
 
       const columnPrefix = "customColumn";
       const updatedDerivedColumns: Record<string, object> = {};
+
       // Add derived column for each column action
       columnActions.forEach((action: any, index: number) => {
         const column = {
@@ -145,6 +160,7 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
           onClick: action.dynamicTrigger,
           computedValue: "",
         };
+
         dynamicTriggerPathList.push({
           key: `primaryColumns.${columnPrefix}${index + 1}.onClick`,
         });
@@ -159,6 +175,7 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
           },
         );
       }
+
       child.dynamicTriggerPathList = dynamicTriggerPathList;
       child.textSize = "PARAGRAPH";
       child.horizontalAlignment = "LEFT";
@@ -169,7 +186,9 @@ export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = tableWidgetPropertyPaneMigrations(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

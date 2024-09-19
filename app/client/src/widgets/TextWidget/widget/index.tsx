@@ -36,6 +36,7 @@ import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
+
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static type = "TEXT_WIDGET";
 
@@ -503,6 +504,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   shouldDisableLink = (): boolean => {
     const text = this.props.text || "";
     const count: number = countOccurrences(text, "\n", false, 0);
+
     return (
       (count === 0 && text.length > MAX_HTML_PARSING_LENGTH) ||
       text.length > 50000
@@ -540,6 +542,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     const disableLink: boolean = this.props.disableLink
       ? true
       : this.shouldDisableLink();
+
     return (
       <WidgetStyleContainer
         className="t--text-widget-container"

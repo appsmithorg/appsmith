@@ -7,6 +7,7 @@ import {
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
+
   return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
@@ -20,6 +21,7 @@ export const stringToJS = (string: string): string => {
 
 export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
+
   return segments
     .map((segment) => {
       if (segment.charAt(0) === "'") {

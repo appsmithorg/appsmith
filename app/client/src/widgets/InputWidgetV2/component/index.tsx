@@ -76,6 +76,7 @@ const InputComponent = (props: InputComponentProps) => {
     />
   );
 };
+
 export interface InputComponentProps extends BaseInputComponentProps {
   inputType: InputTypes;
   maxChars?: number;

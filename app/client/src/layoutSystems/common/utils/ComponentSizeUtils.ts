@@ -34,16 +34,20 @@ export const getAutoLayoutComponentDimensions = ({
   let right = rightColumn;
   let top = topRow;
   let bottom = bottomRow;
+
   if (isMobile) {
     if (mobileLeftColumn !== undefined && parentColumnSpace !== 1) {
       left = mobileLeftColumn;
     }
+
     if (mobileRightColumn !== undefined && parentColumnSpace !== 1) {
       right = mobileRightColumn;
     }
+
     if (mobileTopRow !== undefined && parentRowSpace !== 1) {
       top = mobileTopRow;
     }
+
     if (mobileBottomRow !== undefined && parentRowSpace !== 1) {
       bottom = mobileBottomRow;
     }

@@ -121,10 +121,12 @@ export function PageContextMenu(props: {
 
   const handlePartialExportClick = () => {
     if (props.onItemSelected) props.onItemSelected();
+
     dispatch(openPartialExportModal(true));
   };
   const handlePartialImportClick = () => {
     if (props.onItemSelected) props.onItemSelected();
+
     dispatch(openPartialImportModal(true));
   };
 

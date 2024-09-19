@@ -15,6 +15,7 @@ describe("getCamelCaseString", () => {
 
     inputs.forEach((input, index) => {
       const result = getCamelCaseString(input);
+
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -25,6 +26,7 @@ describe("test areArraysEqual", () => {
     const OGArray = ["test1", "test2", "test3"];
 
     let testArray: string[] = [];
+
     expect(areArraysEqual(OGArray, testArray)).toBe(false);
 
     testArray = ["test1", "test3"];

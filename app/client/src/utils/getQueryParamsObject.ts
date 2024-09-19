@@ -6,6 +6,7 @@ import log from "loglevel";
  */
 export const getQueryParamsFromString = (search: string | undefined) => {
   if (!search) return {};
+
   try {
     return JSON.parse(
       '{"' +
@@ -17,6 +18,7 @@ export const getQueryParamsFromString = (search: string | undefined) => {
     );
   } catch (e) {
     log.error(e, "error parsing search string");
+
     return {};
   }
 };

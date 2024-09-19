@@ -10,6 +10,7 @@ describe("RemoteBranchList", function () {
     const renderedList = screen.queryByTestId(
       "t--git-remote-branch-list-container",
     );
+
     expect(renderedList?.innerHTML).toBeFalsy();
   });
 
@@ -19,12 +20,14 @@ describe("RemoteBranchList", function () {
     const renderedList = screen.queryByTestId(
       "t--git-remote-branch-list-container",
     );
+
     expect(renderedList).not.toBeNull();
     expect(renderedList?.innerHTML.includes("Remote branches")).toBeTruthy();
     expect(renderedList?.children.length).toEqual(2);
 
     // contains styled segment header
     const header = screen.queryByTestId("t--branch-list-header-local");
+
     expect(header).not.toBeNull();
     expect(header?.innerHTML.includes("Remote branches")).toBeTruthy();
   });

@@ -187,15 +187,19 @@ export class EChartsLayoutBuilder {
       if (configName == "scrollBar") {
         return this.props.allowScroll;
       }
+
       if (configName == "legend") {
         return this.needsLegend(this.props.seriesConfigs);
       }
+
       if (configName == "xAxis") {
         return this.props.chartType != "PIE_CHART";
       }
+
       if (configName == "title") {
         return this.props.chartTitle.length > 0;
       }
+
       return true;
     });
   }
@@ -203,10 +207,12 @@ export class EChartsLayoutBuilder {
   needsLegend(seriesConfigs: AllChartData) {
     const seriesKeys = Object.keys(seriesConfigs);
     const numSeries = seriesKeys.length;
+
     if (numSeries == 0) {
       return false;
     } else if (numSeries == 1) {
       const seriesTitle = seriesConfigs[seriesKeys[0]].seriesName ?? "";
+
       return seriesTitle.length > 0;
     } else {
       return true;

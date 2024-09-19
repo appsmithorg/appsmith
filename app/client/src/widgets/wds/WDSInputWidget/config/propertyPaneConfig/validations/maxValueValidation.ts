@@ -5,6 +5,7 @@ import type { InputWidgetProps } from "../../../widget/types";
 export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   const min = props.minNum;
   const value = max;
+
   max = Number(max);
 
   if (_?.isNil(value) || value === "") {

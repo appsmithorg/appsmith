@@ -89,6 +89,7 @@ export function AutoCanvasDraggingArena({
     }),
     [canExtend, snapColumnSpace, snapRowSpace, snapRows],
   );
+
   return showDraggingCanvas ? (
     <StickyCanvasArena
       canvasId={`canvas-dragging-${widgetId}`}

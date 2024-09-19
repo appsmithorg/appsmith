@@ -97,6 +97,7 @@ const getNewPositions = function* (
       copiedTopMostRow,
       copiedLeftMostColumn,
     );
+
     return newPastingPositionDetails;
   }
 
@@ -113,6 +114,7 @@ const getNewPositions = function* (
     whereToPasteWidget,
     pastingIntoWidgetId,
   );
+
   return newPastingPositionDetails;
 };
 
@@ -157,11 +159,14 @@ function* getNewPositionsBasedOnMousePositions(
     containerWidget = selectedWidgets[0];
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
   }
+
   if (pastingIntoWidgetId && pastingIntoWidgetId !== MAIN_CONTAINER_WIDGET_ID) {
     // For building block we already know the widget where we want to paste the new widgets
     // no need to calculate it
     const containerWidgetId = getContainerIdForCanvas(pastingIntoWidgetId);
+
     if (!containerWidgetId) return {};
+
     containerWidget = yield select(getWidget, containerWidgetId);
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(
       containerWidget as WidgetProps,
@@ -217,6 +222,7 @@ function* getNewPositionsBasedOnMousePositions(
 
   // adjust the top left based on the edges of the canvas
   if (mouseLeftColumn < 0) mouseLeftColumn = 0;
+
   if (mouseLeftColumn + copiedTotalWidth > GridDefaults.DEFAULT_GRID_COLUMNS)
     mouseLeftColumn = GridDefaults.DEFAULT_GRID_COLUMNS - copiedTotalWidth;
 
@@ -327,6 +333,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
 
   // conditions to adjust to the edges of the boundary, so that it doesn't go out of canvas
   if (pasteLeftMostColumn < 0) pasteLeftMostColumn = 0;
+
   if (
     pasteLeftMostColumn + copiedTotalWidth >
     GridDefaults.DEFAULT_GRID_COLUMNS
@@ -423,6 +430,7 @@ export function accessNestedObjectValue(
   // this function is a utility for finding and replacing a specific value within a nested object structure, given a path to the value.
   // since this replacement can occur multiple times within the object, to prevent unnecessary replacements(& wrong replacements), we check if the value already contains the newValue before replacing it.
   const currentPathValue = _.get(obj, path, "");
+
   if (!currentPathValue.includes(newValue)) {
     _.set(
       obj,

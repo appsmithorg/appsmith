@@ -123,6 +123,7 @@ const UseCasesSelect = ({
 }: UseCaseProps) => {
   const filters = useSelector(allTemplatesFiltersSelector);
   const useCases = filters.useCases;
+
   return (
     <Select
       data-testid="t--community-template-usecases-input"

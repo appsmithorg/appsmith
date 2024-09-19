@@ -35,13 +35,16 @@ export default function AutocommitStatusbar({
 }: AutocommitStatusbarProps) {
   const period = 4;
   const [percentage, setPercentage] = useState(0);
+
   useEffect(() => {
     if (completed) {
       setPercentage(100);
+
       if (onHide) {
         const timeout = setTimeout(() => {
           onHide && onHide();
         }, 1000);
+
         return () => clearTimeout(timeout);
       }
     } else {
@@ -52,10 +55,12 @@ export default function AutocommitStatusbar({
           },
           (period * 1000) / 9,
         );
+
         return () => clearInterval(interval);
       }
     }
   });
+
   return (
     <StatusbarWrapper data-testid="t--autocommit-statusbar">
       <Statusbar

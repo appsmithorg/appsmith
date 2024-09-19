@@ -263,6 +263,7 @@ class DropDownComponent extends React.Component<
       "label",
       activeItem?.label,
     ]);
+
     this.setState({ activeItemIndex });
   };
 
@@ -295,6 +296,7 @@ class DropDownComponent extends React.Component<
     const value = selectedOption
       ? selectedOption
       : this.props.placeholder || "-- Select --";
+
     return (
       <DropdownContainer
         compactMode={compactMode}
@@ -384,6 +386,7 @@ class DropDownComponent extends React.Component<
 
   itemListPredicate(query: string, items: DropdownOption[]) {
     const fuse = new Fuse(items, FUSE_OPTIONS);
+
     return query ? fuse.search(query) : items;
   }
 
@@ -395,6 +398,7 @@ class DropDownComponent extends React.Component<
     const optionIndex = _.findIndex(this.props.options, (option) => {
       return option.value === selectedOption.value;
     });
+
     return optionIndex === this.props.selectedIndex;
   };
   serverSideSearch = _.debounce((filterValue: string) => {
@@ -408,9 +412,11 @@ class DropDownComponent extends React.Component<
     if (!itemProps.modifiers.matchesPredicate) {
       return null;
     }
+
     const isSelected: boolean = this.isOptionSelected(option);
     // For tabbable menuItems
     const isFocused = itemProps.modifiers.active;
+
     return (
       <MenuItem
         active={isSelected}

@@ -188,9 +188,11 @@ export const getSelectedCurrency = (currencyCode?: string): DropdownOption => {
         return item.currency === currencyCode;
       })
     : undefined;
+
   if (!selectedCurrency) {
     selectedCurrency = getDefaultCurrency();
   }
+
   return {
     label: `${selectedCurrency.currency} - ${selectedCurrency.currency_name}`,
     searchText: selectedCurrency.label,

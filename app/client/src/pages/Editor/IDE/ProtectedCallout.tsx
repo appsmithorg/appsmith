@@ -40,6 +40,7 @@ function ProtectedCallout() {
     const remainingBranches = protectedBranches.filter(
       (protectedBranch) => protectedBranch !== currentBranch,
     );
+
     dispatch(
       updateGitProtectedBranchesInit({
         protectedBranches: remainingBranches,

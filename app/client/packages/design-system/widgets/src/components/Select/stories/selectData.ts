@@ -1,6 +1,6 @@
-import type { SelectItem } from "../src/types";
+import type { FieldListPopoverItem } from "@appsmith/wds";
 
-export const selectItems: SelectItem[] = [
+export const selectItems: FieldListPopoverItem[] = [
   { id: 1, label: "Aerospace" },
   {
     id: 2,
@@ -15,7 +15,7 @@ export const selectItems: SelectItem[] = [
   { id: 9, label: "Electrical" },
 ];
 
-export const selectItemsWithIcons: SelectItem[] = [
+export const selectItemsWithIcons: FieldListPopoverItem[] = [
   { id: 1, label: "Aerospace", icon: "galaxy" },
   {
     id: 2,

@@ -80,5 +80,6 @@ export function AuditLogsUpgradePage() {
     message: createMessage(EXCLUSIVE_TO_BUSINESS, ["audit logs"]),
   };
   const props = { header, carousel, footer };
+
   return <UpgradePage {...props} />;
 }

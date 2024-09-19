@@ -16,6 +16,7 @@ export function getNodesAndStylesToUpdate(
   widgetsMeasuredInPixels: string[],
 ): Record<string, Record<string, number>> {
   const result: Record<string, Record<string, number>> = {};
+
   // For each widget which has changes
   for (const widgetId in widgetsToUpdate) {
     const propertiesToUpdate: Record<string, number> = {};
@@ -52,6 +53,7 @@ export function getNodesAndStylesToUpdate(
 
     result[widgetId] = { y, height };
   }
+
   return result;
 }
 
@@ -77,6 +79,7 @@ export function directlyMutateDOMNodes(
     // TODO(abhinav): We need to re-structure the modal widget, possibly get away from blueprintjs
     // Better yet, find a way that doesn't have to deal with these abstraction leaks.
     let widgetNode = document.getElementById(idSelector);
+
     if (
       widgetsMeasuredInPixels.indexOf(widgetId) > -1 &&
       widgetId !== MAIN_CONTAINER_WIDGET_ID
@@ -91,6 +94,7 @@ export function directlyMutateDOMNodes(
     const widgetBoundary = document.querySelector(
       `.widget-boundary-${widgetId}`,
     );
+
     if (widgetBoundary) {
       (widgetBoundary as HTMLDivElement).style.opacity = "0";
     }
@@ -99,6 +103,7 @@ export function directlyMutateDOMNodes(
 
     if (widgetNode) {
       widgetNode.style.height = `${height}px`;
+
       // For some widgets the top is going to be useless,
       // for example, modal widget and main container
       if (!skipTop) {
@@ -111,6 +116,7 @@ export function directlyMutateDOMNodes(
           CONTAINER_GRID_PADDING * 2 -
           (widgetCanvasOffsets[widgetId] || 0) *
             GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
         (dropTarget as HTMLElement).style.height = `${dropTargetHeight}px`;
       }
     }

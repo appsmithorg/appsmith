@@ -66,6 +66,7 @@ describe("<PartialExportModal />", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (page: any) => page.pageId === pageList.currentPageId,
     )?.pageName;
+
     expect(screen.getByText(`Export - ${currentPageName}`)).toBeInTheDocument();
     expect(
       screen.getByText(

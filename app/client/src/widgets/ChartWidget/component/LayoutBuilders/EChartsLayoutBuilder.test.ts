@@ -46,6 +46,7 @@ describe("layout configs to include", () => {
       longestLabels: { x: "123", y: "123" },
     });
     const output = builder.configsToInclude();
+
     expect(output).toEqual(["legend", "title", "xAxis", "scrollBar"]);
   });
 
@@ -68,6 +69,7 @@ describe("layout configs to include", () => {
       longestLabels: { x: "123", y: "123" },
     });
     const output = builder.configsToInclude();
+
     expect(output).toEqual(["legend", "title", "xAxis"]);
   });
 
@@ -92,6 +94,7 @@ describe("layout configs to include", () => {
       chartTitle: emptyChartTitle,
     });
     const output = builder.configsToInclude();
+
     expect(output).toEqual(["legend", "xAxis"]);
   });
 
@@ -116,6 +119,7 @@ describe("layout configs to include", () => {
       longestLabels: { x: "123", y: "123" },
     });
     const output = builder.configsToInclude();
+
     expect(output).toEqual(["legend", "title", "xAxis", "scrollBar"]);
   });
 
@@ -133,6 +137,7 @@ describe("layout configs to include", () => {
       longestLabels: { x: "123", y: "123" },
     });
     const output = builder.configsToInclude();
+
     expect(output).toEqual(["title", "xAxis", "scrollBar"]);
   });
 
@@ -154,6 +159,7 @@ describe("layout configs to include", () => {
       longestLabels: { x: "123", y: "123" },
     });
     const output = builder.configsToInclude();
+
     expect(output).toEqual(["title", "xAxis", "scrollBar"]);
   });
 
@@ -176,6 +182,7 @@ describe("layout configs to include", () => {
       longestLabels: { x: "123", y: "123" },
     });
     const output = builder.configsToInclude();
+
     expect(output).toEqual(["legend", "title", "xAxis", "scrollBar"]);
   });
 });
@@ -195,6 +202,7 @@ describe("legend top offset", () => {
       longestLabels: { x: "123", y: "123" },
     });
     const output = builder.layoutConfigForElements();
+
     expect(output.title.show).toEqual(true);
     expect(output.legend.top).toEqual(50);
   });
@@ -213,6 +221,7 @@ describe("legend top offset", () => {
       chartTitle: emptyChartTitle,
     });
     const output = builder.layoutConfigForElements();
+
     expect(output.title.show).toEqual(false);
     expect(output.legend.top).toEqual(0);
   });
@@ -237,6 +246,7 @@ describe("layout configs", () => {
       chartTitle: "chartTitle",
     });
     const output = builder.layoutConfigForElements();
+
     expect(output).toEqual({
       xAxis: {
         show: true,

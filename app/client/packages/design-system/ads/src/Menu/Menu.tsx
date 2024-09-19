@@ -89,6 +89,7 @@ function MenuTrigger({
 
 function MenuItemContent(props: MenuItemContentProps) {
   const { children, endIcon, size = "md", startIcon } = props;
+
   return (
     <>
       {startIcon && (
@@ -132,6 +133,7 @@ const MenuItem = React.forwardRef(
     );
   },
 );
+
 MenuItem.displayName = "MenuItem";
 
 function MenuSubTrigger({
@@ -173,6 +175,7 @@ function MenuSeparator({
 function Menu(props: MenuProps) {
   return <RadixMenu.Root {...props} />;
 }
+
 const MenuSub = RadixMenu.Sub;
 const MenuGroup = RadixMenu.Group;
 const MenuGroupName = StyledMenuGroupname;

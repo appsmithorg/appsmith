@@ -7,6 +7,7 @@ interface Props {
 const PackageSearchItem = (props: Props) => {
   // eslint-disable-next-line
   const { searchedPackages } = props;
+
   return null;
 };
 

@@ -35,6 +35,7 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
           : AnvilEditorFlexComponent,
     };
   }, [isPreviewMode, props.type]);
+
   return (
     <WidgetWrapper
       elevatedBackground={!!props.elevatedBackground}

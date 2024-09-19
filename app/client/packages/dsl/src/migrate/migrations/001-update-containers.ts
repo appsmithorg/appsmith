@@ -29,12 +29,16 @@ export const updateContainers = (dsl: DSLWidget) => {
         canExtend: false,
         isVisible: true,
       };
+
       delete canvas.dynamicBindings;
       delete canvas.dynamicProperties;
+
       if (canvas.children && canvas.children.length > 0)
         canvas.children = canvas.children.map(updateContainers);
+
       dsl.children = [{ ...canvas }];
     }
   }
+
   return dsl;
 };

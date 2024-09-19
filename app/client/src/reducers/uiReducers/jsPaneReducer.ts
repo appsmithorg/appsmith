@@ -151,6 +151,7 @@ const jsPaneReducer = createReducer(initialState, {
     action: ReduxAction<{ selectedTab: JSEditorTab }>,
   ) => {
     const { selectedTab } = action.payload;
+
     return {
       ...state,
       selectedConfigTab: selectedTab,

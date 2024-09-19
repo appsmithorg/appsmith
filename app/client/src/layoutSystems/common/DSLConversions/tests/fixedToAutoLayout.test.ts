@@ -679,6 +679,7 @@ describe("test fixed to Auto Conversion methods", () => {
     ];
 
     const calculatedBottomRow = 75;
+
     expect(
       fitChildWidgetsIntoLayers(childWidgets as unknown as DSLWidget[]),
     ).toEqual({ children: convertedChildren, flexLayers, calculatedBottomRow });

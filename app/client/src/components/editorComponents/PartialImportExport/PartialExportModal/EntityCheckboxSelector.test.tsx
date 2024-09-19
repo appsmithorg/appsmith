@@ -22,12 +22,14 @@ describe("<EntityCheckboxSelector />", () => {
   it("checks the selected checkbox", () => {
     render(<EntityCheckboxSelector {...baseProps} />);
     const entityCheckbox = screen.getByLabelText("Entity1");
+
     expect(entityCheckbox).toBeChecked();
   });
 
   it("handles checkbox click", () => {
     render(<EntityCheckboxSelector {...baseProps} />);
     const entityCheckbox = screen.getByLabelText("Entity2");
+
     fireEvent.click(entityCheckbox);
     expect(baseProps.onEntityChecked).toHaveBeenCalledWith("2", true);
   });
@@ -35,6 +37,7 @@ describe("<EntityCheckboxSelector />", () => {
   it("handles checkbox uncheck", () => {
     render(<EntityCheckboxSelector {...baseProps} />);
     const entityCheckbox = screen.getByLabelText("Entity1");
+
     fireEvent.click(entityCheckbox);
     expect(baseProps.onEntityChecked).toHaveBeenCalledWith("1", false);
   });

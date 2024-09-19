@@ -19,7 +19,7 @@ export interface ComboBoxProps
    *
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "large">;
+  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
   /** loading state for the input */
   isLoading?: boolean;
   /** A ContextualHelp element to place next to the label. */

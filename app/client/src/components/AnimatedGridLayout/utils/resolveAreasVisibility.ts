@@ -21,8 +21,10 @@ export function resolveAreasVisibility({
   const normalizeColumns = columns.map(normalizeMeasurement);
 
   const result: Record<string, boolean> = {};
+
   for (let rowIndex = 0; rowIndex < areas.length; rowIndex++) {
     const areasRow = areas[rowIndex];
+
     for (let columnIndex = 0; columnIndex < areasRow.length; columnIndex++) {
       result[areasRow[columnIndex]] = false;
     }
@@ -34,6 +36,7 @@ export function resolveAreasVisibility({
     if (normalizedRows[rowIndex]) {
       for (let columnIndex = 0; columnIndex < areasRow.length; columnIndex++) {
         const areaName = areasRow[columnIndex];
+
         if (normalizeColumns[columnIndex] && areasRow.includes(areaName)) {
           result[areaName] = true;
         }
