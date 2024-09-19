@@ -36,8 +36,6 @@ import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
 import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
-import { objectKeys } from "@appsmith/utils";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -69,7 +67,7 @@ function generateLintingGlobalData(data: Record<string, unknown>) {
 
   libAccessors.forEach((accessor) => (globalData[accessor] = true));
   // Add all supported web apis
-  objectKeys(SUPPORTED_WEB_APIS).forEach(
+  Object.keys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),
   );
 
@@ -197,16 +195,7 @@ export default function getLintingErrors({
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
 
-  startAndEndSpanForFn(
-    "Linter",
-    // adding some metrics to compare the performance changes with eslint
-    {
-      linter: "JSHint",
-      linesOfCodeLinted: originalBinding.split("\n").length,
-      codeSizeInChars: originalBinding.length,
-    },
-    () => jshint(script, lintingOptions),
-  );
+  jshint(script, lintingOptions);
   const sanitizedJSHintErrors = sanitizeJSHintErrors(jshint.errors, scriptPos);
   const jshintErrors: LintError[] = sanitizedJSHintErrors.map((lintError) =>
     convertJsHintErrorToAppsmithLintError(
