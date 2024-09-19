@@ -125,12 +125,14 @@ describe("tests the redux saga helper functions", () => {
     const sameInputs = ["testString1", "testString1"];
     const output1 = await generateHashFromString(sameInputs[0]);
     const output2 = await generateHashFromString(sameInputs[1]);
+
     expect(output1).toEqual(output2);
 
     // verify that different strings generate different SHA1
     const differentInputs = ["testString1", "testString2"];
     const output3 = await generateHashFromString(differentInputs[0]);
     const output4 = await generateHashFromString(differentInputs[1]);
+
     expect(output3).not.toEqual(output4);
 
     // verify that the SHA1 is the same in the future
@@ -141,6 +143,7 @@ describe("tests the redux saga helper functions", () => {
     const testString = "testString";
     const sha1fortestString = "21b695cef037e9a8e0b3edccac3e5e58271edf22";
     const output = await generateHashFromString(testString);
+
     expect(output).toEqual(sha1fortestString);
   });
   it("tests the generateHashFromString function with a complex object", async () => {

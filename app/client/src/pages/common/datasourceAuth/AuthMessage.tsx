@@ -65,6 +65,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOauthAuthorization: any = () => {
     if (!pluginType || !pageId) return;
+
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };
   // TODO: Fix this the next time the file is edited

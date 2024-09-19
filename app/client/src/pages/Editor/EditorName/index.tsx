@@ -65,6 +65,7 @@ export function EditorName(props: EditorNameProps) {
 
   const onBlur = (value: string) => {
     if (props.onBlur) props.onBlur(value);
+
     setIsEditingDefault(false);
   };
 
@@ -74,6 +75,7 @@ export function EditorName(props: EditorNameProps) {
         kind: "error",
       });
     }
+
     return false;
   };
 
@@ -81,6 +83,7 @@ export function EditorName(props: EditorNameProps) {
     (e: React.MouseEvent) => {
       setIsEditing(true);
       const errorMessage = inputValidation && inputValidation(defaultValue);
+
       setIsInvalid(errorMessage ? errorMessage : false);
       e.preventDefault();
       e.stopPropagation();

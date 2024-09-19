@@ -132,6 +132,7 @@ describe("updateWidgetListWithNewWidget", () => {
         },
       ],
     };
+
     WidgetFactory.widgetDefaultPropertiesMap.get = jest.fn(() => ({
       someRandomProperty: "random",
       widgetName: "widgetName",

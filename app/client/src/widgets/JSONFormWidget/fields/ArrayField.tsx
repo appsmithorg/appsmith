@@ -176,6 +176,7 @@ function ArrayField({
    * Please refer to this issue:https://github.com/appsmithorg/appsmith/issues/23825 for more information.
    */
   let parsedArrayValue = value;
+
   try {
     if (typeof value === "string") {
       parsedArrayValue = JSON.parse(value);
@@ -199,6 +200,7 @@ function ArrayField({
     } else {
       values = [{}];
     }
+
     setValue(name, values);
   };
 
@@ -263,6 +265,7 @@ function ArrayField({
       } else {
         const diff = keysRef.current.length - valueLength;
         const newKeys = [...keysRef.current];
+
         newKeys.splice(-1 * diff);
 
         keysRef.current = newKeys;
@@ -422,5 +425,6 @@ function ArrayField({
 }
 
 const MemoizedArrayField: FieldComponent = React.memo(ArrayField);
+
 MemoizedArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 export default MemoizedArrayField;

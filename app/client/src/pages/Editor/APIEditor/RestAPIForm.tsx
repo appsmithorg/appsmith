@@ -97,6 +97,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const actionConfigurationParams =
     selector(state, "actionConfiguration.queryParameters") || [];
   let datasourceFromAction = selector(state, "datasource");
+
   if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
     datasourceFromAction = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
@@ -131,6 +132,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     const validHeaders = headers.filter(
       (value) => value.key && value.key !== "",
     );
+
     headersCount += validHeaders.length;
   }
 
@@ -140,6 +142,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (value: any) => value.key && value.key !== "",
     );
+
     headersCount += validHeaders.length;
   }
 
@@ -149,6 +152,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (value: any) => value.key && value.key !== "",
     );
+
     headersCount += validHeaders.length;
   }
 
@@ -157,6 +161,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 
   if (Array.isArray(params)) {
     const validParams = params.filter((value) => value.key && value.key !== "");
+
     paramsCount = validParams.length;
   }
 
@@ -166,6 +171,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (value: any) => value.key && value.key !== "",
     );
+
     paramsCount += validParams.length;
   }
 
@@ -173,6 +179,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const actionResponse = responses[apiId];
   let hasResponse = false;
   let suggestedWidgets;
+
   if (actionResponse) {
     hasResponse =
       !isEmpty(actionResponse.statusCode) &&

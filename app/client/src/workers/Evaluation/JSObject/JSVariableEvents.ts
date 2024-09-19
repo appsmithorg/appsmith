@@ -14,8 +14,11 @@ function getVariableObject(jsUpdates: JSUpdates) {
 
   for (const [jsObjectName, jsObjectBody] of prevJSObjects) {
     const variables = jsObjectBody.parsedBody?.variables;
+
     if (!variables?.length) continue;
+
     const varKeyMap: Record<string, string> = {};
+
     variables.forEach(({ name }) => {
       varKeyMap[name] = name;
     });
@@ -30,6 +33,7 @@ function getVariableDiff(jsUpdates: JSUpdates) {
 
   if (!prevJSUpdates) {
     prevJSUpdates = jsUpdates;
+
     return;
   }
 
@@ -38,6 +42,7 @@ function getVariableDiff(jsUpdates: JSUpdates) {
   const diff = deepDiff(prevJSObjectVar, jsObjectVar);
 
   prevJSUpdates = jsUpdates;
+
   return diff;
 }
 
@@ -51,6 +56,7 @@ export function getJSVariableCreatedEvents(jsUpdates: JSUpdates) {
       const evalTree = dataTreeEvaluator?.getEvalTree() || {};
       const value = get(evalTree, diff.path);
       const type = getType(value);
+
       jsVarsCreated.push({ path: diff.path?.join("."), type });
     }
   });

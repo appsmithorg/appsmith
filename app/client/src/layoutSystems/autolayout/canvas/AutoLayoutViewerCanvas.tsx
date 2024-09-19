@@ -22,6 +22,7 @@ export const AutoLayoutViewerCanvas = (props: BaseWidgetProps) => {
     props.isMobile,
     true,
   );
+
   return (
     <CanvasViewerWrapper
       isListWidgetCanvas={props.isListWidgetCanvas}

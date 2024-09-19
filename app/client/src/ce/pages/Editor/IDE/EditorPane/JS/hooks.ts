@@ -32,13 +32,16 @@ export const useJSAdd = () => {
       if (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD) {
         return;
       }
+
       const url = getJSUrl(currentEntityInfo, true);
+
       history.push(url);
     }
   }, [jsModuleCreationOptions, pageId, dispatch, currentEntityInfo]);
 
   const closeAddJS = useCallback(() => {
     const url = getJSUrl(currentEntityInfo, false);
+
     history.push(url);
   }, [currentEntityInfo]);
 
@@ -51,9 +54,11 @@ export const useIsJSAddLoading = () => {
     (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
+
   if (jsModuleCreationOptions.length === 0) {
     return isCreating;
   }
+
   return false;
 };
 

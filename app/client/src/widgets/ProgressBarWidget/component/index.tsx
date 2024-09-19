@@ -62,6 +62,7 @@ const getProgressPosition = (
   currentStep: number,
 ) => {
   const currStepProgress = percentage - stepSize * currentStep;
+
   if (currStepProgress > stepSize) {
     return 100;
   } else if (currStepProgress < 0) {
@@ -86,6 +87,7 @@ function StepProgressBar(props: ProgressBarComponentProps) {
           stepSize,
           index,
         );
+
         return (
           <StepContainer key={index}>
             <ProgressBar
@@ -103,6 +105,7 @@ function StepProgressBar(props: ProgressBarComponentProps) {
 function ProgressBarComponent(props: ProgressBarComponentProps) {
   const isDeterminate =
     props.barType === BarType.DETERMINATE && !isNaN(Number(props.steps));
+
   return (
     <ProgressBarWrapper className="t--progressbar-widget">
       {isDeterminate ? (
@@ -119,6 +122,7 @@ function ProgressBarComponent(props: ProgressBarComponentProps) {
     </ProgressBarWrapper>
   );
 }
+
 export interface ProgressBarComponentProps {
   progress?: number;
   showResult: boolean;

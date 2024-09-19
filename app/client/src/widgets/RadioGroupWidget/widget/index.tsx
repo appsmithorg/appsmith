@@ -61,9 +61,11 @@ export function optionsCustomValidation(
 
     for (let i = 0; i < options.length; i++) {
       const { label, value } = options[i];
+
       if (!valueType) {
         valueType = typeof value;
       }
+
       //Checks the uniqueness all the values in the options
       if (!uniqueLabels.hasOwnProperty(value)) {
         uniqueLabels[value] = "";
@@ -144,6 +146,7 @@ export function optionsCustomValidation(
       },
     ],
   };
+
   try {
     if (_.isString(options)) {
       options = JSON.parse(options as string);
@@ -158,6 +161,7 @@ export function optionsCustomValidation(
     return invalidResponse;
   }
 }
+
 function defaultOptionValidation(
   value: unknown,
   // TODO: Fix this the next time the file is edited
@@ -767,11 +771,13 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
 
   onRadioSelectionChange = (updatedValue: string) => {
     let newVal;
+
     if (isNumber(this.props.options[0].value)) {
       newVal = parseFloat(updatedValue);
     } else {
       newVal = updatedValue;
     }
+
     // Set isDirty to true when the selection changes
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);

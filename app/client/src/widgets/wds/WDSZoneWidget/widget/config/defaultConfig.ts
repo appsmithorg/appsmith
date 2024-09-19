@@ -47,6 +47,7 @@ export const defaultConfig: WidgetDefaultProps = {
           // by default. We go up the hierarchy to find any Modal Widget
           // If it exists, we remove the elevated background for the zone
           let parentId = widget.parentId;
+
           while (parentId) {
             if (widgets[parentId].type === "WDS_MODAL_WIDGET") {
               updates.push({
@@ -56,6 +57,7 @@ export const defaultConfig: WidgetDefaultProps = {
               });
               break;
             }
+
             parentId = widgets[parentId].parentId;
           }
 

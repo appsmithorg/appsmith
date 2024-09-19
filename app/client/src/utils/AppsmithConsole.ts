@@ -86,6 +86,7 @@ function error(
 // Function used to add errors to the error tab of the debugger
 function addErrors(errors: ErrorObject[]) {
   if (isEmpty(errors)) return;
+
   const refinedErrors = errors.map((error) => ({
     ...error.payload,
     severity: error.severity ?? Severity.ERROR,
@@ -101,6 +102,7 @@ function addErrors(errors: ErrorObject[]) {
 // This is used to remove errors from the error tab of the debugger
 function deleteErrors(errors: { id: string; analytics?: Log["analytics"] }[]) {
   if (isEmpty(errors)) return;
+
   dispatchAction(deleteErrorLogsInit(errors));
 }
 

@@ -20,6 +20,7 @@ describe("@appsmith/wds/Checkbox", () => {
     );
 
     const checkbox = screen.getByRole("checkbox");
+
     expect(checkbox).toBeChecked();
     await userEvent.click(checkbox);
     expect(onChangeSpy).toHaveBeenCalled();
@@ -28,6 +29,7 @@ describe("@appsmith/wds/Checkbox", () => {
 
   it("should render controlled checkbox", () => {
     const { rerender } = render(<Checkbox isSelected>Checkbox</Checkbox>);
+
     expect(screen.getByRole("checkbox")).toBeChecked();
 
     rerender(<Checkbox isSelected={false}>Checkbox</Checkbox>);

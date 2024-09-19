@@ -57,6 +57,7 @@ const DatasourceStructureNotFound = (props: Props) => {
 
     if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
       props?.customEditDatasourceFn && props?.customEditDatasourceFn();
+
       return;
     }
 
@@ -66,6 +67,7 @@ const DatasourceStructureNotFound = (props: Props) => {
       params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
       generateEditorPath: true,
     });
+
     history.push(url);
   };
 

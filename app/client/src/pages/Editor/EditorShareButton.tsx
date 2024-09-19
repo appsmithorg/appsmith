@@ -20,6 +20,7 @@ export const EditorShareButton = ({
   const filteredSharedUserList = sharedUserList.filter(
     (user) => user.username !== currentUser?.username,
   );
+
   return (
     <Tooltip
       content={

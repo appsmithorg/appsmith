@@ -175,6 +175,7 @@ function EditFieldsTable(props: TableProps) {
           ) : rows.length > 0 ? (
             rows.map((row, index) => {
               prepareRow(row);
+
               return (
                 <tr {...row.getRowProps(rowProps(row))} key={index}>
                   {row.cells.map((cell, index) => {

@@ -21,6 +21,7 @@ export default function DiscardFailedWarning({
     onClose: () => closeHandler(),
     children: error.message,
   };
+
   return (
     <Container data-cy={"discard-error"}>
       <Callout {...calloutOptions} />

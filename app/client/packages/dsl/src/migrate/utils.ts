@@ -7,6 +7,7 @@ export const DATA_BIND_REGEX_GLOBAL = /{{([\s\S]*?)}}/g;
 export const DATA_BIND_REGEX = /{{([\s\S]*?)}}/;
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
+
 export const generateReactKey = ({
   prefix = "",
 }: { prefix?: string } = {}): string => {
@@ -15,6 +16,7 @@ export const generateReactKey = ({
 
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
+
   return value
     .split(separatorRegex)
     .join("_")
@@ -32,11 +34,14 @@ type JSActionEntity = any;
 function getDynamicStringSegments(dynamicString: string): string[] {
   let stringSegments = [];
   const indexOfDoubleParanStart = dynamicString.indexOf("{{");
+
   if (indexOfDoubleParanStart === -1) {
     return [dynamicString];
   }
+
   //{{}}{{}}}
   const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
+
   firstString && stringSegments.push(firstString);
   let rest = dynamicString.substring(
     indexOfDoubleParanStart,
@@ -44,6 +49,7 @@ function getDynamicStringSegments(dynamicString: string): string[] {
   );
   //{{}}{{}}}
   let sum = 0;
+
   for (let i = 0; i <= rest.length - 1; i++) {
     const char = rest[i];
     const prevChar = rest[i - 1];
@@ -52,9 +58,11 @@ function getDynamicStringSegments(dynamicString: string): string[] {
       sum++;
     } else if (char === "}") {
       sum--;
+
       if (prevChar === "}" && sum === 0) {
         stringSegments.push(rest.substring(0, i + 1));
         rest = rest.substring(i + 1, rest.length);
+
         if (rest) {
           stringSegments = stringSegments.concat(
             getDynamicStringSegments(rest),
@@ -64,9 +72,11 @@ function getDynamicStringSegments(dynamicString: string): string[] {
       }
     }
   }
+
   if (sum !== 0 && dynamicString !== "") {
     return [dynamicString];
   }
+
   return stringSegments;
 }
 
@@ -87,8 +97,10 @@ const getDynamicBindings = (
   if (!dynamicString || !isString(dynamicString)) {
     return { stringSegments: [], jsSnippets: [] };
   }
+
   const sanitisedString = dynamicString.trim();
   let stringSegments, paths: any;
+
   if (entity && isJSAction(entity)) {
     stringSegments = [sanitisedString];
     paths = [sanitisedString];
@@ -99,12 +111,15 @@ const getDynamicBindings = (
     paths = stringSegments.map((segment) => {
       const length = segment.length;
       const matches = isDynamicValue(segment);
+
       if (matches) {
         return segment.substring(2, length - 2);
       }
+
       return "";
     });
   }
+
   return { stringSegments: stringSegments, jsSnippets: paths };
 };
 
@@ -119,6 +134,7 @@ export const stringToJS = (string: string): string => {
       }
     })
     .join(" + ");
+
   return js;
 };
 

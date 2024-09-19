@@ -16,6 +16,7 @@ describe("@appsmith/wds/Text", () => {
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const text = container.querySelector("div") as HTMLElement;
+
     expect(text).toHaveAttribute("data-testid", "t--text");
   });
 });

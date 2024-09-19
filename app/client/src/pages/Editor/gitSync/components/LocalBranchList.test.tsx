@@ -9,6 +9,7 @@ describe("LocalBranchList", function () {
     const renderedList = screen.queryByTestId(
       "t--git-local-branch-list-container",
     );
+
     expect(renderedList?.innerHTML).toBeFalsy();
   });
 });

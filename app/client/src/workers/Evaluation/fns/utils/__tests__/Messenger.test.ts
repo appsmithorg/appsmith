@@ -3,6 +3,7 @@ import { WorkerMessenger } from "../Messenger";
 
 describe("Tests all worker messenger method", () => {
   const mockPostMessage = jest.fn();
+
   self.postMessage = mockPostMessage;
   afterEach(() => {
     mockPostMessage.mockClear();
@@ -19,6 +20,7 @@ describe("Tests all worker messenger method", () => {
         triggerMeta: {},
       },
     });
+
     expect(mockPostMessage).toBeCalledWith({
       messageId: expect.stringContaining("request-test"),
       messageType: MessageType.REQUEST,
@@ -35,6 +37,7 @@ describe("Tests all worker messenger method", () => {
       },
     });
     const messageId = mockPostMessage.mock.calls[0][0].messageId;
+
     dispatchEvent(
       new MessageEvent("message", {
         data: {

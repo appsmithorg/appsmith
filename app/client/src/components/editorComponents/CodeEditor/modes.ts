@@ -70,6 +70,7 @@ export const MULTIPLEXING_MODE_CONFIGS: MultiplexingModeConfigs = {
             },
           ],
         };
+
         return prev;
       },
       {} as Record<TEditorSqlModes, MultiplexingModeConfig | undefined>,
@@ -84,7 +85,9 @@ export const MULTIPLEXING_MODE_CONFIGS: MultiplexingModeConfigs = {
 
 Object.keys(MULTIPLEXING_MODE_CONFIGS).forEach((key) => {
   const multiplexConfig = MULTIPLEXING_MODE_CONFIGS[key as TEditorModes];
+
   if (!multiplexConfig) return;
+
   CodeMirror.defineMode(key, function (config) {
     // @ts-expect-error: Types are not available
     return CodeMirror.multiplexingMode(

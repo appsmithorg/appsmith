@@ -153,7 +153,9 @@ export interface QueryActionConfig extends ActionConfig {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isStoredDatasource = (val: any): val is StoredDatasource => {
   if (!_.isObject(val)) return false;
+
   if (!("id" in val)) return false;
+
   return true;
 };
 export interface StoredDatasource {

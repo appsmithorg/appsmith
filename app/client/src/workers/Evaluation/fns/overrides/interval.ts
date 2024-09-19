@@ -12,7 +12,9 @@ export function clearAllIntervals() {
 
 export function clearInterval(intervalId: number | string) {
   const runningIntervalId = intervalIdMap.get(intervalId);
+
   intervalIdMap.delete(intervalId);
+
   return _internalClearInterval(runningIntervalId);
 }
 
@@ -27,10 +29,12 @@ export function setInterval(
 ) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
   const runningIntervalId = intervalIdMap.get(args[0]);
+
   if (runningIntervalId) {
     _internalClearInterval(runningIntervalId);
     intervalIdMap.delete(args[0]);
   }
+
   const _internalIntervalId = _internalSetInterval(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -43,6 +47,8 @@ export function setInterval(
     ...args,
   );
   const customIntervalId = args[0] || _internalIntervalId;
+
   intervalIdMap.set(customIntervalId, _internalIntervalId);
+
   return _internalIntervalId;
 }

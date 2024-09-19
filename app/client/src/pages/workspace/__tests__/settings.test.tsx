@@ -176,17 +176,20 @@ describe("<Settings />", () => {
   it("is rendered", () => {
     renderComponent();
     const settings = screen.queryAllByTestId("t--settings-wrapper");
+
     expect(settings).toHaveLength(1);
   });
   it("displays correct title", () => {
     renderComponent();
     const title = screen.getAllByTestId("t--page-title");
+
     expect(title).toHaveLength(1);
     expect(title[0].textContent).toBe(`${mockWorkspaceData.name}`);
   });
   it("displays tabs", () => {
     renderComponent();
     const tabList = screen.getAllByRole("tab");
+
     expect(tabList.length).toBeGreaterThanOrEqual(2);
     expect(tabList.length).toBeLessThanOrEqual(3);
   });

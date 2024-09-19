@@ -52,14 +52,17 @@ import {
 describe("Table Widget Property Pane Upgrade", () => {
   it("To test primaryColumns are created for a simple table", () => {
     const newDsl = tableWidgetPropertyPaneMigrations(input1);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(output1));
   });
   it("To test columnActions are migrated derived primaryColumns", () => {
     const newDsl = tableWidgetPropertyPaneMigrations(input2);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(output2));
   });
   it("To test table action are migrated", () => {
     const newDsl = tableWidgetPropertyPaneMigrations(input3);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(output3));
   });
 
@@ -67,6 +70,7 @@ describe("Table Widget Property Pane Upgrade", () => {
     const newDsl = migrateTableWidgetParentRowSpaceProperty(
       parentRowSpaceInputDsl,
     );
+
     expect(JSON.stringify(newDsl) === JSON.stringify(parentRowSpaceOutputDsl));
   });
 
@@ -74,6 +78,7 @@ describe("Table Widget Property Pane Upgrade", () => {
     const newDsl = migrateTableWidgetHeaderVisibilityProperties(
       updateHeaderOptionsInputDsl,
     );
+
     expect(
       JSON.stringify(newDsl) === JSON.stringify(updateHeaderOptionsOutputDsl),
     );
@@ -84,6 +89,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
   it("sanitizes primaryColumns, dynamicBindingPathList, columnOrder", () => {
     const newDsl = migrateTableSanitizeColumnKeys(inputDsl);
     const correctedDsl = migrateTableSanitizeColumnKeys(badDsl);
+
     expect(newDsl).toStrictEqual(outputDsl);
     expect(correctedDsl).toStrictEqual(fixedDsl);
   });
@@ -92,6 +98,7 @@ describe("Table Widget Migration - #migrateTableSanitizeColumnKeys", () => {
 describe("Table Widget selectedRow bindings update", () => {
   it("To test selectedRow bindings are updated for primaryColumns and derivedColumns", () => {
     const newDsl = migrateTableWidgetSelectedRowBindings(selectedRowInputDsl);
+
     expect(newDsl).toStrictEqual(selectedRowOutputDsl);
   });
 });

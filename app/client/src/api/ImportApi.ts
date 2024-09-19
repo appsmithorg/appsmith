@@ -19,6 +19,7 @@ class CurlImportApi extends Api {
     request: CurlImportRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     const { contextId, contextType, curl, name, workspaceId } = request;
+
     return Api.post(CurlImportApi.curlImportURL, curl, {
       type: "CURL",
       contextId,

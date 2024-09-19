@@ -82,6 +82,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
       snapColumnSpace,
     ],
   );
+
   return (
     <DropTargetComponentWrapper
       dropDisabled={!!props.dropDisabled}

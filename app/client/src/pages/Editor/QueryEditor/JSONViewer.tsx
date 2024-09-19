@@ -47,6 +47,7 @@ class JSONOutput extends React.Component<Props> {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shouldCollapse: (field: any) => {
         const index = field.name * 1;
+
         return index >= 2;
       },
     };

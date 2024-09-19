@@ -19,6 +19,7 @@ export function getHintDetailsFromClassName(
   switch (className) {
     case "CodeMirror-hint-table":
       const hintDataType = sqlHint.datasourceTableKeys[text];
+
       return hintDataType
         ? {
             hintType: hintDataType,
@@ -52,5 +53,6 @@ export const MAX_NUMBER_OF_SQL_HINTS = 270;
 
 export function filterCompletions(completions: Hints) {
   completions.list = completions.list.slice(0, MAX_NUMBER_OF_SQL_HINTS);
+
   return completions;
 }

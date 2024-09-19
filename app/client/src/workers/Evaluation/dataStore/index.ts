@@ -30,9 +30,11 @@ export default class DataStore {
 
   static update(dataTreeDiff: Diff<DataTree, DataTree>[]) {
     const deleteDiffs = dataTreeDiff.filter((diff) => diff.kind === "D");
+
     deleteDiffs.forEach((diff) => {
       const deletedPath = diff.path || [];
       const deletedPathString = convertPathToString(deletedPath);
+
       DataStore.deleteActionData(deletedPathString);
     });
   }

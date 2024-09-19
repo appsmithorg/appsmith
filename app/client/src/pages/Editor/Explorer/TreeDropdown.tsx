@@ -100,6 +100,7 @@ function getSelectedOption(
     label: defaultText,
     value: "",
   };
+
   options.length > 0 &&
     options.forEach((option) => {
       // Find the selected option in the OptionsTree
@@ -109,11 +110,13 @@ function getSelectedOption(
         const childOption = find(option.children, {
           value: selectedValue,
         });
+
         if (childOption) {
           selectedOption = childOption;
         }
       }
     });
+
   return selectedOption;
 }
 
@@ -137,11 +140,13 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
   useCloseMenuOnScroll(SIDEBAR_ID, isOpen, () => setIsOpen(false));
 
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       option.onSelect(option, props.onSelect);
+
       if (option.value === "delete" && !option.confirmDelete) {
         setIsOpen(true);
       } else {
@@ -149,6 +154,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       }
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
+
       onSelect(option, defaultVal);
     }
   };

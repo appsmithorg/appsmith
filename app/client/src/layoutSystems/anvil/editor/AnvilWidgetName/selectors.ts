@@ -72,6 +72,7 @@ export function shouldSelectOrFocus(widgetId: string) {
     ) => {
       const baseCondition = isEditorOpen && !isDragging;
       let onCanvasUIState: NameComponentStates = "none";
+
       if (baseCondition) {
         if (isWidgetSelected) onCanvasUIState = "select";
 

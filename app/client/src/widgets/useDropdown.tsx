@@ -52,6 +52,7 @@ const useDropdown = ({
   function BackDrop() {
     return <BackDropContainer onClick={closeBackDrop} />;
   }
+
   // Get PopupContainer on main Canvas
   const getPopupContainer = useCallback(() => popupContainer.current, []);
 
@@ -71,18 +72,22 @@ const useDropdown = ({
   const onOpen = useCallback(
     (open: boolean) => {
       setIsOpen(open);
+
       if (open) {
         handleOnDropdownOpen();
         setTimeout(() => inputRef.current?.focus(), FOCUS_TIMEOUT);
+
         // for more context, the Element we attach to in view mode doesn't have an overflow style, so this only applies to edit mode.
         if (popupContainer.current && renderMode === RenderModes.CANVAS) {
           popupContainer.current.style.overflowY = "hidden";
         }
       } else {
         handleOnDropdownClose();
+
         if (popupContainer.current && renderMode === RenderModes.CANVAS) {
           popupContainer.current.style.overflowY = "auto";
         }
+
         selectRef.current?.blur();
       }
     },

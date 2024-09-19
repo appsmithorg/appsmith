@@ -11,6 +11,7 @@ export default {
     let value = props.selectedOption;
 
     const valueIndex = _.findIndex(options, (option) => option.value === value);
+
     if (valueIndex === -1) {
       value = "";
     }
@@ -30,12 +31,15 @@ export default {
   getFlattenedOptions: (props, moment, _) => {
     const flat = (array) => {
       let result = [];
+
       array.forEach((a) => {
         result.push({ value: a.value, label: a.label });
+
         if (Array.isArray(a.children)) {
           result = result.concat(flat(a.children));
         }
       });
+
       return result;
     };
 

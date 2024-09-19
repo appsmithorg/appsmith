@@ -305,6 +305,7 @@ const btnColorStyles = (props: ButtonProps, state: string): BtnColorType => {
     txtColor = "",
     border = "",
     outline = "";
+
   switch (props.category) {
     case Category.primary:
       bgColor = stateStyles(props, state).bgColorPrimary;
@@ -324,6 +325,7 @@ const btnColorStyles = (props: ButtonProps, state: string): BtnColorType => {
       outline = "2px solid var(--ads-color-blue-150)";
       break;
   }
+
   return { bgColor, txtColor, border, outline };
 };
 
@@ -514,6 +516,7 @@ const getButtonContent = (props: ButtonProps) => {
     : props.tag === "a"
       ? IconPositions.right
       : IconPositions.left;
+
   return (
     <>
       {iconPos === IconPositions.left && getIconContent(props)}
@@ -527,6 +530,7 @@ const getButtonContent = (props: ButtonProps) => {
 function ButtonComponent(props: ButtonProps) {
   const { className, cypressSelector, isLoading, onClick } = props;
   const filteredProps = _.omit(props, ["fill"]);
+
   return (
     <StyledButton
       className={className}
@@ -544,6 +548,7 @@ function ButtonComponent(props: ButtonProps) {
 function LinkButtonComponent(props: ButtonProps) {
   const { className, cypressSelector, href, onClick } = props;
   const filteredProps = _.omit(props, ["fill"]);
+
   return (
     <StyledLinkButton
       className={className}

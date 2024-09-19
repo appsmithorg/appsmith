@@ -148,6 +148,7 @@ export function* RestartServerPoll() {
 export function* RestryRestartServerPoll() {
   let pollCount = 0;
   const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
+
   while (pollCount < maxPollCount) {
     pollCount++;
     yield delay(RESTART_POLL_INTERVAL);
@@ -155,6 +156,7 @@ export function* RestryRestartServerPoll() {
       const response: FetchCurrentTenantConfigResponse = yield call(
         TenantApi.fetchCurrentTenantConfig,
       );
+
       if (
         response.responseMeta.status === 200 &&
         response.data?.tenantConfiguration?.migrationStatus ===
@@ -164,6 +166,7 @@ export function* RestryRestartServerPoll() {
       }
     } catch (e) {}
   }
+
   yield put({
     type: ReduxActionErrorTypes.RESTART_SERVER_ERROR,
   });
@@ -181,6 +184,7 @@ export function* SendTestEmail(action: ReduxAction<SendTestEmailPayload>) {
     if (isValidResponse) {
       if (response.data) {
       }
+
       toast.show(
         createMessage(
           response.data

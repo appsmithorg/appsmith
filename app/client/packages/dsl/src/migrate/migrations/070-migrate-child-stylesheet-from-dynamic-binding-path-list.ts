@@ -9,6 +9,7 @@ export const migrateChildStylesheetFromDynamicBindingPathList = (
     "BUTTON_GROUP_WIDGET",
     "JSON_FORM_WIDGET",
   ];
+
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
     if (
       widgetsWithChildStylesheet.includes(widget.type) &&
@@ -17,6 +18,7 @@ export const migrateChildStylesheetFromDynamicBindingPathList = (
       const newPaths = widget.dynamicBindingPathList?.filter(
         ({ key }: { key: string }) => !key.startsWith("childStylesheet."),
       );
+
       widget.dynamicBindingPathList = newPaths;
     }
   });
