@@ -2,20 +2,20 @@ import EditorNavigation, {
   EntityType,
   PageLeftPane,
   PagePaneSegment,
-} from "../../../../../../support/Pages/EditorNavigation";
+} from "../../../../../support/Pages/EditorNavigation";
 
-import dsl from "../../../../../../fixtures/tableV2AndTextDsl.json";
-import widgetsPage from "../../../../../../locators/Widgets.json";
-import commonlocators from "../../../../../../locators/commonlocators.json";
-import publish from "../../../../../../locators/publishWidgetspage.json";
+import dsl from "../../../../../fixtures/tableV2AndTextDsl.json";
+import widgetsPage from "../../../../../locators/Widgets.json";
+import commonlocators from "../../../../../locators/commonlocators.json";
+import publish from "../../../../../locators/publishWidgetspage.json";
 
-import { tableDataJSObject } from "../../../../../../fixtures/tableV2FilteringWithPrimaryColumnJSObjectWidthData";
+import { tableDataJSObject } from "../../../../../fixtures/tableV2FilteringWithPrimaryColumnJSObjectWidthData";
 import {
   agHelper,
   jsEditor,
   locators,
   table,
-} from "../../../../../../support/Objects/ObjectsCore";
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget V2 Filtered Table data in autocomplete",
