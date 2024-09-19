@@ -56,7 +56,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     EditorNavigation.SelectEntityByName("Rest_Api_2", EntityType.Api);
 
     cy.wait(1000);
-    cy.xpath("//span[contains(text(), 'Headers')]").click();
+    cy.xpath("//span[contains(text(), 'Headers')]").first().click();
     cy.updateCodeInput(apiwidget.headerValue, "test");
     cy.wait("@saveAction");
 
