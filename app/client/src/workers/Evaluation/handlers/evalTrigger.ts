@@ -13,6 +13,7 @@ export default async function (request: EvalWorkerASyncRequest) {
     triggerMeta,
     unEvalTree,
   } = data;
+
   if (!dataTreeEvaluator) {
     return { triggers: [], errors: [] };
   }
@@ -27,6 +28,7 @@ export default async function (request: EvalWorkerASyncRequest) {
       //TODO: the evalTrigger can be optimised to not diff all JS actions
       { isAllAffected: true, ids: [] },
     );
+
     evaluateAndPushResponse(
       dataTreeEvaluator,
       { evalOrder, unEvalUpdates, jsUpdates: {} },
@@ -34,6 +36,7 @@ export default async function (request: EvalWorkerASyncRequest) {
       [],
     );
   }
+
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
     dataTreeEvaluator.getEvalTree(),

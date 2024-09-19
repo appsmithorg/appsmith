@@ -39,6 +39,7 @@ export const getCodeMirrorNamespaceFromDoc = (
   doc: CodeMirror.Doc,
 ): typeof CodeMirror => {
   const editor = doc.getEditor();
+
   if (!editor) {
     throw new Error(
       "The CodeMirror doc does not belong to an editor. Cannot get the CodeMirror namespace.",

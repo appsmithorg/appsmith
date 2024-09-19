@@ -25,6 +25,7 @@ import {
 import { Button } from "../Button";
 
 const AnnouncementPopover = HoverCard.Root;
+
 AnnouncementPopover.displayName = "AnnouncementPopover";
 
 function AnnouncementPopoverTrigger(props: HoverCard.HoverCardTriggerProps) {

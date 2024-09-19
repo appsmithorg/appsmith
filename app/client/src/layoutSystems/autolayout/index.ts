@@ -44,6 +44,7 @@ const getAutoLayoutSystemWidgetPropsEnhancer = (props: BaseWidgetProps) => {
   const autoDimensionConfig = getAutoLayoutDimensionsConfig(props);
   const { componentHeight, componentWidth } =
     getAutoLayoutComponentDimensions(props);
+
   return {
     ...props,
     autoDimensionConfig,
@@ -83,6 +84,7 @@ const getAutoLayoutSystemCanvasPropsEnhancer = (props: BaseWidgetProps) => {
   const autoDimensionConfig = getAutoLayoutDimensionsConfig(enhancedProps);
   const { componentHeight, componentWidth } =
     getAutoLayoutComponentDimensions(enhancedProps);
+
   return {
     ...enhancedProps,
     autoDimensionConfig,

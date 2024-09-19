@@ -82,4 +82,5 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
     </Container>
   );
 }
+
 export const AddNewRowBanner = React.memo(AddNewRowBannerComponent);

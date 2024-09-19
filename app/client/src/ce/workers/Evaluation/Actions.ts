@@ -69,8 +69,10 @@ export const addDataTreeToContext = (args: {
 
     for (const entityFn of getEntityFunctions()) {
       if (!entityFn.qualifier(entity)) continue;
+
       const func = entityFn.fn(entity, entityName);
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
+
       set(entityFunctionCollection, fullPath, func);
     }
 
@@ -85,6 +87,7 @@ export const addDataTreeToContext = (args: {
     );
 
     if (isEmpty(entityMethodMap)) continue;
+
     EVAL_CONTEXT[entityName] = Object.assign(
       {},
       dataTree[entityName],
@@ -99,6 +102,7 @@ export const addDataTreeToContext = (args: {
     );
 
   if (!isTriggerBased) return;
+
   // if eval is not trigger based i.e., sync eval then we skip adding entity function to evalContext
   addEntityFunctionsToEvalContext(EVAL_CONTEXT, entityFunctionCollection);
 };
@@ -132,6 +136,7 @@ export function getAllSetterFunctions(
 ) {
   const entitiesSetterFunctions: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
+
   for (const [entityName, entity] of dataTreeEntries) {
     const entityConfig = configTree[entityName];
     const entityMethodMap = setters.getEntitySettersFromConfig(
@@ -146,6 +151,7 @@ export function getAllSetterFunctions(
       entitiesSetterFunctions[`${entityName}.${methodName}`] = true;
     }
   }
+
   return entitiesSetterFunctions;
 }
 
@@ -164,6 +170,7 @@ export function getEntitySetterFunctions(
   for (const methodName of Object.keys(entityMethodMap)) {
     entitySetterFunctions[`${entityName}.${methodName}`] = true;
   }
+
   return entitySetterFunctions;
 }
 
@@ -173,18 +180,25 @@ export const getAllAsyncFunctions = (
 ) => {
   let allAsyncFunctions: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
+
   for (const [entityName, entity] of dataTreeEntries) {
     for (const entityFn of getEntityFunctions()) {
       if (!entityFn.qualifier(entity)) continue;
+
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
+
       allAsyncFunctions[fullPath] = true;
     }
   }
+
   const setterMethods = getAllSetterFunctions(dataTree, configTree);
+
   allAsyncFunctions = { ...allAsyncFunctions, ...setterMethods };
+
   for (const platformFn of getPlatformFunctions()) {
     allAsyncFunctions[platformFn.name] = true;
   }
+
   return allAsyncFunctions;
 };
 
@@ -196,6 +210,7 @@ export const removeEntityFunctionsFromEvalContext = (
     entityFunctionCollection,
   )) {
     const entity = klona(evalContext[entityName]);
+
     Object.keys(funcObj).forEach((entityFn) => {
       delete entity[entityFn];
     });

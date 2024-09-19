@@ -29,6 +29,7 @@ const ConvertToModuleCTA = () => {
     entityId: action.id,
     moduleType: MODULE_TYPE.QUERY,
   };
+
   return <ConvertToModuleInstanceCTA {...convertToModuleProps} />;
 };
 

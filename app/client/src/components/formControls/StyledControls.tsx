@@ -123,6 +123,7 @@ export const StyledDropDownContainer = styled.div`
   width: 100%;
 `;
 const DropDown = Select.ofType<DropdownOption>();
+
 export const StyledDropDown = styled(DropDown)`
   div {
     flex: 1 1 auto;
@@ -210,6 +211,7 @@ export const StyledMenuItem = styled(MenuItem)`
 `;
 
 const MultiSelectDropDown = MultiSelect.ofType<DropdownOption>();
+
 export const StyledMultiSelectDropDown = styled(MultiSelectDropDown)`
   &&& button {
     background: ${(props) => props.theme.colors.paneInputBG};

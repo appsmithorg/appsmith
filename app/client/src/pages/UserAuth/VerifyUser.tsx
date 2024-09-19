@@ -23,6 +23,7 @@ const VerifyUser = (
     if (!token || !email) {
       Sentry.captureMessage("User email verification link is damaged");
     }
+
     const formElement: HTMLFormElement = document.getElementById(
       "verification-form",
     ) as HTMLFormElement;

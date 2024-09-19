@@ -46,6 +46,7 @@ export function* pasteWidgetsInZone(
           reverseMap,
           parent.widgetId,
         );
+
         widgets = res.widgets;
         map = res.map;
         reverseMap = res.reverseMap;
@@ -115,7 +116,9 @@ export function* pasteWidgetsInZone(
       targetLayout = layoutOrder[layoutIndex];
       currentRowIndex = rowIndex[targetRowIndex];
     }
+
     const extraRow = smallWidgets.length > 0 && maxChildLimitMet ? 1 : 0;
+
     yield all(
       largeWidgets.map((each: CopiedWidgetData, index: number) =>
         call(function* () {
@@ -150,15 +153,18 @@ function splitWidgets(copiedWidgets: CopiedWidgetData[]): {
 } {
   const smallWidgets: CopiedWidgetData[] = [];
   const largeWidgets: CopiedWidgetData[] = [];
+
   copiedWidgets.forEach((each: CopiedWidgetData) => {
     const anvilConfig: AnvilConfig = WidgetFactory.getWidgetAnvilConfig(
       each.list[0].type,
     );
+
     if (anvilConfig.isLargeWidget) {
       largeWidgets.push(each);
     } else {
       smallWidgets.push(each);
     }
   });
+
   return { smallWidgets, largeWidgets };
 }

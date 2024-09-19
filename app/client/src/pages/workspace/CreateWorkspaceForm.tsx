@@ -24,7 +24,9 @@ export function CreateApplicationForm(
   const submitHandler = useCallback(
     async (data, dispatch) => {
       const result = await createWorkspaceSubmitHandler(data, dispatch);
+
       if (typeof onCancel === "function") onCancel(); // close after submit
+
       return result;
     },
     [handleSubmit, onCancel],

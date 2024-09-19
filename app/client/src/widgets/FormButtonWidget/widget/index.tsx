@@ -312,12 +312,14 @@ class FormButtonWidget extends ButtonWidget {
               propertyValue: string,
             ) => {
               const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
               if (!props.iconAlign) {
                 propertiesToUpdate.push({
                   propertyPath: "iconAlign",
                   propertyValue: Alignment.LEFT,
                 });
               }
+
               return propertiesToUpdate;
             },
             dependencies: ["iconAlign"],
@@ -404,6 +406,7 @@ class FormButtonWidget extends ButtonWidget {
         isLoading: true,
       });
     }
+
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
@@ -436,6 +439,7 @@ class FormButtonWidget extends ButtonWidget {
     this.setState({
       isLoading: false,
     });
+
     if (result.success) {
       if (this.props.resetFormOnClick && this.props.onReset)
         this.props.onReset();

@@ -38,6 +38,7 @@ function Sidebar() {
               tooltip: createMessage(EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON),
             };
           }
+
           return button;
         });
   }, [datasourcesExist]);

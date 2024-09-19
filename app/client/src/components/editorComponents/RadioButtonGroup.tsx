@@ -122,6 +122,7 @@ const RadioButtonGroup = ({
 
       if (clickedButton) {
         const value = clickedButton.dataset.value || "";
+
         setValue(value);
 
         // if redux form field input exists, update state as well.

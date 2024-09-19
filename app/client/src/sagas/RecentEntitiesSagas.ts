@@ -11,6 +11,7 @@ import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 
 export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);
+
   if (builderMatch)
     return {
       type: "page",
@@ -20,7 +21,9 @@ export const getEntityInCurrentPath = (pathName: string) => {
     };
 
   const baseMatch = matchBasePath(pathName);
+
   if (!baseMatch) return { type: "", id: "" };
+
   const { path: basePath } = baseMatch;
   const apiMatch = matchPath<{ baseApiId: string }>(pathName, {
     path: [
@@ -28,6 +31,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
       `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
     ],
   });
+
   if (apiMatch)
     return {
       type: "action",
@@ -39,6 +43,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
   const queryMatch = matchPath<{ baseQueryId: string }>(pathName, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
+
   if (queryMatch)
     return {
       type: "action",
@@ -50,6 +55,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
   const datasourceMatch = matchPath<{ datasourceId: string }>(pathName, {
     path: `${basePath}${DATA_SOURCES_EDITOR_ID_PATH}`,
   });
+
   if (datasourceMatch)
     return {
       type: "datasource",
@@ -61,6 +67,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
   const jsObjectMatch = matchPath<{ baseCollectionId: string }>(pathName, {
     path: `${basePath}${JS_COLLECTION_ID_PATH}`,
   });
+
   if (jsObjectMatch) {
     return {
       type: "jsAction",

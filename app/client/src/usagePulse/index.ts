@@ -53,10 +53,12 @@ class UsagePulse {
           mode: APP_MODE.PUBLISHED,
         });
         const { data } = response ?? {};
+
         if (data?.application && !data.application.isPublic) {
           return false;
         }
       }
+
       return true;
     } else if (isEditorPath(path)) {
       /*
@@ -65,8 +67,10 @@ class UsagePulse {
       */
       const isFirstTimeOnboarding =
         await getFirstTimeUserOnboardingIntroModalVisibility();
+
       if (!isFirstTimeOnboarding) return true;
     }
+
     return false;
   }
 
@@ -128,6 +132,7 @@ class UsagePulse {
     UsagePulse.isTelemetryEnabled = isTelemetryEnabled;
     UsagePulse.isAnonymousUser = isAnonymousUser;
     UsagePulse.isFreePlan = isFree;
+
     if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
       await UsagePulse.sendPulseAndScheduleNext();
     }

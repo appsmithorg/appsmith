@@ -295,6 +295,7 @@ export function useDragCallbacksForHandles({
         selectedWidget !== widgetId &&
         selectWidget(SelectionRequestType.One, [widgetId]);
     }
+
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
   }, [widgetId]);
@@ -392,6 +393,7 @@ export function useDragCallbacksForHandles({
         maxHeight: maxY + maxdY,
         minHeight: minY + mindY,
       });
+
       return true;
     }
 

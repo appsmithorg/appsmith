@@ -44,6 +44,7 @@ export const metaReducer = createReducer(initialState, {
         `${action.payload.widgetId}.${action.payload.propertyName}`,
         action.payload.propertyValue,
       );
+
       return draftMetaState;
     });
 
@@ -55,9 +56,11 @@ export const metaReducer = createReducer(initialState, {
   ) => {
     const nextState = produce(state, (draftMetaState) => {
       const { batchMetaUpdates } = action.payload;
+
       batchMetaUpdates.forEach(({ propertyName, propertyValue, widgetId }) => {
         set(draftMetaState, `${widgetId}.${propertyName}`, propertyValue);
       });
+
       return draftMetaState;
     });
 
@@ -73,6 +76,7 @@ export const metaReducer = createReducer(initialState, {
         `${action.payload.widgetId}.${action.payload.propertyName}`,
         action.payload.propertyValue,
       );
+
       return draftMetaState;
     });
 
@@ -86,6 +90,7 @@ export const metaReducer = createReducer(initialState, {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
+
     if (widgetMetaProps === undefined) {
       widgetMetaProps = {
         isMoved: true,
@@ -98,7 +103,9 @@ export const metaReducer = createReducer(initialState, {
         position: { ...action.payload.position },
       };
     }
+
     next[action.payload.widgetId] = widgetMetaProps;
+
     return next;
   },
   [WidgetReduxActionTypes.WIDGET_DELETE]: (
@@ -106,7 +113,9 @@ export const metaReducer = createReducer(initialState, {
     action: ReduxAction<{ widgetId: string }>,
   ) => {
     const next = { ...state };
+
     delete next[action.payload.widgetId];
+
     return next;
   },
   [ReduxActionTypes.RESET_WIDGET_META]: (
@@ -125,6 +134,7 @@ export const metaReducer = createReducer(initialState, {
         ),
       };
     }
+
     return state;
   },
   [ReduxActionTypes.RESET_WIDGET_META_UPDATES]: (
@@ -140,11 +150,13 @@ export const metaReducer = createReducer(initialState, {
     action: ReduxAction<{ widgetIdsToClear: string[] }>,
   ) => {
     const next = { ...state };
+
     for (const metaWidgetId of action.payload.widgetIdsToClear) {
       if (metaWidgetId && next[metaWidgetId]) {
         delete next[metaWidgetId];
       }
     }
+
     return next;
   },
   [ReduxActionTypes.FETCH_PAGE_SUCCESS]: () => {

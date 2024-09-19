@@ -9,6 +9,7 @@ describe("<AutoHeightLimitHandleDot />", () => {
     const tree = renderer
       .create(<AutoHeightLimitHandleDot isDragging={false} />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("transform", "translateX(-50%) scale( 1 )");
   });
 
@@ -16,6 +17,7 @@ describe("<AutoHeightLimitHandleDot />", () => {
     const tree = renderer
       .create(<AutoHeightLimitHandleDot isDragging />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("transform", "translateX(-50%) scale( 1.67 )");
   });
 });

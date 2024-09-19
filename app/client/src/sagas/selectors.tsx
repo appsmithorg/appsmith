@@ -27,12 +27,14 @@ export const getWidgetsByName = createSelector(getWidgets, (widgets) => {
 
 export const getWidgetsForEval = createSelector(getWidgets, (widgets) => {
   const widgetForEval: CanvasWidgetsReduxState = {};
+
   for (const key of Object.keys(widgets)) {
     widgetForEval[key] = omit(
       widgets[key],
       Object.keys(WIDGET_PROPS_TO_SKIP_FROM_EVAL),
     ) as FlattenedWidgetProps;
   }
+
   return widgetForEval;
 });
 
@@ -100,16 +102,19 @@ export const getWidgetOptionsTree = memoize((state: AppState) =>
 
 export const getDataTreeForActionCreator = memoize((state: AppState) => {
   const dataTree: DataTreeForActionCreator = {};
+
   Object.keys(state.evaluations.tree).forEach((key) => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const value: any = state.evaluations.tree[key];
+
     dataTree[key] = {
       meta: value?.meta || null,
       ENTITY_TYPE: value?.ENTITY_TYPE || null,
       type: value?.type || null,
     };
   });
+
   return dataTree;
 });
 
@@ -119,7 +124,9 @@ export const getEditorConfigs = (
   const pageId = state.entities.pageList.currentPageId;
   const layoutId = state.ui.editor.currentLayoutId;
   const applicationId = state.ui.applications.currentApplication?.id;
+
   if (!pageId || !layoutId || !applicationId) return undefined;
+
   return { pageId, layoutId, applicationId };
 };
 
@@ -159,6 +166,7 @@ export const getPluginIdToImageLocation = createSelector(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugins.reduce((acc: any, p: Plugin) => {
       acc[p.id] = p.iconLocation;
+
       return acc;
     }, {}),
 );
@@ -185,6 +193,7 @@ export const getWidgetByName = (
   widgetName: string,
 ): FlattenedWidgetProps | undefined => {
   const widgets = state.entities.canvasWidgets;
+
   return _.find(
     Object.values(widgets),
     (widget) => widget.widgetName === widgetName,
@@ -204,7 +213,9 @@ export const getPluginIdOfPackageName = (
 ): string | undefined => {
   const plugins = state.entities.plugins.list;
   const plugin = plugins.find((plugin) => plugin.packageName === name);
+
   if (plugin) return plugin.id;
+
   return undefined;
 };
 
@@ -214,9 +225,12 @@ export const getDragDetails = (state: AppState) => {
 
 export const getIsNewWidgetBeingDragged = (state: AppState) => {
   const { isDragging } = state.ui.widgetDragResize;
+
   if (!isDragging) return false;
+
   const dragDetails: DragDetails = getDragDetails(state);
   const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
+
   return !!newWidget && !dragParent;
 };
 
@@ -233,13 +247,17 @@ export const getSelectedWidget = (
   state: AppState,
 ): FlattenedWidgetProps | undefined => {
   const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
+
   if (!selectedWidgetId) return;
+
   return state.entities.canvasWidgets[selectedWidgetId];
 };
 
 export const getFocusedWidget = (state: AppState) => {
   const focusedWidgetId = state.ui.widgetDragResize.focusedWidget;
+
   if (!focusedWidgetId) return;
+
   return state.entities.canvasWidgets[focusedWidgetId];
 };
 
@@ -247,18 +265,23 @@ export const getWidgetImmediateChildren = createSelector(
   getWidget,
   (widget: WidgetProps) => {
     const childrenIds: string[] = [];
+
     if (widget === undefined) {
       return [];
     }
+
     const { children = [] } = widget;
+
     if (children && children.length) {
       for (const childIndex in children) {
         if (children.hasOwnProperty(childIndex)) {
           const child = children[childIndex];
+
           childrenIds.push(child);
         }
       }
     }
+
     return childrenIds;
   },
 );
@@ -266,6 +289,7 @@ export const getWidgetImmediateChildren = createSelector(
 export const getPluginIdToPlugin = createSelector(getPlugins, (plugins) =>
   plugins.reduce((acc: Record<string, Plugin>, p: Plugin) => {
     acc[p.id] = p;
+
     return acc;
   }, {}),
 );

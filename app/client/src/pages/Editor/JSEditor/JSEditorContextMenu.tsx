@@ -38,6 +38,7 @@ export function JSEditorContextMenu({
   if (options.length === 0) {
     return null;
   }
+
   return (
     <Menu
       className={className}
@@ -74,6 +75,7 @@ export function JSEditorContextMenu({
               </MenuSub>
             );
           }
+
           return (
             <MenuItem
               className={option?.className}

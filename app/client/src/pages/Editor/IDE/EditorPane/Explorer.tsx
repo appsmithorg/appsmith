@@ -24,6 +24,7 @@ import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();
   const ideViewMode = useSelector(getIDEViewMode);
+
   return (
     <Flex
       borderRight={

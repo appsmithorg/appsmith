@@ -47,12 +47,14 @@ export const migrateWidgetsWithoutLeftRightColumns = (
         currentDSL.parentId || MAIN_CONTAINER_WIDGET_ID,
         omit(canvasWidgets, [currentDSL.widgetId]),
       );
+
       canvasWidgets[currentDSL.widgetId].repositioned = true;
       const leftColumn = 0;
       // TODO(abhinav): Figure out a way to get the correct values from the widgets
       const rightColumn = 4;
       const bottomRow = nextRow + (currentDSL.bottomRow - currentDSL.topRow);
       const topRow = nextRow;
+
       currentDSL = {
         ...currentDSL,
         topRow,
@@ -67,11 +69,13 @@ export const migrateWidgetsWithoutLeftRightColumns = (
       // });
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((dsl: DSLWidget) =>
       migrateWidgetsWithoutLeftRightColumns(dsl, canvasWidgets),
     );
   }
+
   return currentDSL;
 };
 
@@ -93,22 +97,28 @@ export const migrateOverFlowingTabsWidgets = (
           return eachTab.children.some((child: DSLWidget) => {
             if (canvasWidgets[child.widgetId].repositioned) {
               const tabHeight = child.bottomRow * child.parentRowSpace;
+
               return tabsWidgetHeight < tabHeight;
             }
+
             return false;
           });
         }
+
         return false;
       },
     );
+
     if (widgetHasOverflowingChildren) {
       currentDSL.shouldScrollContents = true;
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((eachChild: DSLWidget) =>
       migrateOverFlowingTabsWidgets(eachChild, canvasWidgets),
     );
   }
+
   return currentDSL;
 };

@@ -55,17 +55,21 @@ describe("SyntaxErrorsEvaluation", () => {
 
   it("returns zero errors when errors field is undefined", () => {
     const props = JSON.parse(JSON.stringify(defaultProps));
+
     props.errors = undefined;
 
     const syntaxErrors = syntaxErrorsFromProps(props);
+
     expect(syntaxErrors.length).toEqual(0);
   });
 
   it("returns zero errors when errors field is null", () => {
     const props = JSON.parse(JSON.stringify(defaultProps));
+
     props.errors = null;
 
     const syntaxErrors = syntaxErrorsFromProps(props);
+
     expect(syntaxErrors.length).toEqual(0);
   });
 
@@ -82,8 +86,10 @@ describe("SyntaxErrorsEvaluation", () => {
         name: "ErrorName",
         message: "ErrorMessage",
       };
+
       props.errors = [widgetError];
       const syntaxErrors = syntaxErrorsFromProps(props);
+
       expect(syntaxErrors.length).toEqual(1);
       expect(syntaxErrors[0].name).toEqual("ErrorName");
     });
@@ -98,8 +104,10 @@ describe("SyntaxErrorsEvaluation", () => {
         name: "ErrorName",
         message: "ErrorMessage",
       };
+
       props.errors = [widgetError];
       const syntaxErrors = syntaxErrorsFromProps(props);
+
       expect(syntaxErrors.length).toEqual(1);
       expect(syntaxErrors[0].name).toEqual("ErrorName");
     });
@@ -114,8 +122,10 @@ describe("SyntaxErrorsEvaluation", () => {
         name: "ErrorName",
         message: "ErrorMessage",
       };
+
       props.errors = [widgetError];
       const syntaxErrors = syntaxErrorsFromProps(props);
+
       expect(syntaxErrors.length).toEqual(1);
       expect(syntaxErrors[0].name).toEqual("ErrorName");
     });
@@ -124,6 +134,7 @@ describe("SyntaxErrorsEvaluation", () => {
   describe("when errors are present in data fields", () => {
     describe("When chart type is Custom Fusion Charts", () => {
       const customFusionChartProps = JSON.parse(JSON.stringify(defaultProps));
+
       customFusionChartProps.chartType = "CUSTOM_FUSION_CHART";
 
       it("returns errors when errors are present in customFusionCharts", () => {
@@ -137,9 +148,11 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(1);
         expect(syntaxErrors[0].name).toEqual("ErrorName");
       });
@@ -154,9 +167,11 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(0);
       });
 
@@ -170,15 +185,18 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(0);
       });
     });
 
     describe("When chart type is basic ECharts", () => {
       const basicEChartsProps = JSON.parse(JSON.stringify(defaultProps));
+
       basicEChartsProps.chartType = "LINE_CHART";
 
       it("returns errors when errors are present in chart data field", () => {
@@ -191,9 +209,11 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(1);
         expect(syntaxErrors[0].name).toEqual("ErrorName");
       });
@@ -208,9 +228,11 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(0);
       });
 
@@ -224,14 +246,17 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(0);
       });
 
       describe("when chart type is PIE CHART", () => {
         const pieChartProps = JSON.parse(JSON.stringify(basicEChartsProps));
+
         pieChartProps.chartType = "PIE_CHART";
 
         it("returns error if there is syntax error in first series data", () => {
@@ -244,9 +269,11 @@ describe("SyntaxErrorsEvaluation", () => {
             name: "ErrorName",
             message: "ErrorMessage",
           };
+
           props.errors = [widgetError];
 
           const syntaxErrors = syntaxErrorsFromProps(props);
+
           expect(syntaxErrors.length).toEqual(1);
           expect(syntaxErrors[0].name).toEqual("ErrorName");
         });
@@ -261,9 +288,11 @@ describe("SyntaxErrorsEvaluation", () => {
             name: "ErrorName",
             message: "ErrorMessage",
           };
+
           props.errors = [widgetError];
 
           const syntaxErrors = syntaxErrorsFromProps(props);
+
           expect(syntaxErrors.length).toEqual(0);
         });
       });
@@ -271,6 +300,7 @@ describe("SyntaxErrorsEvaluation", () => {
 
     describe("When chart type is custom ECharts", () => {
       const customEChartsProps = JSON.parse(JSON.stringify(defaultProps));
+
       customEChartsProps.chartType = "CUSTOM_ECHART";
 
       it("returns errors when errors are present in custom Echart config field", () => {
@@ -283,9 +313,11 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(1);
         expect(syntaxErrors[0].name).toEqual("ErrorName");
       });
@@ -300,9 +332,11 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(0);
       });
 
@@ -316,9 +350,11 @@ describe("SyntaxErrorsEvaluation", () => {
           name: "ErrorName",
           message: "ErrorMessage",
         };
+
         props.errors = [widgetError];
 
         const syntaxErrors = syntaxErrorsFromProps(props);
+
         expect(syntaxErrors.length).toEqual(0);
       });
     });

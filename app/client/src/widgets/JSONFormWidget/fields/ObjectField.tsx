@@ -81,6 +81,7 @@ function ObjectField({
 
   const objectPassedDefaultValue = useMemo(() => {
     let defaultValue: Record<string, unknown> = {};
+
     if (passedDefaultValue && typeof passedDefaultValue === "object") {
       defaultValue = passedDefaultValue as Record<string, unknown>;
     }
@@ -164,6 +165,7 @@ function ObjectField({
 }
 
 const MemoedObjectField: FieldComponent = React.memo(ObjectField);
+
 MemoedObjectField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
 export default MemoedObjectField;

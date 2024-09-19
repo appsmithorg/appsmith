@@ -22,6 +22,7 @@ export interface PaginationProps {
 
 export const Pagination = (props: PaginationProps) => {
   if (!props.columns.length) return null;
+
   if (!props.isVisiblePagination) return null;
 
   return (
@@ -36,6 +37,7 @@ export const Pagination = (props: PaginationProps) => {
         onPress={() => {
           const pageNo =
             props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
+
           !(props.currentPageIndex === 0) &&
             props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
         }}
@@ -64,6 +66,7 @@ export const Pagination = (props: PaginationProps) => {
             props.currentPageIndex < props.pageCount - 1
               ? props.currentPageIndex + 1
               : 0;
+
           !(props.currentPageIndex === props.pageCount - 1) &&
             props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
         }}

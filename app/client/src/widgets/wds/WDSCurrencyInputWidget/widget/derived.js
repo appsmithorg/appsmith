@@ -2,6 +2,7 @@
 export default {
   isValid: (props, moment, _) => {
     let hasValidValue, value, isEmpty;
+
     try {
       isEmpty = _.isNil(props.rawText) || props.rawText === "";
       value = isEmpty ? null : Number(props.rawText);
@@ -13,6 +14,7 @@ export default {
     if (!props.isRequired && isEmpty) {
       return true;
     }
+
     if (props.isRequired && !hasValidValue) {
       return false;
     }
@@ -22,6 +24,7 @@ export default {
     }
 
     let parsedRegex = null;
+
     if (props.regex) {
       /*
        * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
@@ -45,6 +48,7 @@ export default {
         }
       }
     }
+
     if (parsedRegex) {
       return parsedRegex.test(props.rawText);
     } else {

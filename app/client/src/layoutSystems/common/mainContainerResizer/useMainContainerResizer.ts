@@ -14,5 +14,6 @@ export const useMainContainerResizer = () => {
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const isPreviewMode = useSelector(previewModeSelector);
   const canShowResizer = isAnvilLayout ? isPreviewMode : true;
+
   return { enableMainContainerResizer, canShowResizer };
 };

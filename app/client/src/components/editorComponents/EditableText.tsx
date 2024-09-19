@@ -194,6 +194,7 @@ export function EditableText(props: EditableTextProps) {
     (_value: string) => {
       onBlur && onBlur();
       const _isInvalid = isInvalid ? isInvalid(_value) : false;
+
       if (!_isInvalid) {
         onTextChanged(_value);
         setIsEditing(false);
@@ -209,11 +210,14 @@ export function EditableText(props: EditableTextProps) {
   const onInputchange = useCallback(
     (_value: string) => {
       let finalVal: string = _value;
+
       if (valueTransform) {
         finalVal = valueTransform(_value);
       }
+
       setValue(finalVal);
       const errorMessage = isInvalid && isInvalid(finalVal);
+
       if (errorMessage) {
         setError(true);
         setErrorMessage(errorMessage);

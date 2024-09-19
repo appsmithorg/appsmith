@@ -43,4 +43,5 @@ function DeleteControl(props: DeleteControlProps) {
     </StyledDeleteIcon>
   ) : null;
 }
+
 export default DeleteControl;

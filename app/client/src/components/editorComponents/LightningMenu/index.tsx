@@ -31,6 +31,7 @@ const lightningMenuOptions = (
     skin,
     updateDynamicInputValue,
   );
+
   return {
     sections: [
       {

@@ -71,6 +71,7 @@ function* updateZonesCountOfSectionSaga(
             sectionWidgetId,
             zoneCount - currentZoneCount,
           );
+
           updatedWidgets = updatedObj.updatedWidgets;
         }
 
@@ -114,6 +115,7 @@ function* updateZonesCountOfSectionSaga(
 
         // Update each child widget's flexGrow property based on the redistributed space
         const childrenToUpdate = updatedWidgets[sectionWidgetId].children || [];
+
         childrenToUpdate.forEach((each) => {
           updatedWidgets[each] = {
             ...updatedWidgets[each],

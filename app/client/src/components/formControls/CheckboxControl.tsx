@@ -44,6 +44,7 @@ function renderComponent(props: renderComponentProps) {
     />
   );
 }
+
 export interface CheckboxControlProps extends ControlProps {
   info?: string;
 }

@@ -9,6 +9,7 @@ export function syntaxErrorsFromProps(props: ChartWidgetProps): WidgetError[] {
   }
 
   const errors: WidgetError[] = [];
+
   for (const error of props.errors) {
     if (nonDataError(error)) {
       errors.push(error);
@@ -34,6 +35,7 @@ export function syntaxErrorsFromProps(props: ChartWidgetProps): WidgetError[] {
       }
     }
   }
+
   return errors;
 }
 
@@ -54,6 +56,7 @@ const pieChartFirstSeriesError = (
   error: WidgetError,
 ) => {
   const firstSeriesKey = Object.keys(props.chartData)[0];
+
   return error.path?.startsWith(`chartData.${firstSeriesKey}`);
 };
 

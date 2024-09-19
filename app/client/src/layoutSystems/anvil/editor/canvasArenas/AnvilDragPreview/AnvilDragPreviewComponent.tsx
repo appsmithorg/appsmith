@@ -75,6 +75,7 @@ export const AnvilDragPreviewComponent = ({
         e.clientY < 0 ||
         e.clientY > window.innerHeight ||
         e.clientX > window.innerWidth;
+
       if (isDragging && dragPreviewRef.current && !isOutOfWindow) {
         if (initiatePositionStylesOfDragPreview.current) {
           dragPreviewRef.current.style.zIndex =
@@ -85,6 +86,7 @@ export const AnvilDragPreviewComponent = ({
           dragPreviewRef.current.style.visibility = "hidden";
           dragPreviewRef.current.style.display = "block";
         }
+
         dragPreviewRef.current.style.left = `${
           e.clientX - dragPreviewRef.current.clientWidth / 2
         }px`;
@@ -93,6 +95,7 @@ export const AnvilDragPreviewComponent = ({
           dragPreviewRef.current.clientHeight -
           BufferDistanceBetweenPreviewAndCursor
         }px`;
+
         if (initiatePositionStylesOfDragPreview.current) {
           dragPreviewRef.current.style.visibility = "visible";
           initiatePositionStylesOfDragPreview.current = false;
@@ -101,6 +104,7 @@ export const AnvilDragPreviewComponent = ({
     },
     [isDragging],
   );
+
   useEffect(() => {
     if (isDragging) {
       initiatePositionStylesOfDragPreview.current = true;
@@ -108,12 +112,14 @@ export const AnvilDragPreviewComponent = ({
     } else {
       initiatePositionStylesOfDragPreview.current = false;
     }
+
     return () => {
       if (isDragging) {
         document?.removeEventListener("mousemove", repositionDragPreview);
       }
     };
   }, [isDragging]);
+
   return (
     <StyledWidgetCardPreviewWrapper ref={dragPreviewRef}>
       {draggedWidgetCount > 1 && (

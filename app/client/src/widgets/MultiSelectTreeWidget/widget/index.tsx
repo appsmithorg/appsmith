@@ -38,19 +38,23 @@ import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
+
   if (typeof value === "string") {
     try {
       values = JSON.parse(value);
+
       if (!Array.isArray(values)) {
         throw new Error();
       }
     } catch {
       values = value.length ? value.split(",") : [];
+
       if (values.length > 0) {
         values = values.map((_v: string) => _v.trim());
       }
     }
   }
+
   if (Array.isArray(value)) {
     values = Array.from(new Set(value));
   }
@@ -60,6 +64,7 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
     parsed: values,
   };
 }
+
 class MultiSelectTreeWidget extends BaseWidget<
   MultiSelectTreeWidgetProps,
   WidgetState
@@ -751,6 +756,7 @@ class MultiSelectTreeWidget extends BaseWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+
     this.props.updateWidgetMetaProperty("selectedOptionValueArr", value);
     this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
       triggerPropertyName: "onOptionChange",
@@ -759,6 +765,7 @@ class MultiSelectTreeWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }

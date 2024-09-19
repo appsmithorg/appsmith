@@ -36,9 +36,12 @@ class IndicatorHelper {
   ) {
     if (!primaryReference) {
       this.destroy();
+
       return;
     }
+
     const coordinates = await getCoordinates(primaryReference);
+
     if (coordinates.hidden) {
       this.indicatorWrapper.style.display = "none";
     } else {
@@ -49,6 +52,7 @@ class IndicatorHelper {
     // correct position
     if (coordinates.width === 0) {
       this.destroy();
+
       return;
     }
 
@@ -101,8 +105,10 @@ class IndicatorHelper {
     },
   ) {
     if (this.timerId || this.indicatorWrapper) this.destroy();
+
     if (!primaryReference) {
       this.destroy();
+
       return;
     }
 
@@ -122,6 +128,7 @@ class IndicatorHelper {
     if (offset.zIndex) {
       this.indicatorWrapper.style.zIndex = `${offset.zIndex}`;
     }
+
     // This is to invoke at the start and then recalculate every 3 seconds
     // 3 seconds is an arbitrary value here to avoid calling getBoundingClientRect to many times
     this.calculate(primaryReference, position, offset);
@@ -146,6 +153,7 @@ async function isBehindOtherElement(element: Element) {
       resolve(entry.intersectionRatio !== 1);
       o.disconnect();
     });
+
     o.observe(element);
   });
 }
@@ -189,6 +197,7 @@ export function highlightSection(
     );
   } else {
     primaryReference = document.querySelector(`.${selector}`);
+
     if (widthSelector) {
       widthReference = document.querySelector(`.${widthSelector}`);
     }
@@ -200,6 +209,7 @@ export function highlightSection(
   // or dimension changes
   async function updatePosition(element: Element) {
     const coordinates = await getCoordinates(element);
+
     highlightBorder.style.left = coordinates.left - positionOffset + "px";
     highlightBorder.style.left = coordinates.left - positionOffset + "px";
     highlightBorder.style.top = coordinates.top - positionOffset + "px";
@@ -210,6 +220,7 @@ export function highlightSection(
   }
 
   const highlightBorder = document.createElement("div");
+
   highlightBorder.classList.add(GuidedTourClasses.GUIDED_TOUR_BORDER);
 
   const positionOffset = 5;

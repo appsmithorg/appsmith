@@ -18,12 +18,15 @@ export const migrateScrollTruncateProperties = (
       } else {
         child.overflow = OverflowTypes.NONE;
       }
+
       delete child.shouldScroll;
       delete child.shouldTruncate;
     } else if (child.children && child.children.length > 0) {
       child = migrateScrollTruncateProperties(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

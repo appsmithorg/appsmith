@@ -69,9 +69,11 @@ function GeneralSettings() {
       const isAppNameUpdated = applicationName !== application?.name;
 
       const payload: UpdateApplicationPayload = { currentApp: true };
+
       if (isAppNameUpdated && isAppNameValid) {
         payload.name = applicationName;
       }
+
       icon ? (payload.icon = icon) : null;
 
       (isAppNameUpdated || icon) &&

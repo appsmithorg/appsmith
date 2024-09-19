@@ -106,6 +106,7 @@ function TableDropdown(props: DropdownProps) {
       setSelectedOption(props.options[index]);
       onSelect && onSelect(props.options[index]);
     }
+
     setIsDropdownOpen(false);
   };
 

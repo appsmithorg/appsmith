@@ -112,6 +112,7 @@ function AvatarGroup(props: AvatarGroupProps) {
   } = props;
   const mainAvatars = avatars.slice(0, maxAvatars);
   const restAvatars = avatars.slice(maxAvatars);
+
   return (
     <StyledAvatarGroup className={clsx(AvatarGroupClassName, className)}>
       {mainAvatars.map((avatar: AvatarGroupAvatarProps, index: number) => {

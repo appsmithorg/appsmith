@@ -44,6 +44,7 @@ export const renderEmptyRows = (
           ...style,
         },
       };
+
       return (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection &&
@@ -67,6 +68,7 @@ export const renderEmptyRows = (
                     : MULTISELECT_CHECKBOX_WIDTH +
                       columns[cellIndex].columnProperties.width;
               }
+
               return (
                 <div
                   {...cellProps}

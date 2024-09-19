@@ -9,6 +9,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 export const AnvilDetachedWidgets = () => {
   const detachedChildren = useDetachedChildren();
   const renderMode = useSelector(getRenderMode);
+
   return (
     <>
       {detachedChildren.map((child) =>

@@ -58,6 +58,7 @@ export const fieldTypeUpdateHook = (
   const updatedSchema = {
     schema: klonaRegularWithTelemetry(schema, "helper.fieldTypeUpdateHook"),
   };
+
   set(updatedSchema, schemaItemPath, schemaItemWithAutoFillState);
 
   return [{ propertyPath: "schema", propertyValue: updatedSchema.schema }];
@@ -217,6 +218,7 @@ export const isFieldTypeArrayOrObject = (
   propertyPath: string,
 ) => {
   const schemaItem: SchemaItem = get(props, propertyPath, {});
+
   return (
     schemaItem.fieldType === FieldType.ARRAY ||
     schemaItem.fieldType === FieldType.OBJECT

@@ -49,6 +49,7 @@ describe("Fetch dynamic values", () => {
       },
     },
   };
+
   it("extract dynamic configs from form evaluation output", () => {
     const testOutput = {
       identifier1: {
@@ -92,6 +93,7 @@ describe("Fetch dynamic values", () => {
         },
       },
     };
+
     expect(extractFetchDynamicValueFormConfigs(testInput)).toEqual(testOutput);
   });
 
@@ -119,6 +121,7 @@ describe("Fetch dynamic values", () => {
         },
       },
     };
+
     expect(extractQueueOfValuesToBeFetched(testInput)).toEqual(testOutput);
   });
 });

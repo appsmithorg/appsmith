@@ -44,6 +44,7 @@ function FieldRenderer({
       firstRender.current = false;
     } else {
       const values = getValues();
+
       updateFormData(values);
     }
   }, [isVisible]);
