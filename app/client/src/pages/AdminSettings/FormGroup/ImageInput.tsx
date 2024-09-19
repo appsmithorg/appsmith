@@ -45,6 +45,7 @@ export const ImageInput = (props: ImageInputProps) => {
     validate &&
       validate(e, () => {
         const reader = new FileReader();
+
         reader.readAsDataURL(file);
 
         reader.onloadend = function () {
@@ -99,6 +100,7 @@ function FieldImageInput() {
     return <ImageInput value={componentProps.input.value} />;
   };
 }
+
 export function ImageInputComponent({ setting }: SettingComponentProps) {
   return (
     <FormGroup setting={setting}>

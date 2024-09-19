@@ -71,6 +71,7 @@ export function MainContainerResizer({
   const appLayout = useSelector(getCurrentApplicationLayout);
   const ref = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
+
   useEffect(() => {
     const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
 
@@ -104,6 +105,7 @@ export function MainContainerResizer({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mouseDownHandler = function (e: any) {
           if (!ele || e.buttons !== 1) return;
+
           maxWidth =
             wrapperElement.offsetWidth - AUTOLAYOUT_RESIZER_WIDTH_BUFFER;
           // Get the current mouse position
@@ -111,12 +113,14 @@ export function MainContainerResizer({
 
           // Calculate the dimension of element
           const styles = window.getComputedStyle(ele);
+
           dispatch(setAutoCanvasResizing(true));
           w = parseInt(styles.width, 10);
           // h = parseInt(styles.height, 10);
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const mouseMove = (e: any) => mouseMoveHandler(e);
+
           events.push(mouseMove);
           // Attach the listeners to `document`
           document.addEventListener("mousemove", mouseMove);
@@ -127,17 +131,21 @@ export function MainContainerResizer({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mouseMoveHandler = function (e: any) {
           if (!ele) return;
+
           // How far the mouse has been moved
           // const multiplier = rightHandle ? 2 : -2;
           const multiplier = 2;
           const dx = (e.clientX - x) * multiplier;
+
           if (maxWidth >= w + dx && smallestWidth <= w + dx) {
             // Adjust the dimension of element
             ele.style.width = `${w + dx}px`;
           }
+
           if (maxWidth < w + dx) {
             ele.style.width = fullWidthCSS;
           }
+
           if (smallestWidth > w + dx) {
             ele.style.width = `${smallestWidth}px`;
           }
@@ -159,6 +167,7 @@ export function MainContainerResizer({
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const rightMove = (e: any) => mouseDownHandler(e);
+
         rightResizer && rightResizer.addEventListener("mousedown", rightMove);
 
         return () => {
@@ -176,6 +185,7 @@ export function MainContainerResizer({
     enableMainCanvasResizer,
     isPageInitiated,
   ]);
+
   return enableMainCanvasResizer ? (
     <AutoLayoutCanvasResizer
       className="resizer-right"

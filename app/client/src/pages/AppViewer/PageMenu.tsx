@@ -71,6 +71,7 @@ export function PageMenu(props: NavigationProps) {
 
   // Mark default page as first page
   const appPages = pages;
+
   if (appPages.length > 1) {
     appPages.forEach((item, i) => {
       if (item.isDefault) {

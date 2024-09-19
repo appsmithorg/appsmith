@@ -47,6 +47,7 @@ function* setWidgetsLoadingSaga(action: ReduxAction<unknown>) {
     // dependent entities have been re-evaluated
     yield take(ReduxActionTypes.SET_EVALUATED_TREE);
   }
+
   const actions: ActionDataState = yield select(getActions);
   const isLoadingActions: string[] = actions
     .filter((action: ActionData) => action.isLoading)
@@ -68,6 +69,7 @@ function* setWidgetsLoadingSaga(action: ReduxAction<unknown>) {
       dataTree,
       inverseMap,
     );
+
     yield put({
       type: ReduxActionTypes.SET_LOADING_ENTITIES,
       payload: loadingEntities,
@@ -86,12 +88,14 @@ function* actionExecutionChangeListenerSaga() {
     const action: ReduxAction<unknown> = yield take(
       ACTION_EXECUTION_REDUX_ACTIONS,
     );
+
     yield fork(setWidgetsLoadingSaga, action);
   }
 }
 
 export default function* actionExecutionChangeListeners() {
   yield take(ReduxActionTypes.START_EVALUATION);
+
   while (true) {
     try {
       yield call(actionExecutionChangeListenerSaga);

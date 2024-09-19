@@ -53,6 +53,7 @@ const SearchBox = (props: SearchBoxProps) => {
       if (location) {
         const lat = location.lat();
         const long = location.lng();
+
         updateCenter(lat, long);
       }
     });

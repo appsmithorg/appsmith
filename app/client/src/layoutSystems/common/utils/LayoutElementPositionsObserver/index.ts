@@ -66,8 +66,10 @@ class LayoutElementPositionObserver {
         // Check if it exists as a className
         // If it does, then use that as the identifier
         let DOMIdentifier = entry?.target?.id;
+
         if (!DOMIdentifier) {
           const classList: DOMTokenList = entry?.target?.classList;
+
           if (classList && classList.length > 0) {
             for (let i = 0; i < classList.length; i++) {
               if (classList[i].indexOf(ANVIL_WIDGET) > -1) {
@@ -77,6 +79,7 @@ class LayoutElementPositionObserver {
             }
           }
         }
+
         if (DOMIdentifier) this.trackEntry(DOMIdentifier);
       }
     },
@@ -90,6 +93,7 @@ class LayoutElementPositionObserver {
           mutation.attributeName === "class"
         ) {
           const DOMId: string = (mutation?.target as HTMLElement)?.id;
+
           if (DOMId) {
             this.trackEntry(DOMId);
           }
@@ -108,6 +112,7 @@ class LayoutElementPositionObserver {
     if (ref.current) {
       if (!this.registeredWidgets.hasOwnProperty(widgetId)) {
         const widgetDOMId = getAnvilWidgetDOMId(widgetId);
+
         this.registeredWidgets[widgetDOMId] = {
           ref,
           id: widgetId,
@@ -124,6 +129,7 @@ class LayoutElementPositionObserver {
   //Method to de register widgets for resize observer changes
   public unObserveWidget(widgetDOMId: string) {
     const element = this.registeredWidgets[widgetDOMId]?.ref?.current;
+
     if (element) {
       this.resizeObserver.unobserve(element);
     }
@@ -147,6 +153,7 @@ class LayoutElementPositionObserver {
   ) {
     if (ref?.current) {
       const layoutDOMId = getAnvilLayoutDOMId(canvasId, layoutId);
+
       if (!this.registeredLayouts.hasOwnProperty(layoutDOMId)) {
         this.registeredLayouts[layoutId] = this.registeredLayouts[layoutDOMId] =
           {
@@ -157,6 +164,7 @@ class LayoutElementPositionObserver {
             isDropTarget,
             layoutType,
           };
+
         if (
           isDropTarget &&
           !this.dropTargetsDomIdsOrder.includes(layoutDOMId)
@@ -164,6 +172,7 @@ class LayoutElementPositionObserver {
           const parentIndex = this.dropTargetsDomIdsOrder.findIndex(
             (each) => each === parentDropTarget,
           );
+
           if (parentIndex === -1) {
             // main canvas drop target
             this.dropTargetsDomIdsOrder.push(layoutDOMId);
@@ -171,6 +180,7 @@ class LayoutElementPositionObserver {
             this.dropTargetsDomIdsOrder.splice(parentIndex, 0, layoutDOMId);
           }
         }
+
         this.resizeObserver.observe(ref.current);
         this.mutationObserver.observe(ref.current, this.mutationOptions);
       }
@@ -181,18 +191,23 @@ class LayoutElementPositionObserver {
   public unObserveLayout(layoutDOMId: string) {
     const layoutObj = this.registeredLayouts[layoutDOMId];
     const element = layoutObj?.ref?.current;
+
     if (element) {
       this.resizeObserver.unobserve(element);
     }
+
     const { isDropTarget } = layoutObj;
+
     if (isDropTarget) {
       const layoutIndex = this.dropTargetsDomIdsOrder.findIndex(
         (each) => each === layoutDOMId,
       );
+
       if (layoutIndex !== -1) {
         this.dropTargetsDomIdsOrder.splice(layoutIndex, 1);
       }
     }
+
     delete this.registeredLayouts[layoutDOMId];
     store.dispatch(
       deleteLayoutElementPositions([

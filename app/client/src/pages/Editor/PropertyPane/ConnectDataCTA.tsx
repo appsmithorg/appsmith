@@ -37,6 +37,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
 
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
+
     history.push(
       integrationEditorURL({
         basePageId,
@@ -52,6 +53,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
 
     // Event for datasource creation click
     const entryPoint = DatasourceCreateEntryPoints.PROPERTY_PANE_CONNECT_DATA;
+
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });

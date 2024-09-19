@@ -46,6 +46,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getTruncate = (element: any) => {
     const { isTruncated } = this.state;
+
     // add ELLIPSIS_HEIGHT and check content content is overflowing or not
     return (
       element.scrollHeight >
@@ -55,8 +56,10 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   componentDidMount = () => {
     const textRef = get(this.textRef, "current.textRef");
+
     if (textRef && this.props.overflow === OverflowTypes.TRUNCATE) {
       const isTruncated = this.getTruncate(textRef);
+
       this.setState({ isTruncated });
     }
   };
@@ -67,8 +70,10 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     if (!isEqual(prevProps, this.props)) {
       if (this.props.overflow === OverflowTypes.TRUNCATE) {
         const textRef = get(this.textRef, "current.textRef");
+
         if (textRef) {
           const isTruncated = this.getTruncate(textRef);
+
           this.setState({ isTruncated });
         }
       } else if (

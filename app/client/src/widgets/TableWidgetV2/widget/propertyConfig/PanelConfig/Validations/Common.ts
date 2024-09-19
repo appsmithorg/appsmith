@@ -41,6 +41,7 @@ export default [
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
+
       return showByColumnType(props, path, [ColumnTypes.DATE], true);
     },
   },
@@ -57,6 +58,7 @@ export default [
     validation: { type: ValidationTypes.TEXT },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
+
       return showByColumnType(props, path, [ColumnTypes.DATE], true);
     },
   },

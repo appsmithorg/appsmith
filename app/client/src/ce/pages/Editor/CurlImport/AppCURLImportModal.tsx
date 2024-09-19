@@ -25,6 +25,7 @@ const AppCURLImportModal = () => {
     contextType: ActionParentEntityType.PAGE,
     name: actionName,
   };
+
   return (
     <ModalControls>
       <CurlImportForm

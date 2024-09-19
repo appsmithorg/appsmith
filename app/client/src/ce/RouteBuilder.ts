@@ -68,6 +68,7 @@ export const integrationEditorURL = (
   props: URLBuilderParams & { selectedTab: string },
 ): string => {
   const suffixPath = props.suffix ? `/${props.suffix}` : "";
+
   return urlBuilder.build({
     ...props,
     suffix: `datasources/${props.selectedTab}${suffixPath}`,

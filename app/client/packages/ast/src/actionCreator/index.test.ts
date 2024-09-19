@@ -153,6 +153,7 @@ describe("getActionBlocks", () => {
       "Api1.run(() => setAlert('Success'), () => {});showModal('Modal1')",
       2,
     );
+
     expect(result).toEqual([
       "Api1.run(() => setAlert('Success'), () => {});",
       "showModal('Modal1');",
@@ -162,6 +163,7 @@ describe("getActionBlocks", () => {
   it("should return an array of action blocks", () => {
     const value = "Api1.run(() => {\n  (() => {});\n}, () => {}, {});";
     const result = getActionBlocks(value, 2);
+
     expect(result).toEqual([
       "Api1.run(() => {\n  (() => {});\n}, () => {}, {});",
     ]);
@@ -285,6 +287,7 @@ describe("getThenCatchBlocksFromQuery", () => {
   it("should return then/catch callbacks appropriately", () => {
     const value = "Api1.run().catch(() => { a() }).then(() => { b() });";
     const result = getThenCatchBlocksFromQuery(value, 2);
+
     expect(result).toEqual({
       then: `() => {\n  b();\n}`,
       catch: `() => {\n  a();\n}`,
@@ -362,13 +365,16 @@ describe("Tests AST methods around function arguments", function () {
   it("Sets argument at 0th index", function () {
     const code1 = 'showAlert("", "")';
     const modified1 = setTextArgumentAtPosition(code1, "Hello", 0, 2);
+
     expect(modified1).toEqual(`{{showAlert("Hello", "");}}`);
 
     const code2 = 'showAlert("", 2).then(() => "Hello")';
     const modified2 = setTextArgumentAtPosition(code2, "Hello", 0, 2);
+
     expect(modified2).toEqual(`{{showAlert("Hello", 2).then(() => "Hello");}}`);
 
     const arg1 = getEnumArgumentAtPosition(code2, 1, "", 2);
+
     expect(arg1).toBe("2");
   });
 });
@@ -407,10 +413,12 @@ describe("Test canTranslateToUI methoda", () => {
       expected: false,
     },
   ];
+
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (_, input, expected) => {
       const result = canTranslateToUI(input as string, 2);
+
       expect(result).toEqual(expected);
     },
   );

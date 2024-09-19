@@ -194,8 +194,10 @@ export function calculateNext(arr: number[], max: number) {
 
 export function calculatePrev(arr: number[], max: number) {
   let lastNum = arr[arr.length - 1];
+
   if (lastNum <= 0) lastNum = max;
   else lastNum--;
+
   return [...arr.slice(0, arr.length - 1), lastNum];
 }
 
@@ -204,8 +206,11 @@ export function getItem(
   index: number[],
 ): TreeDropdownOption | undefined {
   if (index.length === 0) return undefined;
+
   const firstIndex = index[0] ?? 0;
+
   if (index.length === 1) return arr[firstIndex];
+
   return getItem(arr[firstIndex]?.children ?? [], index.slice(1));
 }
 
@@ -215,9 +220,11 @@ export function setItem(
   item: TreeDropdownOption,
 ): TreeDropdownOption[] | undefined {
   if (index.length === 0) return undefined;
+
   const firstIndex = index[0] ?? 0;
 
   let subItem = { ...arr[firstIndex] };
+
   if (subItem.children && index.length > 1)
     subItem.children = setItem(subItem.children, index.slice(1), item);
   else subItem = item;
@@ -228,12 +235,15 @@ export function setItem(
 export function closeAllChildren(tree: TreeDropdownOption[]) {
   return tree.map((x) => {
     let data = x;
+
     if (x.isChildrenOpen)
       data = {
         ...x,
         isChildrenOpen: false,
       };
+
     if (x.children) data["children"] = closeAllChildren(x.children);
+
     return data;
   });
 }
@@ -241,10 +251,14 @@ export function closeAllChildren(tree: TreeDropdownOption[]) {
 export function deepOpenChildren(tree: TreeDropdownOption[], index: number[]) {
   return tree.map((x, i) => {
     if (i !== index[0]) return x;
+
     const data = x;
+
     data["isChildrenOpen"] = true;
+
     if (x?.children)
       data["children"] = deepOpenChildren(data?.children ?? [], index.slice(1));
+
     return x;
   });
 }
@@ -255,8 +269,11 @@ export function setSelfIndex(
 ): TreeDropdownOption[] {
   return tree.map((x, i) => {
     const ob: any = { ...x };
+
     ob.selfIndex = [...prevIndex, i];
+
     if (ob.children) ob.children = setSelfIndex(ob.children, ob.selfIndex);
+
     return ob;
   });
 }
@@ -270,6 +287,7 @@ function getSelectedOption(
     label: defaultText,
     value: "",
   };
+
   options.length > 0 &&
     options.forEach((option) => {
       // Find the selected option in the OptionsTree
@@ -279,11 +297,13 @@ function getSelectedOption(
         const childOption = find(option.children, {
           value: selectedValue,
         });
+
         if (childOption) {
           selectedOption = childOption;
         }
       }
     });
+
   return selectedOption;
 }
 
@@ -407,8 +427,10 @@ function TreeDropdown(props: TreeDropdownProps) {
         defaultText,
         optionTree,
       );
+
       setSelectedOption((prev) => {
         if (prev.value === defaultSelectedOption.value) return prev;
+
         return defaultSelectedOption;
       });
     }
@@ -431,8 +453,10 @@ function TreeDropdown(props: TreeDropdownProps) {
       option.onSelect(option, onSelect);
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
+
       onSelect(option, defaultVal, isUpdatedViaKeyboard);
     }
+
     setSelectedOption(option);
   };
 
@@ -440,6 +464,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     if (option.children)
       return (e: any) => {
         const itemIndex = option.selfIndex || [];
+
         if (option?.children) {
           setOptionTree((prev) => {
             if (option.isChildrenOpen)
@@ -453,15 +478,19 @@ function TreeDropdown(props: TreeDropdownProps) {
                   },
                 ) ?? prev
               );
+
             return deepOpenChildren(closeAllChildren(prev), itemIndex);
           });
           buttonRef.current?.focus();
           setSelectedOption(option.children[0]);
+
           if (option?.children[0]?.selfIndex)
             selectedOptionIndex.current = option.children[0].selfIndex;
         }
+
         e?.stopPropagation && e.stopPropagation();
       };
+
     return (e: any, isUpdatedViaKeyboard = false) => {
       handleSelect(option, isUpdatedViaKeyboard);
       setIsOpen(false);
@@ -482,13 +511,16 @@ function TreeDropdown(props: TreeDropdownProps) {
       case "Escape":
         if (isOpen) {
           emitKeyPressEvent(e.key);
+
           if (selectedOptionIndex.current.length > 1) {
             setOptionTree((prev) => {
               const prevIndex = selectedOptionIndex.current.slice(0, -1);
               const prevItem = getItem(prev, prevIndex);
+
               if (prevItem) {
                 selectedOptionIndex.current = prevIndex;
                 setSelectedOption(prevItem);
+
                 return (
                   setItem(prev, prevIndex, {
                     ...prevItem,
@@ -496,13 +528,16 @@ function TreeDropdown(props: TreeDropdownProps) {
                   }) ?? prev
                 );
               }
+
               return prev;
             });
           } else {
             setIsOpen(false);
           }
+
           e.nativeEvent.stopImmediatePropagation();
         }
+
         break;
       case " ":
       case "Enter":
@@ -510,6 +545,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         if (isOpen) {
           emitKeyPressEvent(e.key);
           const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
+
           if (selectedOpt?.children) {
             handleOptionClick(selectedOpt)(e, true);
           } else if (selectedOpt && e.key !== "ArrowRight") {
@@ -522,17 +558,21 @@ function TreeDropdown(props: TreeDropdownProps) {
           selectedOptionIndex.current = [findIndex(optionTree, selectedOption)];
           shouldOpen.current = true;
         }
+
         break;
       case "ArrowUp":
         emitKeyPressEvent(e.key);
         e.preventDefault();
+
         if (isOpen) {
           let currentLength = optionTree.length;
+
           if (selectedOptionIndex.current.length > 1) {
             currentLength =
               getItem(optionTree, selectedOptionIndex.current.slice(0, -1))
                 ?.children?.length ?? 0;
           }
+
           selectedOptionIndex.current = calculatePrev(
             selectedOptionIndex.current,
             currentLength - 1,
@@ -540,21 +580,26 @@ function TreeDropdown(props: TreeDropdownProps) {
           const nextItem =
             getItem(optionTree, selectedOptionIndex.current) ??
             getSelectedOption(selectedValue, defaultText, optionTree);
+
           setSelectedOption(nextItem);
         } else {
           setIsOpen(true);
         }
+
         break;
       case "ArrowDown":
         emitKeyPressEvent(e.key);
         e.preventDefault();
+
         if (isOpen) {
           let currentLength = optionTree.length;
+
           if (selectedOptionIndex.current.length > 1) {
             currentLength =
               getItem(optionTree, selectedOptionIndex.current.slice(0, -1))
                 ?.children?.length ?? 0;
           }
+
           selectedOptionIndex.current = calculateNext(
             selectedOptionIndex.current,
             currentLength - 1,
@@ -562,13 +607,16 @@ function TreeDropdown(props: TreeDropdownProps) {
           const nextItem =
             getItem(optionTree, selectedOptionIndex.current) ??
             getSelectedOption(selectedValue, defaultText, optionTree);
+
           setSelectedOption(nextItem);
         } else {
           setIsOpen(true);
         }
+
         break;
       case "Tab":
         emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+
         if (isOpen) {
           setIsOpen(false);
           // reset selected option
@@ -576,16 +624,20 @@ function TreeDropdown(props: TreeDropdownProps) {
             getSelectedOption(selectedValue, defaultText, optionTree),
           );
         }
+
         break;
       case "ArrowLeft":
         emitKeyPressEvent(e.key);
+
         if (selectedOptionIndex.current.length > 1) {
           setOptionTree((prev) => {
             const prevIndex = selectedOptionIndex.current.slice(0, -1);
             const prevItem = getItem(prev, prevIndex);
+
             if (prevItem) {
               selectedOptionIndex.current = prevIndex;
               setSelectedOption(prevItem);
+
               return (
                 setItem(prev, prevIndex, {
                   ...prevItem,
@@ -593,9 +645,11 @@ function TreeDropdown(props: TreeDropdownProps) {
                 }) ?? prev
               );
             }
+
             return prev;
           });
         }
+
         break;
     }
   };
@@ -635,6 +689,7 @@ function TreeDropdown(props: TreeDropdownProps) {
       />
     </DropdownTarget>
   );
+
   return (
     <Popover
       className="wrapper-popover"
@@ -652,7 +707,9 @@ function TreeDropdown(props: TreeDropdownProps) {
         onClick: (e: any) => {
           // e.detail will be 1 if the event is a mouse click
           if (e.detail === 1) shouldOpen.current = true;
+
           if (shouldOpen.current) setIsOpen(true);
+
           props.onMenuToggle && props.onMenuToggle(true);
           e.stopPropagation();
         },

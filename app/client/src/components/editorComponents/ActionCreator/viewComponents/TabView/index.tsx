@@ -22,6 +22,7 @@ export function TabView(props: TabViewProps) {
       selectedOption.action();
     }
   };
+
   return (
     <FieldWrapper className="tab-view">
       <ControlWrapper>

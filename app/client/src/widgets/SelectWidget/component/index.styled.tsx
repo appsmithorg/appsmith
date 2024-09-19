@@ -81,6 +81,7 @@ type StyledSingleDropDownProps = PropsWithChildren<{
 }>;
 
 const SingleDropDown = Select.ofType<DropdownOption>();
+
 export const StyledSingleDropDown = styled(
   SingleDropDown,
 )<StyledSingleDropDownProps>`

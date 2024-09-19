@@ -15,25 +15,31 @@ export const EVENTS = {
 // Function to create a communication channel to the parent
 export const createChannelToParent = () => {
   const onMessageMap = new Map();
+
   // Function to register an event handler for a message type
   function onMessage(type, fn) {
     let eventHandlerList = onMessageMap.get(type);
+
     if (eventHandlerList && eventHandlerList instanceof Array) {
       eventHandlerList.push(fn);
     } else {
       eventHandlerList = [fn];
       onMessageMap.set(type, eventHandlerList);
     }
+
     return () => {
       // Function to unsubscribe an event handler
       const index = eventHandlerList.indexOf(fn);
+
       eventHandlerList.splice(index, 1);
     };
   }
+
   // Listen for 'message' events and dispatch to registered event handlers
   window.addEventListener("message", (event) => {
     if (event.source === window.parent) {
       const handlerList = onMessageMap.get(event.data.type);
+
       if (handlerList) {
         handlerList.forEach((fn) => fn(event.data));
       }
@@ -55,6 +61,7 @@ export const createChannelToParent = () => {
         (async () => {
           while (postMessageQueue.length > 0) {
             const message = postMessageQueue.shift();
+
             await new Promise((resolve) => {
               const key = Math.random();
               const unlisten = onMessage(
@@ -74,6 +81,7 @@ export const createChannelToParent = () => {
               );
             });
           }
+
           isFlushScheduled = false;
         })();
       });
@@ -219,9 +227,11 @@ export function main() {
 
           uiSubscribers.push(fn);
           fn(window.appsmith.ui);
+
           return () => {
             // Unsubscribe from UI changes
             const index = uiSubscribers.indexOf(fn);
+
             if (index > -1) {
               uiSubscribers.splice(index, 1);
             }
@@ -234,9 +244,11 @@ export function main() {
 
           modelSubscribers.push(fn);
           fn(window.appsmith.model);
+
           return () => {
             // Unsubscribe from model changes
             const index = modelSubscribers.indexOf(fn);
+
             if (index > -1) {
               modelSubscribers.splice(index, 1);
             }
@@ -298,6 +310,7 @@ export function main() {
  */
 export const generateAppsmithCssVariables = (provider) => (source) => {
   let cssTokens = document.getElementById(`appsmith-${provider}-css-tokens`);
+
   if (!cssTokens) {
     cssTokens = document.createElement("style");
     cssTokens.id = `appsmith-${provider}-css-tokens`;
@@ -314,5 +327,6 @@ export const generateAppsmithCssVariables = (provider) => (source) => {
       return acc;
     }
   }, "");
+
   cssTokens.innerHTML = `:root {${cssTokensContent}}`;
 };

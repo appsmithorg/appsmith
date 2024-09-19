@@ -42,6 +42,7 @@ export function* pasteWidgetsIntoMainCanvas(
           reverseMap,
           parent.widgetId,
         );
+
         widgets = res.widgets;
         map = res.map;
         reverseMap = res.reverseMap;
@@ -75,5 +76,6 @@ export function* pasteWidgetsIntoMainCanvas(
       false,
     );
   }
+
   return { widgets, widgetIdMap: map, reverseWidgetIdMap: reverseMap };
 }

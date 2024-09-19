@@ -31,6 +31,7 @@ function shouldSetState(
   ) {
     return false;
   }
+
   if (
     state &&
     state.invokedBy &&
@@ -57,6 +58,7 @@ function shouldSetState(
   ) {
     return false;
   }
+
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(
@@ -70,12 +72,14 @@ function shouldSetState(
 const isPageChange = (prevPath: string, currentPath: string) => {
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currentPath);
+
   if (
     prevFocusEntityInfo.params.basePageId === "" ||
     currFocusEntityInfo.params.basePageId === ""
   ) {
     return false;
   }
+
   return (
     prevFocusEntityInfo.params.basePageId !==
     currFocusEntityInfo.params.basePageId
@@ -104,6 +108,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     if (!shouldSetState(previousPath, currentPath, state)) {
       return [];
     }
+
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
     const prevEntityInfo = identifyEntityFromPath(previousPath);
@@ -127,6 +132,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       entityInfo: currentEntityInfo,
       key: `${currentPath}#${branch}`,
     });
+
     return entities;
   },
   *getEntitiesForStore(path: string, currentPath: string) {
@@ -138,11 +144,13 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // If the entity has a parent defined, store the state of the parent as well.
     if (prevFocusEntityInfo.entity in FocusStoreHierarchy) {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
+
       if (parentEntity && parentEntity !== currentFocusEntityInfo.entity) {
         const parentPath = AppIDEFocusStrategy.getEntityParentUrl(
           prevFocusEntityInfo,
           parentEntity,
         );
+
         entities.push({
           entityInfo: {
             entity: parentEntity,
@@ -192,26 +200,31 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     parentEntity: FocusEntity,
   ): string => {
     let parentUrl: string = "";
+
     if (parentEntity === FocusEntity.WIDGET_LIST) {
       parentUrl = widgetListURL({
         basePageId: entityInfo.params.basePageId,
       });
     }
+
     if (parentEntity === FocusEntity.DATASOURCE_LIST) {
       parentUrl = datasourcesEditorURL({
         basePageId: entityInfo.params.basePageId,
       });
     }
+
     if (parentEntity === FocusEntity.JS_OBJECT_LIST) {
       parentUrl = jsCollectionListURL({
         basePageId: entityInfo.params.basePageId,
       });
     }
+
     if (parentEntity === FocusEntity.QUERY_LIST) {
       parentUrl = queryListURL({
         basePageId: entityInfo.params.basePageId,
       });
     }
+
     // We do not have to add any query params because this url is used as the key
     return parentUrl.split("?")[0];
   },

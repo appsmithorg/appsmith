@@ -50,6 +50,7 @@ type GeneratorType = Generator<ValueType, void, unknown>;
 
 describe("pasteBuildingBlockWidgetsSaga", () => {
   const copiedWidgetsResponse = { widgets: copiedWidgets, flexLayers };
+
   it("1. should handle pasting into a valid parent widget", () => {
     const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       gridPosition,
@@ -59,6 +60,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
 
     // Step 1: call getCopiedWidgets()
     let result = generator.next();
+
     expect(result.value).toEqual(getCopiedWidgets());
 
     // Step 2: select getWidgets
@@ -67,6 +69,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
 
     // Step 3: select getIsAutoLayoutMobileBreakPoint
     const initialCanvasWidgets = {}; // Mock initial canvas widgets
+
     result = generator.next(initialCanvasWidgets);
     expect(result.value).toEqual(select(getIsAutoLayoutMobileBreakPoint));
 
@@ -154,6 +157,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
     generator.next();
     // Introduce an error by throwing one manually
     const error = new Error("Something went wrong");
+
     try {
       generator.throw(error);
     } catch (err) {

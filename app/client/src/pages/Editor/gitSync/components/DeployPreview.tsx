@@ -44,6 +44,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
     const path = viewerURL({
       basePageId,
     });
+
     window.open(path, "_blank");
   };
 
@@ -55,6 +56,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         },
       )} ago`
     : "";
+
   return lastDeployedAt ? (
     <Container className="t--git-deploy-preview">
       <div>

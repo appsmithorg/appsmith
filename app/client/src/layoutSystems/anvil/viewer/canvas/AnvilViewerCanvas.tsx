@@ -17,6 +17,7 @@ const appMaxWidthToCSSValue = (maxWidth: AppMaxWidth): string => {
       return "800px";
     default: {
       const exhaustiveCheck: never = maxWidth;
+
       throw new Error(`Unhandled maxWidth: ${exhaustiveCheck}`);
     }
   }

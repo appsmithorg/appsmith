@@ -93,6 +93,7 @@ const CheckboxCellComponent = (props: CheckboxCellProps) => {
       widgetId={""}
     />
   );
+
   return (
     <CheckboxCellWrapper
       cellBackground={cellBackground}

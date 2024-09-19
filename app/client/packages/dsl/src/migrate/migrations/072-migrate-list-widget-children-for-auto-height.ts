@@ -7,6 +7,7 @@ export function migrateListWidgetChildrenForAutoHeight(
   if (!currentDSL) return currentDSL;
 
   let isCurrentListWidget = false;
+
   if (currentDSL.type === "LIST_WIDGET") isCurrentListWidget = true;
 
   //Iterate and recursively call each children
@@ -18,6 +19,7 @@ export function migrateListWidgetChildrenForAutoHeight(
   );
 
   let newDSL;
+
   // Add dynamicHeight to FIXED for each of it's children
   if (isChildOfListWidget && !currentDSL.detachFromLayout) {
     newDSL = {

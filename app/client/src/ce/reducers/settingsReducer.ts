@@ -54,11 +54,13 @@ export const handlers = {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configs: any = {};
+
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
         configs[key] = action.payload?.tenantConfiguration?.[key];
       }
     });
+
     return {
       ...state,
       isLoading: false,
@@ -79,11 +81,13 @@ export const handlers = {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configs: any = {};
+
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
         configs[key] = action.payload?.tenantConfiguration?.[key];
       }
     });
+
     return {
       ...state,
       isLoading: false,

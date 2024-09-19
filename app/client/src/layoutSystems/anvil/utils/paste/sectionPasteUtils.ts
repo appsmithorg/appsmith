@@ -87,6 +87,7 @@ export function* pasteWidgetsInSection(
           reverseMap,
           parent.widgetId,
         );
+
         widgets = res.widgets;
         map = res.map;
         reverseMap = res.reverseMap;
@@ -103,7 +104,9 @@ export function* pasteWidgetsInSection(
   while (count < (targetLayout.maxChildLimit ?? 0)) {
     if (areZones) {
       const zone = children.shift();
+
       if (!zone) break;
+
       widgets = yield call(
         handleWidgetMovement,
         widgets,
@@ -169,8 +172,10 @@ export function* pasteWidgetsInSection(
       map,
       reverseMap,
     );
+
     return res;
   }
+
   return { widgets, widgetIdMap: map, reverseWidgetIdMap: reverseMap };
 }
 
@@ -179,6 +184,7 @@ export function splitWidgets(
 ): CopiedWidgetData[][] {
   const zones: CopiedWidgetData[] = [];
   const nonZones: CopiedWidgetData[] = [];
+
   copiedWidgets.forEach((data: CopiedWidgetData) => {
     if (data.list[0].type === anvilWidgets.ZONE_WIDGET) {
       zones.push(data);
@@ -186,5 +192,6 @@ export function splitWidgets(
       nonZones.push(data);
     }
   });
+
   return [zones, nonZones];
 }

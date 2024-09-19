@@ -26,6 +26,7 @@ export const to = (url: string) => {
       .replace(/([a-z])?:\/\//, "$1")
       .split("/"),
   ).join("/");
+
   return `/${path}`;
 };
 

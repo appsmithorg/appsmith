@@ -24,6 +24,7 @@ const StyledContainerComponent = styled.div<
 
 export function ContainerComponent(props: ContainerComponentProps) {
   useAnvilWidgetElevationSetter(props.widgetId, props.elevatedBackground);
+
   return (
     <StyledContainerComponent
       className={`${generateClassName(props.widgetId)}`}

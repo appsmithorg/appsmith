@@ -67,16 +67,19 @@ export function getQueryStringfromObject(
 ): string {
   const paramKeys = Object.keys(params);
   const queryParams: string[] = [];
+
   if (paramKeys) {
     paramKeys.forEach((paramKey: string) => {
       if (!isNil(params[paramKey])) {
         const value = encodeURIComponent(params[paramKey]);
+
         if (paramKey && value) {
           queryParams.push(`${paramKey}=${value}`);
         }
       }
     });
   }
+
   return queryParams.length ? "?" + queryParams.join("&") : "";
 }
 
@@ -85,6 +88,7 @@ const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   // not persisting the entire query currently, since that's the current behavior
   const { branch, embed } = existingParams;
   let params;
+
   if (persistExistingParams) {
     params = { ...existingParams };
   } else {
@@ -92,12 +96,14 @@ const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params = { branch, embed } as any;
   }
+
   // test param to make sure a query param is present in the URL during dev and tests
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((window as any).Cypress) {
     params = { a: "b", ...params };
   }
+
   return params;
 };
 
@@ -133,7 +139,9 @@ export class URLBuilder {
 
   static getInstance() {
     if (URLBuilder._instance) return URLBuilder._instance;
+
     URLBuilder._instance = new URLBuilder();
+
     return URLBuilder._instance;
   }
 
@@ -146,7 +154,9 @@ export class URLBuilder {
       applicationVersion < ApplicationVersion.SLUG_URL
     )
       return URL_TYPE.DEFAULT;
+
     if (customSlug) return URL_TYPE.CUSTOM_SLUG;
+
     return URL_TYPE.SLUG;
   }
 
@@ -156,6 +166,7 @@ export class URLBuilder {
       baseApplicationId: this.appParams.baseApplicationId,
     };
     let currentPageParams = this.pageParams[basePageId] || {};
+
     currentPageParams = {
       ...currentPageParams,
       pageSlug: `${currentPageParams.pageSlug || PLACEHOLDER_PAGE_SLUG}-`,
@@ -184,14 +195,17 @@ export class URLBuilder {
       this.appParams.applicationVersion =
         appParams.applicationVersion || this.appParams.applicationVersion;
     }
+
     if (pageParams) {
       const params = pageParams.reduce(
         (acc, page) => {
           acc[page.basePageId] = page;
+
           return acc;
         },
         {} as Record<string, PageURLParams>,
       );
+
       Object.assign(this.pageParams, params);
     }
   }
@@ -233,6 +247,7 @@ export class URLBuilder {
   getCustomSlugPathPreview(basePageId: string, customSlug: string) {
     const urlPattern =
       baseURLRegistry[URL_TYPE.CUSTOM_SLUG][APP_MODE.PUBLISHED];
+
     return generatePath(urlPattern, {
       basePageId,
       customSlug: `${customSlug}-`,
@@ -308,6 +323,7 @@ export class URLBuilder {
     const suffixPath = suffix ? `/${suffix}` : "";
 
     const hashPath = hash ? `#${hash}` : "";
+
     // hash fragment should be at the end of the href
     // ref: https://www.rfc-editor.org/rfc/rfc3986#section-4.1
     return `${basePath}${suffixPath}${queryString}${hashPath}`;

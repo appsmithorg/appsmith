@@ -131,6 +131,7 @@ const QueryResponseTab = (props: Props) => {
         source: "QUERY_PANE",
       });
     }
+
     dispatch(
       setActionResponseDisplayFormat({
         id: currentActionConfig?.id || "",
@@ -182,6 +183,7 @@ const QueryResponseTab = (props: Props) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       output = actionResponse.body as any;
     }
+
     if (actionResponse.messages && actionResponse.messages.length) {
       //reset error.
       error = "";

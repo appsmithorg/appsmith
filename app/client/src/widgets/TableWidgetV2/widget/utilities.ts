@@ -128,6 +128,7 @@ export const getSelectRowIndices = (
 //TODO(Balaji): we shouldn't replace special characters
 export const removeSpecialChars = (value: string, limit?: number) => {
   const separatorRegex = /\W+/;
+
   return value
     .split(separatorRegex)
     .join("_")
@@ -253,6 +254,7 @@ export const getPropertyValue = (
   if (value && isObject(value) && !Array.isArray(value)) {
     return value;
   }
+
   if (value && Array.isArray(value) && value[index]) {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -275,9 +277,11 @@ export const getBooleanPropertyValue = (value: unknown, index: number) => {
   if (isBoolean(value)) {
     return value;
   }
+
   if (Array.isArray(value) && isBoolean(value[index])) {
     return value[index];
   }
+
   return !!value;
 };
 
@@ -522,6 +526,7 @@ export const getCellProperties = (
       notation: getPropertyValue(columnProperties.notation, rowIndex, true),
     } as CellLayoutProperties;
   }
+
   return {} as CellLayoutProperties;
 };
 
@@ -545,6 +550,7 @@ export function isColumnTypeEditable(columnType: string) {
  */
 export function getSelectColumnTypeOptions(value: unknown) {
   const result = SelectColumnOptionsValidations(value, {}, _);
+
   return result.parsed;
 }
 
@@ -609,6 +615,7 @@ export const reorderColumns = (
   columnOrder: string[],
 ) => {
   const newColumnsInOrder: Record<string, ColumnProperties> = {};
+
   uniq(columnOrder).forEach((id: string, index: number) => {
     if (columns[id]) newColumnsInOrder[id] = { ...columns[id], index };
   });
@@ -617,11 +624,13 @@ export const reorderColumns = (
     ...Object.keys(newColumnsInOrder),
   );
   const len = Object.keys(newColumnsInOrder).length;
+
   if (remaining && remaining.length > 0) {
     remaining.forEach((id: string, index: number) => {
       newColumnsInOrder[id] = { ...columns[id], index: len + index };
     });
   }
+
   return newColumnsInOrder;
 };
 
@@ -703,7 +712,9 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
   const rightColumnIndex = columnOrder
     .map((column) => props.primaryColumns[column])
     .filter((col) => col.sticky !== StickyType.RIGHT).length;
+
   columnOrder.splice(rightColumnIndex, 0, column.id);
+
   return [
     {
       propertyPath: `primaryColumns.${column.id}`,
@@ -731,9 +742,11 @@ export const getColumnType = (
   if (!_.isArray(tableData) || tableData.length === 0 || !columnKey) {
     return ColumnTypes.TEXT;
   }
+
   let columnValue: unknown = null,
     row = 0;
   const maxRowsToCheck = 5;
+
   /*
     In below while loop we are trying to get a non-null value from
     subsequent rows in case first few rows are null
@@ -744,6 +757,7 @@ export const getColumnType = (
       columnValue = tableData[row][columnKey];
       break;
     }
+
     row++;
   }
 
@@ -775,9 +789,11 @@ export const generateLocalNewColumnOrderFromStickyValue = (
   rightOrder?: string[],
 ) => {
   let newColumnOrder = [...columnOrder];
+
   newColumnOrder = without(newColumnOrder, columnName);
 
   let columnIndex = -1;
+
   if (sticky === StickyType.LEFT && leftOrder) {
     columnIndex = leftOrder.length;
   } else if (sticky === StickyType.RIGHT && rightOrder) {
@@ -795,7 +811,9 @@ export const generateLocalNewColumnOrderFromStickyValue = (
           : columnOrder.length - 1;
     }
   }
+
   newColumnOrder.splice(columnIndex, 0, columnName);
+
   return newColumnOrder;
 };
 /**
@@ -808,9 +826,11 @@ export const generateNewColumnOrderFromStickyValue = (
   sticky?: string,
 ) => {
   let newColumnOrder = [...columnOrder];
+
   newColumnOrder = without(newColumnOrder, columnName);
 
   let columnIndex;
+
   if (sticky === StickyType.LEFT) {
     columnIndex = columnOrder
       .map((column) => primaryColumns[column])
@@ -845,7 +865,9 @@ export const generateNewColumnOrderFromStickyValue = (
         .filter((column) => column.sticky !== StickyType.RIGHT).length;
     }
   }
+
   newColumnOrder.splice(columnIndex, 0, columnName);
+
   return newColumnOrder;
 };
 
@@ -873,8 +895,10 @@ export const getSourceDataAndCaluclateKeysForEventAutoComplete = (
 export const deleteLocalTableColumnOrderByWidgetId = (widgetId: string) => {
   try {
     const localData = localStorage.getItem(TABLE_COLUMN_ORDER_KEY);
+
     if (localData) {
       const localColumnOrder = JSON.parse(localData);
+
       delete localColumnOrder[widgetId];
       localStorage.setItem(
         TABLE_COLUMN_ORDER_KEY,
@@ -894,11 +918,13 @@ export const updateAndSyncTableLocalColumnOrders = (
 ) => {
   if (sticky === StickyType.LEFT) {
     leftOrder.push(columnName);
+
     if (rightOrder) {
       rightOrder = without(rightOrder, columnName);
     }
   } else if (sticky === StickyType.RIGHT) {
     rightOrder.unshift(columnName);
+
     // When column is frozen to right from left. Remove the column name from leftOrder
     if (leftOrder) {
       leftOrder = without(leftOrder, columnName);
@@ -908,6 +934,7 @@ export const updateAndSyncTableLocalColumnOrders = (
     leftOrder = without(leftOrder, columnName);
     rightOrder = without(rightOrder, columnName);
   }
+
   return { leftOrder, rightOrder };
 };
 
@@ -915,6 +942,7 @@ export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
   const localTableWidgetColumnOrder = localStorage.getItem(
     TABLE_COLUMN_ORDER_KEY,
   );
+
   if (localTableWidgetColumnOrder) {
     try {
       const parsedTableWidgetColumnOrder = JSON.parse(
@@ -924,6 +952,7 @@ export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
       if (parsedTableWidgetColumnOrder[widgetId]) {
         const { columnOrder, columnUpdatedAt, leftOrder, rightOrder } =
           parsedTableWidgetColumnOrder[widgetId];
+
         return {
           columnOrder,
           columnUpdatedAt,
@@ -972,9 +1001,11 @@ export const getIndexByColumnName = (
   columnOrder?: string[],
 ) => {
   let currentIndex = -1;
+
   if (columnOrder) {
     currentIndex = columnOrder.indexOf(columnName);
   }
+
   return currentIndex;
 };
 
@@ -1015,12 +1046,14 @@ export const getDragHandlers = (
         targetIndex,
       );
     }
+
     e.stopPropagation();
     e.preventDefault();
   };
 
   const onDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     const targetElem = e.target as HTMLDivElement;
+
     targetElem.className = targetElem.className.replace(
       " draggable-header--dragging",
       "",
@@ -1065,20 +1098,24 @@ export const getDragHandlers = (
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     currentDraggedColumn.current = columns[index].alias;
     const targetElem = e.target as HTMLDivElement;
+
     targetElem.className = targetElem.className + " draggable-header--dragging";
     e.stopPropagation();
   };
 
   const onDrop = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     const targetElem = e.target as HTMLDivElement;
+
     if (currentDraggedColumn.current) {
       const partialColumnOrder = without(
         columnOrder,
         currentDraggedColumn.current,
       );
+
       partialColumnOrder.splice(index, 0, currentDraggedColumn.current);
       handleReorderColumn(partialColumnOrder);
     }
+
     targetElem.className = targetElem.className.replace(
       " draggable-header--dragging",
       "",

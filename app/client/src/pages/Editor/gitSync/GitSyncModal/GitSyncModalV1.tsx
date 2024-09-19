@@ -92,6 +92,7 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
           source: `${activeTabKey}_TAB`,
         });
       }
+
       dispatch(
         setIsGitSyncModalOpen({
           isOpen: isModalOpen,
@@ -117,6 +118,7 @@ function GitSyncModalV1(props: { isImport?: boolean }) {
   }, [isGitConnected]);
 
   let menuOptions = allMenuOptions;
+
   if (props.isImport) {
     menuOptions = [
       {

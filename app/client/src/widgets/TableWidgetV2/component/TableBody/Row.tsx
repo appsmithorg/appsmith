@@ -66,6 +66,7 @@ export function Row(props: RowType) {
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
+
         cellProperties["style"] = {
           ...cellProperties.style,
           left:
@@ -73,6 +74,7 @@ export function Row(props: RowType) {
               ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
               : cellProperties?.style?.left,
         };
+
         return (
           <div
             {...cellProperties}

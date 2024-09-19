@@ -137,6 +137,7 @@ export function isHandleResizeAllowed(
   ) {
     return horizontalEnabled;
   }
+
   return true;
 }
 

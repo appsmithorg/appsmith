@@ -55,6 +55,7 @@ export const config: AdminConfigType = {
       label: "SMTP port",
       validate: (value: string) => {
         const port = parseInt(value);
+
         if (value && (port < 0 || port > 65535)) {
           return "Please enter a valid port";
         }

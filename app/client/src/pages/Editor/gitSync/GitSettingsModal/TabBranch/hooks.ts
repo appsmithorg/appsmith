@@ -9,9 +9,13 @@ export const useAppsmithEnterpriseLink = (feature: string) => {
   const source = getUserSource();
   const constructedUrl = useMemo(() => {
     const url = new URL(ENTERPRISE_PRICING_PAGE);
+
     if (source) url.searchParams.append("source", source);
+
     if (instanceId) url.searchParams.append("instance", instanceId);
+
     if (feature) url.searchParams.append("feature", feature);
+
     return url.href;
   }, [source, instanceId, feature]);
 

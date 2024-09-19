@@ -157,6 +157,7 @@ const mapStateToProps = (
   ownProps: FormTemplateControlProps,
 ): ReduxStateProps => {
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
+
   return { formValues };
 };
 

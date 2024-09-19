@@ -168,6 +168,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   getVisibleItems = () => {
     const { configureMenuItems, menuItems, menuItemsSource, sourceData } =
       this.props;
+
     if (menuItemsSource === MenuItemsSource.STATIC) {
       const visibleItems = Object.keys(menuItems)
         .map((itemKey) => menuItems[itemKey])

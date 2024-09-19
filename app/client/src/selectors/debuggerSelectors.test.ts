@@ -67,6 +67,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -156,6 +157,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -269,6 +271,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -382,6 +385,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -521,6 +525,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -610,6 +615,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -705,6 +711,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -827,6 +834,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 
@@ -916,6 +924,7 @@ describe("getFilteredErrors", () => {
       TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
       TestData.dataTree as unknown as DataTree,
     );
+
     expect(result).toStrictEqual(TestData.expectedResult);
   });
 });

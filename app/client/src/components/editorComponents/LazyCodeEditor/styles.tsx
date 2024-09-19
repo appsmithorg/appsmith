@@ -25,6 +25,7 @@ export const HighlighedCodeContainer = styled("div")<{
       if (props.isReadOnly) {
         return "padding-left: 35px !important";
       }
+
       if (props.showLineNumbers) {
         return "padding-left: 47px !important";
       }

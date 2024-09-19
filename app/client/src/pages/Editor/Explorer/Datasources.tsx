@@ -75,6 +75,7 @@ const Datasources = React.memo((props: DatasourcesProps) => {
           isFeatureEnabled,
           datasourcePermissions,
         );
+
         return (
           <ExplorerDatasourceEntity
             canManageDatasource={canManageDatasource}

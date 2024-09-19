@@ -15,14 +15,17 @@ export const singleChartDataMigration = (currentDSL: DSLWidget) => {
             data: child.singleChartData || [],
           };
         }
+
         //TODO: other possibilities?
         child.chartData = JSON.stringify([...child.singleChartData]);
         delete child.singleChartData;
       }
     }
+
     if (child.children && child.children.length > 0) {
       child = singleChartDataMigration(child);
     }
+
     return child;
   });
 

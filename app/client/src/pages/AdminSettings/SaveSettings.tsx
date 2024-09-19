@@ -88,4 +88,5 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
     </SettingsButtonWrapper>
   );
 };
+
 export default saveAdminSettings;

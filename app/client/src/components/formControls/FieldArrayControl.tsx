@@ -89,6 +89,7 @@ function NestedComponents(props: any) {
                     ...(props.customStyles ?? {}),
                   },
                 };
+
                 return (
                   <FormControl
                     config={sch}
@@ -136,6 +137,7 @@ export default function FieldArrayControl(props: FieldArrayControlProps) {
     formName,
     schema,
   } = props;
+
   return (
     <FieldArray
       component={NestedComponents}

@@ -29,6 +29,7 @@ function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
     if (!ignoredEntities.includes(entityInfo.entity)) {
       yield put(setFocusableInputField(key));
     }
+
     yield put(setCodeEditorCursorAction(key, cursorPosition));
   }
 }

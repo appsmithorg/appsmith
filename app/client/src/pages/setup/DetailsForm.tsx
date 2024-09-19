@@ -90,6 +90,7 @@ export default function DetailsForm(
     const setTelemetryVisibleFalse = async () => {
       await setFirstTimeUserOnboardingTelemetryCalloutVisibility(false);
     };
+
     setTelemetryVisibleFalse();
   }, []);
 

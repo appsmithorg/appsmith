@@ -30,6 +30,7 @@ class LintService {
   dependencyMap: DependencyMap = new DependencyMap();
   constructor() {
     this.cachedEntityTree = null;
+
     if (isEmpty(this.cachedEntityTree)) {
       this.dependencyMap = new DependencyMap();
       this.dependencyMap.addNodes(
@@ -55,14 +56,18 @@ class LintService {
 
     const jsEntities = entityTree.getEntities().filter(isJSEntity);
     const jsPropertiesState: TJSPropertiesState = {};
+
     for (const jsEntity of jsEntities) {
       const rawEntity = jsEntity.getRawEntity();
       const config = jsEntity.getConfig();
+
       if (!jsEntity.entityParser) continue;
+
       const { parsedEntityConfig } = jsEntity.entityParser.parse(
         rawEntity,
         config,
       );
+
       jsPropertiesState[jsEntity.getName()] = parsedEntityConfig as Record<
         string,
         TJSpropertyState
@@ -74,6 +79,7 @@ class LintService {
       lintedJSPaths: [],
       jsPropertiesState,
     };
+
     try {
       const { errors: lintErrors, lintedJSPaths } = getLintErrorsFromTree({
         pathsToLint,
@@ -88,6 +94,7 @@ class LintService {
       lintTreeResponse.errors = lintErrors;
       lintTreeResponse.lintedJSPaths = lintedJSPaths;
     } catch (e) {}
+
     return lintTreeResponse;
   };
 
@@ -95,18 +102,22 @@ class LintService {
     const pathsToLint: Array<string> = [];
     const allNodes: Record<string, true> = entityTree.getAllPaths();
     const asyncJSFunctionsInDataFields: Record<string, string[]> = {};
+
     this.dependencyMap.addNodes(allNodes);
 
     const entities = entityTree.getEntities();
 
     for (const entity of entities) {
       const dynamicPaths = PathUtils.getDynamicPaths(entity);
+
       for (const path of dynamicPaths) {
         const references = extractReferencesFromPath(entity, path, allNodes);
+
         this.dependencyMap.addDependency(path, references);
         pathsToLint.push(path);
       }
     }
+
     const asyncEntityActions = AppsmithFunctionsWithFields.concat(
       getAllEntityActions(entityTree),
     );
@@ -127,11 +138,14 @@ class LintService {
         nodesThatDependOnAsyncFn,
         entityTree,
       );
+
       if (isEmpty(dataPathsThatDependOnAsyncFn)) continue;
+
       asyncJSFunctionsInDataFields[asyncFn] = dataPathsThatDependOnAsyncFn;
     }
 
     this.cachedEntityTree = entityTree;
+
     return {
       pathsToLint,
       asyncJSFunctionsInDataFields,
@@ -147,6 +161,7 @@ class LintService {
     };
     const entityTreeDiff =
       this.cachedEntityTree?.computeDifferences(entityTree);
+
     if (!entityTreeDiff) return NOOP;
 
     const { additions, deletions, edits } =
@@ -165,11 +180,16 @@ class LintService {
 
     for (const edit of edits) {
       const pathString = convertPathToString(edit?.path || []);
+
       if (!pathString) continue;
+
       const { entityName } = getEntityNameAndPropertyPath(pathString);
       const entity = entityTree.getEntityByName(entityName);
+
       if (!entity) continue;
+
       const dynamicPaths = PathUtils.getDynamicPaths(entity);
+
       if (!dynamicPaths.includes(pathString)) {
         if (!dynamicPaths.some((p) => pathString.startsWith(p))) continue;
       }
@@ -181,6 +201,7 @@ class LintService {
         pathString,
         allNodes,
       );
+
       this.dependencyMap.addDependency(pathString, references);
       pathsToLint.push(pathString);
 
@@ -193,24 +214,35 @@ class LintService {
 
     for (const addition of additions) {
       const pathString = convertPathToString(addition?.path || []);
+
       if (!pathString) continue;
+
       const { entityName } = getEntityNameAndPropertyPath(pathString);
+
       if (!entityName) continue;
+
       const entity = entityTree.getEntityByName(entityName);
+
       if (!entity) continue;
+
       const allAddedPaths = PathUtils.getAllPaths({
         [pathString]: get(entityTree.getRawTree(), pathString),
       });
+
       this.dependencyMap.addNodes(allAddedPaths);
+
       for (const path of Object.keys(allAddedPaths)) {
         const previousDependencies =
           this.dependencyMap.getDirectDependencies(path);
         const references = extractReferencesFromPath(entity, path, allNodes);
+
         if (PathUtils.isDynamicLeaf(entity, path)) {
           this.dependencyMap.addDependency(path, references);
           pathsToLint.push(path);
         }
+
         const incomingDeps = this.dependencyMap.getDependents(path);
+
         pathsToLint.push(...incomingDeps);
 
         updatedPathsDetails[path] = {
@@ -220,12 +252,18 @@ class LintService {
         };
       }
     }
+
     for (const deletion of deletions) {
       const pathString = convertPathToString(deletion?.path || []);
+
       if (!pathString) continue;
+
       const { entityName } = getEntityNameAndPropertyPath(pathString);
+
       if (!entityName) continue;
+
       const entity = this.cachedEntityTree?.getEntityByName(entityName); // Use previous tree in a DELETE EVENT
+
       if (!entity) continue;
 
       const allDeletedPaths = PathUtils.getAllPaths({
@@ -243,8 +281,10 @@ class LintService {
         };
 
         const incomingDeps = this.dependencyMap.getDependents(path);
+
         pathsToLint.push(...incomingDeps);
       }
+
       this.dependencyMap.removeNodes(allDeletedPaths);
     }
 
@@ -268,11 +308,14 @@ class LintService {
     for (const [updatedPath, details] of Object.entries(updatedPathsDetails)) {
       const { currentDependencies, previousDependencies, updateType } = details;
       const { entityName } = getEntityNameAndPropertyPath(updatedPath);
+
       if (!entityName) continue;
+
       // Use cached entityTree in a delete event
       const entityTreeToUse =
         updateType === "DELETE" ? this.cachedEntityTree : entityTree;
       const entity = entityTreeToUse?.getEntityByName(entityName);
+
       if (!entity) continue;
 
       if (isJSEntity(entity) && asyncFns.includes(updatedPath)) {
@@ -282,14 +325,17 @@ class LintService {
           nodesThatDependOnAsyncFn,
           entityTree,
         );
+
         if (!isEmpty(dataPathsThatDependOnAsyncFn)) {
           asyncJSFunctionsInDataFields[updatedPath] =
             dataPathsThatDependOnAsyncFn;
         }
+
         continue;
       }
 
       const isDataPath = PathUtils.isDataPath(updatedPath, entity);
+
       if (!isDataPath) continue;
 
       const asyncDeps = intersection(asyncFns, currentDependencies);
@@ -302,13 +348,17 @@ class LintService {
           nodesThatDependOnAsyncFn,
           entityTree,
         );
+
         if (isEmpty(dataPathsThatDependOnAsyncFn)) continue;
+
         asyncJSFunctionsInDataFields[asyncFn] = dataPathsThatDependOnAsyncFn;
       }
+
       pathsToLint.push(...asyncDeps, ...prevAsyncDeps);
     }
 
     this.cachedEntityTree = entityTree;
+
     return {
       pathsToLint: uniq(pathsToLint),
       entityTree,
@@ -328,16 +378,22 @@ function convertArrayToObject(arr: string[]) {
 
 function filterDataPaths(paths: string[], entityTree: EntityTree) {
   const dataPaths: string[] = [];
+
   for (const path of paths) {
     const { entityName } = getEntityNameAndPropertyPath(path);
     const entity = entityTree.getEntityByName(entityName);
+
     if (!entity || !PathUtils.isDataPath(path, entity)) continue;
+
     dataPaths.push(path);
   }
+
   return dataPaths;
 }
+
 function getAllEntityActions(entityTree: EntityTree) {
   const allEntityActions = new Set<string>();
+
   for (const [entityName, entity] of Object.entries(entityTree.getRawTree())) {
     for (const entityFnDescription of getEntityFunctions()) {
       if (entityFnDescription.qualifier(entity)) {
@@ -345,10 +401,12 @@ function getAllEntityActions(entityTree: EntityTree) {
           entityFnDescription.path ||
           `${entityName}.${entityFnDescription.name}`
         }`;
+
         allEntityActions.add(fullPath);
       }
     }
   }
+
   return [...allEntityActions];
 }
 

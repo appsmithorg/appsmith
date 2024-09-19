@@ -1463,6 +1463,7 @@ export function IconProvider(props: {
   const Icon = ICON_LOOKUP[iconName as keyof typeof ICON_LOOKUP]
     ? ICON_LOOKUP[iconName as keyof typeof ICON_LOOKUP]
     : null;
+
   if (!Icon) {
     console.error(
       iconName,
@@ -1471,5 +1472,6 @@ export function IconProvider(props: {
         "https://github.com/appsmithorg/appsmith/blob/release/app/client/packages/design-system/ads/src/Icon/Icon.provider.tsx#L1078",
     );
   }
+
   return Icon && <Icon color={color} size={size} />;
 }

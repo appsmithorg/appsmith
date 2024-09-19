@@ -28,6 +28,7 @@ export const generateDragStateForFixedLayout = (
       widgetWidth - 1,
     ),
   };
+
   return {
     isDragging: true,
     dragGroupActualParent: parentId || "",

@@ -21,6 +21,7 @@ export function RemoteBranchListItem({ branch, className, onClick }: any) {
   const { isSwitchingBranch, switchingToBranch } = useSelector(
     getBranchSwitchingDetails,
   );
+
   return (
     <BranchListItemContainer
       active={false}

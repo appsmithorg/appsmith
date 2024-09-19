@@ -19,6 +19,7 @@ interface Props {
 const ListButton = (props: Props) => {
   const { items, navigateToTab } = props;
   const [isOpen, setOpen] = useState(false);
+
   if (items.length === 0) {
     return null;
   }

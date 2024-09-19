@@ -66,6 +66,7 @@ const getFixedLayoutSystemCanvasPropsEnhancer = (props: BaseWidgetProps) => {
   };
   const { componentHeight, componentWidth } =
     getFixedLayoutComponentDimensions(enhancedProps);
+
   return {
     ...enhancedProps,
     componentHeight,

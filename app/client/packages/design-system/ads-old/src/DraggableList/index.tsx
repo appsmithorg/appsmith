@@ -148,8 +148,10 @@ export function DraggableList(props: any) {
       if (listRef && listRef.current && props?.distance > 0) {
         const containerCoordinates = listRef?.current.getBoundingClientRect();
         const container = listRef.current;
+
         if (containerCoordinates) {
           const containerDistanceFromTop = containerCoordinates.top;
+
           if (props.dragging) {
             if (pointerFromTop < containerDistanceFromTop + itemHeight / 2) {
               // Scroll inside container till first element in list is completely visible
@@ -170,6 +172,7 @@ export function DraggableList(props: any) {
                 container.scrollTop += itemHeight / 10;
               }
             }
+
             // finding distance of current pointer from the top of the container to find the final position
             // currIndex *  itemHeight for the initial position
             // subtraction formar with latter for displacement
@@ -208,6 +211,7 @@ export function DraggableList(props: any) {
               !items[curRow].isDragDisabled)
           ) {
             const newOrder = [...order.current];
+
             newOrder.splice(curRow, 0, newOrder.splice(curIndex, 1)[0]);
             setSprings(
               dragIdleSpringStyles(newOrder, {
@@ -221,6 +225,7 @@ export function DraggableList(props: any) {
                 itemHeight,
               }),
             );
+
             if (curRow !== curIndex) {
               // Feed springs new style data, they'll animate the view without causing a single render
               if (!props.down) {
@@ -248,6 +253,7 @@ export function DraggableList(props: any) {
       }
     }
   });
+
   return (
     <div
       className={className}

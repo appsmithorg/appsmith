@@ -35,6 +35,7 @@ export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const request: TMessage<any> = yield take(listenerChannel);
+
     yield spawn(handleEvalWorkerMessage, request);
   }
 }
@@ -45,6 +46,7 @@ export function* lintTreeActionHandler(message: any) {
   const { body } = message;
   const { data } = body;
   const { configTree, unevalTree } = data as LintTreeSagaRequestData;
+
   yield put({
     type: ReduxActionTypes.LINT_TREE,
     payload: {
@@ -59,6 +61,7 @@ export function* lintTreeActionHandler(message: any) {
 export function* processLogsHandler(message: any) {
   const { body } = message;
   const { data } = body;
+
   yield call(storeLogs, data);
 }
 
@@ -79,12 +82,14 @@ export function* processJSFunctionExecution(message: any) {
     JSExecutionData,
     JSExecutionErrors,
   );
+
   if (!isEmpty(sortedData)) {
     yield put({
       type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_DATA,
       payload: sortedData,
     });
   }
+
   if (!isEmpty(sortedErrors)) {
     yield put({
       type: ReduxActionTypes.SET_JS_FUNCTION_EXECUTION_ERRORS,
@@ -100,6 +105,7 @@ export function* processTriggerHandler(message: any) {
   const { data } = body;
   const { eventType, trigger, triggerMeta } = data;
   const { messageType } = message;
+
   log.debug({ trigger: data.trigger });
   const result: ResponsePayload = yield call(
     executeTriggerRequestSaga,
@@ -107,6 +113,7 @@ export function* processTriggerHandler(message: any) {
     eventType,
     triggerMeta,
   );
+
   if (messageType === MessageType.REQUEST)
     yield call(evalWorker.respond, message.messageId, result);
 }
@@ -116,6 +123,7 @@ export function* processTriggerHandler(message: any) {
 export function* handleEvalWorkerMessage(message: TMessage<any>) {
   const { body } = message;
   const { data, method } = body;
+
   switch (method) {
     case MAIN_THREAD_ACTION.LINT_TREE: {
       yield call(lintTreeActionHandler, message);
@@ -139,11 +147,13 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
       const batchedTriggers = data;
+
       yield all(
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         batchedTriggers.map((data: any) => {
           const { eventType, trigger, triggerMeta } = data;
+
           return call(
             executeTriggerRequestSaga,
             trigger,
@@ -158,6 +168,7 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       const { workerResponse } = data as UpdateDataTreeMessageData;
       const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
         yield select(getUnevaluatedDataTree);
+
       yield call(updateDataTreeHandler, {
         evalTreeResponse: workerResponse as EvalTreeResponseData,
         unevalTree: unEvalAndConfigTree.unEvalTree || {},

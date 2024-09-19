@@ -12,6 +12,7 @@ let locale = "en-US";
 
 jest.mock("utils/helpers", () => {
   const originalModule = jest.requireActual("utils/helpers");
+
   return {
     __esModule: true,
     ...originalModule,

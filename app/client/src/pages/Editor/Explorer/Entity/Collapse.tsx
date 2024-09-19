@@ -6,6 +6,7 @@ import { Collapse } from "@blueprintjs/core";
 const CollapsedContainer = styled.div<{ step: number; active?: boolean }>`
   overflow: hidden;
 `;
+
 export function EntityCollapse(props: {
   children: ReactNode;
   isOpen: boolean;
@@ -14,6 +15,7 @@ export function EntityCollapse(props: {
   collapseRef?: RefObject<HTMLDivElement> | null;
 }) {
   if (!props.children) return null;
+
   return (
     <Collapse isOpen={props.isOpen}>
       <CollapsedContainer
