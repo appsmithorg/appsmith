@@ -55,6 +55,7 @@ function* getAllTemplatesSaga() {
       TemplatesAPI.getAllTemplates,
     );
     const isValid: boolean = yield validateResponse(response);
+
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_ALL_TEMPLATES_SUCCESS,
@@ -81,6 +82,7 @@ function* importTemplateToWorkspaceSaga(
       action.payload.workspaceId,
     );
     const isValid: boolean = yield validateResponse(response);
+
     if (isValid) {
       const defaultPage = findDefaultPage(response.data.application.pages);
       const application: ApplicationPayload = {
@@ -88,6 +90,7 @@ function* importTemplateToWorkspaceSaga(
         defaultPageId: defaultPage?.id,
         defaultBasePageId: defaultPage?.baseId,
       };
+
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
         payload: response.data.application,
@@ -106,8 +109,10 @@ function* importTemplateToWorkspaceSaga(
         const pageURL = builderURL({
           basePageId: application.defaultBasePageId,
         });
+
         history.push(pageURL);
       }
+
       yield put(getAllTemplates());
     }
   } catch (error) {
@@ -127,6 +132,7 @@ function* getSimilarTemplatesSaga(action: ReduxAction<string>) {
       action.payload,
     );
     const isValid: boolean = yield validateResponse(response);
+
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_SIMILAR_TEMPLATES_SUCCESS,
@@ -164,6 +170,7 @@ function* getTemplateSaga(action: ReduxAction<string>) {
       action.payload,
     );
     const isValid: boolean = yield validateResponse(response);
+
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_TEMPLATE_SUCCESS,
@@ -232,6 +239,7 @@ function* forkTemplateToApplicationSaga(
     }: {
       isValid: boolean;
     } = yield call(apiCallForForkTemplateToApplicaion, action);
+
     if (isValid) {
       yield put(hideTemplatesModal());
       yield put(getAllTemplates());
@@ -275,6 +283,7 @@ function* apiCallForForkTemplateToApplicaion(
     workspaceId,
     pagesToImport,
   );
+
   // To fetch the new set of pages after merging the template into the existing application
   yield put(
     fetchApplication({
@@ -283,6 +292,7 @@ function* apiCallForForkTemplateToApplicaion(
     }),
   );
   const isValid: boolean = yield validateResponse(response);
+
   if (isValid) {
     yield call(postPageAdditionSaga, applicationId);
     const pages: { pageId: string; basePageId: string }[] =
@@ -306,6 +316,7 @@ function* apiCallForForkTemplateToApplicaion(
       type: ReduxActionTypes.UPDATE_PAGE_LIST,
       payload: pageDSLs,
     });
+
     if (response.data.isPartialImport) {
       yield put(
         showReconnectDatasourceModal({
@@ -316,6 +327,7 @@ function* apiCallForForkTemplateToApplicaion(
         }),
       );
     }
+
     history.push(
       builderURL({
         basePageId: pages[0].basePageId,
@@ -327,8 +339,10 @@ function* apiCallForForkTemplateToApplicaion(
       type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS,
       payload: response.data.application,
     });
+
     return { isValid, applicationId, templatePageIds, prevPageIds };
   }
+
   return { isValid };
 }
 
@@ -338,6 +352,7 @@ function* getTemplateFiltersSaga() {
       TemplatesAPI.getTemplateFilters,
     );
     const isValid: boolean = yield validateResponse(response);
+
     if (isValid) {
       yield put({
         type: ReduxActionTypes.GET_TEMPLATE_FILTERS_SUCCESS,
@@ -373,8 +388,10 @@ function* forkTemplateToApplicationViaOnboardingFlowSaga(
     );
 
     const isValid: boolean = yield validateResponse(response);
+
     if (isValid) {
       const application = response.data.application;
+
       urlBuilder.updateURLParams(
         {
           applicationSlug: application.slug,
@@ -398,6 +415,7 @@ function* forkTemplateToApplicationViaOnboardingFlowSaga(
       const importedTemplatePages = application.pages.filter(
         (page) => !page.isDefault,
       );
+
       yield put({
         type: ReduxActionTypes.SET_DEFAULT_APPLICATION_PAGE_INIT,
         payload: {

@@ -57,6 +57,7 @@ export function useEditAppCollabEvents(applicationId?: string) {
     isWebsocketConnected &&
       applicationId &&
       dispatch(collabStartEditingAppEvent(applicationId));
+
     return () => {
       dispatch(collabResetAppEditors());
       isWebsocketConnected &&
@@ -69,6 +70,7 @@ export function useEditAppCollabEvents(applicationId?: string) {
 function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
   const { applicationId } = props;
   const realtimeAppEditors = useSelector(getRealtimeAppEditors);
+
   useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (

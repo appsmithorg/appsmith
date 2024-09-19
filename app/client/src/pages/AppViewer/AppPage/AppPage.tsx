@@ -34,6 +34,7 @@ export function AppPage(props: AppPageProps) {
   }, [isAnvilLayout, canvasWidth]);
 
   const pageViewWrapperRef = useRef<HTMLDivElement>(null);
+
   useCanvasWidthAutoResize({ ref: pageViewWrapperRef });
 
   useEffect(() => {

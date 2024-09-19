@@ -44,6 +44,7 @@ describe("AlignedColumnHighlights tests", () => {
       ]);
       const highlightWidth: number =
         positions[layout.layoutId].width / res.length;
+
       expect(res.length).toEqual(3);
       // Each highlight should be of equal width.
       expect(res[0].width).toEqual(highlightWidth);

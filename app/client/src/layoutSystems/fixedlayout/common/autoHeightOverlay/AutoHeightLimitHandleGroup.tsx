@@ -74,13 +74,16 @@ const AutoHeightLimitHandle = ({
   const bind = useDrag((state) => {
     if (state.first) {
       onStart();
+
       return;
     }
 
     if (state.last) {
       onStop();
+
       return;
     }
+
     const [mx, my] = state.movement;
 
     onUpdate(mx, my);

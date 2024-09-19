@@ -22,6 +22,7 @@ const AddLibraryPopover = () => {
     },
     [open],
   );
+
   return (
     <Popover onOpenChange={onOpenChange} open={open}>
       <PopoverTrigger>

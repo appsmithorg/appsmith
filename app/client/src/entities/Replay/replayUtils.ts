@@ -59,6 +59,7 @@ export function getPathsFromDiff(diffs: Array<Diff<any, any>>) {
 
   for (const diff of diffs) {
     if (!diff.path || !Array.isArray(diff.path)) continue;
+
     paths.push(diff.path.join("."));
   }
 
@@ -73,11 +74,15 @@ export function getPathsFromDiff(diffs: Array<Diff<any, any>>) {
  */
 export function pathArrayToString(path?: string[]) {
   let stringPath = "";
+
   if (!path || path.length === 0) return stringPath;
+
   stringPath = path[0];
+
   for (let i = 1; i < path.length; i++) {
     stringPath += isNaN(parseInt(path[i])) ? `.${path[i]}` : `[${path[i]}]`;
   }
+
   return stringPath;
 }
 
@@ -93,7 +98,9 @@ export // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function findFieldInfo(config: Array<any>, field: string, parentSection = "") {
   let result = {};
+
   if (!config || !isArray(config)) return result;
+
   for (const conf of config) {
     if (conf.configProperty === field) {
       result = { conf, parentSection };
@@ -101,8 +108,10 @@ function findFieldInfo(config: Array<any>, field: string, parentSection = "") {
     } else if (conf.children) {
       parentSection = conf.sectionName || parentSection;
       result = findFieldInfo(conf.children, field, parentSection);
+
       if (!isEmpty(result)) break;
     }
   }
+
   return result;
 }

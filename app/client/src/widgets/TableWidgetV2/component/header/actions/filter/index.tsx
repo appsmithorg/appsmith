@@ -46,6 +46,7 @@ function TableFilters(props: TableFilterProps) {
 
   useEffect(() => {
     const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
+
     updateFilters(filters);
   }, [props.filters]);
 
@@ -105,5 +106,7 @@ function TableFilters(props: TableFilterProps) {
     </>
   );
 }
+
 const TableFiltersMemoised = React.memo(TableFilters);
+
 export default TableFiltersMemoised;

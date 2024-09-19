@@ -53,6 +53,7 @@ const renderEachConfig = (section: any, formName: string): any => {
     } else {
       try {
         const { configProperty } = formControlOrSection;
+
         return (
           <FormRow key={configProperty}>
             <FormControl config={formControlOrSection} formName={formName} />
@@ -62,6 +63,7 @@ const renderEachConfig = (section: any, formName: string): any => {
         log.error(e);
       }
     }
+
     return null;
   });
 };

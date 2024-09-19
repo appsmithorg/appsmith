@@ -48,9 +48,11 @@ type MenuState = "none" | "default" | "active" | "hover";
 export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
   const getMenuState = () => {
     let menuState: MenuState = "none";
+
     if (props.isOpened) {
       menuState = "active";
     }
+
     if (props.isFocused) {
       menuState = "default";
     }
@@ -69,6 +71,7 @@ export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
     };
   };
   const { background, iconProps } = getMenuState();
+
   return (
     <LightningIconWrapper
       background={background}

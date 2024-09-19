@@ -74,6 +74,7 @@ const getPlaceHolder = (categoryId: SEARCH_CATEGORY_ID) => {
     case SEARCH_CATEGORY_ID.ACTION_OPERATION:
       return CREATE_NEW_OMNIBAR_PLACEHOLDER;
   }
+
   return OMNIBAR_PLACEHOLDER;
 };
 
@@ -98,9 +99,11 @@ const useListenToChange = (modalOpen: boolean) => {
   useEffect(() => {
     setListenToChange(false);
     let timer: ReturnType<typeof setTimeout>;
+
     if (modalOpen) {
       timer = setTimeout(() => setListenToChange(true), 100);
     }
+
     return () => clearTimeout(timer);
   }, [modalOpen]);
 
@@ -115,6 +118,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
     (query) => {
       // to prevent key combo to open modal from triggering query update
       if (!listenToChange) return;
+
       setQuery(query);
       (document.querySelector("#global-search") as HTMLInputElement)?.focus();
     },
@@ -143,6 +147,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={(e) => {
             handleKeyDown(e);
+
             if (e.key === "Backspace" && !query)
               setCategory({ id: SEARCH_CATEGORY_ID.INIT });
           }}

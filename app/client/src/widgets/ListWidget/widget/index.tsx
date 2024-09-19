@@ -80,6 +80,7 @@ const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 */
 const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
   "children.0.children.0.children.0.children";
+
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
@@ -431,6 +432,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               parentId: string,
             ) => {
               if (!parentId) return { widgets };
+
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
               const logBlackList: { [key: string]: boolean } = {};
@@ -469,19 +471,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
               if (indexOf(allowedWidgets, widget.type) === -1) {
                 const widget = widgets[widgetId];
+
                 if (widget.children && widget.children.length > 0) {
                   widget.children.forEach((childId: string) => {
                     delete widgets[childId];
                   });
                 }
+
                 if (widget.parentId) {
                   const _parent = { ...widgets[widget.parentId] };
+
                   _parent.children = _parent.children?.filter(
                     (id) => id !== widgetId,
                   );
                   widgets[widget.parentId] = _parent;
                 }
+
                 delete widgets[widgetId];
+
                 return {
                   widgets,
                   message: `This widget cannot be used inside the list widget.`,
@@ -497,6 +504,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
               widgets[parentId] = parent;
               widgets[widgetId] = widget;
+
               return { widgets };
             },
           },
@@ -618,6 +626,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (this.props.serverSidePaginationEnabled && !this.props.pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
+
     this.props.updateWidgetMetaProperty(
       "templateBottomRow",
       get(this.props.childWidgets, "0.children.0.bottomRow"),
@@ -679,7 +688,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       props,
       PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
     );
+
     if (!listWidgetChildren) return;
+
     listWidgetChildren.map((child) => {
       privateWidgets[child.widgetName] = true;
     });
@@ -770,6 +781,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     if (this.props.serverSidePaginationEnabled) {
       if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
+
       // run onPageSizeChange if user resize widgets
       if (
         this.props.onPageSizeChange &&
@@ -840,6 +852,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const currentPage = this.props.pageNo;
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
+
     this.props.updateWidgetMetaProperty("pageNo", page, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
@@ -908,8 +921,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       : componentHeight;
     const positioning: Positioning =
       this.props.positioning || childWidgetData.positioning;
+
     childWidgetData.positioning = positioning;
     childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
+
     return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
@@ -1020,6 +1035,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             validationPath?.type === ValidationTypes.OBJECT_ARRAY
           ) {
             const value = Array.isArray(evaluatedValue) ? evaluatedValue : [];
+
             set(widget, path, value);
           } else {
             set(widget, path, toString(evaluatedValue));
@@ -1085,10 +1101,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   `{{((currentItem) => { ${next}})(JSON.parse(JSON.stringify(${stringifiedListItem})))}}`
                 );
               }
+
               return prev + `{{${next}}}`;
             },
             "",
           );
+
           set(widget, path, newPropertyValue);
         }
 
@@ -1109,6 +1127,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   `{{((currentIndex) => { ${next}})(JSON.parse(JSON.stringify(${itemIndex})))}}`
                 );
               }
+
               return prev + `{{${next}}}`;
             },
             "",
@@ -1183,6 +1202,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               );
             },
           );
+
           // Set the update list of children as the new children for the current list item
           set(
             updatedListItemContainer,
@@ -1190,6 +1210,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             updatedListItemChildren,
           );
         }
+
         // Get the item container's canvas child widget
         const listItemContainerCanvas = get(
           updatedListItemContainer,
@@ -1201,6 +1222,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             listItemContainerCanvas,
             listItemIndex,
           );
+
         // Set the item container's canvas child widget
         set(
           updatedListItemContainer,
@@ -1249,6 +1271,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   updateGridChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
+
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
     updatedChildren = this.updatePosition(updatedChildren);
@@ -1277,6 +1300,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   paginateItems = (children: DSLWidget[]) => {
     // return all children if serverside pagination
     if (this.props.serverSidePaginationEnabled) return children;
+
     const { page } = this.state;
     const { perPage, shouldPaginate } = this.shouldPaginate();
 
@@ -1309,6 +1333,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
       const gridGap = this.getGridGap();
+
       try {
         // Passing template instead of deriving from canvasChildren becuase lesser items to compare
         // in memoize
@@ -1325,6 +1350,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       } catch (e) {
         log.error(e);
       }
+
       return this.renderChild(childCanvas);
     }
   };
@@ -1354,6 +1380,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       perPage,
     ) => {
       const canvasChildrenList = [];
+
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
           canvasChildrenList[i] = klonaLiteWithTelemetry(
@@ -1361,6 +1388,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             "ListWidget.renderChildren",
           );
         }
+
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
         canvasChildren = this.updateGridChildrenProps(canvasChildren);

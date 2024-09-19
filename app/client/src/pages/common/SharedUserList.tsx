@@ -29,6 +29,7 @@ export default function SharedUserList() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return users.map((user: any) => {
       const name = user.name || user.username;
+
       return {
         label:
           user.username +

@@ -54,6 +54,7 @@ export interface INJECTED_CONFIGS {
 const capitalizeText = (text: string) => {
   const rest = text.slice(1);
   const first = text[0].toUpperCase();
+
   return `${first}${rest}`;
 };
 
@@ -133,6 +134,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
 const getConfig = (fromENV: string, fromWindow = "") => {
   if (fromWindow.length > 0) return { enabled: true, value: fromWindow };
   else if (fromENV.length > 0) return { enabled: true, value: fromENV };
+
   return { enabled: false, value: "" };
 };
 

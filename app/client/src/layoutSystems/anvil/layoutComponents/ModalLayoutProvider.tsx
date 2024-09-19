@@ -7,6 +7,7 @@ import { AnvilModalDropArena } from "../editor/canvasArenas/AnvilModalDropArena"
 
 export const ModalLayoutProvider = (props: BaseWidgetProps) => {
   const isEditOnlyMode = useSelector(isEditOnlyModeSelector);
+
   if (isEditOnlyMode) {
     return (
       <AnvilModalDropArena
@@ -17,5 +18,6 @@ export const ModalLayoutProvider = (props: BaseWidgetProps) => {
       </AnvilModalDropArena>
     );
   }
+
   return <LayoutProvider {...props} />;
 };

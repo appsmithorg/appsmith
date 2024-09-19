@@ -44,12 +44,14 @@ const SectionSpaceDistributorHandles = (
   const SectionSpaceDistributorNodes = zones.reduce(
     (nodesArray, each, index) => {
       const widgetPosition = layoutElementPositions[each.widgetId];
+
       spaceToWorkWith = spaceToWorkWith + widgetPosition.width;
 
       if (index === 0) {
         // Skip the first iteration
         previousZoneColumn += spaceDistributed[each.widgetId];
         previousZonePosition = widgetPosition;
+
         return nodesArray;
       }
 
@@ -128,6 +130,7 @@ export const SectionSpaceDistributor = (
     !isWidgetSelectionBlocked &&
     allZonePositionsAreAvailable &&
     zones.length > 1;
+
   return canRedistributeSpace ? (
     <SectionSpaceDistributorHandles {...props} />
   ) : null;

@@ -157,6 +157,7 @@ function OptionNode(props: any) {
         dispatch(showDebugger(true));
       }
     }
+
     navigateToEntity(props.option.label);
     AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
       source: "PROPERTY_PANE",
@@ -166,6 +167,7 @@ function OptionNode(props: any) {
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (!props.isSelectedNode && !props.isHighlighted) return;
+
     if (
       (props.isSelectedNode || props.isHighlighted) &&
       (e.key === " " || e.key === "Enter")
@@ -175,6 +177,7 @@ function OptionNode(props: any) {
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
@@ -253,6 +256,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
       INTERACTION_ANALYTICS_EVENT,
       handleKbdEvent,
     );
+
     return () => {
       topLayerRef.current?.removeEventListener(
         INTERACTION_ANALYTICS_EVENT,
@@ -263,6 +267,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
 
   const handleKbdEvent = (e: Event) => {
     const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+
     if (!event.detail?.propertyName) {
       e.stopPropagation();
       topLayerRef.current?.dispatchEvent(

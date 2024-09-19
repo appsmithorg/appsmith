@@ -7,6 +7,7 @@ import { AutoDimensionObserverLayer } from "../autoDimensionObserver/AutoDimensi
 
 export const AutoLayoutWidgetComponent = (props: BaseWidgetProps) => {
   const { deferRender, detachFromLayout, type } = props;
+
   /**
    * The widget mount calls the withWidgetProps with the widgetId and type to fetch the
    * widget props. During the computation of the props (in withWidgetProps) if the evaluated

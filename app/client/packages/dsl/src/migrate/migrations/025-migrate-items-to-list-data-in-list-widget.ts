@@ -65,5 +65,6 @@ export const migrateItemsToListDataInListWidget = (currentDSL: DSLWidget) => {
       migrateItemsToListDataInListWidget,
     );
   }
+
   return currentDSL;
 };

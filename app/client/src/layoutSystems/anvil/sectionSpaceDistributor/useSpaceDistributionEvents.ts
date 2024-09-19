@@ -71,6 +71,7 @@ export const useSpaceDistributionEvents = ({
       selectWidget(SelectionRequestType.One, [sectionWidgetId]);
     }
   }, [sectionWidgetId, selectedWidgets]);
+
   useEffect(() => {
     if (ref.current) {
       // Check if the ref to the DOM element exists
@@ -110,6 +111,7 @@ export const useSpaceDistributionEvents = ({
         if (ref.current && sectionLayoutDom) {
           ref.current.classList.add("active");
         }
+
         if (propPaneHandle) {
           propPaneHandle.classList.add("active");
         }
@@ -120,9 +122,11 @@ export const useSpaceDistributionEvents = ({
           const zonePropDom = document.getElementById(
             getPropertyPaneZoneId(zoneId),
           );
+
           if (zoneDom) {
             zoneDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
           }
+
           if (zonePropDom) {
             zonePropDom.style.flexBasis =
               convertFlexGrowToFlexBasisForPropPane(flexGrow);
@@ -157,12 +161,14 @@ export const useSpaceDistributionEvents = ({
             }),
           );
         }
+
         // Stop space distribution process
         dispatch(stopAnvilSpaceDistributionAction());
         resetCSSOnZones(spaceDistributed);
         removeMouseMoveHandlers();
         currentMouseSpeed.current = 0;
         clearPropPaneDomReferences();
+
         if (ref.current) {
           ref.current.removeEventListener("transitionend", onCSSTransitionEnd);
         }
@@ -176,6 +182,7 @@ export const useSpaceDistributionEvents = ({
         if (!propHandle) {
           const computedProps =
             computePropsForSpaceDistribution(spaceToWorkWith);
+
           columnWidth = computedProps.columnWidth;
           minimumShrinkableSpacePerBlock =
             computedProps.minimumShrinkableSpacePerBlock;
@@ -184,15 +191,18 @@ export const useSpaceDistributionEvents = ({
           const sectionPreviewBlockDom = document.getElementById(
             "prop-pane-" + sectionWidgetId,
           );
+
           if (sectionPreviewBlockDom) {
             const computedPropsForHandle = computePropsForSpaceDistribution(
               sectionPreviewBlockDom.offsetWidth,
             );
+
             columnWidth = computedPropsForHandle.columnWidth;
             minimumShrinkableSpacePerBlock =
               computedPropsForHandle.minimumShrinkableSpacePerBlock;
           }
         }
+
         e.stopPropagation();
         e.preventDefault();
         x = e.clientX; // Store the initial mouse position
@@ -228,6 +238,7 @@ export const useSpaceDistributionEvents = ({
         propPaneHandle = document.getElementById(
           getPropertyPaneDistributionHandleId(leftZone),
         );
+
         if (propPaneHandle) {
           propPaneHandle.classList.add("active");
         }
@@ -244,6 +255,7 @@ export const useSpaceDistributionEvents = ({
         if (!(leftZonePropPaneDom && rightZonePropPaneDom)) {
           tryFetchingPropPaneDomReferences();
         }
+
         // Ensure the reference to the handle and the distribution flag are valid
         if (ref.current && isCurrentHandleDistributingSpace.current) {
           const dx = e.clientX - x; // Calculate the horizontal change in mouse position from the initial click
@@ -276,6 +288,7 @@ export const useSpaceDistributionEvents = ({
               leftZonePropPaneDom,
               rightZonePropPaneDom,
             };
+
             // Check if any of the zones is reaching near to the minimum limit of a zone
             if (
               leftZoneComputedColumns >= minimumShrinkableSpacePerBlock &&
@@ -306,12 +319,14 @@ export const useSpaceDistributionEvents = ({
           }
         }
       };
+
       // Attach mouse down event listener to the handle
       ref.current.addEventListener("mousedown", onMouseDown);
       ref.current.addEventListener(
         PropPaneDistributionHandleCustomEvent,
         onPropPaneHandleMouseDown,
       );
+
       // Cleanup: Remove the mouse down event listener when component is unmounted
       return () => {
         if (ref.current) {

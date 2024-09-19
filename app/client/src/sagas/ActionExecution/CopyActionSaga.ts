@@ -6,6 +6,7 @@ import type { TCopyToClipboardDescription } from "workers/Evaluation/fns/copyToC
 
 export default function copySaga(action: TCopyToClipboardDescription) {
   const { payload } = action;
+
   if (typeof payload.data !== "string") {
     throw new ActionValidationError(
       "COPY_TO_CLIPBOARD",
@@ -14,7 +15,9 @@ export default function copySaga(action: TCopyToClipboardDescription) {
       getType(payload.data),
     );
   }
+
   const result = copy(payload.data, payload.options);
+
   if (result) {
     AppsmithConsole.info({
       text: `copyToClipboard('${payload.data}') was triggered`,

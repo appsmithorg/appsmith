@@ -27,6 +27,7 @@ describe("Validates Derived Properties", () => {
     const expected = "Tab 1";
 
     let result = getSelectedTab(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
   it("validates without selectedTabWidgetId", () => {
@@ -54,6 +55,7 @@ describe("Validates Derived Properties", () => {
     const expected = "Tab 2";
 
     let result = getSelectedTab(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
   it("validates without selectedTabWidgetId and defaultTab", () => {
@@ -81,6 +83,7 @@ describe("Validates Derived Properties", () => {
     const expected = "Tab 1";
 
     let result = getSelectedTab(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
   it("validates without selectedTabWidgetId and with defaultTab but not in tabs", () => {
@@ -108,6 +111,7 @@ describe("Validates Derived Properties", () => {
     const expected = "Tab 1";
 
     let result = getSelectedTab(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 });

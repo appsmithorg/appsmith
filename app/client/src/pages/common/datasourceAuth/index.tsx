@@ -213,13 +213,16 @@ function DatasourceAuth({
         (queryIsImport &&
           queryDatasourceId === datasourceId &&
           !showFilePicker);
+
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
+
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
+
           toast.show(display_message || message, { kind: "error" });
           AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
             applicationId: applicationId,
@@ -289,6 +292,7 @@ function DatasourceAuth({
       pluginName: pluginName || "",
       pluginPackageName: pluginPackageName || "",
     });
+
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
     if (datasource.id === TEMP_DATASOURCE_ID) {
@@ -309,6 +313,7 @@ function DatasourceAuth({
   // Handles Oauth datasource saving
   const handleOauthDatasourceSave = () => {
     dispatch(toggleSaveActionFlag(true));
+
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(
         createDatasourceFromForm(
@@ -339,6 +344,7 @@ function DatasourceAuth({
         ),
       );
     }
+
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
       dsName: datasource?.name,
       orgId: datasource?.workspaceId,
@@ -382,6 +388,7 @@ function DatasourceAuth({
                   selectedTab: INTEGRATION_TABS.NEW,
                   params: getQueryParams(),
                 });
+
                 history.push(URL);
               }
             } else {

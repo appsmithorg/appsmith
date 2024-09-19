@@ -30,8 +30,10 @@ const initialState = {
 const mockStore = configureStore();
 
 const dispatch = jest.fn();
+
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     useDispatch: () => dispatch,
@@ -40,6 +42,7 @@ jest.mock("react-redux", () => {
 
 const renderComponent = () => {
   const store = mockStore(initialState);
+
   return render(
     <BrowserRouter>
       <Provider store={store}>
@@ -52,6 +55,7 @@ const renderComponent = () => {
 describe("Connection Success Modal", () => {
   it("is rendered properly", () => {
     const { getByTestId } = renderComponent();
+
     expect(getByTestId("t--git-success-modal-body")).toBeTruthy();
     expect(
       getByTestId("t--git-success-modal-start-using-git-cta"),
@@ -61,6 +65,7 @@ describe("Connection Success Modal", () => {
 
   it("'Settings' cta button is working", () => {
     const { queryByTestId } = renderComponent();
+
     expect(dispatch).toHaveBeenNthCalledWith(1, {
       type: ReduxActionTypes.FETCH_BRANCHES_INIT,
     });
@@ -77,6 +82,7 @@ describe("Connection Success Modal", () => {
 
   it("'Learn more' link has proper URL", () => {
     const { queryByTestId } = renderComponent();
+
     expect(
       queryByTestId("t--git-success-modal-learn-more-link")?.getAttribute(
         "href",
@@ -91,6 +97,7 @@ describe("Connection Success Modal", () => {
 
   it("'Continue' cta button is working", () => {
     const { queryByTestId } = renderComponent();
+
     expect(dispatch).toHaveBeenNthCalledWith(1, {
       type: ReduxActionTypes.FETCH_BRANCHES_INIT,
     });

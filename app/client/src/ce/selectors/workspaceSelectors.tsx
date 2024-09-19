@@ -28,6 +28,7 @@ export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
   const filteredWorkspaces = state.ui.workspaces.list.filter(
     (el) => el.id === workspaceId,
   );
+
   return !!filteredWorkspaces && filteredWorkspaces.length > 0
     ? filteredWorkspaces[0]
     : undefined;

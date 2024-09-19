@@ -127,6 +127,7 @@ function TabsComponent(props: TabsComponentProps) {
   const setShowScrollArrows = useCallback(() => {
     if (tabsRef.current) {
       const { offsetWidth, scrollLeft, scrollWidth } = tabsRef.current;
+
       setShouldShowLeftArrow(scrollLeft > 0);
       setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
     }
@@ -135,8 +136,10 @@ function TabsComponent(props: TabsComponentProps) {
   const measuredTabsRef = useCallback(
     (node) => {
       tabsRef.current = node;
+
       if (node !== null) {
         const { offsetWidth, scrollWidth } = node;
+
         setTabsScrollable(scrollWidth > offsetWidth);
         setShowScrollArrows();
       }

@@ -151,6 +151,7 @@ describe("EChartsElementVisibilityCalculator", () => {
       expect(builder.visibleElements.length).toEqual(2);
 
       const offsets = builder.calculateOffsets();
+
       expect(offsets.top).toEqual(topElementHeight);
       expect(offsets.bottom).toEqual(bottomElementHeight);
     });

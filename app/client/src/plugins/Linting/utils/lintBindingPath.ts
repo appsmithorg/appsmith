@@ -38,9 +38,11 @@ export default function lintBindingPath({
           originalBinding,
           scriptType,
         });
+
         lintErrors = lintErrors.concat(lintErrorsFromSnippet);
       }
     });
   }
+
   return lintErrors;
 }

@@ -104,9 +104,13 @@ class CreatableDropdown extends React.Component<DropdownProps> {
       placeholder,
     } = this.props;
     const optionalProps: Partial<DropdownProps> = {};
+
     if (noOptionsMessage) optionalProps.noOptionsMessage = noOptionsMessage;
+
     if (components) optionalProps.components = components;
+
     if (inputValue) optionalProps.inputValue = inputValue;
+
     if (onInputChange) optionalProps.onInputChange = onInputChange;
 
     return (
@@ -121,6 +125,7 @@ class CreatableDropdown extends React.Component<DropdownProps> {
         onBlur={() => input.value}
         onChange={(value) => {
           const formattedValue = value;
+
           if (formattedValue && formattedValue.length > 1) {
             formattedValue.shift();
           }

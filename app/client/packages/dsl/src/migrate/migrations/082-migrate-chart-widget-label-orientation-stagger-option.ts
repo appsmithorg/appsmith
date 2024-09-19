@@ -7,6 +7,7 @@ export const migrateChartWidgetLabelOrientationStaggerOption = (
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
     if (widget.type == "CHART_WIDGET") {
       const chartWidgetProps = widget;
+
       if (chartWidgetProps.labelOrientation == "stagger") {
         chartWidgetProps.labelOrientation = "auto";
       }

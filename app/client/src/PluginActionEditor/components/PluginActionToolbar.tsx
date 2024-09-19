@@ -33,6 +33,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
     dispatch,
     plugin.name,
   ]);
+
   return (
     <IDEToolbar>
       <IDEToolbar.Left>{props.children}</IDEToolbar.Left>

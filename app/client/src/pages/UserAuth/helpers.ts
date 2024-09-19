@@ -39,6 +39,7 @@ export const signupFormSubmitHandler = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email, password } = values;
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.CREATE_USER_INIT,
@@ -63,6 +64,7 @@ export const resetPasswordSubmitHandler = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email, password, token } = values;
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.RESET_USER_PASSWORD_INIT,
@@ -88,6 +90,7 @@ export const createPasswordSubmitHandler = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email, password, token } = values;
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
@@ -113,6 +116,7 @@ export const forgotPasswordSubmitHandler = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { email } = values;
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.FORGOT_PASSWORD_INIT,
@@ -147,12 +151,16 @@ export const useResendEmailVerification = (
     // Track clicks
     setClicks(clicks + 1);
     setLinkEnabled(false);
+
     if (!email) {
       const errorMessage = "Email not found for retry verification";
+
       Sentry.captureMessage(errorMessage);
       toast.show(errorMessage, { kind: "error" });
+
       return;
     }
+
     UserApi.resendEmailVerification(email)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -160,14 +168,18 @@ export const useResendEmailVerification = (
         if (!response.responseMeta.success && response.responseMeta.error) {
           const { code, message } = response.responseMeta.error;
           const errorMessage = `${code}: ${message}`;
+
           toast.show(errorMessage, { kind: "error" });
+
           return;
         }
+
         toast.show("Verification email sent!", { kind: "success" });
       })
       .catch((error) => {
         toast.show(error.message, { kind: "error" });
       });
   }, [email, clicks]);
+
   return [resendVerificationLink, linkEnabled, clicks];
 };

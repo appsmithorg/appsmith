@@ -44,6 +44,7 @@ const OAuthContainer = styled.div`
   flex-direction: row;
   padding: 12px 5px;
 `;
+
 interface ErrorProps {
   hasError: boolean;
 }
@@ -137,17 +138,21 @@ const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const datasourceFromAction = apiFormValueSelector(state, "datasource");
   const currentEnvironment = getCurrentEnvironmentId(state);
   let datasourceMerged: EmbeddedRestDatasource = datasourceFromAction;
+
   if (datasourceFromAction && "id" in datasourceFromAction) {
     const datasourceFromDataSourceList = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
     );
+
     if (datasourceFromDataSourceList) {
       const { datasourceStorages } = datasourceFromDataSourceList;
       let dsObjectToMerge = {};
+
       // in case the datasource is not configured for the current environment, we just merge with empty object
       if (datasourceStorages.hasOwnProperty(currentEnvironment)) {
         dsObjectToMerge = datasourceStorages[currentEnvironment];
       }
+
       datasourceMerged = merge({}, datasourceFromAction, dsObjectToMerge);
 
       // update the id in object to datasourceId, this is because the value in id post merge is the id of the datasource storage

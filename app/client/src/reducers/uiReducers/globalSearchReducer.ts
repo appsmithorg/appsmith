@@ -76,6 +76,7 @@ const globalSearchReducer = createReducer(initialState, {
     recentEntitiesRestored: true,
   }),
 });
+
 export interface GlobalSearchReduxState {
   query: string;
   modalOpen: boolean;

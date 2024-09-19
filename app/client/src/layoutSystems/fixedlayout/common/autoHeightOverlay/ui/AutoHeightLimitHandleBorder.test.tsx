@@ -10,6 +10,7 @@ describe("<AutoHeightLimitHandleBorder />", () => {
     const tree = renderer
       .create(<AutoHeightLimitHandleBorder isActive />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("background-color", OVERLAY_COLOR);
   });
 
@@ -17,6 +18,7 @@ describe("<AutoHeightLimitHandleBorder />", () => {
     const tree = renderer
       .create(<AutoHeightLimitHandleBorder isActive={false} />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("background-color");
   });
 });

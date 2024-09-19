@@ -95,6 +95,7 @@ const RowHeading = styled.p`
 // to check for only whole numbers.
 export function isNumberValidator(value: string) {
   const isValid = (/^\d+$/.test(value) && Number(value) > 0) || value === "";
+
   return {
     isValid: isValid,
     message: !isValid ? "Only numeric value allowed" : "",
@@ -162,17 +163,21 @@ function GoogleSheetForm(props: Props) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const requestObject: Record<any, string> = {};
       const configs = googleSheetEditorConfig[0]?.children;
+
       if (Array.isArray(configs)) {
         for (let index = 0; index < configs.length; index += 2) {
           const keyConfig = configs[index];
           const valueConfig = configs[index + 1];
+
           if (keyConfig && valueConfig) {
             const key = keyConfig?.initialValue;
             const value = valueConfig?.initialValue;
+
             if (key && value !== undefined) requestObject[key] = value;
           }
         }
       }
+
       setSheetQueryRequest(requestObject);
     }
   }, [googleSheetEditorConfig]);
@@ -223,6 +228,7 @@ function GoogleSheetForm(props: Props) {
   ) => {
     if (sheetValue && sheetObj) {
       setSelectedSheet(sheetObj);
+
       if (selectedDatasource.id && selectedSpreadsheet.value) {
         fetchColumnHeaderList({
           selectedDatasourceId: selectedDatasource.id,
@@ -239,6 +245,7 @@ function GoogleSheetForm(props: Props) {
   const onSubmit = () => {
     if (selectedSpreadsheet.value) {
       const columns: string[] = [];
+
       columnHeaderList.forEach(({ value }) => {
         if (value) columns.push(value);
       });
@@ -252,6 +259,7 @@ function GoogleSheetForm(props: Props) {
           sheetName: selectedSheet.value,
         },
       };
+
       generatePageAction(payload);
     }
   };

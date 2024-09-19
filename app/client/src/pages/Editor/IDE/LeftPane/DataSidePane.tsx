@@ -70,6 +70,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
   }, []);
 
   const location = useLocation();
+
   useEffect(() => {
     setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
   }, [location]);

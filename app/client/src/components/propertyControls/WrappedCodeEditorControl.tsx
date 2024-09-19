@@ -43,6 +43,7 @@ function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -132,6 +133,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
         bindingPrefix.length,
         propertyValue.length - this.wrapperCode.suffix.length,
       )}`;
+
       return JSToString(value);
     } else {
       return propertyValue;

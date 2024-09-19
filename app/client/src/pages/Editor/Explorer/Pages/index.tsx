@@ -60,6 +60,7 @@ function Pages() {
   useEffect(() => {
     // scroll to the current page
     const currentPage = document.getElementById("entity-" + currentPageId);
+
     if (currentPage) {
       setTimeout(() => currentPage.scrollIntoView(), 0);
     }

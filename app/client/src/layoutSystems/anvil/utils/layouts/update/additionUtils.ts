@@ -25,6 +25,7 @@ export function addWidgetsToPreset(
    * STEP 1: Find the affected child layout to insert the widgetId in.
    */
   const { layoutOrder } = highlight;
+
   if (!layoutOrder || !layoutOrder.length) return layouts;
 
   const affectedLayout: LayoutProps | undefined = getAffectedLayout(layouts, [
@@ -69,6 +70,7 @@ export function getAffectedLayout(
   order: string[],
 ): LayoutProps | undefined {
   if (!layouts || !order || !order.length) return;
+
   for (const each of layouts) {
     if (each.layoutId === order[0]) {
       if (order.length === 1) return each;
@@ -104,6 +106,7 @@ export function updateAffectedLayout(
         };
       }
     }
+
     return layout;
   });
 }
@@ -168,6 +171,7 @@ export function addWidgetsToTemplate(
     ...template,
     layoutId: generateReactKey(),
   };
+
   /**
    * Child template json can be deeply nested.
    * The child layout to which the widget(s) have to be added,
@@ -187,6 +191,7 @@ export function addWidgetsToTemplate(
       addWidgetsToTemplate(each, highlight, widgets),
     );
   }
+
   return obj;
 }
 
@@ -215,15 +220,18 @@ export function addWidgetsToChildTemplate(
     const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
       template.layoutType,
     );
+
     /**
      * If template has insertChild === true, then add the widgets to the layout.
      */
     if (template.insertChild) {
       template = Comp.addChild(template, draggedWidgets, highlight);
+
       return Comp.addChild(layout, [template], highlight);
     }
     // TODO: @Preet add check for absence of insertChild.
   }
+
   /**
    * If no template is available, then add widgets directly to layout.
    */

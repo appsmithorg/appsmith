@@ -41,6 +41,7 @@ export function SelectComponent(props: SelectComponentProps) {
     },
     openDirection: "down",
   };
+
   return <CustomizedDropdown {...dropdownProps} />;
 }
 

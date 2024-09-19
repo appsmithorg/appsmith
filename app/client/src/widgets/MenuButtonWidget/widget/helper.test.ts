@@ -34,6 +34,7 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
         action: "",
       },
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -180,6 +181,7 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
         nat: "",
       },
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -196,6 +198,7 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = { currentItem: {} };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -206,6 +209,7 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = { currentItem: {} };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -222,6 +226,7 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = { currentItem: {} };
+
     expect(result).toStrictEqual(expected);
   });
 });

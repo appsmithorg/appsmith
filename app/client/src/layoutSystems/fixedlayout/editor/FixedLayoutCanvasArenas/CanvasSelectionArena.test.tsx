@@ -80,6 +80,7 @@ describe("Canvas selection test cases", () => {
       children,
     });
     const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
@@ -103,6 +104,7 @@ describe("Canvas selection test cases", () => {
     const selectionDiv: any = component.queryByTestId(
       `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
+
     expect(selectionCanvas.style.zIndex).toBe("");
     fireEvent.mouseDown(selectionDiv);
 
@@ -148,6 +150,7 @@ describe("Canvas selection test cases", () => {
       children,
     });
     const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
@@ -166,6 +169,7 @@ describe("Canvas selection test cases", () => {
     const selectionDiv: any = component.queryByTestId(
       `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
+
     fireEvent(
       selectionDiv,
       syntheticTestMouseEvent(
@@ -252,6 +256,7 @@ describe("Canvas selection test cases", () => {
       children: containerChildren,
     });
     const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -276,6 +281,7 @@ describe("Canvas selection test cases", () => {
     const selectionDiv: any = component.queryByTestId(
       `div-selection-${canvasId}`,
     );
+
     expect(selectionCanvas.style.zIndex).toBe("");
     fireEvent.mouseDown(selectionDiv);
     // should not allow draw when cmd/ctrl is not pressed
@@ -338,6 +344,7 @@ describe("Canvas selection test cases", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);
+
     expect(selectionCanvas).toBeNull();
   });
 
@@ -401,6 +408,7 @@ describe("Canvas selection test cases", () => {
       children: containerChildren,
     });
     const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -421,6 +429,7 @@ describe("Canvas selection test cases", () => {
     const selectionDiv: any = component.queryByTestId(
       `div-selection-${canvasId}`,
     );
+
     fireEvent(
       selectionDiv,
       syntheticTestMouseEvent(
@@ -499,6 +508,7 @@ describe("Canvas selection test cases", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -526,6 +536,7 @@ describe("Canvas selection test cases", () => {
     const selectionDiv: any = component.queryByTestId(
       `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
     );
+
     expect(selectionCanvas.style.zIndex).toBe("");
     act(() => {
       fireEvent.dragStart(widgetEditor);

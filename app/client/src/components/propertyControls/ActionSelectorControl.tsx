@@ -64,7 +64,9 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
   handleValueUpdate = (newValue: string, isUpdatedViaKeyboard = false) => {
     const { propertyName, propertyValue } = this.props;
+
     if (!propertyValue && !newValue) return;
+
     this.updateProperty(propertyName, newValue, isUpdatedViaKeyboard);
   };
 
@@ -117,6 +119,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     if (!!moduleInstances) {
       for (const moduleInstance of Object.values(moduleInstances)) {
         const instance = moduleInstance as ModuleInstance;
+
         if (instance.type === MODULE_TYPE.QUERY) {
           queryModuleInstances.push({
             config: instance,
@@ -175,12 +178,14 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
     try {
       const blocks = getActionBlocks(codeFromProperty, evaluationVersion);
+
       for (const codeBlock of blocks) {
         codeToAction(codeBlock, fieldOptions, true, true);
       }
     } catch (e) {
       return false;
     }
+
     return true;
   }
 }

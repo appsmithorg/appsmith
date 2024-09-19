@@ -32,6 +32,7 @@ describe("columnHighlights", () => {
       responsiveBehavior: ResponsiveBehavior.Fill,
     },
   ];
+
   beforeAll(() => {
     registerLayoutComponents();
   });
@@ -74,6 +75,7 @@ describe("columnHighlights", () => {
         [],
         layout.layoutId,
       )(positions, draggedHugWidget);
+
       expect(res.length).toEqual(3);
       // highlights should be horizontal.
       expect(res[0].width).toBeGreaterThan(res[0].height);
@@ -258,6 +260,7 @@ describe("columnHighlights", () => {
         [],
         layout.layoutId,
       )(positions, draggedHugWidget);
+
       expect(res).toBeDefined();
       expect(res[0].height).toEqual(DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT);
       expect(res[0].posY).toEqual(0);

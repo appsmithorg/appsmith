@@ -28,5 +28,6 @@ export const useAppViewerSidebarProperties = () => {
 
   const sidebarWidth =
     isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : _sidebarWidth;
+
   return { hasSidebarPinned, sidebarWidth };
 };

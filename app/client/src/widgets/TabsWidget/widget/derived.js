@@ -10,10 +10,13 @@ export default {
     const isDefaultTabExist = Object.values(props.tabsObj).filter(
       (tab) => tab.label === props.defaultTab,
     ).length;
+
     if (isDefaultTabExist) {
       return props.defaultTab;
     }
+
     const tabLabels = Object.values(props.tabsObj);
+
     return tabLabels.length ? tabLabels[0].label : "";
   },
   //

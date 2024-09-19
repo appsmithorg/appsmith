@@ -34,6 +34,7 @@ const getMockStore = (override: Record<string, any> = {}): any => {
   };
   const mockStore = configureStore([]);
   const newSlice = merge(slice, override);
+
   return mockStore({
     ...initialState,
     ...newSlice,
@@ -47,8 +48,10 @@ jest.mock("./Sidebar", () => () => <div />);
 jest.mock("components/BottomBar", () => () => <div />);
 
 const dispatch = jest.fn();
+
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     useDispatch: () => dispatch,
@@ -65,6 +68,7 @@ describe("Protected callout test cases", () => {
         </BrowserRouter>
       </Provider>,
     );
+
     expect(getByTestId("t--git-protected-branch-callout")).toBeInTheDocument();
   });
 
@@ -90,6 +94,7 @@ describe("Protected callout test cases", () => {
         </BrowserRouter>
       </Provider>,
     );
+
     expect(
       queryByTestId("t--git-protected-branch-callout"),
     ).not.toBeInTheDocument();
@@ -116,6 +121,7 @@ describe("Protected callout test cases", () => {
         </BrowserRouter>
       </Provider>,
     );
+
     queryByTestId("t--git-protected-unprotect-branch-cta")?.click();
     expect(dispatch).lastCalledWith({
       type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT,
