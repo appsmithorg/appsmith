@@ -71,9 +71,7 @@ function PageSettings(props: { page: Page }) {
 
   const [pageName, setPageName] = useState(page.pageName);
   const [isPageNameSaving, setIsPageNameSaving] = useState(false);
-  const [isPageNameValid, setIsPageNameValid] = useState<string | undefined>(
-    undefined,
-  );
+  const [pageNameError, setPageNameError] = useState<string | null>(null);
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
@@ -126,8 +124,12 @@ function PageSettings(props: { page: Page }) {
     }
   }, [isUpdatingEntity]);
 
+  useEffect(() => {
+    setPageNameError(null);
+  }, [page]);
+
   const savePageName = useCallback(() => {
-    if (!canManagePages || !!isPageNameValid || page.pageName === pageName)
+    if (!canManagePages || pageNameError !== null || page.pageName === pageName)
       return;
 
     const payload: UpdatePageActionPayload = {
@@ -137,7 +139,7 @@ function PageSettings(props: { page: Page }) {
 
     setIsPageNameSaving(true);
     dispatch(updatePageAction(payload));
-  }, [page.pageId, page.pageName, pageName, isPageNameValid]);
+  }, [page.pageId, page.pageName, pageName, pageNameError]);
 
   const saveCustomSlug = useCallback(() => {
     if (!canManagePages || page.customSlug === customSlug) return;
@@ -167,15 +169,15 @@ function PageSettings(props: { page: Page }) {
   );
 
   const onPageNameChange = (value: string) => {
-    let isValid = undefined;
+    let errorMessage = null;
 
     if (!value || value.trim().length === 0) {
-      isValid = PAGE_SETTINGS_NAME_EMPTY_MESSAGE();
+      errorMessage = PAGE_SETTINGS_NAME_EMPTY_MESSAGE();
     } else if (value !== page.pageName && hasActionNameConflict(value)) {
-      isValid = PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value);
+      errorMessage = PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value);
     }
 
-    setIsPageNameValid(isValid);
+    setPageNameError(errorMessage);
     setPageName(toValidPageName(value));
   };
 
@@ -190,13 +192,13 @@ function PageSettings(props: { page: Page }) {
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
-          "pb-4": !isPageNameValid,
+          "pb-4": !pageNameError,
         })}
       >
         {isPageNameSaving && <TextLoaderIcon />}
         <Input
           defaultValue={pageName}
-          errorMessage={isPageNameValid}
+          errorMessage={pageNameError}
           id="t--page-settings-name"
           isDisabled={!canManagePages}
           label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
