@@ -5,6 +5,7 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { Radio, RadioGroup, type SelectOptionProps } from "@appsmith/ads";
+import styled from "styled-components";
 
 class RadioButtonControl extends BaseControl<RadioButtonControlProps> {
   getControlType(): ControlType {
@@ -28,17 +29,26 @@ type renderComponentProps = RadioButtonControlProps & {
   options?: Array<{ label: string; value: string }>;
 };
 
+const StyledRadioGroup = styled(RadioGroup)({
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px",
+  marginTop: "16px",
+});
+
 function renderComponent(props: renderComponentProps) {
-  const onChangeHandler = (value: string) => {
-    props.input && props.input.onChange && props.input.onChange(value);
+  const onChangeHandler = (value: string): any => {
+    if (typeof props.input?.onChange === "function") {
+      props.input.onChange(value);
+    }
   };
 
   const options = props.options || [];
   const defaultValue = props.initialValue as string;
 
   return (
-    <RadioGroup
-      data-testid={props?.input?.name}
+    <StyledRadioGroup
+      data-testid={props.input?.name}
       defaultValue={defaultValue}
       onChange={onChangeHandler}
     >
@@ -49,7 +59,7 @@ function renderComponent(props: renderComponentProps) {
           </Radio>
         );
       })}
-    </RadioGroup>
+    </StyledRadioGroup>
   );
 }
 export interface RadioButtonControlProps extends ControlProps {
