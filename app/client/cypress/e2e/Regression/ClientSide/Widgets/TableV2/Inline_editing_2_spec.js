@@ -50,22 +50,16 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editTableCell(0, 0);
-      cy.get(
-        widgetsPage.firstEditInput,
-      ).should("not.be.disabled");
+      cy.get(widgetsPage.firstEditInput).should("not.be.disabled");
     });
 
     it("3. should check that inline editing works with text wrapping enabled", () => {
       cy.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("step");
-      cy.get(widgetsPage.cellControlSwitch)
-        .first()
-        .click({ force: true });
+      cy.get(widgetsPage.cellControlSwitch).first().click({ force: true });
       cy.editTableCell(0, 0);
-      cy.get(
-        widgetsPage.firstEditInput,
-      ).should("not.be.disabled");
+      cy.get(widgetsPage.firstEditInput).should("not.be.disabled");
     });
 
     it("4. should check that cell column height doesn't grow taller when text wrapping is disabled", () => {
@@ -114,14 +108,13 @@ describe(
     it("6. should check if updatedRowIndex is getting updated for single row update mode", () => {
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
       cy.get(publish.textWidget).should("exist");
-      cy.updateCodeInput(
-        PROPERTY_SELECTOR.text,
-        `{{Table1.updatedRowIndex}}`,
-      );
+      cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{Table1.updatedRowIndex}}`);
 
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
       cy.get(widgetsPage.widgetBtn).should("exist");
-      cy.get(PROPERTY_SELECTOR.onClick).find(PROPERTY_SELECTOR.jsToggle).click();
+      cy.get(PROPERTY_SELECTOR.onClick)
+        .find(PROPERTY_SELECTOR.jsToggle)
+        .click();
       cy.updateCodeInput(widgetsPage.propertyControlLabel, "Reset");
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onClick,
@@ -165,13 +158,12 @@ describe(
       table.AddSampleTableData();
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
       cy.get(publish.textWidget).should("exist");
-      cy.updateCodeInput(
-        PROPERTY_SELECTOR.text,
-        `{{Table1.updatedRowIndex}}`,
-      );
+      cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{Table1.updatedRowIndex}}`);
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
       cy.get(widgetsPage.widgetBtn).should("exist");
-      cy.get(PROPERTY_SELECTOR.onClick).find(PROPERTY_SELECTOR.jsToggle).click();
+      cy.get(PROPERTY_SELECTOR.onClick)
+        .find(PROPERTY_SELECTOR.jsToggle)
+        .click();
       cy.updateCodeInput(widgetsPage.propertyControlLabel, "Reset");
       propPane.EnterJSContext(
         "onClick",
